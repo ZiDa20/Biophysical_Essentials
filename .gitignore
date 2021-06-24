@@ -6,3 +6,5 @@ src/__pycache__/BackendManager.cpython-38.pyc
 src/__pycache__/backend_elements.cpython-38.py
 src/__pycache__/heka_reader.cpython-38.pyc
 c
+.bioqypt/
+bioqypt/
