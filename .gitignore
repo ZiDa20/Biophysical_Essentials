@@ -1,0 +1,8 @@
+.idea/
+src/__pycache__/gui_elements.cpython-38.pyc
+src/__pycache__/helper_functions.cpython-38.pyc
+src/__pycache__/main.cpython-38.py
+src/__pycache__/BackendManager.cpython-38.pyc
+src/__pycache__/backend_elements.cpython-38.py
+src/__pycache__/heka_reader.cpython-38.pyc
+c

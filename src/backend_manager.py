@@ -1,0 +1,154 @@
+from tkinter import filedialog
+from shutil import copyfile
+import heka_reader
+import tkinter.ttk as ttk
+import re
+import numpy as np
+
+
+class BackendManager:
+    '''Manager class to handle all the backend communication'''
+
+    def __init__(self):
+        self._control_path = "/"   # path where the template for the controlfile is expected
+        self._batch_path= "/media/archiv3/Projekt_Daten/HEKA/patch_master_data_path" # path where patch master will expect the batch-control file
+        self.controlfile = False    # per default this is false, if the file has been generated, it will become true
+        # @TODO what happens if the string becomes to big ?
+        self._control_file_content = "Select a control file first"
+        self._response_file_content = "No active communication"
+
+
+
+
+    @property
+    def control_path(self):
+        return self._control_path
+
+    @control_path.setter
+    def control_path(self,val):
+        self._control_path=val
+
+    # setter required
+    def set_controlpath(self):
+        self._control_path = self.select_path()
+
+    def select_path(self):
+        selected_path = filedialog.askdirectory()
+        return selected_path
+
+    @property
+    def batch_path(self):
+        return self._batch_path
+
+    @batch_path.setter
+    def batch_path(self,val):
+        self.batch_path=val
+
+    def set_batch_path(self):
+        self._batch_path= self.select_path()
+        return self._batch_path
+
+    @property
+    def control_file_content(self):
+        return self._control_file_content
+
+    @control_file_content.setter
+    def control_file_content(self,val):
+        self._control_file_content=val
+
+    @property
+    def response_file_content(self):
+        return self._response_file_content
+
+    @response_file_content.setter
+    def response_file_content(self,val):
+        self._response_file_content = val
+
+
+    def controlpath_valid(self):
+        if not self.control_path:
+            return False
+        else:
+            return True
+    # a function to read the content of the E9Batch.In file
+    def update_control_file_content(self):
+        if self._batch_path:
+            self.cf_content=open(self.batch_path+'/E9Batch.In', "r")
+            self.cmd = self.cf_content.read()
+            self.cf_content.close()
+            print("The control file content was updated")
+            self._control_file_content=self.cmd
+            # @TODO should think about a delay
+            self.update_response_file_content()
+            return(self.cmd)
+        else:
+            return('No batch control file found ! \n Please set the batch path first')
+
+    # a function to read the content of the E9Batch.OUT file
+    def update_response_file_content(self):
+        try:
+            self.rf_content = open(self.batch_path + '/E9Batch.OUT', "r")
+            self.rspns= self.rf_content.read()
+            self.rf_content.close()
+            self._response_file_content=self.rspns
+            return(self.rspns)
+        except FileNotFoundError:
+            return('There was no .OUT file found. Is the communication active ?')
+
+    def create_ascii_file_from_template(self):
+        # create a new e9Patch file
+        if not self.batch_path:
+            return False
+        else:
+            try:
+                self.batch_file = open(self.batch_path+'/E9Batch.In', "x")
+                self.batch_file.write("+1\n")
+                self.batch_file.write("GetTime \n")
+                self.batch_file.write("ExecuteProtocol TestPulse")
+                self.batch_file.close()
+                self.update_control_file_content()
+                #copyfile(self.batch_path + '/E9Batch.In', self.batch_path + '/E9BatchIn.txt')
+                print("Batch control file generated succesfully")
+                return True
+            except Exception as error:
+                print(repr(error))
+                # TODO catch error of an already existing file
+                # TODO catch error of no x-rights at the desired location
+                return False
+        # fill e9patch file with content from the template
+        # TODO check template path to be not empty
+        # TODO copy content of the template into the ascii file - only use one identifier initially
+        #print(self.batch_path)
+        #self.batch_file.open(self.batch_path+'/E9Patch.In', "a")
+        #self.batch_file.close()
+
+
+    def send_text_input(self,input_string=None):
+        print("send text-input function\n")
+        if not input_string:
+            input_string="+2 \n GetTime"
+            print(input_string)
+            print(type(input_string))
+        else:
+            print("strange string\n")
+            print(input_string)
+
+        try:
+                self.c_f= open(self.batch_path + '/E9Batch.In', "r+")
+                self.old_commands = self.c_f.read()
+                self.c_f.seek(0,0)
+                self.new_commands = input_string+ "\n" + self.old_commands
+                self.c_f.write(self.new_commands)
+                self.update_control_file_content()
+                self.c_f.close()
+        except Exception as error:
+                print(repr(error))
+
+
+    def get_response_file_content(self):
+        # asynchron read seems to be dependent from the used os
+        self.response_file_content = open(self.batch_path + '/E9BatchOut.txt', "r")
+
+
+
+
