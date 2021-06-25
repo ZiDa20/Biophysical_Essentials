@@ -20,18 +20,18 @@ class Ui_Online_Analysis(object):
         Form.resize(1675, 875)
         self.online_analysis = QTabWidget(Form)
         self.online_analysis.setObjectName(u"online_analysis")
-        self.online_analysis.setGeometry(QRect(-10, 10, 1600, 860))
+        self.online_analysis.setGeometry(QRect(-10, 10, 1600, 770))
         self.online_analysis_window = QWidget()
         self.online_analysis_window.setObjectName(u"online_analysis_window")
         self.button_select_data_file = QPushButton(self.online_analysis_window)
         self.button_select_data_file.setObjectName(u"button_select_data_file")
-        self.button_select_data_file.setGeometry(QRect(10, 10, 141, 31))
+        self.button_select_data_file.setGeometry(QRect(10, 10, 181, 31))
         self.button_switch_to_labbook = QPushButton(self.online_analysis_window)
         self.button_switch_to_labbook.setObjectName(u"button_switch_to_labbook")
-        self.button_switch_to_labbook.setGeometry(QRect(160, 10, 141, 31))
+        self.button_switch_to_labbook.setGeometry(QRect(200, 10, 181, 31))
         self.horizontalLayoutWidget = QWidget(self.online_analysis_window)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
-        self.horizontalLayoutWidget.setGeometry(QRect(10, 80, 1411, 611))
+        self.horizontalLayoutWidget.setGeometry(QRect(10, 80, 1411, 501))
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -62,7 +62,7 @@ class Ui_Online_Analysis(object):
         self.line_2.setFrameShadow(QFrame.Sunken)
         self.horizontalLayoutWidget_2 = QWidget(self.online_analysis_window)
         self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
-        self.horizontalLayoutWidget_2.setGeometry(QRect(770, 740, 651, 80))
+        self.horizontalLayoutWidget_2.setGeometry(QRect(770, 600, 651, 80))
         self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -91,7 +91,7 @@ class Ui_Online_Analysis(object):
         self.labbook_window.setObjectName(u"labbook_window")
         self.verticalLayoutWidget = QWidget(self.labbook_window)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 20, 271, 791))
+        self.verticalLayoutWidget.setGeometry(QRect(20, 20, 271, 681))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -138,7 +138,7 @@ class Ui_Online_Analysis(object):
 
         self.verticalLayoutWidget_2 = QWidget(self.labbook_window)
         self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(1100, 20, 311, 791))
+        self.verticalLayoutWidget_2.setGeometry(QRect(1100, 20, 311, 681))
         self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget_2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -151,18 +151,6 @@ class Ui_Online_Analysis(object):
         self.image_experiment.setObjectName(u"image_experiment")
 
         self.verticalLayout_2.addWidget(self.image_experiment)
-
-        self.horizontalSpacer_16 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_2.addItem(self.horizontalSpacer_16)
-
-        self.horizontalSpacer_18 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_2.addItem(self.horizontalSpacer_18)
-
-        self.horizontalSpacer_15 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_2.addItem(self.horizontalSpacer_15)
 
         self.horizontalSpacer_19 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -224,7 +212,7 @@ class Ui_Online_Analysis(object):
 
         self.verticalLayoutWidget_3 = QWidget(self.labbook_window)
         self.verticalLayoutWidget_3.setObjectName(u"verticalLayoutWidget_3")
-        self.verticalLayoutWidget_3.setGeometry(QRect(300, 20, 791, 791))
+        self.verticalLayoutWidget_3.setGeometry(QRect(300, 20, 791, 681))
         self.verticalLayout_3 = QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -242,7 +230,7 @@ class Ui_Online_Analysis(object):
 
         self.retranslateUi(Form)
 
-        self.online_analysis.setCurrentIndex(1)
+        self.online_analysis.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Form)

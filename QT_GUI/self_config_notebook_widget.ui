@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1600</width>
-    <height>886</height>
+    <width>1792</width>
+    <height>1008</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>0</x>
      <y>20</y>
      <width>1531</width>
-     <height>861</height>
+     <height>771</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
@@ -29,7 +29,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="experiment_initialization_3">
        <attribute name="title">

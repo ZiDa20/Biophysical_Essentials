@@ -17,10 +17,10 @@ class Ui_Config_Widget(object):
     def setupUi(self, Config_Widget):
         if not Config_Widget.objectName():
             Config_Widget.setObjectName(u"Config_Widget")
-        Config_Widget.resize(1600, 886)
+        Config_Widget.resize(1792, 1008)
         self.gridLayoutWidget = QWidget(Config_Widget)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(0, 20, 1531, 861))
+        self.gridLayoutWidget.setGeometry(QRect(0, 20, 1531, 771))
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -436,7 +436,7 @@ class Ui_Config_Widget(object):
 
         self.retranslateUi(Config_Widget)
 
-        self.Notebook_2.setCurrentIndex(1)
+        self.Notebook_2.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(Config_Widget)
