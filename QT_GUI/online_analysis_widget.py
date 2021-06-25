@@ -13,14 +13,14 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
 
-class  Ui_Online_Analysis(object):
+class Ui_Online_Analysis(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(1440, 875)
+        Form.resize(1675, 875)
         self.online_analysis = QTabWidget(Form)
         self.online_analysis.setObjectName(u"online_analysis")
-        self.online_analysis.setGeometry(QRect(-10, 10, 1590, 860))
+        self.online_analysis.setGeometry(QRect(-10, 10, 1600, 860))
         self.online_analysis_window = QWidget()
         self.online_analysis_window.setObjectName(u"online_analysis_window")
         self.button_select_data_file = QPushButton(self.online_analysis_window)
@@ -91,7 +91,7 @@ class  Ui_Online_Analysis(object):
         self.labbook_window.setObjectName(u"labbook_window")
         self.verticalLayoutWidget = QWidget(self.labbook_window)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 20, 271, 681))
+        self.verticalLayoutWidget.setGeometry(QRect(20, 20, 271, 791))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -138,7 +138,7 @@ class  Ui_Online_Analysis(object):
 
         self.verticalLayoutWidget_2 = QWidget(self.labbook_window)
         self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(1100, 20, 311, 681))
+        self.verticalLayoutWidget_2.setGeometry(QRect(1100, 20, 311, 791))
         self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget_2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -224,7 +224,7 @@ class  Ui_Online_Analysis(object):
 
         self.verticalLayoutWidget_3 = QWidget(self.labbook_window)
         self.verticalLayoutWidget_3.setObjectName(u"verticalLayoutWidget_3")
-        self.verticalLayoutWidget_3.setGeometry(QRect(300, 20, 791, 681))
+        self.verticalLayoutWidget_3.setGeometry(QRect(300, 20, 791, 791))
         self.verticalLayout_3 = QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)

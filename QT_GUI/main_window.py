@@ -82,4 +82,3 @@ class MainWindow(QWidget,Ui_MainWindow):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
-

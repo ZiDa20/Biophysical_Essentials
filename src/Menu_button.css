@@ -1,9 +1,11 @@
 QPushButton {{
-  color: {QTMATERIAL_SECONDARYCOLOR};
-  text-transform: none;
   color: white;
+  text-transform: none;
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
+
 
 .big_button {{
   height: 100px;
+  font-family: 'Roboto'
 }}
