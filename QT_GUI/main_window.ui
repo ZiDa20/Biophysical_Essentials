@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1288</width>
-    <height>852</height>
+    <width>1813</width>
+    <height>1234</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,9 +69,9 @@
    <widget class="QFrame" name="user_communication_frame">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>660</y>
-      <width>931</width>
+      <x>300</x>
+      <y>740</y>
+      <width>1131</width>
       <height>80</height>
      </rect>
     </property>
@@ -85,10 +85,10 @@
    <widget class="QStackedWidget" name="notebook">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>30</y>
-      <width>931</width>
-      <height>621</height>
+      <x>290</x>
+      <y>10</y>
+      <width>1600</width>
+      <height>1000</height>
      </rect>
     </property>
     <widget class="Config_Widget" name="config"/>
@@ -98,7 +98,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>30</y>
+      <y>20</y>
       <width>241</width>
       <height>221</height>
      </rect>
@@ -119,8 +119,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1288</width>
-     <height>24</height>
+     <width>1813</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
