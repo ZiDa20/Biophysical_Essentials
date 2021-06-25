@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1288, 852)
+        MainWindow.resize(1813, 1234)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.self_configuration = QPushButton(self.centralwidget)
@@ -38,12 +38,12 @@ class Ui_MainWindow(object):
         self.statistics.setGeometry(QRect(20, 630, 241, 101))
         self.user_communication_frame = QFrame(self.centralwidget)
         self.user_communication_frame.setObjectName(u"user_communication_frame")
-        self.user_communication_frame.setGeometry(QRect(320, 660, 931, 80))
+        self.user_communication_frame.setGeometry(QRect(300, 740, 1131, 80))
         self.user_communication_frame.setFrameShape(QFrame.StyledPanel)
         self.user_communication_frame.setFrameShadow(QFrame.Raised)
         self.notebook = QStackedWidget(self.centralwidget)
         self.notebook.setObjectName(u"notebook")
-        self.notebook.setGeometry(QRect(320, 30, 931, 621))
+        self.notebook.setGeometry(QRect(290, 10, 1600, 1000))
         self.config = Config_Widget()
         self.config.setObjectName(u"config")
         self.notebook.addWidget(self.config)
@@ -52,13 +52,13 @@ class Ui_MainWindow(object):
         self.notebook.addWidget(self.online)
         self.label = QLabel(self.centralwidget)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(20, 30, 241, 221))
+        self.label.setGeometry(QRect(20, 20, 241, 221))
         self.label.setPixmap(QPixmap(u"../Logo/New_LOGO_2.png"))
         self.label.setScaledContents(True)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1288, 24))
+        self.menubar.setGeometry(QRect(0, 0, 1813, 21))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -76,10 +76,10 @@ class Ui_MainWindow(object):
         self.offline_analysis.setText(QCoreApplication.translate("MainWindow", u"Offline Analysis", None))
         self.statistics.setText(QCoreApplication.translate("MainWindow", u"Statistics", None))
         self.label.setText("")
+    # retranslateUi
 
 class MainWindow(QWidget,Ui_MainWindow):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
-    # retranslateUi
 
