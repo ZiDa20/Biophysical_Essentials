@@ -8,3 +8,5 @@ src/__pycache__/heka_reader.cpython-38.pyc
 c
 .bioqypt/
 bioqypt/
+venv/
+!**/__pycache__/

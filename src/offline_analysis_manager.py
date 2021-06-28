@@ -15,6 +15,8 @@ class OfflineManager():
         self.meta_path = None
         self.dat_files = None
 
+        self._directory_path = None
+
         # nodelist for the treeview
         self.directory_content_list = [['','','']]
 
@@ -28,6 +30,26 @@ class OfflineManager():
         self.database = data_db.DataDB()
 
 
+
+    @property
+    def directory_path(self):
+        return self._directory_path
+
+    @directory_path.setter
+    def directory_path(self,val):
+        self._directory_path = val
+
+    def read_data_from_experiemnt_directory(self):
+        data_list = self.package_list(self._directory_path)
+        for i in data_list:
+            tmp_list = []
+            file = self._directory_path + "/" + i
+            bundle = heka_reader.Bundle(file)
+
+            # @todo remove dat fiel structire fom update_data_structure
+            tmp_list = OnlineAnalysisManager().update_data_structure([], bundle, bundle,
+                                                                     tmp_list)  # maybe it's good to end the list at series level
+            print("I am here")
 
     # Database functions
     def init_database(self):
