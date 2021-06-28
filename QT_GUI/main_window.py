@@ -14,6 +14,7 @@ from PySide6.QtWidgets import *  # type: ignore
 
 from self_config_notebook_widget import Config_Widget
 from online_analysis_widget import Online_Analysis
+from offline_analysis_widget import Offline_Analysis
 
 import Figures_rc
 
@@ -45,6 +46,9 @@ class Ui_MainWindow(object):
         self.online = Online_Analysis()
         self.online.setObjectName(u"online")
         self.notebook.addWidget(self.online)
+        self.offline = Offline_Analysis()
+        self.offline.setObjectName(u"offline")
+        self.notebook.addWidget(self.offline)
         self.label = QLabel(self.centralwidget)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(20, 20, 241, 221))
