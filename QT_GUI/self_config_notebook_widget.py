@@ -11,6 +11,8 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+from tkinter_camera import *
+from PIL import ImageQt ,Image
 
 
 class Ui_Config_Widget(object):
@@ -512,6 +514,58 @@ class Ui_Config_Widget(object):
         self.button_save_snapshot.setText(QCoreApplication.translate("Config_Widget", u"Save Snapshot to Directory", None))
         self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.camera_3), QCoreApplication.translate("Config_Widget", u"Camera", None))
     # retranslateUi
+
+    def open_directory(self):
+        '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
+        it's data will be loaded immediately into the databse'''
+        # open the directory
+        dir_path =QFileDialog.getOpenFileUrl()
+        self.selected_directory.setText(dir_path)
+
+        # save the path in the manager class
+        self.configuration_metadata._directory_path = dir_path
+
+    def initialize_camera(self):
+        print("stuff worked")
+        self.camera = BayerCamera()
+        #initialize the camera 
+        camera_status = self.camera.init_camera()
+        self.scence_trial = QGraphicsScene(self)
+        if camera_status is None:
+            self.scence_trial.addText("is not working")
+            self.Camera_Live_Feed.setScene(self.scence_trial)
+            self.button_start_camera.setEnabled(False)
+
+        else:
+            print("Camera is connected")
+            self.scence_trial.addText("Please start the Camera via the Start Camera Button")
+            self.Camera_Live_Feed.setScene(self.scence_trial)
+
+    def start_camera_timer(self):
+        self.start_cam = QTimer()
+        self.start_cam.timeout.connect(self.start_camera)   
+        self.start_cam.start(222)  # (333,self.start_camera)
+
+    def start_camera(self):
+        camera_image = self.camera.grab_video()
+        imgs = Image.fromarray(camera_image)
+        image = imgs.resize((561,451), Image.ANTIALIAS)
+        imgqt = ImageQt.ImageQt(image)
+        self.trial_figure = QPixmap.fromImage(imgqt)
+        self.scence_trial.clear()
+        self.scence_trial.addPixmap(self.trial_figure)
+        print(camera_image)
+
+    def stop_camera(self):
+        print("yeah I m here for the camera")
+        self.start_cam.stop()
+
+    def show_snapshot(self):
+        self.snapshot_scence = QGraphicsScene(self)
+        self.Taken_Snapshot.setScene(self.snapshot_scence)
+        self.snapshot_scence.addPixmap(self.trial_figure)
+
+
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     def __init__(self,parent = None):

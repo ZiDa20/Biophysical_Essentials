@@ -69,22 +69,35 @@
    <widget class="QStackedWidget" name="notebook">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>299</x>
       <y>10</y>
-      <width>1600</width>
+      <width>1591</width>
       <height>801</height>
      </rect>
     </property>
     <widget class="Config_Widget" name="config"/>
     <widget class="Online_Analysis" name="online"/>
    </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>830</y>
+      <width>161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Command Line</string>
+    </property>
+   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
+      <y>30</y>
       <width>241</width>
-      <height>221</height>
+      <height>231</height>
      </rect>
     </property>
     <property name="text">
@@ -97,28 +110,38 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QScrollArea" name="scrollArea">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>840</y>
-      <width>1501</width>
-      <height>111</height>
+      <x>299</x>
+      <y>850</y>
+      <width>1481</width>
+      <height>101</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>820</y>
-      <width>161</width>
-      <height>16</height>
-     </rect>
+    <property name="widgetResizable">
+     <bool>true</bool>
     </property>
-    <property name="text">
-     <string>Command Line</string>
-    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1479</width>
+       <height>99</height>
+      </rect>
+     </property>
+     <widget class="QTextEdit" name="textEdit">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>-10</y>
+        <width>1491</width>
+        <height>111</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
