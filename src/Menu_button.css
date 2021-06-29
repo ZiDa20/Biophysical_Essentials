@@ -4,8 +4,14 @@ QPushButton {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
-
 .big_button {{
   height: 100px;
-  font-family: 'Roboto'
+  font-family: 'Roboto';
+  border: 1px solid {QTMATERIAL_PRIMARYCOLOR};
+
 }}
+
+QTabWidget::tab-bar {{
+  alignment: left;
+}}
+
