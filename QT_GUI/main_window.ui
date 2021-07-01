@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>390</y>
+      <y>400</y>
       <width>241</width>
       <height>101</height>
      </rect>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>510</y>
+      <y>530</y>
       <width>241</width>
       <height>101</height>
      </rect>
@@ -57,7 +57,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>630</y>
+      <y>660</y>
       <width>241</width>
       <height>101</height>
      </rect>
@@ -69,33 +69,20 @@
    <widget class="QStackedWidget" name="notebook">
     <property name="geometry">
      <rect>
-      <x>299</x>
-      <y>10</y>
+      <x>290</x>
+      <y>0</y>
       <width>1591</width>
-      <height>801</height>
+      <height>891</height>
      </rect>
     </property>
     <widget class="Config_Widget" name="config"/>
     <widget class="Online_Analysis" name="online"/>
    </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>830</y>
-      <width>161</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Command Line</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>30</y>
+      <y>20</y>
       <width>241</width>
       <height>231</height>
      </rect>
@@ -110,38 +97,18 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QScrollArea" name="scrollArea">
+   <widget class="QPushButton" name="statistics_2">
     <property name="geometry">
      <rect>
-      <x>299</x>
-      <y>850</y>
-      <width>1481</width>
+      <x>20</x>
+      <y>790</y>
+      <width>241</width>
       <height>101</height>
      </rect>
     </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
+    <property name="text">
+     <string>Open Console</string>
     </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>1479</width>
-       <height>99</height>
-      </rect>
-     </property>
-     <widget class="QTextEdit" name="textEdit">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>-10</y>
-        <width>1491</width>
-        <height>111</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

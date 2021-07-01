@@ -1,8 +1,4 @@
 from pypylon import pylon
-import matplotlib.pyplot as plt
-import tkinter as tk
-from online_analysis_elements import *
-from PIL import ImageTk ,Image
 from PySide6.QtCore import QThread
 
 class BayerCamera():
@@ -53,9 +49,3 @@ class BayerCamera():
         self.online_analysis.image_labbook = self.img
         #plt.savefig(bm.set_batch_path())
 
-
-    def cancel_job(self, canvas):
-        if self.cancel:
-            canvas.quit()
-        else:
-            print("Please connect to the camera")

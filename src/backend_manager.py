@@ -1,9 +1,11 @@
-from tkinter import filedialog
 from shutil import copyfile
 import heka_reader
-import tkinter.ttk as ttk
 import re
 import numpy as np
+import os.path
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
 
 
 class BackendManager:
@@ -33,7 +35,7 @@ class BackendManager:
         self._control_path = self.select_path()
 
     def select_path(self):
-        selected_path = filedialog.askdirectory()
+        selected_path = QFileDialog.getExistingDirectory()
         return selected_path
 
     @property
@@ -150,5 +152,7 @@ class BackendManager:
         self.response_file_content = open(self.batch_path + '/E9BatchOut.txt', "r")
 
 
+    def check_input_file_existence(self):
+        return os.path.exists(self.batch_path + '/E9Batch.In')
 
 

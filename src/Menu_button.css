@@ -2,13 +2,23 @@ QPushButton {{
   color: white;
   text-transform: none;
   background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border-radius : 15px;
 }}
 
 .big_button {{
   height: 100px;
   font-family: 'Roboto';
+  opacity: 0;
   border: 1px solid {QTMATERIAL_PRIMARYCOLOR};
+  border-radius : 25px;
 
+}}
+
+.valid_button {{
+  color: white;
+  text-transform: none;
+  background-color: green;
+  border-radius : 15px;
 }}
 
 QTabWidget::tab-bar {{
