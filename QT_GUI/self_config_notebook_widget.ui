@@ -19,7 +19,7 @@
      <x>0</x>
      <y>20</y>
      <width>1531</width>
-     <height>771</height>
+     <height>871</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
@@ -29,7 +29,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="experiment_initialization_3">
        <attribute name="title">
@@ -40,8 +40,8 @@
          <rect>
           <x>10</x>
           <y>80</y>
-          <width>1481</width>
-          <height>311</height>
+          <width>1441</width>
+          <height>351</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_13">
@@ -55,9 +55,9 @@
              <widget class="QComboBox" name="So_com1">
               <property name="geometry">
                <rect>
-                <x>110</x>
+                <x>100</x>
                 <y>20</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -78,9 +78,9 @@
              <widget class="QComboBox" name="So_com2">
               <property name="geometry">
                <rect>
-                <x>110</x>
+                <x>100</x>
                 <y>90</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -253,9 +253,9 @@
              <widget class="QComboBox" name="Ce_com1">
               <property name="geometry">
                <rect>
-                <x>120</x>
+                <x>110</x>
                 <y>20</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -263,9 +263,9 @@
              <widget class="QComboBox" name="Ce_com2">
               <property name="geometry">
                <rect>
-                <x>120</x>
+                <x>110</x>
                 <y>90</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -275,7 +275,7 @@
                <rect>
                 <x>120</x>
                 <y>160</y>
-                <width>113</width>
+                <width>131</width>
                 <height>41</height>
                </rect>
               </property>
@@ -353,9 +353,9 @@
              <widget class="QComboBox" name="Co_com1">
               <property name="geometry">
                <rect>
-                <x>310</x>
+                <x>300</x>
                 <y>20</y>
-                <width>81</width>
+                <width>91</width>
                 <height>41</height>
                </rect>
               </property>
@@ -570,9 +570,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>410</y>
-          <width>1481</width>
-          <height>351</height>
+          <y>440</y>
+          <width>1441</width>
+          <height>381</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -586,9 +586,9 @@
              <widget class="QComboBox" name="St_com1">
               <property name="geometry">
                <rect>
-                <x>110</x>
+                <x>100</x>
                 <y>30</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -596,9 +596,9 @@
              <widget class="QComboBox" name="St_com2">
               <property name="geometry">
                <rect>
-                <x>110</x>
+                <x>100</x>
                 <y>110</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -606,9 +606,9 @@
              <widget class="QComboBox" name="St_com3">
               <property name="geometry">
                <rect>
-                <x>110</x>
+                <x>100</x>
                 <y>190</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -666,9 +666,9 @@
              <widget class="QComboBox" name="E_com1">
               <property name="geometry">
                <rect>
-                <x>130</x>
+                <x>120</x>
                 <y>30</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -676,9 +676,9 @@
              <widget class="QComboBox" name="E_com2">
               <property name="geometry">
                <rect>
-                <x>130</x>
+                <x>120</x>
                 <y>110</y>
-                <width>271</width>
+                <width>281</width>
                 <height>41</height>
                </rect>
               </property>
@@ -769,9 +769,9 @@
              <widget class="QComboBox" name="A_com1">
               <property name="geometry">
                <rect>
-                <x>100</x>
+                <x>90</x>
                 <y>30</y>
-                <width>131</width>
+                <width>141</width>
                 <height>41</height>
                </rect>
               </property>
@@ -779,9 +779,9 @@
              <widget class="QComboBox" name="A_com2">
               <property name="geometry">
                <rect>
-                <x>280</x>
+                <x>270</x>
                 <y>30</y>
-                <width>131</width>
+                <width>141</width>
                 <height>41</height>
                </rect>
               </property>
@@ -799,9 +799,9 @@
              <widget class="QComboBox" name="A_com3">
               <property name="geometry">
                <rect>
-                <x>280</x>
+                <x>270</x>
                 <y>110</y>
-                <width>131</width>
+                <width>141</width>
                 <height>41</height>
                </rect>
               </property>
@@ -881,42 +881,42 @@
                <string>File name template</string>
               </property>
              </widget>
+             <widget class="QWidget" name="horizontalLayoutWidget_10">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>320</y>
+                <width>451</width>
+                <height>51</height>
+               </rect>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QPushButton" name="button_submit_database">
+                 <property name="text">
+                  <string>Submit Data to Database</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="button_edit_experiment">
+                 <property name="text">
+                  <string>Edit Data</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
           </layout>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_10">
-        <property name="geometry">
-         <rect>
-          <x>1010</x>
-          <y>770</y>
-          <width>481</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QPushButton" name="Load_meta_data_experiment_10">
-           <property name="text">
-            <string>Submit Data to Database</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="Load_meta_data_experiment_11">
-           <property name="text">
-            <string>Edit Data</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
        <widget class="QWidget" name="horizontalLayoutWidget_11">
         <property name="geometry">
          <rect>
-          <x>0</x>
+          <x>660</x>
           <y>10</y>
           <width>191</width>
           <height>51</height>
@@ -940,9 +940,9 @@
        <widget class="QGroupBox" name="groupBox_17">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>20</x>
           <y>30</y>
-          <width>411</width>
+          <width>541</width>
           <height>181</height>
          </rect>
         </property>
@@ -952,10 +952,10 @@
         <widget class="QLineEdit" name="Batch1">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>40</x>
            <y>30</y>
-           <width>391</width>
-           <height>51</height>
+           <width>451</width>
+           <height>41</height>
           </rect>
          </property>
         </widget>
@@ -963,9 +963,9 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
-           <width>181</width>
-           <height>21</height>
+           <y>110</y>
+           <width>161</width>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
@@ -975,10 +975,10 @@
         <widget class="QPushButton" name="button_control_1">
          <property name="geometry">
           <rect>
-           <x>210</x>
-           <y>120</y>
-           <width>181</width>
-           <height>21</height>
+           <x>360</x>
+           <y>110</y>
+           <width>171</width>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
@@ -988,8 +988,8 @@
         <widget class="QLabel" name="label_4">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>80</y>
+           <x>40</x>
+           <y>70</y>
            <width>111</width>
            <height>16</height>
           </rect>
@@ -998,14 +998,27 @@
           <string>Control File Path</string>
          </property>
         </widget>
+        <widget class="QPushButton" name="button_control_2">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>110</y>
+           <width>171</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Check Control File</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QGroupBox" name="groupBox_18">
         <property name="geometry">
          <rect>
-          <x>450</x>
+          <x>580</x>
           <y>30</y>
-          <width>1071</width>
-          <height>711</height>
+          <width>851</width>
+          <height>781</height>
          </rect>
         </property>
         <property name="title">
@@ -1014,10 +1027,10 @@
         <widget class="QScrollArea" name="scrollArea_3">
          <property name="geometry">
           <rect>
-           <x>60</x>
+           <x>40</x>
            <y>60</y>
-           <width>341</width>
-           <height>601</height>
+           <width>361</width>
+           <height>541</height>
           </rect>
          </property>
          <property name="widgetResizable">
@@ -1028,8 +1041,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>339</width>
-            <height>599</height>
+            <width>359</width>
+            <height>539</height>
            </rect>
           </property>
           <widget class="QTextEdit" name="sub_command1">
@@ -1037,8 +1050,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>341</width>
-             <height>601</height>
+             <width>361</width>
+             <height>541</height>
             </rect>
            </property>
           </widget>
@@ -1047,7 +1060,7 @@
         <widget class="QLabel" name="label_40">
          <property name="geometry">
           <rect>
-           <x>60</x>
+           <x>40</x>
            <y>40</y>
            <width>181</width>
            <height>20</height>
@@ -1060,7 +1073,7 @@
         <widget class="QLabel" name="label_41">
          <property name="geometry">
           <rect>
-           <x>460</x>
+           <x>440</x>
            <y>40</y>
            <width>171</width>
            <height>20</height>
@@ -1073,28 +1086,28 @@
         <widget class="QTextEdit" name="receive_command1">
          <property name="geometry">
           <rect>
-           <x>460</x>
+           <x>440</x>
            <y>60</y>
-           <width>551</width>
-           <height>251</height>
+           <width>391</width>
+           <height>241</height>
           </rect>
          </property>
         </widget>
         <widget class="QTextEdit" name="response_command_1">
          <property name="geometry">
           <rect>
-           <x>460</x>
-           <y>350</y>
-           <width>551</width>
-           <height>311</height>
+           <x>440</x>
+           <y>370</y>
+           <width>391</width>
+           <height>231</height>
           </rect>
          </property>
         </widget>
         <widget class="QLabel" name="label_42">
          <property name="geometry">
           <rect>
-           <x>460</x>
-           <y>330</y>
+           <x>440</x>
+           <y>350</y>
            <width>231</width>
            <height>20</height>
           </rect>
@@ -1103,14 +1116,40 @@
           <string>Batch Communication Response</string>
          </property>
         </widget>
+        <widget class="QPushButton" name="button_submit_command">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>640</y>
+           <width>171</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Submit</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="button_clear_window">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>640</y>
+           <width>151</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Clear Window</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QGroupBox" name="groupBox_19">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>20</x>
           <y>230</y>
-          <width>411</width>
-          <height>511</height>
+          <width>541</width>
+          <height>181</height>
          </rect>
         </property>
         <property name="title">
@@ -1119,9 +1158,9 @@
         <widget class="QLineEdit" name="Template_path1">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>40</x>
            <y>40</y>
-           <width>391</width>
+           <width>451</width>
            <height>41</height>
           </rect>
          </property>
@@ -1129,10 +1168,10 @@
         <widget class="QPushButton" name="button_open_template_wizard">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>50</x>
            <y>110</y>
            <width>181</width>
-           <height>21</height>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
@@ -1142,10 +1181,10 @@
         <widget class="QPushButton" name="button_use_template_wizard">
          <property name="geometry">
           <rect>
-           <x>210</x>
+           <x>290</x>
            <y>110</y>
-           <width>181</width>
-           <height>21</height>
+           <width>191</width>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
@@ -1155,7 +1194,7 @@
         <widget class="QLabel" name="label_5">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>40</x>
            <y>80</y>
            <width>151</width>
            <height>16</height>
@@ -1174,7 +1213,7 @@
        <widget class="QPushButton" name="pushButton">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>650</x>
           <y>20</y>
           <width>191</width>
           <height>41</height>
@@ -1182,19 +1221,6 @@
         </property>
         <property name="text">
          <string>Initalize Camera</string>
-        </property>
-       </widget>
-       <widget class="Line" name="line">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>70</y>
-          <width>1581</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
        <widget class="QGroupBox" name="groupBox">
@@ -1317,7 +1343,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Save Snapshot to Directory</string>
+          <string>Save Snapshot</string>
          </property>
         </widget>
        </widget>
