@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1792</width>
-    <height>1008</height>
+    <width>1613</width>
+    <height>904</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,890 +29,12 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="experiment_initialization_3">
        <attribute name="title">
         <string>Experiment Initialization</string>
        </attribute>
-       <widget class="QWidget" name="horizontalLayoutWidget_8">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>80</y>
-          <width>1441</width>
-          <height>351</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_13">
-         <item>
-          <layout class="QGridLayout" name="gridLayout_28">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_22">
-             <property name="title">
-              <string>Solutions</string>
-             </property>
-             <widget class="QComboBox" name="So_com1">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>20</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_199">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>60</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>EC Type</string>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="So_com2">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>90</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_200">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>130</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>IC  Type</string>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="S1">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>160</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="S2">
-              <property name="geometry">
-               <rect>
-                <x>250</x>
-                <y>160</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_201">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>200</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>EC Lot #</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_202">
-              <property name="geometry">
-               <rect>
-                <x>250</x>
-                <y>200</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>IC lot #</string>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="S3">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>230</y>
-                <width>61</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="S4">
-              <property name="geometry">
-               <rect>
-                <x>180</x>
-                <y>230</y>
-                <width>61</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="S5">
-              <property name="geometry">
-               <rect>
-                <x>250</x>
-                <y>230</y>
-                <width>61</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="S6">
-              <property name="geometry">
-               <rect>
-                <x>320</x>
-                <y>230</y>
-                <width>61</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_203">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>270</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>T [°C]</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_204">
-              <property name="geometry">
-               <rect>
-                <x>180</x>
-                <y>270</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>F [ml/min]</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_205">
-              <property name="geometry">
-               <rect>
-                <x>250</x>
-                <y>270</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>I [nm]</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_206">
-              <property name="geometry">
-               <rect>
-                <x>320</x>
-                <y>270</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>e</string>
-              </property>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_29">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_30">
-             <property name="title">
-              <string>Cells</string>
-             </property>
-             <widget class="QComboBox" name="Ce_com1">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>20</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="Ce_com2">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>90</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="Ce1">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>160</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_207">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>60</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>License ID</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_208">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>130</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Cell line</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_209">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>200</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Passage #</string>
-              </property>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_30">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_31">
-             <property name="title">
-              <string>Compound</string>
-             </property>
-             <widget class="QLineEdit" name="C1">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>20</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C2">
-              <property name="geometry">
-               <rect>
-                <x>200</x>
-                <y>20</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="Co_com1">
-              <property name="geometry">
-               <rect>
-                <x>300</x>
-                <y>20</y>
-                <width>91</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C3">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>90</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C4">
-              <property name="geometry">
-               <rect>
-                <x>200</x>
-                <y>90</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C5">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>160</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C6">
-              <property name="geometry">
-               <rect>
-                <x>200</x>
-                <y>160</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C8">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>230</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C9">
-              <property name="geometry">
-               <rect>
-                <x>270</x>
-                <y>230</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_210">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>60</y>
-                <width>81</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Sample Code</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_211">
-              <property name="geometry">
-               <rect>
-                <x>200</x>
-                <y>60</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Lot #</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_212">
-              <property name="geometry">
-               <rect>
-                <x>310</x>
-                <y>60</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Salt Code</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_213">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>130</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Sample Id</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_214">
-              <property name="geometry">
-               <rect>
-                <x>200</x>
-                <y>130</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>MW [Da]</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_215">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>200</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Weight [mg]</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_216">
-              <property name="geometry">
-               <rect>
-                <x>200</x>
-                <y>200</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Solvent</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_217">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>270</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Stocks [mM]</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_218">
-              <property name="geometry">
-               <rect>
-                <x>270</x>
-                <y>270</y>
-                <width>111</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Concentration [µM]</string>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="C6_2">
-              <property name="geometry">
-               <rect>
-                <x>310</x>
-                <y>160</y>
-                <width>81</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_219">
-              <property name="geometry">
-               <rect>
-                <x>310</x>
-                <y>200</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Volumn [µL]</string>
-              </property>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_9">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>440</y>
-          <width>1441</width>
-          <height>381</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_14">
-         <item>
-          <layout class="QGridLayout" name="gridLayout_31">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_32">
-             <property name="title">
-              <string>Staff</string>
-             </property>
-             <widget class="QComboBox" name="St_com1">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>30</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="St_com2">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>110</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="St_com3">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>190</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_220">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>70</y>
-                <width>101</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Study director</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_221">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>150</y>
-                <width>101</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Technician</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_222">
-              <property name="geometry">
-               <rect>
-                <x>110</x>
-                <y>230</y>
-                <width>101</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Laboratory Code</string>
-              </property>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_32">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_33">
-             <property name="title">
-              <string>Experiment Protocol</string>
-             </property>
-             <widget class="QComboBox" name="E_com1">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>30</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="E_com2">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>110</y>
-                <width>281</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="E1">
-              <property name="geometry">
-               <rect>
-                <x>130</x>
-                <y>190</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="E2">
-              <property name="geometry">
-               <rect>
-                <x>282</x>
-                <y>190</y>
-                <width>121</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_223">
-              <property name="geometry">
-               <rect>
-                <x>130</x>
-                <y>70</y>
-                <width>111</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Protocol Files</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_224">
-              <property name="geometry">
-               <rect>
-                <x>130</x>
-                <y>150</y>
-                <width>121</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Pulse description</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_225">
-              <property name="geometry">
-               <rect>
-                <x>130</x>
-                <y>230</y>
-                <width>101</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>N</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_226">
-              <property name="geometry">
-               <rect>
-                <x>280</x>
-                <y>230</y>
-                <width>101</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Done</string>
-              </property>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_33">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_34">
-             <property name="title">
-              <string>Archiving</string>
-             </property>
-             <widget class="QComboBox" name="A_com1">
-              <property name="geometry">
-               <rect>
-                <x>90</x>
-                <y>30</y>
-                <width>141</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="A_com2">
-              <property name="geometry">
-               <rect>
-                <x>270</x>
-                <y>30</y>
-                <width>141</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="A1">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>110</y>
-                <width>131</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QComboBox" name="A_com3">
-              <property name="geometry">
-               <rect>
-                <x>270</x>
-                <y>110</y>
-                <width>141</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLineEdit" name="A2">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>190</y>
-                <width>311</width>
-                <height>41</height>
-               </rect>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_227">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>70</y>
-                <width>81</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Model Code</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_228">
-              <property name="geometry">
-               <rect>
-                <x>280</x>
-                <y>70</y>
-                <width>91</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Project Code</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_229">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>150</y>
-                <width>81</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Study Code</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_230">
-              <property name="geometry">
-               <rect>
-                <x>280</x>
-                <y>150</y>
-                <width>71</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Data path</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_231">
-              <property name="geometry">
-               <rect>
-                <x>100</x>
-                <y>230</y>
-                <width>141</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>File name template</string>
-              </property>
-             </widget>
-             <widget class="QWidget" name="horizontalLayoutWidget_10">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>320</y>
-                <width>451</width>
-                <height>51</height>
-               </rect>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_6">
-               <item>
-                <widget class="QPushButton" name="button_submit_database">
-                 <property name="text">
-                  <string>Submit Data to Database</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="button_edit_experiment">
-                 <property name="text">
-                  <string>Edit Data</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
        <widget class="QWidget" name="horizontalLayoutWidget_11">
         <property name="geometry">
          <rect>
@@ -932,277 +54,1923 @@
          </item>
         </layout>
        </widget>
+       <widget class="QStackedWidget" name="meta_data_loading_1">
+        <property name="geometry">
+         <rect>
+          <x>-10</x>
+          <y>80</y>
+          <width>1521</width>
+          <height>771</height>
+         </rect>
+        </property>
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <widget class="QWidget" name="page">
+         <widget class="QWidget" name="horizontalLayoutWidget_9">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>380</y>
+            <width>1441</width>
+            <height>381</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_14">
+           <item>
+            <layout class="QGridLayout" name="gridLayout_31">
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupBox_32">
+               <property name="title">
+                <string>Staff</string>
+               </property>
+               <widget class="QComboBox" name="St_com1">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>30</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="St_com2">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>110</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="St_com3">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>190</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_220">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>70</y>
+                  <width>101</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Study director</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_221">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>150</y>
+                  <width>101</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Technician</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_222">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>230</y>
+                  <width>101</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Laboratory Code</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_32">
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupBox_33">
+               <property name="title">
+                <string>Experiment Protocol</string>
+               </property>
+               <widget class="QComboBox" name="E_com1">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>30</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="E_com2">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>110</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="E1">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>190</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="E2">
+                <property name="geometry">
+                 <rect>
+                  <x>282</x>
+                  <y>190</y>
+                  <width>121</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_223">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>70</y>
+                  <width>111</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Protocol Files</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_224">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>150</y>
+                  <width>121</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Pulse description</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_225">
+                <property name="geometry">
+                 <rect>
+                  <x>130</x>
+                  <y>230</y>
+                  <width>101</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>N</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_226">
+                <property name="geometry">
+                 <rect>
+                  <x>280</x>
+                  <y>230</y>
+                  <width>101</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Done</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_33">
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupBox_34">
+               <property name="title">
+                <string>Archiving</string>
+               </property>
+               <widget class="QComboBox" name="A_com1">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>30</y>
+                  <width>141</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="A_com2">
+                <property name="geometry">
+                 <rect>
+                  <x>270</x>
+                  <y>30</y>
+                  <width>141</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="A1">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>110</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="A_com3">
+                <property name="geometry">
+                 <rect>
+                  <x>270</x>
+                  <y>110</y>
+                  <width>141</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="A2">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>190</y>
+                  <width>311</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_227">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>70</y>
+                  <width>81</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Model Code</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_228">
+                <property name="geometry">
+                 <rect>
+                  <x>280</x>
+                  <y>70</y>
+                  <width>91</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Project Code</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_229">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>150</y>
+                  <width>81</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Study Code</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_230">
+                <property name="geometry">
+                 <rect>
+                  <x>280</x>
+                  <y>150</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Data path</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_231">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>230</y>
+                  <width>141</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>File name template</string>
+                </property>
+               </widget>
+               <widget class="QWidget" name="horizontalLayoutWidget_10">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>320</y>
+                  <width>451</width>
+                  <height>51</height>
+                 </rect>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <item>
+                  <widget class="QPushButton" name="button_submit_database">
+                   <property name="text">
+                    <string>Submit Data to Database</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="button_edit_experiment">
+                   <property name="text">
+                    <string>Edit Data</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_8">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>20</y>
+            <width>1441</width>
+            <height>351</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <item>
+            <layout class="QGridLayout" name="gridLayout_28">
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupBox_22">
+               <property name="title">
+                <string>Solutions</string>
+               </property>
+               <widget class="QComboBox" name="So_com1">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>20</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_199">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>60</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>EC Type</string>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="So_com2">
+                <property name="geometry">
+                 <rect>
+                  <x>100</x>
+                  <y>90</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_200">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>130</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>IC  Type</string>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="S1">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>160</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="S2">
+                <property name="geometry">
+                 <rect>
+                  <x>250</x>
+                  <y>160</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_201">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>200</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>EC Lot #</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_202">
+                <property name="geometry">
+                 <rect>
+                  <x>250</x>
+                  <y>200</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>IC lot #</string>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="S3">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>230</y>
+                  <width>61</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="S4">
+                <property name="geometry">
+                 <rect>
+                  <x>180</x>
+                  <y>230</y>
+                  <width>61</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="S5">
+                <property name="geometry">
+                 <rect>
+                  <x>250</x>
+                  <y>230</y>
+                  <width>61</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="S6">
+                <property name="geometry">
+                 <rect>
+                  <x>320</x>
+                  <y>230</y>
+                  <width>61</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_203">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>270</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>T [°C]</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_204">
+                <property name="geometry">
+                 <rect>
+                  <x>180</x>
+                  <y>270</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>F [ml/min]</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_205">
+                <property name="geometry">
+                 <rect>
+                  <x>250</x>
+                  <y>270</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>I [nm]</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_206">
+                <property name="geometry">
+                 <rect>
+                  <x>320</x>
+                  <y>270</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>e</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_29">
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupBox_30">
+               <property name="title">
+                <string>Cells</string>
+               </property>
+               <widget class="QComboBox" name="Ce_com1">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>20</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="Ce_com2">
+                <property name="geometry">
+                 <rect>
+                  <x>110</x>
+                  <y>90</y>
+                  <width>281</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="Ce1">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>160</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_207">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>60</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>License ID</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_208">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>130</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Cell line</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_209">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>200</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Passage #</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_30">
+             <item row="0" column="0">
+              <widget class="QGroupBox" name="groupBox_31">
+               <property name="title">
+                <string>Compound</string>
+               </property>
+               <widget class="QLineEdit" name="C1">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>20</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C2">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>20</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="Co_com1">
+                <property name="geometry">
+                 <rect>
+                  <x>300</x>
+                  <y>20</y>
+                  <width>91</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C3">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>90</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C4">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>90</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C5">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>160</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C6">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>160</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C8">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>230</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C9">
+                <property name="geometry">
+                 <rect>
+                  <x>270</x>
+                  <y>230</y>
+                  <width>131</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_210">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>60</y>
+                  <width>81</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Sample Code</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_211">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>60</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Lot #</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_212">
+                <property name="geometry">
+                 <rect>
+                  <x>310</x>
+                  <y>60</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Salt Code</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_213">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>130</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Sample Id</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_214">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>130</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>MW [Da]</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_215">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>200</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Weight [mg]</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_216">
+                <property name="geometry">
+                 <rect>
+                  <x>200</x>
+                  <y>200</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Solvent</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_217">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>270</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Stocks [mM]</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_218">
+                <property name="geometry">
+                 <rect>
+                  <x>270</x>
+                  <y>270</y>
+                  <width>111</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Concentration [µM]</string>
+                </property>
+               </widget>
+               <widget class="QLineEdit" name="C6_2">
+                <property name="geometry">
+                 <rect>
+                  <x>310</x>
+                  <y>160</y>
+                  <width>81</width>
+                  <height>41</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_219">
+                <property name="geometry">
+                 <rect>
+                  <x>310</x>
+                  <y>200</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>Volumn [µL]</string>
+                </property>
+               </widget>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_2">
+         <widget class="QGroupBox" name="groupBox_23">
+          <property name="geometry">
+           <rect>
+            <x>170</x>
+            <y>10</y>
+            <width>571</width>
+            <height>311</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Extracelullar and intracellular solutions</string>
+          </property>
+          <widget class="QComboBox" name="extracellular_sol_com_1">
+           <property name="geometry">
+            <rect>
+             <x>160</x>
+             <y>50</y>
+             <width>281</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_243">
+           <property name="geometry">
+            <rect>
+             <x>160</x>
+             <y>90</y>
+             <width>121</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Extracellular Solution</string>
+           </property>
+          </widget>
+          <widget class="QComboBox" name="Intracellular_sol_com_1">
+           <property name="geometry">
+            <rect>
+             <x>160</x>
+             <y>130</y>
+             <width>281</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_244">
+           <property name="geometry">
+            <rect>
+             <x>160</x>
+             <y>170</y>
+             <width>131</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Intracellular solution</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="ent_date_prep">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>210</y>
+             <width>151</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="S2_3">
+           <property name="geometry">
+            <rect>
+             <x>210</x>
+             <y>210</y>
+             <width>151</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_245">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>250</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Date of Preparation </string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="ent_ph_set">
+           <property name="geometry">
+            <rect>
+             <x>210</x>
+             <y>250</y>
+             <width>131</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>pH of External Solution</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="ent_ph_int_set">
+           <property name="geometry">
+            <rect>
+             <x>400</x>
+             <y>210</y>
+             <width>151</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_247">
+           <property name="geometry">
+            <rect>
+             <x>400</x>
+             <y>250</y>
+             <width>121</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Ph of internal solution</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="geometry">
+           <rect>
+            <x>760</x>
+            <y>10</y>
+            <width>611</width>
+            <height>311</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Patchmaster Setup Files</string>
+          </property>
+          <widget class="QLineEdit" name="pg_file_set">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>50</y>
+             <width>331</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="protocol_file_set">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>130</y>
+             <width>331</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="online_analysis_file_set">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>210</y>
+             <width>331</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="button_pgf_set">
+           <property name="geometry">
+            <rect>
+             <x>460</x>
+             <y>50</y>
+             <width>111</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Set</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="button_protocol_set">
+           <property name="geometry">
+            <rect>
+             <x>460</x>
+             <y>130</y>
+             <width>111</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Set</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="button_onl_analysis_set">
+           <property name="geometry">
+            <rect>
+             <x>460</x>
+             <y>210</y>
+             <width>111</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Set</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_2">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>90</y>
+             <width>61</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>PGF File</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_3">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>170</y>
+             <width>71</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Protocol File</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_5">
+           <property name="geometry">
+            <rect>
+             <x>90</x>
+             <y>250</y>
+             <width>101</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Online Analysis File</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="geometry">
+           <rect>
+            <x>760</x>
+            <y>340</y>
+            <width>611</width>
+            <height>361</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Cell Type</string>
+          </property>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>340</y>
+            <width>581</width>
+            <height>361</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Experiment Metadata</string>
+          </property>
+          <widget class="QLineEdit" name="experiment_type_desc">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>60</y>
+             <width>331</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_6">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>100</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Experiment Type</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="cell_type_desc">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>140</y>
+             <width>331</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_7">
+           <property name="geometry">
+            <rect>
+             <x>130</x>
+             <y>180</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Cell Type</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="min_number_cells">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>220</y>
+             <width>121</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_8">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>260</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Min # of Cells</string>
+           </property>
+          </widget>
+          <widget class="QLineEdit" name="patched_cells">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>220</y>
+             <width>111</width>
+             <height>41</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_9">
+           <property name="geometry">
+            <rect>
+             <x>200</x>
+             <y>260</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string> # of Cells patched</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="database_save">
+           <property name="geometry">
+            <rect>
+             <x>340</x>
+             <y>220</y>
+             <width>201</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Save to Database</string>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </widget>
       </widget>
       <widget class="QWidget" name="batch_communication_3">
        <attribute name="title">
         <string>Batch Communication</string>
        </attribute>
-       <widget class="QGroupBox" name="groupBox_17">
+       <widget class="QStackedWidget" name="stackedWidget">
         <property name="geometry">
          <rect>
-          <x>20</x>
-          <y>30</y>
-          <width>541</width>
-          <height>181</height>
+          <x>30</x>
+          <y>10</y>
+          <width>1481</width>
+          <height>821</height>
          </rect>
         </property>
-        <property name="title">
-         <string>Set Batch Communication Settings</string>
+        <property name="currentIndex">
+         <number>1</number>
         </property>
-        <widget class="QLineEdit" name="Batch1">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>30</y>
-           <width>451</width>
-           <height>41</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_batch_1">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>110</y>
-           <width>161</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Set Batch Path</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_control_1">
-         <property name="geometry">
-          <rect>
-           <x>360</x>
-           <y>110</y>
-           <width>171</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Generate Control File</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_4">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>70</y>
-           <width>111</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Control File Path</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_control_2">
-         <property name="geometry">
-          <rect>
-           <x>180</x>
-           <y>110</y>
-           <width>171</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Check Control File</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_18">
-        <property name="geometry">
-         <rect>
-          <x>580</x>
-          <y>30</y>
-          <width>851</width>
-          <height>781</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Batch Communication Control</string>
-        </property>
-        <widget class="QScrollArea" name="scrollArea_3">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>60</y>
-           <width>361</width>
-           <height>541</height>
-          </rect>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents_3">
+        <widget class="QWidget" name="communication_access">
+         <widget class="QGroupBox" name="groupBox_17">
           <property name="geometry">
            <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>359</width>
-            <height>539</height>
+            <x>40</x>
+            <y>240</y>
+            <width>551</width>
+            <height>301</height>
            </rect>
           </property>
-          <widget class="QTextEdit" name="sub_command1">
+          <property name="title">
+           <string>Set Batch Communication Settings</string>
+          </property>
+          <widget class="QLineEdit" name="Batch1">
            <property name="geometry">
             <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>361</width>
-             <height>541</height>
+             <x>40</x>
+             <y>40</y>
+             <width>451</width>
+             <height>41</height>
             </rect>
            </property>
           </widget>
+          <widget class="QPushButton" name="button_batch_1">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>120</y>
+             <width>341</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Setup Communication and open Communication Test Tool</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_4">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>80</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Control File Path</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="add_pixmap_for_green">
+           <property name="geometry">
+            <rect>
+             <x>240</x>
+             <y>240</y>
+             <width>47</width>
+             <height>13</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_25">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>190</y>
+             <width>521</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Check the indicator below if a connection is successfully triggered there will be a green light</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_21">
+          <property name="geometry">
+           <rect>
+            <x>630</x>
+            <y>190</y>
+            <width>801</width>
+            <height>431</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Test the Connection to the Patchmaster</string>
+          </property>
+          <widget class="QScrollArea" name="scrollArea_3">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>40</y>
+             <width>221</width>
+             <height>341</height>
+            </rect>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>219</width>
+              <height>339</height>
+             </rect>
+            </property>
+            <widget class="QTextEdit" name="sub_command1">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>221</width>
+               <height>341</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </widget>
+          <widget class="QLabel" name="label_40">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>20</y>
+             <width>181</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Submit your Commands</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_41">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>20</y>
+             <width>171</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Control File received</string>
+           </property>
+          </widget>
+          <widget class="QTextEdit" name="receive_command1">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>40</y>
+             <width>221</width>
+             <height>341</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QTextEdit" name="response_command_1">
+           <property name="geometry">
+            <rect>
+             <x>540</x>
+             <y>40</y>
+             <width>221</width>
+             <height>341</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_42">
+           <property name="geometry">
+            <rect>
+             <x>540</x>
+             <y>20</y>
+             <width>231</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Batch Communication Response</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="button_submit_command">
+           <property name="geometry">
+            <rect>
+             <x>40</x>
+             <y>390</y>
+             <width>151</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Submit</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="button_clear_window">
+           <property name="geometry">
+            <rect>
+             <x>210</x>
+             <y>390</y>
+             <width>141</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Clear Windows</string>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QPushButton" name="button_batch_2">
+          <property name="geometry">
+           <rect>
+            <x>500</x>
+            <y>650</y>
+            <width>311</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Setup Experiment</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_24">
+          <property name="geometry">
+           <rect>
+            <x>380</x>
+            <y>60</y>
+            <width>711</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>HoloLens MDL2 Assets</family>
+            <pointsize>20</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Setup the batch communication with the HEKA Patchmaster</string>
+          </property>
          </widget>
         </widget>
-        <widget class="QLabel" name="label_40">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>40</y>
-           <width>181</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Submit your Commands</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_41">
-         <property name="geometry">
-          <rect>
-           <x>440</x>
-           <y>40</y>
-           <width>171</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Control File received</string>
-         </property>
-        </widget>
-        <widget class="QTextEdit" name="receive_command1">
-         <property name="geometry">
-          <rect>
-           <x>440</x>
-           <y>60</y>
-           <width>391</width>
-           <height>241</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QTextEdit" name="response_command_1">
-         <property name="geometry">
-          <rect>
-           <x>440</x>
-           <y>370</y>
-           <width>391</width>
-           <height>231</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_42">
-         <property name="geometry">
-          <rect>
-           <x>440</x>
-           <y>350</y>
-           <width>231</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Batch Communication Response</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_submit_command">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>640</y>
-           <width>171</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Submit</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_clear_window">
-         <property name="geometry">
-          <rect>
-           <x>250</x>
-           <y>640</y>
-           <width>151</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Clear Window</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QGroupBox" name="groupBox_19">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>230</y>
-          <width>541</width>
-          <height>181</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>Template Wizard</string>
-        </property>
-        <widget class="QLineEdit" name="Template_path1">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>40</y>
-           <width>451</width>
-           <height>41</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_open_template_wizard">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>110</y>
-           <width>181</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Open Template Wizard</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="button_use_template_wizard">
-         <property name="geometry">
-          <rect>
-           <x>290</x>
-           <y>110</y>
-           <width>191</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Use Template</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_5">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>80</y>
-           <width>151</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Wizard Template Path</string>
-         </property>
+        <widget class="QWidget" name="select_commands">
+         <widget class="QWidget" name="gridLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>430</x>
+            <y>0</y>
+            <width>551</width>
+            <height>231</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="communication_layout"/>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_19">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>240</y>
+            <width>1451</width>
+            <height>571</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Protocol Editor</string>
+          </property>
+          <widget class="QListWidget" name="listWidget">
+           <property name="geometry">
+            <rect>
+             <x>560</x>
+             <y>60</y>
+             <width>256</width>
+             <height>471</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QWidget" name="verticalLayoutWidget_2">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>60</y>
+             <width>251</width>
+             <height>471</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QLabel" name="GeneralCommands_2">
+              <property name="text">
+               <string>Series Commands</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QLabel" name="label">
+           <property name="geometry">
+            <rect>
+             <x>560</x>
+             <y>40</y>
+             <width>191</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Final Patch Clamping Sequence:</string>
+           </property>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="geometry">
+            <rect>
+             <x>1260</x>
+             <y>50</y>
+             <width>161</width>
+             <height>341</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>Cell Quality</string>
+           </property>
+           <widget class="QLabel" name="label_10">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>130</y>
+              <width>47</width>
+              <height>13</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Cslow</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_12">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>70</y>
+              <width>47</width>
+              <height>13</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Rseries</string>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="cslow_qc">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>100</y>
+              <width>141</width>
+              <height>31</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="rseries_qc">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>40</y>
+              <width>141</width>
+              <height>31</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="cfast_qc">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>160</y>
+              <width>141</width>
+              <height>31</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_29">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>190</y>
+              <width>47</width>
+              <height>13</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Cfast</string>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="cfast_qc_2">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>220</y>
+              <width>141</width>
+              <height>31</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_30">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>250</y>
+              <width>101</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Seal resistance</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="widget" native="true">
+           <property name="geometry">
+            <rect>
+             <x>840</x>
+             <y>60</y>
+             <width>391</width>
+             <height>471</height>
+            </rect>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_3">
+           <property name="geometry">
+            <rect>
+             <x>1270</x>
+             <y>420</y>
+             <width>141</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Start Experiment</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_4">
+           <property name="geometry">
+            <rect>
+             <x>1270</x>
+             <y>480</y>
+             <width>141</width>
+             <height>41</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Stop Experiment</string>
+           </property>
+          </widget>
+          <widget class="QWidget" name="verticalLayoutWidget">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>60</y>
+             <width>251</width>
+             <height>471</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QLabel" name="GeneralCommands">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>General Commands</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Cslow Comp</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Rseries Comp</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Get Cslow</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Get Rseries</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QLabel" name="label_26">
+           <property name="geometry">
+            <rect>
+             <x>840</x>
+             <y>40</y>
+             <width>191</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Notebook Online Analysis:</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_27">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>40</y>
+             <width>191</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Dragable Labels</string>
+           </property>
+          </widget>
+          <widget class="QLabel" name="label_28">
+           <property name="geometry">
+            <rect>
+             <x>290</x>
+             <y>40</y>
+             <width>191</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Dragable Series</string>
+           </property>
+          </widget>
+         </widget>
         </widget>
        </widget>
       </widget>
@@ -1227,7 +1995,7 @@
         <property name="geometry">
          <rect>
           <x>80</x>
-          <y>110</y>
+          <y>90</y>
           <width>641</width>
           <height>571</height>
          </rect>
@@ -1251,7 +2019,7 @@
            <x>40</x>
            <y>510</y>
            <width>182</width>
-           <height>23</height>
+           <height>21</height>
           </rect>
          </property>
          <property name="text">
@@ -1289,7 +2057,7 @@
         <property name="geometry">
          <rect>
           <x>780</x>
-          <y>110</y>
+          <y>90</y>
           <width>641</width>
           <height>571</height>
          </rect>
@@ -1346,6 +2114,36 @@
           <string>Save Snapshot</string>
          </property>
         </widget>
+       </widget>
+       <widget class="QWidget" name="horizontalLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>700</y>
+          <width>1341</width>
+          <height>141</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QGroupBox" name="groupBox_7">
+           <property name="title">
+            <string>Image Galery</string>
+           </property>
+           <widget class="QWidget" name="horizontalLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>-1</x>
+              <y>29</y>
+              <width>1341</width>
+              <height>111</height>
+             </rect>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+           </widget>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </widget>

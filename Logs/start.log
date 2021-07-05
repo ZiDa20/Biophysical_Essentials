@@ -1,0 +1,15 @@
+2021-07-05 17:52:20,158 : INFO : root : A trial message if the logger is working
+2021-07-05 17:57:45,724 : INFO : root : A trial message if the logger is working
+2021-07-05 17:57:52,382 : INFO : root : Camera is not connected, please connect a Basler Camera at your USB-3 port
+2021-07-05 17:57:59,140 : INFO : root : Batch.in file is available at the current location
+2021-07-05 17:58:04,618 : INFO : root : Get commands from inputs
+2021-07-05 17:58:04,618 : DEBUG : root : Batch communication input: hello
+2021-07-05 18:00:11,704 : INFO : root : A trial message if the logger is working
+2021-07-05 18:00:36,177 : INFO : root : Batch.in file is available at the current location
+2021-07-05 18:00:57,651 : INFO : root : A trial message if the logger is working
+2021-07-05 18:01:00,721 : INFO : root : Batch.in file is available at the current location
+2021-07-05 18:14:51,038 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:14,950 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:37,470 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:49,781 : INFO : root : A trial message if the logger is working
+2021-07-05 18:16:21,266 : INFO : root : A trial message if the logger is working

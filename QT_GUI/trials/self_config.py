@@ -17,22 +17,18 @@ import os.path
 import logging
 from dragable_label import *
 from tkinter_camera import *
+from dropable_list_view import *
 
 class Ui_Config_Widget(object):
+
     def initialized(self):
         print("class initalized")
         self.batch_path = None
-        self.backend_manager = BackendManager()
+        self.backend_manager = BackendManager() # load the backendmanager
         self.setupUi(self)
+        self.setup_logger()
         self.check_session = None
-        self.logger=logging.getLogger() 
-        self.logger.setLevel(logging.DEBUG)
-        file_handler = logging.FileHandler('../Logs/configuration.log')
-        print(file_handler)
-        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.debug('A debug message')
+        self.image_stacke = [] # the image stack
 
 
     def setupUi(self, Config_Widget):
@@ -63,12 +59,12 @@ class Ui_Config_Widget(object):
 
         self.meta_data_loading_1 = QStackedWidget(self.experiment_initialization_3)
         self.meta_data_loading_1.setObjectName(u"meta_data_loading_1")
-        self.meta_data_loading_1.setGeometry(QRect(-10, 80, 1521, 771))
+        self.meta_data_loading_1.setGeometry(QRect(-10, 70, 1521, 771))
         self.page = QWidget()
         self.page.setObjectName(u"page")
         self.horizontalLayoutWidget_9 = QWidget(self.page)
         self.horizontalLayoutWidget_9.setObjectName(u"horizontalLayoutWidget_9")
-        self.horizontalLayoutWidget_9.setGeometry(QRect(30, 380, 1441, 381))
+        self.horizontalLayoutWidget_9.setGeometry(QRect(10, 370, 1441, 381))
         self.horizontalLayout_14 = QHBoxLayout(self.horizontalLayoutWidget_9)
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.horizontalLayout_14.setContentsMargins(0, 0, 0, 0)
@@ -192,7 +188,7 @@ class Ui_Config_Widget(object):
 
         self.horizontalLayoutWidget_8 = QWidget(self.page)
         self.horizontalLayoutWidget_8.setObjectName(u"horizontalLayoutWidget_8")
-        self.horizontalLayoutWidget_8.setGeometry(QRect(30, 20, 1441, 351))
+        self.horizontalLayoutWidget_8.setGeometry(QRect(10, 10, 1441, 351))
         self.horizontalLayout_13 = QHBoxLayout(self.horizontalLayoutWidget_8)
         self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
         self.horizontalLayout_13.setContentsMargins(0, 0, 0, 0)
@@ -357,100 +353,100 @@ class Ui_Config_Widget(object):
         self.page_2.setObjectName(u"page_2")
         self.groupBox_23 = QGroupBox(self.page_2)
         self.groupBox_23.setObjectName(u"groupBox_23")
-        self.groupBox_23.setGeometry(QRect(170, 10, 571, 311))
+        self.groupBox_23.setGeometry(QRect(260, 60, 481, 261))
         self.extracellular_sol_com_1 = QComboBox(self.groupBox_23)
         self.extracellular_sol_com_1.setObjectName(u"extracellular_sol_com_1")
-        self.extracellular_sol_com_1.setGeometry(QRect(160, 50, 281, 41))
+        self.extracellular_sol_com_1.setGeometry(QRect(100, 30, 281, 41))
         self.label_243 = QLabel(self.groupBox_23)
         self.label_243.setObjectName(u"label_243")
-        self.label_243.setGeometry(QRect(160, 90, 121, 16))
+        self.label_243.setGeometry(QRect(110, 70, 121, 16))
         self.Intracellular_sol_com_1 = QComboBox(self.groupBox_23)
         self.Intracellular_sol_com_1.setObjectName(u"Intracellular_sol_com_1")
-        self.Intracellular_sol_com_1.setGeometry(QRect(160, 130, 281, 41))
+        self.Intracellular_sol_com_1.setGeometry(QRect(100, 110, 281, 41))
         self.label_244 = QLabel(self.groupBox_23)
         self.label_244.setObjectName(u"label_244")
-        self.label_244.setGeometry(QRect(160, 170, 131, 16))
+        self.label_244.setGeometry(QRect(110, 150, 131, 16))
         self.ent_date_prep = QLineEdit(self.groupBox_23)
         self.ent_date_prep.setObjectName(u"ent_date_prep")
-        self.ent_date_prep.setGeometry(QRect(20, 210, 151, 41))
+        self.ent_date_prep.setGeometry(QRect(20, 190, 131, 41))
         self.S2_3 = QLineEdit(self.groupBox_23)
         self.S2_3.setObjectName(u"S2_3")
-        self.S2_3.setGeometry(QRect(210, 210, 151, 41))
+        self.S2_3.setGeometry(QRect(170, 190, 131, 41))
         self.label_245 = QLabel(self.groupBox_23)
         self.label_245.setObjectName(u"label_245")
-        self.label_245.setGeometry(QRect(20, 250, 111, 16))
+        self.label_245.setGeometry(QRect(20, 230, 111, 16))
         self.ent_ph_set = QLabel(self.groupBox_23)
         self.ent_ph_set.setObjectName(u"ent_ph_set")
-        self.ent_ph_set.setGeometry(QRect(210, 250, 131, 16))
+        self.ent_ph_set.setGeometry(QRect(170, 230, 111, 16))
         self.ent_ph_int_set = QLineEdit(self.groupBox_23)
         self.ent_ph_int_set.setObjectName(u"ent_ph_int_set")
-        self.ent_ph_int_set.setGeometry(QRect(400, 210, 151, 41))
+        self.ent_ph_int_set.setGeometry(QRect(320, 190, 131, 41))
         self.label_247 = QLabel(self.groupBox_23)
         self.label_247.setObjectName(u"label_247")
-        self.label_247.setGeometry(QRect(400, 250, 121, 16))
+        self.label_247.setGeometry(QRect(320, 230, 111, 16))
         self.groupBox_4 = QGroupBox(self.page_2)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        self.groupBox_4.setGeometry(QRect(760, 10, 611, 311))
+        self.groupBox_4.setGeometry(QRect(760, 60, 481, 261))
         self.pg_file_set = QLineEdit(self.groupBox_4)
         self.pg_file_set.setObjectName(u"pg_file_set")
-        self.pg_file_set.setGeometry(QRect(90, 50, 331, 41))
+        self.pg_file_set.setGeometry(QRect(20, 30, 331, 41))
         self.protocol_file_set = QLineEdit(self.groupBox_4)
         self.protocol_file_set.setObjectName(u"protocol_file_set")
-        self.protocol_file_set.setGeometry(QRect(90, 130, 331, 41))
+        self.protocol_file_set.setGeometry(QRect(20, 110, 331, 41))
         self.online_analysis_file_set = QLineEdit(self.groupBox_4)
         self.online_analysis_file_set.setObjectName(u"online_analysis_file_set")
-        self.online_analysis_file_set.setGeometry(QRect(90, 210, 331, 41))
+        self.online_analysis_file_set.setGeometry(QRect(20, 190, 331, 41))
         self.button_pgf_set = QPushButton(self.groupBox_4)
         self.button_pgf_set.setObjectName(u"button_pgf_set")
-        self.button_pgf_set.setGeometry(QRect(460, 50, 111, 41))
+        self.button_pgf_set.setGeometry(QRect(360, 30, 111, 41))
         self.button_protocol_set = QPushButton(self.groupBox_4)
         self.button_protocol_set.setObjectName(u"button_protocol_set")
-        self.button_protocol_set.setGeometry(QRect(460, 130, 111, 41))
+        self.button_protocol_set.setGeometry(QRect(360, 110, 111, 41))
         self.button_onl_analysis_set = QPushButton(self.groupBox_4)
         self.button_onl_analysis_set.setObjectName(u"button_onl_analysis_set")
-        self.button_onl_analysis_set.setGeometry(QRect(460, 210, 111, 41))
+        self.button_onl_analysis_set.setGeometry(QRect(360, 190, 111, 41))
         self.label_2 = QLabel(self.groupBox_4)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(90, 90, 61, 16))
+        self.label_2.setGeometry(QRect(20, 70, 61, 16))
         self.label_3 = QLabel(self.groupBox_4)
         self.label_3.setObjectName(u"label_3")
-        self.label_3.setGeometry(QRect(90, 170, 71, 16))
+        self.label_3.setGeometry(QRect(20, 150, 71, 16))
         self.label_5 = QLabel(self.groupBox_4)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setGeometry(QRect(90, 250, 101, 16))
+        self.label_5.setGeometry(QRect(20, 230, 101, 16))
         self.groupBox_5 = QGroupBox(self.page_2)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        self.groupBox_5.setGeometry(QRect(760, 340, 611, 361))
+        self.groupBox_5.setGeometry(QRect(760, 340, 481, 271))
         self.groupBox_6 = QGroupBox(self.page_2)
         self.groupBox_6.setObjectName(u"groupBox_6")
-        self.groupBox_6.setGeometry(QRect(160, 340, 581, 361))
+        self.groupBox_6.setGeometry(QRect(260, 340, 481, 271))
         self.experiment_type_desc = QLineEdit(self.groupBox_6)
         self.experiment_type_desc.setObjectName(u"experiment_type_desc")
-        self.experiment_type_desc.setGeometry(QRect(130, 60, 331, 41))
+        self.experiment_type_desc.setGeometry(QRect(10, 30, 331, 41))
         self.label_6 = QLabel(self.groupBox_6)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setGeometry(QRect(130, 100, 111, 16))
+        self.label_6.setGeometry(QRect(10, 70, 111, 16))
         self.cell_type_desc = QLineEdit(self.groupBox_6)
         self.cell_type_desc.setObjectName(u"cell_type_desc")
-        self.cell_type_desc.setGeometry(QRect(130, 140, 331, 41))
+        self.cell_type_desc.setGeometry(QRect(10, 110, 331, 41))
         self.label_7 = QLabel(self.groupBox_6)
         self.label_7.setObjectName(u"label_7")
-        self.label_7.setGeometry(QRect(130, 180, 111, 16))
+        self.label_7.setGeometry(QRect(10, 150, 111, 16))
         self.min_number_cells = QLineEdit(self.groupBox_6)
         self.min_number_cells.setObjectName(u"min_number_cells")
-        self.min_number_cells.setGeometry(QRect(40, 220, 121, 41))
+        self.min_number_cells.setGeometry(QRect(10, 190, 91, 41))
         self.label_8 = QLabel(self.groupBox_6)
         self.label_8.setObjectName(u"label_8")
-        self.label_8.setGeometry(QRect(40, 260, 111, 16))
+        self.label_8.setGeometry(QRect(10, 230, 111, 16))
         self.patched_cells = QLineEdit(self.groupBox_6)
         self.patched_cells.setObjectName(u"patched_cells")
-        self.patched_cells.setGeometry(QRect(200, 220, 111, 41))
+        self.patched_cells.setGeometry(QRect(120, 190, 91, 41))
         self.label_9 = QLabel(self.groupBox_6)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setGeometry(QRect(200, 260, 111, 16))
+        self.label_9.setGeometry(QRect(120, 230, 111, 16))
         self.database_save = QPushButton(self.groupBox_6)
         self.database_save.setObjectName(u"database_save")
-        self.database_save.setGeometry(QRect(340, 220, 201, 41))
+        self.database_save.setGeometry(QRect(250, 190, 201, 41))
         self.meta_data_loading_1.addWidget(self.page_2)
         self.Notebook_2.addTab(self.experiment_initialization_3, "")
         self.batch_communication_3 = QWidget()
@@ -531,19 +527,18 @@ class Ui_Config_Widget(object):
         self.select_commands.setObjectName(u"select_commands")
         self.gridLayoutWidget_2 = QWidget(self.select_commands)
         self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
-        self.gridLayoutWidget_2.setGeometry(QRect(430, 0, 551, 231))
+        self.gridLayoutWidget_2.setGeometry(QRect(420, 0, 551, 281))
         self.communication_layout = QGridLayout(self.gridLayoutWidget_2)
         self.communication_layout.setObjectName(u"communication_layout")
         self.communication_layout.setContentsMargins(0, 0, 0, 0)
         self.groupBox_19 = QGroupBox(self.select_commands)
         self.groupBox_19.setObjectName(u"groupBox_19")
-        self.groupBox_19.setGeometry(QRect(0, 240, 1451, 571))
-        self.listWidget = QListWidget(self.groupBox_19)
-        self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setGeometry(QRect(560, 60, 256, 471))
+        self.groupBox_19.setGeometry(QRect(0, 290, 1451, 521))
+        self.listWidget = ListView(self.groupBox_19)
+        self.listWidget.setGeometry(QRect(560, 40, 256, 471))
         self.verticalLayoutWidget_2 = QWidget(self.groupBox_19)
         self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(290, 60, 251, 471))
+        self.verticalLayoutWidget_2.setGeometry(QRect(290, 40, 251, 471))
         self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget_2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -558,10 +553,10 @@ class Ui_Config_Widget(object):
 
         self.label = QLabel(self.groupBox_19)
         self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(560, 40, 191, 16))
+        self.label.setGeometry(QRect(560, 20, 191, 16))
         self.groupBox_3 = QGroupBox(self.groupBox_19)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        self.groupBox_3.setGeometry(QRect(1260, 50, 161, 341))
+        self.groupBox_3.setGeometry(QRect(1260, 30, 161, 341))
         self.label_10 = QLabel(self.groupBox_3)
         self.label_10.setObjectName(u"label_10")
         self.label_10.setGeometry(QRect(10, 130, 47, 13))
@@ -580,24 +575,18 @@ class Ui_Config_Widget(object):
         self.label_29 = QLabel(self.groupBox_3)
         self.label_29.setObjectName(u"label_29")
         self.label_29.setGeometry(QRect(10, 190, 47, 13))
-        self.cfast_qc_2 = QLineEdit(self.groupBox_3)
-        self.cfast_qc_2.setObjectName(u"cfast_qc_2")
-        self.cfast_qc_2.setGeometry(QRect(10, 220, 141, 31))
-        self.label_30 = QLabel(self.groupBox_3)
-        self.label_30.setObjectName(u"label_30")
-        self.label_30.setGeometry(QRect(10, 250, 101, 16))
         self.widget = QWidget(self.groupBox_19)
         self.widget.setObjectName(u"widget")
-        self.widget.setGeometry(QRect(840, 60, 391, 471))
+        self.widget.setGeometry(QRect(840, 40, 391, 471))
         self.pushButton_3 = QPushButton(self.groupBox_19)
         self.pushButton_3.setObjectName(u"pushButton_3")
-        self.pushButton_3.setGeometry(QRect(1270, 420, 141, 41))
+        self.pushButton_3.setGeometry(QRect(1270, 400, 141, 41))
         self.pushButton_4 = QPushButton(self.groupBox_19)
         self.pushButton_4.setObjectName(u"pushButton_4")
-        self.pushButton_4.setGeometry(QRect(1270, 480, 141, 41))
+        self.pushButton_4.setGeometry(QRect(1270, 450, 141, 41))
         self.verticalLayoutWidget = QWidget(self.groupBox_19)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 60, 251, 471))
+        self.verticalLayoutWidget.setGeometry(QRect(20, 40, 251, 471))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -611,22 +600,22 @@ class Ui_Config_Widget(object):
 
         self.verticalLayout.addItem(self.horizontalSpacer)
 
-        self.label_11 = QLabel(self.verticalLayoutWidget)
+        self.label_11 = DragableLabel(self.verticalLayoutWidget)
         self.label_11.setObjectName(u"label_11")
 
         self.verticalLayout.addWidget(self.label_11)
 
-        self.label_13 = QLabel(self.verticalLayoutWidget)
+        self.label_13 = DragableLabel(self.verticalLayoutWidget)
         self.label_13.setObjectName(u"label_13")
 
         self.verticalLayout.addWidget(self.label_13)
 
-        self.label_14 = QLabel(self.verticalLayoutWidget)
+        self.label_14 = DragableLabel(self.verticalLayoutWidget)
         self.label_14.setObjectName(u"label_14")
 
         self.verticalLayout.addWidget(self.label_14)
 
-        self.label_15 = QLabel(self.verticalLayoutWidget)
+        self.label_15 = DragableLabel(self.verticalLayoutWidget)
         self.label_15.setObjectName(u"label_15")
 
         self.verticalLayout.addWidget(self.label_15)
@@ -649,13 +638,13 @@ class Ui_Config_Widget(object):
 
         self.label_26 = QLabel(self.groupBox_19)
         self.label_26.setObjectName(u"label_26")
-        self.label_26.setGeometry(QRect(840, 40, 191, 16))
+        self.label_26.setGeometry(QRect(840, 20, 191, 16))
         self.label_27 = QLabel(self.groupBox_19)
         self.label_27.setObjectName(u"label_27")
-        self.label_27.setGeometry(QRect(20, 40, 191, 16))
+        self.label_27.setGeometry(QRect(20, 20, 191, 16))
         self.label_28 = QLabel(self.groupBox_19)
         self.label_28.setObjectName(u"label_28")
-        self.label_28.setGeometry(QRect(290, 40, 191, 16))
+        self.label_28.setGeometry(QRect(290, 20, 191, 16))
         self.stackedWidget.addWidget(self.select_commands)
         self.Notebook_2.addTab(self.batch_communication_3, "")
         self.camera_3 = QWidget()
@@ -665,7 +654,7 @@ class Ui_Config_Widget(object):
         self.pushButton.setGeometry(QRect(650, 20, 191, 41))
         self.groupBox = QGroupBox(self.camera_3)
         self.groupBox.setObjectName(u"groupBox")
-        self.groupBox.setGeometry(QRect(80, 90, 641, 571))
+        self.groupBox.setGeometry(QRect(80, 110, 641, 571))
         self.Camera_Live_Feed = QGraphicsView(self.groupBox)
         self.Camera_Live_Feed.setObjectName(u"Camera_Live_Feed")
         self.Camera_Live_Feed.setGeometry(QRect(40, 40, 561, 451))
@@ -680,7 +669,7 @@ class Ui_Config_Widget(object):
         self.button_take_snapshot.setGeometry(QRect(417, 510, 182, 23))
         self.groupBox_2 = QGroupBox(self.camera_3)
         self.groupBox_2.setObjectName(u"groupBox_2")
-        self.groupBox_2.setGeometry(QRect(780, 90, 641, 571))
+        self.groupBox_2.setGeometry(QRect(780, 110, 641, 571))
         self.Taken_Snapshot = QGraphicsView(self.groupBox_2)
         self.Taken_Snapshot.setObjectName(u"Taken_Snapshot")
         self.Taken_Snapshot.setGeometry(QRect(40, 40, 561, 451))
@@ -695,18 +684,12 @@ class Ui_Config_Widget(object):
         self.button_save_snapshot.setGeometry(QRect(231, 510, 183, 23))
         self.horizontalLayoutWidget = QWidget(self.camera_3)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
-        self.horizontalLayoutWidget.setGeometry(QRect(80, 700, 1341, 141))
+        self.horizontalLayoutWidget.setGeometry(QRect(80, 700, 1341, 121))
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.groupBox_7 = QGroupBox(self.horizontalLayoutWidget)
         self.groupBox_7.setObjectName(u"groupBox_7")
-        self.horizontalLayoutWidget_2 = QWidget(self.groupBox_7)
-        self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
-        self.horizontalLayoutWidget_2.setGeometry(QRect(-1, 19, 1341, 121))
-        self.horizontalLayout_2 = QHBoxLayout(self.horizontalLayoutWidget_2)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
 
         self.horizontalLayout.addWidget(self.groupBox_7)
 
@@ -812,7 +795,6 @@ class Ui_Config_Widget(object):
         self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow", None))
         self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries", None))
         self.label_29.setText(QCoreApplication.translate("Config_Widget", u"Cfast", None))
-        self.label_30.setText(QCoreApplication.translate("Config_Widget", u"Seal resistance", None))
         self.pushButton_3.setText(QCoreApplication.translate("Config_Widget", u"Start Experiment", None))
         self.pushButton_4.setText(QCoreApplication.translate("Config_Widget", u"Stop Experiment", None))
         self.GeneralCommands.setText(QCoreApplication.translate("Config_Widget", u"General Commands", None))
@@ -837,8 +819,18 @@ class Ui_Config_Widget(object):
         self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.camera_3), QCoreApplication.translate("Config_Widget", u"Camera", None))
     # retranslateUi
 
+    def setup_logger(self):
+        self.logger=logging.getLogger() 
+        self.logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler('../Logs/configuration.log')
+        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        self.logger.debug('A debug message')
+
+
     def set_buttons_beginning(self):
-            self.button_batch_2.setEnabled(False)
+        self.button_batch_2.setEnabled(False)
 
     def meta_open_directory(self):
         '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
@@ -846,7 +838,7 @@ class Ui_Config_Widget(object):
         # open the directory
         dir_path = QFileDialog.getOpenFileUrl()
         # save the path in the manager class
-        self.configuration_metadata._directory_path = dir_path
+        return dir_path
 
     def open_batch_path(self):
         """ choose the path were the batch communication file should
@@ -861,12 +853,14 @@ class Ui_Config_Widget(object):
             self.batch_path = batch_path
             file_existence = self.backend_manager.check_input_file_existence()
             if file_existence is True:
-                print("yeah")
+                logging.info("Batch.in file is available at the current location")
                 self.button_batch_2.setStyleSheet("background-color: green")
                 self.button_batch_2.setEnabled(True)
             else:
+                logging.info("Currently the file is not available")
                 self.backend_manager.create_ascii_file_from_template()
                 self.open_batch_path()
+
                 
         else:
             self.Batch1.setText("please select a Path for the Patch File")
@@ -881,6 +875,7 @@ class Ui_Config_Widget(object):
         camera_status = self.camera.init_camera()
         self.scence_trial = QGraphicsScene(self)
         if camera_status is None:
+            logging.info("Camera is not connected, please connect a Basler Camera at your USB-3 port")
             self.scence_trial.addText("is not working")
             self.Camera_Live_Feed.setScene(self.scence_trial)
             self.button_start_camera.setEnabled(False)
@@ -888,7 +883,7 @@ class Ui_Config_Widget(object):
             self.button_take_snapshot.setEnabled(False)
 
         else:
-            print("Camera is connected")
+            logging.infor("Camera is connected successfully")
             self.scence_trial.addText("Please start the Camera via the Start Camera Button")
             self.Camera_Live_Feed.setScene(self.scence_trial)
 
@@ -907,11 +902,11 @@ class Ui_Config_Widget(object):
         self.trial_figure = QPixmap.fromImage(imgqt)
         self.scence_trial.clear()
         self.scence_trial.addPixmap(self.trial_figure)
-        print(camera_image)
+        
 
     def stop_camera(self):
         """ stop the camera timer """
-        print("yeah I m here for the camera")
+        logging.info("Camera ended:")
         self.start_cam.stop()
 
     def show_snapshot(self):
@@ -928,9 +923,9 @@ class Ui_Config_Widget(object):
         try:
             if len(image_liste) > 5:
                 image_liste.pop()
-                print("Expected List Length reached")
+                logging.info("Camera Snapshot stack is filled last one popped")
         except Exception as e:
-            print(f"This is the Error: {e}")
+            logging.warning(f"This is the Error: {e}")
 
 
     def draw_snapshots_on_galery(self):
@@ -945,7 +940,7 @@ class Ui_Config_Widget(object):
 
     def get_commands_from_textinput(self):
         """ """
-        print("get commands")
+        logging.info("Get commands from inputs")
         self.res = self.sub_command1.toPlainText()
         self.logger.debug(f'Batch communication input: {self.res}')
         self.sub_command1.clear()
@@ -953,7 +948,7 @@ class Ui_Config_Widget(object):
         print(self.res)
         self.backend_manager.send_text_input(self.res)
         if self.check_session:
-            print("still checking commands")
+            logging.info("Still checking commands")
         else:
             self.check_session = QTimer()
             self.check_session.timeout.connect(self.update_page)
@@ -996,4 +991,4 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.initialized()
-
+        logging.info("Successfully initalized the class")
