@@ -8,18 +8,22 @@ QPushButton {{
 .big_button {{
   height: 100px;
   font-family: 'Roboto';
-  opacity: 0;
+  opacity: 200;
   border: 1px solid {QTMATERIAL_PRIMARYCOLOR};
   border-radius : 25px;
 
 }}
 
-.valid_button {{
-  color: white;
-  text-transform: none;
-  background-color: green;
-  border-radius : 15px;
+.big_colored_button{{
+  height: 100px;
+  font-family: 'Roboto';
+  opacity: 200;
+  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};
+  border-radius : 25px;
+
 }}
+
+
 
 QTabWidget::tab-bar {{
   alignment: left;

@@ -1,0 +1,10 @@
+hello
++2 
+ GetTime
++2 
+ GetTime
++2 
+ GetTime
++1
+GetTime 
+ExecuteProtocol TestPulse

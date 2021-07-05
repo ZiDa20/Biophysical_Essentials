@@ -1,0 +1,121 @@
+2021-07-02 12:54:45,729 : DEBUG : root : A debug message
+2021-07-02 12:55:06,410 : DEBUG : root : Input command: hallo
+2021-07-02 14:16:45,129 : DEBUG : root : A debug message
+2021-07-02 14:17:02,979 : DEBUG : root : Batch communication input: 
+2021-07-02 14:47:37,481 : DEBUG : root : A debug message
+2021-07-02 14:52:34,887 : DEBUG : root : A debug message
+2021-07-02 16:03:54,041 : DEBUG : root : A debug message
+2021-07-02 16:05:33,409 : DEBUG : root : A debug message
+2021-07-02 16:09:41,789 : DEBUG : root : A debug message
+2021-07-02 16:10:16,384 : DEBUG : root : A debug message
+2021-07-02 16:10:47,828 : DEBUG : root : A debug message
+2021-07-02 16:11:26,310 : DEBUG : root : A debug message
+2021-07-02 16:12:21,988 : DEBUG : root : A debug message
+2021-07-02 16:12:57,194 : DEBUG : root : A debug message
+2021-07-02 16:13:26,785 : DEBUG : root : A debug message
+2021-07-02 16:14:38,269 : DEBUG : root : A debug message
+2021-07-02 16:17:14,987 : DEBUG : root : A debug message
+2021-07-02 16:17:42,836 : DEBUG : root : A debug message
+2021-07-02 16:18:39,049 : DEBUG : root : A debug message
+2021-07-02 16:19:59,411 : DEBUG : root : A debug message
+2021-07-02 16:22:18,076 : DEBUG : root : A debug message
+2021-07-02 16:22:45,342 : DEBUG : root : A debug message
+2021-07-02 16:23:25,430 : DEBUG : root : A debug message
+2021-07-02 16:23:36,606 : DEBUG : root : A debug message
+2021-07-02 16:26:35,212 : DEBUG : root : A debug message
+2021-07-02 16:27:33,091 : DEBUG : root : A debug message
+2021-07-02 16:28:23,404 : DEBUG : root : A debug message
+2021-07-02 16:30:38,108 : DEBUG : root : A debug message
+2021-07-02 16:30:44,791 : DEBUG : root : A debug message
+2021-07-02 16:38:34,166 : DEBUG : root : A debug message
+2021-07-02 16:39:19,917 : DEBUG : root : A debug message
+2021-07-02 16:41:57,274 : DEBUG : root : A debug message
+2021-07-02 16:42:23,624 : DEBUG : root : A debug message
+2021-07-02 16:46:27,478 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:28,158 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:28,670 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:29,166 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:29,654 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:30,126 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:30,718 : DEBUG : root : Batch communication input: 
+2021-07-02 16:46:31,886 : DEBUG : root : Batch communication input: 
+2021-07-02 16:48:30,151 : DEBUG : root : A debug message
+2021-07-02 16:48:59,799 : DEBUG : root : A debug message
+2021-07-02 16:49:55,020 : DEBUG : root : A debug message
+2021-07-02 16:57:07,219 : DEBUG : root : A debug message
+2021-07-02 16:57:27,214 : DEBUG : root : A debug message
+2021-07-02 16:57:43,449 : DEBUG : root : A debug message
+2021-07-02 16:59:26,310 : DEBUG : root : A debug message
+2021-07-02 16:59:50,402 : DEBUG : root : A debug message
+2021-07-02 17:00:41,383 : DEBUG : root : A debug message
+2021-07-02 17:11:49,036 : DEBUG : root : A debug message
+2021-07-02 17:14:41,322 : DEBUG : root : A debug message
+2021-07-02 17:19:10,787 : DEBUG : root : A debug message
+2021-07-02 17:20:10,339 : DEBUG : root : A debug message
+2021-07-02 17:20:18,841 : DEBUG : root : A debug message
+2021-07-02 17:23:29,646 : DEBUG : root : A debug message
+2021-07-02 17:24:06,153 : DEBUG : root : A debug message
+2021-07-02 17:24:44,081 : DEBUG : root : A debug message
+2021-07-04 18:00:52,740 : DEBUG : root : A debug message
+2021-07-05 15:47:35,352 : DEBUG : root : A debug message
+2021-07-05 15:48:34,362 : DEBUG : root : A debug message
+2021-07-05 15:48:42,660 : DEBUG : root : A debug message
+2021-07-05 15:49:00,934 : DEBUG : root : A debug message
+2021-07-05 15:50:58,595 : DEBUG : root : A debug message
+2021-07-05 15:52:32,400 : DEBUG : root : A debug message
+2021-07-05 15:56:16,115 : DEBUG : root : A debug message
+2021-07-05 15:56:35,199 : DEBUG : root : A debug message
+2021-07-05 15:57:56,481 : DEBUG : root : A debug message
+2021-07-05 15:58:12,140 : DEBUG : root : A debug message
+2021-07-05 15:58:47,137 : DEBUG : root : Batch communication input: 
+2021-07-05 16:23:26,831 : DEBUG : root : A debug message
+2021-07-05 16:25:50,748 : DEBUG : root : A debug message
+2021-07-05 16:27:18,057 : DEBUG : root : A debug message
+2021-07-05 16:34:04,609 : DEBUG : root : A debug message
+2021-07-05 16:35:37,273 : DEBUG : root : A debug message
+2021-07-05 16:36:48,779 : DEBUG : root : A debug message
+2021-07-05 16:38:15,622 : DEBUG : root : A debug message
+2021-07-05 16:38:59,459 : DEBUG : root : A debug message
+2021-07-05 16:42:54,588 : DEBUG : root : A debug message
+2021-07-05 16:47:43,789 : DEBUG : root : A debug message
+2021-07-05 16:51:32,673 : DEBUG : root : A debug message
+2021-07-05 16:52:17,833 : DEBUG : root : Batch communication input: Cslow CompCslow Comp
+2021-07-05 16:52:44,759 : DEBUG : root : A debug message
+2021-07-05 17:18:02,739 : DEBUG : root : A debug message
+2021-07-05 17:22:22,234 : DEBUG : root : A debug message
+2021-07-05 17:26:23,575 : DEBUG : root : A debug message
+2021-07-05 17:29:17,062 : DEBUG : root : A debug message
+2021-07-05 17:31:24,189 : DEBUG : root : A debug message
+2021-07-05 17:31:37,336 : DEBUG : root : A debug message
+2021-07-05 17:31:55,412 : DEBUG : root : Batch communication input: 
+2021-07-05 17:36:39,020 : DEBUG : root : A debug message
+2021-07-05 17:36:56,827 : DEBUG : root : Batch communication input: 
+2021-07-05 17:39:12,602 : DEBUG : root : A debug message
+2021-07-05 17:45:25,200 : DEBUG : root : A debug message
+2021-07-05 17:52:19,933 : DEBUG : root : A debug message
+2021-07-05 17:52:20,158 : INFO : root : A trial message if the logger is working
+2021-07-05 17:57:45,488 : DEBUG : root : A debug message
+2021-07-05 17:57:45,489 : INFO : root : Successfully initalized the class
+2021-07-05 17:57:45,724 : INFO : root : A trial message if the logger is working
+2021-07-05 17:57:52,382 : INFO : root : Camera is not connected, please connect a Basler Camera at your USB-3 port
+2021-07-05 17:57:59,140 : INFO : root : Batch.in file is available at the current location
+2021-07-05 17:58:04,618 : INFO : root : Get commands from inputs
+2021-07-05 17:58:04,618 : DEBUG : root : Batch communication input: hello
+2021-07-05 18:00:11,473 : DEBUG : root : A debug message
+2021-07-05 18:00:11,474 : INFO : root : Successfully initalized the class
+2021-07-05 18:00:11,704 : INFO : root : A trial message if the logger is working
+2021-07-05 18:00:36,177 : INFO : root : Batch.in file is available at the current location
+2021-07-05 18:00:57,424 : DEBUG : root : A debug message
+2021-07-05 18:00:57,425 : INFO : root : Successfully initalized the class
+2021-07-05 18:00:57,651 : INFO : root : A trial message if the logger is working
+2021-07-05 18:01:00,721 : INFO : root : Batch.in file is available at the current location
+2021-07-05 18:14:50,811 : DEBUG : root : A debug message
+2021-07-05 18:14:51,038 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:14,728 : DEBUG : root : A debug message
+2021-07-05 18:15:14,950 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:37,243 : DEBUG : root : A debug message
+2021-07-05 18:15:37,470 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:49,558 : DEBUG : root : A debug message
+2021-07-05 18:15:49,781 : INFO : root : A trial message if the logger is working
+2021-07-05 18:16:21,034 : DEBUG : root : A debug message
+2021-07-05 18:16:21,266 : INFO : root : A trial message if the logger is working
