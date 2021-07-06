@@ -3,10 +3,10 @@ import tkinter as tk
 import raw_analysis as ra
 from tkinter import filedialog
 import os
-import heka_reader
 from online_analysis_manager import *
-
+import time
 import data_db
+from treeview_manager import *
 
 
 class OfflineManager():
@@ -30,7 +30,6 @@ class OfflineManager():
         self.database = data_db.DataDB()
 
 
-
     @property
     def directory_path(self):
         return self._directory_path
@@ -39,17 +38,35 @@ class OfflineManager():
     def directory_path(self,val):
         self._directory_path = val
 
-    def read_data_from_experiemnt_directory(self):
+
+    def get_database(self):
+        return self.database
+
+    def read_data_from_experiment_directory(self,tree):
         data_list = self.package_list(self._directory_path)
+        tree = TreeViewManager().create_treeview_from_directory(tree, self.database,data_list,self._directory_path)
+
+        '''
         for i in data_list:
             tmp_list = []
             file = self._directory_path + "/" + i
             bundle = heka_reader.Bundle(file)
 
+            self.database.add_experiment_to_experiment_table(i)
+
             # @todo remove dat fiel structire fom update_data_structure
             tmp_list = OnlineAnalysisManager().update_data_structure([], bundle, bundle,
-                                                                     tmp_list)  # maybe it's good to end the list at series level
+                                                                     tmp_list)
+
+            #t0 = time.time()
+            tree = OnlineAnalysisManager().create_treeview_from_single_dat_file([], bundle, "", [],tree, i, self.database)
+            #t1 = time.time()
+
+            #t = t1-t0
             print("I am here")
+            '''
+        return tree
+
 
     # Database functions
     def init_database(self):

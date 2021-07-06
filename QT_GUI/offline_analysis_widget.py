@@ -7,14 +7,18 @@
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
-
+import pyqtgraph
+from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from offline_analysis_manager import OfflineManager
-
-
+from data_db import *
+from PySide6 import QtWidgets
+import pyqtgraph as pg
+from pyqtgraph import PlotWidget, plot
+import numpy as np
 
 class Ui_Offline_Analysis(object):
 
@@ -22,6 +26,37 @@ class Ui_Offline_Analysis(object):
 
         # init managers
         self.offline_manager = None
+
+
+
+    def experiments_tree_view_click_handler(self, item):
+        print('Text of first column in item is ', item.text(0))
+
+        if not item.checkState(1):
+            item.setCheckState(1, Qt.Checked)
+            db_request_data = item.data(3,0)
+            experiment=db_request_data[0]
+            series_identifier=db_request_data[1]
+            sweep_number = db_request_data[2]
+            self.offline_analysis_canvas = pg.PlotWidget()
+
+            db = self.offline_manager.get_database()
+            data = db.get_single_sweep_data_from_database(experiment,series_identifier,sweep_number)
+            time = np.linspace(0, len(data) - 1, len(data))
+
+            # modified
+            self.plot_widget.plot(time,data)
+            self.plot_widget.plotItem.setMouseEnabled(x=True,y=True)
+            #self.plot_widget.setBackground('w')
+
+
+
+
+            #time = get_single_sweep_time_from_database(experiment,series_identifier,sweep_number)
+
+        else:
+            item.setCheckState(1, Qt.Unchecked)
+
 
     @Slot()
     def open_directory(self):
@@ -37,8 +72,16 @@ class Ui_Offline_Analysis(object):
         # read all the data in the specified directory
         # -> read directory data into database
         # @todo: display a reading animation
-        self.offline_manager.read_data_from_experiemnt_directory()
+        self.offline_manager.init_database()
+        self.experiments_tree_view = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view)
+        self.experiments_tree_view.expandToDepth(-1)
+        self.experiments_tree_view.setColumnWidth(0,150)
+        self.experiments_tree_view.setColumnWidth(1, 40)
+        self.experiments_tree_view.setColumnWidth(2, 40)
+        #self.experiments_tree_view.show()
+        print("treeview_created")
 
+        self.experiments_tree_view.itemClicked.connect(self.experiments_tree_view_click_handler)
         # create treeview
         # filter options need to be selected
         # plot the first data available
@@ -53,6 +96,8 @@ class Ui_Offline_Analysis(object):
     def start_another_function(self):
         print("noch cooler")
         self.offline_analysis_widgets.setCurrentIndex(1)
+
+
 
 
     def setupUi(self, Offline_Analysis):
@@ -94,17 +139,12 @@ class Ui_Offline_Analysis(object):
         self.offline_analysis_widgets.addWidget(self.start_page)
         self.blank_analysis = QWidget()
         self.blank_analysis.setObjectName(u"blank_analysis")
-        self.experiments_tree_view = QTreeView(self.blank_analysis)
+        self.experiments_tree_view = QTreeWidget(self.blank_analysis)
         self.experiments_tree_view.setObjectName(u"experiments_tree_view")
-        self.experiments_tree_view.setGeometry(QRect(70, 150, 241, 161))
+        self.experiments_tree_view.setGeometry(QRect(70, 130, 241, 301))
         self.compare_series = QPushButton(self.blank_analysis)
         self.compare_series.setObjectName(u"compare_series")
         self.compare_series.setGeometry(QRect(70, 530, 811, 41))
-        self.series_plot_frame = QFrame(self.blank_analysis)
-        self.series_plot_frame.setObjectName(u"series_plot_frame")
-        self.series_plot_frame.setGeometry(QRect(350, 150, 531, 341))
-        self.series_plot_frame.setFrameShape(QFrame.StyledPanel)
-        self.series_plot_frame.setFrameShadow(QFrame.Raised)
         self.widget_sepcific_label = QLabel(self.blank_analysis)
         self.widget_sepcific_label.setObjectName(u"widget_sepcific_label")
         self.widget_sepcific_label.setGeometry(QRect(310, 40, 281, 41))
@@ -116,9 +156,27 @@ class Ui_Offline_Analysis(object):
         self.selected_directory = QLabel(self.blank_analysis)
         self.selected_directory.setObjectName(u"selected_directory")
         self.selected_directory.setGeometry(QRect(180, 100, 131, 21))
-        self.outfiltered_tree_view = QTreeView(self.blank_analysis)
+        self.experiments_tree_view = QTreeWidget(self.blank_analysis)
+        self.experiments_tree_view.setObjectName(u"experiments_tree_view")
+        self.experiments_tree_view.setGeometry(QRect(70, 130, 271, 301))
+        self.outfiltered_tree_view = QTreeWidget(self.blank_analysis)
+        __qtreewidgetitem = QTreeWidgetItem()
+        __qtreewidgetitem.setText(0, u"1");
+        self.outfiltered_tree_view.setHeaderItem(__qtreewidgetitem)
         self.outfiltered_tree_view.setObjectName(u"outfiltered_tree_view")
-        self.outfiltered_tree_view.setGeometry(QRect(70, 330, 241, 161))
+        self.outfiltered_tree_view.setGeometry(QRect(70, 440, 271, 71))
+        self.verticalLayoutWidget = QWidget(self.blank_analysis)
+        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
+        self.verticalLayoutWidget.setGeometry(QRect(390, 130, 471, 381))
+        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+
+        # modified:
+        self.plot_widget = pg.PlotWidget()
+        self.plot_widget.setStyleSheet('dark_blue.xml')
+        self.verticalLayout.addWidget(self.plot_widget)
+
         self.offline_analysis_widgets.addWidget(self.blank_analysis)
         self.Offline_Analysis_Notebook.addTab(self.Start_Analysis, "")
         self.visualization = QWidget()
@@ -128,9 +186,10 @@ class Ui_Offline_Analysis(object):
         self.retranslateUi(Offline_Analysis)
 
         self.Offline_Analysis_Notebook.setCurrentIndex(0)
-
+        self.offline_analysis_widgets.setCurrentIndex(1)
 
         QMetaObject.connectSlotsByName(Offline_Analysis)
+
     # setupUi
 
     def retranslateUi(self, Offline_Analysis):
@@ -145,6 +204,10 @@ class Ui_Offline_Analysis(object):
         self.widget_sepcific_label.setText(QCoreApplication.translate("Offline_Analysis", u"Configure your Analysis", None))
         self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Select Directory", None))
         self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"TextLabel", None))
+        ___qtreewidgetitem = self.experiments_tree_view.headerItem()
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Offline_Analysis", u"Remove", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Offline_Analysis", u"Show", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Offline_Analysis", u"Objects", None));
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.Start_Analysis), QCoreApplication.translate("Offline_Analysis", u"Start Analysis", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
     # retranslateUi

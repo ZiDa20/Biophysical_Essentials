@@ -5,6 +5,7 @@ import re
 import raw_analysis as ra
 import heka_reader
 import numpy as np
+import io
 
 class DataDB():
     ''' A class to handle all data in a sqlite3 generated during offline analysis.
@@ -15,6 +16,17 @@ class DataDB():
         self.database = None
         self.offline_analysis_id = None
 
+    def adapt_array(self,arr):
+        out = io.BytesIO()
+        np.save(out, arr)
+        out.seek(0)
+        return sqlite3.Binary(out.read())
+
+    def convert_array(self,text):
+        out = io.BytesIO(text)
+        out.seek(0)
+        return np.load(out)
+
     def create_analysis_database(self):
         self.db_file_name = "analysis_database.db"
 
@@ -23,7 +35,13 @@ class DataDB():
         if self.db_file_name in dir_list:
             os.remove(cew + "/" + self.db_file_name)
         try:
-            self.database = sqlite3.connect(cew + "/" + self.db_file_name)
+            # Converts np.array to TEXT when inserting
+            sqlite3.register_adapter(np.ndarray, self.adapt_array)
+
+            # Converts TEXT to np.array when selecting
+            sqlite3.register_converter("array", self.convert_array)
+
+            self.database = sqlite3.connect(cew + "/" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
             print(e)
 
@@ -65,7 +83,7 @@ class DataDB():
                                                sweep_number integer,
                                                meta_data text,
                                                pgf_information text,
-                                               data_array text
+                                               data_array array
                                            ); """
 
         sql_create_analysis_function_table = """ CREATE TABLE IF NOT EXISTS analysis_functions(
@@ -82,6 +100,12 @@ class DataDB():
                                             result_value
                                             ); """
 
+        sql_create_experiment_series_table = """ CREATE TABLE IF NOT EXISTS experiment_series(
+                                             experiment_name references experiments,
+                                             series_name,
+                                             series_identifier
+                                             ); """
+
         self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
         self.database = self.execute_sql_command(self.database, sql_create_filter_table)
         self.database = self.execute_sql_command(self.database, sql_create_series_table)
@@ -89,7 +113,7 @@ class DataDB():
         self.database = self.execute_sql_command(self.database, sql_create_sweeps_table)
         self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
         self.database = self.execute_sql_command(self.database, sql_create_results_table)
-
+        self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
     # @todo refactor to write to database
     def execute_sql_command(self,database,sql_command,values = None):
         try:
@@ -355,3 +379,38 @@ class DataDB():
                 output_string = output_string + ","  + str(d)
 
         return output_string
+
+    def add_experiment_to_experiment_table(self,name,meta_data_group = None,series_name = None,mapping_id=None):
+        q = f'insert into experiments (name) values  (\"{name}\") '
+        self.database = self.execute_sql_command(self.database, q)
+
+    def add_sweep_to_sweep_table(self,experiment_name,tmp_list,current_object):
+
+        p = tmp_list.index(current_object)
+        # extract sweep_number
+        sweep_number = self.get_sweep_number(current_object[0])
+        # extract series_identifier
+        series_identifier = self.get_series_identifier(tmp_list,p)
+        # extract meta_data_string
+        meta_data = self.get_sweep_meta_data(tmp_list,p)
+
+        q = "insert into sweeps (experiment_name, series_identifier, sweep_number,meta_data) values (?,?,?,?)"
+        self.database = self.execute_sql_command(self.database, q,(experiment_name,series_identifier,sweep_number,meta_data))
+
+        #def add_series_to_experiment_series(self, experiment_name, tmp_list):
+
+    def add_single_sweep_tp_database(self,experiment_name,series_identifier,sweep_number,meta_data,data_array):
+        np_data_array = np.array(data_array)
+        np_meta_data = np.array(meta_data)
+        q = "insert into sweeps (experiment_name, series_identifier, sweep_number,meta_data,data_array) values (?,?,?,?,?)"
+        self.database = self.execute_sql_command(self.database, q,
+                                                 (experiment_name, series_identifier, sweep_number, np_meta_data, np_data_array))
+
+    #def add_single_series_to_database(self,experiment_name,series_name,series_identifier):
+
+    def get_single_sweep_data_from_database(self,experiment_name,series_identifier,sweep_number):
+        q = """SELECT data_array FROM sweeps WHERE experiment_name = (?)  AND series_identifier=(?) AND sweep_number=(?) """
+        res =  self.get_data_from_database(self.database, q, (experiment_name,series_identifier,sweep_number))
+        print(res[0][0])
+        return(res[0][0])
+
