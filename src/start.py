@@ -43,10 +43,17 @@ class MainWindow(QMainWindow):
 
         #connect to the function for the batch communication
         self.ui.config.button_batch_1.clicked.connect(self.ui.config.open_batch_path)
-        self.ui.config.button_batch_2.clicked.connect(self.ui.config.doAnim)
+        self.ui.config.button_batch_2.clicked.connect(self.ui.config.show_analysis_window)
+        self.ui.config.button_pgf_set.clicked.connect(self.ui.config.set_pgf_file)
+        self.ui.config.button_protocol_set.clicked.connect(self.ui.config.set_protocol_file)
+        self.ui.config.button_onl_analysis_set.clicked.connect(self.ui.config.set_online_file)
         self.ui.config.button_submit_command.clicked.connect(self.ui.config.get_commands_from_textinput)
         self.ui.config.button_clear_window.clicked.connect(self.ui.config.end_communication_control)
         # initialize the camera module
+
+
+        self.ui.config.pushButton_3.clicked.connect(self.ui.config.make_threading)
+        self.ui.config.pushButton_10.clicked.connect(self.ui.config.change_to_testing)
 
     #def select_file(self):
    
