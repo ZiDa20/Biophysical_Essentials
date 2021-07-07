@@ -6,6 +6,8 @@ import os.path
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+import pandas as pd
+from time import sleep
 
 
 class BackendManager:
@@ -97,16 +99,33 @@ class BackendManager:
         except FileNotFoundError:
             return('There was no .OUT file found. Is the communication active ?')
 
+    def get_query_status(self):
+        """Get the query status of the File"""
+        sleep(1)
+        try:
+            with open(self.batch_path + '/E9Batch.OUT', "r") as file_object:
+                query_status = file_object.readlines()[1]
+                file_object.close()
+                return query_status
+        except Exception as e:
+            print(e)
+
+    def return_dataframe_from_notebook(self):
+        """Get the DataFrame from the notebook analysis"""
+        data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', "r", skiprows = 2, header = None)
+        return data_frame_notebook
+       
+     
+
     def create_ascii_file_from_template(self):
         # create a new e9Patch file
         if not self.batch_path:
             return False
         else:
             try:
-                self.batch_file = open(self.batch_path+'/E9Batch.In', "x")
+                self.batch_file = open(self.batch_path+'/E9Batch.In', "w")
                 self.batch_file.write("+1\n")
                 self.batch_file.write("GetTime \n")
-                self.batch_file.write("ExecuteProtocol TestPulse")
                 self.batch_file.close()
                 self.update_control_file_content()
                 #copyfile(self.batch_path + '/E9Batch.In', self.batch_path + '/E9BatchIn.txt')
@@ -133,8 +152,7 @@ class BackendManager:
             print(type(input_string))
         else:
             print("strange string\n")
-            print(input_string)
-
+            
         try:
                 self.c_f= open(self.batch_path + '/E9Batch.In', "r+")
                 self.old_commands = self.c_f.read()
