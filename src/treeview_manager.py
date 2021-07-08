@@ -1,9 +1,10 @@
 from PySide6.QtGui import *
 from PySide6.QtCore import *
+import os
 from PySide6.QtWidgets import *
+from PySide6 import *
 import re
 import heka_reader
-
 class TreeViewManager():
     ''' Main class to handle interactions with treeviews. In general two  usages are defined right now:
     1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
@@ -66,6 +67,10 @@ class TreeViewManager():
         except Exception as e:
             metadata.append(node)
 
+        discard_button = QPushButton()
+        pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+        discard_button.setIcon(pixmap)
+
         if "Pulsed" in node_type:
             print("skipped")
             parent = ""
@@ -78,8 +83,12 @@ class TreeViewManager():
             else:
                 parent.setText(0, node_label)
                 parent.setData(3, 0, [0])  # hard coded tue to .dat file structure
-            # parent.setFlags(parent.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-            parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable)
+
+            # add discard button in coloumn 2
+            tree.setItemWidget(parent,2,discard_button)
+            discard_button.clicked.connect(self.discard_button_clicked)
+            #discard_button.setProperty("identifier","experimentName_seriesIdentifier")
+
 
         if "Series" in node_type:
             for s in node_list:
@@ -94,12 +103,14 @@ class TreeViewManager():
             data = parent.data(3, 0)
             if data_base_mode:
                 data.append(node_type)
-                #database.add_single_series_to_database(experiment_name,node_label,node_type)
+                database.add_single_series_to_database(experiment_name,node_label,node_type)
             else:
                 data.append(series_number - 1)
             child.setData(3, 0, data)
             child.setData(4,0,node_type)
+            child.setExpanded(True)
             parent = child
+            tree.setItemWidget(child,2,discard_button)
 
 
         if "Sweep" in node_type:
@@ -121,11 +132,15 @@ class TreeViewManager():
                 data.append(0)
 
             child.setData(3, 0, data)
+
         node_list.append([node_type, node_label, parent])
+
+
 
         for i in range(len(node.children)):
             self.create_treeview_from_single_dat_file(index + [i], bundle, parent, node_list, tree, experiment_name,
                                                       database,data_base_mode)
+
         return tree
 
     def get_number_from_string(self,string):
@@ -133,3 +148,25 @@ class TreeViewManager():
         splitted_string = re.match(r"([a-z]+)([0-9]+)",string,re.I)
         res = splitted_string.groups()
         return int(res[1])
+
+    def uncheck_entire_tree(self,tree):
+        top_level_items = tree.topLevelItemCount()
+        for i in range(0,top_level_items):
+            parent_item = tree.topLevelItem(i)
+            self.uncheck_parents_childs(parent_item)
+            parent_item.setCheckState(1, Qt.Unchecked)
+
+
+    def uncheck_parents_childs(self,parent):
+        child_count = parent.childCount()
+        for c in range(0,child_count):
+            parent.child(c).setCheckState(1, Qt.Unchecked)
+
+            if parent.child(c).childCount()>0:
+                self.uncheck_parents_childs(parent.child(c))
+
+
+    @Slot()
+    def discard_button_clicked(self):
+        print("a discard button was clicked")
+
