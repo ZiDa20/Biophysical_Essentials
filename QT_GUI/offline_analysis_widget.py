@@ -15,6 +15,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from offline_analysis_manager import OfflineManager
 from data_db import *
+from treeview_manager import *
 from PySide6 import QtWidgets
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget, plot
@@ -27,36 +28,58 @@ class Ui_Offline_Analysis(object):
         # init managers
         self.offline_manager = None
 
-
-
-    def experiments_tree_view_click_handler(self, item):
-        print('Text of first column in item is ', item.text(0))
-
+    def sweep_clicked(self,item):
+        self.plot_widget.clear()
         if not item.checkState(1):
             item.setCheckState(1, Qt.Checked)
             db_request_data = item.data(3,0)
-            experiment=db_request_data[0]
-            series_identifier=db_request_data[1]
-            sweep_number = db_request_data[2]
             self.offline_analysis_canvas = pg.PlotWidget()
-
             db = self.offline_manager.get_database()
-            data = db.get_single_sweep_data_from_database(experiment,series_identifier,sweep_number)
+            data = db.get_single_sweep_data_from_database(db_request_data)
             time = np.linspace(0, len(data) - 1, len(data))
 
             # modified
             self.plot_widget.plot(time,data)
             self.plot_widget.plotItem.setMouseEnabled(x=True,y=True)
-            #self.plot_widget.setBackground('w')
-
-
-
-
-            #time = get_single_sweep_time_from_database(experiment,series_identifier,sweep_number)
 
         else:
             item.setCheckState(1, Qt.Unchecked)
 
+    def series_clicked(self,item):
+        self.plot_widget.clear()
+        print("series clicked")
+        children = item.childCount()
+
+        if not item.checkState(1):
+            # go through the tree and uncheck all
+            TreeViewManager().uncheck_entire_tree(self.experiments_tree_view)
+            item.setCheckState(1, Qt.Checked)
+            for c in range(0,children):
+                item.child(c).setCheckState(1, Qt.Checked)
+                db = self.offline_manager.get_database()
+                data = db.get_single_sweep_data_from_database(item.child(c).data(3,0))
+                time = np.linspace(0, len(data) - 1, len(data))
+                self.plot_widget.plot(time, data)
+                self.plot_widget.plotItem.setMouseEnabled(x=True, y=True)
+
+        else:
+            item.setCheckState(1,Qt.Unchecked)
+            for c in range(0, children):
+                item.child(c).setCheckState(1, Qt.Unchecked)
+
+
+
+
+    def experiments_tree_view_click_handler(self, item):
+        print('Text of first column in item is ', item.text(0))
+
+        if "Sweep" in item.text(0):
+            self.sweep_clicked(item)
+        else:
+            if ".dat" in item.text(0):
+                print("To see data traces, click on a sweep or a series")
+            else:
+             self.series_clicked(item)
 
     @Slot()
     def open_directory(self):
@@ -74,18 +97,24 @@ class Ui_Offline_Analysis(object):
         # @todo: display a reading animation
         self.offline_manager.init_database()
         self.experiments_tree_view = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view)
-        self.experiments_tree_view.expandToDepth(-1)
-        self.experiments_tree_view.setColumnWidth(0,150)
-        self.experiments_tree_view.setColumnWidth(1, 40)
-        self.experiments_tree_view.setColumnWidth(2, 40)
+        #self.experiments_tree_view.expandToDepth(-1)
+        self.experiments_tree_view.setColumnWidth(0,130)
+        self.experiments_tree_view.setColumnWidth(1, 60)
+        self.experiments_tree_view.setColumnWidth(2, 50)
         #self.experiments_tree_view.show()
         print("treeview_created")
 
         self.experiments_tree_view.itemClicked.connect(self.experiments_tree_view_click_handler)
+        #self.experiments_tree_view.itemClicked.connect(self.onItemClicked)
+
+
         # create treeview
         # filter options need to be selected
         # plot the first data available
 
+    @Slot(QtWidgets.QTreeWidgetItem, int)
+    def onItemClicked(self, it, col):
+        print(it, col, it.text(col))
 
     @Slot()
     def start_offline_analysis(self, notebook):

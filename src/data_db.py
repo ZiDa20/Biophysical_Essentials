@@ -406,11 +406,16 @@ class DataDB():
         self.database = self.execute_sql_command(self.database, q,
                                                  (experiment_name, series_identifier, sweep_number, np_meta_data, np_data_array))
 
-    #def add_single_series_to_database(self,experiment_name,series_name,series_identifier):
+    def add_single_series_to_database(self,experiment_name,series_name,series_identifier):
+        q = """insert into experiment_series values (?,?,?)"""
+        self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier))
 
-    def get_single_sweep_data_from_database(self,experiment_name,series_identifier,sweep_number):
+    def get_single_sweep_data_from_database(self,data_array):
+        experiment_name = data_array[0]
+        series_identifier = data_array[1]
+        sweep_number = data_array[2]
         q = """SELECT data_array FROM sweeps WHERE experiment_name = (?)  AND series_identifier=(?) AND sweep_number=(?) """
         res =  self.get_data_from_database(self.database, q, (experiment_name,series_identifier,sweep_number))
         print(res[0][0])
-        return(res[0][0])
+        return res[0][0]
 

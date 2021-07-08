@@ -44,29 +44,8 @@ class OfflineManager():
 
     def read_data_from_experiment_directory(self,tree):
         data_list = self.package_list(self._directory_path)
-        tree = TreeViewManager().create_treeview_from_directory(tree, self.database,data_list,self._directory_path)
-
-        '''
-        for i in data_list:
-            tmp_list = []
-            file = self._directory_path + "/" + i
-            bundle = heka_reader.Bundle(file)
-
-            self.database.add_experiment_to_experiment_table(i)
-
-            # @todo remove dat fiel structire fom update_data_structure
-            tmp_list = OnlineAnalysisManager().update_data_structure([], bundle, bundle,
-                                                                     tmp_list)
-
-            #t0 = time.time()
-            tree = OnlineAnalysisManager().create_treeview_from_single_dat_file([], bundle, "", [],tree, i, self.database)
-            #t1 = time.time()
-
-            #t = t1-t0
-            print("I am here")
-            '''
+        tree = TreeViewManager().create_treeview_from_directory(tree, self.database, data_list, self._directory_path)
         return tree
-
 
     # Database functions
     def init_database(self):
