@@ -8,10 +8,9 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from dropable_list_view import ListView
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore
 from PIL import ImageQt ,Image
 from backend_manager import *
 import os.path
@@ -20,9 +19,15 @@ from dragable_label import *
 from tkinter_camera import *
 from time import sleep
 import pandas as pd
-
+from dropable_list_view import ListView
+from plotting_pyqt import PlotClass
+import pyqtgraph as pg
+from pyqtgraph import PlotWidget, plot
+pg.setConfigOption('foreground', '#448aff')
+from dvg_pyqtgraph_threadsafe import PlotCurve
 
 class Ui_Config_Widget(object):
+
     def initialized(self):
         print("class initalized")
         self.batch_path = None
@@ -30,7 +35,7 @@ class Ui_Config_Widget(object):
         self.pgf_file = None
         self.pro_file = None
         self.onl_file = None
-
+        self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
         self.submission_count = 2
 
         self.setupUi(self)
@@ -48,10 +53,10 @@ class Ui_Config_Widget(object):
     def setupUi(self, Config_Widget):
         if not Config_Widget.objectName():
             Config_Widget.setObjectName(u"Config_Widget")
-        Config_Widget.resize(1613, 904)
+        Config_Widget.resize(1613, 1023)
         self.gridLayoutWidget = QWidget(Config_Widget)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(0, 20, 1531, 871))
+        self.gridLayoutWidget.setGeometry(QRect(0, 20, 1531, 891))
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -528,130 +533,153 @@ class Ui_Config_Widget(object):
         self.select_commands.setObjectName(u"select_commands")
         self.groupBox_19 = QGroupBox(self.select_commands)
         self.groupBox_19.setObjectName(u"groupBox_19")
-        self.groupBox_19.setGeometry(QRect(10, 20, 1451, 771))
+        self.groupBox_19.setGeometry(QRect(10, 40, 1251, 791))
         self.listWidget = ListView(self.groupBox_19)
         self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setGeometry(QRect(560, 60, 256, 701))
-        self.verticalLayoutWidget_2 = QWidget(self.groupBox_19)
-        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(290, 60, 251, 701))
-        self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget_2)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.GeneralCommands_2 = QLabel(self.verticalLayoutWidget_2)
-        self.GeneralCommands_2.setObjectName(u"GeneralCommands_2")
-
-        self.verticalLayout_2.addWidget(self.GeneralCommands_2)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_2.addItem(self.horizontalSpacer_2)
-
+        self.listWidget.setGeometry(QRect(560, 60, 256, 641))
         self.label = QLabel(self.groupBox_19)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(560, 40, 191, 16))
-        self.groupBox_3 = QGroupBox(self.groupBox_19)
+        self.label_26 = QLabel(self.groupBox_19)
+        self.label_26.setObjectName(u"label_26")
+        self.label_26.setGeometry(QRect(830, 40, 191, 16))
+        self.label_27 = QLabel(self.groupBox_19)
+        self.label_27.setObjectName(u"label_27")
+        self.label_27.setGeometry(QRect(10, 40, 191, 16))
+        self.label_28 = QLabel(self.groupBox_19)
+        self.label_28.setObjectName(u"label_28")
+        self.label_28.setGeometry(QRect(280, 40, 191, 16))
+        self.scrollArea = QScrollArea(self.groupBox_19)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setGeometry(QRect(280, 60, 261, 701))
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 259, 699))
+        self.SeriesWidget = ListView(self.scrollAreaWidgetContents)
+        self.SeriesWidget.setObjectName(u"SeriesWidget")
+        self.SeriesWidget.setGeometry(QRect(0, 0, 261, 701))
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.label_32 = QLabel(self.groupBox_19)
+        self.label_32.setObjectName(u"label_32")
+        self.label_32.setGeometry(QRect(10, 440, 191, 16))
+        self.scrollArea_2 = QScrollArea(self.groupBox_19)
+        self.scrollArea_2.setObjectName(u"scrollArea_2")
+        self.scrollArea_2.setGeometry(QRect(10, 460, 251, 301))
+        self.scrollArea_2.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_2 = QWidget()
+        self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 249, 299))
+        self.protocol_widget = ListView(self.scrollAreaWidgetContents_2)
+        self.protocol_widget.setObjectName(u"protocol_widget")
+        self.protocol_widget.setGeometry(QRect(0, 0, 251, 301))
+        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
+        self.gridLayoutWidget_4 = QWidget(self.groupBox_19)
+        self.gridLayoutWidget_4.setObjectName(u"gridLayoutWidget_4")
+        self.gridLayoutWidget_4.setGeometry(QRect(830, 420, 401, 341))
+        self.gridLayout_5 = QGridLayout(self.gridLayoutWidget_4)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.parameter_window = QGridLayout()
+        self.parameter_window.setObjectName(u"parameter_window")
+        self.groupBox_3 = QGroupBox(self.gridLayoutWidget_4)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        self.groupBox_3.setGeometry(QRect(840, 550, 391, 211))
         self.label_10 = QLabel(self.groupBox_3)
         self.label_10.setObjectName(u"label_10")
-        self.label_10.setGeometry(QRect(170, 80, 47, 13))
+        self.label_10.setGeometry(QRect(170, 60, 47, 13))
         self.label_12 = QLabel(self.groupBox_3)
         self.label_12.setObjectName(u"label_12")
-        self.label_12.setGeometry(QRect(10, 80, 47, 13))
+        self.label_12.setGeometry(QRect(10, 60, 47, 13))
         self.cslow_qc = QLineEdit(self.groupBox_3)
         self.cslow_qc.setObjectName(u"cslow_qc")
-        self.cslow_qc.setGeometry(QRect(170, 50, 141, 31))
+        self.cslow_qc.setGeometry(QRect(170, 30, 141, 31))
         self.rseries_qc = QLineEdit(self.groupBox_3)
         self.rseries_qc.setObjectName(u"rseries_qc")
-        self.rseries_qc.setGeometry(QRect(10, 50, 141, 31))
+        self.rseries_qc.setGeometry(QRect(10, 30, 141, 31))
         self.cfast_qc = QLineEdit(self.groupBox_3)
         self.cfast_qc.setObjectName(u"cfast_qc")
-        self.cfast_qc.setGeometry(QRect(10, 140, 141, 31))
-        self.label_29 = QLabel(self.groupBox_3)
-        self.label_29.setObjectName(u"label_29")
-        self.label_29.setGeometry(QRect(10, 170, 47, 13))
+        self.cfast_qc.setGeometry(QRect(10, 90, 141, 31))
         self.cfast_qc_2 = QLineEdit(self.groupBox_3)
         self.cfast_qc_2.setObjectName(u"cfast_qc_2")
-        self.cfast_qc_2.setGeometry(QRect(170, 140, 141, 31))
-        self.label_30 = QLabel(self.groupBox_3)
-        self.label_30.setObjectName(u"label_30")
-        self.label_30.setGeometry(QRect(170, 170, 101, 16))
+        self.cfast_qc_2.setGeometry(QRect(170, 90, 141, 31))
+        self.label_13 = QLabel(self.groupBox_3)
+        self.label_13.setObjectName(u"label_13")
+        self.label_13.setGeometry(QRect(10, 120, 47, 13))
+        self.label_14 = QLabel(self.groupBox_3)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setGeometry(QRect(170, 120, 47, 13))
+
+        self.parameter_window.addWidget(self.groupBox_3, 1, 0, 1, 1)
+
+        self.groupBox_5 = QGroupBox(self.gridLayoutWidget_4)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.horizontalSlider = QSlider(self.groupBox_5)
+        self.horizontalSlider.setObjectName(u"horizontalSlider")
+        self.horizontalSlider.setGeometry(QRect(70, 40, 211, 22))
+        self.horizontalSlider.setOrientation(Qt.Horizontal)
+        self.label_11 = QLabel(self.groupBox_5)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setGeometry(QRect(110, 20, 171, 16))
+        self.label_15 = QLabel(self.groupBox_5)
+        self.label_15.setObjectName(u"label_15")
+        self.label_15.setGeometry(QRect(110, 90, 141, 16))
+        self.horizontalSlider_2 = QSlider(self.groupBox_5)
+        self.horizontalSlider_2.setObjectName(u"horizontalSlider_2")
+        self.horizontalSlider_2.setGeometry(QRect(70, 110, 211, 22))
+        self.horizontalSlider_2.setOrientation(Qt.Horizontal)
+
+        self.parameter_window.addWidget(self.groupBox_5, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addLayout(self.parameter_window, 0, 0, 1, 1)
+
+        self.pushButton_10 = QPushButton(self.groupBox_19)
+        self.pushButton_10.setObjectName(u"pushButton_10")
+        self.pushButton_10.setGeometry(QRect(610, 720, 141, 41))
+        self.scrollArea_3 = QScrollArea(self.groupBox_19)
+        self.scrollArea_3.setObjectName(u"scrollArea_3")
+        self.scrollArea_3.setGeometry(QRect(10, 60, 251, 371))
+        self.scrollArea_3.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_3 = QWidget()
+        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 249, 369))
+        self.general_commands_labels = ListView(self.scrollAreaWidgetContents_3)
+        self.general_commands_labels.setObjectName(u"general_commands_labels")
+        self.general_commands_labels.setGeometry(QRect(0, 0, 256, 371))
+        self.scrollArea_3.setWidget(self.scrollAreaWidgetContents_3)
         self.widget = QWidget(self.groupBox_19)
         self.widget.setObjectName(u"widget")
-        self.widget.setGeometry(QRect(840, 60, 391, 471))
-        self.pushButton_3 = QPushButton(self.groupBox_19)
-        self.pushButton_3.setObjectName(u"pushButton_3")
-        self.pushButton_3.setGeometry(QRect(1260, 60, 141, 41))
-        self.pushButton_4 = QPushButton(self.groupBox_19)
-        self.pushButton_4.setObjectName(u"pushButton_4")
-        self.pushButton_4.setGeometry(QRect(1260, 120, 141, 41))
-        self.verticalLayoutWidget = QWidget(self.groupBox_19)
+        self.widget.setGeometry(QRect(830, 60, 399, 347))
+        self.pyqt_window = QGridLayout(self.widget)
+        self.pyqt_window.setObjectName(u"pyqt_window")
+        self.pyqt_window.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayoutWidget = QWidget(self.select_commands)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 60, 251, 701))
+        self.verticalLayoutWidget.setGeometry(QRect(1270, 100, 201, 161))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.GeneralCommands = QLabel(self.verticalLayoutWidget)
-        self.GeneralCommands.setObjectName(u"GeneralCommands")
+        self.pushButton_3 = QPushButton(self.verticalLayoutWidget)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+
+        self.verticalLayout.addWidget(self.pushButton_3)
+
+        self.pushButton_4 = QPushButton(self.verticalLayoutWidget)
+        self.pushButton_4.setObjectName(u"pushButton_4")
+
+        self.verticalLayout.addWidget(self.pushButton_4)
+
+        self.pushButton_2 = QPushButton(self.verticalLayoutWidget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+
+        self.verticalLayout.addWidget(self.pushButton_2)
+
+        self.label_16 = QLabel(self.select_commands)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setGeometry(QRect(1270, 70, 151, 20))
         font1 = QFont()
         font1.setPointSize(10)
-        self.GeneralCommands.setFont(font1)
-
-        self.verticalLayout.addWidget(self.GeneralCommands)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer)
-
-        self.label_11 = DragableLabel(self.verticalLayoutWidget)
-        self.label_11.setObjectName(u"label_11")
-
-        self.verticalLayout.addWidget(self.label_11)
-
-        self.label_13 = DragableLabel(self.verticalLayoutWidget)
-        self.label_13.setObjectName(u"label_13")
-
-        self.verticalLayout.addWidget(self.label_13)
-
-        self.label_14 = DragableLabel(self.verticalLayoutWidget)
-        self.label_14.setObjectName(u"label_14")
-
-        self.verticalLayout.addWidget(self.label_14)
-
-        self.label_15 = DragableLabel(self.verticalLayoutWidget)
-        self.label_15.setObjectName(u"label_15")
-
-        self.verticalLayout.addWidget(self.label_15)
-
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_5)
-
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_6)
-
-        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_8)
-
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_7)
-
-        self.label_26 = QLabel(self.groupBox_19)
-        self.label_26.setObjectName(u"label_26")
-        self.label_26.setGeometry(QRect(840, 40, 191, 16))
-        self.label_27 = QLabel(self.groupBox_19)
-        self.label_27.setObjectName(u"label_27")
-        self.label_27.setGeometry(QRect(20, 40, 191, 16))
-        self.label_28 = QLabel(self.groupBox_19)
-        self.label_28.setObjectName(u"label_28")
-        self.label_28.setGeometry(QRect(290, 40, 191, 16))
-        self.pushButton_10 = QPushButton(self.groupBox_19)
-        self.pushButton_10.setObjectName(u"pushButton_10")
-        self.pushButton_10.setGeometry(QRect(1260, 180, 141, 41))
+        self.label_16.setFont(font1)
         self.stackedWidget.addWidget(self.select_commands)
         self.Notebook_2.addTab(self.batch_communication_3, "")
         self.camera_3 = QWidget()
@@ -710,7 +738,7 @@ class Ui_Config_Widget(object):
 
         self.retranslateUi(Config_Widget)
 
-        self.Notebook_2.setCurrentIndex(1)
+        self.Notebook_2.setCurrentIndex(0)
         self.meta_data_loading_1.setCurrentIndex(1)
         self.stackedWidget.setCurrentIndex(2)
 
@@ -799,24 +827,24 @@ class Ui_Config_Widget(object):
         self.button_batch_2.setText(QCoreApplication.translate("Config_Widget", u"Setup Experiment", None))
         self.label_24.setText(QCoreApplication.translate("Config_Widget", u"Test Patchmaster Batch Communication", None))
         self.groupBox_19.setTitle(QCoreApplication.translate("Config_Widget", u"Protocol Editor", None))
-        self.GeneralCommands_2.setText(QCoreApplication.translate("Config_Widget", u"Series Commands", None))
         self.label.setText(QCoreApplication.translate("Config_Widget", u"Final Patch Clamping Sequence:", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("Config_Widget", u"Cell Quality", None))
-        self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow", None))
-        self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries", None))
-        self.label_29.setText(QCoreApplication.translate("Config_Widget", u"Cfast", None))
-        self.label_30.setText(QCoreApplication.translate("Config_Widget", u"Seal resistance", None))
-        self.pushButton_3.setText(QCoreApplication.translate("Config_Widget", u"Start Experiment", None))
-        self.pushButton_4.setText(QCoreApplication.translate("Config_Widget", u"Stop Experiment", None))
-        self.GeneralCommands.setText(QCoreApplication.translate("Config_Widget", u"General Commands", None))
-        self.label_11.setText(QCoreApplication.translate("Config_Widget", u"Cslow Comp", None))
-        self.label_13.setText(QCoreApplication.translate("Config_Widget", u"Rseries Comp", None))
-        self.label_14.setText(QCoreApplication.translate("Config_Widget", u"Get Cslow", None))
-        self.label_15.setText(QCoreApplication.translate("Config_Widget", u"Get Rseries", None))
         self.label_26.setText(QCoreApplication.translate("Config_Widget", u"Notebook Online Analysis:", None))
         self.label_27.setText(QCoreApplication.translate("Config_Widget", u"Dragable Labels", None))
-        self.label_28.setText(QCoreApplication.translate("Config_Widget", u"Dragable Series", None))
-        self.pushButton_10.setText(QCoreApplication.translate("Config_Widget", u"Save Plot", None))
+        self.label_28.setText(QCoreApplication.translate("Config_Widget", u"Dragable Executable Series", None))
+        self.label_32.setText(QCoreApplication.translate("Config_Widget", u"Dragable Protocols", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("Config_Widget", u"Get Parameter", None))
+        self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow", None))
+        self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries", None))
+        self.label_13.setText(QCoreApplication.translate("Config_Widget", u"Cfast", None))
+        self.label_14.setText(QCoreApplication.translate("Config_Widget", u"Cell", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("Config_Widget", u"Set Filtering", None))
+        self.label_11.setText(QCoreApplication.translate("Config_Widget", u"Rseries Change in % allowed", None))
+        self.label_15.setText(QCoreApplication.translate("Config_Widget", u"Cslow Changein % allowed", None))
+        self.pushButton_10.setText(QCoreApplication.translate("Config_Widget", u"Clear Sequences", None))
+        self.pushButton_3.setText(QCoreApplication.translate("Config_Widget", u"Start Experiment", None))
+        self.pushButton_4.setText(QCoreApplication.translate("Config_Widget", u"Stop Experiment", None))
+        self.pushButton_2.setText(QCoreApplication.translate("Config_Widget", u"Save Plot", None))
+        self.label_16.setText(QCoreApplication.translate("Config_Widget", u"Execution of Experiment:", None))
         self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.batch_communication_3), QCoreApplication.translate("Config_Widget", u"Batch Communication", None))
         self.pushButton.setText(QCoreApplication.translate("Config_Widget", u"Initalize Camera", None))
         self.groupBox.setTitle(QCoreApplication.translate("Config_Widget", u"Live Camera Feed", None))
@@ -833,6 +861,7 @@ class Ui_Config_Widget(object):
         self.set_buttons_beginning()
 
     def set_buttons_beginning(self):
+        """ set the button state of a view buttons inactivate at the beginning"""
             self.button_batch_2.setEnabled(False)
             self.add_pixmap_for_green.setStyleSheet("color: red")
 
@@ -895,8 +924,8 @@ class Ui_Config_Widget(object):
         self.camera = BayerCamera()
         #initialize the camera 
         camera_status = self.camera.init_camera()
-        self.scence_trial = QGraphicsScene(self)
-        if camera_status is None:
+        self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
+        if camera_status is None: # initialization of the camera and error response if not correctly initialized
             self.scence_trial.addText("is not working")
             self.Camera_Live_Feed.setScene(self.scence_trial)
             self.button_start_camera.setEnabled(False)
@@ -910,16 +939,16 @@ class Ui_Config_Widget(object):
 
     def start_camera_timer(self):
         """ added the asnychronous Qtimer for the Camera initalizion"""
-        self.start_cam = QTimer()
-        self.start_cam.timeout.connect(self.start_camera)   
+        self.start_cam = QTimer() # camera timer 
+        self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
         self.start_cam.start(222)  # (333,self.start_camera)
 
     def start_camera(self):
         """ grab the current picture one by one with 50 FPS """
-        camera_image = self.camera.grab_video()
-        imgs = Image.fromarray(camera_image)
-        image = imgs.resize((561,451), Image.ANTIALIAS)
-        imgqt = ImageQt.ImageQt(image)
+        camera_image = self.camera.grab_video() # grab video retrieved np.array image
+        imgs = Image.fromarray(camera_image) # conversion
+        image = imgs.resize((561,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
+        imgqt = ImageQt.ImageQt(image) # convert to qt image
         self.trial_figure = QPixmap.fromImage(imgqt)
         self.scence_trial.clear()
         self.scence_trial.addPixmap(self.trial_figure)
@@ -928,39 +957,42 @@ class Ui_Config_Widget(object):
     def stop_camera(self):
         """ stop the camera timer """
         print("yeah I m here for the camera")
-        self.start_cam.stop()
+        self.start_cam.stop() # here the camera Qtimer is stopped
 
     def show_snapshot(self):
         """ does transfer the current snapshot to the galery view """
-        self.check_list_lenght(self.image_stacke)
-        self.image_stacke.insert(0,self.trial_figure)
+
+        self.check_list_lenght(self.image_stacke) # self.image_stacke is der stack der images generiert
+        self.image_stacke.insert(0,self.trial_figure) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self)
         self.Taken_Snapshot.setScene(self.snapshot_scence)
         self.snapshot_scence.addPixmap(self.trial_figure)
-        self.draw_snapshots_on_galery()
+        self.draw_snapshots_on_galery() # draw into the galery
 
     def check_list_lenght(self, image_liste):
-        """Here we check the lenght of the list"""
+        """Here we check the lenght of the  to avoid overcrowding in the image galery
+        its set to 5 images"""
         try:
-            if len(image_liste) > 5:
+            if len(image_liste) > 4:
                 image_liste.pop()
                 print("Expected List Length reached")
         except Exception as e:
-            print(f"This is the Error: {e}")
+            print(repr(f"This is the Error: {e}"))
 
 
     def draw_snapshots_on_galery(self):
+        # function to draw the taken snapshot into the image galery
         for i in reversed(range(self.horizontalLayout.count())): 
             self.horizontalLayout.itemAt(i).widget().setParent(None)
-        if len(self.image_stacke) > 0:
+        if len(self.image_stacke) > 0: #looping through the image stack
             for i,t in enumerate(self.image_stacke):
                 label = QLabel()
                 label.setPixmap(t)
-                self.groupBox_17.addWidget(label)
+                self.horizontalLayout.addWidget(label) # add to the layout 
 
 
     def get_commands_from_textinput(self):
-        """ """
+        """ retrieves the command send to the patchmaster and the response from the Batch.out file """
         print("get commands")
         self.res = self.sub_command1.toPlainText()
         self.logger.debug(f'Batch communication input: {self.res}')
@@ -972,114 +1004,248 @@ class Ui_Config_Widget(object):
         if self.check_session:
             print("still checking commands")
         else:
-            self.check_session = QTimer()
+            self.check_session = QTimer() # timer added for regular checking 
             self.check_session.timeout.connect(self.update_page)
             self.check_session.start(1000)
         #return self.res
 
     def update_page(self):
-        """ asynchronouse updating of the file """
-        response_file = self.backend_manager.update_response_file_content()
-        input_file = self.backend_manager.update_control_file_content()
-        self.receive_command1.clear()
-        self.response_command_1.clear()
+        """ asynchronouse updating of the textArea with the control file and the response file
+        Connected to the Qtimter """
+        response_file = self.backend_manager.update_response_file_content() # response file update
+        input_file = self.backend_manager.update_control_file_content() # control file update
+        self.receive_command1.clear()# clearing of the last commands entered
+        self.response_command_1.clear() # clearing of the response
         self.receive_command1.insertPlainText(input_file)
         self.response_command_1.insertPlainText(response_file)
-
 
     def end_communication_control(self):
         """ stop the batch communication and clear all fields """
         print("communication end")
         if self.check_session:
-            self.check_session.stop()
+            self.check_session.stop() # stops the timer
             self.check_session = None
             self.receive_command1.clear()
             self.response_command_1.clear()
             self.sub_command1.clear()
 
     def show_analysis_window(self):
-        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListSequences\n")
-        sleep(1)
-        sequences_responses = self.backend_manager.update_response_file_content()
-        patch_sequences = sequences_responses[31: ].split(",")
+        """add Docstring"""
+        # Get Input from the Sequences and the Protocols
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListSequences\n") # get the potential Series that can be started
+        sleep(0.2) # sleep is inserted because of laggy writing to the response file from the patchmaster
+        sequences = self.backend_manager.update_response_file_content()
+        self.increment_count()
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListProtocols\n") # get the protocols that can be started
+        sleep(0.2)
+        protocol_responses = self.backend_manager.update_response_file_content() # get the protocol responses 
+        self.increment_count() # always increment the batch communication count 
+
+        # Plotting
+        self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
+        self.tscurve_1 = PlotCurve(
+            linked_curve=self.pyqt_graph.plot(pen=pg.mkPen('r')),
+        ) # use this package to make drawing from another thread Threadsafe
+        self.pyqt_graph.setBackground("#232629") # setting of the background put to global
+        self.pyqt_window.addWidget(self.pyqt_graph)
+        #self.plot_qt(self.pyqt_graph.plotWidget)
+
+        # Preprocessing
+        series = self.preprocess_series_protocols(sequences) # get the listed series from batch.out response
+        protocols = self.preprocess_series_protocols(protocol_responses) # get the listed protocols from batch.out response
+        self.style_list_view()
+
+        #Make List Labels
+        self.make_sequence_labels(series, self.SeriesWidget) # enter items of sequences into drag and dropbable listview
+        self.make_sequence_labels(protocols, self.protocol_widget) # enter items of protcols into drag and dropable listview
+        self.make_general_commands() # add general commands to the general command listview
+        self.stackedWidget.setCurrentIndex(1) # set the index to the testing Area
+
+    def preprocess_series_protocols(self, sequences_reponses):
+        """get the list of protocols,get rid of the submission code"""
+        patch_sequences = sequences_reponses[31: ].split(",")
         patch_sequences = [i.replace('"', "") for i in patch_sequences]
         patch_sequences = [i.replace("\n", "")for i in patch_sequences]
-        patch_sequences = ["ExecuteSequence " + i for i in patch_sequences]
-        self.make_sequence_labels(patch_sequences)
-        self.stackedWidget.setCurrentIndex(1)
+        return patch_sequences
+        
+    def style_list_view(self):
+        """ styling of the ListWidget make it blue to popup more"""
+        self.listWidget.setStyleSheet("border: 2px; border-color: white")
+        self.SeriesWidget.setStyleSheet("background: #448aff;")
+        self.general_commands_labels.setStyleSheet("background: #448aff")
+        self.protocol_widget.setStyleSheet("background: #448aff")
 
-
-    def make_sequence_labels(self, list_of_sequences):
+    def make_sequence_labels(self, list_of_sequences,widget):
+        """ same as protocols"""
         for i in list_of_sequences:
-            label = DragableLabel()
-            label.setText(i)
-            self.verticalLayout_2.addWidget(label)
+            item = QStandardItem(i)
+            widget.model().appendRow(item)
 
+    def make_general_commands(self):
+        #insert items into general command list
+        for i in self.general_commands_list:
+            item = QStandardItem(i)
+            self.general_commands_labels.model().appendRow(item)
 
     def submit_patchmaster_files(self):
+        """ Submission of the loaded pgf, prot and onl file to the patchmaster and setting them"""
         logging.info("Configuration Files setted up:....")
         for file, command in zip([self.pgf_file, self.pro_file, self.onl_file],["OpenPgfFile","OpenProtFile","OpenOnlineFile"]):
             if file:
-                self.backend_manager.send_text_input("+"+f'{self.submission_count}\n' + command + f" {file}\n")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}\n' + command + f" {file}\n") # send the file lcoation and name to the patchmaster
                 sleep(0.5)
                 self.submission_count += 1
             else:
                 logging.info("not all configuration files set:")
 
     def make_threading(self):
+        # generate a threadpool inherted from the runnable class and connect it to the workerclass
         self.threadpool = QThreadPool()
-        worker = Worker(self.start_experiment_patch)
-        self.threadpool.start(worker)
+        self.worker = Worker(self.start_experiment_patch)
+        self.threadpool.start(self.worker)
+
+    def stop_threading(self):
+        # Here we need to find a way to stop the threading if an error occur !
+        self.threadpool.stop(self.worker)
 
     def start_experiment_patch(self):
         """ get the ListView entries and send them off via the backend manager"""
         # this should be exposed to threading!
         view_list = self.listWidget.model()
-        self.sequence_experiment_dictionary = {}
+        self.sequence_experiment_dictionary = {} # all derived online analyiss data will be stored here in a "Series":Data fashion
         self.increment_count()
-        final_notebook_dataframe = pd.DataFrame()
+        final_notebook_dataframe = pd.DataFrame() # initialize an empty dataframe which can be appended to
         
         for index in range(view_list.rowCount()):
-            item = view_list.item(index).text()
-            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + item +"\n")
+            item = view_list.item(index).text() # get the name of the stacked protocols/series/programs
+            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""GetParameters Param-2,Param-3,Param-4,Param-12\n") # always check the parameters after each protocol
+            #ToDO Define Cancel Options like Filters
+            sleep(0.2)
+            params_response = self.backend_manager.get_parameters() # return the paramters and write them into the entry boxes
             self.increment_count()
-            analyzed = self.trial_setup(final_notebook_dataframe, item) 
-        
-        print(self.sequence_experiment_dictionary)
+            self.rseries_qc.setText(params_response[3])
+            self.cslow_qc.setText(params_response[1])
+            self.cfast_qc.setText(params_response[0])
+            self.cfast_qc_2.setText(params_response[2])
+
+            if self.SeriesWidget.model().findItems(item):
+                """ check if item is in series list"""
+                logging.info(f"Series {item} will be executed")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteSequence " + f'"{item}"' +"\n")
+                self.increment_count()
+                self.trial_setup(final_notebook_dataframe, item)
+
+            elif "GetEpc" in item:
+                #check if item is a paramter check
+                logging.info(f"Parameter Command {item} will be executed")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f'"{item}"' +"\n")
+                print("GetParameters if necessary")
+            
+            elif self.protocol_widget.model().findItems(item):
+                #Check if item is a protcol
+                logging.info(f"Protocol {item} will be executed")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteProtocol " + f'"{item}"' +"\n")
+                self.increment_count()
+                analyzed = self.trial_setup(final_notebook_dataframe, item)
+
+            else:
+                #check if item is a general command
+                logging.info(f"General Command {item} will be executed")
+                self.basic_configuration_protcols(item)
+
+
     def increment_count(self):
+        #increment count to renew submission code for the patchmaster
         self.submission_count += 1
 
     def trial_setup(self, notebook, item):
-        sleep(5)
+        """gets the data and draws it into the fast analysis window
+        ToDO:"""
+        sleep(0.2)
         item = item 
-        print(item)
         final_notebook_dataframe = notebook
-        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Query\n")
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Query\n") # Query to get the state of the amplifier
         self.increment_count()
 
         query_status = self.backend_manager.get_query_status()
+        query_status = query_status.replace(" ", "")
         print(f"this is the query status: {query_status}")
+
         if "Query_Idle" in query_status:
-            dataframe = self.backend_manager.return_dataframe_from_notebook()
-            final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
-            columns = final_notebook_dataframe.iloc[0]
-            final_notebook = final_notebook_dataframe[1:]
-            final_notebook.columns = columns
-            self.sequence_experiment_dictionary[item] = final_notebook
-
-            return True
-
-
+            # Check for different states
+            try: 
+                dataframe = self.backend_manager.return_dataframe_from_notebook()
+                final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
+                final_notebook = self.get_final_notebook(final_notebook_dataframe)
+                self.sequence_experiment_dictionary[item] = final_notebook
+            except:
+                final_notebook = self.get_final_notebook(final_notebook_dataframe)
+                self.sequence_experiment_dictionary[item] = final_notebook
+                return True
+    
+        elif ("Query_Acquiring" or "Query_Executing") in query_status:
+            #Check if the query is still acquiring
+            try:
+                dataframe = self.backend_manager.return_dataframe_from_notebook()
+                final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
+                print(final_notebook_dataframe)
+                print(final_notebook_dataframe.iloc[1:,:][4].values)
+                self.tscurve_1.setData([float(i) for i in final_notebook_dataframe.iloc[1:,:][4].values],[float(i) for i in final_notebook_dataframe.iloc[1:,:][7].values])
+                self.tscurve_1.update()
+                self.trial_setup(final_notebook_dataframe,item)
+            except Exception as e:
+                print(repr(e))
+                self.trial_setup(final_notebook_dataframe,item)
+        
         else:
-            dataframe = self.backend_manager.return_dataframe_from_notebook()
-            final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
-            self.trial_setup(final_notebook_dataframe,item)
+            print("Connection Lost")
+            return None
+        
 
-            
-    def change_to_testing(self):
-        self.stackedWidget.setCurrentIndex(2)
+    def get_final_notebook(self, notebook):
+        """ Dataframe has multiple commas therefore columsn will be shifted to adjust for this"""
+        columns = notebook.iloc[0].tolist()
+        columns.pop(0)
+        columns = columns + ["NAN"]
+        columns = [str(i).replace('"',"") for i in columns]
+        final_notebook = notebook[1:]
+        final_notebook.columns = columns
+        final_notebook = final_notebook.iloc[:,4:]
+        final_notebook = final_notebook.drop("NAN", axis = 1)
+        
+        print(final_notebook)
+        return True
 
-     
+    def basic_configuration_protcols(self, item):
+        print("yes i entered this file")
+        function_dictionary = {"Setup": self.execute_setup, "Seal": self.execute_seal, "Whole-cell": self.execute_whole_cell}
+        func = function_dictionary.get(item,lambda :'Invalid')
+        func()
+
+    def execute_setup(self):
+        # setup protocol execturio command
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SETUP\n")
+        self.increment_count()
+    
+    def execute_seal(self):
+        # seal protocol exectuion command
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SEAL\n")
+        self.increment_count()
+        print()
+
+    def execute_whole_cell(self):
+        #whole_cell exection command 
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol WHOLE-CELL\n")
+        self.increment_count()
+        print(9)
+
+    @Slot
+    def clear_list(self):
+        # connect to the button 
+        self.listWidget.model().clear()
+        
+        
+
 class Config_Widget(QWidget,Ui_Config_Widget):
     """ promotion of the self configuration widget"""
     def __init__(self,parent = None):
@@ -1114,4 +1280,7 @@ class Worker(QRunnable):
         Initialise the runner function with passed args, kwargs.
         '''
         self.fn(*self.args, **self.kwargs)
-    
+
+
+
+
