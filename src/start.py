@@ -53,7 +53,8 @@ class MainWindow(QMainWindow):
 
 
         self.ui.config.pushButton_3.clicked.connect(self.ui.config.make_threading)
-        self.ui.config.pushButton_10.clicked.connect(self.ui.config.change_to_testing)
+        self.ui.config.pushButton_10.clicked.connect(self.ui.config.clear_list)
+        self.ui.config.pushButton_4.clicked.connect(self.ui.config.stop_threading)
 
     #def select_file(self):
    
