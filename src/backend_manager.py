@@ -110,13 +110,35 @@ class BackendManager:
         except Exception as e:
             print(e)
 
+
+    def get_epc_param(self):
+        """Get the query status of the File"""
+        sleep(1)
+        try:
+            with open(self.batch_path + '/E9Batch.OUT', "r") as file_object:
+                epc_param = file_object.readlines()[1]
+                epc_param = epc_param.split(" ")[1]
+                file_object.close()
+                return epc_param
+        except Exception as e:
+            print(e)
+
+
+    def get_parameters(self):
+        """get Parameters"""
+        sleep(0.5)
+        response = self.get_query_status()
+        response = response.split(" ")[1:]
+        return response
+
+
     def return_dataframe_from_notebook(self):
         """Get the DataFrame from the notebook analysis"""
-        data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', "r", skiprows = 2, header = None)
+        data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', skiprows = 2, header = None)
+        #data_frame_notebook = data_frame_notebook.iloc[:,4:]
         return data_frame_notebook
-       
-     
-
+        
+        
     def create_ascii_file_from_template(self):
         # create a new e9Patch file
         if not self.batch_path:
