@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1613</width>
-    <height>904</height>
+    <height>1023</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>0</x>
      <y>20</y>
      <width>1531</width>
-     <height>871</height>
+     <height>891</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
@@ -1577,9 +1577,9 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>20</y>
-            <width>1451</width>
-            <height>771</height>
+            <y>40</y>
+            <width>1251</width>
+            <height>791</height>
            </rect>
           </property>
           <property name="title">
@@ -1591,41 +1591,9 @@
              <x>560</x>
              <y>60</y>
              <width>256</width>
-             <height>701</height>
+             <height>641</height>
             </rect>
            </property>
-          </widget>
-          <widget class="QWidget" name="verticalLayoutWidget_2">
-           <property name="geometry">
-            <rect>
-             <x>290</x>
-             <y>60</y>
-             <width>251</width>
-             <height>701</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="QLabel" name="GeneralCommands_2">
-              <property name="text">
-               <string>Series Commands</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
           </widget>
           <widget class="QLabel" name="label">
            <property name="geometry">
@@ -1640,268 +1608,10 @@
             <string>Final Patch Clamping Sequence:</string>
            </property>
           </widget>
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="geometry">
-            <rect>
-             <x>840</x>
-             <y>550</y>
-             <width>391</width>
-             <height>211</height>
-            </rect>
-           </property>
-           <property name="title">
-            <string>Cell Quality</string>
-           </property>
-           <widget class="QLabel" name="label_10">
-            <property name="geometry">
-             <rect>
-              <x>170</x>
-              <y>80</y>
-              <width>47</width>
-              <height>13</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Cslow</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_12">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>80</y>
-              <width>47</width>
-              <height>13</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Rseries</string>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="cslow_qc">
-            <property name="geometry">
-             <rect>
-              <x>170</x>
-              <y>50</y>
-              <width>141</width>
-              <height>31</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="rseries_qc">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>50</y>
-              <width>141</width>
-              <height>31</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="cfast_qc">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>140</y>
-              <width>141</width>
-              <height>31</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_29">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>170</y>
-              <width>47</width>
-              <height>13</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Cfast</string>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="cfast_qc_2">
-            <property name="geometry">
-             <rect>
-              <x>170</x>
-              <y>140</y>
-              <width>141</width>
-              <height>31</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_30">
-            <property name="geometry">
-             <rect>
-              <x>170</x>
-              <y>170</y>
-              <width>101</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Seal resistance</string>
-            </property>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="widget" native="true">
-           <property name="geometry">
-            <rect>
-             <x>840</x>
-             <y>60</y>
-             <width>391</width>
-             <height>471</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="pushButton_3">
-           <property name="geometry">
-            <rect>
-             <x>1260</x>
-             <y>60</y>
-             <width>141</width>
-             <height>41</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Start Experiment</string>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="pushButton_4">
-           <property name="geometry">
-            <rect>
-             <x>1260</x>
-             <y>120</y>
-             <width>141</width>
-             <height>41</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Stop Experiment</string>
-           </property>
-          </widget>
-          <widget class="QWidget" name="verticalLayoutWidget">
-           <property name="geometry">
-            <rect>
-             <x>20</x>
-             <y>60</y>
-             <width>251</width>
-             <height>701</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-             <widget class="QLabel" name="GeneralCommands">
-              <property name="font">
-               <font>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>General Commands</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Cslow Comp</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_13">
-              <property name="text">
-               <string>Rseries Comp</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>Get Cslow</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>Get Rseries</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
           <widget class="QLabel" name="label_26">
            <property name="geometry">
             <rect>
-             <x>840</x>
+             <x>830</x>
              <y>40</y>
              <width>191</width>
              <height>16</height>
@@ -1914,7 +1624,7 @@
           <widget class="QLabel" name="label_27">
            <property name="geometry">
             <rect>
-             <x>20</x>
+             <x>10</x>
              <y>40</y>
              <width>191</width>
              <height>16</height>
@@ -1927,29 +1637,377 @@
           <widget class="QLabel" name="label_28">
            <property name="geometry">
             <rect>
-             <x>290</x>
+             <x>280</x>
              <y>40</y>
              <width>191</width>
              <height>16</height>
             </rect>
            </property>
            <property name="text">
-            <string>Dragable Series</string>
+            <string>Dragable Executable Series</string>
            </property>
+          </widget>
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="geometry">
+            <rect>
+             <x>280</x>
+             <y>60</y>
+             <width>261</width>
+             <height>701</height>
+            </rect>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>259</width>
+              <height>699</height>
+             </rect>
+            </property>
+            <widget class="QListWidget" name="SeriesWidget">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>261</width>
+               <height>701</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </widget>
+          <widget class="QLabel" name="label_32">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>440</y>
+             <width>191</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Dragable Protocols</string>
+           </property>
+          </widget>
+          <widget class="QScrollArea" name="scrollArea_2">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>460</y>
+             <width>251</width>
+             <height>301</height>
+            </rect>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>249</width>
+              <height>299</height>
+             </rect>
+            </property>
+            <widget class="QListWidget" name="protocol_widget">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>251</width>
+               <height>301</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="gridLayoutWidget_4">
+           <property name="geometry">
+            <rect>
+             <x>830</x>
+             <y>420</y>
+             <width>401</width>
+             <height>341</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="parameter_window">
+              <item row="1" column="0">
+               <widget class="QGroupBox" name="groupBox_3">
+                <property name="title">
+                 <string>Get Parameter</string>
+                </property>
+                <widget class="QLabel" name="label_10">
+                 <property name="geometry">
+                  <rect>
+                   <x>170</x>
+                   <y>60</y>
+                   <width>47</width>
+                   <height>13</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Cslow</string>
+                 </property>
+                </widget>
+                <widget class="QLabel" name="label_12">
+                 <property name="geometry">
+                  <rect>
+                   <x>10</x>
+                   <y>60</y>
+                   <width>47</width>
+                   <height>13</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Rseries</string>
+                 </property>
+                </widget>
+                <widget class="QLineEdit" name="cslow_qc">
+                 <property name="geometry">
+                  <rect>
+                   <x>170</x>
+                   <y>30</y>
+                   <width>141</width>
+                   <height>31</height>
+                  </rect>
+                 </property>
+                </widget>
+                <widget class="QLineEdit" name="rseries_qc">
+                 <property name="geometry">
+                  <rect>
+                   <x>10</x>
+                   <y>30</y>
+                   <width>141</width>
+                   <height>31</height>
+                  </rect>
+                 </property>
+                </widget>
+                <widget class="QLineEdit" name="cfast_qc">
+                 <property name="geometry">
+                  <rect>
+                   <x>10</x>
+                   <y>90</y>
+                   <width>141</width>
+                   <height>31</height>
+                  </rect>
+                 </property>
+                </widget>
+                <widget class="QLineEdit" name="cfast_qc_2">
+                 <property name="geometry">
+                  <rect>
+                   <x>170</x>
+                   <y>90</y>
+                   <width>141</width>
+                   <height>31</height>
+                  </rect>
+                 </property>
+                </widget>
+                <widget class="QLabel" name="label_13">
+                 <property name="geometry">
+                  <rect>
+                   <x>10</x>
+                   <y>120</y>
+                   <width>47</width>
+                   <height>13</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Cfast</string>
+                 </property>
+                </widget>
+                <widget class="QLabel" name="label_14">
+                 <property name="geometry">
+                  <rect>
+                   <x>170</x>
+                   <y>120</y>
+                   <width>47</width>
+                   <height>13</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Cell</string>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QGroupBox" name="groupBox_5">
+                <property name="title">
+                 <string>Set Filtering</string>
+                </property>
+                <widget class="QSlider" name="horizontalSlider">
+                 <property name="geometry">
+                  <rect>
+                   <x>70</x>
+                   <y>40</y>
+                   <width>211</width>
+                   <height>22</height>
+                  </rect>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+                <widget class="QLabel" name="label_11">
+                 <property name="geometry">
+                  <rect>
+                   <x>110</x>
+                   <y>20</y>
+                   <width>171</width>
+                   <height>16</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Rseries Change in % allowed</string>
+                 </property>
+                </widget>
+                <widget class="QLabel" name="label_15">
+                 <property name="geometry">
+                  <rect>
+                   <x>110</x>
+                   <y>90</y>
+                   <width>141</width>
+                   <height>16</height>
+                  </rect>
+                 </property>
+                 <property name="text">
+                  <string>Cslow Changein % allowed</string>
+                 </property>
+                </widget>
+                <widget class="QSlider" name="horizontalSlider_2">
+                 <property name="geometry">
+                  <rect>
+                   <x>70</x>
+                   <y>110</y>
+                   <width>211</width>
+                   <height>22</height>
+                  </rect>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
           <widget class="QPushButton" name="pushButton_10">
            <property name="geometry">
             <rect>
-             <x>1260</x>
-             <y>180</y>
+             <x>610</x>
+             <y>720</y>
              <width>141</width>
              <height>41</height>
             </rect>
            </property>
            <property name="text">
-            <string>Save Plot</string>
+            <string>Clear Sequences</string>
            </property>
           </widget>
+          <widget class="QScrollArea" name="scrollArea_3">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>60</y>
+             <width>251</width>
+             <height>371</height>
+            </rect>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>249</width>
+              <height>369</height>
+             </rect>
+            </property>
+            <widget class="QListWidget" name="general_commands_labels">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>256</width>
+               <height>371</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="">
+           <property name="geometry">
+            <rect>
+             <x>830</x>
+             <y>60</y>
+             <width>399</width>
+             <height>347</height>
+            </rect>
+           </property>
+           <layout class="QGridLayout" name="pyqt_window"/>
+          </widget>
+         </widget>
+         <widget class="QWidget" name="verticalLayoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>1270</x>
+            <y>100</y>
+            <width>201</width>
+            <height>161</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QPushButton" name="pushButton_3">
+             <property name="text">
+              <string>Start Experiment</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_4">
+             <property name="text">
+              <string>Stop Experiment</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_2">
+             <property name="text">
+              <string>Save Plot</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QLabel" name="label_16">
+          <property name="geometry">
+           <rect>
+            <x>1270</x>
+            <y>70</y>
+            <width>151</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Execution of Experiment:</string>
+          </property>
          </widget>
         </widget>
        </widget>

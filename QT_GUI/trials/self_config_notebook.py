@@ -17,6 +17,12 @@ import os.path
 import logging
 from dragable_label import *
 from tkinter_camera import *
+from time import sleep
+import pandas as pd
+from dropable_list_view import ListView
+from plotting_pyqt import PlotClass
+import pyqtgraph as pg
+from pyqtgraph import PlotWidget, plot
 
 
 class Ui_Config_Widget(object):
@@ -28,6 +34,8 @@ class Ui_Config_Widget(object):
         self.pgf_file = None
         self.pro_file = None
         self.onl_file = None
+        self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
+        self.submission_count = 2
 
         self.setupUi(self)
         self.check_session = None
@@ -43,10 +51,10 @@ class Ui_Config_Widget(object):
     def setupUi(self, Config_Widget):
         if not Config_Widget.objectName():
             Config_Widget.setObjectName(u"Config_Widget")
-        Config_Widget.resize(1613, 904)
+        Config_Widget.resize(1613, 1023)
         self.gridLayoutWidget = QWidget(Config_Widget)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(0, 20, 1531, 871))
+        self.gridLayoutWidget.setGeometry(QRect(0, 20, 1531, 891))
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -83,22 +91,22 @@ class Ui_Config_Widget(object):
         self.groupBox_32.setObjectName(u"groupBox_32")
         self.St_com1 = QComboBox(self.groupBox_32)
         self.St_com1.setObjectName(u"St_com1")
-        self.St_com1.setGeometry(QRect(100, 30, 281, 41))
+        self.St_com1.setGeometry(QRect(100, 50, 281, 41))
         self.St_com2 = QComboBox(self.groupBox_32)
         self.St_com2.setObjectName(u"St_com2")
-        self.St_com2.setGeometry(QRect(100, 110, 281, 41))
+        self.St_com2.setGeometry(QRect(100, 130, 281, 41))
         self.St_com3 = QComboBox(self.groupBox_32)
         self.St_com3.setObjectName(u"St_com3")
-        self.St_com3.setGeometry(QRect(100, 190, 281, 41))
+        self.St_com3.setGeometry(QRect(100, 210, 281, 41))
         self.label_220 = QLabel(self.groupBox_32)
         self.label_220.setObjectName(u"label_220")
-        self.label_220.setGeometry(QRect(110, 70, 101, 16))
+        self.label_220.setGeometry(QRect(100, 90, 101, 16))
         self.label_221 = QLabel(self.groupBox_32)
         self.label_221.setObjectName(u"label_221")
-        self.label_221.setGeometry(QRect(110, 150, 101, 16))
+        self.label_221.setGeometry(QRect(100, 170, 101, 16))
         self.label_222 = QLabel(self.groupBox_32)
         self.label_222.setObjectName(u"label_222")
-        self.label_222.setGeometry(QRect(110, 230, 101, 16))
+        self.label_222.setGeometry(QRect(100, 250, 101, 16))
 
         self.gridLayout_31.addWidget(self.groupBox_32, 0, 0, 1, 1)
 
@@ -109,30 +117,33 @@ class Ui_Config_Widget(object):
         self.gridLayout_32.setObjectName(u"gridLayout_32")
         self.groupBox_33 = QGroupBox(self.horizontalLayoutWidget_9)
         self.groupBox_33.setObjectName(u"groupBox_33")
-        self.E_com1 = QComboBox(self.groupBox_33)
-        self.E_com1.setObjectName(u"E_com1")
-        self.E_com1.setGeometry(QRect(120, 30, 281, 41))
-        self.E_com2 = QComboBox(self.groupBox_33)
-        self.E_com2.setObjectName(u"E_com2")
-        self.E_com2.setGeometry(QRect(120, 110, 281, 41))
-        self.E1 = QLineEdit(self.groupBox_33)
-        self.E1.setObjectName(u"E1")
-        self.E1.setGeometry(QRect(130, 190, 131, 41))
-        self.E2 = QLineEdit(self.groupBox_33)
-        self.E2.setObjectName(u"E2")
-        self.E2.setGeometry(QRect(282, 190, 121, 41))
-        self.label_223 = QLabel(self.groupBox_33)
-        self.label_223.setObjectName(u"label_223")
-        self.label_223.setGeometry(QRect(130, 70, 111, 16))
-        self.label_224 = QLabel(self.groupBox_33)
-        self.label_224.setObjectName(u"label_224")
-        self.label_224.setGeometry(QRect(130, 150, 121, 16))
-        self.label_225 = QLabel(self.groupBox_33)
-        self.label_225.setObjectName(u"label_225")
-        self.label_225.setGeometry(QRect(130, 230, 101, 16))
-        self.label_226 = QLabel(self.groupBox_33)
-        self.label_226.setObjectName(u"label_226")
-        self.label_226.setGeometry(QRect(280, 230, 101, 16))
+        self.button_pgf_set_3 = QPushButton(self.groupBox_33)
+        self.button_pgf_set_3.setObjectName(u"button_pgf_set_3")
+        self.button_pgf_set_3.setGeometry(QRect(340, 50, 111, 41))
+        self.label_61 = QLabel(self.groupBox_33)
+        self.label_61.setObjectName(u"label_61")
+        self.label_61.setGeometry(QRect(10, 170, 71, 16))
+        self.pg_file_set_3 = QLineEdit(self.groupBox_33)
+        self.pg_file_set_3.setObjectName(u"pg_file_set_3")
+        self.pg_file_set_3.setGeometry(QRect(10, 50, 301, 41))
+        self.protocol_file_set_3 = QLineEdit(self.groupBox_33)
+        self.protocol_file_set_3.setObjectName(u"protocol_file_set_3")
+        self.protocol_file_set_3.setGeometry(QRect(10, 130, 301, 41))
+        self.label_60 = QLabel(self.groupBox_33)
+        self.label_60.setObjectName(u"label_60")
+        self.label_60.setGeometry(QRect(10, 250, 101, 16))
+        self.button_protocol_set_3 = QPushButton(self.groupBox_33)
+        self.button_protocol_set_3.setObjectName(u"button_protocol_set_3")
+        self.button_protocol_set_3.setGeometry(QRect(340, 130, 111, 41))
+        self.label_59 = QLabel(self.groupBox_33)
+        self.label_59.setObjectName(u"label_59")
+        self.label_59.setGeometry(QRect(10, 90, 61, 16))
+        self.button_onl_analysis_set_3 = QPushButton(self.groupBox_33)
+        self.button_onl_analysis_set_3.setObjectName(u"button_onl_analysis_set_3")
+        self.button_onl_analysis_set_3.setGeometry(QRect(340, 210, 111, 41))
+        self.online_analysis_file_set_3 = QLineEdit(self.groupBox_33)
+        self.online_analysis_file_set_3.setObjectName(u"online_analysis_file_set_3")
+        self.online_analysis_file_set_3.setGeometry(QRect(10, 210, 301, 41))
 
         self.gridLayout_32.addWidget(self.groupBox_33, 0, 0, 1, 1)
 
@@ -145,50 +156,51 @@ class Ui_Config_Widget(object):
         self.groupBox_34.setObjectName(u"groupBox_34")
         self.A_com1 = QComboBox(self.groupBox_34)
         self.A_com1.setObjectName(u"A_com1")
-        self.A_com1.setGeometry(QRect(90, 30, 141, 41))
+        self.A_com1.setGeometry(QRect(10, 50, 141, 41))
         self.A_com2 = QComboBox(self.groupBox_34)
         self.A_com2.setObjectName(u"A_com2")
-        self.A_com2.setGeometry(QRect(270, 30, 141, 41))
+        self.A_com2.setGeometry(QRect(170, 50, 141, 41))
         self.A1 = QLineEdit(self.groupBox_34)
         self.A1.setObjectName(u"A1")
-        self.A1.setGeometry(QRect(100, 110, 131, 41))
+        self.A1.setGeometry(QRect(330, 50, 131, 41))
         self.A_com3 = QComboBox(self.groupBox_34)
         self.A_com3.setObjectName(u"A_com3")
-        self.A_com3.setGeometry(QRect(270, 110, 141, 41))
+        self.A_com3.setGeometry(QRect(10, 130, 141, 41))
         self.A2 = QLineEdit(self.groupBox_34)
         self.A2.setObjectName(u"A2")
-        self.A2.setGeometry(QRect(100, 190, 311, 41))
+        self.A2.setGeometry(QRect(170, 130, 291, 41))
         self.label_227 = QLabel(self.groupBox_34)
         self.label_227.setObjectName(u"label_227")
-        self.label_227.setGeometry(QRect(100, 70, 81, 16))
+        self.label_227.setGeometry(QRect(10, 90, 81, 16))
         self.label_228 = QLabel(self.groupBox_34)
         self.label_228.setObjectName(u"label_228")
-        self.label_228.setGeometry(QRect(280, 70, 91, 16))
+        self.label_228.setGeometry(QRect(170, 90, 91, 16))
         self.label_229 = QLabel(self.groupBox_34)
         self.label_229.setObjectName(u"label_229")
-        self.label_229.setGeometry(QRect(100, 150, 81, 16))
+        self.label_229.setGeometry(QRect(330, 90, 81, 16))
         self.label_230 = QLabel(self.groupBox_34)
         self.label_230.setObjectName(u"label_230")
-        self.label_230.setGeometry(QRect(280, 150, 71, 16))
+        self.label_230.setGeometry(QRect(10, 170, 71, 16))
         self.label_231 = QLabel(self.groupBox_34)
         self.label_231.setObjectName(u"label_231")
-        self.label_231.setGeometry(QRect(100, 230, 141, 16))
+        self.label_231.setGeometry(QRect(170, 170, 141, 16))
         self.horizontalLayoutWidget_10 = QWidget(self.groupBox_34)
         self.horizontalLayoutWidget_10.setObjectName(u"horizontalLayoutWidget_10")
-        self.horizontalLayoutWidget_10.setGeometry(QRect(10, 320, 451, 51))
+        self.horizontalLayoutWidget_10.setGeometry(QRect(90, 290, 311, 51))
         self.horizontalLayout_6 = QHBoxLayout(self.horizontalLayoutWidget_10)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.button_submit_database = QPushButton(self.horizontalLayoutWidget_10)
-        self.button_submit_database.setObjectName(u"button_submit_database")
+        self.button_batch_7 = QPushButton(self.horizontalLayoutWidget_10)
+        self.button_batch_7.setObjectName(u"button_batch_7")
 
-        self.horizontalLayout_6.addWidget(self.button_submit_database)
+        self.horizontalLayout_6.addWidget(self.button_batch_7)
 
-        self.button_edit_experiment = QPushButton(self.horizontalLayoutWidget_10)
-        self.button_edit_experiment.setObjectName(u"button_edit_experiment")
-
-        self.horizontalLayout_6.addWidget(self.button_edit_experiment)
-
+        self.Batch1_4 = QLineEdit(self.groupBox_34)
+        self.Batch1_4.setObjectName(u"Batch1_4")
+        self.Batch1_4.setGeometry(QRect(10, 210, 451, 41))
+        self.label_62 = QLabel(self.groupBox_34)
+        self.label_62.setObjectName(u"label_62")
+        self.label_62.setGeometry(QRect(10, 260, 111, 16))
 
         self.gridLayout_33.addWidget(self.groupBox_34, 0, 0, 1, 1)
 
@@ -271,7 +283,7 @@ class Ui_Config_Widget(object):
         self.Ce_com2.setGeometry(QRect(110, 90, 281, 41))
         self.Ce1 = QLineEdit(self.groupBox_30)
         self.Ce1.setObjectName(u"Ce1")
-        self.Ce1.setGeometry(QRect(120, 160, 131, 41))
+        self.Ce1.setGeometry(QRect(110, 160, 131, 41))
         self.label_207 = QLabel(self.groupBox_30)
         self.label_207.setObjectName(u"label_207")
         self.label_207.setGeometry(QRect(120, 60, 71, 16))
@@ -280,7 +292,7 @@ class Ui_Config_Widget(object):
         self.label_208.setGeometry(QRect(120, 130, 71, 16))
         self.label_209 = QLabel(self.groupBox_30)
         self.label_209.setObjectName(u"label_209")
-        self.label_209.setGeometry(QRect(120, 200, 71, 16))
+        self.label_209.setGeometry(QRect(110, 200, 71, 16))
 
         self.gridLayout_29.addWidget(self.groupBox_30, 0, 0, 1, 1)
 
@@ -423,12 +435,9 @@ class Ui_Config_Widget(object):
         self.label_5 = QLabel(self.groupBox_4)
         self.label_5.setObjectName(u"label_5")
         self.label_5.setGeometry(QRect(90, 250, 101, 16))
-        self.groupBox_5 = QGroupBox(self.page_2)
-        self.groupBox_5.setObjectName(u"groupBox_5")
-        self.groupBox_5.setGeometry(QRect(760, 340, 611, 361))
         self.groupBox_6 = QGroupBox(self.page_2)
         self.groupBox_6.setObjectName(u"groupBox_6")
-        self.groupBox_6.setGeometry(QRect(160, 340, 581, 361))
+        self.groupBox_6.setGeometry(QRect(170, 340, 571, 361))
         self.experiment_type_desc = QLineEdit(self.groupBox_6)
         self.experiment_type_desc.setObjectName(u"experiment_type_desc")
         self.experiment_type_desc.setGeometry(QRect(130, 60, 331, 41))
@@ -456,6 +465,21 @@ class Ui_Config_Widget(object):
         self.database_save = QPushButton(self.groupBox_6)
         self.database_save.setObjectName(u"database_save")
         self.database_save.setGeometry(QRect(340, 220, 201, 41))
+        self.groupBox_17 = QGroupBox(self.page_2)
+        self.groupBox_17.setObjectName(u"groupBox_17")
+        self.groupBox_17.setGeometry(QRect(760, 340, 611, 361))
+        self.Batch1 = QLineEdit(self.groupBox_17)
+        self.Batch1.setObjectName(u"Batch1")
+        self.Batch1.setGeometry(QRect(80, 60, 451, 41))
+        self.button_batch_1 = QPushButton(self.groupBox_17)
+        self.button_batch_1.setObjectName(u"button_batch_1")
+        self.button_batch_1.setGeometry(QRect(130, 140, 341, 31))
+        self.label_4 = QLabel(self.groupBox_17)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setGeometry(QRect(80, 100, 111, 16))
+        self.add_pixmap_for_green = QLabel(self.groupBox_17)
+        self.add_pixmap_for_green.setObjectName(u"add_pixmap_for_green")
+        self.add_pixmap_for_green.setGeometry(QRect(270, 190, 91, 16))
         self.meta_data_loading_1.addWidget(self.page_2)
         self.Notebook_2.addTab(self.experiment_initialization_3, "")
         self.batch_communication_3 = QWidget()
@@ -465,202 +489,194 @@ class Ui_Config_Widget(object):
         self.stackedWidget.setGeometry(QRect(30, 10, 1481, 821))
         self.communication_access = QWidget()
         self.communication_access.setObjectName(u"communication_access")
-        self.groupBox_17 = QGroupBox(self.communication_access)
-        self.groupBox_17.setObjectName(u"groupBox_17")
-        self.groupBox_17.setGeometry(QRect(40, 240, 551, 301))
-        self.Batch1 = QLineEdit(self.groupBox_17)
-        self.Batch1.setObjectName(u"Batch1")
-        self.Batch1.setGeometry(QRect(40, 40, 451, 41))
-        self.button_batch_1 = QPushButton(self.groupBox_17)
-        self.button_batch_1.setObjectName(u"button_batch_1")
-        self.button_batch_1.setGeometry(QRect(100, 120, 341, 31))
-        self.label_4 = QLabel(self.groupBox_17)
-        self.label_4.setObjectName(u"label_4")
-        self.label_4.setGeometry(QRect(40, 80, 111, 16))
-        self.add_pixmap_for_green = QLabel(self.groupBox_17)
-        self.add_pixmap_for_green.setObjectName(u"add_pixmap_for_green")
-        self.add_pixmap_for_green.setGeometry(QRect(240, 240, 47, 13))
-        self.label_25 = QLabel(self.groupBox_17)
-        self.label_25.setObjectName(u"label_25")
-        self.label_25.setGeometry(QRect(10, 190, 521, 16))
-        font = QFont()
-        font.setPointSize(10)
-        self.label_25.setFont(font)
         self.groupBox_21 = QGroupBox(self.communication_access)
         self.groupBox_21.setObjectName(u"groupBox_21")
-        self.groupBox_21.setGeometry(QRect(630, 190, 801, 431))
-        self.scrollArea_3 = QScrollArea(self.groupBox_21)
-        self.scrollArea_3.setObjectName(u"scrollArea_3")
-        self.scrollArea_3.setGeometry(QRect(40, 40, 221, 341))
-        self.scrollArea_3.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_3 = QWidget()
-        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 219, 339))
-        self.sub_command1 = QTextEdit(self.scrollAreaWidgetContents_3)
-        self.sub_command1.setObjectName(u"sub_command1")
-        self.sub_command1.setGeometry(QRect(0, 0, 221, 341))
-        self.scrollArea_3.setWidget(self.scrollAreaWidgetContents_3)
+        self.groupBox_21.setGeometry(QRect(210, 90, 1111, 541))
         self.label_40 = QLabel(self.groupBox_21)
         self.label_40.setObjectName(u"label_40")
-        self.label_40.setGeometry(QRect(40, 20, 181, 20))
+        self.label_40.setGeometry(QRect(30, 40, 181, 20))
         self.label_41 = QLabel(self.groupBox_21)
         self.label_41.setObjectName(u"label_41")
-        self.label_41.setGeometry(QRect(290, 20, 171, 20))
+        self.label_41.setGeometry(QRect(410, 40, 171, 20))
         self.receive_command1 = QTextEdit(self.groupBox_21)
         self.receive_command1.setObjectName(u"receive_command1")
-        self.receive_command1.setGeometry(QRect(290, 40, 221, 341))
+        self.receive_command1.setGeometry(QRect(410, 60, 301, 411))
         self.response_command_1 = QTextEdit(self.groupBox_21)
         self.response_command_1.setObjectName(u"response_command_1")
-        self.response_command_1.setGeometry(QRect(540, 40, 221, 341))
+        self.response_command_1.setGeometry(QRect(780, 60, 301, 411))
         self.label_42 = QLabel(self.groupBox_21)
         self.label_42.setObjectName(u"label_42")
-        self.label_42.setGeometry(QRect(540, 20, 231, 20))
+        self.label_42.setGeometry(QRect(780, 40, 231, 20))
         self.button_submit_command = QPushButton(self.groupBox_21)
         self.button_submit_command.setObjectName(u"button_submit_command")
-        self.button_submit_command.setGeometry(QRect(40, 390, 151, 31))
+        self.button_submit_command.setGeometry(QRect(30, 490, 151, 31))
         self.button_clear_window = QPushButton(self.groupBox_21)
         self.button_clear_window.setObjectName(u"button_clear_window")
-        self.button_clear_window.setGeometry(QRect(210, 390, 141, 31))
+        self.button_clear_window.setGeometry(QRect(200, 490, 141, 31))
+        self.sub_command1 = QTextEdit(self.groupBox_21)
+        self.sub_command1.setObjectName(u"sub_command1")
+        self.sub_command1.setGeometry(QRect(30, 60, 311, 411))
         self.button_batch_2 = QPushButton(self.communication_access)
         self.button_batch_2.setObjectName(u"button_batch_2")
-        self.button_batch_2.setGeometry(QRect(500, 650, 311, 51))
+        self.button_batch_2.setGeometry(QRect(560, 670, 311, 51))
         self.label_24 = QLabel(self.communication_access)
         self.label_24.setObjectName(u"label_24")
-        self.label_24.setGeometry(QRect(380, 60, 711, 61))
-        font1 = QFont()
-        font1.setFamilies([u"HoloLens MDL2 Assets"])
-        font1.setPointSize(20)
-        self.label_24.setFont(font1)
+        self.label_24.setGeometry(QRect(540, 20, 481, 61))
+        font = QFont()
+        font.setFamilies([u"HoloLens MDL2 Assets"])
+        font.setPointSize(20)
+        self.label_24.setFont(font)
         self.stackedWidget.addWidget(self.communication_access)
         self.select_commands = QWidget()
         self.select_commands.setObjectName(u"select_commands")
-        self.gridLayoutWidget_2 = QWidget(self.select_commands)
-        self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
-        self.gridLayoutWidget_2.setGeometry(QRect(430, 0, 551, 231))
-        self.communication_layout = QGridLayout(self.gridLayoutWidget_2)
-        self.communication_layout.setObjectName(u"communication_layout")
-        self.communication_layout.setContentsMargins(0, 0, 0, 0)
         self.groupBox_19 = QGroupBox(self.select_commands)
         self.groupBox_19.setObjectName(u"groupBox_19")
-        self.groupBox_19.setGeometry(QRect(0, 240, 1451, 571))
-        self.listWidget = QListWidget(self.groupBox_19)
+        self.groupBox_19.setGeometry(QRect(10, 40, 1451, 791))
+        self.listWidget = ListView(self.groupBox_19)
         self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setGeometry(QRect(560, 60, 256, 471))
-        self.verticalLayoutWidget_2 = QWidget(self.groupBox_19)
-        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(290, 60, 251, 471))
-        self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget_2)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.GeneralCommands_2 = QLabel(self.verticalLayoutWidget_2)
-        self.GeneralCommands_2.setObjectName(u"GeneralCommands_2")
-
-        self.verticalLayout_2.addWidget(self.GeneralCommands_2)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_2.addItem(self.horizontalSpacer_2)
-
+        self.listWidget.setGeometry(QRect(560, 60, 256, 641))
         self.label = QLabel(self.groupBox_19)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(560, 40, 191, 16))
-        self.groupBox_3 = QGroupBox(self.groupBox_19)
+        self.label_26 = QLabel(self.groupBox_19)
+        self.label_26.setObjectName(u"label_26")
+        self.label_26.setGeometry(QRect(830, 40, 191, 16))
+        self.label_27 = QLabel(self.groupBox_19)
+        self.label_27.setObjectName(u"label_27")
+        self.label_27.setGeometry(QRect(10, 40, 191, 16))
+        self.label_28 = QLabel(self.groupBox_19)
+        self.label_28.setObjectName(u"label_28")
+        self.label_28.setGeometry(QRect(280, 40, 191, 16))
+        self.scrollArea = QScrollArea(self.groupBox_19)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setGeometry(QRect(280, 60, 261, 701))
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 259, 699))
+        self.SeriesWidget = ListView(self.scrollAreaWidgetContents)
+        self.SeriesWidget.setObjectName(u"SeriesWidget")
+        self.SeriesWidget.setGeometry(QRect(0, 0, 261, 701))
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.label_32 = QLabel(self.groupBox_19)
+        self.label_32.setObjectName(u"label_32")
+        self.label_32.setGeometry(QRect(10, 440, 191, 16))
+        self.scrollArea_2 = QScrollArea(self.groupBox_19)
+        self.scrollArea_2.setObjectName(u"scrollArea_2")
+        self.scrollArea_2.setGeometry(QRect(10, 460, 251, 301))
+        self.scrollArea_2.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_2 = QWidget()
+        self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 249, 299))
+        self.protocol_widget = ListView(self.scrollAreaWidgetContents_2)
+        self.protocol_widget.setObjectName(u"protocol_widget")
+        self.protocol_widget.setGeometry(QRect(0, 0, 251, 301))
+        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
+        self.gridLayoutWidget_4 = QWidget(self.groupBox_19)
+        self.gridLayoutWidget_4.setObjectName(u"gridLayoutWidget_4")
+        self.gridLayoutWidget_4.setGeometry(QRect(830, 60, 401, 701))
+        self.gridLayout_5 = QGridLayout(self.gridLayoutWidget_4)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.parameter_window = QGridLayout()
+        self.parameter_window.setObjectName(u"parameter_window")
+        self.groupBox_3 = QGroupBox(self.gridLayoutWidget_4)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        self.groupBox_3.setGeometry(QRect(1260, 50, 161, 341))
         self.label_10 = QLabel(self.groupBox_3)
         self.label_10.setObjectName(u"label_10")
-        self.label_10.setGeometry(QRect(10, 130, 47, 13))
+        self.label_10.setGeometry(QRect(170, 60, 47, 13))
         self.label_12 = QLabel(self.groupBox_3)
         self.label_12.setObjectName(u"label_12")
-        self.label_12.setGeometry(QRect(10, 70, 47, 13))
+        self.label_12.setGeometry(QRect(10, 60, 47, 13))
         self.cslow_qc = QLineEdit(self.groupBox_3)
         self.cslow_qc.setObjectName(u"cslow_qc")
-        self.cslow_qc.setGeometry(QRect(10, 100, 141, 31))
+        self.cslow_qc.setGeometry(QRect(170, 30, 141, 31))
         self.rseries_qc = QLineEdit(self.groupBox_3)
         self.rseries_qc.setObjectName(u"rseries_qc")
-        self.rseries_qc.setGeometry(QRect(10, 40, 141, 31))
+        self.rseries_qc.setGeometry(QRect(10, 30, 141, 31))
         self.cfast_qc = QLineEdit(self.groupBox_3)
         self.cfast_qc.setObjectName(u"cfast_qc")
-        self.cfast_qc.setGeometry(QRect(10, 160, 141, 31))
-        self.label_29 = QLabel(self.groupBox_3)
-        self.label_29.setObjectName(u"label_29")
-        self.label_29.setGeometry(QRect(10, 190, 47, 13))
+        self.cfast_qc.setGeometry(QRect(10, 90, 141, 31))
         self.cfast_qc_2 = QLineEdit(self.groupBox_3)
         self.cfast_qc_2.setObjectName(u"cfast_qc_2")
-        self.cfast_qc_2.setGeometry(QRect(10, 220, 141, 31))
-        self.label_30 = QLabel(self.groupBox_3)
-        self.label_30.setObjectName(u"label_30")
-        self.label_30.setGeometry(QRect(10, 250, 101, 16))
-        self.widget = QWidget(self.groupBox_19)
-        self.widget.setObjectName(u"widget")
-        self.widget.setGeometry(QRect(840, 60, 391, 471))
-        self.pushButton_3 = QPushButton(self.groupBox_19)
-        self.pushButton_3.setObjectName(u"pushButton_3")
-        self.pushButton_3.setGeometry(QRect(1270, 420, 141, 41))
-        self.pushButton_4 = QPushButton(self.groupBox_19)
-        self.pushButton_4.setObjectName(u"pushButton_4")
-        self.pushButton_4.setGeometry(QRect(1270, 480, 141, 41))
+        self.cfast_qc_2.setGeometry(QRect(170, 90, 141, 31))
+        self.label_13 = QLabel(self.groupBox_3)
+        self.label_13.setObjectName(u"label_13")
+        self.label_13.setGeometry(QRect(10, 120, 47, 13))
+        self.label_14 = QLabel(self.groupBox_3)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setGeometry(QRect(170, 120, 47, 13))
+
+        self.parameter_window.addWidget(self.groupBox_3, 1, 0, 1, 1)
+
+        self.groupBox_5 = QGroupBox(self.gridLayoutWidget_4)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.label_33 = QLabel(self.groupBox_5)
+        self.label_33.setObjectName(u"label_33")
+        self.label_33.setGeometry(QRect(70, 180, 47, 13))
+        self.label_34 = QLabel(self.groupBox_5)
+        self.label_34.setObjectName(u"label_34")
+        self.label_34.setGeometry(QRect(230, 180, 101, 16))
+        self.horizontalSlider = QSlider(self.groupBox_5)
+        self.horizontalSlider.setObjectName(u"horizontalSlider")
+        self.horizontalSlider.setGeometry(QRect(70, 40, 211, 22))
+        self.horizontalSlider.setOrientation(Qt.Horizontal)
+        self.label_11 = QLabel(self.groupBox_5)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setGeometry(QRect(110, 20, 171, 16))
+        self.label_15 = QLabel(self.groupBox_5)
+        self.label_15.setObjectName(u"label_15")
+        self.label_15.setGeometry(QRect(110, 90, 141, 16))
+        self.horizontalSlider_2 = QSlider(self.groupBox_5)
+        self.horizontalSlider_2.setObjectName(u"horizontalSlider_2")
+        self.horizontalSlider_2.setGeometry(QRect(70, 110, 211, 22))
+        self.horizontalSlider_2.setOrientation(Qt.Horizontal)
+
+        self.parameter_window.addWidget(self.groupBox_5, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addLayout(self.parameter_window, 1, 0, 1, 1)
+
+        self.pyqt_window = QGridLayout()
+        self.pyqt_window.setObjectName(u"pyqt_window")
+
+        self.gridLayout_5.addLayout(self.pyqt_window, 0, 0, 1, 1)
+
         self.verticalLayoutWidget = QWidget(self.groupBox_19)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 60, 251, 471))
+        self.verticalLayoutWidget.setGeometry(QRect(1240, 60, 201, 161))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.GeneralCommands = QLabel(self.verticalLayoutWidget)
-        self.GeneralCommands.setObjectName(u"GeneralCommands")
-        self.GeneralCommands.setFont(font)
+        self.pushButton_3 = QPushButton(self.verticalLayoutWidget)
+        self.pushButton_3.setObjectName(u"pushButton_3")
 
-        self.verticalLayout.addWidget(self.GeneralCommands)
+        self.verticalLayout.addWidget(self.pushButton_3)
 
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.pushButton_4 = QPushButton(self.verticalLayoutWidget)
+        self.pushButton_4.setObjectName(u"pushButton_4")
 
-        self.verticalLayout.addItem(self.horizontalSpacer)
+        self.verticalLayout.addWidget(self.pushButton_4)
 
-        self.label_11 = QLabel(self.verticalLayoutWidget)
-        self.label_11.setObjectName(u"label_11")
+        self.pushButton_2 = QPushButton(self.verticalLayoutWidget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
 
-        self.verticalLayout.addWidget(self.label_11)
+        self.verticalLayout.addWidget(self.pushButton_2)
 
-        self.label_13 = QLabel(self.verticalLayoutWidget)
-        self.label_13.setObjectName(u"label_13")
-
-        self.verticalLayout.addWidget(self.label_13)
-
-        self.label_14 = QLabel(self.verticalLayoutWidget)
-        self.label_14.setObjectName(u"label_14")
-
-        self.verticalLayout.addWidget(self.label_14)
-
-        self.label_15 = QLabel(self.verticalLayoutWidget)
-        self.label_15.setObjectName(u"label_15")
-
-        self.verticalLayout.addWidget(self.label_15)
-
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_5)
-
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_6)
-
-        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_8)
-
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_7)
-
-        self.label_26 = QLabel(self.groupBox_19)
-        self.label_26.setObjectName(u"label_26")
-        self.label_26.setGeometry(QRect(840, 40, 191, 16))
-        self.label_27 = QLabel(self.groupBox_19)
-        self.label_27.setObjectName(u"label_27")
-        self.label_27.setGeometry(QRect(20, 40, 191, 16))
-        self.label_28 = QLabel(self.groupBox_19)
-        self.label_28.setObjectName(u"label_28")
-        self.label_28.setGeometry(QRect(290, 40, 191, 16))
+        self.pushButton_10 = QPushButton(self.groupBox_19)
+        self.pushButton_10.setObjectName(u"pushButton_10")
+        self.pushButton_10.setGeometry(QRect(610, 720, 141, 41))
+        self.scrollArea_3 = QScrollArea(self.groupBox_19)
+        self.scrollArea_3.setObjectName(u"scrollArea_3")
+        self.scrollArea_3.setGeometry(QRect(10, 60, 251, 371))
+        self.scrollArea_3.setWidgetResizable(True)
+        self.scrollAreaWidgetContents_3 = QWidget()
+        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 249, 369))
+        self.general_commands_labels = ListView(self.scrollAreaWidgetContents_3)
+        self.general_commands_labels.setObjectName(u"general_commands_labels")
+        self.general_commands_labels.setGeometry(QRect(0, 0, 256, 361))
+        self.scrollArea_3.setWidget(self.scrollAreaWidgetContents_3)
         self.stackedWidget.addWidget(self.select_commands)
         self.Notebook_2.addTab(self.batch_communication_3, "")
         self.camera_3 = QWidget()
@@ -735,18 +751,20 @@ class Ui_Config_Widget(object):
         self.label_221.setText(QCoreApplication.translate("Config_Widget", u"Technician", None))
         self.label_222.setText(QCoreApplication.translate("Config_Widget", u"Laboratory Code", None))
         self.groupBox_33.setTitle(QCoreApplication.translate("Config_Widget", u"Experiment Protocol", None))
-        self.label_223.setText(QCoreApplication.translate("Config_Widget", u"Protocol Files", None))
-        self.label_224.setText(QCoreApplication.translate("Config_Widget", u"Pulse description", None))
-        self.label_225.setText(QCoreApplication.translate("Config_Widget", u"N", None))
-        self.label_226.setText(QCoreApplication.translate("Config_Widget", u"Done", None))
+        self.button_pgf_set_3.setText(QCoreApplication.translate("Config_Widget", u"Set", None))
+        self.label_61.setText(QCoreApplication.translate("Config_Widget", u"Protocol File", None))
+        self.label_60.setText(QCoreApplication.translate("Config_Widget", u"Online Analysis File", None))
+        self.button_protocol_set_3.setText(QCoreApplication.translate("Config_Widget", u"Set", None))
+        self.label_59.setText(QCoreApplication.translate("Config_Widget", u"PGF File", None))
+        self.button_onl_analysis_set_3.setText(QCoreApplication.translate("Config_Widget", u"Set", None))
         self.groupBox_34.setTitle(QCoreApplication.translate("Config_Widget", u"Archiving", None))
         self.label_227.setText(QCoreApplication.translate("Config_Widget", u"Model Code", None))
         self.label_228.setText(QCoreApplication.translate("Config_Widget", u"Project Code", None))
         self.label_229.setText(QCoreApplication.translate("Config_Widget", u"Study Code", None))
         self.label_230.setText(QCoreApplication.translate("Config_Widget", u"Data path", None))
         self.label_231.setText(QCoreApplication.translate("Config_Widget", u"File name template", None))
-        self.button_submit_database.setText(QCoreApplication.translate("Config_Widget", u"Submit Data to Database", None))
-        self.button_edit_experiment.setText(QCoreApplication.translate("Config_Widget", u"Edit Data", None))
+        self.button_batch_7.setText(QCoreApplication.translate("Config_Widget", u"Setup Communication and open Communication Test Tool", None))
+        self.label_62.setText(QCoreApplication.translate("Config_Widget", u"Control File Path", None))
         self.groupBox_22.setTitle(QCoreApplication.translate("Config_Widget", u"Solutions", None))
         self.label_199.setText(QCoreApplication.translate("Config_Widget", u"EC Type", None))
         self.label_200.setText(QCoreApplication.translate("Config_Widget", u"IC  Type", None))
@@ -786,19 +804,17 @@ class Ui_Config_Widget(object):
         self.label_2.setText(QCoreApplication.translate("Config_Widget", u"PGF File", None))
         self.label_3.setText(QCoreApplication.translate("Config_Widget", u"Protocol File", None))
         self.label_5.setText(QCoreApplication.translate("Config_Widget", u"Online Analysis File", None))
-        self.groupBox_5.setTitle(QCoreApplication.translate("Config_Widget", u"Cell Type", None))
         self.groupBox_6.setTitle(QCoreApplication.translate("Config_Widget", u"Experiment Metadata", None))
         self.label_6.setText(QCoreApplication.translate("Config_Widget", u"Experiment Type", None))
         self.label_7.setText(QCoreApplication.translate("Config_Widget", u"Cell Type", None))
         self.label_8.setText(QCoreApplication.translate("Config_Widget", u"Min # of Cells", None))
         self.label_9.setText(QCoreApplication.translate("Config_Widget", u" # of Cells patched", None))
         self.database_save.setText(QCoreApplication.translate("Config_Widget", u"Save to Database", None))
-        self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.experiment_initialization_3), QCoreApplication.translate("Config_Widget", u"Experiment Initialization", None))
         self.groupBox_17.setTitle(QCoreApplication.translate("Config_Widget", u"Set Batch Communication Settings", None))
         self.button_batch_1.setText(QCoreApplication.translate("Config_Widget", u"Setup Communication and open Communication Test Tool", None))
         self.label_4.setText(QCoreApplication.translate("Config_Widget", u"Control File Path", None))
-        self.add_pixmap_for_green.setText(QCoreApplication.translate("Config_Widget", u"TextLabel", None))
-        self.label_25.setText(QCoreApplication.translate("Config_Widget", u"Check the indicator below if a connection is successfully triggered there will be a green light", None))
+        self.add_pixmap_for_green.setText(QCoreApplication.translate("Config_Widget", u"Connected...", None))
+        self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.experiment_initialization_3), QCoreApplication.translate("Config_Widget", u"Experiment Initialization", None))
         self.groupBox_21.setTitle(QCoreApplication.translate("Config_Widget", u"Test the Connection to the Patchmaster", None))
         self.label_40.setText(QCoreApplication.translate("Config_Widget", u"Submit your Commands", None))
         self.label_41.setText(QCoreApplication.translate("Config_Widget", u"Control File received", None))
@@ -806,25 +822,27 @@ class Ui_Config_Widget(object):
         self.button_submit_command.setText(QCoreApplication.translate("Config_Widget", u"Submit", None))
         self.button_clear_window.setText(QCoreApplication.translate("Config_Widget", u"Clear Windows", None))
         self.button_batch_2.setText(QCoreApplication.translate("Config_Widget", u"Setup Experiment", None))
-        self.label_24.setText(QCoreApplication.translate("Config_Widget", u"Setup the batch communication with the HEKA Patchmaster", None))
+        self.label_24.setText(QCoreApplication.translate("Config_Widget", u"Test Patchmaster Batch Communication", None))
         self.groupBox_19.setTitle(QCoreApplication.translate("Config_Widget", u"Protocol Editor", None))
-        self.GeneralCommands_2.setText(QCoreApplication.translate("Config_Widget", u"Series Commands", None))
         self.label.setText(QCoreApplication.translate("Config_Widget", u"Final Patch Clamping Sequence:", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("Config_Widget", u"Cell Quality", None))
-        self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow", None))
-        self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries", None))
-        self.label_29.setText(QCoreApplication.translate("Config_Widget", u"Cfast", None))
-        self.label_30.setText(QCoreApplication.translate("Config_Widget", u"Seal resistance", None))
-        self.pushButton_3.setText(QCoreApplication.translate("Config_Widget", u"Start Experiment", None))
-        self.pushButton_4.setText(QCoreApplication.translate("Config_Widget", u"Stop Experiment", None))
-        self.GeneralCommands.setText(QCoreApplication.translate("Config_Widget", u"General Commands", None))
-        self.label_11.setText(QCoreApplication.translate("Config_Widget", u"Cslow Comp", None))
-        self.label_13.setText(QCoreApplication.translate("Config_Widget", u"Rseries Comp", None))
-        self.label_14.setText(QCoreApplication.translate("Config_Widget", u"Get Cslow", None))
-        self.label_15.setText(QCoreApplication.translate("Config_Widget", u"Get Rseries", None))
         self.label_26.setText(QCoreApplication.translate("Config_Widget", u"Notebook Online Analysis:", None))
         self.label_27.setText(QCoreApplication.translate("Config_Widget", u"Dragable Labels", None))
-        self.label_28.setText(QCoreApplication.translate("Config_Widget", u"Dragable Series", None))
+        self.label_28.setText(QCoreApplication.translate("Config_Widget", u"Dragable Executable Series", None))
+        self.label_32.setText(QCoreApplication.translate("Config_Widget", u"Dragable Protocols", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("Config_Widget", u"Get Parameter", None))
+        self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow", None))
+        self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries", None))
+        self.label_13.setText(QCoreApplication.translate("Config_Widget", u"Cfast", None))
+        self.label_14.setText(QCoreApplication.translate("Config_Widget", u"Cell", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("Config_Widget", u"Set Filtering", None))
+        self.label_33.setText(QCoreApplication.translate("Config_Widget", u"Cfast", None))
+        self.label_34.setText(QCoreApplication.translate("Config_Widget", u"Seal resistance", None))
+        self.label_11.setText(QCoreApplication.translate("Config_Widget", u"Rseries Change in % allowed", None))
+        self.label_15.setText(QCoreApplication.translate("Config_Widget", u"Cslow Changein % allowed", None))
+        self.pushButton_3.setText(QCoreApplication.translate("Config_Widget", u"Start Experiment", None))
+        self.pushButton_4.setText(QCoreApplication.translate("Config_Widget", u"Stop Experiment", None))
+        self.pushButton_2.setText(QCoreApplication.translate("Config_Widget", u"Save Plot", None))
+        self.pushButton_10.setText(QCoreApplication.translate("Config_Widget", u"Clear Sequences", None))
         self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.batch_communication_3), QCoreApplication.translate("Config_Widget", u"Batch Communication", None))
         self.pushButton.setText(QCoreApplication.translate("Config_Widget", u"Initalize Camera", None))
         self.groupBox.setTitle(QCoreApplication.translate("Config_Widget", u"Live Camera Feed", None))
@@ -838,15 +856,18 @@ class Ui_Config_Widget(object):
         self.label_31.setText(QCoreApplication.translate("Config_Widget", u"Image Galery", None))
         self.Notebook_2.setTabText(self.Notebook_2.indexOf(self.camera_3), QCoreApplication.translate("Config_Widget", u"Camera", None))
     # retranslateUi
+        self.set_buttons_beginning()
 
     def set_buttons_beginning(self):
             self.button_batch_2.setEnabled(False)
+            self.add_pixmap_for_green.setStyleSheet("color: red")
 
     def meta_open_directory(self):
         '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
         it's data will be loaded immediately into the databse'''
         # open the directory
-        dir_path = QFileDialog.getOpenFileUrl()
+        dir_path = QFileDialog.getOpenFileName()
+        dir_path = str(dir_path[0]).replace("/","\\")
         # save the path in the manager class
         return dir_path
 
@@ -854,16 +875,20 @@ class Ui_Config_Widget(object):
         """set the pgf file that is used for the patchmaster"""
         logging.info("Setted PGF File")
         self.pgf_file = self.meta_open_directory()
+    
+        self.pg_file_set.setText(self.pgf_file)
 
-    def protocol_file(self):
+    def set_protocol_file(self):
         """set the .pro file that is used for the patchmaster"""
         logging.info("Setted Protocol File")
         self.pro_file = self.meta_open_directory()
+        self.protocol_file_set.setText(self.pro_file)
 
-    def online_file(self):
+    def set_online_file(self):
         """set the online_analysis_file that is used for the patchmaster"""
         logging.info("Setted online analysis file")
         self.onl_file = self.meta_open_directory()
+        self.online_analysis_file_set.setText(self.onl_file)
 
     def open_batch_path(self):
         """ choose the path were the batch communication file should
@@ -877,20 +902,20 @@ class Ui_Config_Widget(object):
             self.Batch1.setText(batch_path)
             self.batch_path = batch_path
             file_existence = self.backend_manager.check_input_file_existence()
-            if file_existence is True:
-                print("yeah")
-                self.button_batch_2.setStyleSheet("background-color: green")
-                self.button_batch_2.setEnabled(True)
-            else:
-                self.backend_manager.create_ascii_file_from_template()
-                self.open_batch_path()
-                
+            self.backend_manager.create_ascii_file_from_template()
+            self.button_batch_2.setStyleSheet("background-color: green")
+            self.button_batch_2.setEnabled(True)
+            self.submit_patchmaster_files()
+            self.Notebook_2.setCurrentIndex(1)
+            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
+            self.increment_count()
+                           
         else:
             self.Batch1.setText("please select a Path for the Patch File")
 
     def initialize_camera(self):
         """ Basler camera initalizing  
-        ToDO: """
+        ToDO: Error handling"""
 
         print("stuff worked")
         self.camera = BayerCamera()
@@ -968,7 +993,8 @@ class Ui_Config_Widget(object):
         self.sub_command1.clear()
         
         print(self.res)
-        self.backend_manager.send_text_input(self.res)
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + self.res + "\n")
+        self.submission_count += 1
         if self.check_session:
             print("still checking commands")
         else:
@@ -986,7 +1012,6 @@ class Ui_Config_Widget(object):
         self.receive_command1.insertPlainText(input_file)
         self.response_command_1.insertPlainText(response_file)
 
-
     def end_communication_control(self):
         """ stop the batch communication and clear all fields """
         print("communication end")
@@ -997,15 +1022,197 @@ class Ui_Config_Widget(object):
             self.response_command_1.clear()
             self.sub_command1.clear()
 
-    def doAnim(self):
-        """first animation trial"""
-        self.anim = QPropertyAnimation(self.groupBox_17, b"geometry")
-        self.anim.setDuration(1000)
-        #self.anim.setStartValue(QRect(150, 30, 100, 100))
-        #self.anim.setEndValue(QRect(150, 30, 200, 200))
-        self.anim.start()
-        self.communication_layout.addWidget(self.groupBox_17)
+    def plot_qt(self, widget):
+        print("enter plotting")
+        x = np.linspace(1,10,100)
+        y = np.linspace(1,10,100)
+        widget.plot(x,y)
+
+    def show_analysis_window(self):
+        """add Docstring"""
+        # Get Input from the Sequences and the Protocols
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListSequences\n")
+        sleep(0.2)
+        sequences = self.backend_manager.update_response_file_content()
+        self.increment_count()
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListProtocols\n")
+        sleep(0.2)
+        protocol_responses = self.backend_manager.update_response_file_content()
+        self.increment_count()
+
+        self.pyqt_graph = pg.PlotWidget(height = 100)
+        self.pyqt_graph.setGeometry(QRect(10,10,10,10))
+        self.pyqt_window.addWidget(self.pyqt_graph)
+        x = np.linspace(1,10,100)
+        y = np.linspace(1,10,100)
+        self.pyqt_graph.plot(x,y)
+        #self.plot_qt(self.pyqt_graph.plotWidget)
+
+        series = self.preprocess_series_protocols(sequences)
+        protocols = self.preprocess_series_protocols(protocol_responses)
+        self.style_list_view()
+        self.make_sequence_labels(series, self.SeriesWidget)
+        self.make_sequence_labels(protocols, self.protocol_widget)
+        self.make_general_commands()
         self.stackedWidget.setCurrentIndex(1)
+
+    def preprocess_series_protocols(self, sequences_reponses):
+        patch_sequences = sequences_reponses[31: ].split(",")
+        patch_sequences = [i.replace('"', "") for i in patch_sequences]
+        patch_sequences = [i.replace("\n", "")for i in patch_sequences]
+        return patch_sequences
+        
+    def style_list_view(self):
+        self.listWidget.setStyleSheet("border: 2px; border-color: white")
+        self.SeriesWidget.setStyleSheet("background: #448aff;")
+        self.general_commands_labels.setStyleSheet("background: #448aff")
+        self.protocol_widget.setStyleSheet("background: #448aff")
+
+    def make_sequence_labels(self, list_of_sequences,widget):
+        for i in list_of_sequences:
+            item = QStandardItem(i)
+            widget.model().appendRow(item)
+
+    def make_general_commands(self):
+        for i in self.general_commands_list:
+            item = QStandardItem(i)
+            self.general_commands_labels.model().appendRow(item)
+
+    def submit_patchmaster_files(self):
+        logging.info("Configuration Files setted up:....")
+        for file, command in zip([self.pgf_file, self.pro_file, self.onl_file],["OpenPgfFile","OpenProtFile","OpenOnlineFile"]):
+            if file:
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}\n' + command + f" {file}\n")
+                sleep(0.5)
+                self.submission_count += 1
+            else:
+                logging.info("not all configuration files set:")
+
+    def make_threading(self):
+        self.threadpool = QThreadPool()
+        self.worker = Worker(self.start_experiment_patch)
+        self.threadpool.start(self.worker)
+
+    def stop_threading(self):
+        "doesnt work"
+        self.threadpool.stop(self.worker)
+
+    def start_experiment_patch(self):
+        """ get the ListView entries and send them off via the backend manager"""
+        # this should be exposed to threading!
+        view_list = self.listWidget.model()
+        self.sequence_experiment_dictionary = {}
+        self.increment_count()
+        final_notebook_dataframe = pd.DataFrame()
+        
+        for index in range(view_list.rowCount()):
+
+            item = view_list.item(index).text()
+            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""GetParameters Param-2,Param-3,Param-4,Param-12\n")
+            sleep(0.2)
+            self.backend_manager.get_parameters()
+            self.increment_count()
+
+            if self.SeriesWidget.model().findItems(item):
+                logging.info(f"Series {item} will be executed")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteSequence " + f'"{item}"' +"\n")
+                self.increment_count()
+                self.trial_setup(final_notebook_dataframe, item)
+
+            elif "GetEpc" in item:
+                logging.info(f"Parameter Command {item} will be executed")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f'"{item}"' +"\n")
+                print("GetParameters if necessary")
+            
+            elif self.protocol_widget.model().findItems(item):
+                logging.info(f"Protocol {item} will be executed")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteProtocol " + f'"{item}"' +"\n")
+                self.increment_count()
+                analyzed = self.trial_setup(final_notebook_dataframe, item)
+
+            else:
+                logging.info(f"General Command {item} will be executed")
+                self.basic_configuration_protcols(item)
+
+
+    def increment_count(self):
+        self.submission_count += 1
+
+    def trial_setup(self, notebook, item):
+        sleep(0.2)
+        item = item 
+        final_notebook_dataframe = notebook
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Query\n")
+        self.increment_count()
+
+        query_status = self.backend_manager.get_query_status()
+        query_status = query_status.replace(" ", "")
+        print(f"this is the query status: {query_status}")
+
+        if "Query_Idle" in query_status:
+            try: 
+                dataframe = self.backend_manager.return_dataframe_from_notebook()
+                final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
+                final_notebook = self.get_final_notebook(final_notebook_dataframe)
+                self.sequence_experiment_dictionary[item] = final_notebook
+            except:
+                final_notebook = self.get_final_notebook(final_notebook_dataframe)
+                self.sequence_experiment_dictionary[item] = final_notebook
+                return True
+    
+        elif ("Query_Acquiring" or "Query_Executing") in query_status:
+            #Check if the query is still acquiring
+            try:
+                dataframe = self.backend_manager.return_dataframe_from_notebook()
+                final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
+                self.trial_setup(final_notebook_dataframe,item)
+            except Exception as e:
+                print(repr(e))
+                self.trial_setup(final_notebook_dataframe,item)
+        
+        else:
+            print("Connection Lost")
+            return None
+        
+
+    def get_final_notebook(self, notebook):
+        columns = notebook.iloc[0].tolist()
+        columns.pop(0)
+        columns = columns + ["NAN"]
+        columns = [str(i).replace('"',"") for i in columns]
+        final_notebook = notebook[1:]
+        final_notebook.columns = columns
+        final_notebook = final_notebook.iloc[:,4:]
+        final_notebook = final_notebook.drop("NAN", axis = 1)
+        
+        print(final_notebook)
+        return True
+
+    def basic_configuration_protcols(self, item):
+        print("yes i entered this file")
+        function_dictionary = {"Setup": self.execute_setup, "Seal": self.execute_seal, "Whole-cell": self.execute_whole_cell}
+        func = function_dictionary.get(item,lambda :'Invalid')
+        func()
+
+    def execute_setup(self):
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SETUP\n")
+        self.increment_count()
+    
+    def execute_seal(self):
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SEAL\n")
+        self.increment_count()
+        print()
+
+    def execute_whole_cell(self):
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol WHOLE-CELL\n")
+        self.increment_count()
+        print(9)
+
+    def clear_list(self):
+        self.listWidget.model().clear()
+        
+        
+    
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
@@ -1013,4 +1220,35 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.initialized()
+
+
+class Worker(QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+
+    @Slot()  # QtCore.Slot
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+        self.fn(*self.args, **self.kwargs)
+
+
 
