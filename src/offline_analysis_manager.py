@@ -29,6 +29,7 @@ class OfflineManager():
         # database object
         self.database = data_db.DataDB()
 
+        self.tree_view_manager = None
 
     @property
     def directory_path(self):
@@ -42,10 +43,11 @@ class OfflineManager():
     def get_database(self):
         return self.database
 
-    def read_data_from_experiment_directory(self,tree):
+    def read_data_from_experiment_directory(self,tree,discarded_tree):
         data_list = self.package_list(self._directory_path)
-        tree = TreeViewManager().create_treeview_from_directory(tree, self.database, data_list, self._directory_path)
-        return tree
+        self.tree_view_manager = TreeViewManager()
+        tree,discarded_tree = self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, self.database, data_list, self._directory_path)
+        return tree, discarded_tree
 
     # Database functions
     def init_database(self):
