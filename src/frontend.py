@@ -22,42 +22,39 @@ from tkinter_camera import *
 from offline_analysis_elements import OfflineElements
 from offline_analysis_manager import OfflineManager
 import welcome_page_elements
-
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import QFile
-
-
+from PySide6 import QtWidgets
+from PySide6.QtGui import *
+#from MainWindow import Ui_MainWindow
 
 plt.style.use('dark_background')
-mpl.use('TkAgg')
+#mpl.use('Qt5Agg')
 plt.rcParams['axes.facecolor']='#333333'
 plt.rcParams['figure.facecolor'] ='#333333'
 mpl.rc('axes',edgecolor='black')
 
-from PyQt5 import QtWidgets, uic
+from qt_material import apply_stylesheet
 import sys
-
-class Ui(QtWidgets.QMainWindow):
-    def __init__(self):
-        super(Ui, self).__init__()
-        uic.loadUi('../QT_GUI/main_window.ui', self)
-        self.show()
 
 from functools import partial
 current_dir = os.path.dirname(os.path.abspath(__file__))
-Form, Base = uic.loadUiType(os.path.join(current_dir, '../QT_GUI/main_window.ui'))
+#Form, Base = uic.loadUiType(os.path.join(current_dir, '../QT_GUI/main_window.ui'))
 
-
-class FrontPage(Base, Form):
-    def __init__(self, parent=None):
-        super(self.__class__, self).__init__(parent)
+class FrontPage(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super(MainWindow, self).__init__()
         #uic.loadUi('../QT_GUI/self_config_notebook_widget.ui', self)
         self.setupUi(self)
 
         buttons = (self.self_configuration, self.online_analysis, self.offline_analysis, self.statistics)
         for i, button in enumerate(buttons):
+            button.setProperty('class', 'big_button')
             button.clicked.connect(partial(self.notebook.setCurrentIndex, i))
+
+
+
 
 class GuiEtools():
 
@@ -305,7 +302,13 @@ class GuiEtools():
 
 if __name__ == "__main__":
     #GuiEtools(appearance = "azure").window.mainloop()
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv) 
+    window = QMainWindow()
+    apply_stylesheet(app, theme='dark_blue.xml')
+    stylesheet = app.styleSheet()
+    with open('Menu_button.css') as file:
+        app.setStyleSheet(stylesheet + file.read().format(**os.environ))
+
     w = FrontPage()
     w.show()
     sys.exit(app.exec_())

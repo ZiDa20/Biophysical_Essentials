@@ -1,0 +1,1922 @@
+2021-07-05 17:52:20,158 : INFO : root : A trial message if the logger is working
+2021-07-05 17:57:45,724 : INFO : root : A trial message if the logger is working
+2021-07-05 17:57:52,382 : INFO : root : Camera is not connected, please connect a Basler Camera at your USB-3 port
+2021-07-05 17:57:59,140 : INFO : root : Batch.in file is available at the current location
+2021-07-05 17:58:04,618 : INFO : root : Get commands from inputs
+2021-07-05 17:58:04,618 : DEBUG : root : Batch communication input: hello
+2021-07-05 18:00:11,704 : INFO : root : A trial message if the logger is working
+2021-07-05 18:00:36,177 : INFO : root : Batch.in file is available at the current location
+2021-07-05 18:00:57,651 : INFO : root : A trial message if the logger is working
+2021-07-05 18:01:00,721 : INFO : root : Batch.in file is available at the current location
+2021-07-05 18:14:51,038 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:14,950 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:37,470 : INFO : root : A trial message if the logger is working
+2021-07-05 18:15:49,781 : INFO : root : A trial message if the logger is working
+2021-07-05 18:16:21,266 : INFO : root : A trial message if the logger is working
+2021-07-06 14:04:40,988 : INFO : root : A trial message if the logger is working
+2021-07-06 14:06:13,807 : INFO : root : A trial message if the logger is working
+2021-07-06 14:16:18,809 : INFO : root : A trial message if the logger is working
+2021-07-06 14:20:05,405 : INFO : root : A trial message if the logger is working
+2021-07-06 14:20:45,881 : INFO : root : A trial message if the logger is working
+2021-07-06 14:20:57,461 : INFO : root : A trial message if the logger is working
+2021-07-06 14:21:06,776 : INFO : root : A trial message if the logger is working
+2021-07-06 14:21:32,192 : INFO : root : A trial message if the logger is working
+2021-07-06 14:21:49,102 : INFO : root : A trial message if the logger is working
+2021-07-06 14:22:00,549 : INFO : root : A trial message if the logger is working
+2021-07-06 14:22:32,015 : INFO : root : A trial message if the logger is working
+2021-07-06 15:37:27,486 : DEBUG : root : Batch communication input: 
+2021-07-06 15:37:39,213 : DEBUG : root : Batch communication input: 
+2021-07-06 15:37:48,598 : DEBUG : root : Batch communication input: Why do you do this shit
+2021-07-06 16:28:14,951 : INFO : root : A trial message if the logger is working
+2021-07-06 16:30:39,917 : INFO : root : A trial message if the logger is working
+2021-07-06 16:33:42,108 : INFO : root : A trial message if the logger is working
+2021-07-06 16:33:59,818 : INFO : root : A trial message if the logger is working
+2021-07-06 16:34:24,398 : DEBUG : root : Batch communication input: 
+2021-07-06 16:34:30,565 : DEBUG : root : Batch communication input: Trial 
+2021-07-06 16:38:48,839 : INFO : root : A trial message if the logger is working
+2021-07-06 16:38:58,916 : DEBUG : root : Batch communication input: halllo
+2021-07-06 16:39:08,245 : DEBUG : root : Batch communication input: wie gehts
+2021-07-06 16:39:14,485 : DEBUG : root : Batch communication input: check this file
+2021-07-06 17:09:31,447 : INFO : root : A trial message if the logger is working
+2021-07-06 17:09:56,781 : INFO : root : A trial message if the logger is working
+2021-07-06 17:10:04,256 : INFO : root : A trial message if the logger is working
+2021-07-06 17:10:25,976 : INFO : root : A trial message if the logger is working
+2021-07-06 17:11:06,892 : INFO : root : A trial message if the logger is working
+2021-07-06 17:13:46,416 : INFO : root : A trial message if the logger is working
+2021-07-06 17:13:57,300 : INFO : root : Setted PGF File
+2021-07-06 17:14:05,076 : INFO : root : Setted Protocol File
+2021-07-06 17:14:07,636 : INFO : root : Setted online analysis file
+2021-07-06 17:16:35,861 : INFO : root : A trial message if the logger is working
+2021-07-06 17:16:42,803 : INFO : root : Setted PGF File
+2021-07-06 17:17:58,488 : INFO : root : A trial message if the logger is working
+2021-07-06 17:18:01,411 : INFO : root : Setted PGF File
+2021-07-06 17:18:39,099 : INFO : root : A trial message if the logger is working
+2021-07-06 17:18:41,188 : INFO : root : Setted PGF File
+2021-07-06 17:18:57,968 : INFO : root : A trial message if the logger is working
+2021-07-06 17:19:00,099 : INFO : root : Setted PGF File
+2021-07-06 17:19:42,805 : INFO : root : A trial message if the logger is working
+2021-07-06 17:19:50,987 : INFO : root : Setted PGF File
+2021-07-06 17:19:54,931 : INFO : root : Setted Protocol File
+2021-07-06 17:19:58,387 : INFO : root : Setted online analysis file
+2021-07-06 17:20:38,117 : INFO : root : A trial message if the logger is working
+2021-07-06 17:20:40,427 : INFO : root : Setted PGF File
+2021-07-06 17:21:21,321 : INFO : root : A trial message if the logger is working
+2021-07-06 17:21:25,748 : INFO : root : Setted PGF File
+2021-07-06 17:21:46,172 : INFO : root : A trial message if the logger is working
+2021-07-06 17:21:48,216 : INFO : root : Setted PGF File
+2021-07-06 17:23:16,614 : INFO : root : A trial message if the logger is working
+2021-07-06 17:23:18,518 : INFO : root : Setted PGF File
+2021-07-06 17:23:39,577 : INFO : root : A trial message if the logger is working
+2021-07-06 17:23:42,016 : INFO : root : Setted PGF File
+2021-07-06 17:24:05,659 : INFO : root : A trial message if the logger is working
+2021-07-06 17:24:08,514 : INFO : root : Setted PGF File
+2021-07-06 17:24:14,610 : INFO : root : Setted Protocol File
+2021-07-06 17:24:16,658 : INFO : root : Setted online analysis file
+2021-07-06 17:29:55,101 : INFO : root : A trial message if the logger is working
+2021-07-06 17:29:57,721 : INFO : root : Setted PGF File
+2021-07-06 17:30:00,305 : INFO : root : Setted Protocol File
+2021-07-06 17:30:02,713 : INFO : root : Setted online analysis file
+2021-07-06 17:30:07,786 : INFO : root : Configuration Files setted up:....
+2021-07-06 17:32:32,042 : INFO : root : A trial message if the logger is working
+2021-07-06 17:32:35,121 : INFO : root : Setted PGF File
+2021-07-06 17:32:37,352 : INFO : root : Setted Protocol File
+2021-07-06 17:32:39,528 : INFO : root : Setted online analysis file
+2021-07-06 17:32:46,588 : INFO : root : Configuration Files setted up:....
+2021-07-06 17:33:03,145 : DEBUG : root : Batch communication input: Added Text
+2021-07-06 17:35:42,715 : INFO : root : A trial message if the logger is working
+2021-07-06 17:35:44,800 : INFO : root : Setted PGF File
+2021-07-06 17:35:50,241 : INFO : root : Configuration Files setted up:....
+2021-07-06 17:35:50,242 : INFO : root : not all configuration files set:
+2021-07-06 17:35:50,243 : INFO : root : not all configuration files set:
+2021-07-06 17:35:54,417 : DEBUG : root : Batch communication input: trial
+2021-07-06 17:36:28,232 : INFO : root : Setted Protocol File
+2021-07-06 17:36:30,504 : INFO : root : Setted online analysis file
+2021-07-06 17:36:35,507 : INFO : root : Configuration Files setted up:....
+2021-07-06 17:36:44,280 : DEBUG : root : Batch communication input: trial
+2021-07-07 13:16:39,138 : INFO : root : A trial message if the logger is working
+2021-07-07 13:17:55,780 : INFO : root : A trial message if the logger is working
+2021-07-07 13:18:02,790 : INFO : root : Configuration Files setted up:....
+2021-07-07 13:18:02,790 : INFO : root : not all configuration files set:
+2021-07-07 13:18:02,791 : INFO : root : not all configuration files set:
+2021-07-07 13:18:02,791 : INFO : root : not all configuration files set:
+2021-07-07 13:19:23,167 : INFO : root : A trial message if the logger is working
+2021-07-07 13:19:27,324 : INFO : root : Configuration Files setted up:....
+2021-07-07 13:19:27,324 : INFO : root : not all configuration files set:
+2021-07-07 13:19:27,324 : INFO : root : not all configuration files set:
+2021-07-07 13:19:27,325 : INFO : root : not all configuration files set:
+2021-07-07 13:20:03,354 : INFO : root : A trial message if the logger is working
+2021-07-07 13:20:07,709 : INFO : root : Configuration Files setted up:....
+2021-07-07 13:20:07,709 : INFO : root : not all configuration files set:
+2021-07-07 13:20:07,709 : INFO : root : not all configuration files set:
+2021-07-07 13:20:07,710 : INFO : root : not all configuration files set:
+2021-07-07 13:22:24,743 : INFO : root : A trial message if the logger is working
+2021-07-07 13:22:28,826 : INFO : root : Configuration Files setted up:....
+2021-07-07 13:22:28,826 : INFO : root : not all configuration files set:
+2021-07-07 13:22:28,826 : INFO : root : not all configuration files set:
+2021-07-07 13:22:28,826 : INFO : root : not all configuration files set:
+2021-07-07 14:43:54,469 : INFO : root : A trial message if the logger is working
+2021-07-07 14:43:59,230 : INFO : root : Configuration Files setted up:....
+2021-07-07 14:43:59,231 : INFO : root : not all configuration files set:
+2021-07-07 14:43:59,231 : INFO : root : not all configuration files set:
+2021-07-07 14:43:59,231 : INFO : root : not all configuration files set:
+2021-07-07 14:44:22,905 : INFO : root : A trial message if the logger is working
+2021-07-07 14:44:32,186 : INFO : root : Configuration Files setted up:....
+2021-07-07 14:44:32,186 : INFO : root : not all configuration files set:
+2021-07-07 14:44:32,187 : INFO : root : not all configuration files set:
+2021-07-07 14:44:32,187 : INFO : root : not all configuration files set:
+2021-07-07 14:45:59,652 : INFO : root : A trial message if the logger is working
+2021-07-07 14:46:20,950 : INFO : root : Configuration Files setted up:....
+2021-07-07 14:46:20,950 : INFO : root : not all configuration files set:
+2021-07-07 14:46:20,951 : INFO : root : not all configuration files set:
+2021-07-07 14:46:20,951 : INFO : root : not all configuration files set:
+2021-07-07 14:47:04,277 : INFO : root : A trial message if the logger is working
+2021-07-07 14:48:27,806 : INFO : root : A trial message if the logger is working
+2021-07-07 14:48:32,927 : INFO : root : Configuration Files setted up:....
+2021-07-07 14:48:32,928 : INFO : root : not all configuration files set:
+2021-07-07 14:48:32,928 : INFO : root : not all configuration files set:
+2021-07-07 14:48:32,928 : INFO : root : not all configuration files set:
+2021-07-07 14:49:27,127 : INFO : root : A trial message if the logger is working
+2021-07-07 14:49:45,236 : INFO : root : Configuration Files setted up:....
+2021-07-07 14:49:45,236 : INFO : root : not all configuration files set:
+2021-07-07 14:49:45,236 : INFO : root : not all configuration files set:
+2021-07-07 14:49:45,236 : INFO : root : not all configuration files set:
+2021-07-07 15:28:09,325 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:28:09,325 : INFO : root : not all configuration files set:
+2021-07-07 15:28:09,326 : INFO : root : not all configuration files set:
+2021-07-07 15:28:09,326 : INFO : root : not all configuration files set:
+2021-07-07 15:29:18,980 : INFO : root : Setted PGF File
+2021-07-07 15:29:26,532 : INFO : root : Setted Protocol File
+2021-07-07 15:29:30,580 : INFO : root : Setted online analysis file
+2021-07-07 15:29:40,250 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:35:03,307 : INFO : root : A trial message if the logger is working
+2021-07-07 15:35:05,324 : INFO : root : Setted PGF File
+2021-07-07 15:35:11,812 : INFO : root : Setted Protocol File
+2021-07-07 15:35:19,132 : INFO : root : Setted online analysis file
+2021-07-07 15:35:27,112 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:35:38,016 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:36:06,901 : INFO : root : A trial message if the logger is working
+2021-07-07 15:36:09,691 : INFO : root : Setted PGF File
+2021-07-07 15:36:16,403 : INFO : root : Setted Protocol File
+2021-07-07 15:36:19,794 : INFO : root : Setted online analysis file
+2021-07-07 15:36:27,373 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:36:49,802 : DEBUG : root : Batch communication input: +1000 
+GetTime
+2021-07-07 15:43:56,848 : INFO : root : A trial message if the logger is working
+2021-07-07 15:43:59,144 : INFO : root : Setted PGF File
+2021-07-07 15:44:11,369 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:44:11,370 : INFO : root : not all configuration files set:
+2021-07-07 15:44:11,370 : INFO : root : not all configuration files set:
+2021-07-07 15:46:29,870 : DEBUG : root : Batch communication input: +10
+GetTime
+2021-07-07 15:46:40,870 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 15:49:15,963 : DEBUG : root : Batch communication input: +10 
+OpenpGfFile C:/Users/user/Desktop/PGFFiles/Excitability_02.pgf
+2021-07-07 15:49:50,753 : DEBUG : root : Batch communication input: OpenPgfFile C:/Users/user/Desktop/PGFFiles/Excitability_02.pgf
+2021-07-07 15:50:45,464 : DEBUG : root : Batch communication input: OpenPgfFile C:\Users\User\Desktop\PGFFiles\Excitability_02.pgf
+2021-07-07 15:53:04,470 : INFO : root : A trial message if the logger is working
+2021-07-07 15:53:06,685 : INFO : root : Setted PGF File
+2021-07-07 15:53:17,470 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:53:17,472 : INFO : root : not all configuration files set:
+2021-07-07 15:53:17,473 : INFO : root : not all configuration files set:
+2021-07-07 15:53:24,557 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 15:56:27,655 : INFO : root : A trial message if the logger is working
+2021-07-07 15:56:29,809 : INFO : root : Setted Protocol File
+2021-07-07 15:56:44,189 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:56:44,190 : INFO : root : not all configuration files set:
+2021-07-07 15:56:44,192 : INFO : root : not all configuration files set:
+2021-07-07 15:59:21,676 : INFO : root : A trial message if the logger is working
+2021-07-07 15:59:25,149 : INFO : root : Setted Protocol File
+2021-07-07 15:59:38,989 : INFO : root : Configuration Files setted up:....
+2021-07-07 15:59:38,990 : INFO : root : not all configuration files set:
+2021-07-07 15:59:38,993 : INFO : root : not all configuration files set:
+2021-07-07 16:00:07,854 : DEBUG : root : Batch communication input: 
+2021-07-07 16:01:03,477 : INFO : root : A trial message if the logger is working
+2021-07-07 16:01:05,579 : INFO : root : Setted Protocol File
+2021-07-07 16:01:16,701 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:01:16,702 : INFO : root : not all configuration files set:
+2021-07-07 16:01:16,704 : INFO : root : not all configuration files set:
+2021-07-07 16:01:20,978 : DEBUG : root : Batch communication input: 
+2021-07-07 16:01:57,610 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 16:02:19,449 : DEBUG : root : Batch communication input: OpenProtFile C:/Users/user/Desktop/PGFFiles/Excitability_02.pro
+2021-07-07 16:05:45,189 : INFO : root : A trial message if the logger is working
+2021-07-07 16:05:50,205 : INFO : root : Setted PGF File
+2021-07-07 16:05:59,212 : INFO : root : Setted PGF File
+2021-07-07 16:06:46,974 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:06:46,977 : INFO : root : not all configuration files set:
+2021-07-07 16:06:46,977 : INFO : root : not all configuration files set:
+2021-07-07 16:06:56,251 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 16:07:58,698 : DEBUG : root : Batch communication input: OpenPgfFile C:\Users\user\Desktop\PGFFiles\Excitability_02.pgf
+
+
+
+2021-07-07 16:10:10,769 : INFO : root : A trial message if the logger is working
+2021-07-07 16:10:13,063 : INFO : root : Setted PGF File
+2021-07-07 16:10:23,606 : INFO : root : Setted Protocol File
+2021-07-07 16:10:34,217 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:10:34,227 : INFO : root : not all configuration files set:
+2021-07-07 16:11:22,390 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 16:11:28,494 : INFO : root : Setted online analysis file
+2021-07-07 16:11:40,968 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:11:54,757 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 16:12:25,763 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:13:06,635 : INFO : root : Setted online analysis file
+2021-07-07 16:13:15,667 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:14:31,041 : DEBUG : root : Batch communication input: ListSequences
+2021-07-07 16:17:24,697 : INFO : root : A trial message if the logger is working
+2021-07-07 16:17:30,454 : INFO : root : Setted PGF File
+2021-07-07 16:17:39,733 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:17:39,736 : INFO : root : not all configuration files set:
+2021-07-07 16:17:39,736 : INFO : root : not all configuration files set:
+2021-07-07 16:20:09,785 : INFO : root : A trial message if the logger is working
+2021-07-07 16:20:12,093 : INFO : root : Setted PGF File
+2021-07-07 16:20:22,278 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:20:22,281 : INFO : root : not all configuration files set:
+2021-07-07 16:20:22,281 : INFO : root : not all configuration files set:
+2021-07-07 16:22:42,680 : INFO : root : A trial message if the logger is working
+2021-07-07 16:22:44,890 : INFO : root : Setted PGF File
+2021-07-07 16:22:54,354 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:22:54,357 : INFO : root : not all configuration files set:
+2021-07-07 16:22:54,357 : INFO : root : not all configuration files set:
+2021-07-07 16:24:14,748 : INFO : root : A trial message if the logger is working
+2021-07-07 16:25:59,986 : INFO : root : A trial message if the logger is working
+2021-07-07 16:26:02,583 : INFO : root : Setted PGF File
+2021-07-07 16:26:12,258 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:26:12,261 : INFO : root : not all configuration files set:
+2021-07-07 16:26:12,261 : INFO : root : not all configuration files set:
+2021-07-07 16:26:31,417 : INFO : root : A trial message if the logger is working
+2021-07-07 16:26:37,781 : INFO : root : A trial message if the logger is working
+2021-07-07 16:26:49,023 : INFO : root : Setted PGF File
+2021-07-07 16:26:55,170 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:26:55,173 : INFO : root : not all configuration files set:
+2021-07-07 16:26:55,173 : INFO : root : not all configuration files set:
+2021-07-07 16:27:09,653 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:27:09,656 : INFO : root : not all configuration files set:
+2021-07-07 16:27:09,656 : INFO : root : not all configuration files set:
+2021-07-07 16:27:16,308 : INFO : root : A trial message if the logger is working
+2021-07-07 16:27:24,102 : INFO : root : Setted PGF File
+2021-07-07 16:27:30,600 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:27:30,603 : INFO : root : not all configuration files set:
+2021-07-07 16:27:30,604 : INFO : root : not all configuration files set:
+2021-07-07 16:28:15,589 : INFO : root : A trial message if the logger is working
+2021-07-07 16:28:18,630 : INFO : root : Setted PGF File
+2021-07-07 16:28:23,990 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:28:23,993 : INFO : root : not all configuration files set:
+2021-07-07 16:28:23,994 : INFO : root : not all configuration files set:
+2021-07-07 16:31:21,388 : INFO : root : A trial message if the logger is working
+2021-07-07 16:31:24,114 : INFO : root : Setted PGF File
+2021-07-07 16:31:32,437 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:31:32,439 : INFO : root : not all configuration files set:
+2021-07-07 16:31:32,440 : INFO : root : not all configuration files set:
+2021-07-07 16:31:49,232 : INFO : root : A trial message if the logger is working
+2021-07-07 16:31:58,291 : INFO : root : Setted PGF File
+2021-07-07 16:32:04,189 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:32:04,192 : INFO : root : not all configuration files set:
+2021-07-07 16:32:04,193 : INFO : root : not all configuration files set:
+2021-07-07 16:32:54,958 : INFO : root : A trial message if the logger is working
+2021-07-07 16:32:59,162 : INFO : root : Setted PGF File
+2021-07-07 16:33:10,628 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:33:10,631 : INFO : root : not all configuration files set:
+2021-07-07 16:33:10,631 : INFO : root : not all configuration files set:
+2021-07-07 16:35:22,068 : INFO : root : A trial message if the logger is working
+2021-07-07 16:35:29,512 : INFO : root : Setted PGF File
+2021-07-07 16:35:36,354 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:35:36,357 : INFO : root : not all configuration files set:
+2021-07-07 16:35:36,358 : INFO : root : not all configuration files set:
+2021-07-07 16:35:46,126 : INFO : root : A trial message if the logger is working
+2021-07-07 16:35:48,624 : INFO : root : Setted PGF File
+2021-07-07 16:35:59,657 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:35:59,660 : INFO : root : not all configuration files set:
+2021-07-07 16:35:59,661 : INFO : root : not all configuration files set:
+2021-07-07 16:37:54,338 : INFO : root : A trial message if the logger is working
+2021-07-07 16:37:56,110 : INFO : root : Setted PGF File
+2021-07-07 16:38:14,649 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:38:14,652 : INFO : root : not all configuration files set:
+2021-07-07 16:38:14,653 : INFO : root : not all configuration files set:
+2021-07-07 16:39:17,260 : INFO : root : A trial message if the logger is working
+2021-07-07 16:39:19,197 : INFO : root : Setted PGF File
+2021-07-07 16:39:28,487 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:39:28,489 : INFO : root : not all configuration files set:
+2021-07-07 16:39:28,489 : INFO : root : not all configuration files set:
+2021-07-07 16:40:57,495 : INFO : root : A trial message if the logger is working
+2021-07-07 16:40:59,604 : INFO : root : Setted PGF File
+2021-07-07 16:41:07,580 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:41:07,583 : INFO : root : not all configuration files set:
+2021-07-07 16:41:07,583 : INFO : root : not all configuration files set:
+2021-07-07 16:42:12,140 : INFO : root : A trial message if the logger is working
+2021-07-07 16:42:14,075 : INFO : root : Setted PGF File
+2021-07-07 16:42:23,986 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:42:23,989 : INFO : root : not all configuration files set:
+2021-07-07 16:42:23,990 : INFO : root : not all configuration files set:
+2021-07-07 16:43:30,492 : INFO : root : A trial message if the logger is working
+2021-07-07 16:43:51,570 : INFO : root : Setted PGF File
+2021-07-07 16:44:01,457 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:44:01,461 : INFO : root : not all configuration files set:
+2021-07-07 16:44:01,461 : INFO : root : not all configuration files set:
+2021-07-07 16:49:27,077 : INFO : root : A trial message if the logger is working
+2021-07-07 16:49:30,869 : INFO : root : Setted PGF File
+2021-07-07 16:50:12,223 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:50:12,226 : INFO : root : not all configuration files set:
+2021-07-07 16:50:12,226 : INFO : root : not all configuration files set:
+2021-07-07 16:51:16,230 : INFO : root : A trial message if the logger is working
+2021-07-07 16:51:18,947 : INFO : root : Setted PGF File
+2021-07-07 16:51:25,142 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:51:25,145 : INFO : root : not all configuration files set:
+2021-07-07 16:51:25,145 : INFO : root : not all configuration files set:
+2021-07-07 16:51:54,624 : INFO : root : A trial message if the logger is working
+2021-07-07 16:51:57,908 : DEBUG : root : Batch communication input: 
+2021-07-07 16:52:02,699 : INFO : root : Setted PGF File
+2021-07-07 16:52:08,887 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:52:08,895 : INFO : root : not all configuration files set:
+2021-07-07 16:52:08,896 : INFO : root : not all configuration files set:
+2021-07-07 16:52:38,972 : INFO : root : A trial message if the logger is working
+2021-07-07 16:53:01,146 : INFO : root : Setted PGF File
+2021-07-07 16:53:07,518 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:53:07,521 : INFO : root : not all configuration files set:
+2021-07-07 16:53:07,521 : INFO : root : not all configuration files set:
+2021-07-07 16:54:00,218 : INFO : root : A trial message if the logger is working
+2021-07-07 16:54:02,233 : DEBUG : root : Batch communication input: 
+2021-07-07 16:54:06,314 : INFO : root : Setted PGF File
+2021-07-07 16:54:14,280 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:54:14,282 : INFO : root : not all configuration files set:
+2021-07-07 16:54:14,283 : INFO : root : not all configuration files set:
+2021-07-07 16:55:25,316 : INFO : root : A trial message if the logger is working
+2021-07-07 16:55:50,408 : INFO : root : Setted PGF File
+2021-07-07 16:55:57,356 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:55:57,359 : INFO : root : not all configuration files set:
+2021-07-07 16:55:57,360 : INFO : root : not all configuration files set:
+2021-07-07 16:57:00,766 : INFO : root : A trial message if the logger is working
+2021-07-07 16:57:05,167 : INFO : root : Setted PGF File
+2021-07-07 16:57:12,242 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:57:12,244 : INFO : root : not all configuration files set:
+2021-07-07 16:57:12,245 : INFO : root : not all configuration files set:
+2021-07-07 16:57:52,449 : INFO : root : A trial message if the logger is working
+2021-07-07 16:57:54,416 : INFO : root : Setted PGF File
+2021-07-07 16:58:00,935 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:58:00,939 : INFO : root : not all configuration files set:
+2021-07-07 16:58:00,940 : INFO : root : not all configuration files set:
+2021-07-07 16:58:28,561 : INFO : root : A trial message if the logger is working
+2021-07-07 16:58:30,910 : INFO : root : Setted PGF File
+2021-07-07 16:58:40,913 : INFO : root : Configuration Files setted up:....
+2021-07-07 16:58:40,916 : INFO : root : not all configuration files set:
+2021-07-07 16:58:40,916 : INFO : root : not all configuration files set:
+2021-07-07 17:01:52,252 : INFO : root : A trial message if the logger is working
+2021-07-07 17:01:59,379 : INFO : root : Setted Protocol File
+2021-07-07 17:02:01,051 : INFO : root : Setted PGF File
+2021-07-07 17:02:08,250 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:02:08,253 : INFO : root : not all configuration files set:
+2021-07-07 17:02:08,253 : INFO : root : not all configuration files set:
+2021-07-07 17:07:03,509 : INFO : root : A trial message if the logger is working
+2021-07-07 17:07:05,992 : INFO : root : Setted PGF File
+2021-07-07 17:07:12,688 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:07:12,691 : INFO : root : not all configuration files set:
+2021-07-07 17:07:12,692 : INFO : root : not all configuration files set:
+2021-07-07 17:08:35,944 : INFO : root : A trial message if the logger is working
+2021-07-07 17:08:53,316 : INFO : root : A trial message if the logger is working
+2021-07-07 17:08:56,638 : INFO : root : Setted PGF File
+2021-07-07 17:09:04,897 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:09:04,900 : INFO : root : not all configuration files set:
+2021-07-07 17:09:04,900 : INFO : root : not all configuration files set:
+2021-07-07 17:10:10,064 : INFO : root : A trial message if the logger is working
+2021-07-07 17:10:12,919 : INFO : root : Setted PGF File
+2021-07-07 17:10:20,791 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:10:20,795 : INFO : root : not all configuration files set:
+2021-07-07 17:10:20,796 : INFO : root : not all configuration files set:
+2021-07-07 17:17:17,322 : INFO : root : A trial message if the logger is working
+2021-07-07 17:17:26,367 : INFO : root : Setted PGF File
+2021-07-07 17:17:34,109 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:17:34,112 : INFO : root : not all configuration files set:
+2021-07-07 17:17:34,112 : INFO : root : not all configuration files set:
+2021-07-07 17:18:39,881 : INFO : root : A trial message if the logger is working
+2021-07-07 17:19:07,662 : INFO : root : Setted PGF File
+2021-07-07 17:19:13,484 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:19:13,486 : INFO : root : not all configuration files set:
+2021-07-07 17:19:13,487 : INFO : root : not all configuration files set:
+2021-07-07 17:21:05,321 : INFO : root : A trial message if the logger is working
+2021-07-07 17:21:08,237 : INFO : root : Setted PGF File
+2021-07-07 17:21:14,292 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:21:14,295 : INFO : root : not all configuration files set:
+2021-07-07 17:21:14,295 : INFO : root : not all configuration files set:
+2021-07-07 17:21:21,228 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:21:21,230 : INFO : root : not all configuration files set:
+2021-07-07 17:21:21,231 : INFO : root : not all configuration files set:
+2021-07-07 17:22:16,110 : INFO : root : A trial message if the logger is working
+2021-07-07 17:22:29,709 : INFO : root : Setted PGF File
+2021-07-07 17:22:36,319 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:22:36,322 : INFO : root : not all configuration files set:
+2021-07-07 17:22:36,322 : INFO : root : not all configuration files set:
+2021-07-07 17:23:07,650 : INFO : root : A trial message if the logger is working
+2021-07-07 17:23:11,789 : INFO : root : Setted PGF File
+2021-07-07 17:23:20,558 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:23:20,561 : INFO : root : not all configuration files set:
+2021-07-07 17:23:20,561 : INFO : root : not all configuration files set:
+2021-07-07 17:23:41,322 : INFO : root : A trial message if the logger is working
+2021-07-07 17:23:55,124 : INFO : root : Setted PGF File
+2021-07-07 17:24:05,495 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:24:05,498 : INFO : root : not all configuration files set:
+2021-07-07 17:24:05,498 : INFO : root : not all configuration files set:
+2021-07-07 17:29:20,313 : INFO : root : A trial message if the logger is working
+2021-07-07 17:29:22,081 : INFO : root : Setted PGF File
+2021-07-07 17:29:35,309 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:29:35,312 : INFO : root : not all configuration files set:
+2021-07-07 17:29:35,312 : INFO : root : not all configuration files set:
+2021-07-07 17:31:40,642 : INFO : root : A trial message if the logger is working
+2021-07-07 17:31:42,472 : INFO : root : Setted PGF File
+2021-07-07 17:33:03,980 : INFO : root : A trial message if the logger is working
+2021-07-07 17:33:06,304 : INFO : root : Setted PGF File
+2021-07-07 17:33:14,929 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:33:14,932 : INFO : root : not all configuration files set:
+2021-07-07 17:33:14,932 : INFO : root : not all configuration files set:
+2021-07-07 17:37:08,561 : INFO : root : A trial message if the logger is working
+2021-07-07 17:37:21,086 : INFO : root : Setted PGF File
+2021-07-07 17:37:29,725 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:37:29,728 : INFO : root : not all configuration files set:
+2021-07-07 17:37:29,729 : INFO : root : not all configuration files set:
+2021-07-07 17:37:43,085 : INFO : root : Setted PGF File
+2021-07-07 17:37:57,966 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:37:57,967 : INFO : root : not all configuration files set:
+2021-07-07 17:37:57,967 : INFO : root : not all configuration files set:
+2021-07-07 17:37:57,967 : INFO : root : not all configuration files set:
+2021-07-07 17:38:31,870 : INFO : root : A trial message if the logger is working
+2021-07-07 17:38:34,094 : INFO : root : Setted PGF File
+2021-07-07 17:38:40,584 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:38:40,586 : INFO : root : not all configuration files set:
+2021-07-07 17:38:40,587 : INFO : root : not all configuration files set:
+2021-07-07 17:39:37,083 : INFO : root : A trial message if the logger is working
+2021-07-07 17:39:38,748 : INFO : root : Setted PGF File
+2021-07-07 17:39:45,711 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:39:45,713 : INFO : root : not all configuration files set:
+2021-07-07 17:39:45,714 : INFO : root : not all configuration files set:
+2021-07-07 17:41:55,620 : INFO : root : A trial message if the logger is working
+2021-07-07 17:41:57,619 : INFO : root : Setted PGF File
+2021-07-07 17:42:58,319 : INFO : root : A trial message if the logger is working
+2021-07-07 17:43:00,987 : INFO : root : Setted PGF File
+2021-07-07 17:43:11,245 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:43:11,248 : INFO : root : not all configuration files set:
+2021-07-07 17:43:11,248 : INFO : root : not all configuration files set:
+2021-07-07 17:43:51,124 : INFO : root : A trial message if the logger is working
+2021-07-07 17:43:53,914 : INFO : root : Setted PGF File
+2021-07-07 17:44:00,331 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:44:00,333 : INFO : root : not all configuration files set:
+2021-07-07 17:44:00,333 : INFO : root : not all configuration files set:
+2021-07-07 17:49:28,439 : INFO : root : A trial message if the logger is working
+2021-07-07 17:49:30,351 : INFO : root : Setted PGF File
+2021-07-07 17:49:38,335 : INFO : root : Configuration Files setted up:....
+2021-07-07 17:49:38,338 : INFO : root : not all configuration files set:
+2021-07-07 17:49:38,338 : INFO : root : not all configuration files set:
+2021-07-07 18:29:21,719 : INFO : root : A trial message if the logger is working
+2021-07-07 18:29:24,797 : INFO : root : Setted PGF File
+2021-07-07 18:29:31,661 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:29:31,664 : INFO : root : not all configuration files set:
+2021-07-07 18:29:31,665 : INFO : root : not all configuration files set:
+2021-07-07 18:32:10,856 : INFO : root : A trial message if the logger is working
+2021-07-07 18:32:16,268 : INFO : root : Setted PGF File
+2021-07-07 18:32:35,245 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:32:35,248 : INFO : root : not all configuration files set:
+2021-07-07 18:32:35,248 : INFO : root : not all configuration files set:
+2021-07-07 18:36:11,710 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:36:11,712 : INFO : root : not all configuration files set:
+2021-07-07 18:36:11,712 : INFO : root : not all configuration files set:
+2021-07-07 18:37:40,524 : INFO : root : A trial message if the logger is working
+2021-07-07 18:37:43,115 : INFO : root : Setted PGF File
+2021-07-07 18:37:50,326 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:37:50,329 : INFO : root : not all configuration files set:
+2021-07-07 18:37:50,329 : INFO : root : not all configuration files set:
+2021-07-07 18:37:59,082 : DEBUG : root : Batch communication input: OpenOnlineAnalysis
+2021-07-07 18:38:08,277 : DEBUG : root : Batch communication input: OpenOnlineAnalysis notebook
+2021-07-07 18:38:19,211 : DEBUG : root : Batch communication input: SendOnlineAnalysis notebook
+2021-07-07 18:39:49,700 : INFO : root : A trial message if the logger is working
+2021-07-07 18:39:51,467 : INFO : root : Setted PGF File
+2021-07-07 18:40:00,870 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:40:00,873 : INFO : root : not all configuration files set:
+2021-07-07 18:40:00,873 : INFO : root : not all configuration files set:
+2021-07-07 18:40:09,994 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 18:41:41,841 : INFO : root : A trial message if the logger is working
+2021-07-07 18:41:46,466 : INFO : root : Setted PGF File
+2021-07-07 18:42:19,305 : INFO : root : Setted PGF File
+2021-07-07 18:42:27,143 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:42:27,648 : INFO : root : not all configuration files set:
+2021-07-07 18:42:27,648 : INFO : root : not all configuration files set:
+2021-07-07 18:42:34,082 : DEBUG : root : Batch communication input: GetTime
+2021-07-07 18:45:16,999 : INFO : root : A trial message if the logger is working
+2021-07-07 18:45:19,599 : INFO : root : Setted PGF File
+2021-07-07 18:45:26,668 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:45:27,182 : INFO : root : not all configuration files set:
+2021-07-07 18:45:27,182 : INFO : root : not all configuration files set:
+2021-07-07 18:47:25,096 : INFO : root : A trial message if the logger is working
+2021-07-07 18:47:29,200 : INFO : root : Setted PGF File
+2021-07-07 18:47:40,636 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:47:41,140 : INFO : root : not all configuration files set:
+2021-07-07 18:47:41,141 : INFO : root : not all configuration files set:
+2021-07-07 18:52:18,060 : INFO : root : A trial message if the logger is working
+2021-07-07 18:52:19,949 : INFO : root : Setted PGF File
+2021-07-07 18:52:29,298 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:52:29,815 : INFO : root : not all configuration files set:
+2021-07-07 18:52:29,815 : INFO : root : not all configuration files set:
+2021-07-07 18:57:03,374 : INFO : root : A trial message if the logger is working
+2021-07-07 18:57:05,798 : INFO : root : Setted PGF File
+2021-07-07 18:57:13,693 : INFO : root : Configuration Files setted up:....
+2021-07-07 18:57:14,203 : INFO : root : not all configuration files set:
+2021-07-07 18:57:14,203 : INFO : root : not all configuration files set:
+2021-07-07 18:59:54,596 : INFO : root : A trial message if the logger is working
+2021-07-07 19:00:04,891 : INFO : root : Setted PGF File
+2021-07-07 19:00:12,677 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:00:13,187 : INFO : root : not all configuration files set:
+2021-07-07 19:00:13,188 : INFO : root : not all configuration files set:
+2021-07-07 19:04:12,123 : INFO : root : A trial message if the logger is working
+2021-07-07 19:04:16,474 : INFO : root : Setted PGF File
+2021-07-07 19:04:24,102 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:04:24,605 : INFO : root : not all configuration files set:
+2021-07-07 19:04:24,605 : INFO : root : not all configuration files set:
+2021-07-07 19:06:36,957 : INFO : root : A trial message if the logger is working
+2021-07-07 19:06:45,561 : INFO : root : Setted PGF File
+2021-07-07 19:06:54,315 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:06:54,823 : INFO : root : not all configuration files set:
+2021-07-07 19:06:54,823 : INFO : root : not all configuration files set:
+2021-07-07 19:08:42,321 : INFO : root : A trial message if the logger is working
+2021-07-07 19:08:45,496 : INFO : root : Setted PGF File
+2021-07-07 19:08:53,080 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:08:53,590 : INFO : root : not all configuration files set:
+2021-07-07 19:08:53,590 : INFO : root : not all configuration files set:
+2021-07-07 19:11:23,082 : INFO : root : A trial message if the logger is working
+2021-07-07 19:11:25,280 : INFO : root : Setted PGF File
+2021-07-07 19:11:37,672 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:11:38,175 : INFO : root : not all configuration files set:
+2021-07-07 19:11:38,175 : INFO : root : not all configuration files set:
+2021-07-07 19:12:49,482 : INFO : root : A trial message if the logger is working
+2021-07-07 19:12:53,600 : INFO : root : Setted PGF File
+2021-07-07 19:13:00,966 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:13:01,470 : INFO : root : not all configuration files set:
+2021-07-07 19:13:01,470 : INFO : root : not all configuration files set:
+2021-07-07 19:13:49,387 : INFO : root : A trial message if the logger is working
+2021-07-07 19:13:54,263 : INFO : root : Setted PGF File
+2021-07-07 19:14:08,836 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:14:09,352 : INFO : root : not all configuration files set:
+2021-07-07 19:14:09,352 : INFO : root : not all configuration files set:
+2021-07-07 19:14:34,008 : INFO : root : A trial message if the logger is working
+2021-07-07 19:14:38,134 : INFO : root : Setted PGF File
+2021-07-07 19:14:44,770 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:14:45,279 : INFO : root : not all configuration files set:
+2021-07-07 19:14:45,279 : INFO : root : not all configuration files set:
+2021-07-07 19:15:58,583 : INFO : root : A trial message if the logger is working
+2021-07-07 19:16:03,951 : INFO : root : Setted PGF File
+2021-07-07 19:16:11,270 : INFO : root : Setted PGF File
+2021-07-07 19:16:16,410 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:16:16,410 : INFO : root : not all configuration files set:
+2021-07-07 19:16:16,410 : INFO : root : not all configuration files set:
+2021-07-07 19:16:16,410 : INFO : root : not all configuration files set:
+2021-07-07 19:16:58,155 : INFO : root : A trial message if the logger is working
+2021-07-07 19:16:59,974 : INFO : root : Setted PGF File
+2021-07-07 19:17:07,284 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:17:07,788 : INFO : root : not all configuration files set:
+2021-07-07 19:17:07,788 : INFO : root : not all configuration files set:
+2021-07-07 19:22:17,528 : INFO : root : A trial message if the logger is working
+2021-07-07 19:22:19,308 : INFO : root : Setted PGF File
+2021-07-07 19:22:30,186 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:22:30,703 : INFO : root : not all configuration files set:
+2021-07-07 19:22:30,703 : INFO : root : not all configuration files set:
+2021-07-07 19:25:03,063 : INFO : root : A trial message if the logger is working
+2021-07-07 19:25:06,324 : INFO : root : Setted Protocol File
+2021-07-07 19:25:08,284 : INFO : root : Setted PGF File
+2021-07-07 19:25:27,232 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:25:27,746 : INFO : root : not all configuration files set:
+2021-07-07 19:25:27,746 : INFO : root : not all configuration files set:
+2021-07-07 19:28:58,565 : INFO : root : A trial message if the logger is working
+2021-07-07 19:29:06,418 : INFO : root : Setted PGF File
+2021-07-07 19:29:20,526 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:29:21,035 : INFO : root : not all configuration files set:
+2021-07-07 19:29:21,035 : INFO : root : not all configuration files set:
+2021-07-07 19:31:12,813 : INFO : root : A trial message if the logger is working
+2021-07-07 19:31:15,682 : INFO : root : Setted PGF File
+2021-07-07 19:31:22,744 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:31:23,248 : INFO : root : not all configuration files set:
+2021-07-07 19:31:23,248 : INFO : root : not all configuration files set:
+2021-07-07 19:33:16,238 : INFO : root : A trial message if the logger is working
+2021-07-07 19:33:18,705 : INFO : root : Setted PGF File
+2021-07-07 19:33:24,800 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:33:25,311 : INFO : root : not all configuration files set:
+2021-07-07 19:33:25,311 : INFO : root : not all configuration files set:
+2021-07-07 19:36:54,742 : INFO : root : A trial message if the logger is working
+2021-07-07 19:36:58,496 : INFO : root : Setted PGF File
+2021-07-07 19:37:08,066 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:37:08,570 : INFO : root : not all configuration files set:
+2021-07-07 19:37:08,570 : INFO : root : not all configuration files set:
+2021-07-07 19:44:45,918 : INFO : root : A trial message if the logger is working
+2021-07-07 19:44:49,847 : INFO : root : Setted PGF File
+2021-07-07 19:44:59,164 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:44:59,672 : INFO : root : not all configuration files set:
+2021-07-07 19:44:59,672 : INFO : root : not all configuration files set:
+2021-07-07 19:45:26,940 : INFO : root : A trial message if the logger is working
+2021-07-07 19:45:32,207 : INFO : root : Setted PGF File
+2021-07-07 19:45:40,275 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:45:40,790 : INFO : root : not all configuration files set:
+2021-07-07 19:45:40,790 : INFO : root : not all configuration files set:
+2021-07-07 19:47:15,194 : INFO : root : A trial message if the logger is working
+2021-07-07 19:47:17,254 : INFO : root : Setted PGF File
+2021-07-07 19:47:25,762 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:47:26,275 : INFO : root : not all configuration files set:
+2021-07-07 19:47:26,275 : INFO : root : not all configuration files set:
+2021-07-07 19:52:09,482 : INFO : root : A trial message if the logger is working
+2021-07-07 19:52:11,788 : INFO : root : Setted PGF File
+2021-07-07 19:52:19,356 : INFO : root : Configuration Files setted up:....
+2021-07-07 19:52:19,857 : INFO : root : not all configuration files set:
+2021-07-07 19:52:19,857 : INFO : root : not all configuration files set:
+2021-07-08 10:50:03,193 : INFO : root : A trial message if the logger is working
+2021-07-08 10:51:38,384 : INFO : root : Setted PGF File
+2021-07-08 10:52:18,414 : INFO : root : Configuration Files setted up:....
+2021-07-08 10:52:18,918 : INFO : root : not all configuration files set:
+2021-07-08 10:52:18,918 : INFO : root : not all configuration files set:
+2021-07-08 11:18:22,934 : INFO : root : Configuration Files setted up:....
+2021-07-08 11:18:23,434 : INFO : root : not all configuration files set:
+2021-07-08 11:18:23,434 : INFO : root : not all configuration files set:
+2021-07-08 11:58:13,884 : INFO : root : A trial message if the logger is working
+2021-07-08 11:58:44,868 : INFO : root : A trial message if the logger is working
+2021-07-08 11:59:04,071 : INFO : root : Setted PGF File
+2021-07-08 11:59:12,344 : INFO : root : Configuration Files setted up:....
+2021-07-08 11:59:12,850 : INFO : root : not all configuration files set:
+2021-07-08 11:59:12,850 : INFO : root : not all configuration files set:
+2021-07-08 12:00:00,461 : INFO : root : A trial message if the logger is working
+2021-07-08 12:00:02,227 : INFO : root : Setted PGF File
+2021-07-08 12:00:08,240 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:00:08,745 : INFO : root : not all configuration files set:
+2021-07-08 12:00:08,745 : INFO : root : not all configuration files set:
+2021-07-08 12:01:13,923 : INFO : root : A trial message if the logger is working
+2021-07-08 12:01:19,146 : INFO : root : Setted PGF File
+2021-07-08 12:01:30,003 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:01:30,504 : INFO : root : not all configuration files set:
+2021-07-08 12:01:30,505 : INFO : root : not all configuration files set:
+2021-07-08 12:03:52,736 : INFO : root : A trial message if the logger is working
+2021-07-08 12:04:09,643 : INFO : root : A trial message if the logger is working
+2021-07-08 12:04:11,306 : INFO : root : Setted PGF File
+2021-07-08 12:04:20,879 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:04:21,384 : INFO : root : not all configuration files set:
+2021-07-08 12:04:21,384 : INFO : root : not all configuration files set:
+2021-07-08 12:07:02,284 : INFO : root : A trial message if the logger is working
+2021-07-08 12:07:06,163 : INFO : root : Setted PGF File
+2021-07-08 12:07:14,432 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:07:14,939 : INFO : root : not all configuration files set:
+2021-07-08 12:07:14,939 : INFO : root : not all configuration files set:
+2021-07-08 12:12:33,951 : INFO : root : A trial message if the logger is working
+2021-07-08 12:12:37,990 : INFO : root : Setted PGF File
+2021-07-08 12:12:45,423 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:12:45,937 : INFO : root : not all configuration files set:
+2021-07-08 12:12:45,937 : INFO : root : not all configuration files set:
+2021-07-08 12:13:18,433 : INFO : root : A trial message if the logger is working
+2021-07-08 12:13:22,727 : INFO : root : Setted PGF File
+2021-07-08 12:13:28,301 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:13:28,811 : INFO : root : not all configuration files set:
+2021-07-08 12:13:28,811 : INFO : root : not all configuration files set:
+2021-07-08 12:13:47,642 : INFO : root : A trial message if the logger is working
+2021-07-08 12:13:50,291 : INFO : root : Setted Protocol File
+2021-07-08 12:14:06,293 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:14:06,293 : INFO : root : not all configuration files set:
+2021-07-08 12:14:06,802 : INFO : root : not all configuration files set:
+2021-07-08 12:19:17,991 : INFO : root : A trial message if the logger is working
+2021-07-08 12:19:19,920 : INFO : root : Setted PGF File
+2021-07-08 12:19:27,463 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:19:27,965 : INFO : root : not all configuration files set:
+2021-07-08 12:19:27,965 : INFO : root : not all configuration files set:
+2021-07-08 12:24:12,400 : INFO : root : A trial message if the logger is working
+2021-07-08 12:24:14,238 : INFO : root : Setted PGF File
+2021-07-08 12:24:20,543 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:24:21,054 : INFO : root : not all configuration files set:
+2021-07-08 12:24:21,054 : INFO : root : not all configuration files set:
+2021-07-08 12:27:13,730 : INFO : root : A trial message if the logger is working
+2021-07-08 12:27:15,390 : INFO : root : Setted PGF File
+2021-07-08 12:27:21,294 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:27:21,797 : INFO : root : not all configuration files set:
+2021-07-08 12:27:21,797 : INFO : root : not all configuration files set:
+2021-07-08 12:27:45,670 : INFO : root : A trial message if the logger is working
+2021-07-08 12:27:47,480 : INFO : root : Setted PGF File
+2021-07-08 12:27:54,244 : INFO : root : Configuration Files setted up:....
+2021-07-08 12:27:54,755 : INFO : root : not all configuration files set:
+2021-07-08 12:27:54,755 : INFO : root : not all configuration files set:
+2021-07-08 13:25:40,384 : INFO : root : A trial message if the logger is working
+2021-07-08 13:25:46,591 : INFO : root : Setted PGF File
+2021-07-08 13:25:54,368 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:25:54,879 : INFO : root : not all configuration files set:
+2021-07-08 13:25:54,879 : INFO : root : not all configuration files set:
+2021-07-08 13:29:15,026 : INFO : root : A trial message if the logger is working
+2021-07-08 13:29:52,229 : INFO : root : A trial message if the logger is working
+2021-07-08 13:30:09,302 : INFO : root : Setted PGF File
+2021-07-08 13:30:19,392 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:30:19,903 : INFO : root : not all configuration files set:
+2021-07-08 13:30:19,903 : INFO : root : not all configuration files set:
+2021-07-08 13:33:34,832 : INFO : root : A trial message if the logger is working
+2021-07-08 13:33:38,071 : INFO : root : Setted PGF File
+2021-07-08 13:33:50,569 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:33:51,075 : INFO : root : not all configuration files set:
+2021-07-08 13:33:51,075 : INFO : root : not all configuration files set:
+2021-07-08 13:38:49,557 : INFO : root : A trial message if the logger is working
+2021-07-08 13:38:58,045 : INFO : root : Setted PGF File
+2021-07-08 13:39:04,044 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:39:04,548 : INFO : root : not all configuration files set:
+2021-07-08 13:39:04,548 : INFO : root : not all configuration files set:
+2021-07-08 13:39:24,136 : INFO : root : A trial message if the logger is working
+2021-07-08 13:39:25,647 : INFO : root : Setted PGF File
+2021-07-08 13:39:37,665 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:39:38,169 : INFO : root : not all configuration files set:
+2021-07-08 13:39:38,169 : INFO : root : not all configuration files set:
+2021-07-08 13:40:57,805 : INFO : root : A trial message if the logger is working
+2021-07-08 13:40:59,965 : INFO : root : Setted PGF File
+2021-07-08 13:41:05,443 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:41:05,963 : INFO : root : not all configuration files set:
+2021-07-08 13:41:05,963 : INFO : root : not all configuration files set:
+2021-07-08 13:45:11,214 : INFO : root : A trial message if the logger is working
+2021-07-08 13:45:13,144 : INFO : root : Setted PGF File
+2021-07-08 13:45:20,370 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:45:20,890 : INFO : root : not all configuration files set:
+2021-07-08 13:45:20,890 : INFO : root : not all configuration files set:
+2021-07-08 13:45:36,381 : INFO : root : A trial message if the logger is working
+2021-07-08 13:45:42,222 : INFO : root : Setted PGF File
+2021-07-08 13:45:55,077 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:45:55,597 : INFO : root : not all configuration files set:
+2021-07-08 13:45:55,597 : INFO : root : not all configuration files set:
+2021-07-08 13:48:44,477 : INFO : root : A trial message if the logger is working
+2021-07-08 13:48:46,942 : INFO : root : Setted PGF File
+2021-07-08 13:48:53,898 : INFO : root : Configuration Files setted up:....
+2021-07-08 13:48:54,399 : INFO : root : not all configuration files set:
+2021-07-08 13:48:54,399 : INFO : root : not all configuration files set:
+2021-07-08 14:12:46,701 : INFO : root : A trial message if the logger is working
+2021-07-08 14:12:52,434 : INFO : root : Setted Protocol File
+2021-07-08 14:13:09,395 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:13:09,395 : INFO : root : not all configuration files set:
+2021-07-08 14:13:09,903 : INFO : root : not all configuration files set:
+2021-07-08 14:13:30,025 : INFO : root : A trial message if the logger is working
+2021-07-08 14:13:31,357 : INFO : root : Setted PGF File
+2021-07-08 14:13:38,214 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:13:38,725 : INFO : root : not all configuration files set:
+2021-07-08 14:13:38,725 : INFO : root : not all configuration files set:
+2021-07-08 14:14:59,905 : INFO : root : A trial message if the logger is working
+2021-07-08 14:15:01,171 : INFO : root : Setted PGF File
+2021-07-08 14:15:09,219 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:15:09,725 : INFO : root : not all configuration files set:
+2021-07-08 14:15:09,725 : INFO : root : not all configuration files set:
+2021-07-08 14:16:27,030 : INFO : root : A trial message if the logger is working
+2021-07-08 14:16:29,951 : INFO : root : Setted PGF File
+2021-07-08 14:16:39,002 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:16:39,508 : INFO : root : not all configuration files set:
+2021-07-08 14:16:39,508 : INFO : root : not all configuration files set:
+2021-07-08 14:17:51,968 : INFO : root : A trial message if the logger is working
+2021-07-08 14:17:54,096 : INFO : root : Setted PGF File
+2021-07-08 14:18:00,523 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:18:01,029 : INFO : root : not all configuration files set:
+2021-07-08 14:18:01,029 : INFO : root : not all configuration files set:
+2021-07-08 14:18:25,928 : INFO : root : A trial message if the logger is working
+2021-07-08 14:18:29,605 : INFO : root : Setted PGF File
+2021-07-08 14:18:39,020 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:18:39,529 : INFO : root : not all configuration files set:
+2021-07-08 14:18:39,529 : INFO : root : not all configuration files set:
+2021-07-08 14:18:52,077 : INFO : root : A trial message if the logger is working
+2021-07-08 14:18:55,398 : INFO : root : Setted Protocol File
+2021-07-08 14:18:57,254 : INFO : root : Setted PGF File
+2021-07-08 14:19:05,879 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:19:06,388 : INFO : root : not all configuration files set:
+2021-07-08 14:19:06,388 : INFO : root : not all configuration files set:
+2021-07-08 14:20:03,073 : INFO : root : A trial message if the logger is working
+2021-07-08 14:20:07,754 : INFO : root : Setted PGF File
+2021-07-08 14:20:15,515 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:20:16,017 : INFO : root : not all configuration files set:
+2021-07-08 14:20:16,017 : INFO : root : not all configuration files set:
+2021-07-08 14:23:53,714 : INFO : root : A trial message if the logger is working
+2021-07-08 14:23:55,509 : INFO : root : Setted PGF File
+2021-07-08 14:24:38,827 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:24:39,335 : INFO : root : not all configuration files set:
+2021-07-08 14:24:39,335 : INFO : root : not all configuration files set:
+2021-07-08 14:26:23,177 : INFO : root : A trial message if the logger is working
+2021-07-08 14:26:24,966 : INFO : root : Setted PGF File
+2021-07-08 14:26:31,203 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:26:31,707 : INFO : root : not all configuration files set:
+2021-07-08 14:26:31,707 : INFO : root : not all configuration files set:
+2021-07-08 14:27:04,750 : INFO : root : A trial message if the logger is working
+2021-07-08 14:27:11,473 : INFO : root : Setted PGF File
+2021-07-08 14:29:50,714 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:29:51,217 : INFO : root : not all configuration files set:
+2021-07-08 14:29:51,217 : INFO : root : not all configuration files set:
+2021-07-08 14:31:29,459 : INFO : root : A trial message if the logger is working
+2021-07-08 14:31:31,693 : INFO : root : Setted PGF File
+2021-07-08 14:31:40,605 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:31:41,114 : INFO : root : not all configuration files set:
+2021-07-08 14:31:41,114 : INFO : root : not all configuration files set:
+2021-07-08 14:33:27,136 : INFO : root : A trial message if the logger is working
+2021-07-08 14:33:28,772 : INFO : root : Setted PGF File
+2021-07-08 14:33:37,186 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:33:37,693 : INFO : root : not all configuration files set:
+2021-07-08 14:33:37,693 : INFO : root : not all configuration files set:
+2021-07-08 14:48:06,820 : INFO : root : A trial message if the logger is working
+2021-07-08 14:48:25,754 : INFO : root : A trial message if the logger is working
+2021-07-08 14:48:27,344 : INFO : root : Setted PGF File
+2021-07-08 14:48:36,217 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:48:36,724 : INFO : root : not all configuration files set:
+2021-07-08 14:48:36,724 : INFO : root : not all configuration files set:
+2021-07-08 14:48:49,289 : INFO : root : A trial message if the logger is working
+2021-07-08 14:48:50,597 : INFO : root : Setted PGF File
+2021-07-08 14:48:59,538 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:49:00,052 : INFO : root : not all configuration files set:
+2021-07-08 14:49:00,053 : INFO : root : not all configuration files set:
+2021-07-08 14:51:07,448 : INFO : root : A trial message if the logger is working
+2021-07-08 14:51:09,405 : INFO : root : Setted PGF File
+2021-07-08 14:51:15,450 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:51:15,958 : INFO : root : not all configuration files set:
+2021-07-08 14:51:15,958 : INFO : root : not all configuration files set:
+2021-07-08 14:54:40,835 : INFO : root : A trial message if the logger is working
+2021-07-08 14:54:44,741 : INFO : root : Setted PGF File
+2021-07-08 14:54:58,421 : INFO : root : Setted online analysis file
+2021-07-08 14:55:06,214 : INFO : root : Setted online analysis file
+2021-07-08 14:55:11,774 : INFO : root : Setted Protocol File
+2021-07-08 14:55:17,397 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:55:51,335 : INFO : root : A trial message if the logger is working
+2021-07-08 14:55:52,989 : INFO : root : Setted PGF File
+2021-07-08 14:55:59,338 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:55:59,845 : INFO : root : not all configuration files set:
+2021-07-08 14:55:59,845 : INFO : root : not all configuration files set:
+2021-07-08 14:56:47,903 : INFO : root : A trial message if the logger is working
+2021-07-08 14:56:49,814 : INFO : root : Setted PGF File
+2021-07-08 14:56:58,864 : INFO : root : Configuration Files setted up:....
+2021-07-08 14:56:59,374 : INFO : root : not all configuration files set:
+2021-07-08 14:56:59,374 : INFO : root : not all configuration files set:
+2021-07-08 15:08:40,657 : INFO : root : Setted online analysis file
+2021-07-08 15:08:42,431 : INFO : root : Setted Protocol File
+2021-07-08 15:08:52,915 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:08:53,936 : INFO : root : not all configuration files set:
+2021-07-08 15:09:14,658 : INFO : root : A trial message if the logger is working
+2021-07-08 15:09:15,788 : INFO : root : Setted PGF File
+2021-07-08 15:09:22,133 : INFO : root : Setted Protocol File
+2021-07-08 15:09:27,045 : INFO : root : Setted online analysis file
+2021-07-08 15:09:31,639 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:20:53,570 : INFO : root : A trial message if the logger is working
+2021-07-08 15:20:55,035 : INFO : root : Setted PGF File
+2021-07-08 15:20:59,899 : INFO : root : Setted Protocol File
+2021-07-08 15:21:04,009 : INFO : root : Setted online analysis file
+2021-07-08 15:21:09,189 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:21:30,556 : INFO : root : A trial message if the logger is working
+2021-07-08 15:21:32,660 : INFO : root : Setted PGF File
+2021-07-08 15:21:36,075 : INFO : root : Setted Protocol File
+2021-07-08 15:21:39,765 : INFO : root : Setted online analysis file
+2021-07-08 15:21:46,423 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:23:52,074 : INFO : root : A trial message if the logger is working
+2021-07-08 15:24:02,196 : INFO : root : Setted PGF File
+2021-07-08 15:24:07,780 : INFO : root : Setted Protocol File
+2021-07-08 15:24:10,732 : INFO : root : Setted online analysis file
+2021-07-08 15:24:16,362 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:26:44,078 : INFO : root : A trial message if the logger is working
+2021-07-08 15:26:46,165 : INFO : root : Setted PGF File
+2021-07-08 15:26:49,629 : INFO : root : Setted Protocol File
+2021-07-08 15:26:53,371 : INFO : root : Setted online analysis file
+2021-07-08 15:27:02,489 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:27:15,758 : INFO : root : Protocol Test Pulse will be executed
+2021-07-08 15:27:48,639 : INFO : root : Protocol 2xRheo&Ramp will be executed
+2021-07-08 15:31:23,176 : INFO : root : A trial message if the logger is working
+2021-07-08 15:31:28,018 : DEBUG : root : Batch communication input: 
+2021-07-08 15:31:33,387 : INFO : root : Setted PGF File
+2021-07-08 15:31:37,263 : INFO : root : Setted Protocol File
+2021-07-08 15:31:39,910 : INFO : root : Setted online analysis file
+2021-07-08 15:31:46,710 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:31:59,634 : INFO : root : Protocol Test Pulse will be executed
+2021-07-08 15:33:28,869 : INFO : root : Protocol Test Pulse will be executed
+2021-07-08 15:36:36,221 : INFO : root : A trial message if the logger is working
+2021-07-08 15:36:39,315 : INFO : root : Setted PGF File
+2021-07-08 15:36:43,084 : INFO : root : Setted Protocol File
+2021-07-08 15:36:45,796 : INFO : root : Setted online analysis file
+2021-07-08 15:36:50,930 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:37:18,659 : INFO : root : A trial message if the logger is working
+2021-07-08 15:37:21,820 : INFO : root : Setted PGF File
+2021-07-08 15:37:25,501 : INFO : root : Setted Protocol File
+2021-07-08 15:37:27,711 : INFO : root : Setted online analysis file
+2021-07-08 15:37:32,119 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:37:43,790 : INFO : root : Protocol Test Pulse will be executed
+2021-07-08 15:38:50,647 : INFO : root : A trial message if the logger is working
+2021-07-08 15:38:55,900 : INFO : root : Setted PGF File
+2021-07-08 15:38:59,468 : INFO : root : Setted Protocol File
+2021-07-08 15:39:01,755 : INFO : root : Setted online analysis file
+2021-07-08 15:39:06,278 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:39:18,769 : INFO : root : Protocol Test Pulse will be executed
+2021-07-08 15:40:13,515 : INFO : root : A trial message if the logger is working
+2021-07-08 15:40:15,349 : INFO : root : Setted PGF File
+2021-07-08 15:40:19,874 : INFO : root : Setted Protocol File
+2021-07-08 15:40:23,339 : INFO : root : Setted online analysis file
+2021-07-08 15:40:29,179 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:40:46,356 : INFO : root : Setted Protocol File
+2021-07-08 15:40:52,920 : INFO : root : Setted Protocol File
+2021-07-08 15:41:03,068 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:41:14,815 : INFO : root : A trial message if the logger is working
+2021-07-08 15:41:16,883 : INFO : root : Setted PGF File
+2021-07-08 15:41:23,674 : INFO : root : Setted Protocol File
+2021-07-08 15:41:25,735 : INFO : root : Setted online analysis file
+2021-07-08 15:41:33,340 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:41:42,825 : INFO : root : Protocol Test Pulse will be executed
+2021-07-08 15:43:20,161 : INFO : root : A trial message if the logger is working
+2021-07-08 15:43:24,933 : INFO : root : Setted PGF File
+2021-07-08 15:43:30,037 : INFO : root : Setted Protocol File
+2021-07-08 15:43:33,484 : INFO : root : Setted online analysis file
+2021-07-08 15:43:37,735 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:43:52,492 : INFO : root : Series IV will be executed
+2021-07-08 15:45:12,522 : INFO : root : A trial message if the logger is working
+2021-07-08 15:45:14,068 : INFO : root : Setted PGF File
+2021-07-08 15:45:21,683 : INFO : root : Setted Protocol File
+2021-07-08 15:45:23,860 : INFO : root : Setted online analysis file
+2021-07-08 15:45:29,085 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:45:40,392 : INFO : root : Series IV will be executed
+2021-07-08 15:48:12,968 : INFO : root : A trial message if the logger is working
+2021-07-08 15:48:16,549 : INFO : root : Setted PGF File
+2021-07-08 15:48:20,885 : INFO : root : Setted Protocol File
+2021-07-08 15:48:22,861 : INFO : root : Setted online analysis file
+2021-07-08 15:48:27,507 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:48:35,908 : INFO : root : Series IV will be executed
+2021-07-08 15:50:41,836 : INFO : root : A trial message if the logger is working
+2021-07-08 15:51:03,956 : INFO : root : Setted PGF File
+2021-07-08 15:51:08,651 : INFO : root : Setted Protocol File
+2021-07-08 15:51:10,820 : INFO : root : Setted online analysis file
+2021-07-08 15:51:19,487 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:51:32,213 : INFO : root : Series IV will be executed
+2021-07-08 15:52:47,938 : INFO : root : A trial message if the logger is working
+2021-07-08 15:52:52,404 : INFO : root : Setted PGF File
+2021-07-08 15:52:56,396 : INFO : root : Setted Protocol File
+2021-07-08 15:52:58,547 : INFO : root : Setted online analysis file
+2021-07-08 15:53:05,767 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:53:14,658 : INFO : root : Series IV will be executed
+2021-07-08 15:57:03,973 : INFO : root : A trial message if the logger is working
+2021-07-08 15:57:12,281 : INFO : root : Setted PGF File
+2021-07-08 15:57:16,796 : INFO : root : Setted Protocol File
+2021-07-08 15:57:20,629 : INFO : root : Setted online analysis file
+2021-07-08 15:57:30,111 : INFO : root : Configuration Files setted up:....
+2021-07-08 15:57:41,082 : INFO : root : Series IV will be executed
+2021-07-08 15:59:44,902 : INFO : root : A trial message if the logger is working
+2021-07-08 15:59:46,365 : INFO : root : Setted PGF File
+2021-07-08 15:59:50,813 : INFO : root : Setted Protocol File
+2021-07-08 15:59:52,979 : INFO : root : Setted online analysis file
+2021-07-08 15:59:57,361 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:00:07,363 : INFO : root : Series IV will be executed
+2021-07-08 16:00:49,598 : INFO : root : Series IV will be executed
+2021-07-08 16:02:40,068 : INFO : root : A trial message if the logger is working
+2021-07-08 16:02:45,632 : INFO : root : Setted PGF File
+2021-07-08 16:02:51,737 : INFO : root : Setted Protocol File
+2021-07-08 16:02:54,189 : INFO : root : Setted online analysis file
+2021-07-08 16:02:58,151 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:03:10,802 : INFO : root : Series IV will be executed
+2021-07-08 16:04:06,853 : INFO : root : General Command IV will be executed
+2021-07-08 16:06:20,355 : INFO : root : A trial message if the logger is working
+2021-07-08 16:06:21,976 : INFO : root : Setted PGF File
+2021-07-08 16:06:26,201 : INFO : root : Setted Protocol File
+2021-07-08 16:06:28,791 : INFO : root : Setted online analysis file
+2021-07-08 16:06:32,594 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:06:44,780 : INFO : root : Series IV will be executed
+2021-07-08 16:07:35,062 : INFO : root : A trial message if the logger is working
+2021-07-08 16:07:36,422 : INFO : root : Setted PGF File
+2021-07-08 16:07:44,434 : INFO : root : Setted Protocol File
+2021-07-08 16:07:46,444 : INFO : root : Setted online analysis file
+2021-07-08 16:07:49,934 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:07:59,241 : INFO : root : Series IV will be executed
+2021-07-08 16:08:53,486 : INFO : root : General Command IV will be executed
+2021-07-08 16:10:23,265 : INFO : root : Series IV will be executed
+2021-07-08 16:11:17,522 : INFO : root : General Command IV will be executed
+2021-07-08 16:11:28,849 : INFO : root : Series IV will be executed
+2021-07-08 16:12:23,115 : INFO : root : General Command IV will be executed
+2021-07-08 16:14:06,752 : INFO : root : A trial message if the logger is working
+2021-07-08 16:14:08,108 : INFO : root : Setted PGF File
+2021-07-08 16:14:13,911 : INFO : root : Setted Protocol File
+2021-07-08 16:14:15,954 : INFO : root : Setted online analysis file
+2021-07-08 16:14:20,311 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:14:30,061 : INFO : root : Series IV will be executed
+2021-07-08 16:15:24,260 : INFO : root : General Command IV will be executed
+2021-07-08 16:18:34,349 : INFO : root : A trial message if the logger is working
+2021-07-08 16:18:36,121 : INFO : root : Setted PGF File
+2021-07-08 16:18:39,936 : INFO : root : Setted Protocol File
+2021-07-08 16:18:41,852 : INFO : root : Setted online analysis file
+2021-07-08 16:18:46,283 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:18:55,211 : INFO : root : Series IV will be executed
+2021-07-08 16:19:49,586 : INFO : root : A trial message if the logger is working
+2021-07-08 16:19:53,005 : INFO : root : Setted PGF File
+2021-07-08 16:19:58,383 : INFO : root : Setted Protocol File
+2021-07-08 16:20:00,199 : INFO : root : Setted online analysis file
+2021-07-08 16:20:14,038 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:20:23,427 : INFO : root : Series IV will be executed
+2021-07-08 16:21:17,627 : INFO : root : General Command IV will be executed
+2021-07-08 16:22:17,330 : INFO : root : A trial message if the logger is working
+2021-07-08 16:22:19,663 : INFO : root : Setted PGF File
+2021-07-08 16:22:25,306 : INFO : root : Setted Protocol File
+2021-07-08 16:22:28,513 : INFO : root : Setted online analysis file
+2021-07-08 16:22:31,820 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:22:57,291 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:23:04,855 : INFO : root : A trial message if the logger is working
+2021-07-08 16:23:10,541 : INFO : root : Setted PGF File
+2021-07-08 16:23:17,234 : INFO : root : Setted Protocol File
+2021-07-08 16:23:20,098 : INFO : root : Setted online analysis file
+2021-07-08 16:23:23,943 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:23:41,430 : INFO : root : Series IV will be executed
+2021-07-08 16:25:40,198 : INFO : root : Series IV will be executed
+2021-07-08 16:28:09,852 : INFO : root : Series IV will be executed
+2021-07-08 16:29:29,700 : INFO : root : Series IV will be executed
+2021-07-08 16:33:55,835 : INFO : root : Series IV will be executed
+2021-07-08 16:34:19,398 : INFO : root : A trial message if the logger is working
+2021-07-08 16:34:21,531 : INFO : root : Setted PGF File
+2021-07-08 16:34:25,017 : INFO : root : Setted Protocol File
+2021-07-08 16:34:27,747 : INFO : root : Setted online analysis file
+2021-07-08 16:34:31,374 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:34:41,470 : INFO : root : Series IV will be executed
+2021-07-08 16:34:47,497 : INFO : root : General Command IV will be executed
+2021-07-08 16:36:27,789 : INFO : root : A trial message if the logger is working
+2021-07-08 16:36:29,778 : INFO : root : Setted PGF File
+2021-07-08 16:36:34,393 : INFO : root : Setted Protocol File
+2021-07-08 16:36:36,390 : INFO : root : Setted online analysis file
+2021-07-08 16:36:42,980 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:36:51,512 : INFO : root : Series IV will be executed
+2021-07-08 16:36:57,528 : INFO : root : General Command IV will be executed
+2021-07-08 16:37:23,913 : INFO : root : Series IV will be executed
+2021-07-08 16:37:29,952 : INFO : root : General Command IV will be executed
+2021-07-08 16:39:14,059 : INFO : root : A trial message if the logger is working
+2021-07-08 16:39:15,818 : INFO : root : Setted PGF File
+2021-07-08 16:39:22,734 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:39:22,734 : INFO : root : not all configuration files set:
+2021-07-08 16:39:22,734 : INFO : root : not all configuration files set:
+2021-07-08 16:39:22,734 : INFO : root : not all configuration files set:
+2021-07-08 16:39:33,528 : INFO : root : Series IV will be executed
+2021-07-08 16:40:27,806 : INFO : root : General Command IV will be executed
+2021-07-08 16:41:23,552 : INFO : root : A trial message if the logger is working
+2021-07-08 16:41:26,857 : INFO : root : Setted PGF File
+2021-07-08 16:41:31,773 : INFO : root : Setted Protocol File
+2021-07-08 16:41:33,720 : INFO : root : Setted online analysis file
+2021-07-08 16:41:37,842 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:41:48,700 : INFO : root : Series IV will be executed
+2021-07-08 16:42:41,788 : INFO : root : General Command IV will be executed
+2021-07-08 16:44:52,443 : INFO : root : A trial message if the logger is working
+2021-07-08 16:44:54,834 : INFO : root : Setted PGF File
+2021-07-08 16:44:58,411 : INFO : root : Setted Protocol File
+2021-07-08 16:45:00,522 : INFO : root : Setted online analysis file
+2021-07-08 16:45:07,081 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:45:17,464 : INFO : root : Series IV will be executed
+2021-07-08 16:45:18,585 : INFO : root : General Command IV will be executed
+2021-07-08 16:46:18,433 : INFO : root : A trial message if the logger is working
+2021-07-08 16:46:20,013 : INFO : root : Setted PGF File
+2021-07-08 16:46:25,038 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:46:25,555 : INFO : root : not all configuration files set:
+2021-07-08 16:46:25,555 : INFO : root : not all configuration files set:
+2021-07-08 16:46:34,558 : INFO : root : A trial message if the logger is working
+2021-07-08 16:46:41,604 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:46:41,604 : INFO : root : not all configuration files set:
+2021-07-08 16:46:41,604 : INFO : root : not all configuration files set:
+2021-07-08 16:46:41,605 : INFO : root : not all configuration files set:
+2021-07-08 16:47:26,467 : INFO : root : A trial message if the logger is working
+2021-07-08 16:47:34,426 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:47:34,426 : INFO : root : not all configuration files set:
+2021-07-08 16:47:34,426 : INFO : root : not all configuration files set:
+2021-07-08 16:47:34,426 : INFO : root : not all configuration files set:
+2021-07-08 16:48:25,153 : INFO : root : A trial message if the logger is working
+2021-07-08 16:48:26,600 : INFO : root : Setted PGF File
+2021-07-08 16:48:32,927 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:48:32,927 : INFO : root : not all configuration files set:
+2021-07-08 16:48:32,927 : INFO : root : not all configuration files set:
+2021-07-08 16:48:32,927 : INFO : root : not all configuration files set:
+2021-07-08 16:48:45,025 : INFO : root : Series IV will be executed
+2021-07-08 16:48:46,149 : INFO : root : General Command IV will be executed
+2021-07-08 16:49:08,125 : INFO : root : Series IV will be executed
+2021-07-08 16:49:09,250 : INFO : root : General Command IV will be executed
+2021-07-08 16:49:41,493 : INFO : root : A trial message if the logger is working
+2021-07-08 16:49:43,633 : INFO : root : Setted PGF File
+2021-07-08 16:49:48,719 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:49:48,723 : INFO : root : not all configuration files set:
+2021-07-08 16:49:48,723 : INFO : root : not all configuration files set:
+2021-07-08 16:49:48,723 : INFO : root : not all configuration files set:
+2021-07-08 16:49:59,994 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:50:00,001 : INFO : root : not all configuration files set:
+2021-07-08 16:50:00,001 : INFO : root : not all configuration files set:
+2021-07-08 16:50:00,001 : INFO : root : not all configuration files set:
+2021-07-08 16:50:12,230 : INFO : root : A trial message if the logger is working
+2021-07-08 16:50:13,889 : INFO : root : Setted PGF File
+2021-07-08 16:50:27,231 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:50:27,740 : INFO : root : not all configuration files set:
+2021-07-08 16:50:27,740 : INFO : root : not all configuration files set:
+2021-07-08 16:50:38,262 : INFO : root : Series IV will be executed
+2021-07-08 16:51:22,413 : INFO : root : Series IV will be executed
+2021-07-08 16:52:13,008 : INFO : root : A trial message if the logger is working
+2021-07-08 16:52:23,255 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:52:23,255 : INFO : root : not all configuration files set:
+2021-07-08 16:52:23,255 : INFO : root : not all configuration files set:
+2021-07-08 16:52:23,256 : INFO : root : not all configuration files set:
+2021-07-08 16:52:31,863 : INFO : root : Series IV will be executed
+2021-07-08 16:53:24,528 : INFO : root : General Command IV will be executed
+2021-07-08 16:54:36,197 : INFO : root : A trial message if the logger is working
+2021-07-08 16:54:43,143 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:54:43,144 : INFO : root : not all configuration files set:
+2021-07-08 16:54:43,144 : INFO : root : not all configuration files set:
+2021-07-08 16:54:43,144 : INFO : root : not all configuration files set:
+2021-07-08 16:54:49,733 : INFO : root : Series IV will be executed
+2021-07-08 16:55:42,286 : INFO : root : General Command IV will be executed
+2021-07-08 16:56:02,707 : INFO : root : A trial message if the logger is working
+2021-07-08 16:56:10,805 : INFO : root : Setted PGF File
+2021-07-08 16:56:29,900 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:56:29,900 : INFO : root : not all configuration files set:
+2021-07-08 16:56:29,900 : INFO : root : not all configuration files set:
+2021-07-08 16:56:29,900 : INFO : root : not all configuration files set:
+2021-07-08 16:56:36,137 : INFO : root : Series IV will be executed
+2021-07-08 16:57:28,687 : INFO : root : General Command IV will be executed
+2021-07-08 16:57:54,588 : INFO : root : A trial message if the logger is working
+2021-07-08 16:57:55,713 : INFO : root : Setted PGF File
+2021-07-08 16:58:02,456 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:58:02,456 : INFO : root : not all configuration files set:
+2021-07-08 16:58:02,456 : INFO : root : not all configuration files set:
+2021-07-08 16:58:02,456 : INFO : root : not all configuration files set:
+2021-07-08 16:58:09,575 : INFO : root : Series IV will be executed
+2021-07-08 16:58:44,344 : INFO : root : A trial message if the logger is working
+2021-07-08 16:58:50,578 : INFO : root : Configuration Files setted up:....
+2021-07-08 16:58:50,582 : INFO : root : not all configuration files set:
+2021-07-08 16:58:50,582 : INFO : root : not all configuration files set:
+2021-07-08 16:58:50,582 : INFO : root : not all configuration files set:
+2021-07-08 16:58:56,856 : INFO : root : Series IV will be executed
+2021-07-08 17:00:29,968 : INFO : root : A trial message if the logger is working
+2021-07-08 17:00:31,787 : INFO : root : Setted PGF File
+2021-07-08 17:00:41,450 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:00:41,453 : INFO : root : not all configuration files set:
+2021-07-08 17:00:41,453 : INFO : root : not all configuration files set:
+2021-07-08 17:00:41,453 : INFO : root : not all configuration files set:
+2021-07-08 17:00:57,607 : INFO : root : Series IV will be executed
+2021-07-08 17:01:15,675 : INFO : root : General Command IV will be executed
+2021-07-08 17:02:30,014 : INFO : root : A trial message if the logger is working
+2021-07-08 17:02:31,442 : INFO : root : Setted PGF File
+2021-07-08 17:02:50,562 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:02:50,562 : INFO : root : not all configuration files set:
+2021-07-08 17:02:50,562 : INFO : root : not all configuration files set:
+2021-07-08 17:02:50,562 : INFO : root : not all configuration files set:
+2021-07-08 17:02:57,081 : INFO : root : Series IV will be executed
+2021-07-08 17:03:03,105 : INFO : root : General Command IV will be executed
+2021-07-08 17:04:30,154 : INFO : root : A trial message if the logger is working
+2021-07-08 17:04:31,785 : INFO : root : Setted PGF File
+2021-07-08 17:04:38,861 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:04:38,862 : INFO : root : not all configuration files set:
+2021-07-08 17:04:38,862 : INFO : root : not all configuration files set:
+2021-07-08 17:04:38,862 : INFO : root : not all configuration files set:
+2021-07-08 17:04:44,964 : INFO : root : Series IV will be executed
+2021-07-08 17:05:10,952 : INFO : root : Series IV will be executed
+2021-07-08 17:05:34,384 : INFO : root : A trial message if the logger is working
+2021-07-08 17:05:40,749 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:05:40,749 : INFO : root : not all configuration files set:
+2021-07-08 17:05:40,749 : INFO : root : not all configuration files set:
+2021-07-08 17:05:40,749 : INFO : root : not all configuration files set:
+2021-07-08 17:05:49,525 : INFO : root : Series IV will be executed
+2021-07-08 17:06:37,775 : INFO : root : Series IV will be executed
+2021-07-08 17:07:15,131 : INFO : root : A trial message if the logger is working
+2021-07-08 17:07:29,822 : INFO : root : A trial message if the logger is working
+2021-07-08 17:07:31,859 : INFO : root : Setted PGF File
+2021-07-08 17:07:38,520 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:07:38,520 : INFO : root : not all configuration files set:
+2021-07-08 17:07:38,520 : INFO : root : not all configuration files set:
+2021-07-08 17:07:38,520 : INFO : root : not all configuration files set:
+2021-07-08 17:07:44,337 : INFO : root : Series IV will be executed
+2021-07-08 17:07:45,551 : INFO : root : General Command IV will be executed
+2021-07-08 17:08:23,149 : INFO : root : A trial message if the logger is working
+2021-07-08 17:08:40,048 : INFO : root : A trial message if the logger is working
+2021-07-08 17:08:49,665 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:08:49,665 : INFO : root : not all configuration files set:
+2021-07-08 17:08:49,667 : INFO : root : not all configuration files set:
+2021-07-08 17:08:49,667 : INFO : root : not all configuration files set:
+2021-07-08 17:08:55,185 : INFO : root : Series IV will be executed
+2021-07-08 17:09:47,704 : INFO : root : General Command IV will be executed
+2021-07-08 17:11:01,776 : INFO : root : A trial message if the logger is working
+2021-07-08 17:11:12,064 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:11:12,064 : INFO : root : not all configuration files set:
+2021-07-08 17:11:12,064 : INFO : root : not all configuration files set:
+2021-07-08 17:11:12,064 : INFO : root : not all configuration files set:
+2021-07-08 17:11:18,816 : INFO : root : Series IV will be executed
+2021-07-08 17:12:11,225 : INFO : root : General Command IV will be executed
+2021-07-08 17:12:38,878 : INFO : root : A trial message if the logger is working
+2021-07-08 17:12:45,549 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:12:45,549 : INFO : root : not all configuration files set:
+2021-07-08 17:12:45,549 : INFO : root : not all configuration files set:
+2021-07-08 17:12:45,549 : INFO : root : not all configuration files set:
+2021-07-08 17:12:51,511 : INFO : root : Series IV will be executed
+2021-07-08 17:13:43,987 : INFO : root : General Command IV will be executed
+2021-07-08 17:17:23,754 : INFO : root : A trial message if the logger is working
+2021-07-08 17:17:30,817 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:17:30,817 : INFO : root : not all configuration files set:
+2021-07-08 17:17:30,817 : INFO : root : not all configuration files set:
+2021-07-08 17:17:30,817 : INFO : root : not all configuration files set:
+2021-07-08 17:17:37,233 : INFO : root : Series IV will be executed
+2021-07-08 17:18:29,760 : INFO : root : General Command IV will be executed
+2021-07-08 17:23:54,568 : INFO : root : A trial message if the logger is working
+2021-07-08 17:24:03,352 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:24:03,352 : INFO : root : not all configuration files set:
+2021-07-08 17:24:03,352 : INFO : root : not all configuration files set:
+2021-07-08 17:24:03,352 : INFO : root : not all configuration files set:
+2021-07-08 17:24:11,017 : INFO : root : Series IV will be executed
+2021-07-08 17:25:03,434 : INFO : root : General Command IV will be executed
+2021-07-08 17:27:49,016 : INFO : root : A trial message if the logger is working
+2021-07-08 17:27:54,735 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:27:54,744 : INFO : root : not all configuration files set:
+2021-07-08 17:27:54,744 : INFO : root : not all configuration files set:
+2021-07-08 17:27:54,744 : INFO : root : not all configuration files set:
+2021-07-08 17:28:00,847 : INFO : root : Series IV will be executed
+2021-07-08 17:28:53,413 : INFO : root : General Command IV will be executed
+2021-07-08 17:49:14,461 : INFO : root : A trial message if the logger is working
+2021-07-08 17:49:22,672 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:49:22,672 : INFO : root : not all configuration files set:
+2021-07-08 17:49:22,672 : INFO : root : not all configuration files set:
+2021-07-08 17:49:22,672 : INFO : root : not all configuration files set:
+2021-07-08 17:49:28,355 : INFO : root : Series IV will be executed
+2021-07-08 17:50:26,978 : INFO : root : A trial message if the logger is working
+2021-07-08 17:50:32,408 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:50:32,408 : INFO : root : not all configuration files set:
+2021-07-08 17:50:32,408 : INFO : root : not all configuration files set:
+2021-07-08 17:50:32,408 : INFO : root : not all configuration files set:
+2021-07-08 17:50:41,317 : INFO : root : Series IV will be executed
+2021-07-08 17:51:33,859 : INFO : root : General Command IV will be executed
+2021-07-08 17:53:16,567 : INFO : root : A trial message if the logger is working
+2021-07-08 17:53:22,870 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:53:22,871 : INFO : root : not all configuration files set:
+2021-07-08 17:53:22,871 : INFO : root : not all configuration files set:
+2021-07-08 17:53:22,871 : INFO : root : not all configuration files set:
+2021-07-08 17:53:29,028 : INFO : root : Series IV will be executed
+2021-07-08 17:54:21,499 : INFO : root : General Command IV will be executed
+2021-07-08 17:57:50,407 : INFO : root : A trial message if the logger is working
+2021-07-08 17:57:56,952 : INFO : root : Configuration Files setted up:....
+2021-07-08 17:57:56,952 : INFO : root : not all configuration files set:
+2021-07-08 17:57:56,952 : INFO : root : not all configuration files set:
+2021-07-08 17:57:56,952 : INFO : root : not all configuration files set:
+2021-07-08 17:58:02,757 : INFO : root : Series IV will be executed
+2021-07-08 17:58:55,340 : INFO : root : General Command IV will be executed
+2021-07-08 18:04:00,631 : INFO : root : A trial message if the logger is working
+2021-07-08 18:04:05,955 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:04:05,955 : INFO : root : not all configuration files set:
+2021-07-08 18:04:05,955 : INFO : root : not all configuration files set:
+2021-07-08 18:04:05,955 : INFO : root : not all configuration files set:
+2021-07-08 18:04:12,851 : INFO : root : Series IV will be executed
+2021-07-08 18:10:45,108 : INFO : root : A trial message if the logger is working
+2021-07-08 18:11:02,725 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:11:02,725 : INFO : root : not all configuration files set:
+2021-07-08 18:11:02,726 : INFO : root : not all configuration files set:
+2021-07-08 18:11:02,726 : INFO : root : not all configuration files set:
+2021-07-08 18:11:10,630 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:12:11,677 : INFO : root : A trial message if the logger is working
+2021-07-08 18:12:16,067 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:12:16,067 : INFO : root : not all configuration files set:
+2021-07-08 18:12:16,067 : INFO : root : not all configuration files set:
+2021-07-08 18:12:16,067 : INFO : root : not all configuration files set:
+2021-07-08 18:12:23,165 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:15:19,915 : INFO : root : A trial message if the logger is working
+2021-07-08 18:15:27,747 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:15:27,747 : INFO : root : not all configuration files set:
+2021-07-08 18:15:27,747 : INFO : root : not all configuration files set:
+2021-07-08 18:15:27,747 : INFO : root : not all configuration files set:
+2021-07-08 18:15:35,051 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:16:13,821 : INFO : root : A trial message if the logger is working
+2021-07-08 18:16:19,509 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:16:19,509 : INFO : root : not all configuration files set:
+2021-07-08 18:16:19,510 : INFO : root : not all configuration files set:
+2021-07-08 18:16:19,510 : INFO : root : not all configuration files set:
+2021-07-08 18:16:55,702 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:19:57,878 : INFO : root : A trial message if the logger is working
+2021-07-08 18:20:17,791 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:20:17,791 : INFO : root : not all configuration files set:
+2021-07-08 18:20:17,791 : INFO : root : not all configuration files set:
+2021-07-08 18:20:17,792 : INFO : root : not all configuration files set:
+2021-07-08 18:20:25,233 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:22:51,197 : INFO : root : A trial message if the logger is working
+2021-07-08 18:22:52,830 : INFO : root : Setted PGF File
+2021-07-08 18:22:58,108 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:22:58,108 : INFO : root : not all configuration files set:
+2021-07-08 18:22:58,108 : INFO : root : not all configuration files set:
+2021-07-08 18:22:58,108 : INFO : root : not all configuration files set:
+2021-07-08 18:23:03,850 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:27:32,899 : INFO : root : Series IV will be executed
+2021-07-08 18:32:51,165 : INFO : root : A trial message if the logger is working
+2021-07-08 18:33:01,037 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:33:01,037 : INFO : root : not all configuration files set:
+2021-07-08 18:33:01,037 : INFO : root : not all configuration files set:
+2021-07-08 18:33:01,037 : INFO : root : not all configuration files set:
+2021-07-08 18:33:08,387 : INFO : root : Series IV will be executed
+2021-07-08 18:34:53,270 : INFO : root : General Command IV will be executed
+2021-07-08 18:36:07,902 : INFO : root : A trial message if the logger is working
+2021-07-08 18:36:12,450 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:36:12,450 : INFO : root : not all configuration files set:
+2021-07-08 18:36:12,450 : INFO : root : not all configuration files set:
+2021-07-08 18:36:12,450 : INFO : root : not all configuration files set:
+2021-07-08 18:36:21,528 : INFO : root : Series IV will be executed
+2021-07-08 18:36:49,996 : INFO : root : General Command IV will be executed
+2021-07-08 18:37:59,732 : INFO : root : A trial message if the logger is working
+2021-07-08 18:38:02,743 : INFO : root : Setted PGF File
+2021-07-08 18:38:12,260 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:38:12,260 : INFO : root : not all configuration files set:
+2021-07-08 18:38:12,260 : INFO : root : not all configuration files set:
+2021-07-08 18:38:12,260 : INFO : root : not all configuration files set:
+2021-07-08 18:38:17,523 : INFO : root : Series IV will be executed
+2021-07-08 18:41:44,778 : INFO : root : A trial message if the logger is working
+2021-07-08 18:41:51,239 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:41:51,239 : INFO : root : not all configuration files set:
+2021-07-08 18:41:51,239 : INFO : root : not all configuration files set:
+2021-07-08 18:41:51,240 : INFO : root : not all configuration files set:
+2021-07-08 18:42:01,677 : INFO : root : Series IV will be executed
+2021-07-08 18:44:08,048 : INFO : root : A trial message if the logger is working
+2021-07-08 18:44:19,719 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:44:19,719 : INFO : root : not all configuration files set:
+2021-07-08 18:44:19,719 : INFO : root : not all configuration files set:
+2021-07-08 18:44:19,719 : INFO : root : not all configuration files set:
+2021-07-08 18:44:25,938 : INFO : root : Series IV will be executed
+2021-07-08 18:47:35,257 : INFO : root : A trial message if the logger is working
+2021-07-08 18:47:40,660 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:47:40,660 : INFO : root : not all configuration files set:
+2021-07-08 18:47:40,660 : INFO : root : not all configuration files set:
+2021-07-08 18:47:40,661 : INFO : root : not all configuration files set:
+2021-07-08 18:47:46,347 : INFO : root : Series IV will be executed
+2021-07-08 18:48:38,877 : INFO : root : General Command IV will be executed
+2021-07-08 18:49:27,674 : INFO : root : A trial message if the logger is working
+2021-07-08 18:49:32,943 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:49:32,944 : INFO : root : not all configuration files set:
+2021-07-08 18:49:32,944 : INFO : root : not all configuration files set:
+2021-07-08 18:49:32,944 : INFO : root : not all configuration files set:
+2021-07-08 18:49:40,718 : INFO : root : Series IV will be executed
+2021-07-08 18:51:01,869 : INFO : root : A trial message if the logger is working
+2021-07-08 18:51:06,951 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:51:06,951 : INFO : root : not all configuration files set:
+2021-07-08 18:51:06,952 : INFO : root : not all configuration files set:
+2021-07-08 18:51:06,952 : INFO : root : not all configuration files set:
+2021-07-08 18:51:13,650 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:52:32,359 : INFO : root : A trial message if the logger is working
+2021-07-08 18:52:40,549 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:52:40,549 : INFO : root : not all configuration files set:
+2021-07-08 18:52:40,550 : INFO : root : not all configuration files set:
+2021-07-08 18:52:40,550 : INFO : root : not all configuration files set:
+2021-07-08 18:52:53,211 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:53:00,582 : INFO : root : General Command Block Pulse will be executed
+2021-07-08 18:53:41,105 : INFO : root : A trial message if the logger is working
+2021-07-08 18:53:48,726 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:53:48,726 : INFO : root : not all configuration files set:
+2021-07-08 18:53:48,726 : INFO : root : not all configuration files set:
+2021-07-08 18:53:48,726 : INFO : root : not all configuration files set:
+2021-07-08 18:53:55,316 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:56:11,362 : INFO : root : A trial message if the logger is working
+2021-07-08 18:56:17,762 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:56:17,763 : INFO : root : not all configuration files set:
+2021-07-08 18:56:17,763 : INFO : root : not all configuration files set:
+2021-07-08 18:56:17,763 : INFO : root : not all configuration files set:
+2021-07-08 18:56:25,472 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:56:58,516 : INFO : root : A trial message if the logger is working
+2021-07-08 18:57:04,744 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:57:04,744 : INFO : root : not all configuration files set:
+2021-07-08 18:57:04,745 : INFO : root : not all configuration files set:
+2021-07-08 18:57:04,745 : INFO : root : not all configuration files set:
+2021-07-08 18:57:12,070 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:58:14,500 : INFO : root : A trial message if the logger is working
+2021-07-08 18:58:21,036 : INFO : root : Configuration Files setted up:....
+2021-07-08 18:58:21,036 : INFO : root : not all configuration files set:
+2021-07-08 18:58:21,037 : INFO : root : not all configuration files set:
+2021-07-08 18:58:21,037 : INFO : root : not all configuration files set:
+2021-07-08 18:58:26,508 : INFO : root : Series Block Pulse will be executed
+2021-07-08 18:58:33,885 : INFO : root : General Command Block Pulse will be executed
+2021-07-08 19:04:33,559 : INFO : root : A trial message if the logger is working
+2021-07-08 19:04:38,749 : INFO : root : Configuration Files setted up:....
+2021-07-08 19:04:38,749 : INFO : root : not all configuration files set:
+2021-07-08 19:04:38,749 : INFO : root : not all configuration files set:
+2021-07-08 19:04:38,749 : INFO : root : not all configuration files set:
+2021-07-08 19:04:44,553 : INFO : root : Series IV will be executed
+2021-07-08 19:06:21,855 : INFO : root : A trial message if the logger is working
+2021-07-08 19:06:29,682 : INFO : root : Configuration Files setted up:....
+2021-07-08 19:06:29,683 : INFO : root : not all configuration files set:
+2021-07-08 19:06:29,683 : INFO : root : not all configuration files set:
+2021-07-08 19:06:29,683 : INFO : root : not all configuration files set:
+2021-07-08 19:06:36,767 : INFO : root : Series IV will be executed
+2021-07-08 19:07:29,303 : INFO : root : General Command IV will be executed
+2021-07-09 09:37:11,608 : INFO : root : Protocol Test Pulse will be executed
+2021-07-09 13:39:27,702 : INFO : root : A trial message if the logger is working
+2021-07-09 13:40:14,916 : INFO : root : A trial message if the logger is working
+2021-07-09 13:40:41,979 : INFO : root : Configuration Files setted up:....
+2021-07-09 13:40:41,979 : INFO : root : not all configuration files set:
+2021-07-09 13:40:41,980 : INFO : root : not all configuration files set:
+2021-07-09 13:40:41,980 : INFO : root : not all configuration files set:
+2021-07-09 13:41:17,508 : INFO : root : Series IV will be executed
+2021-07-09 13:41:45,023 : INFO : root : Series IV will be executed
+2021-07-09 13:54:10,069 : INFO : root : A trial message if the logger is working
+2021-07-09 13:54:15,277 : INFO : root : Configuration Files setted up:....
+2021-07-09 13:54:15,278 : INFO : root : not all configuration files set:
+2021-07-09 13:54:15,278 : INFO : root : not all configuration files set:
+2021-07-09 13:54:15,278 : INFO : root : not all configuration files set:
+2021-07-09 13:56:14,574 : INFO : root : A trial message if the logger is working
+2021-07-09 13:56:23,344 : INFO : root : Configuration Files setted up:....
+2021-07-09 13:56:23,349 : INFO : root : not all configuration files set:
+2021-07-09 13:56:23,349 : INFO : root : not all configuration files set:
+2021-07-09 13:56:23,349 : INFO : root : not all configuration files set:
+2021-07-09 14:03:57,962 : INFO : root : A trial message if the logger is working
+2021-07-09 14:04:02,880 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:04:02,888 : INFO : root : not all configuration files set:
+2021-07-09 14:04:02,888 : INFO : root : not all configuration files set:
+2021-07-09 14:04:02,888 : INFO : root : not all configuration files set:
+2021-07-09 14:08:13,940 : INFO : root : A trial message if the logger is working
+2021-07-09 14:08:19,555 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:08:19,555 : INFO : root : not all configuration files set:
+2021-07-09 14:08:19,555 : INFO : root : not all configuration files set:
+2021-07-09 14:08:19,556 : INFO : root : not all configuration files set:
+2021-07-09 14:09:07,923 : INFO : root : Series IV will be executed
+2021-07-09 14:10:43,645 : INFO : root : A trial message if the logger is working
+2021-07-09 14:10:50,063 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:10:50,063 : INFO : root : not all configuration files set:
+2021-07-09 14:10:50,064 : INFO : root : not all configuration files set:
+2021-07-09 14:10:50,064 : INFO : root : not all configuration files set:
+2021-07-09 14:11:13,548 : INFO : root : A trial message if the logger is working
+2021-07-09 14:11:18,996 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:11:18,996 : INFO : root : not all configuration files set:
+2021-07-09 14:11:18,996 : INFO : root : not all configuration files set:
+2021-07-09 14:11:18,996 : INFO : root : not all configuration files set:
+2021-07-09 14:14:09,999 : INFO : root : A trial message if the logger is working
+2021-07-09 14:14:17,103 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:14:17,103 : INFO : root : not all configuration files set:
+2021-07-09 14:14:17,111 : INFO : root : not all configuration files set:
+2021-07-09 14:14:17,111 : INFO : root : not all configuration files set:
+2021-07-09 14:15:36,674 : INFO : root : A trial message if the logger is working
+2021-07-09 14:15:42,143 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:15:42,143 : INFO : root : not all configuration files set:
+2021-07-09 14:15:42,144 : INFO : root : not all configuration files set:
+2021-07-09 14:15:42,144 : INFO : root : not all configuration files set:
+2021-07-09 14:16:43,758 : INFO : root : A trial message if the logger is working
+2021-07-09 14:16:50,287 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:16:50,287 : INFO : root : not all configuration files set:
+2021-07-09 14:16:50,287 : INFO : root : not all configuration files set:
+2021-07-09 14:16:50,287 : INFO : root : not all configuration files set:
+2021-07-09 14:17:44,627 : INFO : root : A trial message if the logger is working
+2021-07-09 14:17:50,695 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:17:50,695 : INFO : root : not all configuration files set:
+2021-07-09 14:17:50,695 : INFO : root : not all configuration files set:
+2021-07-09 14:17:50,695 : INFO : root : not all configuration files set:
+2021-07-09 14:19:46,836 : INFO : root : A trial message if the logger is working
+2021-07-09 14:19:52,827 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:19:52,827 : INFO : root : not all configuration files set:
+2021-07-09 14:19:52,828 : INFO : root : not all configuration files set:
+2021-07-09 14:19:52,828 : INFO : root : not all configuration files set:
+2021-07-09 14:20:20,613 : INFO : root : A trial message if the logger is working
+2021-07-09 14:20:25,661 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:20:25,661 : INFO : root : not all configuration files set:
+2021-07-09 14:20:25,661 : INFO : root : not all configuration files set:
+2021-07-09 14:20:25,661 : INFO : root : not all configuration files set:
+2021-07-09 14:21:45,202 : INFO : root : A trial message if the logger is working
+2021-07-09 14:21:49,502 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:21:49,510 : INFO : root : not all configuration files set:
+2021-07-09 14:21:49,510 : INFO : root : not all configuration files set:
+2021-07-09 14:21:49,510 : INFO : root : not all configuration files set:
+2021-07-09 14:22:08,822 : INFO : root : A trial message if the logger is working
+2021-07-09 14:22:14,046 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:22:14,046 : INFO : root : not all configuration files set:
+2021-07-09 14:22:14,046 : INFO : root : not all configuration files set:
+2021-07-09 14:22:14,046 : INFO : root : not all configuration files set:
+2021-07-09 14:22:27,326 : INFO : root : A trial message if the logger is working
+2021-07-09 14:22:43,725 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:22:43,725 : INFO : root : not all configuration files set:
+2021-07-09 14:22:43,726 : INFO : root : not all configuration files set:
+2021-07-09 14:22:43,726 : INFO : root : not all configuration files set:
+2021-07-09 14:24:28,961 : INFO : root : A trial message if the logger is working
+2021-07-09 14:24:33,218 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:24:33,218 : INFO : root : not all configuration files set:
+2021-07-09 14:24:33,219 : INFO : root : not all configuration files set:
+2021-07-09 14:24:33,219 : INFO : root : not all configuration files set:
+2021-07-09 14:26:15,738 : INFO : root : A trial message if the logger is working
+2021-07-09 14:26:22,510 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:26:22,510 : INFO : root : not all configuration files set:
+2021-07-09 14:26:22,510 : INFO : root : not all configuration files set:
+2021-07-09 14:26:22,511 : INFO : root : not all configuration files set:
+2021-07-09 14:26:33,872 : INFO : root : A trial message if the logger is working
+2021-07-09 14:26:39,210 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:26:39,211 : INFO : root : not all configuration files set:
+2021-07-09 14:26:39,211 : INFO : root : not all configuration files set:
+2021-07-09 14:26:39,211 : INFO : root : not all configuration files set:
+2021-07-09 14:27:20,747 : INFO : root : A trial message if the logger is working
+2021-07-09 14:27:25,148 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:27:25,149 : INFO : root : not all configuration files set:
+2021-07-09 14:27:25,149 : INFO : root : not all configuration files set:
+2021-07-09 14:27:25,150 : INFO : root : not all configuration files set:
+2021-07-09 14:33:31,891 : INFO : root : A trial message if the logger is working
+2021-07-09 14:34:04,389 : INFO : root : A trial message if the logger is working
+2021-07-09 14:34:23,936 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:34:23,936 : INFO : root : not all configuration files set:
+2021-07-09 14:34:23,936 : INFO : root : not all configuration files set:
+2021-07-09 14:34:23,936 : INFO : root : not all configuration files set:
+2021-07-09 14:37:03,708 : INFO : root : A trial message if the logger is working
+2021-07-09 14:37:07,513 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:37:07,522 : INFO : root : not all configuration files set:
+2021-07-09 14:37:07,522 : INFO : root : not all configuration files set:
+2021-07-09 14:37:07,522 : INFO : root : not all configuration files set:
+2021-07-09 14:37:14,038 : INFO : root : Series IV will be executed
+2021-07-09 14:41:41,277 : INFO : root : A trial message if the logger is working
+2021-07-09 14:41:46,258 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:41:46,259 : INFO : root : not all configuration files set:
+2021-07-09 14:41:46,259 : INFO : root : not all configuration files set:
+2021-07-09 14:41:46,259 : INFO : root : not all configuration files set:
+2021-07-09 14:41:52,586 : INFO : root : Series IV will be executed
+2021-07-09 14:43:37,622 : INFO : root : A trial message if the logger is working
+2021-07-09 14:43:42,455 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:43:42,455 : INFO : root : not all configuration files set:
+2021-07-09 14:43:42,455 : INFO : root : not all configuration files set:
+2021-07-09 14:43:42,456 : INFO : root : not all configuration files set:
+2021-07-09 14:43:54,935 : INFO : root : A trial message if the logger is working
+2021-07-09 14:43:58,729 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:43:58,730 : INFO : root : not all configuration files set:
+2021-07-09 14:43:58,730 : INFO : root : not all configuration files set:
+2021-07-09 14:43:58,730 : INFO : root : not all configuration files set:
+2021-07-09 14:44:04,047 : INFO : root : Series IV will be executed
+2021-07-09 14:44:51,339 : INFO : root : A trial message if the logger is working
+2021-07-09 14:44:57,913 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:44:57,913 : INFO : root : not all configuration files set:
+2021-07-09 14:44:57,914 : INFO : root : not all configuration files set:
+2021-07-09 14:44:57,914 : INFO : root : not all configuration files set:
+2021-07-09 14:45:03,442 : INFO : root : Series IV will be executed
+2021-07-09 14:45:35,522 : INFO : root : A trial message if the logger is working
+2021-07-09 14:45:40,580 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:45:40,581 : INFO : root : not all configuration files set:
+2021-07-09 14:45:40,581 : INFO : root : not all configuration files set:
+2021-07-09 14:45:40,581 : INFO : root : not all configuration files set:
+2021-07-09 14:45:47,414 : INFO : root : Series IV will be executed
+2021-07-09 14:46:43,200 : INFO : root : A trial message if the logger is working
+2021-07-09 14:46:59,504 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:46:59,505 : INFO : root : not all configuration files set:
+2021-07-09 14:46:59,505 : INFO : root : not all configuration files set:
+2021-07-09 14:46:59,505 : INFO : root : not all configuration files set:
+2021-07-09 14:47:05,223 : INFO : root : Series IV will be executed
+2021-07-09 14:47:45,702 : INFO : root : A trial message if the logger is working
+2021-07-09 14:47:51,116 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:47:51,116 : INFO : root : not all configuration files set:
+2021-07-09 14:47:51,116 : INFO : root : not all configuration files set:
+2021-07-09 14:47:51,117 : INFO : root : not all configuration files set:
+2021-07-09 14:47:55,895 : INFO : root : Series IV will be executed
+2021-07-09 14:49:30,337 : INFO : root : A trial message if the logger is working
+2021-07-09 14:49:36,275 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:49:36,275 : INFO : root : not all configuration files set:
+2021-07-09 14:49:36,275 : INFO : root : not all configuration files set:
+2021-07-09 14:49:36,276 : INFO : root : not all configuration files set:
+2021-07-09 14:49:41,911 : INFO : root : Series IV will be executed
+2021-07-09 14:53:17,361 : INFO : root : A trial message if the logger is working
+2021-07-09 14:53:22,261 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:53:22,261 : INFO : root : not all configuration files set:
+2021-07-09 14:53:22,261 : INFO : root : not all configuration files set:
+2021-07-09 14:53:22,261 : INFO : root : not all configuration files set:
+2021-07-09 14:55:22,057 : INFO : root : A trial message if the logger is working
+2021-07-09 14:55:28,198 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:55:28,198 : INFO : root : not all configuration files set:
+2021-07-09 14:55:28,198 : INFO : root : not all configuration files set:
+2021-07-09 14:55:28,198 : INFO : root : not all configuration files set:
+2021-07-09 14:55:37,296 : INFO : root : Series IV will be executed
+2021-07-09 14:58:57,352 : INFO : root : A trial message if the logger is working
+2021-07-09 14:59:33,264 : INFO : root : Configuration Files setted up:....
+2021-07-09 14:59:33,264 : INFO : root : not all configuration files set:
+2021-07-09 14:59:33,265 : INFO : root : not all configuration files set:
+2021-07-09 14:59:33,265 : INFO : root : not all configuration files set:
+2021-07-09 14:59:47,282 : INFO : root : Series IV will be executed
+2021-07-09 15:01:01,257 : INFO : root : Series IV will be executed
+2021-07-09 15:02:20,198 : INFO : root : A trial message if the logger is working
+2021-07-09 15:02:29,465 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:02:29,465 : INFO : root : not all configuration files set:
+2021-07-09 15:02:29,466 : INFO : root : not all configuration files set:
+2021-07-09 15:02:29,466 : INFO : root : not all configuration files set:
+2021-07-09 15:02:45,266 : INFO : root : A trial message if the logger is working
+2021-07-09 15:02:49,930 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:02:49,930 : INFO : root : not all configuration files set:
+2021-07-09 15:02:49,931 : INFO : root : not all configuration files set:
+2021-07-09 15:02:49,931 : INFO : root : not all configuration files set:
+2021-07-09 15:05:06,248 : INFO : root : A trial message if the logger is working
+2021-07-09 15:05:12,145 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:05:12,145 : INFO : root : not all configuration files set:
+2021-07-09 15:05:12,145 : INFO : root : not all configuration files set:
+2021-07-09 15:05:12,146 : INFO : root : not all configuration files set:
+2021-07-09 15:05:24,715 : INFO : root : Series IV will be executed
+2021-07-09 15:17:01,812 : INFO : root : A trial message if the logger is working
+2021-07-09 15:17:09,017 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:17:09,017 : INFO : root : not all configuration files set:
+2021-07-09 15:17:09,017 : INFO : root : not all configuration files set:
+2021-07-09 15:17:09,017 : INFO : root : not all configuration files set:
+2021-07-09 15:17:21,558 : INFO : root : Series IV will be executed
+2021-07-09 15:18:34,743 : INFO : root : A trial message if the logger is working
+2021-07-09 15:18:41,698 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:18:41,699 : INFO : root : not all configuration files set:
+2021-07-09 15:18:41,699 : INFO : root : not all configuration files set:
+2021-07-09 15:18:41,699 : INFO : root : not all configuration files set:
+2021-07-09 15:18:48,742 : INFO : root : Series IV will be executed
+2021-07-09 15:20:46,444 : INFO : root : A trial message if the logger is working
+2021-07-09 15:20:52,694 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:20:52,694 : INFO : root : not all configuration files set:
+2021-07-09 15:20:52,694 : INFO : root : not all configuration files set:
+2021-07-09 15:20:52,694 : INFO : root : not all configuration files set:
+2021-07-09 15:21:31,768 : INFO : root : A trial message if the logger is working
+2021-07-09 15:21:35,493 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:21:35,494 : INFO : root : not all configuration files set:
+2021-07-09 15:21:35,494 : INFO : root : not all configuration files set:
+2021-07-09 15:21:35,494 : INFO : root : not all configuration files set:
+2021-07-09 15:21:59,193 : INFO : root : A trial message if the logger is working
+2021-07-09 15:22:05,022 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:22:05,023 : INFO : root : not all configuration files set:
+2021-07-09 15:22:05,023 : INFO : root : not all configuration files set:
+2021-07-09 15:22:05,023 : INFO : root : not all configuration files set:
+2021-07-09 15:22:10,807 : INFO : root : Series IV will be executed
+2021-07-09 15:37:47,053 : INFO : root : A trial message if the logger is working
+2021-07-09 15:37:54,209 : INFO : root : Configuration Files setted up:....
+2021-07-09 15:37:54,209 : INFO : root : not all configuration files set:
+2021-07-09 15:37:54,209 : INFO : root : not all configuration files set:
+2021-07-09 15:37:54,209 : INFO : root : not all configuration files set:
+2021-07-09 15:38:08,098 : INFO : root : Series Block Pulse will be executed
+2021-07-09 15:38:45,992 : INFO : root : Series IV will be executed
+2021-07-09 15:39:40,907 : INFO : root : Series IV-120 will be executed
+2021-07-12 14:59:28,951 : INFO : root : A trial message if the logger is working
+2021-07-12 14:59:35,065 : INFO : root : Setted PGF File
+2021-07-15 10:47:36,856 : INFO : root : A trial message if the logger is working
+2021-07-15 11:00:00,850 : INFO : root : A trial message if the logger is working
+2021-07-15 11:00:39,734 : INFO : root : A trial message if the logger is working
+2021-07-15 11:01:12,447 : INFO : root : A trial message if the logger is working
+2021-07-15 11:18:15,488 : INFO : root : A trial message if the logger is working
+2021-07-15 11:49:01,853 : INFO : root : A trial message if the logger is working
+2021-07-15 11:54:00,281 : INFO : root : A trial message if the logger is working
+2021-07-15 11:56:44,408 : INFO : root : A trial message if the logger is working
+2021-07-15 11:56:55,874 : INFO : root : A trial message if the logger is working
+2021-07-15 11:57:15,895 : INFO : root : A trial message if the logger is working
+2021-07-15 11:57:39,478 : INFO : root : A trial message if the logger is working
+2021-07-15 11:57:55,734 : INFO : root : A trial message if the logger is working
+2021-07-15 11:58:08,657 : INFO : root : A trial message if the logger is working
+2021-07-15 12:00:51,614 : INFO : root : A trial message if the logger is working
+2021-07-15 12:02:59,366 : INFO : root : A trial message if the logger is working
+2021-07-15 12:04:14,017 : INFO : root : A trial message if the logger is working
+2021-07-15 12:05:05,246 : INFO : root : A trial message if the logger is working
+2021-07-15 12:12:41,141 : INFO : root : A trial message if the logger is working
+2021-07-15 12:13:00,779 : INFO : root : A trial message if the logger is working
+2021-07-15 12:14:55,269 : INFO : root : A trial message if the logger is working
+2021-07-15 12:15:35,469 : INFO : root : A trial message if the logger is working
+2021-07-15 12:16:05,895 : INFO : root : A trial message if the logger is working
+2021-07-15 12:16:28,454 : INFO : root : A trial message if the logger is working
+2021-07-15 12:16:42,027 : INFO : root : A trial message if the logger is working
+2021-07-15 12:17:15,284 : INFO : root : A trial message if the logger is working
+2021-07-15 12:17:27,024 : INFO : root : A trial message if the logger is working
+2021-07-15 12:17:49,866 : INFO : root : A trial message if the logger is working
+2021-07-15 12:18:18,145 : INFO : root : A trial message if the logger is working
+2021-07-15 12:19:30,870 : INFO : root : A trial message if the logger is working
+2021-07-15 12:19:42,766 : INFO : root : A trial message if the logger is working
+2021-07-15 12:21:12,093 : INFO : root : A trial message if the logger is working
+2021-07-15 12:21:37,463 : INFO : root : A trial message if the logger is working
+2021-07-15 12:22:13,647 : INFO : root : A trial message if the logger is working
+2021-07-15 12:25:37,840 : INFO : root : A trial message if the logger is working
+2021-07-15 12:25:53,887 : INFO : root : A trial message if the logger is working
+2021-07-15 12:26:35,261 : INFO : root : A trial message if the logger is working
+2021-07-15 12:28:00,652 : INFO : root : A trial message if the logger is working
+2021-07-15 12:29:01,826 : INFO : root : A trial message if the logger is working
+2021-07-15 12:30:40,828 : INFO : root : A trial message if the logger is working
+2021-07-15 12:33:05,451 : INFO : root : A trial message if the logger is working
+2021-07-15 12:33:33,537 : INFO : root : A trial message if the logger is working
+2021-07-15 12:34:42,494 : INFO : root : A trial message if the logger is working
+2021-07-15 12:36:04,174 : INFO : root : A trial message if the logger is working
+2021-07-15 12:37:11,948 : INFO : root : A trial message if the logger is working
+2021-07-15 12:37:43,412 : INFO : root : A trial message if the logger is working
+2021-07-15 12:38:02,769 : INFO : root : A trial message if the logger is working
+2021-07-15 12:38:16,295 : INFO : root : A trial message if the logger is working
+2021-07-15 14:08:56,066 : INFO : root : A trial message if the logger is working
+2021-07-15 14:10:33,029 : INFO : root : A trial message if the logger is working
+2021-07-15 14:12:54,012 : INFO : root : A trial message if the logger is working
+2021-07-15 14:13:43,944 : INFO : root : A trial message if the logger is working
+2021-07-15 14:16:33,093 : INFO : root : A trial message if the logger is working
+2021-07-15 14:18:05,691 : INFO : root : A trial message if the logger is working
+2021-07-15 14:27:48,791 : INFO : root : A trial message if the logger is working
+2021-07-15 14:28:44,849 : INFO : root : A trial message if the logger is working
+2021-07-15 14:29:14,100 : INFO : root : A trial message if the logger is working
+2021-07-15 14:30:25,677 : INFO : root : A trial message if the logger is working
+2021-07-15 14:31:20,856 : INFO : root : A trial message if the logger is working
+2021-07-15 14:31:48,018 : INFO : root : A trial message if the logger is working
+2021-07-15 14:32:32,068 : INFO : root : A trial message if the logger is working
+2021-07-15 14:33:47,131 : INFO : root : A trial message if the logger is working
+2021-07-15 14:34:06,940 : INFO : root : A trial message if the logger is working
+2021-07-15 14:43:14,524 : INFO : root : A trial message if the logger is working
+2021-07-15 14:45:47,581 : INFO : root : A trial message if the logger is working
+2021-07-15 14:48:23,222 : INFO : root : A trial message if the logger is working
+2021-07-15 14:52:17,927 : INFO : root : A trial message if the logger is working
+2021-07-15 14:55:36,577 : INFO : root : A trial message if the logger is working
+2021-07-15 14:56:15,121 : INFO : root : A trial message if the logger is working
+2021-07-15 14:57:59,475 : INFO : root : A trial message if the logger is working
+2021-07-15 15:04:41,334 : INFO : root : A trial message if the logger is working
+2021-07-15 15:05:05,949 : INFO : root : A trial message if the logger is working
+2021-07-15 15:11:40,697 : INFO : root : A trial message if the logger is working
+2021-07-15 15:13:08,219 : INFO : root : A trial message if the logger is working
+2021-07-15 15:13:35,100 : INFO : root : A trial message if the logger is working
+2021-07-15 16:03:44,775 : INFO : root : A trial message if the logger is working
+2021-07-15 16:08:57,525 : INFO : root : A trial message if the logger is working
+2021-07-15 16:13:22,257 : INFO : root : A trial message if the logger is working
+2021-07-15 16:14:07,296 : INFO : root : A trial message if the logger is working
+2021-07-15 16:15:35,210 : INFO : root : A trial message if the logger is working
+2021-07-15 16:15:57,778 : INFO : root : A trial message if the logger is working
+2021-07-15 16:22:29,380 : INFO : root : A trial message if the logger is working
+2021-07-15 16:22:51,590 : INFO : root : A trial message if the logger is working
+2021-07-15 16:26:28,028 : INFO : root : A trial message if the logger is working
+2021-07-15 16:26:58,685 : INFO : root : A trial message if the logger is working
+2021-07-15 16:27:31,228 : INFO : root : A trial message if the logger is working
+2021-07-15 16:28:00,829 : INFO : root : A trial message if the logger is working
+2021-07-15 16:28:18,306 : INFO : root : A trial message if the logger is working
+2021-07-15 16:28:51,061 : INFO : root : A trial message if the logger is working
+2021-07-15 16:30:37,583 : INFO : root : A trial message if the logger is working
+2021-07-15 16:31:33,831 : INFO : root : A trial message if the logger is working
+2021-07-15 16:35:17,544 : INFO : root : A trial message if the logger is working
+2021-07-15 16:35:55,248 : INFO : root : A trial message if the logger is working
+2021-07-15 16:36:58,583 : INFO : root : A trial message if the logger is working
+2021-07-15 16:37:26,679 : INFO : root : A trial message if the logger is working
+2021-07-15 16:38:13,919 : INFO : root : A trial message if the logger is working
+2021-07-15 16:38:46,491 : INFO : root : A trial message if the logger is working
+2021-07-15 16:40:56,500 : INFO : root : A trial message if the logger is working
+2021-07-15 16:44:30,235 : INFO : root : A trial message if the logger is working
+2021-07-15 16:44:53,457 : INFO : root : A trial message if the logger is working
+2021-07-15 16:50:19,212 : INFO : root : A trial message if the logger is working
+2021-07-15 16:50:59,568 : INFO : root : A trial message if the logger is working
+2021-07-15 17:10:22,737 : INFO : root : A trial message if the logger is working
+2021-07-15 17:11:15,852 : INFO : root : A trial message if the logger is working
+2021-07-15 17:11:59,224 : INFO : root : A trial message if the logger is working
+2021-07-15 17:12:23,487 : INFO : root : A trial message if the logger is working
+2021-07-15 17:12:59,137 : INFO : root : A trial message if the logger is working
+2021-07-15 17:17:35,661 : INFO : root : A trial message if the logger is working
+2021-07-15 17:18:38,130 : INFO : root : A trial message if the logger is working
+2021-07-15 17:18:41,201 : WARNING : root : C:\Users\user\etools_pqt\etools_qt\lib\site-packages\qt_material\themes\light_blue.xmlQPushButton {
+  color: white;
+  text-transform: none;
+  background-color: #232629;
+  border-radius : 15px;
+}
+
+.big_button {
+  height: 100px;
+}
+
+.big_colored_button{
+  height: 200px;
+  font-family: 'Roboto';
+  opacity: 200;
+  border: 1px solid #232629;
+  border-radius : 25px;
+
+}
+
+
+
+QTabWidget::tab-bar {
+  alignment: left;
+}
+
+ not exist!
+2021-07-15 17:19:37,507 : INFO : root : A trial message if the logger is working
+2021-07-15 17:19:55,584 : INFO : root : A trial message if the logger is working
+2021-07-15 17:20:39,338 : INFO : root : A trial message if the logger is working
+2021-07-15 17:21:03,639 : INFO : root : A trial message if the logger is working
+2021-07-15 17:22:56,743 : INFO : root : A trial message if the logger is working
+2021-07-15 17:23:26,499 : INFO : root : A trial message if the logger is working
+2021-07-15 17:25:27,670 : INFO : root : A trial message if the logger is working
+2021-07-15 17:25:32,114 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:25:32,115 : INFO : root : not all configuration files set:
+2021-07-15 17:25:32,115 : INFO : root : not all configuration files set:
+2021-07-15 17:25:32,116 : INFO : root : not all configuration files set:
+2021-07-15 17:25:51,262 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:25:51,262 : INFO : root : not all configuration files set:
+2021-07-15 17:25:51,263 : INFO : root : not all configuration files set:
+2021-07-15 17:25:51,263 : INFO : root : not all configuration files set:
+2021-07-15 17:26:06,593 : INFO : root : Series IV will be executed
+2021-07-15 17:26:20,953 : INFO : root : Series IV will be executed
+2021-07-15 17:30:27,009 : INFO : root : A trial message if the logger is working
+2021-07-15 17:30:32,268 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:30:32,269 : INFO : root : not all configuration files set:
+2021-07-15 17:30:32,269 : INFO : root : not all configuration files set:
+2021-07-15 17:30:32,269 : INFO : root : not all configuration files set:
+2021-07-15 17:31:21,373 : INFO : root : A trial message if the logger is working
+2021-07-15 17:31:26,749 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:31:26,750 : INFO : root : not all configuration files set:
+2021-07-15 17:31:26,750 : INFO : root : not all configuration files set:
+2021-07-15 17:31:26,750 : INFO : root : not all configuration files set:
+2021-07-15 17:32:01,703 : INFO : root : A trial message if the logger is working
+2021-07-15 17:32:10,072 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:32:10,073 : INFO : root : not all configuration files set:
+2021-07-15 17:32:10,073 : INFO : root : not all configuration files set:
+2021-07-15 17:32:10,073 : INFO : root : not all configuration files set:
+2021-07-15 17:32:55,102 : INFO : root : A trial message if the logger is working
+2021-07-15 17:33:42,858 : INFO : root : A trial message if the logger is working
+2021-07-15 17:33:49,326 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:33:49,326 : INFO : root : not all configuration files set:
+2021-07-15 17:33:49,327 : INFO : root : not all configuration files set:
+2021-07-15 17:33:49,327 : INFO : root : not all configuration files set:
+2021-07-15 17:35:11,812 : INFO : root : A trial message if the logger is working
+2021-07-15 17:35:39,469 : INFO : root : A trial message if the logger is working
+2021-07-15 17:35:50,402 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:35:50,402 : INFO : root : not all configuration files set:
+2021-07-15 17:35:50,402 : INFO : root : not all configuration files set:
+2021-07-15 17:35:50,403 : INFO : root : not all configuration files set:
+2021-07-15 17:36:05,036 : INFO : root : A trial message if the logger is working
+2021-07-15 17:36:13,493 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:36:13,493 : INFO : root : not all configuration files set:
+2021-07-15 17:36:13,493 : INFO : root : not all configuration files set:
+2021-07-15 17:36:13,493 : INFO : root : not all configuration files set:
+2021-07-15 17:36:40,528 : INFO : root : A trial message if the logger is working
+2021-07-15 17:36:52,067 : INFO : root : Configuration Files setted up:....
+2021-07-15 17:36:52,067 : INFO : root : not all configuration files set:
+2021-07-15 17:36:52,068 : INFO : root : not all configuration files set:
+2021-07-15 17:36:52,068 : INFO : root : not all configuration files set:
+2021-07-15 17:39:31,368 : INFO : root : Series IV will be executed
+2021-07-15 17:42:39,163 : INFO : root : Protocol Test Pulse will be executed
+2021-07-15 17:42:43,371 : INFO : root : Series IV-120 will be executed
+2021-07-15 17:42:46,341 : INFO : root : Series IV-40 will be executed
+2021-07-16 14:33:40,253 : INFO : root : A trial message if the logger is working
+2021-07-16 14:39:56,658 : INFO : root : A trial message if the logger is working
+2021-07-16 14:47:56,447 : INFO : root : A trial message if the logger is working
+2021-07-16 14:59:45,758 : INFO : root : A trial message if the logger is working
+2021-07-16 15:01:10,400 : INFO : root : A trial message if the logger is working
+2021-07-16 15:01:52,947 : INFO : root : A trial message if the logger is working
+2021-07-16 15:02:54,199 : INFO : root : A trial message if the logger is working
+2021-07-16 15:03:31,258 : INFO : root : A trial message if the logger is working
+2021-07-16 15:06:24,766 : INFO : root : A trial message if the logger is working
+2021-07-16 15:15:20,368 : INFO : root : A trial message if the logger is working
+2021-07-16 15:15:53,589 : INFO : root : A trial message if the logger is working
+2021-07-16 15:16:15,558 : INFO : root : A trial message if the logger is working
+2021-07-16 15:30:50,464 : INFO : root : A trial message if the logger is working
+2021-07-16 15:31:41,288 : INFO : root : A trial message if the logger is working
+2021-07-16 15:33:28,914 : INFO : root : A trial message if the logger is working
+2021-07-16 15:34:42,748 : INFO : root : A trial message if the logger is working
+2021-07-16 15:35:53,026 : INFO : root : A trial message if the logger is working
+2021-07-16 15:37:03,211 : INFO : root : A trial message if the logger is working
+2021-07-16 15:37:57,777 : INFO : root : A trial message if the logger is working
+2021-07-16 15:39:52,639 : INFO : root : A trial message if the logger is working
+2021-07-16 15:43:05,759 : INFO : root : A trial message if the logger is working
+2021-07-16 15:46:49,526 : INFO : root : A trial message if the logger is working
+2021-07-16 15:47:13,383 : INFO : root : A trial message if the logger is working
+2021-07-16 15:48:36,786 : INFO : root : A trial message if the logger is working
+2021-07-16 15:50:16,345 : INFO : root : A trial message if the logger is working
+2021-07-16 15:53:01,161 : INFO : root : A trial message if the logger is working
+2021-07-16 15:54:39,816 : INFO : root : Configuration Files setted up:....
+2021-07-16 15:54:39,816 : INFO : root : not all configuration files set:
+2021-07-16 15:54:39,817 : INFO : root : not all configuration files set:
+2021-07-16 15:54:39,817 : INFO : root : not all configuration files set:
+2021-07-16 15:56:20,069 : INFO : root : A trial message if the logger is working
+2021-07-16 15:56:49,233 : INFO : root : Configuration Files setted up:....
+2021-07-16 15:56:49,233 : INFO : root : not all configuration files set:
+2021-07-16 15:56:49,233 : INFO : root : not all configuration files set:
+2021-07-16 15:56:49,234 : INFO : root : not all configuration files set:
+2021-07-16 15:57:08,617 : INFO : root : Series IV will be executed
+2021-07-16 15:58:20,658 : INFO : root : Series IV will be executed
+2021-07-16 16:01:27,496 : INFO : root : A trial message if the logger is working
+2021-07-16 16:01:34,321 : INFO : root : Configuration Files setted up:....
+2021-07-16 16:01:34,321 : INFO : root : not all configuration files set:
+2021-07-16 16:01:34,321 : INFO : root : not all configuration files set:
+2021-07-16 16:01:34,321 : INFO : root : not all configuration files set:
+2021-07-16 16:04:40,029 : INFO : root : A trial message if the logger is working
+2021-07-16 16:04:46,043 : INFO : root : Configuration Files setted up:....
+2021-07-16 16:04:46,043 : INFO : root : not all configuration files set:
+2021-07-16 16:04:46,043 : INFO : root : not all configuration files set:
+2021-07-16 16:04:46,044 : INFO : root : not all configuration files set:
+2021-07-16 16:05:52,711 : INFO : root : A trial message if the logger is working
+2021-07-16 16:06:00,507 : INFO : root : Configuration Files setted up:....
+2021-07-16 16:06:00,507 : INFO : root : not all configuration files set:
+2021-07-16 16:06:00,507 : INFO : root : not all configuration files set:
+2021-07-16 16:06:00,508 : INFO : root : not all configuration files set:
+2021-07-16 16:06:48,349 : INFO : root : A trial message if the logger is working
+2021-07-16 16:06:53,752 : INFO : root : Configuration Files setted up:....
+2021-07-16 16:06:53,752 : INFO : root : not all configuration files set:
+2021-07-16 16:06:53,753 : INFO : root : not all configuration files set:
+2021-07-16 16:06:53,753 : INFO : root : not all configuration files set:
+2021-07-16 16:15:00,302 : INFO : root : Configuration Files setted up:....
+2021-07-16 16:15:00,303 : INFO : root : not all configuration files set:
+2021-07-16 16:15:00,303 : INFO : root : not all configuration files set:
+2021-07-16 16:15:00,303 : INFO : root : not all configuration files set:
+2021-07-16 16:15:08,925 : INFO : root : Series IV will be executed
+2021-07-16 17:00:54,187 : INFO : root : A trial message if the logger is working
+2021-07-16 17:01:26,590 : INFO : root : A trial message if the logger is working
+2021-07-16 17:02:16,599 : INFO : root : A trial message if the logger is working
+2021-07-16 17:02:34,329 : INFO : root : A trial message if the logger is working
+2021-07-16 17:02:46,313 : INFO : root : A trial message if the logger is working
+2021-07-16 17:03:53,175 : INFO : root : A trial message if the logger is working
+2021-07-16 17:03:53,368 : DEBUG : root : A debug message
+2021-07-16 17:12:10,003 : INFO : root : A trial message if the logger is working
+2021-07-16 17:12:10,222 : DEBUG : root : A debug message
+2021-07-16 17:14:13,868 : INFO : root : A trial message if the logger is working
+2021-07-16 17:14:14,057 : DEBUG : root : A debug message
+2021-07-16 17:15:01,541 : INFO : root : A trial message if the logger is working
+2021-07-16 17:15:01,732 : DEBUG : root : A debug message
+2021-07-16 17:16:32,760 : INFO : root : A trial message if the logger is working
+2021-07-16 17:16:32,951 : DEBUG : root : A debug message
+2021-07-16 17:16:59,450 : INFO : root : A trial message if the logger is working
+2021-07-16 17:16:59,641 : DEBUG : root : A debug message
+2021-07-16 17:17:47,418 : INFO : root : A trial message if the logger is working
+2021-07-16 17:17:47,645 : DEBUG : root : A debug message
+2021-07-16 17:18:19,275 : INFO : root : A trial message if the logger is working
+2021-07-16 17:18:19,466 : DEBUG : root : A debug message
+2021-07-16 17:18:29,753 : INFO : root : Configuration Files setted up:....
+2021-07-16 17:18:29,754 : INFO : root : not all configuration files set:
+2021-07-16 17:18:29,754 : INFO : root : not all configuration files set:
+2021-07-16 17:18:29,754 : INFO : root : not all configuration files set:
+2021-07-16 17:18:47,746 : INFO : root : Series IV will be executed
+2021-07-16 17:27:47,882 : INFO : root : A trial message if the logger is working
+2021-07-16 17:27:48,075 : DEBUG : root : A debug message
+2021-07-16 17:28:22,099 : INFO : root : A trial message if the logger is working
+2021-07-16 17:28:22,299 : DEBUG : root : A debug message
+2021-07-16 17:28:41,717 : INFO : root : A trial message if the logger is working
+2021-07-16 17:28:41,912 : DEBUG : root : A debug message
+2021-07-16 17:30:03,805 : INFO : root : A trial message if the logger is working
+2021-07-16 17:30:04,013 : DEBUG : root : A debug message
+2021-07-16 18:03:32,081 : INFO : root : A trial message if the logger is working
+2021-07-16 18:03:32,270 : DEBUG : root : A debug message
+2021-07-16 18:06:34,215 : INFO : root : A trial message if the logger is working
+2021-07-16 18:06:34,410 : DEBUG : root : A debug message
+2021-07-16 18:10:09,467 : INFO : root : A trial message if the logger is working
+2021-07-16 18:10:09,667 : DEBUG : root : A debug message
+2021-07-16 18:12:21,889 : INFO : root : A trial message if the logger is working
+2021-07-16 18:12:22,081 : DEBUG : root : A debug message
+2021-07-16 18:13:20,638 : INFO : root : A trial message if the logger is working
+2021-07-16 18:13:20,828 : DEBUG : root : A debug message
+2021-07-16 18:13:49,516 : INFO : root : A trial message if the logger is working
+2021-07-16 18:13:49,706 : DEBUG : root : A debug message
+2021-07-16 18:14:32,217 : INFO : root : A trial message if the logger is working
+2021-07-16 18:14:32,403 : DEBUG : root : A debug message
+2021-07-16 18:15:02,680 : INFO : root : A trial message if the logger is working
+2021-07-16 18:15:02,873 : DEBUG : root : A debug message
+2021-07-16 18:15:28,399 : INFO : root : A trial message if the logger is working
+2021-07-16 18:15:28,585 : DEBUG : root : A debug message
+2021-07-16 18:21:43,382 : INFO : root : A trial message if the logger is working
+2021-07-16 18:21:43,571 : DEBUG : root : A debug message
+2021-07-16 18:22:06,281 : INFO : root : A trial message if the logger is working
+2021-07-16 18:22:06,470 : DEBUG : root : A debug message

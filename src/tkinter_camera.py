@@ -1,21 +1,17 @@
 from pypylon import pylon
-import matplotlib.pyplot as plt
-import tkinter as tk
-from online_analysis_elements import *
-from PIL import ImageTk ,Image
-
+from PySide6.QtCore import QThread
 
 class BayerCamera():
 
-    def __init__(self, online_analysis):
+    def __init__(self):
 
         """ establish the connection to the camera"""
         self.camera = None
         self.cancel = None
-        self.online_analysis = online_analysis
+        #self.online_analysis = online_analysis
 
 
-    def init_camera(self,frame):
+    def init_camera(self):
         # initialize the camera
         try:
             self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
@@ -39,8 +35,7 @@ class BayerCamera():
             
 
         else:
-            ex = tk.Label(self.frame, text = "Connection disrupted, try to reconnect...", width = 100, height = 100)
-            ex.grid(column = 3, row = 2)
+            return None
 
         self.grabResult.Release()
 
@@ -54,9 +49,3 @@ class BayerCamera():
         self.online_analysis.image_labbook = self.img
         #plt.savefig(bm.set_batch_path())
 
-
-    def cancel_job(self, canvas):
-        if self.cancel:
-            canvas.after_cancel(self.cancel)
-        else:
-            print("Please connect to the camera")
