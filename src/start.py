@@ -10,6 +10,7 @@ from functools import partial
 import logging
 from qt_material import QtStyleTools
 from self_configuration import *
+from offline_analysis_widget import Offline_Analysis
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self):
@@ -33,7 +34,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         #make button
         buttons = (self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics)
         for i, button in enumerate(buttons):
-            button.setProperty('class', 'big_button')
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
         
@@ -123,6 +123,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.setting_appearance()
 
         
+        self.ui.offline_analysis.clicked.connect(self.init_offline_analysis)
+
+    def init_offline_analysis(self):
+        self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
+        #self.offline_analizer.setupUi(self)
+
+
 
 
 if __name__ == "__main__":

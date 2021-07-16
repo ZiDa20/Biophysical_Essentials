@@ -722,9 +722,9 @@ class Ui_Config_Widget(object):
 
         self.retranslateUi(Config_Widget)
 
-        self.Notebook_2.setCurrentIndex(1)
-        self.meta_data_loading_1.setCurrentIndex(1)
-        self.stackedWidget.setCurrentIndex(0)
+        #self.Notebook_2.setCurrentIndex(1)
+        #self.meta_data_loading_1.setCurrentIndex(1)
+        #self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Config_Widget)
