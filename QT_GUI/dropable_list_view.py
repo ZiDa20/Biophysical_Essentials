@@ -10,7 +10,6 @@ class ListView(QListView):
         super().__init__(*args, **kwargs)
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
-        #self.setDragDropMode()
         self.setModel(QStandardItemModel(0, 1))
 
     def dragEnterEvent(self, event):
