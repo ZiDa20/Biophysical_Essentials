@@ -3,10 +3,10 @@ import tkinter as tk
 import raw_analysis as ra
 from tkinter import filedialog
 import os
-import heka_reader
 from online_analysis_manager import *
-
+import time
 import data_db
+from treeview_manager import *
 
 
 class OfflineManager():
@@ -14,6 +14,8 @@ class OfflineManager():
     def __init__(self):
         self.meta_path = None
         self.dat_files = None
+
+        self._directory_path = None
 
         # nodelist for the treeview
         self.directory_content_list = [['','','']]
@@ -27,7 +29,26 @@ class OfflineManager():
         # database object
         self.database = data_db.DataDB()
 
+        self.tree_view_manager = None
 
+
+    @property
+    def directory_path(self):
+        return self._directory_path
+
+    @directory_path.setter
+    def directory_path(self,val):
+        self._directory_path = val
+
+
+    def get_database(self):
+        return self.database
+
+    def read_data_from_experiment_directory(self,tree,discarded_tree):
+        data_list = self.package_list(self._directory_path)
+        self.tree_view_manager = TreeViewManager(self.database)
+        tree,discarded_tree = self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, self.database, data_list, self._directory_path)
+        return tree, discarded_tree
 
     # Database functions
     def init_database(self):

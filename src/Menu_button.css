@@ -9,18 +9,11 @@ QPushButton {{
   height: 100px;
 }}
 
-.big_colored_button{{
-  height: 200px;
-  font-family: 'Roboto';
-  opacity: 200;
-  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};
-  border-radius : 25px;
-
-}}
 
 
 QTabWidget::tab-bar {{
-  alignment: left;
+  alignment: center;
   color: green;
+  padding-left: 30px
 }}
 

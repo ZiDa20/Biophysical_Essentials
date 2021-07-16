@@ -14,6 +14,7 @@ from PySide6.QtWidgets import *  # type: ignore
 
 from self_configuration import Config_Widget
 from online_analysis_widget import Online_Analysis
+from offline_analysis_widget import Offline_Analysis
 
 import Figures_rc
 
@@ -147,6 +148,10 @@ class Ui_MainWindow(object):
 "\n"
 "}")
         self.label = QLabel(self.side_left_menu)
+        self.offline = Offline_Analysis()
+        self.offline.setObjectName(u"offline")
+        self.notebook.addWidget(self.offline)
+        self.label = QLabel(self.centralwidget)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(130, 10, 121, 111))
         self.label.setPixmap(QPixmap(u"../../../.designer/Logo/New_LOGO_2.png"))

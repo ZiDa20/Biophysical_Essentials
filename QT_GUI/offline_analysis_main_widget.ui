@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Offline_Analysis</class>
+ <widget class="QWidget" name="Offline_Analysis">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>961</width>
+    <height>651</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QTabWidget" name="Offline_Analysis_Notebook">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>931</width>
+     <height>621</height>
+    </rect>
+   </property>
+   <property name="tabShape">
+    <enum>QTabWidget::Rounded</enum>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="Start_Analysis">
+    <attribute name="title">
+     <string>Start Analysis</string>
+    </attribute>
+    <widget class="QStackedWidget" name="offline_analysis_widgets">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>931</width>
+       <height>590</height>
+      </rect>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="start_page">
+      <widget class="QPushButton" name="new_analysis_with_template">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>260</y>
+         <width>181</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>New Analysis using 
+ previous analysis as template</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="view_analysis_from_db">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>330</y>
+         <width>181</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Analysis From Database</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="start_label">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>100</y>
+         <width>251</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Select your Analysis</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="blank_analysis_button">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>190</y>
+         <width>181</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>New Blank Analysis</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="user_feedback_label">
+       <property name="geometry">
+        <rect>
+         <x>440</x>
+         <y>190</y>
+         <width>321</width>
+         <height>201</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Further Information about your selected analysis</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="blank_analysis">
+      <widget class="QPushButton" name="compare_series">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>530</y>
+         <width>811</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select Series To Be Analyzed</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="widget_sepcific_label">
+       <property name="geometry">
+        <rect>
+         <x>310</x>
+         <y>40</y>
+         <width>361</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Configure your Analysis</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="select_directory_button">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>90</y>
+         <width>93</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select Directory</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="selected_directory">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>90</y>
+         <width>131</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+      <widget class="QTreeWidget" name="experiments_tree_view">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>130</y>
+         <width>271</width>
+         <height>261</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Objects</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="QTreeWidget" name="outfiltered_tree_view">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>400</y>
+         <width>271</width>
+         <height>111</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string notr="true">Objects</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Reinsert</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>390</x>
+         <y>130</y>
+         <width>471</width>
+         <height>381</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout"/>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="visualization">
+    <attribute name="title">
+     <string>Visualization</string>
+    </attribute>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
