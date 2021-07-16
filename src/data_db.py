@@ -103,7 +103,8 @@ class DataDB():
         sql_create_experiment_series_table = """ CREATE TABLE IF NOT EXISTS experiment_series(
                                              experiment_name references experiments,
                                              series_name,
-                                             series_identifier
+                                             series_identifier,
+                                             discarded
                                              ); """
 
         self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
@@ -114,6 +115,7 @@ class DataDB():
         self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
         self.database = self.execute_sql_command(self.database, sql_create_results_table)
         self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
+
     # @todo refactor to write to database
     def execute_sql_command(self,database,sql_command,values = None):
         try:
@@ -407,8 +409,8 @@ class DataDB():
                                                  (experiment_name, series_identifier, sweep_number, np_meta_data, np_data_array))
 
     def add_single_series_to_database(self,experiment_name,series_name,series_identifier):
-        q = """insert into experiment_series values (?,?,?)"""
-        self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier))
+        q = """insert into experiment_series values (?,?,?,?)"""
+        self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier,0))
 
     def get_single_sweep_data_from_database(self,data_array):
         experiment_name = data_array[0]
@@ -416,6 +418,16 @@ class DataDB():
         sweep_number = data_array[2]
         q = """SELECT data_array FROM sweeps WHERE experiment_name = (?)  AND series_identifier=(?) AND sweep_number=(?) """
         res =  self.get_data_from_database(self.database, q, (experiment_name,series_identifier,sweep_number))
-        print(res[0][0])
+        #print(res[0][0])
         return res[0][0]
 
+    def discard_specific_series(self, experiment_name, series_name, series_identifier):
+        """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
+        self.change_experiment_series_discarded_state(experiment_name, series_name, series_identifier, 1)
+
+    def reinsert_specific_series(self,experiment_name,series_name,series_identifier):
+        self.change_experiment_series_discarded_state(experiment_name, series_name, series_identifier, 0)
+
+    def change_experiment_series_discarded_state(self,experiment_name,series_name,series_identifier,state):
+        q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_name = (?) AND series_identifier = (?);"""
+        res = self.execute_sql_command(self.database, q, (state, experiment_name, series_name, series_identifier))
