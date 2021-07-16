@@ -1,11 +1,9 @@
 from tkinter import filedialog
 from shutil import copyfile
+
 import heka_reader
 import tkinter.ttk as ttk
-import re
 import numpy as np
-
-
 
 class OnlineAnalysisManager:
     def __init__(self):
@@ -73,7 +71,6 @@ class OnlineAnalysisManager:
             self.path_elements = self.selected_file.split("/")
             self._dat_file_name = self.path_elements[len(self.path_elements) - 1]
             self.bundle = heka_reader.Bundle(self.selected_file)
-
 
             '''node list is a triple of data: node type, node name, node item object e.g. ['Group1','E4',item object .. ]'''
             node_list = self.update_data_structure([],self.bundle,self.tree, node_list)
@@ -224,6 +221,8 @@ class OnlineAnalysisManager:
             else:
                     return stack[s_index] + "_" + self.series +"_" +stack[len(stack) - 2]
 
+
+
     def update_data_structure(self, index, bundle, dat_file_structure, node_list):
         root = bundle.pul
         node = root
@@ -311,6 +310,64 @@ class OnlineAnalysisManager:
         # print(node_list)  # print out the new pgf node list
         return node_list
 
+    def update_pgf_structure(self, index, bundle, dat_file_structure, node_list):
+        """Recursively read tree information from the bundle's embedded .pul file
+        """
+        # ToDO --> implement the pgf so that the metadata of the pgf can be returned for each Series !!
+        root = bundle.pgf  ### here return to pul if you want everything to work again as before
+        node = root
+        # print("Node content:")
+        for i in index:
+            node = node[i]
+            # print(node)
+        node_type = node.__class__.__name__
+        # print("Node type:")
+        # print(node_type)
+        if node_type.endswith('PGF'):
+            node_type = node_type[:-3]
+        if node_list:
+            previous_node_type = node_list[len(node_list) - 1][0]
+            if ("StimChannel" in previous_node_type) & ("Stimulation" in node_type):
+                self.stim_channel_count = 0
+            if ("Channel" in previous_node_type) & ("Stimulation" in node_type):
+                self.channel_count = 0
+        try:
+            node_type += str(getattr(node, node_type + 'Count'))  # is not provided in the pgf structure
+        except AttributeError:
+            if node_type == "Stimulation":
+                self.stimulation_count = self.stimulation_count + 1
+                node_type = "Stimulation" + str(self.stimulation_count)
+            if node_type == "Channel":
+                self.channel_count = self.channel_count + 1
+                node_type = "Channel" + str(self.channel_count)
+            if node_type == "StimChannel":
+                self.stim_channel_count = self.stim_channel_count + 1
+                node_type = "StimChannel" + str(self.stim_channel_count)
+            pass
+        try:
+            node_label = node.EntryName
+            # print(node_label)
+        except AttributeError:
+            node_label = ''
+        # print("Notated node type:")
+        # print(node_type)
+        metadata = []
+        # for  i in range(len(node.children)):
+        try:
+            metadata.append(node)
+        except Exception as e:
+            metadata.append(node)
+        # print(node_type)
+        # print(node_label)
+        # print(metadata)
+        node_list.append([node_type, node_label, metadata])
+        # print("children")
+        # print(len(node.children))
+        for i in range(len(node.children)):
+            # print("entered children " + str(i))
+            self.update_pgf_structure(index + [i], bundle, dat_file_structure, node_list)
+        # print(node_list)  # print out the new pgf node list
+        return node_list
 
     def get_pgf_voltage(self,node_info):
         elems = node_info.split("_")

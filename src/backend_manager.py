@@ -1,9 +1,13 @@
-from tkinter import filedialog
 from shutil import copyfile
 import heka_reader
-import tkinter.ttk as ttk
 import re
 import numpy as np
+import os.path
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+import pandas as pd
+from time import sleep
 
 
 class BackendManager:
@@ -33,7 +37,7 @@ class BackendManager:
         self._control_path = self.select_path()
 
     def select_path(self):
-        selected_path = filedialog.askdirectory()
+        selected_path = QFileDialog.getExistingDirectory()
         return selected_path
 
     @property
@@ -95,16 +99,55 @@ class BackendManager:
         except FileNotFoundError:
             return('There was no .OUT file found. Is the communication active ?')
 
+    def get_query_status(self):
+        """Get the query status of the File"""
+        sleep(1)
+        try:
+            with open(self.batch_path + '/E9Batch.OUT', "r") as file_object:
+                query_status = file_object.readlines()[1]
+                file_object.close()
+                return query_status
+        except Exception as e:
+            print(e)
+
+
+    def get_epc_param(self):
+        """Get the query status of the File"""
+        sleep(1)
+        try:
+            with open(self.batch_path + '/E9Batch.OUT', "r") as file_object:
+                epc_param = file_object.readlines()[1]
+                epc_param = epc_param.split(" ")[1]
+                file_object.close()
+                return epc_param
+        except Exception as e:
+            print(e)
+
+
+    def get_parameters(self):
+        """get Parameters"""
+        sleep(0.5)
+        response = self.get_query_status()
+        response = response.split(" ")[1:]
+        return response
+
+
+    def return_dataframe_from_notebook(self):
+        """Get the DataFrame from the notebook analysis"""
+        data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', skiprows = 2, header = None)
+        #data_frame_notebook = data_frame_notebook.iloc[:,4:]
+        return data_frame_notebook
+        
+        
     def create_ascii_file_from_template(self):
         # create a new e9Patch file
         if not self.batch_path:
             return False
         else:
             try:
-                self.batch_file = open(self.batch_path+'/E9Batch.In', "x")
+                self.batch_file = open(self.batch_path+'/E9Batch.In', "w")
                 self.batch_file.write("+1\n")
                 self.batch_file.write("GetTime \n")
-                self.batch_file.write("ExecuteProtocol TestPulse")
                 self.batch_file.close()
                 self.update_control_file_content()
                 #copyfile(self.batch_path + '/E9Batch.In', self.batch_path + '/E9BatchIn.txt')
@@ -131,8 +174,7 @@ class BackendManager:
             print(type(input_string))
         else:
             print("strange string\n")
-            print(input_string)
-
+            
         try:
                 self.c_f= open(self.batch_path + '/E9Batch.In', "r+")
                 self.old_commands = self.c_f.read()
@@ -150,5 +192,7 @@ class BackendManager:
         self.response_file_content = open(self.batch_path + '/E9BatchOut.txt', "r")
 
 
+    def check_input_file_existence(self):
+        return os.path.exists(self.batch_path + '/E9Batch.In')
 
 
