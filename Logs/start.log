@@ -1898,3 +1898,5 @@ QTabWidget::tab-bar {
 2021-07-16 17:28:41,912 : DEBUG : root : A debug message
 2021-07-16 17:30:03,805 : INFO : root : A trial message if the logger is working
 2021-07-16 17:30:04,013 : DEBUG : root : A debug message
+2021-07-16 18:03:32,081 : INFO : root : A trial message if the logger is working
+2021-07-16 18:03:32,270 : DEBUG : root : A debug message
