@@ -11,6 +11,7 @@ from offline_analysis_widget import Ui_Offline_Analysis
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 from PySide6 import QtWidgets
+from offline_analysis_widget import Offline_Analysis
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -26,10 +27,10 @@ class MainWindow(QMainWindow):
 
         self.ui.offline_analysis.clicked.connect(self.init_offline_analysis)
 
-
     def init_offline_analysis(self):
-        self.offline_analizer = Ui_Offline_Analysis()
-        self.offline_analizer.setupUi(self)
+        self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
+        #self.offline_analizer.setupUi(self)
+
 
 
 

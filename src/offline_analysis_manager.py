@@ -31,6 +31,7 @@ class OfflineManager():
 
         self.tree_view_manager = None
 
+
     @property
     def directory_path(self):
         return self._directory_path
@@ -45,7 +46,7 @@ class OfflineManager():
 
     def read_data_from_experiment_directory(self,tree,discarded_tree):
         data_list = self.package_list(self._directory_path)
-        self.tree_view_manager = TreeViewManager()
+        self.tree_view_manager = TreeViewManager(self.database)
         tree,discarded_tree = self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, self.database, data_list, self._directory_path)
         return tree, discarded_tree
 
