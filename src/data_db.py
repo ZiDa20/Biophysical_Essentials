@@ -81,7 +81,7 @@ class DataDB():
                                                experiment_name references experiments,
                                                series_identifier text,
                                                sweep_number integer,
-                                               meta_data text,
+                                               meta_data array,
                                                pgf_information text,
                                                data_array array
                                            ); """
@@ -211,7 +211,7 @@ class DataDB():
                     values = (experiment_number,series_identifier,sweep_number,meta_data)
 
                     self.database = self.execute_sql_command(self.database,sql_command,values)
-
+    '''
     def get_sweep_meta_data(self,datalist,pos):
         # the list entry after the sweeps positions (pos) holds the data trace
         # since sqlite does not allow array insertion, a string will be generated
@@ -226,6 +226,17 @@ class DataDB():
             data_string = data_string + "(" + key + ","+ value + "),"
 
         return data_string
+    '''
+
+    def get_sweep_meta_data(self,datalist,pos):
+        """ write dictionary to array in database """
+
+        data = datalist[pos + 1][2][0]
+        data = list(data.items())
+
+        return np.array(data)
+
+
 
 
     def get_sweep_parent(self,datalist,pos):
@@ -370,8 +381,6 @@ class DataDB():
 
         return int_array
 
-
-
     def convert_array_to_string(self,data_array):
         output_string = ""
         for d in data_array:
@@ -403,7 +412,11 @@ class DataDB():
 
     def add_single_sweep_tp_database(self,experiment_name,series_identifier,sweep_number,meta_data,data_array):
         np_data_array = np.array(data_array)
-        np_meta_data = np.array(meta_data)
+
+        d = meta_data[0].get_fields()
+        l = list(d.items())
+        np_meta_data = np.array(l)
+
         q = "insert into sweeps (experiment_name, series_identifier, sweep_number,meta_data,data_array) values (?,?,?,?,?)"
         self.database = self.execute_sql_command(self.database, q,
                                                  (experiment_name, series_identifier, sweep_number, np_meta_data, np_data_array))
@@ -412,13 +425,49 @@ class DataDB():
         q = """insert into experiment_series values (?,?,?,?)"""
         self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier,0))
 
+    def get_single_sweep_meta_data_from_database(self,data_array):
+        """
+        returns the meta data array for a specific sweep
+        :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
+        :return: meta data array (numpy array)
+        """
+
+        # since the meta_data object is a a list of list, numpy will save it as object (narray)
+        # therefore, the object is "pickled" into a byte stream and unpickled from byte stream into an object.
+        # loaded pickled data seem to be able  to execute arbitrary code - for safety reasons pickling is therefore
+        # disabled and needs to be enabled for the specific unpickle of meta data byte stream
+        np.load.__defaults__ = (None, True, True, 'ASCII')
+        res = self.get_single_sweep_parameter_from_database(data_array, "meta_data")
+
+        # finally disable pickle again
+        np.load.__defaults__ = (None, False, True, 'ASCII')
+        return res
+
     def get_single_sweep_data_from_database(self,data_array):
+        """
+        returns the data array for a specific sweep
+        :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
+        :return: data array (numpy array)
+        """
+
+        return self.get_single_sweep_parameter_from_database(data_array,"data_array")
+
+    def get_single_sweep_parameter_from_database(self,data_array,parameter):
+        """
+        performs a database request on the sweep table to get the value for the specified parameter
+        :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
+        :param parameter: string represenation of the paramter (==column name)
+        :return: value of the requested parameter
+        """
+
+        # variable declaration not needed - just here to increase code readability
         experiment_name = data_array[0]
         series_identifier = data_array[1]
         sweep_number = data_array[2]
-        q = """SELECT data_array FROM sweeps WHERE experiment_name = (?)  AND series_identifier=(?) AND sweep_number=(?) """
-        res =  self.get_data_from_database(self.database, q, (experiment_name,series_identifier,sweep_number))
-        #print(res[0][0])
+
+        q = f'SELECT {parameter} FROM sweeps WHERE experiment_name = (?)  AND series_identifier=(?) AND sweep_number=(?)'
+        res = self.get_data_from_database(self.database, q, (experiment_name, series_identifier, sweep_number))
+
         return res[0][0]
 
     def discard_specific_series(self, experiment_name, series_name, series_identifier):
@@ -431,3 +480,7 @@ class DataDB():
     def change_experiment_series_discarded_state(self,experiment_name,series_name,series_identifier,state):
         q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_name = (?) AND series_identifier = (?);"""
         res = self.execute_sql_command(self.database, q, (state, experiment_name, series_name, series_identifier))
+
+
+
+
