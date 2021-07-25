@@ -75,6 +75,7 @@ class TreeViewManager():
         #select the last node
         for i in index:
             node = node[i]
+
         node_type = node.__class__.__name__
         if node_type.endswith('Record'):
             node_type = node_type[:-6]
@@ -146,6 +147,7 @@ class TreeViewManager():
 
                 if  self.analysis_mode==0:
                     data.append(series_number - 1)
+                    print(metadata[0])
                 else:
                     data.append(node_type)
 
@@ -179,6 +181,9 @@ class TreeViewManager():
                 if self.analysis_mode == 0:
                     data.append(sweep_number - 1)
                     data.append(0)
+
+                    # write the metadata dictionary to the 5 th column to read it when plotting
+
                 else:
                     data.append(sweep_number)
                     series_identifier = self.get_number_from_string(data[1])
@@ -191,11 +196,17 @@ class TreeViewManager():
                                                               data_array)
 
 
-
-
                 child.setData(3, 0, data)
+                parent = child
             else:
                 print("skipped because no parent")
+
+        if "Trace" in node_type:
+            if self.analysis_mode==0:
+                print("setting following metadata", node)
+                print("to node:", parent.text(0))
+                #print("in series", parent.parent.text(0))
+                parent.setData(5,0,node.get_fields())
 
         node_list.append([node_type, node_label, parent])
 

@@ -72,6 +72,12 @@ class Ui_Online_Analysis(object):
         self.grid_layout_available_functions = QGridLayout(self.gridLayoutWidget)
         self.grid_layout_available_functions.setObjectName(u"grid_layout_available_functions")
         self.grid_layout_available_functions.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayoutWidget_4 = QWidget(self.online_analysis_window)
+        self.verticalLayoutWidget_4.setObjectName(u"verticalLayoutWidget_4")
+        self.verticalLayoutWidget_4.setGeometry(QRect(50, 160, 411, 651))
+        self.verticalLayout_5 = QVBoxLayout(self.verticalLayoutWidget_4)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.online_analysis.addTab(self.online_analysis_window, "")
         self.labbook_window = QWidget()
         self.labbook_window.setObjectName(u"labbook_window")
@@ -165,31 +171,22 @@ class Ui_Online_Analysis(object):
 
         self.verticalLayout_3.addWidget(self.tableWidget)
 
-        self.tree_tab_widget_2 = QTabWidget(self.labbook_window)
-        self.tree_tab_widget_2.setObjectName(u"tree_tab_widget_2")
-        self.tree_tab_widget_2.setGeometry(QRect(10, 50, 411, 651))
-        self.selected_tree_view_2 = QWidget()
-        self.selected_tree_view_2.setObjectName(u"selected_tree_view_2")
-        self.treeWidget_3 = QTreeWidget(self.selected_tree_view_2)
-        self.treeWidget_3.setObjectName(u"treeWidget_3")
-        self.treeWidget_3.setGeometry(QRect(0, 0, 411, 631))
-        self.tree_tab_widget_2.addTab(self.selected_tree_view_2, "")
-        self.discarded_tree_view_2 = QWidget()
-        self.discarded_tree_view_2.setObjectName(u"discarded_tree_view_2")
-        self.treeWidget_4 = QTreeWidget(self.discarded_tree_view_2)
-        self.treeWidget_4.setObjectName(u"treeWidget_4")
-        self.treeWidget_4.setGeometry(QRect(0, 0, 441, 631))
-        self.tree_tab_widget_2.addTab(self.discarded_tree_view_2, "")
+        self.verticalLayoutWidget = QWidget(self.labbook_window)
+        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
+        self.verticalLayoutWidget.setGeometry(QRect(30, 20, 411, 681))
+        self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.online_analysis.addTab(self.labbook_window, "")
 
         self.retranslateUi(Form)
 
         self.online_analysis.setCurrentIndex(0)
         self.tree_tab_widget.setCurrentIndex(0)
-        self.tree_tab_widget_2.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(Form)
-        # setupUi
+    # setupUi
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
@@ -199,39 +196,24 @@ class Ui_Online_Analysis(object):
         ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Remove", None));
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Show", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Object", None));
-        self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.selected_tree_view),
-                                        QCoreApplication.translate("Form", u"Selected", None))
+        self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Form", u"Selected", None))
         ___qtreewidgetitem1 = self.treeWidget_2.headerItem()
         ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Form", u"Reinsert", None));
         ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Form", u"Show", None));
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Form", u"Object", None));
-        self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.discarded_tree_view),
-                                        QCoreApplication.translate("Form", u"Discarded", None))
+        self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.discarded_tree_view), QCoreApplication.translate("Form", u"Discarded", None))
         self.label_selected_directory.setText(QCoreApplication.translate("Form", u"No .dat file selected", None))
         self.button_re_center.setText(QCoreApplication.translate("Form", u"Re-Center", None))
         self.button_hold_plot.setText(QCoreApplication.translate("Form", u"Hold", None))
         self.button_clear_plot_widget.setText(QCoreApplication.translate("Form", u"Clear", None))
         self.button_save_dat_file.setText(QCoreApplication.translate("Form", u"Save Modified .dat File", None))
-        self.button_save_to_offline_analysis.setText(
-            QCoreApplication.translate("Form", u"Add Experiment To Offline Analysis", None))
+        self.button_save_to_offline_analysis.setText(QCoreApplication.translate("Form", u"Add Experiment To Offline Analysis", None))
         self.headline_label.setText(QCoreApplication.translate("Form", u"Online Analysis", None))
-        self.online_analysis.setTabText(self.online_analysis.indexOf(self.online_analysis_window),
-                                        QCoreApplication.translate("Form", u"Online Analysis", None))
+        self.online_analysis.setTabText(self.online_analysis.indexOf(self.online_analysis_window), QCoreApplication.translate("Form", u"Online Analysis", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Image of the Experiment", None))
         self.add_metadata_button.setText(QCoreApplication.translate("Form", u"Add Metadata to Labbook", None))
         self.save_labbook_button.setText(QCoreApplication.translate("Form", u"Save Labbook", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"Labbook of Experiment", None))
-        ___qtreewidgetitem2 = self.treeWidget_3.headerItem()
-        ___qtreewidgetitem2.setText(2, QCoreApplication.translate("Form", u"Remove", None));
-        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("Form", u"Show", None));
-        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("Form", u"Object", None));
-        self.tree_tab_widget_2.setTabText(self.tree_tab_widget_2.indexOf(self.selected_tree_view_2),
-                                          QCoreApplication.translate("Form", u"Selected", None))
-        ___qtreewidgetitem3 = self.treeWidget_4.headerItem()
-        ___qtreewidgetitem3.setText(2, QCoreApplication.translate("Form", u"Reinsert", None));
-        ___qtreewidgetitem3.setText(1, QCoreApplication.translate("Form", u"Show", None));
-        ___qtreewidgetitem3.setText(0, QCoreApplication.translate("Form", u"Object", None));
-        self.tree_tab_widget_2.setTabText(self.tree_tab_widget_2.indexOf(self.discarded_tree_view_2),
-                                          QCoreApplication.translate("Form", u"Discarded", None))
-        self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window),
-                                        QCoreApplication.translate("Form", u"Labbook", None))
+        self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window), QCoreApplication.translate("Form", u"Labbook", None))
+    # retranslateUi
+

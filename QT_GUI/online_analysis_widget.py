@@ -14,8 +14,17 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         self.online_manager = OnlineAnalysisManager()
 
+        self.online_analysis.setCurrentIndex(0)
         self.button_select_data_file.clicked.connect(self.open_single_dat_file)
+        self.online_analysis.currentChanged.connect(self.online_analysis_tab_changed)
 
+    @Slot()
+    def online_analysis_tab_changed(self):
+
+        if self.online_analysis.currentIndex()==0:
+            self.verticalLayout_5.addWidget(self.tree_tab_widget)
+        else:
+            self.verticalLayout.addWidget(self.tree_tab_widget)
 
     def open_single_dat_file(self):
 
@@ -29,6 +38,10 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # create treeview of this .dat file
         bundle= TreeViewManager().open_bundle_of_file(file_name)
+
+        self.treeWidget.clear()
+        self.treeWidget_2.clear()
+
         TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,None)
 
         # @todo set the same widget in the labbook
@@ -38,5 +51,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_plot_manager = PlotWidgetManager(self.horizontallayout_plot_data, self.online_manager,
                                                              self.treeWidget, 0)
 
+        self.verticalLayout_5.addWidget(self.tree_tab_widget)
         self.treeWidget.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
         self.treeWidget_2.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
+

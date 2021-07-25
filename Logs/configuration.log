@@ -3612,3 +3612,134 @@ QTabWidget::tab-bar {
 2021-07-24 18:42:09,831 : INFO : root : A trial message if the logger is working
 2021-07-24 18:42:10,063 : DEBUG : root : A debug message
 2021-07-24 18:42:10,063 : DEBUG : root : A debug message
+2021-07-25 16:36:54,187 : DEBUG : root : A debug message
+2021-07-25 16:36:54,546 : INFO : root : A trial message if the logger is working
+2021-07-25 16:36:54,890 : DEBUG : root : A debug message
+2021-07-25 16:36:54,890 : DEBUG : root : A debug message
+2021-07-25 22:07:27,739 : DEBUG : root : A debug message
+2021-07-25 22:07:28,098 : INFO : root : A trial message if the logger is working
+2021-07-25 22:07:28,317 : DEBUG : root : A debug message
+2021-07-25 22:07:28,317 : DEBUG : root : A debug message
+2021-07-25 22:11:53,796 : DEBUG : root : A debug message
+2021-07-25 22:11:54,080 : INFO : root : A trial message if the logger is working
+2021-07-25 22:11:54,320 : DEBUG : root : A debug message
+2021-07-25 22:11:54,320 : DEBUG : root : A debug message
+2021-07-25 22:12:53,774 : DEBUG : root : A debug message
+2021-07-25 22:12:54,050 : INFO : root : A trial message if the logger is working
+2021-07-25 22:12:54,313 : DEBUG : root : A debug message
+2021-07-25 22:12:54,313 : DEBUG : root : A debug message
+2021-07-25 22:27:38,143 : DEBUG : root : A debug message
+2021-07-25 22:27:38,458 : INFO : root : A trial message if the logger is working
+2021-07-25 22:27:38,676 : DEBUG : root : A debug message
+2021-07-25 22:27:38,676 : DEBUG : root : A debug message
+2021-07-25 22:29:55,276 : DEBUG : root : A debug message
+2021-07-25 22:29:55,606 : INFO : root : A trial message if the logger is working
+2021-07-25 22:29:55,848 : DEBUG : root : A debug message
+2021-07-25 22:29:55,848 : DEBUG : root : A debug message
+2021-07-25 22:31:48,019 : DEBUG : root : A debug message
+2021-07-25 22:31:48,297 : INFO : root : A trial message if the logger is working
+2021-07-25 22:31:48,537 : DEBUG : root : A debug message
+2021-07-25 22:31:48,537 : DEBUG : root : A debug message
+2021-07-25 22:56:50,593 : DEBUG : root : A debug message
+2021-07-25 22:56:50,906 : INFO : root : A trial message if the logger is working
+2021-07-25 22:56:51,136 : DEBUG : root : A debug message
+2021-07-25 22:56:51,136 : DEBUG : root : A debug message
+2021-07-25 22:57:17,557 : DEBUG : root : A debug message
+2021-07-25 22:57:17,827 : INFO : root : A trial message if the logger is working
+2021-07-25 22:57:18,037 : DEBUG : root : A debug message
+2021-07-25 22:57:18,037 : DEBUG : root : A debug message
+2021-07-25 23:01:07,832 : DEBUG : root : A debug message
+2021-07-25 23:01:08,145 : INFO : root : A trial message if the logger is working
+2021-07-25 23:01:08,379 : DEBUG : root : A debug message
+2021-07-25 23:01:08,379 : DEBUG : root : A debug message
+2021-07-26 00:39:55,134 : DEBUG : root : A debug message
+2021-07-26 00:39:55,437 : INFO : root : A trial message if the logger is working
+2021-07-26 00:39:55,676 : DEBUG : root : A debug message
+2021-07-26 00:39:55,676 : DEBUG : root : A debug message
+2021-07-26 00:43:18,786 : DEBUG : root : A debug message
+2021-07-26 00:43:19,114 : INFO : root : A trial message if the logger is working
+2021-07-26 00:43:19,348 : DEBUG : root : A debug message
+2021-07-26 00:43:19,348 : DEBUG : root : A debug message
+2021-07-26 00:45:05,075 : DEBUG : root : A debug message
+2021-07-26 00:45:05,337 : INFO : root : A trial message if the logger is working
+2021-07-26 00:45:05,579 : DEBUG : root : A debug message
+2021-07-26 00:45:05,579 : DEBUG : root : A debug message
+2021-07-26 00:46:09,473 : DEBUG : root : A debug message
+2021-07-26 00:46:09,793 : INFO : root : A trial message if the logger is working
+2021-07-26 00:46:10,033 : DEBUG : root : A debug message
+2021-07-26 00:46:10,033 : DEBUG : root : A debug message
+2021-07-26 00:49:35,378 : DEBUG : root : A debug message
+2021-07-26 00:49:35,676 : INFO : root : A trial message if the logger is working
+2021-07-26 00:49:35,935 : DEBUG : root : A debug message
+2021-07-26 00:49:35,935 : DEBUG : root : A debug message
+2021-07-26 00:51:15,965 : DEBUG : root : A debug message
+2021-07-26 00:51:16,215 : INFO : root : A trial message if the logger is working
+2021-07-26 00:51:16,449 : DEBUG : root : A debug message
+2021-07-26 00:51:16,449 : DEBUG : root : A debug message
+2021-07-26 00:53:18,036 : DEBUG : root : A debug message
+2021-07-26 00:53:18,312 : INFO : root : A trial message if the logger is working
+2021-07-26 00:53:18,550 : DEBUG : root : A debug message
+2021-07-26 00:53:18,550 : DEBUG : root : A debug message
+2021-07-26 00:55:19,849 : DEBUG : root : A debug message
+2021-07-26 00:55:20,091 : INFO : root : A trial message if the logger is working
+2021-07-26 00:55:20,315 : DEBUG : root : A debug message
+2021-07-26 00:55:20,315 : DEBUG : root : A debug message
+2021-07-26 00:56:36,616 : DEBUG : root : A debug message
+2021-07-26 00:56:36,926 : INFO : root : A trial message if the logger is working
+2021-07-26 00:56:37,176 : DEBUG : root : A debug message
+2021-07-26 00:56:37,176 : DEBUG : root : A debug message
+2021-07-26 00:57:22,786 : DEBUG : root : A debug message
+2021-07-26 00:57:23,054 : INFO : root : A trial message if the logger is working
+2021-07-26 00:57:23,281 : DEBUG : root : A debug message
+2021-07-26 00:57:23,281 : DEBUG : root : A debug message
+2021-07-26 00:58:47,478 : DEBUG : root : A debug message
+2021-07-26 00:58:47,780 : INFO : root : A trial message if the logger is working
+2021-07-26 00:58:48,030 : DEBUG : root : A debug message
+2021-07-26 00:58:48,030 : DEBUG : root : A debug message
+2021-07-26 01:01:36,448 : DEBUG : root : A debug message
+2021-07-26 01:01:36,744 : INFO : root : A trial message if the logger is working
+2021-07-26 01:01:37,010 : DEBUG : root : A debug message
+2021-07-26 01:01:37,010 : DEBUG : root : A debug message
+2021-07-26 01:07:48,615 : DEBUG : root : A debug message
+2021-07-26 01:07:48,962 : INFO : root : A trial message if the logger is working
+2021-07-26 01:07:49,202 : DEBUG : root : A debug message
+2021-07-26 01:07:49,202 : DEBUG : root : A debug message
+2021-07-26 01:14:13,403 : DEBUG : root : A debug message
+2021-07-26 01:14:13,632 : INFO : root : A trial message if the logger is working
+2021-07-26 01:14:13,856 : DEBUG : root : A debug message
+2021-07-26 01:14:13,856 : DEBUG : root : A debug message
+2021-07-26 01:21:26,201 : DEBUG : root : A debug message
+2021-07-26 01:21:26,780 : INFO : root : A trial message if the logger is working
+2021-07-26 01:21:27,029 : DEBUG : root : A debug message
+2021-07-26 01:21:27,029 : DEBUG : root : A debug message
+2021-07-26 01:22:09,285 : DEBUG : root : A debug message
+2021-07-26 01:22:09,566 : INFO : root : A trial message if the logger is working
+2021-07-26 01:22:09,799 : DEBUG : root : A debug message
+2021-07-26 01:22:09,799 : DEBUG : root : A debug message
+2021-07-26 01:25:28,039 : DEBUG : root : A debug message
+2021-07-26 01:26:16,361 : DEBUG : root : A debug message
+2021-07-26 01:26:33,223 : DEBUG : root : A debug message
+2021-07-26 01:27:02,427 : DEBUG : root : A debug message
+2021-07-26 01:27:02,763 : INFO : root : A trial message if the logger is working
+2021-07-26 01:27:03,014 : DEBUG : root : A debug message
+2021-07-26 01:27:03,014 : DEBUG : root : A debug message
+2021-07-26 01:29:00,084 : DEBUG : root : A debug message
+2021-07-26 01:29:00,453 : INFO : root : A trial message if the logger is working
+2021-07-26 01:29:00,690 : DEBUG : root : A debug message
+2021-07-26 01:29:00,690 : DEBUG : root : A debug message
+2021-07-26 01:30:09,112 : DEBUG : root : A debug message
+2021-07-26 01:30:09,399 : INFO : root : A trial message if the logger is working
+2021-07-26 01:30:09,615 : DEBUG : root : A debug message
+2021-07-26 01:30:09,615 : DEBUG : root : A debug message
+2021-07-26 01:33:51,663 : DEBUG : root : A debug message
+2021-07-26 01:33:52,018 : INFO : root : A trial message if the logger is working
+2021-07-26 01:33:52,326 : DEBUG : root : A debug message
+2021-07-26 01:33:52,326 : DEBUG : root : A debug message
+2021-07-26 01:34:48,871 : DEBUG : root : A debug message
+2021-07-26 01:34:49,210 : INFO : root : A trial message if the logger is working
+2021-07-26 01:34:49,438 : DEBUG : root : A debug message
+2021-07-26 01:34:49,438 : DEBUG : root : A debug message
+2021-07-26 01:36:38,498 : DEBUG : root : A debug message
+2021-07-26 01:36:38,796 : INFO : root : A trial message if the logger is working
+2021-07-26 01:36:39,021 : DEBUG : root : A debug message
+2021-07-26 01:36:39,021 : DEBUG : root : A debug message
