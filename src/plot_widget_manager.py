@@ -56,6 +56,8 @@ class PlotWidgetManager(QtCore.QRunnable):
                 print("online analysis")
                 print(data_request_information)
                 data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
+                meta_data = item.data(5,0)
+                print(meta_data)
             else:
                 db = self.offline_manager.get_database()
                 data = db.get_single_sweep_data_from_database(data_request_information)
@@ -91,32 +93,41 @@ class PlotWidgetManager(QtCore.QRunnable):
 
             for c in range(0,children):
 
-                item.child(c).setCheckState(1, Qt.Checked)
-                data_request_information = item.child(c).data(3,0)
+                child = item.child(c)
+                child.setCheckState(1, Qt.Checked)
+                data_request_information = child.data(3,0)
 
                 if self.analysis_mode == 0:
                     data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-                    # @todo get the correct time here
-                    self.time = np.linspace(0, len(data) - 1, len(data))
+                    print(item.text(0))
+                    print(child.text(0))
+                    meta_data_array = child.data(5,0)
+                    print(meta_data_array)
                 else:
                     data = db.get_single_sweep_data_from_database(data_request_information)
                     meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
 
                     # only calc the time once for all sweeps
-                    if self.time is None:
-                        self.time = self.get_time_from_meta_data(meta_data_array)
+                if self.time is None:
+                    self.time = self.get_time_from_meta_data(meta_data_array)
 
                 self.plot_widget.plot(self.time, data)
                 self.plot_widget.plotItem.setMouseEnabled(x=True, y=True)
+                self.plot_widget.setLabel(axis='left', text='Y-axis')
+                self.plot_widget.setLabel(axis='bottom', text='Time (ms)')
 
         else:
             item.setCheckState(1,Qt.Unchecked)
             for c in range(0, children):
                 item.child(c).setCheckState(1, Qt.Unchecked)
 
-    def get_time_from_meta_data(self,meta_data_array):
-        meta_dict = dict(meta_data_array)
-        print(meta_dict)
+    def get_time_from_meta_data(self,meta_data):
+        if not isinstance(meta_data, dict):
+            meta_dict = dict(meta_data)
+            print(meta_dict)
+        else:
+            meta_dict = meta_data
+
         x_start = float(meta_dict.get('XStart'))
         x_interval = float(meta_dict.get('XInterval'))
         number_of_datapoints = int(meta_dict.get('DataPoints'))
