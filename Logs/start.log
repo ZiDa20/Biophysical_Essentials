@@ -2425,3 +2425,23 @@ QTabWidget::tab-bar {
 2021-07-23 15:45:39,790 : DEBUG : root : A debug message
 2021-07-23 15:48:45,617 : INFO : root : A trial message if the logger is working
 2021-07-23 15:48:45,837 : DEBUG : root : A debug message
+2021-07-23 23:57:00,477 : INFO : root : A trial message if the logger is working
+2021-07-23 23:57:00,789 : DEBUG : root : A debug message
+2021-07-24 12:50:37,885 : INFO : root : A trial message if the logger is working
+2021-07-24 12:50:38,086 : DEBUG : root : A debug message
+2021-07-24 12:52:10,133 : INFO : root : A trial message if the logger is working
+2021-07-24 12:52:10,393 : DEBUG : root : A debug message
+2021-07-24 12:56:57,215 : INFO : root : A trial message if the logger is working
+2021-07-24 12:56:57,416 : DEBUG : root : A debug message
+2021-07-24 12:58:23,900 : INFO : root : A trial message if the logger is working
+2021-07-24 12:58:24,132 : DEBUG : root : A debug message
+2021-07-24 13:02:17,693 : INFO : root : A trial message if the logger is working
+2021-07-24 13:02:17,894 : DEBUG : root : A debug message
+2021-07-24 16:42:49,889 : INFO : root : A trial message if the logger is working
+2021-07-24 16:42:50,137 : DEBUG : root : A debug message
+2021-07-24 16:45:29,258 : INFO : root : A trial message if the logger is working
+2021-07-24 16:45:29,512 : DEBUG : root : A debug message
+2021-07-24 16:47:16,463 : INFO : root : A trial message if the logger is working
+2021-07-24 16:47:16,705 : DEBUG : root : A debug message
+2021-07-24 18:42:09,831 : INFO : root : A trial message if the logger is working
+2021-07-24 18:42:10,063 : DEBUG : root : A debug message

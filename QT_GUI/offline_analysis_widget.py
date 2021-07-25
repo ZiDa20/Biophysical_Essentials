@@ -69,7 +69,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #self.experiments_tree_view.show()
         print("treeview_created")
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1)
 
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
@@ -163,7 +163,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
-                                                             self.experiments_tree_view)
+                                                             self.experiments_tree_view,1)
 
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
