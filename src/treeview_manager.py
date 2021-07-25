@@ -16,7 +16,12 @@ class TreeViewManager():
 
             # analysis mode 0 = online analysis
             # analysis mode 1 = offline_analysis
-        self.analysis_mode = None
+        if self.database is None:
+            self.analysis_mode = 0
+            print("setting analysis mode 0 (online analysis)")
+        else:
+            self.analysis_mode = 1
+            print("setting analysis mode 1 (offline analysis)")
 
 
     def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
@@ -171,21 +176,22 @@ class TreeViewManager():
                 sweep_number = self.get_number_from_string(node_type)
                 data = parent.data(3, 0)
 
-                series_identifier = self.get_number_from_string(data[1])
-
-
-                if data_base_mode:
-                    data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
-                    series_identifier = parent.data(4, 0)
-                    database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
-                                                          data_array)
-
-
-                if  self.analysis_mode==0:
+                if self.analysis_mode == 0:
                     data.append(sweep_number - 1)
                     data.append(0)
                 else:
                     data.append(sweep_number)
+                    series_identifier = self.get_number_from_string(data[1])
+
+
+                    if data_base_mode:
+                        data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
+                        series_identifier = parent.data(4, 0)
+                        database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
+                                                              data_array)
+
+
+
 
                 child.setData(3, 0, data)
             else:
@@ -253,10 +259,11 @@ class TreeViewManager():
             series_name = item.text(0)
             series_identifier = item.data(4,0)
 
-            if function == "reinsert":
-                self.database.reinsert_specific_series(experiment_name,series_name,series_identifier)
-            else:
-                self.database.discard_specific_series(experiment_name, series_name, series_identifier)
+            if self.database is not None:
+                if function == "reinsert":
+                    self.database.reinsert_specific_series(experiment_name,series_name,series_identifier)
+                else:
+                    self.database.discard_specific_series(experiment_name, series_name, series_identifier)
 
     def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move .dat and its specific children """

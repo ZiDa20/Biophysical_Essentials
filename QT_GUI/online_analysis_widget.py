@@ -5,7 +5,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from online_analysis_designer_object import Ui_Online_Analysis
 from online_analysis_manager import OnlineAnalysisManager
 from treeview_manager import TreeViewManager
-
+from plot_widget_manager import PlotWidgetManager
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self,parent = None):
@@ -31,7 +31,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         bundle= TreeViewManager().open_bundle_of_file(file_name)
         TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,None)
 
-        # set the same widget in the labbook
+        # @todo set the same widget in the labbook
 
 
         # print first series into a plot widget
+        self.online_analysis_plot_manager = PlotWidgetManager(self.horizontallayout_plot_data, self.online_manager,
+                                                             self.treeWidget, 0)
+
+        self.treeWidget.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
+        self.treeWidget_2.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)

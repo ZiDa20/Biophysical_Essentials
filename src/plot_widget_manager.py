@@ -8,32 +8,58 @@ import numpy as np
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 class PlotWidgetManager(QtCore.QRunnable):
-    def __init__(self,vertical_layout_widget,offline_manager,tree_view):
+    """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
-
+    def __init__(self,vertical_layout_widget,manager_object,tree_view,mode):
+        """
+        INIT:
+        :param vertical_layout_widget: layout to be filled with the plotwidget created by this class
+        :param manager_object: can be either online or offline analysis manager object
+        :param tree_view:
+        :param mode: can be either 0 (online analysis) or 1 (offline analysis)
+        mode 0: values will be read directly from the .dat file
+        mode 1: values will be read from the database provided from the offline manager object
+        """
 
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.setStyleSheet('dark_blue.xml')
         vertical_layout_widget.takeAt(0)
         vertical_layout_widget.insertWidget(0,self.plot_widget)
         self.tree_view = tree_view
-        self.offline_manager = offline_manager
+
+        self.analysis_mode = mode
+        if self.analysis_mode == 0:
+            self.online_manager = manager_object
+        else:
+            self.offline_manager = manager_object
         self.time = None
-        # neccessary ?
+        # neccessary for succesfull signal emitting
         super().__init__()
         self.left_bound_changed = CursorBoundSignal()
 
 
     def sweep_clicked(self,item):
+        """Whenever a sweep is clicked, this handler will be executed to handle the clicked item"""
         self.plot_widget.clear()
         if not item.checkState(1):
             item.setCheckState(1, Qt.Checked)
-            db_request_data = item.data(3,0)
+
+            # get the data of the clicked sweep
+            # data can be either information about the database request if mode == offline analysis
+            # data can be an array of the position in the bundle to read the data
+            data_request_information = item.data(3,0)
             self.offline_analysis_canvas = pg.PlotWidget()
 
             self.offline_analysis_canvas.setBackground("#282629")
-            db = self.offline_manager.get_database()
-            data = db.get_single_sweep_data_from_database(db_request_data)
+
+            if self.analysis_mode == 0:
+                print("online analysis")
+                print(data_request_information)
+                data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
+            else:
+                db = self.offline_manager.get_database()
+                data = db.get_single_sweep_data_from_database(data_request_information)
+
             self.time = np.linspace(0, len(data) - 1, len(data))
 
             # modified
@@ -53,20 +79,32 @@ class PlotWidgetManager(QtCore.QRunnable):
         self.time = None
         if not item.checkState(1):
             # go through the tree and uncheck all
-            db = self.offline_manager.get_database()
+
+            if self.analysis_mode == 0:
+                db = None
+            else:
+                db = self.offline_manager.get_database()
+
+            # tree view manager can handle none db object
             TreeViewManager(db).uncheck_entire_tree(self.tree_view)
             item.setCheckState(1, Qt.Checked)
 
             for c in range(0,children):
 
                 item.child(c).setCheckState(1, Qt.Checked)
-                database_search_data = item.child(c).data(3,0)
-                data = db.get_single_sweep_data_from_database(database_search_data)
-                meta_data_array = db.get_single_sweep_meta_data_from_database(database_search_data)
+                data_request_information = item.child(c).data(3,0)
 
-                # only calc the time once for all sweeps
-                if self.time is None:
-                    self.time = self.get_time_from_meta_data(meta_data_array)
+                if self.analysis_mode == 0:
+                    data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
+                    # @todo get the correct time here
+                    self.time = np.linspace(0, len(data) - 1, len(data))
+                else:
+                    data = db.get_single_sweep_data_from_database(data_request_information)
+                    meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
+
+                    # only calc the time once for all sweeps
+                    if self.time is None:
+                        self.time = self.get_time_from_meta_data(meta_data_array)
 
                 self.plot_widget.plot(self.time, data)
                 self.plot_widget.plotItem.setMouseEnabled(x=True, y=True)
