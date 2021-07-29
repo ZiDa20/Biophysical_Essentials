@@ -11,7 +11,7 @@ import logging
 from qt_material import QtStyleTools
 from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
-
+import pyqtgraph as pg
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self):
         super().__init__()
@@ -93,8 +93,8 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "\n"
                                                     "QPushButton:hover{\n"
                                                     "	background-color: \"#414141\";\n"
-                                                    "}") 
-            
+                                                    "}")
+
         else:
             self.apply_stylesheet(self, "dark_red.xml")
             with open('Menu_button.css') as file:
