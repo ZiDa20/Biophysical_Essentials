@@ -36,6 +36,7 @@ class PlotWidgetManager(QtCore.QRunnable):
         # neccessary for succesfull signal emitting
         super().__init__()
         self.left_bound_changed = CursorBoundSignal()
+        self.right_bound_changed = CursorBoundSignal()
 
 
     def sweep_clicked(self,item):
@@ -53,11 +54,8 @@ class PlotWidgetManager(QtCore.QRunnable):
             self.offline_analysis_canvas.setBackground("#282629")
 
             if self.analysis_mode == 0:
-                print("online analysis")
-                print(data_request_information)
                 data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
                 meta_data = item.data(5,0)
-                print(meta_data)
             else:
                 db = self.offline_manager.get_database()
                 data = db.get_single_sweep_data_from_database(data_request_information)
@@ -76,7 +74,7 @@ class PlotWidgetManager(QtCore.QRunnable):
         self.plot_widget.clear()
         print("series clicked")
         children = item.childCount()
-
+        series_name = item.text(0)
         # reset the time array -> will be created new from the first sweep
         self.time = None
         if not item.checkState(1):
@@ -99,10 +97,7 @@ class PlotWidgetManager(QtCore.QRunnable):
 
                 if self.analysis_mode == 0:
                     data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-                    print(item.text(0))
-                    print(child.text(0))
                     meta_data_array = child.data(5,0)
-                    print(meta_data_array)
                 else:
                     data = db.get_single_sweep_data_from_database(data_request_information)
                     meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
@@ -110,10 +105,22 @@ class PlotWidgetManager(QtCore.QRunnable):
                     # only calc the time once for all sweeps
                 if self.time is None:
                     self.time = self.get_time_from_meta_data(meta_data_array)
+                    recording_mode = self.get_recording_mode(meta_data_array)
+                    if self.analysis_mode:
+                        self.offline_manager.write_ms_spaced_time_array_to_analysis_series_table(self.time,series_name)
+                        self.offline_manager.write_recording_mode_to_analysis_series_table(recording_mode,series_name)
+                    self.y_unit = self.get_y_unit_from_meta_data(meta_data_array)
+
+                if self.y_unit == "V":
+                    y_min,y_max=self.get_y_min_max_meta_data_values(meta_data_array)
+                    data = np.interp(data, (data.min(), data.max()), (y_min,y_max))
 
                 self.plot_widget.plot(self.time, data)
                 self.plot_widget.plotItem.setMouseEnabled(x=True, y=True)
-                self.plot_widget.setLabel(axis='left', text='Y-axis')
+                #y_axis_item = pg.AxisItem(orientation='left',units = self.y_unit)
+                #y_axis_item.enableAutoSIPrefix(True)
+                #self.plot_widget.addItem(y_axis_item)
+                self.plot_widget.setLabel(axis='left', text=self.y_unit)
                 self.plot_widget.setLabel(axis='bottom', text='Time (ms)')
 
         else:
@@ -121,13 +128,39 @@ class PlotWidgetManager(QtCore.QRunnable):
             for c in range(0, children):
                 item.child(c).setCheckState(1, Qt.Unchecked)
 
-    def get_time_from_meta_data(self,meta_data):
-        if not isinstance(meta_data, dict):
-            meta_dict = dict(meta_data)
-            print(meta_dict)
-        else:
-            meta_dict = meta_data
+    def get_recording_mode(self,meta_data):
+        meta_dict = self.get_dict(meta_data)
+        print(meta_dict)
+        recording_mode= meta_dict.get('RecordingMode')
+        byte_repr = str.encode(recording_mode)
 
+        print("found", byte_repr)
+        if byte_repr == b'\x03':
+            print("recording mode : Voltage Clamp")
+            return "Voltage Clamp"
+        else:
+            print("recording mode : Current Clamp")
+            return "Current Clamp"
+
+    def get_y_min_max_meta_data_values(self,meta_data):
+        meta_dict= self.get_dict(meta_data)
+        y_min = float(meta_dict.get('Ymin'))
+        y_max = float(meta_dict.get('Ymax'))
+        return y_min,y_max
+
+    def get_dict(self,meta_data):
+        """ checks type of meta_data and returns anyway the dictionary of the meta data array"""
+        if not isinstance(meta_data, dict):
+            return dict(meta_data)
+        else:
+           return meta_data
+
+    def get_y_unit_from_meta_data(self,meta_data):
+        meta_dict = self.get_dict(meta_data)
+        return meta_dict.get('YUnit')
+
+    def get_time_from_meta_data(self,meta_data):
+        meta_dict = self.get_dict(meta_data)
         x_start = float(meta_dict.get('XStart'))
         x_interval = float(meta_dict.get('XInterval'))
         number_of_datapoints = int(meta_dict.get('DataPoints'))
@@ -157,19 +190,18 @@ class PlotWidgetManager(QtCore.QRunnable):
         self.left_coursor.sigPositionChangeFinished.connect(self.draggable_left_cursor_moved)
         self.plot_widget.addItem(self.left_coursor)
         self.plot_widget.addItem(self.right_cursor)
-        self.left_coursor.sigPositionChangeFinished.connect(self.draggable_right_cursor_moved)
+        self.right_cursor.sigPositionChangeFinished.connect(self.draggable_right_cursor_moved)
         return left_val,right_val
 
 
     def draggable_left_cursor_moved(self):
         print("the line was moved ", self.left_coursor.value())
-
         # update labels, therefore return a signal to the main offline analysis widget which will be connected to an update function there
         self.left_bound_changed.cursor_bound_signal.emit(self.left_coursor.value())
 
     def draggable_right_cursor_moved(self):
-        print("the line was moved ", self.left_coursor.value())
-        # update labels
+        print("the line was moved ", self.right_cursor.value())
+        self.right_bound_changed.cursor_bound_signal.emit(self.right_cursor.value())
 
 # needed to use an instance of this signal class in the offline main widget
 class CursorBoundSignal(QtCore.QObject):

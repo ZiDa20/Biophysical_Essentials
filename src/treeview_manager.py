@@ -126,10 +126,7 @@ class TreeViewManager():
 
 
         if "Series" in node_type:
-            print("trying to add Series", node_label)
             if series_name is None or series_name == node_label:
-                print(series_name)
-                print(node_label)
                 for s in node_list:
                     if "Group" in s[0]:
                         parent = s[2]
@@ -147,7 +144,6 @@ class TreeViewManager():
 
                 if  self.analysis_mode==0:
                     data.append(series_number - 1)
-                    print(metadata[0])
                 else:
                     data.append(node_type)
 
@@ -192,19 +188,17 @@ class TreeViewManager():
                     if data_base_mode:
                         data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
                         series_identifier = parent.data(4, 0)
+                        # insert the sweep
                         database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
                                                               data_array)
 
-
                 child.setData(3, 0, data)
                 parent = child
-            else:
-                print("skipped because no parent")
 
         if "Trace" in node_type:
             if self.analysis_mode==0:
-                print("setting following metadata", node)
-                print("to node:", parent.text(0))
+                #print("setting following metadata", node)
+                #print("to node:", parent.text(0))
                 #print("in series", parent.parent.text(0))
                 parent.setData(5,0,node.get_fields())
 
