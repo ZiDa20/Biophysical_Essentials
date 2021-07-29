@@ -1,6 +1,8 @@
 from pypylon import pylon
 from PySide6.QtCore import QThread
 
+#Switched to pyqt
+
 class BayerCamera():
 
     def __init__(self):
