@@ -79,58 +79,75 @@ class DataDB():
                                         filter_criteria_name primary key,
                                         lower_threshold float,
                                         upper_threshold float,
-                                        analysis_id integer references offline_analysis
+                                        analysis_id integer,
+                                        foreign key (analysis_id) references offline_analysis (analysis_id)
                                     ); """
 
         sql_create_series_table = """ CREATE TABLE IF NOT EXISTS analysis_series (
-                                                   name text primary key,
+                                                   analysis_series_name text,
                                                    time array,
                                                    recording_mode text,
-                                                   analysis_id references offline_analysis
+                                                   analysis_id integer, 
+                                                   foreign key (analysis_id) references offline_analysis (analysis_id)
+                                                   primary key (analysis_series_name, analysis_id)
                                                ); """
 
         sql_create_experiments_table = """CREATE TABLE IF NOT EXISTS experiments (
-                                               name text,
+                                               experiment_name text PRIMARY KEY,
                                                meta_data_group text,
-                                               series_name text references analysis_series,
-                                               UNIQUE(name)
+                                               labbook_id integer,
+                                               image_directory text
                                            );"""
 
 
         sql_create_sweeps_table = """ CREATE TABLE IF NOT EXISTS sweeps(
                                                sweep_id integer PRIMARY KEY autoincrement,
-                                               experiment_name references experiments,
+                                               experiment_name text, 
                                                series_identifier text,
                                                sweep_number integer,
                                                meta_data array,
                                                pgf_information text,
                                                data_array array,
+                                               foreign key (experiment_name) references experiments (experiment_name) 
                                                UNIQUE(experiment_name, series_identifier, sweep_number)
                                            ); """
 
         #UNIQUE(experiment_name, series_identifier, sweep_number)
 
         sql_create_analysis_function_table = """ CREATE TABLE IF NOT EXISTS analysis_functions(
-                                            id integer PRIMARY KEY autoincrement, 
+                                            analysis_function_id integer PRIMARY KEY autoincrement, 
                                             function_name text,
-                                            lower_coursor integer,
-                                            upper_coursor integer,
-                                            series_type references series
+                                            lower_bound float,
+                                            upper_bound float,
+                                            analysis_series_name text,
+                                            analysis_id,
+                                            foreign key (analysis_series_name) references analysis_series (analysis_series_name)
+                                            foreign key (analysis_id) references offline_analysis (analysis_id)
                                             );"""
 
         sql_create_results_table = """ CREATE TABLE IF NOT EXISTS results(
-                                            analysis_id references analysis_functions,
+                                            analysis_function_id integer,
                                             sweep_id references sweeps,
-                                            result_value
+                                            result_value,
+                                            foreign key (analysis_function_id) references analysis_functions (analysis_function_id)
                                             ); """
 
         sql_create_experiment_series_table = """ CREATE TABLE IF NOT EXISTS experiment_series(
-                                             experiment_name references experiments,
+                                             experiment_name text,
                                              series_name,
                                              series_identifier,
                                              discarded,
-                                             UNIQUE(experiment_name,series_name,series_identifier)
+                                             foreign key (experiment_name) references experiments (experiment_name),
+                                             primary key (experiment_name,series_name,series_identifier)
                                              ); """
+
+        sql_create_mapping_table = """  create table if not exists experiment_analysis_mapping(
+                                        experiment_name text,
+                                        analysis_id integer,
+                                        foreign key (experiment_name) references experiments (experiment_name), 
+                                        foreign key (analysis_id) references offline_analysis (analysis_id),
+                                        UNIQUE (experiment_name, analysis_id) 
+                                        ); """
 
         self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
         self.database = self.execute_sql_command(self.database, sql_create_filter_table)
@@ -140,6 +157,7 @@ class DataDB():
         self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
         self.database = self.execute_sql_command(self.database, sql_create_results_table)
         self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
+        self.database = self.execute_sql_command(self.database, sql_create_mapping_table)
 
     # @todo refactor to write to database
     def execute_sql_command(self,database,sql_command,values = None):
@@ -168,6 +186,14 @@ class DataDB():
             return tmp.fetchall()
         except Exception as e:
             print(e)
+
+    """--------------------------------------------------------------"""
+    """ Functions to interact with table experiment_analysis_mapping """
+    """--------------------------------------------------------------"""
+
+    def create_mapping_between_experiments_and_analysis_id(self,experiment_name):
+        q = f'insert into experiment_analysis_mapping values (?,?)'
+        self.database = self.execute_sql_command(self.database, q, (experiment_name,self.analysis_id))
 
     """---------------------------------------------------"""
     """ Functions to interact with table offline_analysis """
@@ -205,7 +231,7 @@ class DataDB():
         @date: 23.06.2021, @author: dz '''
 
         for n in name_list:
-            q = f'INSERT INTO analysis_series (name,analysis_id) VALUES (?,?) '
+            q = f'INSERT INTO analysis_series (analysis_series_name,analysis_id) VALUES (?,?) '
             self.database = self.execute_sql_command(self.database,q,(n,self.analysis_id))
             print("inserting new analysis_series with id", self.analysis_id)
         print ("inserted all series")
@@ -216,18 +242,24 @@ class DataDB():
         :param time_np_array: time in milliseconds already converted into numpy array
         :return:
         """
-        q = 'update analysis_series set time = (?) where name = (?) AND analysis_id = (?)'
+        q = 'update analysis_series set time = (?) where analysis_series_name = (?) AND analysis_id = (?)'
         self.database = self.execute_sql_command(self.database,q,(time_np_array,analysis_series_name,analysis_id))
 
     def write_recording_mode_to_analysis_series_table(self,recording_mode,analysis_series_name,analysis_id):
-        q = 'update analysis_series set recording_mode = (?) where name = (?) AND analysis_id = (?)'
+        q = 'update analysis_series set recording_mode = (?) where analysis_series_name = (?) AND analysis_id = (?)'
         self.database = self.execute_sql_command(self.database,q,(recording_mode,analysis_series_name,analysis_id))
+
+    def get_time_in_ms_of_analyzed_series(self,series_name):
+        q = """select time from analysis_series where analysis_series_name = (?) AND analysis_id = (?)"""
+        res =  self.get_data_from_database(self.database,q,(series_name,self.analysis_id))[0][0]
+        return res
+
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
 
     def add_experiment_to_experiment_table(self,name,meta_data_group = None,series_name = None,mapping_id=None):
-        q = f'insert into experiments (name) select (\"{name}\") where not exists (select 1 from experiments where name == \"{name}\" )'
+        q = f'insert into experiments (experiment_name) select (\"{name}\") where not exists (select 1 from experiments where experiment_name == \"{name}\" )'
         self.database = self.execute_sql_command(self.database, q)
 
     """---------------------------------------------------"""
@@ -238,6 +270,78 @@ class DataDB():
         # trying to insert - could fail if unique constraint fails
         q = """insert or replace into experiment_series values (?,?,?,?) """
         self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier,0))
+
+
+
+    """----------------------------------------------------------"""
+    """    Functions to interact with table analysis_functions   """
+    """----------------------------------------------------------"""
+    ###
+
+    def write_analysis_function_name_and_cursor_bounds_to_database(self,analysis_function, analysis_series_name,lower_bound,upper_bound):
+      q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound) values (?,?,?,?,?)"""
+      self.database = self.execute_sql_command(self.database,q,(analysis_function,analysis_series_name,self.analysis_id,lower_bound,upper_bound))
+
+    def get_last_inserted_analysis_function_id(self):
+      q = """select analysis_function_id from analysis_functions """
+      id_list = self.get_data_from_database(self.database,q)
+      print("greatest identifier is: ", max(id_list)[0])
+      return max(id_list)[0]
+
+
+    def get_series_specific_analysis_funtions(self,series_name):
+        q = """ select distinct function_name 
+        from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
+        r = self.get_data_from_database(self.database,q,(series_name, self.analysis_id))
+        function_list = []
+        for t in r:
+            function_list.append(t[0])
+        return function_list
+
+    def get_cursor_bounds_of_analysis_function(self,function_name,series_name):
+        """
+        Returns a list triples (lower, upper bound, id) for the specified analysis function name and the analysis id.
+        :param function_name: name of the analysis function (e.g. min, max, .. )
+        :param series_name: name of the analysis series (e.g. Block Pulse, ... )
+        :return: a list of cursor bound triples, with cursor bound values at positions 0 and 1 and the
+        function analysis id at the third position
+        """
+
+        q = """select lower_bound, upper_bound, analysis_function_id 
+        from analysis_functions where function_name = (?) AND analysis_series_name=(?) AND analysis_id = (?)"""
+        r = self.get_data_from_database(self.database,q,(function_name,series_name,self.analysis_id))
+        cursor_bounds = []
+        for t in r:
+            cursor_bounds.append(t)
+        return cursor_bounds
+
+
+    """----------------------------------------------------------"""
+    """    Functions to interact with table sweeps   """
+    """----------------------------------------------------------"""
+
+    def get_single_sweep_data_from_database_by_sweep_id(self,sweep_id):
+        q = f'select data_array from sweeps where sweep_id = \"{sweep_id}\"'
+        return self.get_data_from_database(self.database,q)[0][0]
+
+
+
+    def get_sweep_id_list_for_offline_analysis(self,series_name):
+        """
+        returns a list of id's of sweeps to be analyzed for this sepcific series name and analysis_id
+        :param series_name:
+        :return:
+        """
+        q = """select r.sweep_id from (select s.experiment_name, s.series_identifier, s.sweep_id from sweeps s inner join 
+        experiment_analysis_mapping m where s.experiment_name = m.experiment_name AND m.analysis_id = (?)) r inner join 
+        experiment_series es where r.experiment_name = es.experiment_name AND r.series_identifier = es.series_identifier 
+        AND es.series_name = (?) ;"""
+        sweep_id_tuples = self.get_data_from_database(self.database,q,(self.analysis_id,series_name))
+        sweep_id_list = []
+        for t in sweep_id_tuples:
+            sweep_id_list.append(t[0])
+        return sweep_id_list
+
 
 
     def get_sweep_meta_data(self,datalist,pos):
@@ -311,13 +415,13 @@ class DataDB():
 
 
     def calculate_single_series_results_and_write_to_database(self,series_type):
-        q = f'select s.sweep_id, s.data_array from  sweeps s inner join experiments e on  s.experiment_name = e.name AND e.series_name = \"{series_type}\";'# [sweep_id, sweep_data_trace]
+        q = f'select s.sweep_id, s.data_array from  sweeps s inner join experiments e on  s.experiment_name = e.experiment_name AND e.series_name = \"{series_type}\";'# [sweep_id, sweep_data_trace]
         sweeps = self.get_data_from_database(self.database,q)
 
         q = f'select id,function_name,lower_coursor,upper_coursor from analysis_functions where series_type = \"{series_type}\";' # [anlysis_id,analysis_function,lower_bound,upper_bound]
         analysis_functions = self.get_data_from_database(self.database,q)
 
-        q = f'select time from analysis_series where name = \"{series_type}\";'
+        q = f'select time from analysis_series where analysis_series_name = \"{series_type}\";'
         time = self.get_data_from_database(self.database, q)
         time = self.convert_string_to_array(time[0][0])
 
@@ -341,13 +445,15 @@ class DataDB():
         q = """insert into results values (?,?,?) """
         self.database = self.execute_sql_command(self.database,q,(analysis_id,sweep_id,result_value))
 
+
+    # Still used ?
     def read_trace_data_and_write_to_database(self,series_type,data_path):
         ''' function to read data arrays of each sweep and write it to the sweeps table in the database, arrays are represented as strings'''
 
-        q = f'SELECT name FROM experiments WHERE series_name = \"{series_type}\";'
+        q = f'SELECT experiment_name FROM experiments WHERE series_name = \"{series_type}\";'
         file_names = self.get_data_from_database(self.database,q)
 
-        q = f'select time from analysis_series where series_name = \"{series_type}\";'
+        q = f'select time from analysis_series where analysis_series_name = \"{series_type}\";'
         time = self.get_data_from_database(self.database,q)
 
         for f in file_names:
@@ -368,7 +474,7 @@ class DataDB():
                    time =  np.linspace(0, len(data_array) - 1, len(data_array))
                    string_time = self.convert_array_to_string(time)
 
-                   q = """update analysis_series set time = (?) where name = (?);"""
+                   q = """update analysis_series set time = (?) where analysis_series_name = (?);"""
                    self.database = self.execute_sql_command(self.database,q,(string_time,series_type))
 
                 # convert data array into comma separated string
@@ -460,7 +566,9 @@ class DataDB():
 
     def get_single_sweep_parameter_from_database(self,data_array,parameter):
         """
-        performs a database request on the sweep table to get the value for the specified parameter
+        performs a database request on the sweep table to get the value for the specified parameter.
+        To make sure that only series names available in the selected experiments therefore a join with experiment
+        table considering the current analysis id will be performed.
         :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
         :param parameter: string represenation of the paramter (==column name)
         :return: value of the requested parameter
