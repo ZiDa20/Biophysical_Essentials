@@ -44,6 +44,7 @@ class TreeViewManager():
             # add the experiment name into experiment table
             if database_mode:
                 self.database.add_experiment_to_experiment_table(i)
+                self.database.create_mapping_between_experiments_and_analysis_id(i)
 
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,self.database,database_mode,series_name)
 

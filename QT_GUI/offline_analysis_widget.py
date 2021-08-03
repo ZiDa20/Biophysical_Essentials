@@ -22,7 +22,7 @@ from offline_analysis_designer_object import Ui_Offline_Analysis
 from functools import partial
 from specififc_analysis_tab import *
 from plot_widget_manager import PlotWidgetManager
-import raw_analysis as  ra
+from raw_analysis import AnalysisRaw
 
 pg.setConfigOption('foreground','#448aff')
 
@@ -84,6 +84,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def select_series_to_be_analized(self):
         # get_series_from_datbase
         db = self.offline_manager.get_database()
+
+        # get available series (by name) inside the selected experiments for this specific analysis.
+        # A distinct list will be saved
         series_names_string_list = db.get_distinct_non_discarded_series_names()
         print (series_names_string_list)
         # create a pop-up-window to allow user selection of series to be analyzed
@@ -92,7 +95,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def display_select_series_dialog(self,series_names_string_list):
         """
-
+        Opens a popup and displays available series to be analyzed in the selected experiments
         :param series_names_string_list: list comes as list of tuples
         :return:
         """
@@ -343,9 +346,49 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 print("not ready for analysis")
                 return
 
+
+        # when not returned - all required fields are filled with data
+        self.start_analysis_button = QPushButton("Start Analysis")
+        current_tab.function_selection_grid.addWidget(self.start_analysis_button,row_count +5 ,3)
+        self.start_analysis_button.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
         print("ready for analysis")
 
+    def start_offline_analysis_of_single_series(self,current_tab):
+        self.write_function_grid_values_into_database(current_tab)
+        self.offline_manager.execute_single_series_analysis(current_tab.objectName())
+
+    def write_function_grid_values_into_database(self,current_tab):
+        """
+        When the Start Single Series Analysis Button will be pressed, data from the function selection grid in the
+        current tab will be written into the database.
+        :param current_tab: tab object from which the function selection grid will be written to the database
+        :return:
+        """
+        row_count = current_tab.function_selection_grid.rowCount()
+        db = self.offline_manager.get_database()
+        analysis_series_name = current_tab.objectName()
+        column_count =current_tab.function_selection_grid.columnCount()
+        it_len = int(column_count/2) # there will be always an even
+        print("column count", column_count)
+        print(it_len)
+
+        for r in range(5,row_count-1):
+
+                for c in range(0,it_len+1,2):
+                    print (c)
+                    analysis_function = current_tab.function_selection_grid.itemAtPosition(r, 0).widget().text()
+                    print("analysis function ", analysis_function)
+                    lower_bound = self.get_cursor_bound_value_from_grid(r, c+1, current_tab)
+                    upper_bound = self.get_cursor_bound_value_from_grid(r, c+2, current_tab)
+                    db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,analysis_series_name,lower_bound,upper_bound )
 
 
+    def get_cursor_bound_value_from_grid(self,row,column,current_tab):
+        try:
+            r = float(current_tab.function_selection_grid.itemAtPosition(row, column).widget().text())
+            return r
+        except Exception as e:
+            print(e)
+            return -1
 
 

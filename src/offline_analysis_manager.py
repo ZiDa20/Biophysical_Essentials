@@ -44,8 +44,8 @@ class OfflineManager():
     def directory_path(self,val):
         self._directory_path = val
 
-    '''
-    def single_series_analysis(self,series_name):
+
+    def execute_single_series_analysis(self,series_name):
         """Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
         Therefore, sweep data traces will be load from the database, an analysis object will be created and results will be written
         into the database. """
@@ -53,35 +53,38 @@ class OfflineManager():
         # get series specific time from database
         time = self.database.get_time_in_ms_of_analyzed_series(series_name)
 
-        # get associated information of data_traces for this analysis [experiment_name, series_identifier,sweep_id]
-        data_trace_information = []
+        # get sweep id's (they are unique ! in the database )
+        sweep_ids = self.database.get_sweep_id_list_for_offline_analysis(series_name)
+
 
         # read analysis functions from database
-        analysis_functions = []
+        analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
+
 
         # calculate result for each single sweep data trace and write the result into the database
-        for d in range(len(data_trace_information)):
-            data = self.database.get_single_sweep_data_from_database([data_trace_information[d]])
-            trace = ra.AnalysisRaw(time,data)
+        for id in sweep_ids:
+            data = self.database.get_single_sweep_data_from_database_by_sweep_id(id)
+
+            raw_analysis_class_object = ra.AnalysisRaw(time,data)
 
             for a in analysis_functions:
-                # cursor_bounds = [[analysis_id,lower_bound,upper_bound], [...,...,...], ...]
-                cursor_bounds = get_cursor_bounds_of_analysis_function(a)
+                # list of cursor bound tuples
+                cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(a,series_name)
 
                 for c in cursor_bounds:
+                    # negative bound values decode invalid/not selected bounds
+                    if c[0] > 0.0  and c[1] > 0.0:
+                        raw_analysis_class_object._lower_bounds = c[0]
+                        raw_analysis_class_object._upper_bounds = c[1]
 
-                    trace._lower_bounds = lower
-                    trace._upper_bounds = upper
-                    trace.construct_trace()
-                    trace.slice_trace()
+                        raw_analysis_class_object.construct_trace()
+                        raw_analysis_class_object.slice_trace()
 
-                    res = ra.AnalysisRaw().call_function_by_string_name(a)
+                        res = raw_analysis_class_object.call_function_by_string_name(a)
+                        self.database.write_result_to_database(c[2],id,res)
 
-                    self.database.write_result_to_database()
 
-        print("starting single series analysis")
 
-    '''
 
     def get_database(self):
         return self.database
