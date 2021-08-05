@@ -40,13 +40,13 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.configuration_elements = Config_Widget()
 
-        self.ui.statistics_2.setProperty("class", "big_button")
+        # self.ui.statistics_2.setProperty("class", "big_button")
         #print(self.ui.config.Load_meta_data_experiment_12)
 
         # connect to the metadata file path 
         
         self.ui.hamburger_button.clicked.connect(lambda: self.animate_menu())
-        self.ui.offline_analysis_2.clicked.connect(self.change_to_lightmode)
+        #self.ui.offline_analysis_2.clicked.connect(self.change_to_lightmode)
         
 
     def animate_menu(self):
