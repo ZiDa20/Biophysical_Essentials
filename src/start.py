@@ -1,6 +1,8 @@
 
 import sys
 import os
+import time
+
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
@@ -55,18 +57,38 @@ class MainWindow(QMainWindow, QtStyleTools):
         if width == 300:
             print("yeah")
             newWidth = 71
+            self.erase_button_text()
         else:
             print("hello")
             newWidth = 300
+            self.write_button_text()
+
         self.ui.side_left_menu.setMinimumSize(0,0)
-        self.ui.side_left_menu.setMaximumSize(1500,1500)
         self.animation = QPropertyAnimation(self.ui.side_left_menu, b"size")
-        self.animation.setDuration(500)
+        #self.animation.setDuration(500)
         self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
         self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
+        self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
 
+    def erase_button_text(self):
+        self.ui.self_configuration.setText("")
+        self.ui.online_analysis.setText("")
+        self.ui.offline_analysis.setText("")
+        self.ui.statistics.setText("")
+        self.ui.darkmode_button.setText("")
+        self.ui.konsole_button.setText("")
+        self.ui.settings_button.setText("")
+
+    def write_button_text(self):
+        self.ui.self_configuration.setText("Self Configuration")
+        self.ui.online_analysis.setText("Online Analysis")
+        self.ui.offline_analysis.setText("Offline Analysis")
+        self.ui.statistics.setText("Statistics")
+        self.ui.darkmode_button.setText("Change Theme")
+        self.ui.konsole_button.setText("Terminal")
+        self.ui.settings_button.setText("Settings")
 
     def change_to_lightmode(self):
         print("entered the function")
