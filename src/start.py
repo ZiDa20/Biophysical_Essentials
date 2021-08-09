@@ -15,6 +15,7 @@ from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 import pyqtgraph as pg
 class MainWindow(QMainWindow, QtStyleTools):
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -45,12 +46,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         # self.ui.statistics_2.setProperty("class", "big_button")
         #print(self.ui.config.Load_meta_data_experiment_12)
 
-        # connect to the metadata file path 
-        
+        # connect to the metadata file path
         self.ui.hamburger_button.clicked.connect(lambda: self.animate_menu())
         #self.ui.offline_analysis_2.clicked.connect(self.change_to_lightmode)
-        
 
+        self.write_button_text()
+        self.ui.side_left_menu.setMinimumSize(300, 1000)
+        self.ui.side_left_menu.setMaximumSize(300, 1800)
     def animate_menu(self):
         width = self.ui.side_left_menu.width()
         print(width)
@@ -71,6 +73,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
         self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
+        self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
 
     def erase_button_text(self):
         self.ui.self_configuration.setText("")

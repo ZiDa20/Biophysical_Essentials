@@ -17,221 +17,361 @@ class Ui_SpecificAnalysisTab(object):
     def setupUi(self, SpecificAnalysisTab):
         if not SpecificAnalysisTab.objectName():
             SpecificAnalysisTab.setObjectName(u"SpecificAnalysisTab")
-        SpecificAnalysisTab.resize(1591, 944)
-        self.tabWidget = QTabWidget(SpecificAnalysisTab)
+        SpecificAnalysisTab.resize(1439, 854)
+        font = QFont()
+        font.setPointSize(10)
+        SpecificAnalysisTab.setFont(font)
+        self.gridLayout = QGridLayout(SpecificAnalysisTab)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.horizontalSpacer_27 = QSpacerItem(42, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_27, 0, 2, 1, 1)
+
+        self.horizontalSpacer_21 = QSpacerItem(107, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_21, 0, 10, 1, 1)
+
+        self.horizontalSpacer_26 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_26, 0, 12, 1, 1)
+
+        self.horizontalSpacer_33 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_33, 0, 16, 1, 1)
+
+        self.horizontalSpacer_34 = QSpacerItem(43, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_34, 0, 5, 1, 1)
+
+        self.verticalSpacer_29 = QSpacerItem(20, 34, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_29, 0, 0, 1, 1)
+
+        self.groupBox_4 = QGroupBox(SpecificAnalysisTab)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
+        self.groupBox_4.setSizePolicy(sizePolicy)
+        self.groupBox_4.setMinimumSize(QSize(300, 450))
+        self.groupBox_4.setMaximumSize(QSize(400, 16777215))
+        self.tabWidget = QTabWidget(self.groupBox_4)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setGeometry(QRect(10, 100, 291, 691))
+        self.tabWidget.setGeometry(QRect(10, 26, 341, 431))
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        self.tabWidget.setSizePolicy(sizePolicy1)
+        self.tabWidget.setMinimumSize(QSize(0, 350))
+        self.tabWidget.setAutoFillBackground(False)
+        self.tabWidget.setStyleSheet(u"border:0")
         self.selected_tab = QWidget()
         self.selected_tab.setObjectName(u"selected_tab")
+        self.gridLayout_8 = QGridLayout(self.selected_tab)
+        self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.selected_tree_widget = QTreeWidget(self.selected_tab)
         self.selected_tree_widget.setObjectName(u"selected_tree_widget")
-        self.selected_tree_widget.setGeometry(QRect(0, 0, 281, 671))
+        sizePolicy1.setHeightForWidth(self.selected_tree_widget.sizePolicy().hasHeightForWidth())
+        self.selected_tree_widget.setSizePolicy(sizePolicy1)
+
+        self.gridLayout_8.addWidget(self.selected_tree_widget, 0, 0, 1, 1)
+
         self.tabWidget.addTab(self.selected_tab, "")
         self.discarded_tab = QWidget()
         self.discarded_tab.setObjectName(u"discarded_tab")
+        self.gridLayout_2 = QGridLayout(self.discarded_tab)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.discarded_tree_widget = QTreeWidget(self.discarded_tab)
         self.discarded_tree_widget.setObjectName(u"discarded_tree_widget")
-        self.discarded_tree_widget.setGeometry(QRect(0, 0, 291, 661))
+
+        self.gridLayout_2.addWidget(self.discarded_tree_widget, 0, 0, 1, 1)
+
         self.tabWidget.addTab(self.discarded_tab, "")
-        self.gridLayoutWidget_3 = QWidget(SpecificAnalysisTab)
-        self.gridLayoutWidget_3.setObjectName(u"gridLayoutWidget_3")
-        self.gridLayoutWidget_3.setGeometry(QRect(30, 800, 239, 41))
-        self.gridLayout_2 = QGridLayout(self.gridLayoutWidget_3)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.pushButton_5 = QPushButton(self.gridLayoutWidget_3)
-        self.pushButton_5.setObjectName(u"pushButton_5")
 
-        self.gridLayout_2.addWidget(self.pushButton_5, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.groupBox_4, 3, 1, 9, 7)
 
-        self.pushButton_6 = QPushButton(self.gridLayoutWidget_3)
-        self.pushButton_6.setObjectName(u"pushButton_6")
+        self.horizontalSpacer_22 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addWidget(self.pushButton_6, 0, 1, 1, 1)
+        self.gridLayout.addItem(self.horizontalSpacer_22, 0, 15, 1, 1)
 
-        self.pushButton_7 = QPushButton(self.gridLayoutWidget_3)
-        self.pushButton_7.setObjectName(u"pushButton_7")
+        self.horizontalSpacer_20 = QSpacerItem(43, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addWidget(self.pushButton_7, 0, 2, 1, 1)
+        self.gridLayout.addItem(self.horizontalSpacer_20, 0, 3, 1, 1)
+
+        self.horizontalSpacer_19 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_19, 0, 11, 1, 1)
+
+        self.verticalSpacer_28 = QSpacerItem(20, 34, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_28, 12, 0, 1, 1)
+
+        self.verticalSpacer_41 = QSpacerItem(20, 35, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_41, 2, 0, 1, 1)
+
+        self.verticalSpacer_23 = QSpacerItem(20, 42, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_23, 6, 0, 1, 1)
+
+        self.verticalSpacer_35 = QSpacerItem(20, 35, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_35, 15, 0, 1, 1)
+
+        self.verticalSpacer_34 = QSpacerItem(20, 33, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_34, 13, 0, 1, 1)
+
+        self.verticalSpacer_26 = QSpacerItem(20, 34, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_26, 17, 0, 1, 1)
+
+        self.verticalSpacer_32 = QSpacerItem(20, 42, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_32, 8, 0, 1, 1)
+
+        self.verticalSpacer_36 = QSpacerItem(20, 33, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_36, 16, 0, 1, 1)
+
+        self.horizontalSpacer_30 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_30, 0, 9, 1, 1)
+
+        self.verticalSpacer_38 = QSpacerItem(20, 42, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_38, 3, 0, 1, 1)
+
+        self.horizontalSpacer_18 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_18, 0, 13, 1, 1)
+
+        self.verticalSpacer_33 = QSpacerItem(20, 41, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_33, 10, 0, 1, 1)
+
+        self.horizontalSpacer_25 = QSpacerItem(42, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_25, 0, 4, 1, 1)
+
+        self.verticalSpacer_37 = QSpacerItem(20, 34, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_37, 14, 0, 1, 1)
+
+        self.verticalSpacer_39 = QSpacerItem(20, 42, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_39, 5, 0, 1, 1)
+
+        self.verticalSpacer_24 = QSpacerItem(20, 42, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_24, 9, 0, 1, 1)
+
+        self.horizontalSpacer_32 = QSpacerItem(107, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_32, 0, 14, 1, 1)
+
+        self.verticalSpacer_30 = QSpacerItem(20, 41, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_30, 7, 0, 1, 1)
+
+        self.horizontalSpacer_23 = QSpacerItem(106, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_23, 0, 8, 1, 1)
+
+        self.verticalSpacer_22 = QSpacerItem(20, 33, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_22, 1, 0, 1, 1)
 
         self.groupBox = QGroupBox(SpecificAnalysisTab)
         self.groupBox.setObjectName(u"groupBox")
-        self.groupBox.setGeometry(QRect(360, 430, 1111, 421))
-        self.scrollArea = QScrollArea(self.groupBox)
-        self.scrollArea.setObjectName(u"scrollArea")
-        self.scrollArea.setGeometry(QRect(10, 40, 1101, 371))
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1099, 369))
-        self.gridLayoutWidget = QWidget(self.scrollAreaWidgetContents)
-        self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(0, 0, 1101, 371))
-        self.function_selection_grid = QGridLayout(self.gridLayoutWidget)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy2)
+        self.groupBox.setMaximumSize(QSize(16777215, 500))
+        self.groupBox.setLayoutDirection(Qt.LeftToRight)
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.function_selection_grid = QGridLayout()
         self.function_selection_grid.setObjectName(u"function_selection_grid")
-        self.function_selection_grid.setContentsMargins(0, 0, 0, 0)
-        self.coloumn_3_row_3 = QLabel(self.gridLayoutWidget)
-        self.coloumn_3_row_3.setObjectName(u"coloumn_3_row_3")
-        self.coloumn_3_row_3.setAlignment(Qt.AlignCenter)
+        self.function_selection_grid.setSizeConstraint(QLayout.SetMinimumSize)
+        self.column_1_head = QLabel(self.groupBox)
+        self.column_1_head.setObjectName(u"column_1_head")
+        self.column_1_head.setMaximumSize(QSize(16777215, 50))
 
-        self.function_selection_grid.addWidget(self.coloumn_3_row_3, 5, 3, 1, 1)
+        self.function_selection_grid.addWidget(self.column_1_head, 0, 1, 1, 1)
 
-        self.label = QLabel(self.gridLayoutWidget)
-        self.label.setObjectName(u"label")
-        self.label.setAlignment(Qt.AlignCenter)
+        self.column_3_row_3 = QLabel(self.groupBox)
+        self.column_3_row_3.setObjectName(u"column_3_row_3")
+        self.column_3_row_3.setMaximumSize(QSize(16777215, 50))
+        font1 = QFont()
+        font1.setItalic(True)
+        self.column_3_row_3.setFont(font1)
 
-        self.function_selection_grid.addWidget(self.label, 4, 2, 1, 1)
+        self.function_selection_grid.addWidget(self.column_3_row_3, 1, 3, 1, 1)
 
-        self.coloumn_1_row_1 = QLabel(self.gridLayoutWidget)
-        self.coloumn_1_row_1.setObjectName(u"coloumn_1_row_1")
-        self.coloumn_1_row_1.setAlignment(Qt.AlignCenter)
+        self.label_11 = QLabel(self.groupBox)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setMaximumSize(QSize(16777215, 50))
+        self.label_11.setFont(font1)
 
-        self.function_selection_grid.addWidget(self.coloumn_1_row_1, 5, 0, 1, 1)
+        self.function_selection_grid.addWidget(self.label_11, 1, 4, 1, 1)
 
-        self.coloumn_3_head = QLabel(self.gridLayoutWidget)
-        self.coloumn_3_head.setObjectName(u"coloumn_3_head")
-        self.coloumn_3_head.setAlignment(Qt.AlignCenter)
+        self.column_2_head = QLabel(self.groupBox)
+        self.column_2_head.setObjectName(u"column_2_head")
+        self.column_2_head.setMaximumSize(QSize(16777215, 50))
 
-        self.function_selection_grid.addWidget(self.coloumn_3_head, 4, 3, 1, 1)
+        self.function_selection_grid.addWidget(self.column_2_head, 0, 2, 1, 1)
 
-        self.coloumn_2_row_2 = QLabel(self.gridLayoutWidget)
-        self.coloumn_2_row_2.setObjectName(u"coloumn_2_row_2")
-        self.coloumn_2_row_2.setAlignment(Qt.AlignCenter)
+        self.column_2_row_2 = QLabel(self.groupBox)
+        self.column_2_row_2.setObjectName(u"column_2_row_2")
+        self.column_2_row_2.setMaximumSize(QSize(16777215, 50))
+        self.column_2_row_2.setFont(font1)
 
-        self.function_selection_grid.addWidget(self.coloumn_2_row_2, 5, 1, 1, 1)
+        self.function_selection_grid.addWidget(self.column_2_row_2, 1, 2, 1, 1)
 
-        self.select_series_analysis_functions = QPushButton(self.gridLayoutWidget)
+        self.select_series_analysis_functions = QPushButton(self.groupBox)
         self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
+        self.select_series_analysis_functions.setMaximumSize(QSize(16777215, 50))
 
-        self.function_selection_grid.addWidget(self.select_series_analysis_functions, 6, 0, 1, 4)
+        self.function_selection_grid.addWidget(self.select_series_analysis_functions, 1, 0, 1, 1)
 
-        self.headline = QLabel(self.gridLayoutWidget)
-        self.headline.setObjectName(u"headline")
-        self.headline.setAlignment(Qt.AlignCenter)
+        self.column_4_head = QLabel(self.groupBox)
+        self.column_4_head.setObjectName(u"column_4_head")
+        self.column_4_head.setMaximumSize(QSize(16777215, 50))
 
-        self.function_selection_grid.addWidget(self.headline, 3, 1, 1, 2)
+        self.function_selection_grid.addWidget(self.column_4_head, 0, 4, 1, 1)
 
-        self.coloumn_2_head = QLabel(self.gridLayoutWidget)
-        self.coloumn_2_head.setObjectName(u"coloumn_2_head")
-        self.coloumn_2_head.setAlignment(Qt.AlignCenter)
+        self.column_3_head = QLabel(self.groupBox)
+        self.column_3_head.setObjectName(u"column_3_head")
+        self.column_3_head.setMaximumSize(QSize(16777215, 50))
 
-        self.function_selection_grid.addWidget(self.coloumn_2_head, 4, 1, 1, 1)
+        self.function_selection_grid.addWidget(self.column_3_head, 0, 3, 1, 1)
 
-        self.coloumn_1_head = QLabel(self.gridLayoutWidget)
-        self.coloumn_1_head.setObjectName(u"coloumn_1_head")
-        self.coloumn_1_head.setAlignment(Qt.AlignCenter)
-        self.coloumn_1_head.setTextInteractionFlags(
-            Qt.LinksAccessibleByMouse | Qt.TextEditable | Qt.TextEditorInteraction | Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse)
+        self.column_0_head = QLabel(self.groupBox)
+        self.column_0_head.setObjectName(u"column_0_head")
+        self.column_0_head.setMaximumSize(QSize(16777215, 50))
 
-        self.function_selection_grid.addWidget(self.coloumn_1_head, 4, 0, 1, 1)
+        self.function_selection_grid.addWidget(self.column_0_head, 0, 0, 1, 1)
 
-        self.label_2 = QLabel(self.gridLayoutWidget)
-        self.label_2.setObjectName(u"label_2")
-        self.label_2.setAlignment(Qt.AlignCenter)
+        self.column_1_row_1 = QLabel(self.groupBox)
+        self.column_1_row_1.setObjectName(u"column_1_row_1")
+        self.column_1_row_1.setMaximumSize(QSize(16777215, 50))
+        self.column_1_row_1.setFont(font1)
 
-        self.function_selection_grid.addWidget(self.label_2, 5, 2, 1, 1)
+        self.function_selection_grid.addWidget(self.column_1_row_1, 1, 1, 1, 1)
 
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.groupBox_2 = QGroupBox(SpecificAnalysisTab)
-        self.groupBox_2.setObjectName(u"groupBox_2")
-        self.groupBox_2.setGeometry(QRect(360, 100, 1101, 311))
-        self.verticalLayoutWidget_2 = QWidget(self.groupBox_2)
-        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(100, 30, 1001, 271))
-        self.series_plot = QVBoxLayout(self.verticalLayoutWidget_2)
+
+        self.verticalLayout_2.addLayout(self.function_selection_grid)
+
+
+        self.gridLayout.addWidget(self.groupBox, 12, 1, 6, 16)
+
+        self.horizontalSpacer_29 = QSpacerItem(43, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_29, 0, 7, 1, 1)
+
+        self.groupBox_5 = QGroupBox(SpecificAnalysisTab)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy3.setHorizontalStretch(1)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
+        self.groupBox_5.setSizePolicy(sizePolicy3)
+        self.groupBox_5.setFocusPolicy(Qt.NoFocus)
+        self.groupBox_5.setLayoutDirection(Qt.LeftToRight)
+        self.gridLayout_7 = QGridLayout(self.groupBox_5)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.series_plot = QVBoxLayout()
         self.series_plot.setObjectName(u"series_plot")
-        self.series_plot.setContentsMargins(0, 0, 0, 0)
-        self.pushButton_3 = QPushButton(self.groupBox_2)
+        self.series_plot.setSizeConstraint(QLayout.SetMinimumSize)
+
+        self.gridLayout_7.addLayout(self.series_plot, 0, 0, 1, 1)
+
+
+        self.gridLayout.addWidget(self.groupBox_5, 3, 8, 9, 9)
+
+        self.verticalSpacer_25 = QSpacerItem(20, 42, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_25, 11, 0, 1, 1)
+
+        self.horizontalSpacer_28 = QSpacerItem(42, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_28, 0, 6, 1, 1)
+
+        self.verticalSpacer_40 = QSpacerItem(20, 41, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer_40, 4, 0, 1, 1)
+
+        self.horizontalSpacer_24 = QSpacerItem(43, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer_24, 0, 1, 1, 1)
+
+        self.groupBox_3 = QGroupBox(SpecificAnalysisTab)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.pushButton_3 = QPushButton(self.groupBox_3)
         self.pushButton_3.setObjectName(u"pushButton_3")
-        self.pushButton_3.setGeometry(QRect(10, 40, 71, 51))
-        self.pushButton = QPushButton(self.groupBox_2)
-        self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(10, 120, 71, 51))
-        self.pushButton_2 = QPushButton(self.groupBox_2)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-        self.pushButton_2.setGeometry(QRect(10, 200, 71, 51))
-        self.filter_box = QGroupBox(SpecificAnalysisTab)
-        self.filter_box.setObjectName(u"filter_box")
-        self.filter_box.setGeometry(QRect(20, 20, 1441, 41))
-        self.tabWidget_2 = QTabWidget(self.filter_box)
-        self.tabWidget_2.setObjectName(u"tabWidget_2")
-        self.tabWidget_2.setGeometry(QRect(30, 20, 731, 80))
-        self.tab = QWidget()
-        self.tab.setObjectName(u"tab")
-        self.label_3 = QLabel(self.tab)
-        self.label_3.setObjectName(u"label_3")
-        self.label_3.setGeometry(QRect(50, 20, 111, 16))
-        self.pushButton_4 = QPushButton(self.tab)
-        self.pushButton_4.setObjectName(u"pushButton_4")
-        self.pushButton_4.setGeometry(QRect(270, 20, 171, 23))
-        self.tabWidget_2.addTab(self.tab, "")
+        self.pushButton_3.setGeometry(QRect(10, 20, 111, 41))
+        self.label_7 = QLabel(self.groupBox_3)
+        self.label_7.setObjectName(u"label_7")
+        self.label_7.setGeometry(QRect(150, 20, 601, 42))
+        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy4.setHorizontalStretch(2)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
+        self.label_7.setSizePolicy(sizePolicy4)
+
+        self.gridLayout.addWidget(self.groupBox_3, 1, 1, 2, 16)
+
 
         self.retranslateUi(SpecificAnalysisTab)
 
-        self.tabWidget.setCurrentIndex(1)
-        self.tabWidget_2.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
-
     # setupUi
 
     def retranslateUi(self, SpecificAnalysisTab):
         SpecificAnalysisTab.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Form", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Experiment Hierarchie", None))
         ___qtreewidgetitem = self.selected_tree_widget.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("SpecificAnalysisTab", u"Move", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("SpecificAnalysisTab", u"Show", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("SpecificAnalysisTab", u"Discard", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("SpecificAnalysisTab", u"Object", None));
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.selected_tab),
-                                  QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.selected_tab), QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None))
         ___qtreewidgetitem1 = self.discarded_tree_widget.headerItem()
-        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("SpecificAnalysisTab", u"Move", None));
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("SpecificAnalysisTab", u"Show", None));
+        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("SpecificAnalysisTab", u"Reinsert", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None));
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("SpecificAnalysisTab", u"Object", None));
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.discarded_tab),
-                                  QCoreApplication.translate("SpecificAnalysisTab", u"Discarded", None))
-        self.pushButton_5.setText("")
-        self.pushButton_6.setText("")
-        self.pushButton_7.setText("")
-        self.groupBox.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Function Settings", None))
-        self.coloumn_3_row_3.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                                u"<html><head/><body><p><span style=\" font-style:italic;\">None</span></p></body></html>",
-                                                                None))
-        self.label.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                      u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Right Boundary</span></p></body></html>",
-                                                      None))
-        self.coloumn_1_row_1.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                                u"<html><head/><body><p><span style=\" font-style:italic;\">None</span></p></body></html>",
-                                                                None))
-        self.coloumn_3_head.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                               u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Specific Analaysis <br/>Intervall</span></p></body></html>",
-                                                               None))
-        self.coloumn_2_row_2.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                                u"<html><head/><body><p><span style=\" font-style:italic;\">None</span></p></body></html>",
-                                                                None))
-        self.select_series_analysis_functions.setText(
-            QCoreApplication.translate("SpecificAnalysisTab", u"Select Analaysis Functions", None))
-        self.headline.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                         u"<html><head/><body><p><span style=\" font-weight:600;\">TextLabel</span></p></body></html>",
-                                                         None))
-        self.coloumn_2_head.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                               u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Left Boundary</span></p></body></html>",
-                                                               None))
-        self.coloumn_1_head.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                               u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Analysis Function</span></p></body></html>",
-                                                               None))
-        self.label_2.setText(QCoreApplication.translate("SpecificAnalysisTab",
-                                                        u"<html><head/><body><p><span style=\" font-style:italic;\">None</span></p></body></html>",
-                                                        None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Signal Traces", None))
-        self.pushButton_3.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Center", None))
-        self.pushButton.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Hold", None))
-        self.pushButton_2.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Clear", None))
-        self.filter_box.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Selected Filter", None))
-        self.label_3.setText(QCoreApplication.translate("SpecificAnalysisTab", u"No filter selected", None))
-        self.pushButton_4.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add Filter", None))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab),
-                                    QCoreApplication.translate("SpecificAnalysisTab", u"Add Filter", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.discarded_tab), QCoreApplication.translate("SpecificAnalysisTab", u"Discarded", None))
+        self.groupBox.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Function Selection", None))
+        self.column_1_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Left Common Cursor", None))
+        self.column_3_row_3.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
+        self.label_11.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
+        self.column_2_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Right Common Cursor", None))
+        self.column_2_row_2.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
+        self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add Function", None))
+        self.column_4_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Right Sepcific Cursor", None))
+        self.column_3_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Left Sepcific Cursor", None))
+        self.column_0_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Function", None))
+        self.column_1_row_1.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Filter Selection", None))
+        self.pushButton_3.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add Filter", None))
+        self.label_7.setText(QCoreApplication.translate("SpecificAnalysisTab", u"No Filter Selected", None))
     # retranslateUi
+
+
+
+
+
+
+
+
 
 
 class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
