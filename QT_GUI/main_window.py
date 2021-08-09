@@ -22,14 +22,14 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1703, 1000)
+        MainWindow.resize(1280, 1024)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QSize(850, 500))
-        MainWindow.setMaximumSize(QSize(16777215, 16777215))
+        MainWindow.setMinimumSize(QSize(1280, 1024))
+        MainWindow.setMaximumSize(QSize(1920, 1080))
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -39,10 +39,13 @@ class Ui_MainWindow(object):
         self.side_left_menu = QFrame(self.centralwidget)
         self.side_left_menu.setObjectName(u"side_left_menu")
         self.side_left_menu.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.side_left_menu.sizePolicy().hasHeightForWidth())
-        self.side_left_menu.setSizePolicy(sizePolicy)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.side_left_menu.sizePolicy().hasHeightForWidth())
+        self.side_left_menu.setSizePolicy(sizePolicy1)
         self.side_left_menu.setMinimumSize(QSize(80, 0))
-        self.side_left_menu.setMaximumSize(QSize(80, 1000))
+        self.side_left_menu.setMaximumSize(QSize(300, 1000))
         self.side_left_menu.setBaseSize(QSize(61, 1000))
         self.side_left_menu.setContextMenuPolicy(Qt.PreventContextMenu)
         self.side_left_menu.setLayoutDirection(Qt.LeftToRight)
@@ -67,12 +70,13 @@ class Ui_MainWindow(object):
         self.side_left_menu.setFrameShadow(QFrame.Raised)
         self.gridLayout = QGridLayout(self.side_left_menu)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(9, 9, -1, -1)
         self.konsole_button = QPushButton(self.side_left_menu)
         self.konsole_button.setObjectName(u"konsole_button")
         sizePolicy.setHeightForWidth(self.konsole_button.sizePolicy().hasHeightForWidth())
         self.konsole_button.setSizePolicy(sizePolicy)
         self.konsole_button.setMinimumSize(QSize(80, 0))
-        self.konsole_button.setMaximumSize(QSize(301, 70))
+        self.konsole_button.setMaximumSize(QSize(200, 70))
         font = QFont()
         font.setPointSize(12)
         self.konsole_button.setFont(font)
@@ -97,7 +101,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.statistics.sizePolicy().hasHeightForWidth())
         self.statistics.setSizePolicy(sizePolicy)
         self.statistics.setMinimumSize(QSize(80, 0))
-        self.statistics.setMaximumSize(QSize(301, 70))
+        self.statistics.setMaximumSize(QSize(200, 70))
         self.statistics.setFont(font)
         self.statistics.setStyleSheet(u"\n"
                                       "\n"
@@ -117,7 +121,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.online_analysis.sizePolicy().hasHeightForWidth())
         self.online_analysis.setSizePolicy(sizePolicy)
         self.online_analysis.setMinimumSize(QSize(80, 0))
-        self.online_analysis.setMaximumSize(QSize(301, 70))
+        self.online_analysis.setMaximumSize(QSize(200, 70))
         self.online_analysis.setFont(font)
         self.online_analysis.setStyleSheet(u"\n"
                                            "\n"
@@ -140,7 +144,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.darkmode_button.sizePolicy().hasHeightForWidth())
         self.darkmode_button.setSizePolicy(sizePolicy)
         self.darkmode_button.setMinimumSize(QSize(80, 0))
-        self.darkmode_button.setMaximumSize(QSize(301, 70))
+        self.darkmode_button.setMaximumSize(QSize(200, 70))
         self.darkmode_button.setFont(font)
         self.darkmode_button.setStyleSheet(u"\n"
                                            "\n"
@@ -161,8 +165,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.self_configuration.sizePolicy().hasHeightForWidth())
         self.self_configuration.setSizePolicy(sizePolicy)
         self.self_configuration.setMinimumSize(QSize(80, 0))
-        self.self_configuration.setMaximumSize(QSize(301, 70))
+        self.self_configuration.setMaximumSize(QSize(200, 70))
         self.self_configuration.setFont(font)
+        self.self_configuration.setContextMenuPolicy(Qt.PreventContextMenu)
         self.self_configuration.setStyleSheet(u"QPushButton {\n"
                                               "\n"
                                               "\n"
@@ -189,7 +194,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.offline_analysis.sizePolicy().hasHeightForWidth())
         self.offline_analysis.setSizePolicy(sizePolicy)
         self.offline_analysis.setMinimumSize(QSize(80, 0))
-        self.offline_analysis.setMaximumSize(QSize(301, 70))
+        self.offline_analysis.setMaximumSize(QSize(200, 70))
         self.offline_analysis.setFont(font)
         self.offline_analysis.setStyleSheet(u"\n"
                                             "\n"
@@ -210,7 +215,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.settings_button.sizePolicy().hasHeightForWidth())
         self.settings_button.setSizePolicy(sizePolicy)
         self.settings_button.setMinimumSize(QSize(80, 0))
-        self.settings_button.setMaximumSize(QSize(301, 70))
+        self.settings_button.setMaximumSize(QSize(200, 70))
         self.settings_button.setFont(font)
         self.settings_button.setStyleSheet(u"\n"
                                            "\n"
@@ -230,7 +235,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.hamburger_button.sizePolicy().hasHeightForWidth())
         self.hamburger_button.setSizePolicy(sizePolicy)
         self.hamburger_button.setMinimumSize(QSize(80, 0))
-        self.hamburger_button.setMaximumSize(QSize(301, 70))
+        self.hamburger_button.setMaximumSize(QSize(200, 70))
         self.hamburger_button.setStyleSheet(u"background-image:url(../QT_GUI/Button/Logo/hamburger_menu.png);\n"
                                             "background-repeat:None;\n"
                                             "padding-left: 30px;\n"
@@ -244,7 +249,7 @@ class Ui_MainWindow(object):
         self.notebook.setObjectName(u"notebook")
         sizePolicy.setHeightForWidth(self.notebook.sizePolicy().hasHeightForWidth())
         self.notebook.setSizePolicy(sizePolicy)
-        self.notebook.setMinimumSize(QSize(0, 0))
+        self.notebook.setMinimumSize(QSize(956, 986))
         self.notebook.setMaximumSize(QSize(1800, 1200))
         self.config = Config_Widget()
         self.config.setObjectName(u"config")
@@ -350,7 +355,8 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
-        # setupUi
+
+    # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
@@ -364,6 +370,7 @@ class Ui_MainWindow(object):
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Submit", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Pro Mode Konsole Mode", None))
     # retranslateUi
+
 
 class MainWindow(QWidget,Ui_MainWindow):
     def __init__(self,parent = None):

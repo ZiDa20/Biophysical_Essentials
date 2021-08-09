@@ -172,9 +172,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         current_tab = self.tab_list[index]
         series_name = current_tab.objectName()
-
+        current_tab.tabWidget.setStyleSheet("QTabWidget::pane { border: 0; }")
         # set the text of the head label as series name - customized to the selected tab
-        current_tab.headline.setText(series_name + " Specific Analysis Functions")
+        # current_tab.headline.setText(series_name + " Specific Analysis Functions")
 
         db = self.offline_manager.get_database()
         directory = self.offline_manager._directory_path
@@ -246,16 +246,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab = self.tab_list[current_index]
 
         # remove initial widgets
-        current_tab.function_selection_grid.removeWidget(current_tab.coloumn_1_row_1)
-        current_tab.coloumn_1_row_1.deleteLater()
-        current_tab.function_selection_grid.removeWidget(current_tab.coloumn_2_row_2)
-        current_tab.coloumn_2_row_2.deleteLater()
-        current_tab.function_selection_grid.removeWidget(current_tab.coloumn_3_row_3)
-        current_tab.coloumn_3_row_3.deleteLater()
+        current_tab.function_selection_grid.removeWidget(current_tab.column_1_row_1)
+        current_tab.column_1_row_1.deleteLater()
+        current_tab.function_selection_grid.removeWidget(current_tab.column_2_row_2)
+        current_tab.column_2_row_2.deleteLater()
+        current_tab.function_selection_grid.removeWidget(current_tab.column_3_row_3)
+        current_tab.column_3_row_3.deleteLater()
         current_tab.function_selection_grid.removeWidget(current_tab.select_series_analysis_functions)
         current_tab.select_series_analysis_functions.deleteLater()
-        current_tab.function_selection_grid.removeWidget(current_tab.label_2)
-        current_tab.label_2.deleteLater()
+
+        #current_tab.function_selection_grid.removeWidget(current_tab.label_2)
+        #current_tab.label_2.deleteLater()
 
         # add new labels
         print("indexes", current_tab.function_selection_grid.count())
@@ -297,10 +298,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     @Slot(float)
     def add_common_coursor_bounds(self):
+        """
+        This function will add 2 dragable lines to the plot which will be provided by the global plot manager object
+        :return:
+        """
         # 1) insert dragable coursor bounds into pyqt graph
-        self.current_tab_plot_manager.show_draggable_lines()
+        left_val, right_val = self.current_tab_plot_manager.show_draggable_lines()
+
+        #2) connect to the signal taht will be emitted when cursor bounds are moved by user
         self.current_tab_plot_manager.left_bound_changed.cursor_bound_signal.connect(self.update_left_common_labels)
         self.current_tab_plot_manager.right_bound_changed.cursor_bound_signal.connect(self.update_right_common_labels)
+
+        #3) update the function selection grid
+        self.update_left_common_labels(left_val)
+        self.update_right_common_labels(right_val)
+
 
     def update_left_common_labels(self,value):
         self.update_cursor_bound_labels(value, 1)
@@ -384,6 +396,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
     def get_cursor_bound_value_from_grid(self,row,column,current_tab):
+        """
+        reads a grid cell defined by column and row and returnsit's float value
+        :param row: integer of the row index in the grid
+        :param column: integer of column index in the grid
+        :param current_tab: the current tab object which is providing the grid
+        :return: value in the specified cell as float
+        """
         try:
             r = float(current_tab.function_selection_grid.itemAtPosition(row, column).widget().text())
             return r
