@@ -1,5 +1,7 @@
 .idea/
 *.pyc
+*.ui
+*.log
 src/__pycache__/gui_elements.cpython-38.pyc
 src/__pycache__/helper_functions.cpython-38.pyc
 src/__pycache__/main.cpython-38.py

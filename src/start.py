@@ -1,6 +1,8 @@
 
 import sys
 import os
+import time
+
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
@@ -13,6 +15,7 @@ from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 import pyqtgraph as pg
 class MainWindow(QMainWindow, QtStyleTools):
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -40,33 +43,55 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.configuration_elements = Config_Widget()
 
-        self.ui.statistics_2.setProperty("class", "big_button")
+        # self.ui.statistics_2.setProperty("class", "big_button")
         #print(self.ui.config.Load_meta_data_experiment_12)
 
-        # connect to the metadata file path 
-        
+        # connect to the metadata file path
         self.ui.hamburger_button.clicked.connect(lambda: self.animate_menu())
-        self.ui.offline_analysis_2.clicked.connect(self.change_to_lightmode)
-        
+        #self.ui.offline_analysis_2.clicked.connect(self.change_to_lightmode)
 
+        self.write_button_text()
+        self.ui.side_left_menu.setMinimumSize(300, 1000)
+        self.ui.side_left_menu.setMaximumSize(300, 1800)
     def animate_menu(self):
         width = self.ui.side_left_menu.width()
         print(width)
         if width == 300:
             print("yeah")
             newWidth = 71
+            self.erase_button_text()
         else:
             print("hello")
             newWidth = 300
+            self.write_button_text()
+
         self.ui.side_left_menu.setMinimumSize(0,0)
-        self.ui.side_left_menu.setMaximumSize(1500,1500)
         self.animation = QPropertyAnimation(self.ui.side_left_menu, b"size")
-        self.animation.setDuration(500)
+        #self.animation.setDuration(500)
         self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
         self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
         self.animation.start()
+        self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
+        self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
 
+    def erase_button_text(self):
+        self.ui.self_configuration.setText("")
+        self.ui.online_analysis.setText("")
+        self.ui.offline_analysis.setText("")
+        self.ui.statistics.setText("")
+        self.ui.darkmode_button.setText("")
+        self.ui.konsole_button.setText("")
+        self.ui.settings_button.setText("")
+
+    def write_button_text(self):
+        self.ui.self_configuration.setText("Self Configuration")
+        self.ui.online_analysis.setText("Online Analysis")
+        self.ui.offline_analysis.setText("Offline Analysis")
+        self.ui.statistics.setText("Statistics")
+        self.ui.darkmode_button.setText("Change Theme")
+        self.ui.konsole_button.setText("Terminal")
+        self.ui.settings_button.setText("Settings")
 
     def change_to_lightmode(self):
         print("entered the function")
