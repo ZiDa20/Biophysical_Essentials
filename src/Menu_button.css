@@ -13,7 +13,7 @@ QPushButton {{
 
 QTabWidget::tab-bar {{
   alignment: center;
-  color: green;
+  background-color: green;
   padding-left: 30px
 }}
 

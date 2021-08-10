@@ -42,6 +42,13 @@ from functools import partial
 current_dir = os.path.dirname(os.path.abspath(__file__))
 #Form, Base = uic.loadUiType(os.path.join(current_dir, '../QT_GUI/main_window.ui'))
 
+
+
+####################### 
+#decapreated please remove
+######################
+
+
 class FrontPage(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()

@@ -357,7 +357,6 @@ class Ui_MainWindow(object):
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Pro Mode Konsole Mode", None))
     # retranslateUi
 
-
 class MainWindow(QWidget,Ui_MainWindow):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)

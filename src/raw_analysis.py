@@ -1,5 +1,3 @@
-
-
 import numpy as np
 import pandas as pd
 import sys
@@ -49,9 +47,6 @@ class AnalysisRaw():
             return self.time_to_minimum()
 
         # @TODO add current clamp functions
-
-
-
 
     @property
     def lower_bounds(self):
