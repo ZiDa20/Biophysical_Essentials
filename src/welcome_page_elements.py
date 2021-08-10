@@ -11,6 +11,9 @@ plt.rcParams['axes.facecolor']='#333333'
 plt.rcParams['figure.facecolor'] ='#333333'
 mpl.rc('axes',edgecolor='black')
 
+
+# can be safely removed
+
 class FrontPage():
 
     def __init__(self, appearance, self_button_state = 0):

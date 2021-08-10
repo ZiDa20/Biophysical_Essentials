@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1675</width>
-    <height>875</height>
+    <width>1751</width>
+    <height>961</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>-10</x>
      <y>10</y>
-     <width>1600</width>
-     <height>770</height>
+     <width>1751</width>
+     <height>961</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -32,8 +32,8 @@
     <widget class="QPushButton" name="button_select_data_file">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
+       <x>50</x>
+       <y>110</y>
        <width>181</width>
        <height>31</height>
       </rect>
@@ -45,8 +45,8 @@
     <widget class="QPushButton" name="button_switch_to_labbook">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>10</y>
+       <x>50</x>
+       <y>830</y>
        <width>181</width>
        <height>31</height>
       </rect>
@@ -55,215 +55,252 @@
       <string>Switch to Labbook</string>
      </property>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget">
+    <widget class="QTabWidget" name="tree_tab_widget">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>1411</width>
-       <height>501</height>
+       <x>50</x>
+       <y>160</y>
+       <width>411</width>
+       <height>651</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QWidget" name="mpl_canvas" native="true"/>
-      </item>
-      <item>
-       <widget class="QWidget" name="button_toolbar_online" native="true"/>
-      </item>
-      <item>
-       <widget class="QWidget" name="treeview_widget" native="true"/>
-      </item>
-     </layout>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="selected_tree_view">
+      <attribute name="title">
+       <string>Selected</string>
+      </attribute>
+      <widget class="QTreeWidget" name="treeWidget">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>411</width>
+         <height>631</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Object</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="discarded_tree_view">
+      <attribute name="title">
+       <string>Discarded</string>
+      </attribute>
+      <widget class="QTreeWidget" name="treeWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>441</width>
+         <height>631</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Object</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Reinsert</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
     </widget>
-    <widget class="Line" name="line">
+    <widget class="QLabel" name="label_selected_directory">
      <property name="geometry">
       <rect>
-       <x>0</x>
+       <x>270</x>
+       <y>110</y>
+       <width>481</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>No .dat file selected</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_save_dat_file">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>830</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save Modified .dat File</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_save_to_offline_analysis">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>830</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add Experiment To Offline Analysis</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="headline_label">
+     <property name="geometry">
+      <rect>
+       <x>620</x>
        <y>50</y>
-       <width>1431</width>
-       <height>16</height>
+       <width>191</width>
+       <height>41</height>
       </rect>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Online Analysis</string>
      </property>
     </widget>
-    <widget class="Line" name="line_2">
+    <widget class="QWidget" name="verticalLayoutWidget_4">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>700</y>
-       <width>1431</width>
-       <height>16</height>
+       <x>50</x>
+       <y>160</y>
+       <width>411</width>
+       <height>651</height>
       </rect>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5"/>
     </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_2">
+    <widget class="QTabWidget" name="online_analysis_tabs">
      <property name="geometry">
       <rect>
-       <x>770</x>
-       <y>600</y>
-       <width>651</width>
-       <height>80</height>
+       <x>490</x>
+       <y>160</y>
+       <width>951</width>
+       <height>651</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QWidget" name="widget" native="true">
-        <widget class="QWidget" name="button_transfer_to_offline" native="true">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>211</width>
-           <height>80</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QWidget" name="button_discard_series" native="true">
-         <property name="geometry">
-          <rect>
-           <x>240</x>
-           <y>0</y>
-           <width>191</width>
-           <height>80</height>
-          </rect>
-         </property>
-         <widget class="QWidget" name="widget_4" native="true">
-          <property name="geometry">
-           <rect>
-            <x>230</x>
-            <y>0</y>
-            <width>191</width>
-            <height>80</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QWidget" name="button_save_current_trace" native="true">
-          <property name="geometry">
-           <rect>
-            <x>220</x>
-            <y>0</y>
-            <width>191</width>
-            <height>80</height>
-           </rect>
-          </property>
-          <widget class="QWidget" name="widget_5" native="true">
-           <property name="geometry">
-            <rect>
-             <x>230</x>
-             <y>0</y>
-             <width>191</width>
-             <height>80</height>
-            </rect>
-           </property>
-          </widget>
-         </widget>
-        </widget>
-       </widget>
-      </item>
-     </layout>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="recorded_series_plot_tab">
+      <attribute name="title">
+       <string>Plot Window</string>
+      </attribute>
+      <widget class="QPushButton" name="button_re_center">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>20</y>
+         <width>71</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Re-Center</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="button_hold_plot">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>80</y>
+         <width>71</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Hold</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="button_clear_plot_widget">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>140</y>
+         <width>71</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_5">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>791</width>
+         <height>411</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="tree_plot_widget_layout"/>
+      </widget>
+      <widget class="QWidget" name="gridLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>460</y>
+         <width>791</width>
+         <height>151</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout"/>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="fast_online_analysis">
+      <attribute name="title">
+       <string>Fast Analysis</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="live_recording_tab">
+      <attribute name="title">
+       <string>Live Recording</string>
+      </attribute>
+      <widget class="QWidget" name="verticalLayoutWidget_6">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>60</y>
+         <width>771</width>
+         <height>491</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6"/>
+      </widget>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="labbook_window">
     <attribute name="title">
      <string>Labbook</string>
     </attribute>
-    <widget class="QWidget" name="verticalLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>20</y>
-       <width>271</width>
-       <height>681</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Treeview of Experiment</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTreeView" name="treeview_experiment"/>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="retrieve_button">
-        <property name="text">
-         <string>Retrieve</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="discard_button">
-        <property name="text">
-         <string>Discard</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QTreeView" name="treeview_experiment_discarded"/>
-      </item>
-     </layout>
-    </widget>
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
@@ -459,9 +496,9 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>300</x>
+       <x>460</x>
        <y>20</y>
-       <width>791</width>
+       <width>631</width>
        <height>681</height>
       </rect>
      </property>
@@ -477,6 +514,17 @@
        <widget class="QTableWidget" name="tableWidget"/>
       </item>
      </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>411</width>
+       <height>681</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
     </widget>
    </widget>
   </widget>

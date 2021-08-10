@@ -1,5 +1,9 @@
 from PIL import ImageTk ,Image
 
+
+##################################
+#deprecated , should be removed --> mz
+##################################
 class HelperFunction():
 
     def __init__(self):

@@ -1,5 +1,8 @@
 import tkinter.ttk as ttk
 import tkinter as tk
+
+import numpy as np
+
 import raw_analysis as ra
 from tkinter import filedialog
 import os
@@ -28,6 +31,7 @@ class OfflineManager():
 
         # database object
         self.database = data_db.DataDB()
+        self.analysis_id = None
 
         self.tree_view_manager = None
 
@@ -41,26 +45,73 @@ class OfflineManager():
         self._directory_path = val
 
 
+    def execute_single_series_analysis(self,series_name):
+        """Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
+        Therefore, sweep data traces will be load from the database, an analysis object will be created and results will be written
+        into the database. """
+
+        # get series specific time from database
+        time = self.database.get_time_in_ms_of_analyzed_series(series_name)
+
+        # get sweep id's (they are unique ! in the database )
+        sweep_ids = self.database.get_sweep_id_list_for_offline_analysis(series_name)
+
+
+        # read analysis functions from database
+        analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
+
+
+        # calculate result for each single sweep data trace and write the result into the database
+        for id in sweep_ids:
+            data = self.database.get_single_sweep_data_from_database_by_sweep_id(id)
+
+            raw_analysis_class_object = ra.AnalysisRaw(time,data)
+
+            for a in analysis_functions:
+                # list of cursor bound tuples
+                cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(a,series_name)
+
+                for c in cursor_bounds:
+                    # negative bound values decode invalid/not selected bounds
+                    if c[0] > 0.0  and c[1] > 0.0:
+                        raw_analysis_class_object._lower_bounds = c[0]
+                        raw_analysis_class_object._upper_bounds = c[1]
+
+                        raw_analysis_class_object.construct_trace()
+                        raw_analysis_class_object.slice_trace()
+
+                        res = raw_analysis_class_object.call_function_by_string_name(a)
+                        self.database.write_result_to_database(c[2],id,res)
+
+
+
+
     def get_database(self):
         return self.database
 
     def read_data_from_experiment_directory(self,tree,discarded_tree):
         data_list = self.package_list(self._directory_path)
         self.tree_view_manager = TreeViewManager(self.database)
-        tree,discarded_tree = self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, self.database, data_list, self._directory_path)
+        tree,discarded_tree = self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
         return tree, discarded_tree
 
     # Database functions
     def init_database(self):
+        # creates the analysis database if not available or adds a new analysis by a new unique id to the table
         self.database.create_analysis_database()
         self.database.create_database_tables()
+        self.analysis_id = self.database.insert_new_analysis("admin")
+
 
     def write_analysis_series_types_to_database(self,series_type_list):
         self.database.write_analysis_series_types_to_database(series_type_list)
 
-        # initial filter settings
-        self.database.write_filter_into_database("CSlow", -10, +10)
-        self.database.write_filter_into_database("RSeries", -12, +20)
+    def write_recording_mode_to_analysis_series_table(self,recording_mode,series_name):
+        self.database.write_recording_mode_to_analysis_series_table(recording_mode,series_name,self.analysis_id)
+
+    def write_ms_spaced_time_array_to_analysis_series_table(self,time,series_name):
+        time_array = np.array(time)
+        self.database.write_ms_spaced_time_array_to_analysis_series_table(time_array,series_name, self.analysis_id)
 
     def write_series_type_specific_experiment_and_sweep_information(self,data_list,series_name):
         '''fill database from series type specific treeview list, no duplicated insertation'''

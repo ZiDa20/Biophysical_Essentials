@@ -4,7 +4,6 @@ from shutil import copyfile
 import heka_reader
 import tkinter.ttk as ttk
 import numpy as np
-
 class OnlineAnalysisManager:
     def __init__(self):
         self.bundle = None
@@ -51,6 +50,13 @@ class OnlineAnalysisManager:
     def dat_file_name(self, val):
         self._dat_file_name = val
 
+
+    # @todo this is a new function to replace deprecated function read_data_from_dat_file
+    def get_sweep_data_array_from_dat_file(self,request_array):
+        data_bundle = heka_reader.Bundle(self._dat_file_name)
+        data = data_bundle.data[request_array]
+        #self.time = np.linspace(0,len(self.data)-1, len(self.data))
+        return data
 
     def read_dat_tree_structure(self,treeview,mode):
         '''Main function to orchestrate the reading of a dat file, will return a treeview'''
