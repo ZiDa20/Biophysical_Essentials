@@ -157,6 +157,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             new_tab_widget.setObjectName(s)
             self.tabWidget.insertTab(series_names_list.index(s),new_tab_widget,s)
             self.tab_list.append(new_tab_widget)
+            self.plot_widgets= []
 
             # add this selection to table series in the database
 
@@ -186,8 +187,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
+        self.current_tab_plot_manager = None
+
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
-                                                             self.experiments_tree_view,1)
+                                                                  self.experiments_tree_view, 1)
 
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
