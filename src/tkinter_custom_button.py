@@ -1,7 +1,7 @@
 import tkinter
 import sys
 
-
+# can be safely removed
 class TkinterCustomButton(tkinter.Frame):
     """ tkinter custom button with border, rounded corners and hover effect
 

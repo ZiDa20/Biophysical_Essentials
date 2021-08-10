@@ -1,3 +1,8 @@
+
+import sys
+import os
+sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+from online_analysis_widget import Online_Analysis
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
@@ -16,6 +21,8 @@ from pyqtgraph import PlotWidget, plot
 pg.setConfigOption('foreground', '#ff8117')
 from dvg_pyqtgraph_threadsafe import PlotCurve
 from self_config_notebook_widget import *
+from online_analysis_widget import *
+
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
@@ -28,20 +35,24 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.set_buttons_beginning()
     
 
-
+        #self.online_analysis = Online_Analysis()
         self.batch_path = None
         self.backend_manager = BackendManager()
         self.pgf_file = None
         self.pro_file = None
         self.onl_file = None
         self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
-        self.submission_count = 2
-        self.image_stacke = []
+
+        self.submission_count = 2 # count for incrementing batch communication 
+
+        self.image_stacke = [] #image stack for taken snapshots
         self.default_mode = 1
         self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
         self.pyqt_graph.setBackground("#232629")
         self.setupUi(self)
         self.check_session = None
+
+        # logger l
         self.logger=logging.getLogger() 
         self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/configuration.log')
@@ -54,7 +65,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # initialize meta data sheet opening boehringer special
 
         #connect to the camera control
-        self.pushButton.clicked.connect(self.initialize_camera) # initalize the camera 
+        self.initialize_camera()
         self.button_start_camera.clicked.connect(self.start_camera_timer) # intialize 
         self.button_stop_camera.clicked.connect(self.stop_camera)
         self.button_take_snapshot.clicked.connect(self.show_snapshot)
@@ -73,7 +84,20 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.pushButton_3.clicked.connect(self.make_threading)
         self.pushButton_10.clicked.connect(self.clear_list)
         self.pushButton_4.clicked.connect(self.stop_threading)
+        self.set_solutions()
 
+
+
+    def set_solutions(self):
+        """ set solutions that you can use for the experiment"""
+        extracellular_solutions = ["ECS Standard","ECS Standard new","Sodium ECS", "Potassium ECS","Calcium ECS","aCSF","NMDG Solution", "low-calcium ECS"]
+        intracellular_solutions = ["Pipette XX","Pipette XXneu"]
+
+        for i in extracellular_solutions:
+            self.extracellular_sol_com_1.addItem(i)
+        
+        for i in intracellular_solutions:
+            self.Intracellular_sol_com_1.addItem(i)
 
         
     def set_buttons_beginning(self):
@@ -116,6 +140,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         --> check control file button should indicate if file is already 
         there
          """
+
+        print("detected_button_click")
         batch_path = self.backend_manager.set_batch_path()
         if batch_path:
             self.Batch1.setText(batch_path)
@@ -142,7 +168,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         camera_status = self.camera.init_camera()
         self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
         if camera_status is None: # initialization of the camera and error response if not correctly initialized
-            self.scence_trial.addText("is not working")
+            self.scence_trial.addText("Camera is not connected please check the connection in the settings app")
             self.Camera_Live_Feed.setScene(self.scence_trial)
             self.button_start_camera.setEnabled(False)
             self.button_stop_camera.setEnabled(False)
@@ -150,7 +176,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         else:
             print("Camera is connected")
-            self.scence_trial.addText("Please start the Camera via the Start Camera Button")
+            self.scence_trial.addText("Please start capturing!")
             self.Camera_Live_Feed.setScene(self.scence_trial)
 
     def start_camera_timer(self):
@@ -189,7 +215,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """Here we check the lenght of the  to avoid overcrowding in the image galery
         its set to 5 images"""
         try:
-            if len(image_liste) > 4:
+            if len(image_liste) > 4: # if stack overcrowded
                 image_liste.pop()
                 print("Expected List Length reached")
         except Exception as e:
@@ -376,15 +402,16 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def trial_setup(self, notebook, item):
         """gets the data and draws it into the fast analysis window
+        recursive function to redo analyis until query is not acquiring or executing anymore
         ToDO:"""
-        sleep(0.2)
+        sleep(0.2) # sleeping to avoid overflue by commands added to the batch communication
         item = item 
-        final_notebook_dataframe = notebook
+        final_notebook_dataframe = notebook # maybe deep copy
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Query\n") # Query to get the state of the amplifier
         self.increment_count()
 
-        query_status = self.backend_manager.get_query_status()
-        query_status = query_status.replace(" ", "")
+        query_status = self.backend_manager.get_query_status() # get the status of the query
+        query_status = query_status.replace(" ", "")# post processing
         print(f"this is the query status: {query_status}")
 
         if "Query_Idle" in query_status:
@@ -419,7 +446,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         
 
     def get_final_notebook(self, notebook):
-        """ Dataframe has multiple commas therefore columsn will be shifted to adjust for this"""
+        """ Dataframe has multiple commas therefore columns will be shifted to adjust for this
+        Get the final written notebook from the analysis"""
         columns = notebook.iloc[0].tolist()
         columns.pop(0)
         columns = columns + ["NAN"]
@@ -433,7 +461,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         return True
 
     def basic_configuration_protcols(self, item):
-        print("yes i entered this file")
+        # make basic functions to adjust for whole-cell conrfiguration, seal configurations and 
         function_dictionary = {"Setup": self.execute_setup, "Seal": self.execute_seal, "Whole-cell": self.execute_whole_cell}
         func = function_dictionary.get(item,lambda :'Invalid')
         func()
@@ -460,6 +488,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.listWidget.model().clear()
         
     def set_darkmode(self, default_mode):
+        #get the darkmode options
         self.default_mode = default_mode
    
     def get_darkmode(self):
@@ -477,8 +506,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             print("dark_mode")
             self.pyqt_graph.setBackground("#232629")
 
-
-    
 
 class Worker(QRunnable):
     '''

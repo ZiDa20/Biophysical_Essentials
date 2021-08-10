@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import heka_reader as h_r
 
-
+## doubt we need this 
 class MultipleSeriesInAFileDialog(tkinter.simpledialog.Dialog):
 
     def __init__(self, parent):
