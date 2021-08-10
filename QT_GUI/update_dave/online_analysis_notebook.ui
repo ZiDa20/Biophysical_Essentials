@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1751</width>
+    <height>961</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QTabWidget" name="online_analysis">
+   <property name="geometry">
+    <rect>
+     <x>-10</x>
+     <y>10</y>
+     <width>1751</width>
+     <height>961</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="online_analysis_window">
+    <attribute name="title">
+     <string>Online Analysis</string>
+    </attribute>
+    <widget class="QPushButton" name="button_select_data_file">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>110</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Select a .Dat File:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_switch_to_labbook">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>830</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Switch to Labbook</string>
+     </property>
+    </widget>
+    <widget class="QTabWidget" name="tree_tab_widget">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>160</y>
+       <width>411</width>
+       <height>651</height>
+      </rect>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="selected_tree_view">
+      <attribute name="title">
+       <string>Selected</string>
+      </attribute>
+      <widget class="QTreeWidget" name="treeWidget">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>411</width>
+         <height>631</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Object</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="discarded_tree_view">
+      <attribute name="title">
+       <string>Discarded</string>
+      </attribute>
+      <widget class="QTreeWidget" name="treeWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>441</width>
+         <height>631</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Object</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Reinsert</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="label_selected_directory">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>110</y>
+       <width>481</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>No .dat file selected</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_save_dat_file">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>830</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Save Modified .dat File</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_save_to_offline_analysis">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>830</y>
+       <width>181</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Add Experiment To Offline Analysis</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="headline_label">
+     <property name="geometry">
+      <rect>
+       <x>620</x>
+       <y>50</y>
+       <width>191</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Online Analysis</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>160</y>
+       <width>411</width>
+       <height>651</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5"/>
+    </widget>
+    <widget class="QTabWidget" name="online_analysis_tabs">
+     <property name="geometry">
+      <rect>
+       <x>490</x>
+       <y>160</y>
+       <width>951</width>
+       <height>651</height>
+      </rect>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="recorded_series_plot_tab">
+      <attribute name="title">
+       <string>Plot Window</string>
+      </attribute>
+      <widget class="QPushButton" name="button_re_center">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>20</y>
+         <width>71</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Re-Center</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="button_hold_plot">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>80</y>
+         <width>71</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Hold</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="button_clear_plot_widget">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>140</y>
+         <width>71</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_5">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>791</width>
+         <height>411</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="tree_plot_widget_layout"/>
+      </widget>
+      <widget class="QWidget" name="gridLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>460</y>
+         <width>791</width>
+         <height>151</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout"/>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="fast_online_analysis">
+      <attribute name="title">
+       <string>Fast Analysis</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="live_recording_tab">
+      <attribute name="title">
+       <string>Live Recording</string>
+      </attribute>
+      <widget class="QWidget" name="verticalLayoutWidget_6">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>60</y>
+         <width>771</width>
+         <height>491</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6"/>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="labbook_window">
+    <attribute name="title">
+     <string>Labbook</string>
+    </attribute>
+    <widget class="QWidget" name="verticalLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>1100</x>
+       <y>20</y>
+       <width>311</width>
+       <height>681</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Image of the Experiment</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGraphicsView" name="image_experiment"/>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_19">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_17">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_13">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_14">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_12">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_11">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_10">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_9">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="add_metadata_button">
+        <property name="text">
+         <string>Add Metadata to Labbook</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="save_labbook_button">
+        <property name="text">
+         <string>Save Labbook</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>460</x>
+       <y>20</y>
+       <width>631</width>
+       <height>681</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Labbook of Experiment</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="tableWidget"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>411</width>
+       <height>681</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

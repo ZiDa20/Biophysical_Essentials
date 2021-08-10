@@ -2,7 +2,9 @@ from tkinter import *
 from tkinter.ttk import *
 
 '''git function: -> https://github.com/MenxLi/tkSliderWidget'''
-
+"""
+not necessary anymore please remove --> mz
+"""
 class Slider(Frame):
     LINE_COLOR = "#476b6b"
     LINE_WIDTH = 3

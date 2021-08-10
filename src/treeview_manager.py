@@ -11,10 +11,25 @@ class TreeViewManager():
     1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
     2) read a single .dat file '''
 
-    def __init__(self,database):
+    def __init__(self,database=None):
         self.database = database
 
-    def create_treeview_from_directory(self, tree, discarded_tree, database,dat_files,directory_path):
+            # analysis mode 0 = online analysis
+            # analysis mode 1 = offline_analysis
+        if self.database is None:
+            self.analysis_mode = 0
+            print("setting analysis mode 0 (online analysis)")
+        else:
+            self.analysis_mode = 1
+            print("setting analysis mode 1 (offline analysis)")
+
+
+    def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
+        print("specific analysis view for series ", series_name)
+        self.analysis_mode = 1
+        self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
+
+    def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None):
         '''
         creates a treeview from multiple .dat files in a directory,
         :param tree: QTreeWidget
@@ -25,35 +40,43 @@ class TreeViewManager():
         '''
         for i in dat_files:
             file = directory_path + "/" + i
-            bundle = heka_reader.Bundle(file)
+            bundle = self.open_bundle_of_file(file)
             # add the experiment name into experiment table
-            database.add_experiment_to_experiment_table(i)
-            tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,database,1)
+            if database_mode:
+                self.database.add_experiment_to_experiment_table(i)
+                self.database.create_mapping_between_experiments_and_analysis_id(i)
+
+            tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,self.database,database_mode,series_name)
 
         return tree, discarded_tree
 
-    def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree, experiment_name, database,data_base_mode):
-        '''
+    def open_bundle_of_file(self,file_name):
+        print(file_name)
+        return heka_reader.Bundle(file_name)
 
+    def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree, experiment_name, database,data_base_mode,series_name=None):
+        """
+        Creates the treeview and also writes series (info + data) and sweep (info + data) into the database
         :param index:
         :param bundle:
         :param parent:
         :param node_list:
         :param tree:
+        :param discarded_tree:
         :param experiment_name:
         :param database:
-        :param data_base_mode: write into the database if this mode is enabled (1) otherwise only create treeview(0)
-
+        :param data_base_mode:
+        :param series_name:
         :return:
-        '''
-        ''' creates the treeview and also writes series (info + data) and sweep (info + data) into the database'''
+        """
 
         root = bundle.pul
         node = root
 
-        '''select the last node '''
+        #select the last node
         for i in index:
             node = node[i]
+
         node_type = node.__class__.__name__
         if node_type.endswith('Record'):
             node_type = node_type[:-6]
@@ -65,11 +88,6 @@ class TreeViewManager():
             node_label = node.Label
         except AttributeError:
             node_label = ''
-        metadata = []
-        try:
-            metadata.append(node)
-        except Exception as e:
-            metadata.append(node)
 
         discard_button = QPushButton()
 
@@ -77,6 +95,7 @@ class TreeViewManager():
         pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
         discard_button.setIcon(pixmap)
 
+        metadata = node
 
         if "Pulsed" in node_type:
             print("skipped")
@@ -89,15 +108,17 @@ class TreeViewManager():
             else:
                 parent = QTreeWidgetItem(top_level_item_amount)
 
-            if data_base_mode:
-                parent.setText(0, experiment_name)
-                tree.addTopLevelItem(parent)
-                parent.setData(3, 0, [experiment_name])
-            else:
+            if  self.analysis_mode == 0:
                 parent.setText(0, node_label)
                 parent.setData(3, 0, [0])  # hard coded tue to .dat file structure
+            else:
+                parent.setText(0, experiment_name)
+                parent.setData(3, 0, [experiment_name])
+
+            tree.addTopLevelItem(parent)
 
             # add discard button in coloumn 2
+            print("adding discard button to parent ")
             discard_button = QPushButton()
             discard_button.setStyleSheet("border:none")
             discard_button.setIcon(pixmap)
@@ -106,55 +127,81 @@ class TreeViewManager():
 
 
         if "Series" in node_type:
-            for s in node_list:
-                if "Group" in s[0]:
-                    parent = s[2]
-                    break
-            child = QTreeWidgetItem(parent)
-            child.setText(0, node_label)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setCheckState(1, Qt.Unchecked)
-            series_number = self.get_number_from_string(node_type)
-            data = parent.data(3, 0)
-            if data_base_mode:
-                data.append(node_type)
-                database.add_single_series_to_database(experiment_name,node_label,node_type)
+            if series_name is None or series_name == node_label:
+                for s in node_list:
+                    if "Group" in s[0]:
+                        parent = s[2]
+                        break
+                child = QTreeWidgetItem(parent)
+                child.setText(0, node_label)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setCheckState(1, Qt.Unchecked)
+                series_number = self.get_number_from_string(node_type)
+                data = parent.data(3, 0)
+
+
+                if data_base_mode:
+                    database.add_single_series_to_database(experiment_name, node_label, node_type)
+
+                if  self.analysis_mode==0:
+                    data.append(series_number - 1)
+                else:
+                    data.append(node_type)
+
+                child.setData(3, 0, data)
+
+                # often the specific series identifier will be needed to ensure unique identification of series
+                # whereas the user will the series name instead
+                child.setData(4, 0, node_type)
+
+                child.setExpanded(False)
+                parent = child
+
+                discard_button = QPushButton()
+                discard_button.setIcon(pixmap)
+                discard_button.setStyleSheet("border:none")
+                discard_button.clicked.connect(partial(self.discard_button_clicked, child, tree, discarded_tree))
+                tree.setItemWidget(child, 2, discard_button)
+
             else:
-                data.append(series_number - 1)
-            child.setData(3, 0, data)
-
-            # often the specific series identifier will be needed to ensure unique identification of series
-            # whereas the user will the series name instead
-            child.setData(4,0,node_type)
-
-            child.setExpanded(False)
-            parent = child
-
-            discard_button = QPushButton()
-            discard_button.setIcon(pixmap)
-            discard_button.setStyleSheet("border:none")
-            discard_button.clicked.connect(partial(self.discard_button_clicked,child,tree,discarded_tree))
-            tree.setItemWidget(child, 2, discard_button)
+                print("rejected")
 
         if "Sweep" in node_type:
-            child = QTreeWidgetItem(parent)
-            child.setText(0, node_type)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setCheckState(1, Qt.Unchecked)
-            sweep_number = self.get_number_from_string(node_type)
-            data = parent.data(3, 0)
+            if series_name is None or series_name == parent.text(0):
+                child = QTreeWidgetItem(parent)
+                child.setText(0, node_type)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setCheckState(1, Qt.Unchecked)
+                sweep_number = self.get_number_from_string(node_type)
+                data = parent.data(3, 0)
 
-            if data_base_mode:
-                s_p = self.get_number_from_string(data[1])
-                data_array = bundle.data[[0,s_p-1,sweep_number-1,0]]
-                series_identifier = parent.data(4,0)
-                database.add_single_sweep_tp_database(experiment_name,series_identifier, sweep_number, metadata, data_array)
-                data.append(sweep_number)
-            else:
-                data.append(sweep_number - 1)
-                data.append(0)
+                if self.analysis_mode == 0:
+                    data.append(sweep_number - 1)
+                    data.append(0)
 
-            child.setData(3, 0, data)
+                    # write the metadata dictionary to the 5 th column to read it when plotting
+
+                else:
+                    data.append(sweep_number)
+                    series_identifier = self.get_number_from_string(data[1])
+
+
+                    if data_base_mode:
+                        data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
+                        series_identifier = parent.data(4, 0)
+                        # insert the sweep
+                        database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
+                                                              data_array)
+
+                child.setData(3, 0, data)
+                parent = child
+
+        if "Trace" in node_type:
+            if self.analysis_mode==0:
+                #print("setting following metadata", node)
+                #print("to node:", parent.text(0))
+                #print("in series", parent.parent.text(0))
+                parent.setData(5,0,node.get_fields())
 
         node_list.append([node_type, node_label, parent])
 
@@ -162,9 +209,13 @@ class TreeViewManager():
 
         for i in range(len(node.children)):
             self.create_treeview_from_single_dat_file(index + [i], bundle, parent, node_list, tree, discarded_tree, experiment_name,
-                                                      database, data_base_mode)
+                                                      database, data_base_mode,series_name)
 
         return tree, discarded_tree
+
+    #def add_series_to_treeview(self,parent,node_label,node_type,data_base_mode,experiment_name,pixmap,tree,discarded_tree):
+
+
 
     def get_number_from_string(self,string):
         '''split something like Series1 into Series,1'''
@@ -213,10 +264,12 @@ class TreeViewManager():
             experiment_name = item.parent().text(0)
             series_name = item.text(0)
             series_identifier = item.data(4,0)
-            if function == "reinsert":
-                self.database.reinsert_specific_series(experiment_name,series_name,series_identifier)
-            else:
-                self.database.discard_specific_series(experiment_name, series_name, series_identifier)
+
+            if self.database is not None:
+                if function == "reinsert":
+                    self.database.reinsert_specific_series(experiment_name,series_name,series_identifier)
+                else:
+                    self.database.discard_specific_series(experiment_name, series_name, series_identifier)
 
     def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move .dat and its specific children """
@@ -313,3 +366,4 @@ class TreeViewManager():
             button.clicked.connect(partial(self.reinsert_button_clicked, item, experiment_tree, discarded_tree))
         button.setIcon(pixmap)
         return button
+
