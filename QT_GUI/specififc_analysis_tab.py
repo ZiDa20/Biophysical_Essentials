@@ -264,9 +264,7 @@ class Ui_SpecificAnalysisTab(object):
 
         self.function_selection_grid.addWidget(self.column_1_row_1, 1, 1, 1, 1)
 
-
         self.verticalLayout_2.addLayout(self.function_selection_grid)
-
 
         self.gridLayout.addWidget(self.groupBox, 12, 1, 6, 16)
 
@@ -287,10 +285,9 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.series_plot = QVBoxLayout()
         self.series_plot.setObjectName(u"series_plot")
-        self.series_plot.setSizeConstraint(QLayout.SetMinimumSize)
+        self.series_plot.setSizeConstraint(QLayout.SetDefaultConstraint)
 
         self.gridLayout_7.addLayout(self.series_plot, 0, 0, 1, 1)
-
 
         self.gridLayout.addWidget(self.groupBox_5, 3, 8, 9, 9)
 
@@ -326,13 +323,12 @@ class Ui_SpecificAnalysisTab(object):
 
         self.gridLayout.addWidget(self.groupBox_3, 1, 1, 2, 16)
 
-
         self.retranslateUi(SpecificAnalysisTab)
 
         self.tabWidget.setCurrentIndex(0)
 
-
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
+
     # setupUi
 
     def retranslateUi(self, SpecificAnalysisTab):
@@ -342,19 +338,22 @@ class Ui_SpecificAnalysisTab(object):
         ___qtreewidgetitem.setText(2, QCoreApplication.translate("SpecificAnalysisTab", u"Discard", None));
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("SpecificAnalysisTab", u"Object", None));
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.selected_tab), QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.selected_tab),
+                                  QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None))
         ___qtreewidgetitem1 = self.discarded_tree_widget.headerItem()
         ___qtreewidgetitem1.setText(2, QCoreApplication.translate("SpecificAnalysisTab", u"Reinsert", None));
         ___qtreewidgetitem1.setText(1, QCoreApplication.translate("SpecificAnalysisTab", u"Selected", None));
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("SpecificAnalysisTab", u"Object", None));
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.discarded_tab), QCoreApplication.translate("SpecificAnalysisTab", u"Discarded", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.discarded_tab),
+                                  QCoreApplication.translate("SpecificAnalysisTab", u"Discarded", None))
         self.groupBox.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Function Selection", None))
         self.column_1_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Left Common Cursor", None))
         self.column_3_row_3.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
         self.label_11.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
         self.column_2_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Right Common Cursor", None))
         self.column_2_row_2.setText(QCoreApplication.translate("SpecificAnalysisTab", u"None", None))
-        self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add Function", None))
+        self.select_series_analysis_functions.setText(
+            QCoreApplication.translate("SpecificAnalysisTab", u"Add Function", None))
         self.column_4_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Right Sepcific Cursor", None))
         self.column_3_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Left Sepcific Cursor", None))
         self.column_0_head.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Function", None))
@@ -364,14 +363,6 @@ class Ui_SpecificAnalysisTab(object):
         self.pushButton_3.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add Filter", None))
         self.label_7.setText(QCoreApplication.translate("SpecificAnalysisTab", u"No Filter Selected", None))
     # retranslateUi
-
-
-
-
-
-
-
-
 
 
 class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):

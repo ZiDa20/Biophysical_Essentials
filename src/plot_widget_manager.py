@@ -23,8 +23,13 @@ class PlotWidgetManager(QtCore.QRunnable):
 
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.setStyleSheet('dark_blue.xml')
+        # clear the layout from previous plot
+        print("removed old widget")
         vertical_layout_widget.takeAt(0)
+
+        # add the new plot widget
         vertical_layout_widget.insertWidget(0,self.plot_widget)
+
         self.tree_view = tree_view
 
         self.analysis_mode = mode
@@ -131,9 +136,7 @@ class PlotWidgetManager(QtCore.QRunnable):
     def get_recording_mode(self,meta_data):
         meta_dict = self.get_dict(meta_data)
         print(meta_dict)
-        recording_mode= meta_dict.get('RecordingMode')
-        byte_repr = str.encode(recording_mode)
-
+        byte_repr = meta_dict.get('RecordingMode')
         print("found", byte_repr)
         if byte_repr == b'\x03':
             print("recording mode : Voltage Clamp")
