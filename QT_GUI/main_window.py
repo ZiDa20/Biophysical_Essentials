@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1280, 1024)
+        MainWindow.resize(1491, 1024)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -255,10 +255,9 @@ class Ui_MainWindow(object):
         self.config.setObjectName(u"config")
         sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
         self.config.setSizePolicy(sizePolicy)
-        self.gridLayout_4 = QGridLayout(self.config)
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.frame = QFrame(self.config)
         self.frame.setObjectName(u"frame")
+        self.frame.setGeometry(QRect(0, 500, 591, 491))
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
         self.frame.setSizePolicy(sizePolicy)
         self.frame.setMinimumSize(QSize(0, 0))
@@ -288,28 +287,23 @@ class Ui_MainWindow(object):
                                  "}")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
-        self.gridLayout_2 = QGridLayout(self.frame)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.pushButton = QPushButton(self.frame)
         self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setGeometry(QRect(269, 817, 80, 23))
         sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
         self.pushButton.setSizePolicy(sizePolicy)
         self.pushButton.setMinimumSize(QSize(80, 23))
         self.pushButton.setMaximumSize(QSize(80, 23))
-
-        self.gridLayout_2.addWidget(self.pushButton, 4, 0, 1, 1)
-
         self.lineEdit = QLineEdit(self.frame)
         self.lineEdit.setObjectName(u"lineEdit")
+        self.lineEdit.setGeometry(QRect(160, 460, 400, 20))
         sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
         self.lineEdit.setSizePolicy(sizePolicy)
         self.lineEdit.setMinimumSize(QSize(400, 20))
         self.lineEdit.setMaximumSize(QSize(400, 20))
-
-        self.gridLayout_2.addWidget(self.lineEdit, 3, 0, 1, 1)
-
         self.label_2 = QLabel(self.frame)
         self.label_2.setObjectName(u"label_2")
+        self.label_2.setGeometry(QRect(269, 124, 150, 13))
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy)
         self.label_2.setMinimumSize(QSize(150, 13))
@@ -317,20 +311,13 @@ class Ui_MainWindow(object):
         font1 = QFont()
         font1.setPointSize(8)
         self.label_2.setFont(font1)
-
-        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
-
         self.textEdit = QTextEdit(self.frame)
         self.textEdit.setObjectName(u"textEdit")
+        self.textEdit.setGeometry(QRect(160, 150, 400, 300))
         sizePolicy.setHeightForWidth(self.textEdit.sizePolicy().hasHeightForWidth())
         self.textEdit.setSizePolicy(sizePolicy)
         self.textEdit.setMinimumSize(QSize(400, 300))
         self.textEdit.setMaximumSize(QSize(400, 300))
-
-        self.gridLayout_2.addWidget(self.textEdit, 2, 0, 1, 1)
-
-        self.gridLayout_4.addWidget(self.frame, 0, 0, 1, 1)
-
         self.notebook.addWidget(self.config)
         self.online = Online_Analysis()
         self.online.setObjectName(u"online")
@@ -355,8 +342,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
-
-    # setupUi
+        # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
