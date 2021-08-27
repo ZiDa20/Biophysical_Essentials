@@ -1,0 +1,17 @@
+QPushButton {{
+    color: #ff8117;
+    text-transform: none;
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
+    border-radius : 10px;
+  }}
+  
+ 
+QTabWidget::tab-bar {{
+alignment: center;
+background-color: green;
+padding-left: 30px
+}}
+
+PlotWidget{{
+    background-color: red;
+}}
