@@ -43,12 +43,15 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         else:
             self.verticalLayout.addWidget(self.tree_tab_widget)
 
-    def open_single_dat_file(self):
+    def open_single_dat_file(self, file_name = None):
         """open a single .dat file and create a tree view from this, the first series of this treeview will
         also be plotted in an additionally created plot widget"""
 
         # open selection and retake users file selection
-        file_name = QFileDialog.getOpenFileName(self, 'OpenFile')[0]
+        print(file_name)
+        if file_name is False:
+            file_name = QFileDialog.getOpenFileName(self, 'OpenFile')[0]
+
         self.label_selected_directory.setText(file_name)
 
         # save the path in the manager class

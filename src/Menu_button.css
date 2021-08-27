@@ -2,7 +2,7 @@ QPushButton {{
   color: #ff8117;
   text-transform: none;
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border-radius : 15px;
+  border-radius : 10px;
 }}
 
 .big_button {{
@@ -16,4 +16,6 @@ QTabWidget::tab-bar {{
   background-color: green;
   padding-left: 30px
 }}
+
+
 

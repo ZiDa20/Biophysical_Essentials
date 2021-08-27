@@ -1,10 +1,9 @@
-
 import sys
 import os
 import time
 
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
@@ -54,12 +53,19 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.konsole_button.clicked.connect(lambda:self.konsole_menu())
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
+        #testing
+        self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
         # connect settings button
         
 
         self.write_button_text()
+        self.test_blurring()
         self.ui.side_left_menu.setMinimumSize(300, 1000)
         self.ui.side_left_menu.setMaximumSize(300, 1800)
+
+    def transfer_file_to_online(self):
+        file_path = self.ui.config.get_file_path()
+        self.ui.online.open_single_dat_file(str(file_path))
 
     def open_settings(self):
 
@@ -71,9 +77,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         print(width)
         if width >= 300:
             print("yeah")
-            newWidth = 71
+            newWidth = 51
             self.erase_button_text()
-            newWidth = 61
+            newWidth = 51
         else:
             print("hello")
             newWidth = 300
@@ -81,7 +87,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.ui.side_left_menu.setMinimumSize(0,0)
         self.animation = QPropertyAnimation(self.ui.side_left_menu, b"size")
-        #self.animation.setDuration(500)
+        self.animation.setDuration(2000)
         self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
         self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
@@ -106,11 +112,11 @@ class MainWindow(QMainWindow, QtStyleTools):
             print("changed_console_height_to_351")
             newHeight = 500
 
-        if position.y() == 630:
-            newPosition = 970
+        if position.y() == 600:
+            newPosition = 1500
 
         else:
-            newPosition = 630
+            newPosition = 600
 
         self.ui.frame.setMinimumSize(0, 0)
         self.ui.frame.setMaximumSize(1500, 1500)
@@ -145,7 +151,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.settings_button.setText("Settings")
 
 
-
     def change_to_lightmode(self):
         print("entered the function")
         print(self.default_mode)
@@ -153,7 +158,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_red.xml", invert_secondary=True)
-            with open('Menu_button.css') as file:
+            with open('Menu_button_white.css') as file:
+                print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None;")
@@ -172,6 +178,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "QPushButton:hover{\n"
                                                     "	background-color: \"#ff8117\";\n"
                                                     "}") 
+           
             
         else:
             self.apply_stylesheet(self, "dark_red.xml")
@@ -193,8 +200,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                             "QPushButton:hover{\n"
                                                             "	background-color: \"#54545a\";\n"
                                                             "}") 
-
-
+ 
             self.set_darkmode(1)
 
         self.ui.config.set_darkmode(self.default_mode)
@@ -215,7 +221,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         print(f"this is the current mode: {self.default_mode}")
         return self.default_mode
 
-
+    def test_blurring(self):
+        """currently not working at all"""
+        effect = QGraphicsBlurEffect(blurRadius= 2000)
+        effect.setEnabled(True)
+        #effect.setBlurRadius(50)
+        self.ui.side_left_menu.setGraphicsEffect(effect)
+        print(effect)
 
 
 if __name__ == "__main__":
@@ -233,7 +245,3 @@ class MainWindow(QWidget,Ui_MainWindow):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
-
-
-
-
