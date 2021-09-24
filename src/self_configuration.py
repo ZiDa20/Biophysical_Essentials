@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-from online_analysis_widget import Online_Analysis
+
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
@@ -13,37 +13,39 @@ from dragable_label import *
 from tkinter_camera import *
 from time import sleep
 import pandas as pd
-from dropable_list_view import ListView
-from plotting_pyqt import PlotClass
 import pyqtgraph as pg
-from pyqtgraph import PlotWidget, plot
 pg.setConfigOption('foreground', '#ff8117')
 from dvg_pyqtgraph_threadsafe import PlotCurve
 from self_config_notebook_widget import *
-from online_analysis_widget import *
+import traceback, sys
+
+
 
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     """ promotion of the self configuration widget"""
-    def __init__(self,parent = None):
+    def __init__(self, online, parent = None,):
         super(Config_Widget,self).__init__(parent)
-
         # initialize self_config_notebook_widget
         self.setupUi(self)
        
         self.set_buttons_beginning()
     
-
-        #self.online_analysis = Online_Analysis()
         self.batch_path = None
         self.backend_manager = BackendManager()
+        self.online_analysis = online # load the backend manager
+    
+    
+        # pathes for the pgf files
         self.pgf_file = None
         self.pro_file = None
         self.onl_file = None
         self.data_file_ending = 1
         self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
         self.config_list_changes = ["Whole Cell", "Current Clamp"]
+
+        self.experiment_dictionary = {} # add the data gained fro
 
         self.submission_count = 2 # count for incrementing batch communication 
 
@@ -53,17 +55,20 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.pyqt_graph.setBackground("#232629")
         self.check_session = None
 
-        # logger l
+        # logger added --> ToDO: should be used for developers as well as for users should be disriminated 
         self.logger=logging.getLogger() 
         self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/configuration.log')
-        print(file_handler)
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.debug('A debug message')
 
         self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # initialize meta data sheet opening boehringer special
+
+        # save the form to the database
+
+        self.database_save.clicked.connect(self.save_to_database)
 
         #connect to the camera control
         self.initialize_camera()
@@ -87,7 +92,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         #threading
         self.start_experiment_button.clicked.connect(self.make_threading)
         self.pushButton_10.clicked.connect(self.clear_list) # change button name
-        self.stop_experiment_button.clicked.connect(self.stop_threading) # change button name
+        self.stop_experiment_button.clicked.connect(self.terminate_sequence) # change button name
         
         self.set_solutions()
 
@@ -163,7 +168,26 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.set_dat_file_name(self.experiment_type_desc.text())
         return file_path
 
-    
+    def save_to_database(self):
+        # Add here the function to retrieve the database
+        # After click the data is written into dictionary --> ToDO: might be transfered into the database by DZ 
+        print("save the data to the database")
+        self.data_file = self.experiment_type_desc.text()
+
+        # Can be saved for the whole experiment
+        # We should add an experiment name
+        self.extracellular_and_intra = {"extracellular_solution": self.extracellular_sol_com_1.currentText(),
+                                        "intracellular_solution": self.Intracellular_sol_com_1.currentText(),
+                                        "Preparation Date": self.ent_date_prep.text(),
+                                        "pH extracellular": self.S2_3.text(),
+                                        "ph intracellular": self.ent_ph_int_set.text()}
+        
+        # ToDO: experiment metadata should be saved after each file please change MZ
+        self.experiment_metadata = {"Cell Type:": self.cell_type_desc.text(),
+                                    "# Cells": self.min_number_cells.text(),
+                                    "# Patched Cells": self.patched_cells.text()}
+
+        
     def open_batch_path(self):
         """ choose the path were the batch communication file should
         be located
@@ -243,7 +267,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def show_snapshot(self):
         """ does transfer the current snapshot to the galery view """
-
         self.check_list_lenght(self.image_stacke) # self.image_stacke is der stack der images generiert
         self.image_stacke.insert(0,self.trial_figure) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self)
@@ -260,7 +283,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 print("Expected List Length reached")
         except Exception as e:
             print(repr(f"This is the Error: {e}"))
-
 
     def draw_snapshots_on_galery(self):
         # function to draw the taken snapshot into the image galery
@@ -324,13 +346,10 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.increment_count() # always increment the batch communication count 
 
         # Plotting
-        
         self.tscurve_1 = PlotCurve(
             linked_curve=self.pyqt_graph.plot(pen=pg.mkPen('r')),
         ) # use this package to make drawing from another thread Threadsafe
-     # setting of the background put to global
         self.pyqt_window.addWidget(self.pyqt_graph)
-        #self.plot_qt(self.pyqt_graph.plotWidget)
 
         # Preprocessing
         series = self.preprocess_series_protocols(sequences) # get the listed series from batch.out response
@@ -349,8 +368,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         patch_sequences = [i.replace('"', "") for i in patch_sequences]
         patch_sequences = [i.replace("\n", "")for i in patch_sequences]
         return patch_sequences
-        
-        
+         
     def make_sequence_labels(self, list_of_sequences,widget):
         """ same as protocols"""
         for i in list_of_sequences:
@@ -383,15 +401,23 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def make_threading(self):
         # generate a threadpool inherted from the runnable class and connect it to the workerclass
-        self.threadpool = QThreadPool()
-        self.worker = Worker(self.start_experiment_patch)
-        self.threadpool.start(self.worker)
+        try: 
+            self.threadpool = QThreadPool()
+            self.worker = Worker(self.start_experiment_patch)
+            self.worker.signals.finished.connect(self.thread_complete)
+            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)
+            self.threadpool.start(self.worker)
+        except Exception as e:
+            print(e)
+
+    def thread_complete(self):
+        print("THREAD COMPLETE!")    
 
     def stop_threading(self):
         # Here we need to find a way to stop the threading if an error occur !
         self.threadpool.stop(self.worker)
 
-    def start_experiment_patch(self):
+    def start_experiment_patch(self, progress_callback):
         """ get the ListView entries and send them off via the backend manager"""
         # this should be exposed to threading!
         view_list = self.listWidget.model()
@@ -418,7 +444,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 logging.info(f"Series {item} will be executed")
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteSequence " + f'"{item}"' +"\n")
                 self.increment_count()
-                self.trial_setup(final_notebook_dataframe, item)
+                self.trial_setup(final_notebook_dataframe, item, progress_callback)
 
             elif "GetEpc" in item:
                 #check if item is a paramter check
@@ -431,7 +457,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 logging.info(f"Protocol {item} will be executed")
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteProtocol " + f'"{item}"' +"\n")
                 self.increment_count()
-                analyzed = self.trial_setup(final_notebook_dataframe, item)
+                analyzed = self.trial_setup(final_notebook_dataframe, item, progress_callback)
 
             elif self.general_commands_labels.model().findItems(item):
                 #check if item is a general command
@@ -452,7 +478,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         #increment count to renew submission code for the patchmaster
         self.submission_count += 1
 
-    def trial_setup(self, notebook, item):
+    def trial_setup(self, notebook, item, progress_callback):
         """gets the data and draws it into the fast analysis window
         recursive function to redo analyis until query is not acquiring or executing anymore
         ToDO:"""
@@ -473,7 +499,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
                 final_notebook = self.get_final_notebook(final_notebook_dataframe)
                 self.sequence_experiment_dictionary[item] = final_notebook
-            except:
+
+            except Exception as e:
+                print(repr(e))
                 final_notebook = self.get_final_notebook(final_notebook_dataframe)
                 self.sequence_experiment_dictionary[item] = final_notebook
                 return True
@@ -484,15 +512,19 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             try:
                 dataframe = self.backend_manager.return_dataframe_from_notebook()
                 final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
-                print(final_notebook_dataframe)
-                print(final_notebook_dataframe.iloc[1:,:][4].values)
+
+                # usually this should write also in the online analysis still not functional!
+                progress_callback.emit(([float(i) for i in final_notebook_dataframe.iloc[1:,:][4].values],[float(i) for i in final_notebook_dataframe.iloc[1:,:][7].values]))
                 self.tscurve_1.setData([float(i) for i in final_notebook_dataframe.iloc[1:,:][4].values],[float(i) for i in final_notebook_dataframe.iloc[1:,:][7].values])
                 self.tscurve_1.update()
-                self.trial_setup(final_notebook_dataframe,item)
+
+                # here drawing should be provided to the online analysis class
+                
+                self.trial_setup(final_notebook_dataframe,item, progress_callback)
 
             except Exception as e:
                 print(repr(e))
-                self.trial_setup(final_notebook_dataframe,item)
+                self.trial_setup(final_notebook_dataframe,item, progress_callback)
         
         else:
             print("Connection Lost")
@@ -554,6 +586,12 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol WHOLE-CELL\n")
         self.increment_count()
         print(9)
+
+    def terminate_sequence(self):
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Terminate\n") # Query to get the state of the amplifier
+        self.increment_count()
+
+            
         
     def clear_list(self):
         # connect to the button 
@@ -599,10 +637,45 @@ class Worker(QRunnable):
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+        self.kwargs['progress_callback'] = self.signals.progress
 
     @Slot()  # QtCore.Slot
     def run(self):
         '''
         Initialise the runner function with passed args, kwargs.
         '''
-        self.fn(*self.args, **self.kwargs)
+        try:
+            result = self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        else:
+            self.signals.result.emit(result)  # Return the result of the processing
+        finally:
+            self.signals.finished.emit()  # Done
+
+
+class WorkerSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        tuple (exctype, value, traceback.format_exc() )
+
+    result
+        object data returned from processing, anything
+
+    '''
+    finished = Signal()
+    error = Signal(tuple)
+    result = Signal(object)
+    new_worker = Signal()
+    progress = Signal(tuple)

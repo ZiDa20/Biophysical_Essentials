@@ -3,6 +3,7 @@ import os
 import time
 
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+print(os.getcwd())
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
 from main_window import Ui_MainWindow
@@ -40,24 +41,20 @@ class MainWindow(QMainWindow, QtStyleTools):
         for i, button in enumerate(buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
-        
-
         #self.configuration_elements = Config_Widget()
 
         #self.ui.statistics_2.setProperty("class", "big_button")
         #print(self.ui.config.Load_meta_data_experiment_12)
 
         # connect to the metadata file path 
-        
-        self.ui.hamburger_button.clicked.connect(lambda: self.animate_menu())
-        self.ui.konsole_button.clicked.connect(lambda:self.konsole_menu())
+        self.ui.hamburger_button.clicked.connect(self.animate_menu)
+        self.ui.konsole_button.clicked.connect(self.konsole_menu)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
         #testing
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
-        # connect settings button
-        
 
+        # connect settings button
         self.write_button_text()
         self.test_blurring()
         self.ui.side_left_menu.setMinimumSize(300, 1000)
@@ -87,7 +84,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.ui.side_left_menu.setMinimumSize(0,0)
         self.animation = QPropertyAnimation(self.ui.side_left_menu, b"size")
-        self.animation.setDuration(2000)
+        self.animation.setDuration(4000)
         self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
         self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
@@ -103,8 +100,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.frame.setStyleSheet("QFrame:hover{\n"
                                                     "	background-color: \"#ff8117\";\n"
                                                     "}")
-        print(position)
-        print(height)
         if height > 351:
             print("changed_console_height")
             newHeight = 21
@@ -169,7 +164,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "}\n"
                                                     "\n"
                                                     "QPushButton{\n"
-                                                    "	padding: 5px 10px;\n"
+                                                    "	padding: 10px 10px;\n"
                                                     "	border: none;\n"
                                                     "	border-radius:5px;\n"
                                                     "	background-color: \"#e6e6e6\";\n"
@@ -191,7 +186,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                             "}\n"
                                                             "\n"
                                                             "QPushButton{\n"
-                                                            "	padding: 5px 10px;\n"
+                                                            "	padding: 10px 10px;\n"
                                                             "	border: none;\n"
                                                             "	border-radius:5px;\n"
                                                             "	background-color: \"#232629\";\n"
@@ -223,10 +218,12 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def test_blurring(self):
         """currently not working at all"""
-        effect = QGraphicsBlurEffect(blurRadius= 2000)
+        effect = QGraphicsBlurEffect()
         effect.setEnabled(True)
         #effect.setBlurRadius(50)
         self.ui.side_left_menu.setGraphicsEffect(effect)
+        self.ui.side_left_menu.show()
+        effect.setBlurRadius(20)
         print(effect)
 
 

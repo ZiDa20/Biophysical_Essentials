@@ -193,6 +193,10 @@ class BackendManager:
 
     def check_input_file_existence(self):
         return os.path.exists(self.batch_path + '/E9Batch.In')
+
+
+    def get_file_path(self, increment):
+        self.send_text_input()
         
     #def transfer_data_to_offline(self, name):
     #    #should transfer the .dat file if closed or analysis finished

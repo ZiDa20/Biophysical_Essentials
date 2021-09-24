@@ -544,7 +544,8 @@ class Ui_Offline_Analysis(object):
         self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"No Path Selected", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Hierarchie", None))
         ___qtreewidgetitem = self.experiments_tree_view.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Offline_Analysis", u"Discard", None));
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Offline_Analysis", u"Discard", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Offline_Analysis", u"Group", None));
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Offline_Analysis", u"Sel", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Offline_Analysis", u"Object", None));
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Offline_Analysis", u"Selected", None))
