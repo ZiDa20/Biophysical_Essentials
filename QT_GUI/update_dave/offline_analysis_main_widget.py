@@ -19,16 +19,16 @@ class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
             Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(1682, 1034)
+        Offline_Analysis.resize(1663, 943)
         self.Offline_Analysis_Notebook = QTabWidget(Offline_Analysis)
         self.Offline_Analysis_Notebook.setObjectName(u"Offline_Analysis_Notebook")
-        self.Offline_Analysis_Notebook.setGeometry(QRect(0, 0, 1661, 1001))
+        self.Offline_Analysis_Notebook.setGeometry(QRect(0, 0, 1661, 951))
         self.Offline_Analysis_Notebook.setTabShape(QTabWidget.Rounded)
         self.Start_Analysis = QWidget()
         self.Start_Analysis.setObjectName(u"Start_Analysis")
         self.offline_analysis_widgets = QStackedWidget(self.Start_Analysis)
         self.offline_analysis_widgets.setObjectName(u"offline_analysis_widgets")
-        self.offline_analysis_widgets.setGeometry(QRect(0, 0, 1651, 921))
+        self.offline_analysis_widgets.setGeometry(QRect(0, 0, 1651, 851))
         self.start_page = QWidget()
         self.start_page.setObjectName(u"start_page")
         self.new_analysis_with_template = QPushButton(self.start_page)
@@ -79,6 +79,8 @@ class Ui_Offline_Analysis(object):
         self.experiments_tree_view = QTreeWidget(self.selected_tree_view)
         self.experiments_tree_view.setObjectName(u"experiments_tree_view")
         self.experiments_tree_view.setGeometry(QRect(0, 0, 301, 551))
+        self.experiments_tree_view.setAutoScroll(True)
+        self.experiments_tree_view.header().setMinimumSectionSize(47)
         self.directory_tree_widget.addTab(self.selected_tree_view, "")
         self.discarded_tree_view = QWidget()
         self.discarded_tree_view.setObjectName(u"discarded_tree_view")
@@ -136,7 +138,7 @@ class Ui_Offline_Analysis(object):
         self.analysis_specific_notebook.setObjectName(u"analysis_specific_notebook")
         self.tabWidget = QTabWidget(self.analysis_specific_notebook)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setGeometry(QRect(0, 0, 1661, 971))
+        self.tabWidget.setGeometry(QRect(0, 0, 1661, 931))
         self.template_tab = SpecificAnalysisTab()
         self.template_tab.setObjectName(u"template_tab")
         self.tabWidget.addTab(self.template_tab, "")
@@ -144,18 +146,12 @@ class Ui_Offline_Analysis(object):
         self.Offline_Analysis_Notebook.addTab(self.Start_Analysis, "")
         self.visualization = QWidget()
         self.visualization.setObjectName(u"visualization")
-        self.visualization_tab_widget = QTabWidget(self.visualization)
-        self.visualization_tab_widget.setObjectName(u"visualization_tab_widget")
-        self.visualization_tab_widget.setGeometry(QRect(0, 0, 1661, 931))
-        self.template_tab_2 = SpecificAnalysisTab()
-        self.template_tab_2.setObjectName(u"template_tab_2")
-        self.visualization_tab_widget.addTab(self.template_tab_2, "")
         self.Offline_Analysis_Notebook.addTab(self.visualization, "")
 
         self.retranslateUi(Offline_Analysis)
 
         self.Offline_Analysis_Notebook.setCurrentIndex(0)
-        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.offline_analysis_widgets.setCurrentIndex(1)
         self.directory_tree_widget.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
 
@@ -176,7 +172,8 @@ class Ui_Offline_Analysis(object):
         self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Select Directory", None))
         self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"TextLabel", None))
         ___qtreewidgetitem = self.experiments_tree_view.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Offline_Analysis", u"Remove", None));
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Offline_Analysis", u"Remove", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Offline_Analysis", u"Group", None));
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Offline_Analysis", u"Show", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Offline_Analysis", u"Objects", None));
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Offline_Analysis", u"Selected", None))
@@ -195,7 +192,6 @@ class Ui_Offline_Analysis(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), QCoreApplication.translate("Offline_Analysis", u"Add Filter", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.template_tab), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.Start_Analysis), QCoreApplication.translate("Offline_Analysis", u"Start Analysis", None))
-        self.visualization_tab_widget.setTabText(self.visualization_tab_widget.indexOf(self.template_tab_2), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
     # retranslateUi
 

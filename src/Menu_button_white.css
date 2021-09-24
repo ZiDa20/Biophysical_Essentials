@@ -4,14 +4,45 @@ QPushButton {{
     background-color: {QTMATERIAL_SECONDARYCOLOR};
     border-radius : 10px;
   }}
+
   
- 
-QTabWidget::tab-bar {{
-alignment: center;
-background-color: green;
-padding-left: 30px
+ListView{{
+  background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+  border: 1px solid #ff8117;
 }}
 
-PlotWidget{{
-    background-color: red;
+QScrollArea > QWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid #ff8117;
+
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QTabBar {{
+  background-color: {QTMATERIAL_PRIMARYCOLOR};
+  color:{QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
+  color:black;
+}}
+
+
+QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+
+}}
+
+QTabWidget[objectName="online_analysis_tabs"] QTabBar {{
+  background-color: #ff8117;
+  color:{QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
+}}
+
+QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::selected {{
+  color:{QTMATERIAL_SECONDARYCOLOR};
 }}

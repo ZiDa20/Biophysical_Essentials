@@ -48,6 +48,7 @@ class TreeViewManager():
 
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,self.database,database_mode,series_name)
 
+
         return tree, discarded_tree
 
     def open_bundle_of_file(self,file_name):
@@ -72,7 +73,7 @@ class TreeViewManager():
 
         root = bundle.pul
         node = root
-
+        print(node)
         #select the last node
         for i in index:
             node = node[i]
@@ -90,11 +91,11 @@ class TreeViewManager():
             node_label = ''
 
         discard_button = QPushButton()
-
-
+        
         pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
         discard_button.setIcon(pixmap)
 
+        
         metadata = node
 
         if "Pulsed" in node_type:
@@ -121,6 +122,7 @@ class TreeViewManager():
             print("adding discard button to parent ")
             discard_button = QPushButton()
             discard_button.setStyleSheet("border:none")
+            discard_button.setFixedSize(QtCore.QSize(40, 30))
             discard_button.setIcon(pixmap)
             discard_button.clicked.connect(partial(self.discard_button_clicked,parent,tree,discarded_tree))
             tree.setItemWidget(parent,2,discard_button)
@@ -160,6 +162,7 @@ class TreeViewManager():
                 discard_button = QPushButton()
                 discard_button.setIcon(pixmap)
                 discard_button.setStyleSheet("border:none")
+                discard_button.setFixedSize(QtCore.QSize(40, 30))
                 discard_button.clicked.connect(partial(self.discard_button_clicked, child, tree, discarded_tree))
                 tree.setItemWidget(child, 2, discard_button)
 
@@ -357,6 +360,7 @@ class TreeViewManager():
         """create a new pushbutton object from a given pixmap, connect it to the button clicked function, return the object"""
         button = QPushButton()
         button.setStyleSheet("border:none")
+        button.setFixedSize(QtCore.QSize(40, 30))
         if function == "reinsert":
             pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\discard_red_cross_II.png")
             # revert the flipped trees (flipping performed in reinsert button clicked)
@@ -365,5 +369,7 @@ class TreeViewManager():
             pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
             button.clicked.connect(partial(self.reinsert_button_clicked, item, experiment_tree, discarded_tree))
         button.setIcon(pixmap)
+       
+
         return button
 

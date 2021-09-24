@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1403, 1031)
+        MainWindow.resize(1403, 1024)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -339,16 +339,20 @@ class Ui_MainWindow(object):
         self.notebook.setSizePolicy(sizePolicy)
         self.notebook.setMinimumSize(QSize(956, 986))
         self.notebook.setMaximumSize(QSize(16777215, 1200))
-        self.config = Config_Widget()
-        self.config.setObjectName(u"config")
-        sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
-        self.config.setSizePolicy(sizePolicy)
-        self.notebook.addWidget(self.config)
+       
         self.online = Online_Analysis()
         self.online.setObjectName(u"online")
         sizePolicy.setHeightForWidth(self.online.sizePolicy().hasHeightForWidth())
         self.online.setSizePolicy(sizePolicy)
+        
+
+        self.config = Config_Widget(self.online)
+        self.config.setObjectName(u"config")
+        sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
+        self.config.setSizePolicy(sizePolicy)
+        self.notebook.addWidget(self.config)
         self.notebook.addWidget(self.online)
+
         self.offline = Offline_Analysis()
         self.offline.setObjectName(u"offline")
         sizePolicy.setHeightForWidth(self.offline.sizePolicy().hasHeightForWidth())
@@ -358,6 +362,9 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.notebook, 0, 1, 1, 2)
 
         MainWindow.setCentralWidget(self.centralwidget)
+        self.side_left_menu.raise_()
+        self.notebook.raise_()
+        self.frame.raise_()
 
         self.retranslateUi(MainWindow)
 
