@@ -74,6 +74,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # create two treeviews and write into self.treewidget and self.treewidget_2
         TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,None)
+
         self.verticalLayout_5.addWidget(self.tree_tab_widget)
 
 
@@ -95,8 +96,23 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0).child(0).setCheckState(1,Qt.Checked))
 
         self.online_analysis_plot_manager.tree_view_click_handler(self.treeWidget.topLevelItem(0).child(0))
+'''
+        self.get_columns_data_to_table()
 
 
+    def get_columns_data_to_table(self):
+        count = self.treeWidget.topLevelItemCount()
+        for i in range(count):
+            top_item = self.treeWidget.topLevelItem(i)  # toplevel item
+            child_amount = top_item.childCount()
+
+            for t in range(child_amount):
+                grand_child_amount = top_item.child(t).childCount()
+                print(top_item.child(t).text(0))
+
+                for z in range (grand_child_amount):
+                    grand_child = top_item.child(t).child(z)
+                    print(grand_child.data(5,0))
 
 
-
+'''

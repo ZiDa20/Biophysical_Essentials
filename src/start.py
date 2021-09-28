@@ -31,7 +31,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.logger.addHandler(file_handler)
         self.logger.info('A trial message if the logger is working')
 
-
         #darkmode implementation
         self.default_mode = 1
 
@@ -155,6 +154,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         print("entered the function")
         print(self.default_mode)
         print(self.style().metaObject().className())
+
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_red.xml", invert_secondary=True)
@@ -206,8 +206,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
 
-        
-        self.ui.offline_analysis.clicked.connect(self.init_offline_analysis)
+        #  make sure to have popups of offline analysis manager in the same changed theme color
+        self.ui.offline.theme_mode = self.default_mode
+        #self.ui.offline_analysis.clicked.connect(self.init_offline_analysis)
 
     def init_offline_analysis(self):
         self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()

@@ -23,7 +23,8 @@ from functools import partial
 from specififc_analysis_tab import *
 from plot_widget_manager import PlotWidgetManager
 from raw_analysis import AnalysisRaw
-
+from assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from frontend_style import Frontend_Style
 pg.setConfigOption('foreground','#448aff')
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
@@ -38,6 +39,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.offline_manager = OfflineManager()
         self.offline_analysis_widgets.setCurrentIndex(0)
+
+        self.theme_mode = 1 # per default the dark theme will be started, 0 = light theme
 
 
     @Slot()
@@ -78,6 +81,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
 
+        self.display_select_meta_data_group_dialog(False)
 
 
     @Slot()
@@ -120,6 +124,89 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
+    def display_select_meta_data_group_dialog(self, meta_data_groups_in_db):
+        """
+        Opens a new popup and displays buttons to select an action: button 1: load meta data groups from template, button 2: assign all experiments to the same meta data group,
+        button 3: read values from database
+        :param meta_data_groups_in_db: true if for at least each experiment meta data groups are available in the database, false if not
+        :return:
+        """
+
+        dialog = QDialog()
+
+        dialog_grid = QGridLayout(dialog)
+        dialog.setWindowTitle("Load Meta Data Groups")
+        self.set_correct_stylesheet(dialog)
+        text_label = QLabel("Please choose an action for the meta data annotation: \n ",dialog)
+
+        select_from_database_button = QPushButton("Load From Database", dialog)
+        load_template_button = QPushButton("Load From Template", dialog)
+        create_template_button = QPushButton("Assign Now", dialog)
+        assign_one_group_to_all = QPushButton("Assign Later", dialog)
+
+
+        #confirm_series_selection_button.clicked.connect(partial(self.compare_series_clicked,checkbox_list,name_list,dialog))
+        dialog_grid.addWidget(text_label, 0, 0)
+        dialog_grid.addWidget(select_from_database_button,1,0)
+        dialog_grid.addWidget(load_template_button, 2, 0)
+        dialog_grid.addWidget(create_template_button, 3, 0)
+        dialog_grid.addWidget(assign_one_group_to_all, 4, 0)
+
+        assign_one_group_to_all.clicked.connect(partial(TreeViewManager().assign_meta_data_group_identifiers_to_top_level_items,self.experiments_tree_view,dialog))
+
+        create_template_button.clicked.connect(partial(self.create_meta_data_template,dialog))
+
+
+        if not meta_data_groups_in_db:
+            select_from_database_button.setDisabled(True)
+
+        dialog.setWindowModality(Qt.ApplicationModal)
+        dialog.exec_()
+
+    def create_meta_data_template(self,old_dialog):
+        '''
+        Creates a new dialog popup to create a new meta data template. The created template can be saved or not
+        :param dialog: open dialog object
+        :return:
+        '''
+        # close the open dialog
+        old_dialog.close()
+
+        # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
+        meta_data_popup = Assign_Meta_Data_PopUp()
+        self.set_correct_stylesheet(meta_data_popup)
+        directory = self.offline_manager._directory_path
+        tmp_tree_manager = TreeViewManager()
+        tmp_tree_manager.meta_data_group_column = 1
+        tmp_tree_manager.checkbox_column = 3
+        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
+        meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
+        meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
+        #meta_data_popup.meta_data_tree_widget.expandToDepth(0)
+        meta_data_popup.exec_()
+
+    def set_correct_stylesheet(self,popup_dialog):
+        '''
+        According to the global value of self.theme_mode the correct style sheet for a given popup dialog will be set.
+        :param popup_dialog: dialog object which stylesheet will be set
+        :return:
+        '''
+        if self.theme_mode == 1:
+            popup_dialog.setStyleSheet(Frontend_Style().get_dark_style())
+        else:
+            popup_dialog.setStyleSheet(Frontend_Style().get_light_style())
+
+
+    '''
+    def write_assigned_meta_data_group_to_database(self):
+
+        # write to database
+
+        # write to treeview
+        self.write_assigned_meta_data_group_to_treeview(self)
+
+    def write_assigned_meta_data_group_to_treeview(self):
+    '''
 
     def get_selected_checkboxes(self,checkboxes,labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
