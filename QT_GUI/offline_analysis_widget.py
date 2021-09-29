@@ -60,6 +60,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # save the path in the manager class
         self.offline_manager._directory_path = dir_path
 
+
+
         # read all the data in the specified directory
         # -> read directory data into database
         # @todo: display a reading animation
@@ -182,7 +184,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
-        #meta_data_popup.meta_data_tree_widget.expandToDepth(0)
+
+        # meta_data_popup.save_to_template_button
+#        meta_data_popup.close_and_continue_button.clicked.connect(partial(self.continue_open_directory,meta_data_popup))
         meta_data_popup.exec_()
 
     def set_correct_stylesheet(self,popup_dialog):

@@ -6,6 +6,9 @@ from PySide6 import *
 import re
 import heka_reader
 from functools import partial
+
+from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
+
 class TreeViewManager():
     ''' Main class to handle interactions with treeviews. In general two  usages are defined right now:
     1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
@@ -22,6 +25,12 @@ class TreeViewManager():
 
         # column 3 in the treeview shows red cross or blue reinsert arrow
         self.discard_column = 3
+
+        # list of meta data group names represented as strings
+        self.meta_data_option_list=["+ Add", "None"]
+
+        # the offset is the result of the pre-initialized list items "none" and "+ add"
+        self.meta_data_option_list_offset = 2
 
         # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
         if self.database is None:
@@ -134,6 +143,7 @@ class TreeViewManager():
             self.create_treeview_from_single_dat_file(index + [i], bundle, parent, node_list, tree, discarded_tree, experiment_name,
                                                       database, data_base_mode,series_name,tree_level)
 
+        self.final_tree = tree
         return tree, discarded_tree
 
     def add_group_to_treeview(self,tree,discarded_tree, node_label,experiment_name,pixmap):
@@ -175,15 +185,107 @@ class TreeViewManager():
         tree.setItemWidget(parent, self.discard_column, discard_button)
 
         # add combo box for meta data group selection
-        experimental_combo_box = QComboBox()
-        experimental_combo_box.addItem("1", '1')
-        experimental_combo_box.addItem("2", '1')
-        experimental_combo_box.addItem("3", '1')
+        self.experimental_combo_box = QComboBox()
+        self.experimental_combo_box = self.insert_meta_data_items_into_combo_box(self.experimental_combo_box)
+        tree.setItemWidget(parent, self.meta_data_group_column, self.experimental_combo_box)
 
-        tree.setItemWidget(parent, self.meta_data_group_column, experimental_combo_box)
-
+        self.experimental_combo_box.currentTextChanged.connect(self.add_new_meta_data_group)
 
         return parent,tree
+
+    def add_new_meta_data_group(self,new_text):
+        '''
+        Will display a new popup window if the + Add function was selected by user input. Popup asks the user to enter a
+        new meta data group name.
+        :param new_text: text of the newly selected combo box item
+        :return: None
+        __edited__ = dz, 290921
+        __tested__ = FALSE
+        '''
+
+        # + add item will be always at the beginning of the list (== position 0)
+        if new_text == self.meta_data_option_list[0]:
+            self.enter_meta_data_pop_up = Add_New_Meta_Data_Group_Pop_Up_Handler()
+
+            # cancel button will just close the popup window
+            self.enter_meta_data_pop_up.cancel_button.clicked.connect(partial(self.cancel_button_clicked,self.enter_meta_data_pop_up))
+
+            self.enter_meta_data_pop_up.add_button.clicked.connect(self.add_meta_data_button_clicked)
+
+            self.enter_meta_data_pop_up.exec()
+
+    def add_meta_data_button_clicked(self):
+        '''
+        Returns the user input for the new meta_data_group_name.
+        Throws an error to the user if the input is empty.
+        :return: None
+        __edited__ = dz, 290921
+        __tested__ = FALSE
+        '''
+
+        new_name = self.enter_meta_data_pop_up.meta_data_name_input.text()
+
+        if new_name:
+           self.meta_data_option_list.append(new_name)
+           self.enter_meta_data_pop_up.close()
+
+           # extend all combo boxes in the tree by the newly generated item
+           self.assign_meta_data_group_identifiers_to_top_level_items(self.final_tree,self.enter_meta_data_pop_up)
+
+           # set the current combo box to the new meta data group
+        else:
+            # throw an error, colored in red
+            self.enter_meta_data_pop_up.error_label.setStyleSheet("color: red;")
+            self.enter_meta_data_pop_up.error_label.setText("The meta data name must not be empty! Please enter a name.")
+
+    def assign_meta_data_group_identifiers_to_top_level_items(self,input_tree,dialog):
+        '''function to go through the tree and assign meta data groups to top level items '''
+
+        top_level_items_amount = input_tree.topLevelItemCount()
+
+        for n in range(top_level_items_amount):
+                tmp_item = input_tree.topLevelItem(n)
+                combo_box = input_tree.itemWidget(tmp_item,self.meta_data_group_column)
+                combo_box = self.insert_meta_data_items_into_combo_box(combo_box)
+                input_tree.setItemWidget(tmp_item,self.meta_data_group_column,combo_box)
+
+
+    def cancel_button_clicked(self,dialog):
+        '''
+        Function to close a given dialog
+        :param dialog: dialog to be closed
+        :return: None
+        __edited__ = dz, 290921
+        __tested__ = FALSE
+        '''
+        print("closing dialog now")
+        dialog.close()
+
+    def insert_meta_data_items_into_combo_box(self,combo_box):
+        '''
+         According to the entries in the global meta data option list, combo box items will be displayed to be selected
+          by the user. If nothing is selected None will be inserted.
+         :param combo_box: combo box which items will be modified
+         :return: None
+         __edited__ = dz, 290921
+         __tested__ = FALSE
+         '''
+
+        # read the current item to be set again at the end
+        current_item_text = combo_box.currentText()
+
+        combo_box.clear()
+        # reverse the list to always have the newly added geoup at the top
+        reverse_list = list(reversed(self.meta_data_option_list))
+        combo_box.addItems(reverse_list)
+
+        # the tree row that displays  +add will be replaced by the new inserted group
+        if current_item_text == self.meta_data_option_list[0]:
+            combo_box.setCurrentText(reverse_list[0])
+        else:
+            combo_box.setCurrentText(current_item_text)
+        return combo_box
+
 
     def add_series_to_treeview(self,tree,discarded_tree,parent,series_name,node_label,node_list,node_type,experiment_name,data_base_mode,database,pixmap):
         if series_name is None or series_name == node_label:
@@ -259,25 +361,7 @@ class TreeViewManager():
 
             return parent
 
-    def assign_meta_data_group_identifiers_to_top_level_items(self,input_tree,dialog):
-        '''function to go through the tree and assign meta data groups to top level items '''
 
-        top_level_items_amount = input_tree.topLevelItemCount()
-        identifier_list = [1 , 1]
-
-        if top_level_items_amount == len(identifier_list):
-            for n in range(top_level_items_amount):
-                tmp_item = input_tree.topLevelItem(n)
-                input_tree.removeItemWidget(tmp_item,2)
-
-                new_combo_box = QComboBox()
-                new_combo_box.addItem("1", '1')
-
-                input_tree.setItemWidget(tmp_item,2,new_combo_box)
-
-            dialog.close()
-        else:
-            raise ValueError("identifier list and amount of top level items have to be of same length")
 
 
     def get_number_from_string(self,string):
