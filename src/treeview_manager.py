@@ -6,13 +6,26 @@ from PySide6 import *
 import re
 import heka_reader
 from functools import partial
+import csv
 
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 
 class TreeViewManager():
-    ''' Main class to handle interactions with treeviews. In general two  usages are defined right now:
+    """ Main class to handle interactions with treeviews. In general two  usages are defined right now:
     1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
-    2) read a single .dat file '''
+    2) read a single .dat file without writing to the database.
+
+    Each time a NEW tree view will be needed, a new instance of this class will be generated representing a new treeview
+    object. Objects might be changed in a later request.
+    ---
+
+    This class is splitted into the following subsections:
+    A) Create treeview functions
+    B) Functions to interact with created treeviews
+    C) Helper Functions
+
+    __author__: dz
+    """
 
     def __init__(self,database=None):
         self.database = database
@@ -29,21 +42,39 @@ class TreeViewManager():
         # list of meta data group names represented as strings
         self.meta_data_option_list=["+ Add", "None"]
 
-        # the offset is the result of the pre-initialized list items "none" and "+ add"
-        self.meta_data_option_list_offset = 2
+        # frontend style can be set to show all popups in the correct theme and color
+        self.frontend_style = None
+
+        self.analysis_mode = 0
 
         # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
         if self.database is None:
-            self.analysis_mode = 0
             print("setting analysis mode 0 (online analysis)")
         else:
             self.analysis_mode = 1
             print("setting analysis mode 1 (offline analysis)")
 
 
+    """ ############################## Chapter A Create treeview functions ######################################### """
+
     def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
+        '''
+        Function to fill selected and discarded tree view with tree representations of experiments containing only one
+        specific series.
+        :param selected_tree: treeview object to be filled with the selected objects
+        :param discarded_tree: treeview object to be filled with the discarded objects
+        :param dat_files: list of file names
+        :param directory_path: path to the dat_files directory as string object
+        :param series_name:  name of the user selected series that will be the only one in the new treeview in each
+        experiment
+        :return: None
+        '''
         print("specific analysis view for series ", series_name)
+
+        # analysis mode 1 = offline analysis
         self.analysis_mode = 1
+
+        # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
 
     def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None,tree_level=None):
@@ -66,10 +97,6 @@ class TreeViewManager():
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,self.database,database_mode,series_name,tree_level)
 
         return tree, discarded_tree
-
-    def open_bundle_of_file(self,file_name):
-        print(file_name)
-        return heka_reader.Bundle(file_name)
 
     def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree, experiment_name, database,data_base_mode,series_name=None, tree_level= None):
         """
@@ -185,13 +212,148 @@ class TreeViewManager():
         tree.setItemWidget(parent, self.discard_column, discard_button)
 
         # add combo box for meta data group selection
+        tree = self.add_new_meta_data_combo_box(tree,parent)
+
+        return parent,tree
+
+    def add_series_to_treeview(self,tree,discarded_tree,parent,series_name,node_label,node_list,node_type,experiment_name,data_base_mode,database,pixmap):
+        if series_name is None or series_name == node_label:
+            for s in node_list:
+                if "Group" in s[0]:
+                    parent = s[2]
+                    break
+            child = QTreeWidgetItem(parent)
+            child.setText(0, node_label)
+            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+            child.setCheckState(self.checkbox_column, Qt.Unchecked)
+            series_number = self.get_number_from_string(node_type)
+            data = parent.data(3, 0)
+
+            if data_base_mode:
+                database.add_single_series_to_database(experiment_name, node_label, node_type)
+
+            if self.analysis_mode == 0:
+                data.append(series_number - 1)
+            else:
+                data.append(node_type)
+
+            child.setData(3, 0, data)
+
+            # often the specific series identifier will be needed to ensure unique identification of series
+            # whereas the user will the series name instead
+            child.setData(4, 0, node_type)
+
+            child.setExpanded(False)
+            parent = child
+
+            discard_button = QPushButton()
+            discard_button.setIcon(pixmap)
+            discard_button.setStyleSheet("border:none")
+            discard_button.clicked.connect(partial(self.discard_button_clicked, child, tree, discarded_tree))
+
+            tree.setItemWidget(child, self.discard_column, discard_button)
+
+            # add combo box for meta data group selection
+            tree = self.add_new_meta_data_combo_box(tree, parent)
+
+            return parent,tree
+
+        else:
+            print("rejected")
+            # returns the input tree and parent
+            return parent, tree
+
+    def add_sweep_to_treeview(self, series_name,parent,node_type,data_base_mode,bundle,database,experiment_name,metadata):
+        if series_name is None or series_name == parent.text(0):
+            child = QTreeWidgetItem(parent)
+            child.setText(0, node_type)
+            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+            child.setCheckState(self.checkbox_column, Qt.Unchecked)
+            sweep_number = self.get_number_from_string(node_type)
+            data = parent.data(3, 0)
+
+            if self.analysis_mode == 0:
+                data.append(sweep_number - 1)
+                data.append(0)
+
+                # write the metadata dictionary to the 5 th column to read it when plotting
+
+            else:
+                data.append(sweep_number)
+                series_identifier = self.get_number_from_string(data[1])
+
+                if data_base_mode:
+                    data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
+                    series_identifier = parent.data(4, 0)
+                    # insert the sweep
+                    database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
+                                                          data_array)
+
+            child.setData(3, 0, data)
+            parent = child
+
+            return parent
+
+    def add_new_meta_data_combo_box(self,tree,parent):
         self.experimental_combo_box = QComboBox()
         self.experimental_combo_box = self.insert_meta_data_items_into_combo_box(self.experimental_combo_box)
+        self.experimental_combo_box.setCurrentText("None")
         tree.setItemWidget(parent, self.meta_data_group_column, self.experimental_combo_box)
 
         self.experimental_combo_box.currentTextChanged.connect(self.add_new_meta_data_group)
 
-        return parent,tree
+        return tree
+
+    """######################### Chapter B Functions to interact with created treeviews ############################"""
+
+    def assign_meta_data_groups_from_list(self,meta_data_group_assignment_list):
+        ''' Goes through the final tree and will try the assign the assignments from the tuple list
+        todo:  error handling for incomplete lists '''
+
+        name_list = []
+        text_list = []
+        for l in range (len(meta_data_group_assignment_list)):
+            tuple = meta_data_group_assignment_list[l]
+            name_list.append(tuple[0])
+            text_list.append(tuple[1])
+
+        for ind in range(self.final_tree.topLevelItemCount()):
+            top_level_item = self.final_tree.topLevelItem(ind)
+            top_level_combo_box = self.final_tree.itemWidget(top_level_item, self.meta_data_group_column)
+
+
+            try:
+                pos = name_list.index(top_level_item.text(0))
+                print(text_list[pos])
+                top_level_combo_box.setCurrentText(text_list[pos])
+                #self.final_tree.setItemWidget(top_level_item,self.meta_data_group_column,top_level_combo_box)
+
+            except:
+                top_level_combo_box.setCurrentText("None")
+                print("Error")
+
+
+
+
+
+    def get_meta_data_group_assignments(self):
+        '''
+        Iterates through each experiment and series and finally returns a list of assigned meta data group names
+        :return:
+        '''
+
+        meta_data_group_assignments = []
+
+        for index in range (self.final_tree.topLevelItemCount()):
+            top_level_item=self.final_tree.topLevelItem(index)
+            top_level_combo_box = self.final_tree.itemWidget(top_level_item,self.meta_data_group_column)
+            meta_data_group_assignments.append((top_level_item.text(0),top_level_combo_box.currentText()))
+
+
+        return meta_data_group_assignments
+
+
+
 
     def add_new_meta_data_group(self,new_text):
         '''
@@ -206,6 +368,11 @@ class TreeViewManager():
         # + add item will be always at the beginning of the list (== position 0)
         if new_text == self.meta_data_option_list[0]:
             self.enter_meta_data_pop_up = Add_New_Meta_Data_Group_Pop_Up_Handler()
+
+            try:
+                self.frontend_style.set_pop_up_dialog_style_sheet(self.enter_meta_data_pop_up)
+            except:
+                print("Error in TreeViewManager/Add_new_meta_data: There was no style object defined for this treeview")
 
             # cancel button will just close the popup window
             self.enter_meta_data_pop_up.cancel_button.clicked.connect(partial(self.cancel_button_clicked,self.enter_meta_data_pop_up))
@@ -230,7 +397,7 @@ class TreeViewManager():
            self.enter_meta_data_pop_up.close()
 
            # extend all combo boxes in the tree by the newly generated item
-           self.assign_meta_data_group_identifiers_to_top_level_items(self.final_tree,self.enter_meta_data_pop_up)
+           self.assign_meta_data_group_identifiers_to_top_level_items(self.final_tree)
 
            # set the current combo box to the new meta data group
         else:
@@ -238,8 +405,8 @@ class TreeViewManager():
             self.enter_meta_data_pop_up.error_label.setStyleSheet("color: red;")
             self.enter_meta_data_pop_up.error_label.setText("The meta data name must not be empty! Please enter a name.")
 
-    def assign_meta_data_group_identifiers_to_top_level_items(self,input_tree,dialog):
-        '''function to go through the tree and assign meta data groups to top level items '''
+    def assign_meta_data_group_identifiers_to_top_level_items(self,input_tree):
+        '''Function to go through the tree in the dialog and assign meta data group items to each top level item '''
 
         top_level_items_amount = input_tree.topLevelItemCount()
 
@@ -286,89 +453,6 @@ class TreeViewManager():
             combo_box.setCurrentText(current_item_text)
         return combo_box
 
-
-    def add_series_to_treeview(self,tree,discarded_tree,parent,series_name,node_label,node_list,node_type,experiment_name,data_base_mode,database,pixmap):
-        if series_name is None or series_name == node_label:
-            for s in node_list:
-                if "Group" in s[0]:
-                    parent = s[2]
-                    break
-            child = QTreeWidgetItem(parent)
-            child.setText(0, node_label)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setCheckState(self.checkbox_column, Qt.Unchecked)
-            series_number = self.get_number_from_string(node_type)
-            data = parent.data(3, 0)
-
-            if data_base_mode:
-                database.add_single_series_to_database(experiment_name, node_label, node_type)
-
-            if self.analysis_mode == 0:
-                data.append(series_number - 1)
-            else:
-                data.append(node_type)
-
-            child.setData(3, 0, data)
-
-            # often the specific series identifier will be needed to ensure unique identification of series
-            # whereas the user will the series name instead
-            child.setData(4, 0, node_type)
-
-            child.setExpanded(False)
-            parent = child
-
-            discard_button = QPushButton()
-            discard_button.setIcon(pixmap)
-            discard_button.setStyleSheet("border:none")
-            discard_button.clicked.connect(partial(self.discard_button_clicked, child, tree, discarded_tree))
-
-            tree.setItemWidget(child, self.discard_column, discard_button)
-            return parent,tree
-
-        else:
-            print("rejected")
-            # returns the input tree and parent
-            return parent, tree
-
-    def add_sweep_to_treeview(self, series_name,parent,node_type,data_base_mode,bundle,database,experiment_name,metadata):
-        if series_name is None or series_name == parent.text(0):
-            child = QTreeWidgetItem(parent)
-            child.setText(0, node_type)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setCheckState(self.checkbox_column, Qt.Unchecked)
-            sweep_number = self.get_number_from_string(node_type)
-            data = parent.data(3, 0)
-
-            if self.analysis_mode == 0:
-                data.append(sweep_number - 1)
-                data.append(0)
-
-                # write the metadata dictionary to the 5 th column to read it when plotting
-
-            else:
-                data.append(sweep_number)
-                series_identifier = self.get_number_from_string(data[1])
-
-                if data_base_mode:
-                    data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
-                    series_identifier = parent.data(4, 0)
-                    # insert the sweep
-                    database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
-                                                          data_array)
-
-            child.setData(3, 0, data)
-            parent = child
-
-            return parent
-
-
-
-
-    def get_number_from_string(self,string):
-        '''split something like Series1 into Series,1'''
-        splitted_string = re.match(r"([a-z]+)([0-9]+)",string,re.I)
-        res = splitted_string.groups()
-        return int(res[1])
 
     def uncheck_entire_tree(self,tree):
         top_level_items = tree.topLevelItemCount()
@@ -513,4 +597,39 @@ class TreeViewManager():
             button.clicked.connect(partial(self.reinsert_button_clicked, item, experiment_tree, discarded_tree))
         button.setIcon(pixmap)
         return button
+
+    """####################################### Chapter C Helper Functions ########################################  """
+
+    def open_bundle_of_file(self,file_name):
+        print(file_name)
+        return heka_reader.Bundle(file_name)
+
+    def get_number_from_string(self,string):
+        '''split something like Series1 into Series,1'''
+        splitted_string = re.match(r"([a-z]+)([0-9]+)",string,re.I)
+        res = splitted_string.groups()
+        return int(res[1])
+
+
+    def write_tuple_list_to_csv_file(self):
+
+        dir_path = QFileDialog.getSaveFileName()
+
+        # open the file in the write mode
+        if not ".csv" in dir_path[0]:
+            f = open(str(dir_path[0])+".csv", 'w')
+        else:
+            f = open(str(dir_path[0]), 'w')
+
+        # create the csv writer
+        writer = csv.writer(f)
+
+        tuple_list = self.get_meta_data_group_assignments()
+
+        # write single rows, elements seperated by comma, line break by whitespace
+        for tuple in tuple_list:
+            writer.writerow([tuple[0],tuple[1]])
+
+        # close the file
+        f.close()
 
