@@ -50,7 +50,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # open selection and retake users file selection
         print(file_name)
         if file_name is False:
-            file_name = QFileDialog.getOpenFileName(self, 'OpenFile')[0]
+            file_name = QFileDialog.getOpenFileName(self, 'OpenFile',"","*.dat")[0]
 
         self.label_selected_directory.setText(file_name)
 
