@@ -55,6 +55,16 @@ class TreeViewManager():
             print("setting analysis mode 1 (offline analysis)")
 
 
+        self._node_list_STATE = []
+        self._discardet_nodes_STATE = []
+        self._pgf_info_STATE = []
+
+        self.stimulation_count = 0
+        self.channel_count = 0
+        self.stim_channel_count = 0
+
+        self._data_view_STATE = 0
+
     """ ############################## Chapter A Create treeview functions ######################################### """
 
     def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
@@ -94,8 +104,9 @@ class TreeViewManager():
                 self.database.add_experiment_to_experiment_table(i)
                 self.database.create_mapping_between_experiments_and_analysis_id(i)
 
+            pgf_tuple_list = self.read_series_specific_pgf_trace([],bundle,[])
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,self.database,database_mode,series_name,tree_level)
-
+            #pgf_nodes = self.read_pgf_information([],bundle,[])
         return tree, discarded_tree
 
     def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree, experiment_name, database,data_base_mode,series_name=None, tree_level= None):
@@ -144,7 +155,8 @@ class TreeViewManager():
         discard_button.setIcon(pixmap)
 
         metadata = node
-
+        #print(node_type)
+        #print(metadata)
         if "Pulsed" in node_type:
             print("skipped")
             parent = ""
@@ -162,6 +174,7 @@ class TreeViewManager():
 
         if "Trace" in node_type and tree_level>3:
             if self.analysis_mode==0:
+                # trace meta data information will be added to the sweep level
                 parent.setData(5,0,node.get_fields())
 
         node_list.append([node_type, node_label, parent])
@@ -217,11 +230,28 @@ class TreeViewManager():
         return parent,tree
 
     def add_series_to_treeview(self,tree,discarded_tree,parent,series_name,node_label,node_list,node_type,experiment_name,data_base_mode,database,pixmap):
+        '''
+        Function to add a new series-node to the tree.
+        :param tree: treeview of the selected objects
+        :param discarded_tree: treeview of the discarded objects
+        :param parent: parent node object
+        :param series_name:
+        :param node_label:
+        :param node_list:
+        :param node_type:
+        :param experiment_name:
+        :param data_base_mode:
+        :param database:
+        :param pixmap:
+        :return:
+        '''
+
         if series_name is None or series_name == node_label:
             for s in node_list:
                 if "Group" in s[0]:
                     parent = s[2]
                     break
+
             child = QTreeWidgetItem(parent)
             child.setText(0, node_label)
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
@@ -264,6 +294,7 @@ class TreeViewManager():
             return parent, tree
 
     def add_sweep_to_treeview(self, series_name,parent,node_type,data_base_mode,bundle,database,experiment_name,metadata):
+
         if series_name is None or series_name == parent.text(0):
             child = QTreeWidgetItem(parent)
             child.setText(0, node_type)
@@ -271,6 +302,7 @@ class TreeViewManager():
             child.setCheckState(self.checkbox_column, Qt.Unchecked)
             sweep_number = self.get_number_from_string(node_type)
             data = parent.data(3, 0)
+
 
             if self.analysis_mode == 0:
                 data.append(sweep_number - 1)
@@ -304,6 +336,8 @@ class TreeViewManager():
 
         return tree
 
+
+
     """######################### Chapter B Functions to interact with created treeviews ############################"""
 
     def assign_meta_data_groups_from_list(self,meta_data_group_assignment_list):
@@ -312,6 +346,7 @@ class TreeViewManager():
 
         name_list = []
         text_list = []
+
         for l in range (len(meta_data_group_assignment_list)):
             tuple = meta_data_group_assignment_list[l]
             name_list.append(tuple[0])
@@ -633,3 +668,107 @@ class TreeViewManager():
         # close the file
         f.close()
 
+    ############## pgf file reading
+
+    def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
+        '''
+        Function to generate series specific pgf trace. The result will be always a list of lists to handle  step protocols
+        and non-step protocols equally.
+        :param index:
+        :param bundle:
+        :param pgf_tuple_list: list of tuples, tuples contain series name and a matrix of at least one signal,
+        in case of step protocols with multiple signals represented as a list of lists
+        :return:
+        '''
+
+        # open the pulse generator part of the bundle
+        root = bundle.pgf
+        node = root
+        for i in index:
+            node = node[i]
+
+        # node type e.g. stimulation, chanel or stimchannel
+        node_type = node.__class__.__name__
+        print("Node type:")
+        print(node_type)
+
+        if node_type.endswith('PGF'):
+            node_type = node_type[:-3]
+
+
+        sampling_frequency = sampling_freq
+        holding_potential = vholding
+        number_of_sweeps = sweep_number
+        if node_type == "Stimulation":
+            sampling_frequency = 1/node.SampleInterval
+            number_of_sweeps = node.NumberSweeps
+            pgf_tuple_list.append((node.EntryName,[[]]))
+
+        if node_type == "Channel":
+            # Holding
+            holding_potential=node.Holding
+
+        if node_type == "StimChannel":
+            duration = node.Duration
+            increment = node.DeltaVIncrement
+            voltage = node.Voltage
+            # get the data trace list  and the series name from the last tuple
+
+            series_name = pgf_tuple_list[len(pgf_tuple_list)-1][0]
+            final_pulse_trace = pgf_tuple_list[len(pgf_tuple_list)-1][1]
+
+            # case 1 no step protocol, only one signal in the list
+            if increment == 0 and len(final_pulse_trace) <= 1:
+                final_pulse_trace[0]=self.append_samples(duration,sampling_frequency,voltage,holding_potential,
+                                                         final_pulse_trace[0])
+
+            # case 2 no step protocol, multiple signals in the list because section before was step protocol
+            if increment == 0 and len(final_pulse_trace) > 1:
+               for sub_signal in final_pulse_trace:
+                final_pulse_trace[final_pulse_trace.index(sub_signal)]=self.append_samples(duration,sampling_frequency,
+                                                                                           voltage,holding_potential,sub_signal)
+
+            # case 3 step protocol, only one signal in the list
+            if increment != 0 and len(final_pulse_trace) <= 1:
+                pre_signal = final_pulse_trace[0]
+                final_pulse_trace = []
+                iteration_stop = vholding+number_of_sweeps*increment
+                for incrementation_step in range(sweep_number):
+                        new_signal = pre_signal
+                        voltage = voltage+incrementation_step*increment
+                        new_signal= self.append_samples(duration,sampling_frequency,voltage,holding_potential,new_signal)
+                        final_pulse_trace.append(new_signal)
+
+            #case 4
+            if increment == 1 and len(final_pulse_trace) >= 1:
+                print("Error in PGF evaluation: two step protocols following each other isn't implemented yet")
+
+            # write back
+            pgf_tuple_list[len(pgf_tuple_list)-1]=(series_name,final_pulse_trace)
+
+
+        for i in range(len(node.children)):
+                # print("entered children " + str(i))
+                self.read_series_specific_pgf_trace(index + [i], bundle, pgf_tuple_list, sampling_frequency, number_of_sweeps, holding_potential)
+
+        return pgf_tuple_list
+
+
+    def append_samples(self,duration,sampling_frequency,voltage,holding_potential,sub_signal):
+        '''
+        Helper Function that will append new data to a given sub signal. Data amount is calculated from duration and sampling frequency.
+        if voltage input == 0 the holding value will be inserted as sample value instead
+        :param duration:
+        :param sampling_frequency:
+        :param voltage:
+        :param holding_potential:
+        :param sub_signal:
+        :return:
+        '''
+        # generate a number of sampling points and add them to the step trace, at the end, step trace is added to the entire signal
+        for sample in range(0, int(duration * sampling_frequency)):
+            if voltage != 0:
+                sub_signal.append(voltage)
+            else:
+                sub_signal.append(holding_potential)
+        return sub_signal

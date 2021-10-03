@@ -285,16 +285,22 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_2.addItem(self.horizontalSpacer_26, 1, 12, 1, 1)
 
-        self.groupBox_3 = QGroupBox(self.blank_analysis)
-        self.groupBox_3.setObjectName(u"groupBox_3")
-        self.pushButton_3 = QPushButton(self.groupBox_3)
-        self.pushButton_3.setObjectName(u"pushButton_3")
-        self.pushButton_3.setGeometry(QRect(10, 30, 111, 41))
-        self.label_7 = QLabel(self.groupBox_3)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setGeometry(QRect(150, 30, 601, 42))
+        self.add_filter_group_box = QGroupBox(self.blank_analysis)
+        self.add_filter_group_box.setObjectName(u"add_filter_group_box")
+        self.gridLayout_9 = QGridLayout(self.add_filter_group_box)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.add_filter_button = QPushButton(self.add_filter_group_box)
+        self.add_filter_button.setObjectName(u"add_filter_button")
 
-        self.gridLayout_2.addWidget(self.groupBox_3, 7, 1, 2, 16)
+        self.gridLayout_9.addWidget(self.add_filter_button, 0, 0, 1, 1)
+
+        self.label_7 = QLabel(self.add_filter_group_box)
+        self.label_7.setObjectName(u"label_7")
+
+        self.gridLayout_9.addWidget(self.label_7, 0, 1, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.add_filter_group_box, 7, 1, 2, 16)
 
         self.verticalSpacer_32 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -534,8 +540,8 @@ class Ui_Offline_Analysis(object):
         self.label_5.setText(QCoreApplication.translate("Offline_Analysis", u"Opens the visualization of results of \n"
 "already succesfully performed analysis", None))
         self.label_2.setText(QCoreApplication.translate("Offline_Analysis", u"SELECT A SPECIFIC OFFLINE ANALYSIS", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Selection", None))
-        self.pushButton_3.setText(QCoreApplication.translate("Offline_Analysis", u"Add Filter", None))
+        self.add_filter_group_box.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Selection", None))
+        self.add_filter_button.setText(QCoreApplication.translate("Offline_Analysis", u"Add Filter", None))
         self.label_7.setText(QCoreApplication.translate("Offline_Analysis", u"No Filter Selected", None))
         self.label.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Offline Analysis", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Location", None))
