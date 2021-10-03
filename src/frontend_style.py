@@ -10,19 +10,30 @@ class Frontend_Style():
 
         self.light_style = u"QFrame{ background-color: \"#e6e6e6\"; }\n" \
                            "QPushButton{ padding: 5px 10px; " \
-                           "             border: none;" \
+                           "             border-width: 1px ;" \
+                           "             border-radius: 10px ; " \
+                           "             border-color: #2986cc;"\
                            "             border-radius:10px;" \
+                           "             color:#2986cc; " \
                            "             background-color: \"#e6e6e6\";}" \
-                           "QPushButton:hover{ background-color: \"#ff8117\";} " \
+                           "QPushButton:hover{ background-color: \"#2986cc\";} " \
                            "QDialog{background-color: \"#ffffff\"; }"
 
 
         self.dark_style = u"QFrame{ background-color: \"#232629\";\ } \n" \
-                          "QPushButton{ padding: 5px 10px;\ " \
-                          "             border: none; " \
-                          "border-radius:10px; " \
-                          "background-color: \"#232629\"; } " \
-                          "QPushButton:hover{ background-color: \"#54545a\";\ }"
+                           "QPushButton{ padding: 5px 10px; " \
+                           "             border-width: 0px ;" \
+                           "             border-radius: 10px ; " \
+                           "             border-color: #151E3D;"\
+                           "             border-radius:10px;" \
+                           "             color:white; " \
+                           "             background-color: #151E3D;}" \
+                           "QPushButton:hover{ background-color: \"#e6e6e6\";} " \
+                           "QPushButton[accessibleName=\"big_square\"] {min-width: 10em;" \
+                           "              min-height: 10em;}" \
+                          "QLabel{background-color: rgba(0,0,0,0%);}" \
+                          "QComboBox{selection-color: #151E3D; selection-background-color: #151E3D; background= #151E3D; " \
+                          "color=#151E3D;}" \
 
 
 

@@ -28,7 +28,7 @@ from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_U
 from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
 pg.setConfigOption('foreground','#448aff')
 import csv
-import json
+from filter_pop_up_handler import Filter_Settings
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -37,9 +37,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QWidget.__init__(self,parent)
         self.setupUi(self)
 
+        # start page of offline analysis
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
+
+
+        # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
+        self.add_filter_button.clicked.connect(self.add_filter_to_offline_analysis)
+        self.add_filter_button.setEnabled(False)
 
         self.offline_manager = OfflineManager()
         self.offline_analysis_widgets.setCurrentIndex(0)
@@ -47,8 +53,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
         self.frontend_style=None
 
-        #self.theme_mode = 1 # per default the dark theme will be started, 0 = light theme
 
+        # might be set during blank analysis
+        self.blank_analysis_page_1_tree_manager = None
 
     @Slot()
     def start_blank_analysis(self):
@@ -106,14 +113,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # @todo: display a reading animation in a pop up dialog
 
         # tree generation will be done in the backend because also database initilization will be performed alongside, will return the tree manager
-        blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view, self.outfiltered_tree_view, meta_data_option_list)
+        # tree manager will be global to be accessible for filter menu
+        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view, self.outfiltered_tree_view, meta_data_option_list)
 
+        # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)
         self.experiments_tree_view.setColumnWidth(1, 25)
         self.experiments_tree_view.setColumnWidth(2, 100)
         self.experiments_tree_view.setColumnWidth(3, 25)
 
-        blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(meta_data_group_assignment_list)
+        self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(meta_data_group_assignment_list)
 
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1)
 
@@ -130,7 +139,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
 
-
+        self.add_filter_button.setEnabled(True)
 
 
     @Slot()
@@ -173,6 +182,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
+    def add_filter_to_offline_analysis(self):
+        '''will be called when the add filter button is clicked. function will open a filter popup. '''
+
+        filter_dialog = Filter_Settings()
+
+        self.set_meta_data_filter_combobox_options(filter_dialog.meta_data_combo_box)
+
+        self.frontend_style.set_pop_up_dialog_style_sheet(filter_dialog)
+        filter_dialog.exec_()
+
+    def set_meta_data_filter_combobox_options(self,combo_box):
+        '''go through all series metadata of the tree and find all common meta data information
+
+        '''
     def display_select_meta_data_group_dialog(self, meta_data_groups_in_db):
         """
         Opens a new popup and displays buttons to select an action: button 1: load meta data groups from template, button 2: assign all experiments to the same meta data group,
@@ -192,6 +215,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # Load Template button will open a filedialog to select a template
         dialog.load_template_button.clicked.connect(partial(self.open_meta_data_template_file,dialog))
+
+        dialog.assign_one_group_to_all.setAccessibleName("big_square")
+        dialog.assign_now_button.setAccessibleName("big_square")
+        dialog.load_template_button.setAccessibleName("big_square")
+        dialog.select_from_database_button.setAccessibleName("big_square")
 
         if not meta_data_groups_in_db:
             dialog.select_from_database_button.setDisabled(True)
@@ -239,7 +267,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # meta_data_popup.save_to_template_button
         meta_data_popup.close_and_continue_button.clicked.connect(partial(self.continue_open_directory,meta_data_popup,
                                                                           tmp_tree_manager.meta_data_option_list,
-                                                                          tmp_tree_manager.get_meta_data_group_assignments))
+                                                                          tmp_tree_manager.get_meta_data_group_assignments()))
 
         meta_data_popup.save_to_template_button.clicked.connect(partial(self.save_meta_data_to_template_and_continue,
                                                                         meta_data_popup,tmp_tree_manager))
@@ -254,7 +282,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
         tmp_tree_manager.write_tuple_list_to_csv_file()
         self.continue_open_directory(meta_data_popup, tmp_tree_manager.meta_data_option_list,
-                                     tmp_tree_manager.get_meta_data_group_assignments)
+                                     tmp_tree_manager.get_meta_data_group_assignments())
 
     def get_selected_checkboxes(self,checkboxes,labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
