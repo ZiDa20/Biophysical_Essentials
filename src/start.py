@@ -14,6 +14,7 @@ from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from tkinter_camera import *
+from frontend_style import Frontend_Style
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self):
@@ -21,6 +22,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.settings_button.clicked.connect(self.open_settings)
+
+        # introduce style sheet to be used by start .py
+        self.frontend_style = Frontend_Style()
+
+        # distribute this style object to all other classes to be used
+        # whenever the style will be changed, all classes share the same style object and adapt it's appearance
+        self.ui.offline.frontend_style = self.frontend_style
+        #self.ui.online.frontend_style = self.frontend_style
 
         # Logger for the Main function called start
         self.logger=logging.getLogger() 
@@ -165,6 +174,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         print("entered the function")
         print(self.default_mode)
         print(self.style().metaObject().className())
+
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_red.xml", invert_secondary=True)
@@ -187,7 +197,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "\n"
                                                     "QPushButton:hover{\n"
                                                     "	background-color: \"#ff8117\";\n"
-                                                    "}") 
+                                                    "}")
            
             
         else:
@@ -216,8 +226,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
 
-        
-        self.ui.offline_analysis.clicked.connect(self.init_offline_analysis)
+        #  make sure to have all popups  in the same changed theme color
+        self.frontend_style.current_style=self.default_mode
 
     def init_offline_analysis(self):
         self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()

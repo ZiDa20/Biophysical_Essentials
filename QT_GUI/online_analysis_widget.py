@@ -46,9 +46,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.drawing()
 
 
-       
-      
-
     @Slot()
     def online_analysis_tab_changed(self):
         """handler if the tab is changed, tab 0: online analysis, tab 1: labbook"""
@@ -64,7 +61,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # open selection and retake users file selection
         print(file_name)
         if file_name is False:
-            file_name = QFileDialog.getOpenFileName(self, 'OpenFile')[0]
+            file_name = QFileDialog.getOpenFileName(self, 'OpenFile',"","*.dat")[0]
 
         #self.label_selected_directory.setText(file_name) can be added for the label but was removed nnow MZ
 
@@ -93,6 +90,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.tree_tab_widget.setMaximumSize(QSize(330, 700))
        
 
+        #self.verticalLayout_5.addWidget(self.tree_tab_widget)
+
 
         # initially show online analysis
         self.tree_tab_widget.setCurrentIndex(0)
@@ -113,6 +112,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0).child(0).setCheckState(1,Qt.Checked))
 
         self.online_analysis_plot_manager.tree_view_click_handler(self.treeWidget.topLevelItem(0).child(0))
+
+        self.get_columns_data_to_table()
+
 
         
     def get_columns_data_to_table(self):
@@ -170,17 +172,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.pyqt_graph.setBackground("#232629")
         self.verticalLayout_6.addWidget(self.pyqt_graph)
         print("initialized")
-
-
-   
-        
-    
-
-
-
-
-
-
-
+       
 
 
