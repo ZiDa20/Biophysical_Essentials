@@ -7,7 +7,9 @@ import re
 import heka_reader
 from functools import partial
 import csv
-
+import sys
+import os
+sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 
 class TreeViewManager():
