@@ -377,7 +377,7 @@ class UserParamDescrType(Struct):
 
 class AmplifierState(Struct):
     field_info = [
-        ('StateVersion', '8s', cstr),
+        ('StateVersion', 'd'),
         ('RealCurrentGain', 'd'),
         ('RealF2Bandwidth', 'd'),
         ('F2Frequency', 'd'),
@@ -402,7 +402,7 @@ class AmplifierState(Struct):
         ('SearchDelay', 'd'),
         ('MConductance', 'd'),
         ('MCapacitance', 'd'),
-        ('SerialNumber', '8s', cstr),
+        ('SerialNumber', 'd'),
         ('E9Boards', 'h'),
         ('CSlowCycles', 'h'),
         ('IMonAdc', 'h'),
@@ -537,6 +537,7 @@ class SeriesRecord(TreeNode):
 
 class GroupRecord(TreeNode):
     field_info = [
+
         ('Mark', 'i'),
         ('Label', '32s', cstr),
         ('Text', '80s', cstr),

@@ -17,9 +17,13 @@ class PandasTable(QAbstractTableModel):
         self._data = data
 
     def rowCount(self, index): # get the number of rows
+        """ get the dataframe shape row
+        index -> int """
         return self._data.shape[0]
 
     def columnCount(self, parnet=None): # get the number of columns
+        """ get the dataframe shape colum
+        """
         return self._data.shape[1]
 
     def data(self, index, role=Qt.DisplayRole): # get the data
@@ -45,3 +49,4 @@ class PandasTable(QAbstractTableModel):
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+
