@@ -29,10 +29,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         #self.tree_layout_online.setSpacing(0)
 
         # logger settings
-        self.logger=logging.getLogger()
+        self.logger=logging.getLogger() # introduce the logger
         self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/online_analysis.log')
-        print(file_handler)
+    
+
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
@@ -115,6 +116,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         
     def get_columns_data_to_table(self):
+        #toDO add the documentation here
         count = self.treeWidget.topLevelItemCount()
         list_rows = []
         final_pandas = pd.DataFrame()
@@ -140,7 +142,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.draw_table(final_pandas)
 
     def draw_table(self, data):
-        """ draws the table """
+        """ draws the table of the .dat metadata as indicated by the .pul Bundle file """
         try:
             self.table_model = PandasTable(data)
             #self.tableWidget.setStyleSheet("background-color:#232629; ")
@@ -150,6 +152,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
 
     def draw_live_plot(self,data_x = None):
+        """ this is necessary to draw the plot which is plotted to the self.configuration window
+        this will further projected to the online-anaysis """
         print(data_x)
         #print(data_x[0], print(data_x[1]))
         #self.drawing()
@@ -161,6 +165,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         
 
     def drawing(self):
+        """ redraws the graph into online analysis """
         self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
         self.pyqt_graph.setBackground("#232629")
         self.verticalLayout_6.addWidget(self.pyqt_graph)

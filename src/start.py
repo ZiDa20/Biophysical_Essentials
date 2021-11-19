@@ -3,7 +3,6 @@ import os
 import time
 
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-print(os.getcwd())
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
 from main_window import Ui_MainWindow
@@ -32,7 +31,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.logger.addHandler(file_handler)
         self.logger.info('A trial message if the logger is working')
 
-
         #darkmode implementation
         self.default_mode = 1
 
@@ -56,21 +54,24 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # connect settings button
         self.write_button_text()
-        self.test_blurring()
+        #self.test_blurring()
         self.ui.side_left_menu.setMinimumSize(300, 1000)
         self.ui.side_left_menu.setMaximumSize(300, 1800)
 
     def transfer_file_to_online(self):
+        """ transfer the self.configuration data to the online analysis """
         file_path = self.ui.config.get_file_path()
         self.ui.online.open_single_dat_file(str(file_path))
 
     def open_settings(self):
-
+        """ This should be changed to the main settings"""
         self.settings = SettingsWindow()
         self.settings.show()
 
     def animate_menu(self):
-        width = self.ui.side_left_menu.width()
+        """ animation of the side-bar for open and close animation,
+        @toDO should change animation speed for smoother animation """ 
+        width = self.ui.side_left_menu.width() # get the width of the menu
         print(width)
         if width >= 300:
             print("yeah")
@@ -87,13 +88,15 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.animation.setDuration(4000)
         self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
         self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
-        self.animation.setEasingCurve(QEasingCurve.InOutQuart)
+        self.animation.setEasingCurve(QEasingCurve.InOutQuart) # set the Animation 
         self.animation.start()
         self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
         self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
 
 
     def konsole_menu(self):
+        """ toDO: still opens every time whne layout is changing--> bugfix better integratin into the layout
+         """
         height = self.ui.frame.height()
         position = self.ui.frame.pos()
         self.ui.frame.setStyleSheet("background:transparent")
@@ -113,18 +116,29 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             newPosition = 600
 
+        # sets the minimum and maximum size of the konsole model
         self.ui.frame.setMinimumSize(0, 0)
-        self.ui.frame.setMaximumSize(1500, 1500)
+        self.ui.frame.setMaximumSize(300, 300)
+
+        #get the size of the konsole
         self.animation = QPropertyAnimation(self.ui.frame, b"size")
+        #get the position of the konsole       
         self.position = QPropertyAnimation(self.ui.frame, b"pos")
+        print(f"size of the konsole is: {self.animation} and position of the konsole is: {position}")
         self.animation.setDuration(500)
         self.position.setDuration(100)
+
+
         self.position.setStartValue(QPoint(self.ui.frame.pos().x(), position.y()))
         self.position.setEndValue(QPoint(self.ui.frame.pos().x(), newPosition))
         self.position.start()
+
+
         self.animation.setStartValue(QSize(self.ui.frame.width(), height))
         self.animation.setEndValue(QSize(self.ui.frame.width(), newHeight))
         self.animation.setEasingCurve(QEasingCurve.InOutQuart)
+
+
         self.animation.start()
 
     def erase_button_text(self):
@@ -147,6 +161,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 
     def change_to_lightmode(self):
+        # @toDO should be added to the designer class 
         print("entered the function")
         print(self.default_mode)
         print(self.style().metaObject().className())
@@ -209,6 +224,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         #self.offline_analizer.setupUi(self)
 
     def set_darkmode(self, default_mode):
+        """ Function to retrieve the current state of the design
+        default_mode -> boolean (1 if light and 0 if darkmode)""" 
         self.default_mode = default_mode
 
     def get_darkmode(self):
@@ -221,6 +238,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         effect = QGraphicsBlurEffect()
         effect.setEnabled(True)
         #effect.setBlurRadius(50)
+        print("intialized blurring")
         self.ui.side_left_menu.setGraphicsEffect(effect)
         self.ui.side_left_menu.show()
         effect.setBlurRadius(20)
@@ -237,8 +255,8 @@ if __name__ == "__main__":
     window.show()
     sys.exit(app.exec())
 
-
 class MainWindow(QWidget,Ui_MainWindow):
+    """ Promotion class, to set up the main window """
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.setupUi(self)

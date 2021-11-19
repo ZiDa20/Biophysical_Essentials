@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1866</width>
+    <width>1792</width>
     <height>1000</height>
    </rect>
   </property>
@@ -246,6 +246,7 @@ QPushButton:hover{
     <widget class="Config_Widget" name="config"/>
     <widget class="Online_Analysis" name="online"/>
     <widget class="Offline_Analysis" name="offline"/>
+    <widget class="settings_window" name="Settings_APP"/>
    </widget>
    <widget class="QFrame" name="side_left_menu">
     <property name="geometry">
@@ -660,10 +661,6 @@ background-position: left;</string>
     </layout>
    </widget>
    <zorder>notebook</zorder>
-   <zorder>gridLayoutWidget</zorder>
-   <zorder></zorder>
-   <zorder>gridLayoutWidget</zorder>
-   <zorder>gridLayoutWidget</zorder>
    <zorder>frame</zorder>
    <zorder>side_left_menu</zorder>
   </widget>
@@ -686,6 +683,12 @@ background-position: left;</string>
    <class>Offline_Analysis</class>
    <extends>QWidget</extends>
    <header>offline_analysis.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>settings_window</class>
+   <extends>QWidget</extends>
+   <header>settings_window.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

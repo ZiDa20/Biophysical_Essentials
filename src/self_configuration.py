@@ -49,7 +49,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         self.submission_count = 2 # count for incrementing batch communication 
 
-        self.image_stacke = [] #image stack for taken snapshots
+        self.image_stack = [] #image stack for taken snapshots
         self.default_mode = 1
         self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
         self.pyqt_graph.setBackground("#232629")
@@ -93,6 +93,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.start_experiment_button.clicked.connect(self.make_threading)
         self.pushButton_10.clicked.connect(self.clear_list) # change button name
         self.stop_experiment_button.clicked.connect(self.terminate_sequence) # change button name
+        self.button_transfer_to_labbook.clicked.connect(self.transfer_image_gif)
         
         self.set_solutions()
 
@@ -255,10 +256,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         imgs = Image.fromarray(camera_image) # conversion
         image = imgs.resize((561,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
         imgqt = ImageQt.ImageQt(image) # convert to qt image
-        self.trial_figure = QPixmap.fromImage(imgqt)
+        self.camera_image_recording = QPixmap.fromImage(imgqt)
         self.scence_trial.clear()
-        self.scence_trial.addPixmap(self.trial_figure)
-        print(camera_image)
+        self.scence_trial.addPixmap(self.camera_image_recording)
 
     def stop_camera(self):
         """ stop the camera timer """
@@ -267,32 +267,48 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def show_snapshot(self):
         """ does transfer the current snapshot to the galery view """
-        self.check_list_lenght(self.image_stacke) # self.image_stacke is der stack der images generiert
-        self.image_stacke.insert(0,self.trial_figure) # neues image wird an stelle 1 gepusht
+        image_list = self.check_list_lenght(self.image_stack) # self.image_stack is der stack der images generiert
+        image_list.insert(0,self.trial_figure) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self)
         self.Taken_Snapshot.setScene(self.snapshot_scence)
         self.snapshot_scence.addPixmap(self.trial_figure)
-        self.draw_snapshots_on_galery() # draw into the galery
+        self.draw_snapshots_on_galery(image_list) # draw into the galery
+
 
     def check_list_lenght(self, image_liste):
         """Here we check the lenght of the  to avoid overcrowding in the image galery
-        its set to 5 images"""
+        its set to 5 images
+        :param image_liste -> type(list) """
         try:
             if len(image_liste) > 4: # if stack overcrowded
                 image_liste.pop()
                 print("Expected List Length reached")
+                return image_list
+            else:
+                return image_list
         except Exception as e:
             print(repr(f"This is the Error: {e}"))
 
-    def draw_snapshots_on_galery(self):
+    def draw_snapshots_on_galery(self, image_list):
         # function to draw the taken snapshot into the image galery
         for i in reversed(range(self.horizontalLayout.count())): 
             self.horizontalLayout.itemAt(i).widget().setParent(None)
-        if len(self.image_stacke) > 0: #looping through the image stack
-            for i,t in enumerate(self.image_stacke):
-                label = QLabel()
+        if len(self.image_stack) > 0: #looping through the image stack
+            for i,t in enumerate(image_list):
+                label = QLabel() # we set a label in the layout which should then be filled with the pixmap
                 label.setPixmap(t)
                 self.horizontalLayout.addWidget(label) # add to the layout 
+
+
+    def transfer_image_gif(self):
+        #toDO add the option for gif mode here
+        try: 
+            experiment_image = QGraphicsScene(self)
+            self.online.image_experiment.setScene(self.snapshot_scence)
+            experiment_image.addPixmap(self.trial_figure)
+        except Exception as e:
+            print(e)
+             # draw into the galery
 
 
     def get_commands_from_textinput(self):
