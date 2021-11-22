@@ -4,7 +4,7 @@ import matplotlib as mpl
 from tkinter_camera import *
 import os
 from PIL import ImageTk, Image
-
+import matplotlib as plt
 plt.style.use('dark_background')
 mpl.use('TkAgg')
 plt.rcParams['axes.facecolor']='#333333'

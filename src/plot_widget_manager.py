@@ -22,7 +22,7 @@ class PlotWidgetManager(QtCore.QRunnable):
         """
 
         self.plot_widget = pg.PlotWidget()
-        self.plot_widget.setStyleSheet('dark_blue.xml')
+        #self.plot_widget.setStyleSheet('dark_blue.xml')
         # clear the layout from previous plot
         print("removed old widget")
         vertical_layout_widget.takeAt(0)
@@ -42,6 +42,7 @@ class PlotWidgetManager(QtCore.QRunnable):
         super().__init__()
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
+        self.plot_widget.setBackground("#232629")
 
 
     def sweep_clicked(self,item):

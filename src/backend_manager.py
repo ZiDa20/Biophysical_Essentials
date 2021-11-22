@@ -22,8 +22,6 @@ class BackendManager:
         self._response_file_content = "No active communication"
 
 
-
-
     @property
     def control_path(self):
         return self._control_path
@@ -135,6 +133,7 @@ class BackendManager:
     def return_dataframe_from_notebook(self):
         """Get the DataFrame from the notebook analysis"""
         data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', skiprows = 2, header = None)
+        print(data_frame_notebook)
         #data_frame_notebook = data_frame_notebook.iloc[:,4:]
         return data_frame_notebook
         
@@ -196,3 +195,8 @@ class BackendManager:
         return os.path.exists(self.batch_path + '/E9Batch.In')
 
 
+    def get_file_path(self, increment):
+        self.send_text_input()
+        
+    #def transfer_data_to_offline(self, name):
+    #    #should transfer the .dat file if closed or analysis finished
