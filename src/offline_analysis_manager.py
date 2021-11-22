@@ -13,6 +13,7 @@ from treeview_manager import *
 
 
 class OfflineManager():
+    '''manager class to perform all backend functions of module offline analysis '''
 
     def __init__(self):
         self.meta_path = None
@@ -86,14 +87,28 @@ class OfflineManager():
 
 
 
+
     def get_database(self):
         return self.database
 
-    def read_data_from_experiment_directory(self,tree,discarded_tree):
+    def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list):
+        self.init_database()
         data_list = self.package_list(self._directory_path)
         self.tree_view_manager = TreeViewManager(self.database)
-        tree,discarded_tree = self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
-        return tree, discarded_tree
+
+        # meta_data_option_list can be an empty list: in this case, the treeeview manager will provide default elements
+        # if not empty, this list contains all options in the dropdown menu of each combo box
+        # when reading a template, "none" might not be assigned - therefore it might be necessary to add this option first
+        if meta_data_option_list:
+            try:
+                meta_data_option_list.index("None")
+            except:
+                meta_data_option_list = ["None"] + meta_data_option_list
+
+            self.tree_view_manager.meta_data_option_list = meta_data_option_list
+
+        self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
+        return self.tree_view_manager
 
     # Database functions
     def init_database(self):

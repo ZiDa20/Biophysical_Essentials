@@ -211,6 +211,12 @@
            <height>551</height>
           </rect>
          </property>
+         <property name="autoScroll">
+          <bool>true</bool>
+         </property>
+         <attribute name="headerMinimumSectionSize">
+          <number>47</number>
+         </attribute>
          <column>
           <property name="text">
            <string>Objects</string>
@@ -219,6 +225,11 @@
          <column>
           <property name="text">
            <string>Show</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Group</string>
           </property>
          </column>
          <column>
