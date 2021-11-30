@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1544</width>
-    <height>1112</height>
+    <width>1679</width>
+    <height>1123</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,128 +24,31 @@
        <string>Online Analysis</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_19">
-       <item row="0" column="1">
-        <spacer name="verticalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+       <item row="2" column="2">
+        <widget class="GroupBoxSize" name="groupBox_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
+         <property name="minimumSize">
           <size>
-           <width>20</width>
-           <height>30</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
-        </spacer>
-       </item>
-       <item row="1" column="1">
-        <widget class="QGroupBox" name="groupBox_2">
+         <property name="maximumSize">
+          <size>
+           <width>1500</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="title">
           <string>Visualization of the Traces</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="0" rowspan="2">
-           <widget class="QTabWidget" name="online_analysis_tabs">
-            <property name="currentIndex">
-             <number>1</number>
-            </property>
-            <widget class="QWidget" name="recorded_series_plot_tab">
-             <attribute name="title">
-              <string>Plot Window</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="2" column="1">
-               <layout class="QGridLayout" name="gridLayout_12">
-                <item row="0" column="3">
-                 <spacer name="horizontalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item row="0" column="1" rowspan="2">
-               <layout class="QVBoxLayout" name="tree_plot_widget_layout">
-                <item>
-                 <widget class="QLabel" name="label">
-                  <property name="font">
-                   <font>
-                    <pointsize>20</pointsize>
-                    <bold>true</bold>
-                    <underline>true</underline>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Load a File to Plot Data</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignJustify|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="3" column="1">
-               <spacer name="verticalSpacer_7">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>330</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="live_recording_tab">
-             <attribute name="title">
-              <string>Live Recording</string>
-             </attribute>
-             <layout class="QGridLayout" name="gridLayout">
-              <item row="0" column="0">
-               <layout class="QVBoxLayout" name="verticalLayout_6"/>
-              </item>
-              <item row="1" column="0">
-               <spacer name="verticalSpacer_10">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>400</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="fast_online_analysis">
-             <attribute name="title">
-              <string>Fast Analysis</string>
-             </attribute>
-            </widget>
-           </widget>
-          </item>
-          <item row="0" column="1">
+          <item row="0" column="2">
            <widget class="QGroupBox" name="groupBox_6">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -174,7 +77,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -276,7 +179,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -292,7 +195,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -315,7 +218,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -375,7 +278,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -447,7 +350,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -463,7 +366,7 @@ background-color: #ff8117;
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>5</width>
                  <height>20</height>
                 </size>
                </property>
@@ -472,108 +375,260 @@ background-color: #ff8117;
             </layout>
            </widget>
           </item>
+          <item row="0" column="1" rowspan="2">
+           <widget class="QTabWidget" name="online_analysis_tabs">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="recorded_series_plot_tab">
+             <attribute name="title">
+              <string>Plot Window</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="2" column="1">
+               <layout class="QGridLayout" name="gridLayout_12">
+                <item row="0" column="3">
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1" rowspan="2">
+               <layout class="QVBoxLayout" name="tree_plot_widget_layout">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="font">
+                   <font>
+                    <pointsize>20</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                    <underline>true</underline>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Load a File to Plot Data</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="3" column="1">
+               <spacer name="verticalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>330</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="live_recording_tab">
+             <attribute name="title">
+              <string>Live Recording</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <layout class="QVBoxLayout" name="verticalLayout_6"/>
+              </item>
+              <item row="1" column="0">
+               <spacer name="verticalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>5</width>
+                  <height>400</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="fast_online_analysis">
+             <attribute name="title">
+              <string>Fast Analysis</string>
+             </attribute>
+            </widget>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
-        <layout class="QGridLayout" name="tree_layout_online">
-         <item row="0" column="0">
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="title">
-            <string>Experiment Hierachy</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_18">
+       <item row="0" column="2">
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>5</width>
+           <height>30</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>448</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Experiment Hierachy</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_18" rowstretch="0" columnstretch="0,0">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="tree_layouting_change">
             <item row="0" column="0">
-             <layout class="QGridLayout" name="tree_layouting_change">
-              <item row="0" column="0">
-               <widget class="QTabWidget" name="tree_tab_widget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>330</width>
-                  <height>600</height>
-                 </size>
-                </property>
-                <property name="accessibleName">
-                 <string>tab_widgets</string>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="currentIndex">
-                 <number>1</number>
-                </property>
-                <widget class="QWidget" name="selected_tree_view">
-                 <attribute name="title">
-                  <string>Selected</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_2">
-                  <item>
-                   <widget class="QTreeWidget" name="treeWidget">
-                    <column>
-                     <property name="text">
-                      <string>Object</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>Remove</string>
-                     </property>
-                    </column>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-                <widget class="QWidget" name="discarded_tree_view">
-                 <attribute name="title">
-                  <string>Discarded</string>
-                 </attribute>
-                 <layout class="QGridLayout" name="gridLayout_4">
-                  <item row="0" column="0">
-                   <widget class="QTreeWidget" name="treeWidget_2">
-                    <property name="styleSheet">
-                     <string notr="true"/>
-                    </property>
-                    <column>
-                     <property name="text">
-                      <string>Object</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>Reinsert</string>
-                     </property>
-                    </column>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0">
-             <layout class="QGridLayout" name="gridLayout_10"/>
+             <widget class="QTabWidget" name="tree_tab_widget">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>600</height>
+               </size>
+              </property>
+              <property name="accessibleName">
+               <string>tab_widgets</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <widget class="QWidget" name="selected_tree_view">
+               <attribute name="title">
+                <string>Selected</string>
+               </attribute>
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="QTreeWidget" name="treeWidget">
+                  <column>
+                   <property name="text">
+                    <string>Object</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Remove</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="discarded_tree_view">
+               <attribute name="title">
+                <string>Discarded</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_4">
+                <item row="0" column="0">
+                 <widget class="QTreeWidget" name="treeWidget_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <column>
+                   <property name="text">
+                    <string>Object</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Reinsert</string>
+                   </property>
+                  </column>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
             </item>
            </layout>
-          </widget>
-         </item>
-        </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>5</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -600,6 +655,18 @@ background-color: #ff8117;
        </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>448</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="title">
           <string>TreeView Experiment</string>
          </property>
@@ -620,7 +687,7 @@ background-color: #ff8117;
        <item row="1" column="2">
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="GroupBoxSize" name="groupBox">
            <property name="title">
             <string>Labbbook Table</string>
            </property>
@@ -643,52 +710,52 @@ background-color: #ff8117;
             </item>
             <item row="3" column="0">
              <layout class="QGridLayout" name="gridLayout_9">
-              <item row="1" column="0">
-               <widget class="QGraphicsView" name="image_experiment">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+              <item row="1" column="1">
+               <widget class="QGraphicsView" name="graphicsView">
                 <property name="minimumSize">
                  <size>
-                  <width>350</width>
+                  <width>450</width>
                   <height>0</height>
                  </size>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_9">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Expanding</enum>
+                <property name="text">
+                 <string>Experiment Image</string>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
+               </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QGraphicsView" name="graphicsView"/>
-              </item>
-              <item row="0" column="2">
+              <item row="0" column="1">
                <widget class="QLabel" name="label_13">
                 <property name="text">
                  <string>Experiment Temporal GIF</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_9">
-                <property name="text">
-                 <string>Experiment Image</string>
+              <item row="1" column="0">
+               <widget class="QGraphicsView" name="image_experiment">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>450</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
                 </property>
                </widget>
               </item>
@@ -877,6 +944,14 @@ background-color:#ff8117;
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GroupBoxSize</class>
+   <extends>QGroupBox</extends>
+   <header>groupbox_resizing_class</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
