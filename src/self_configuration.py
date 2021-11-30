@@ -5,6 +5,7 @@ sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+
 from PIL import ImageQt ,Image
 from backend_manager import *
 import os.path
@@ -18,9 +19,6 @@ pg.setConfigOption('foreground', '#ff8117')
 from dvg_pyqtgraph_threadsafe import PlotCurve
 from self_config_notebook_widget import *
 import traceback, sys
-
-
-
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
@@ -608,7 +606,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.increment_count()
 
             
-        
     def clear_list(self):
         # connect to the button 
         self.listWidget.model().clear()
