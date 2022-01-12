@@ -1,13 +1,20 @@
 import sqlite3
+import duckdb
 import os
 import datetime
 import re
+
+import numpy
+
 import raw_analysis as ra
 import heka_reader
 import numpy as np
 import io
 import logging
 import datetime
+import pandas as pd
+
+
 class DataDB():
     ''' A class to handle all data in a sqlite3 generated during offline analysis.
      @date: 23.06.2021, @author dz'''
@@ -26,6 +33,12 @@ class DataDB():
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info('Database Manager Initialized')
+        self.duck_db_database = "DUCK_DB"
+        self.sq_lite_database = "SQ_Lite"
+
+        # change manually for now .. maybe to be implemented in settings tabs
+        self.database_architecture = self.duck_db_database # you can select between 'DUCK_DB' or 'SQ_LITE
+        # '
 
     """---------------------------------------------------"""
     """ General database functions                        """
@@ -43,121 +56,133 @@ class DataDB():
         return np.load(out)
 
     def create_analysis_database(self):
-        self.db_file_name = "analysis_database.db"
+        '''Creates a new database or connects to an already existing database. Returns True if a new database has been created,
+        returns false if an existing database was connected '''
+
+        if self.database_architecture==self.duck_db_database:
+            self.db_file_name = "duck_db_analysis_database.db"
+        else:
+            self.db_file_name = "analysis_database.db"
+            # Converts np.array to TEXT when inserting
+            sqlite3.register_adapter(np.ndarray, self.adapt_array)
+
+            # Converts TEXT to np.array when selecting
+            sqlite3.register_converter("array", self.convert_array)
+
 
         cew = os.getcwd()
         dir_list = os.listdir(cew)
 
-        # Converts np.array to TEXT when inserting
-        sqlite3.register_adapter(np.ndarray, self.adapt_array)
-
-        # Converts TEXT to np.array when selecting
-        sqlite3.register_converter("array", self.convert_array)
-
+        return_val = 0
         if self.db_file_name in dir_list:
             self.logger.info("Established connection to existing database: %s ", self.db_file_name)
         else:
             self.logger.info("A new database was created. Created and Connected to new database: %s", self.db_file_name)
+            return_val = 1
 
         try:
-            self.database = sqlite3.connect(cew + "/" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
+            if self.database_architecture == self.duck_db_database:
+                # self.database = duckdb.connect(database=':memory:', read_only=False)
+                self.database = duckdb.connect(cew + "/" + self.db_file_name, read_only=False)
+            else:
+                self.database = sqlite3.connect(cew + "/" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
             self.logger.info("An error occured during database initialization. Error Message: %s", e)
 
-    ""
+        if return_val == 0:
+            return False
+        else:
+            return True
 
     def create_database_tables(self):
-        '''Create all database tables if they do not exist'''
+        '''function to create the tables needed for the default database'''
 
-        sql_create_offline_analysis_table = """ CREATE TABLE IF NOT EXISTS offline_analysis (
-                                                analysis_id integer PRIMARY KEY autoincrement,
-                                                date_time,
-                                                user
-                                                ); """
+        # create a unique sequence analoque to auto increment function
+        create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequence;"""
+        self.database = self.execute_sql_command(self.database, create_unique_offline_analysis_sequence)
 
-        sql_create_filter_table = """ CREATE TABLE IF NOT EXISTS filters (
-                                        filter_criteria_name primary key,
-                                        lower_threshold float,
-                                        upper_threshold float,
+
+        #create all database tables assuming they do not exist'''
+
+        sql_create_mapping_table = """  create table experiment_analysis_mapping(
+                                        experiment_name text,
                                         analysis_id integer,
-                                        foreign key (analysis_id) references offline_analysis (analysis_id)
-                                    ); """
+                                        UNIQUE (experiment_name, analysis_id) 
+                                        ); """
 
-        sql_create_series_table = """ CREATE TABLE IF NOT EXISTS analysis_series (
-                                                   analysis_series_name text,
-                                                   time array,
-                                                   recording_mode text,
-                                                   analysis_id integer, 
-                                                   foreign key (analysis_id) references offline_analysis (analysis_id)
-                                                   primary key (analysis_series_name, analysis_id)
-                                               ); """
+        sql_create_offline_analysis_table = """ CREATE TABLE offline_analysis(
+                                                analysis_id integer PRIMARY KEY DEFAULT(nextval ('unique_offline_analysis_sequence')),
+                                                date_time TIMESTAMP,
+                                                user_name TEXT); """
 
-        sql_create_experiments_table = """CREATE TABLE IF NOT EXISTS experiments (
+        sql_create_experiments_table = """CREATE TABLE experiments(
                                                experiment_name text PRIMARY KEY,
                                                meta_data_group text,
-                                               labbook_id integer,
+                                               labbook_table_name text,
                                                image_directory text
                                            );"""
 
+        sql_create_experiment_series_table = """ CREATE TABLE experiment_series(
+                                              experiment_name text,
+                                              series_name text,
+                                              series_identifier text,
+                                              discarded boolean,
+                                              primary key (experiment_name,series_identifier),
+                                              sweep_table_name text,
+                                              meta_data_table_name text
+                                              ); """
 
-        sql_create_sweeps_table = """ CREATE TABLE IF NOT EXISTS sweeps(
-                                               sweep_id integer PRIMARY KEY autoincrement,
-                                               experiment_name text, 
-                                               series_identifier text,
-                                               sweep_number integer,
-                                               meta_data array,
-                                               pgf_information text,
-                                               data_array array,
-                                               foreign key (experiment_name) references experiments (experiment_name) 
-                                               UNIQUE(experiment_name, series_identifier, sweep_number)
-                                           ); """
+        sql_create_series_table = """CREATE TABLE analysis_series(
+                                                   analysis_series_name text,
+                                                   time DOUBLE[],
+                                                   recording_mode text,
+                                                   analysis_id integer,
+                                                   primary key (analysis_series_name, analysis_id)
+                                               ); """
 
-        #UNIQUE(experiment_name, series_identifier, sweep_number)
 
-        sql_create_analysis_function_table = """ CREATE TABLE IF NOT EXISTS analysis_functions(
-                                            analysis_function_id integer PRIMARY KEY autoincrement, 
+
+        sql_create_filter_table = """ CREATE TABLE filters(
+                                        filter_criteria_name text primary key,
+                                        lower_threshold float,
+                                        upper_threshold float,
+                                        analysis_id integer
+                                    ); """
+
+
+        sql_create_analysis_function_table = """ CREATE TABLE analysis_functions(
+                                            analysis_function_id integer PRIMARY KEY DEFAULT(NEXTVAL('unique_offline_analysis_sequence')),
                                             function_name text,
                                             lower_bound float,
                                             upper_bound float,
                                             analysis_series_name text,
-                                            analysis_id,
-                                            foreign key (analysis_series_name) references analysis_series (analysis_series_name)
-                                            foreign key (analysis_id) references offline_analysis (analysis_id)
+                                            analysis_id integer
                                             );"""
 
-        sql_create_results_table = """ CREATE TABLE IF NOT EXISTS results(
+        sql_create_results_table = """ CREATE TABLE results(
+                                            analysis_id integer,
                                             analysis_function_id integer,
-                                            sweep_id references sweeps,
-                                            result_value,
-                                            foreign key (analysis_function_id) references analysis_functions (analysis_function_id)
+                                            sweep_table_name text,
+                                            sweep_number integer,
+                                            result_value DOUBLE
                                             ); """
 
-        sql_create_experiment_series_table = """ CREATE TABLE IF NOT EXISTS experiment_series(
-                                             experiment_name text,
-                                             series_name,
-                                             series_identifier,
-                                             discarded,
-                                             foreign key (experiment_name) references experiments (experiment_name),
-                                             primary key (experiment_name,series_name,series_identifier)
-                                             ); """
 
-        sql_create_mapping_table = """  create table if not exists experiment_analysis_mapping(
-                                        experiment_name text,
-                                        analysis_id integer,
-                                        foreign key (experiment_name) references experiments (experiment_name), 
-                                        foreign key (analysis_id) references offline_analysis (analysis_id),
-                                        UNIQUE (experiment_name, analysis_id) 
-                                        ); """
 
-        self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
-        self.database = self.execute_sql_command(self.database, sql_create_filter_table)
-        self.database = self.execute_sql_command(self.database, sql_create_series_table)
-        self.database = self.execute_sql_command(self.database, sql_create_experiments_table)
-        self.database = self.execute_sql_command(self.database, sql_create_sweeps_table)
-        self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
-        self.database = self.execute_sql_command(self.database, sql_create_results_table)
-        self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
-        self.database = self.execute_sql_command(self.database, sql_create_mapping_table)
+
+        try:
+            self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
+            self.database = self.execute_sql_command(self.database, sql_create_filter_table)
+            self.database = self.execute_sql_command(self.database, sql_create_series_table)
+            self.database = self.execute_sql_command(self.database, sql_create_experiments_table)
+            #self.database = self.execute_sql_command(self.database, sql_create_sweeps_table)
+            self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
+            self.database = self.execute_sql_command(self.database, sql_create_results_table)
+            self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
+            self.database = self.execute_sql_command(self.database, sql_create_mapping_table)
+            self.logger.info("create_table created all tables successfully")
+        except Exception as e:
+            self.logger.info("create_tables function failed with error %s",e)
 
     # @todo refactor to write to database
     def execute_sql_command(self,database,sql_command,values = None):
@@ -173,40 +198,54 @@ class DataDB():
             return database
         except Exception as e:
                 self.logger.error("Error in Execute SQL Command: %s",e)
-                return database
+                raise Exception(e)
 
-    def get_data_from_database(self,database,sql_command,values=None):
+    def get_data_from_database(self,database,sql_command,values=None,fetch_mode=None):
         try:
             tmp = database.cursor()
             if values:
                 tmp.execute(sql_command,values)
             else:
                 tmp.execute(sql_command)
-
-            return tmp.fetchall()
+            if fetch_mode is None:
+                return tmp.fetchall()
+            if fetch_mode == 1:
+                return tmp.fetchnumpy()
+            if fetch_mode ==2:
+                return tmp.fetchdf()
         except Exception as e:
             print(e)
+
 
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """
     """--------------------------------------------------------------"""
 
-    def create_mapping_between_experiments_and_analysis_id(self,experiment_name):
+    def create_mapping_between_experiments_and_analysis_id(self,experiment_id):
         q = f'insert into experiment_analysis_mapping values (?,?)'
-        self.database = self.execute_sql_command(self.database, q, (experiment_name,self.analysis_id))
+        try:
+            self.database = self.execute_sql_command(self.database, q, (experiment_id,self.analysis_id))
+            self.logger.info("Mapped experiment %s to analysis %i", experiment_id,self.analysis_id)
+        except Exception as e:
+            self.logger.info("Mapping between experiment %s and analysis %i FAILED", experiment_id, self.analysis_id)
+
 
     """---------------------------------------------------"""
     """ Functions to interact with table offline_analysis """
     """---------------------------------------------------"""
 
-    def insert_new_analysis(self,user):
-        q = """insert into offline_analysis (date_time, user) values (?,?) """
-        time_stamp = datetime.datetime.now()
-        self.database = self.execute_sql_command(self.database, q, (time_stamp,user))
-        self.logger.info("Started new Analysis for user %s at time %s", user, time_stamp)
+    def insert_new_analysis(self,user_name):
+        ''' Insert a new analysis id into the table offline_analysis. ID's are unique by sequence and will not be
+        defined manually. Instead, username (role) and date and time of the creation of this new analysis will be
+        stored in the database'''
 
-        q = """select analysis_id from offline_analysis where date_time = (?) AND user = (?) """
-        self.analysis_id = self.get_data_from_database(self.database,q,(time_stamp,user))[0][0]
+        q = """insert into offline_analysis (date_time, user_name) values (?,?) """
+        time_stamp = datetime.datetime.now()
+        self.database = self.execute_sql_command(self.database, q, (time_stamp,user_name))
+        self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
+
+        q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """
+        self.analysis_id = self.get_data_from_database(self.database,q,(time_stamp,user_name))[0][0]
         self.logger.info("Analysis id for this analysis will be: %s", self.analysis_id)
         return self.analysis_id
 
@@ -233,8 +272,8 @@ class DataDB():
         for n in name_list:
             q = f'INSERT INTO analysis_series (analysis_series_name,analysis_id) VALUES (?,?) '
             self.database = self.execute_sql_command(self.database,q,(n,self.analysis_id))
-            print("inserting new analysis_series with id", self.analysis_id)
-        print ("inserted all series")
+            self.logger.info("inserting new analysis_series with id", self.analysis_id)
+        self.logger.info("inserted all series")
 
     def write_ms_spaced_time_array_to_analysis_series_table(self,time_np_array, analysis_series_name, analysis_id ):
         """
@@ -250,27 +289,108 @@ class DataDB():
         self.database = self.execute_sql_command(self.database,q,(recording_mode,analysis_series_name,analysis_id))
 
     def get_time_in_ms_of_analyzed_series(self,series_name):
-        q = """select time from analysis_series where analysis_series_name = (?) AND analysis_id = (?)"""
-        res =  self.get_data_from_database(self.database,q,(series_name,self.analysis_id))[0][0]
-        return res
+
+        # time should be equal for all sweeps of a series
+
+        res = self.get_experiments_by_series_name_and_analysis_id(series_name)
+
+        # get the related meta data table name from the first experiment in the list
+        q = """select meta_data_table_name from experiment_series where experiment_name = (?) AND series_name = (?)"""
+        res = self.get_data_from_database(self.database, q, (res[0][0], series_name))[0][0]
+
+        # calculated time again as in plot widget manager
+        q =  f'SELECT Parameter, sweep_1 FROM {res}'
+
+        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+        x_start = float(meta_data_dict.get('XStart'))
+        x_interval = float(meta_data_dict.get('XInterval'))
+        number_of_datapoints = int(meta_data_dict.get('DataPoints'))
+        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
+        return time
+
+    def get_sweep_table_names_for_offline_analysis(self,series_name):
+        '''
+
+        :param series_name:  name of the series (e.g. Block Pulse, .. )
+        :return: a list of sweep table names
+        '''
+        # returns a list of tuples
+        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+        sweep_table_names = []
+
+        for experiment_tuple in experiment_names:
+            # get the related meta data table name from the first experiment in the list
+            q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?)"""
+            sweep_table_names.append(self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name))[0][0])
+
+        return sweep_table_names
+
+
+    def get_experiments_by_series_name_and_analysis_id(self, series_name):
+        '''
+        Find experiments of the current analysis containing the series specified by the series name.
+        :param series_name: name of the series (e.g. Block Pulse, .. )
+        :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
+        '''
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?))"""
+        return self.get_data_from_database(self.database, q, (self.analysis_id,series_name))
+
+    def get_entire_sweep_table(self,table_name):
+        '''
+        Fetches all sweeps in a sweep table.
+        :param table_name:
+        :return: the table as dict {column: numpy_array(data ... )]}
+        '''
+        return self.database.execute(f'select * from {table_name}').fetchnumpy()
 
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
 
     def add_experiment_to_experiment_table(self,name,meta_data_group = None,series_name = None,mapping_id=None):
-        q = f'insert into experiments (experiment_name) select (\"{name}\") where not exists (select 1 from experiments where experiment_name == \"{name}\" )'
-        self.database = self.execute_sql_command(self.database, q)
+        '''
+        Adding a new experiment to the database table 'experiments'. Name-Duplicates (e.g. 211224_01) are NOT allowed-
+        the experiment name of the already existing experiment will added to the current offline analysis mapping table.
+        This is a measure to keep the performance of the db high and the related tables (== db storage size) small.
+        TODO Add frontend popup/information/anything to notify the user about this performed procedure
+
+        :param name:
+        :param meta_data_group:
+        :param series_name:
+        :param mapping_id:
+        :return 0: experiment was not added because it already exists, 1 it was added sucessfully, -1 something went wrong
+        '''
+        self.logger.info("adding experiment %s to_experiment_table", name)
+        q = f'insert into experiments (experiment_name) values (?)'
+
+        try:
+            self.database = self.execute_sql_command(self.database, q,[name])
+            self.logger.info("added %s successfully",name)
+            return 1
+        except Exception as e:
+            if "Constraint Error" in str(e):
+                self.logger.info("Experiment with name %s was already registered in the database and was ot overwritten The experiment will be added to the mapping table.", name)
+                return 0
+            else:
+                self.logger.info("failed adding experiment %s with error %s", name, e)
+                return -1
+
+
 
     """---------------------------------------------------"""
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
 
     def add_single_series_to_database(self,experiment_name,series_name,series_identifier):
-        # trying to insert - could fail if unique constraint fails
-        q = """insert or replace into experiment_series values (?,?,?,?) """
-        self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier,0))
-
+        self.logger.info("Inserting series name %s with series identifier %s of experiment %s to experiment_series table", series_name,series_identifier,experiment_name)
+        try:
+            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded) values (?,?,?,?) """
+            self.database = self.execute_sql_command(self.database,q,(experiment_name,series_name, series_identifier,0))
+            # 0 indicates not discarded
+            self.logger.info("insertion finished succesfully")
+        except Exception as e:
+            self.logger.info("insertion finished FAILED because of error %s", e)
 
 
     """----------------------------------------------------------"""
@@ -279,8 +399,12 @@ class DataDB():
     ###
 
     def write_analysis_function_name_and_cursor_bounds_to_database(self,analysis_function, analysis_series_name,lower_bound,upper_bound):
-      q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound) values (?,?,?,?,?)"""
-      self.database = self.execute_sql_command(self.database,q,(analysis_function,analysis_series_name,self.analysis_id,lower_bound,upper_bound))
+      try:
+          q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound) values (?,?,?,?,?)"""
+          self.database = self.execute_sql_command(self.database,q,(analysis_function,analysis_series_name,self.analysis_id,lower_bound,upper_bound))
+          self.logger.info(f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
+      except:
+          print("error")
 
     def get_last_inserted_analysis_function_id(self):
       q = """select analysis_function_id from analysis_functions """
@@ -326,21 +450,6 @@ class DataDB():
 
 
 
-    def get_sweep_id_list_for_offline_analysis(self,series_name):
-        """
-        returns a list of id's of sweeps to be analyzed for this sepcific series name and analysis_id
-        :param series_name:
-        :return:
-        """
-        q = """select r.sweep_id from (select s.experiment_name, s.series_identifier, s.sweep_id from sweeps s inner join 
-        experiment_analysis_mapping m where s.experiment_name = m.experiment_name AND m.analysis_id = (?)) r inner join 
-        experiment_series es where r.experiment_name = es.experiment_name AND r.series_identifier = es.series_identifier 
-        AND es.series_name = (?) ;"""
-        sweep_id_tuples = self.get_data_from_database(self.database,q,(self.analysis_id,series_name))
-        sweep_id_list = []
-        for t in sweep_id_tuples:
-            sweep_id_list.append(t[0])
-        return sweep_id_list
 
 
 
@@ -441,9 +550,10 @@ class DataDB():
                 q = """ insert into results values (?,?,?) """
                 self.write_result_to_database(a[0],s[0],res)
 
-    def write_result_to_database(self,analysis_id,sweep_id,result_value):
-        q = """insert into results values (?,?,?) """
-        self.database = self.execute_sql_command(self.database,q,(analysis_id,sweep_id,result_value))
+    def write_result_to_database(self,analysis_function_id,table_name,sweep_number,result_value):
+
+        q = """insert into results values (?,?,?,?,?) """
+        self.database = self.execute_sql_command(self.database,q,(self.analysis_id,analysis_function_id,table_name,sweep_number,result_value))
 
 
     # Still used ?
@@ -510,78 +620,165 @@ class DataDB():
         return output_string
 
 
-    def add_sweep_to_sweep_table(self,experiment_name,tmp_list,current_object):
+    def add_single_sweep_to_database(self,experiment_name,series_identifier,sweep_number,meta_data,data_array):
+     """
+     function to insert a new data array and related meta data information into the database
+     :param experiment_name:
+     :param series_identifier:
+     :param sweep_number:
+     :param meta_data:
+     :param data_array:
+     :return:
+     """
 
-        p = tmp_list.index(current_object)
-        # extract sweep_number
-        sweep_number = self.get_sweep_number(current_object[0])
-        # extract series_identifier
-        series_identifier = self.get_series_identifier(tmp_list,p)
-        # extract meta_data_string
-        meta_data = self.get_sweep_meta_data(tmp_list,p)
+    # create table names
+     imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name,series_identifier)
+     imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name,series_identifier)
+     # @TODO extend for leakage currents also
+     # @TODO add sweep meta data information anyhow. For now only meta data information of the imon trace will be stored.
 
-        q = "insert into sweeps (experiment_name, series_identifier, sweep_number,meta_data) values (?,?,?,?)"
-        self.database = self.execute_sql_command(self.database, q,(experiment_name,series_identifier,sweep_number,meta_data))
+     data_array_df = pd.DataFrame({'sweep_'+str(sweep_number): data_array})
+     # get the meta data from the imon trace
+     child_node = meta_data[0]
+     child_node_ordered_dict = dict(child_node.get_fields())
+     meta_data_df = pd.DataFrame.from_dict(data=child_node_ordered_dict,orient='index',columns=[sweep_number])
 
-        #def add_series_to_experiment_series(self, experiment_name, tmp_list):
+     if sweep_number == 1:
+         # create one new table with all imon signal traces of each sweep of one specific series (e.g. block pulse or iv)
+         self.create_and_insert_into_new_trace_table(imon_trace_signal_table_name,data_array_df,experiment_name, series_identifier,"data_array")
 
-    def add_single_sweep_tp_database(self,experiment_name,series_identifier,sweep_number,meta_data,data_array):
-        np_data_array = np.array(data_array)
+         # create one new table with all imon trace meta data information of each imon trace within one specific series (e.g. block pulse or iv)
+         meta_data_df = pd.DataFrame(list(child_node_ordered_dict.items()),columns=('Parameter', 'sweep_1'))
+         self.create_and_insert_into_new_trace_table(imon_trace_meta_data_table_name,meta_data_df,experiment_name, series_identifier, "meta_data")
+     else:
+        self.insert_into_existing_trace_table(imon_trace_signal_table_name,sweep_number,data_array_df)
+        self.insert_into_existing_trace_table(imon_trace_meta_data_table_name,sweep_number,child_node_ordered_dict)
 
-        d = meta_data[0].get_fields()
-        l = list(d.items())
-        np_meta_data = np.array(l)
+    def create_imon_signal_table_name(self, experiment_name, series_identifier):
+        '''
+        Creates unique names of database tables for i_mon sweep data. It's an extra function so multiple functions can access this naming convention.
+        :param experiment_name: text representation of the experiment name
+        :param series_identifier: text representation of the series identifier (e.g. Series1)
+        :return: table name as string
+        '''
+        return 'imon_signal_' + experiment_name + '_' + series_identifier
 
-        q = "insert into sweeps (experiment_name, series_identifier, sweep_number,meta_data,data_array) values (?,?,?,?,?)"
-        self.database = self.execute_sql_command(self.database, q,
-                                                 (experiment_name, series_identifier, sweep_number, np_meta_data, np_data_array))
+    def create_imon_meta_data_table_name(self, experiment_name, series_identifier):
+        '''
+        Creates unique names of i_mon meta data database tables. It's an extra function so multiple functions can access this naming convention.
+        :param experiment_name: text representation of the experiment name
+        :param series_identifier: text representation of the series identifier (e.g. Series1)
+        :return: table name as string
+        '''
+        return 'imon_meta_data_' + experiment_name + '_' + series_identifier
 
+    def insert_into_existing_trace_table(self,table_name,sweep_number,data_frame):
+        '''
+        Inserts trace signals and meta data information into already existing tables in the database.
+        :param table_name: name of the already existing table
+        :param sweep_number: number of the sweep within the series
+        :param data_frame: pandas data frame object that will be stored in the database
+        :return:
+        '''
+        self.database.execute(f'SELECT * FROM {table_name}')
+        res_df = self.database.fetchdf()
 
-    def get_single_sweep_meta_data_from_database(self,data_array):
-        """
-        returns the meta data array for a specific sweep
+        try:
+            # dict requires .map function, array requires .insert function
+            # data will be 'appended' columnwise and NOT rowise
+            if type(data_frame) is dict:
+                res_df['sweep_'+str(sweep_number)] = res_df['Parameter'].map(data_frame)
+            else:
+                res_df.insert(sweep_number - 1, 'sweep_'+str(sweep_number), data_frame)
+
+            self.database.register('df_1', res_df)
+            # erase the old table and replace it by creating a new one
+            self.database.execute(f'drop table {table_name}')
+            self.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM df_1')
+
+        except Exception as e:
+            self.logger.info(f'Error::Could not update existing table %s because of error %s', table_name, e)
+
+    def create_and_insert_into_new_trace_table(self,table_name,data_frame,experiment_name, series_identifier,table_type):
+        '''
+        Creates new tables for meta data and signal traces and stores already he first sweep information.
+        Additionally the  name of the newly created table will be registered in the experiment_series table for further access.
+        :param table_name: name of the table that will be created - follows specific identifier rules
+        :param data_frame: pandas data frame to be stored in the new table
+        :param experiment_name: name of the experiment in the database where this data belong to
+        :param series_identifier: name of the series identifier whithin the given experiment
+        :param table_type: string token to differenciate between signal data and meta data information
+        :return:
+        '''
+        self.database.register('df_1', data_frame)
+        try:
+                    # create a new sweep table
+                    self.database.execute(f'create table {table_name} as select * from df_1')
+
+                    try:
+                        # update the series table by inserting the newly created sweep table name
+                        if table_type == "data_array":
+                            q = """update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+                        else:
+                            q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+                        self.execute_sql_command(self.database, q, (table_name, experiment_name, series_identifier))
+
+                    except Exception as e:
+                        self.logger.info("Update Series table failed with error %s", e)
+
+        except Exception as e:
+                    self.logger.info("Error::Couldn't create a new table with error %s",e)
+
+    def get_single_sweep_meta_data_from_database(self, data_array):
+        '''
+        Requests all meta data from a specific sweep in the database
         :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
-        :return: meta data array (numpy array)
-        """
+        :return: meta data dictionary
+        '''
 
-        # since the meta_data object is a a list of list, numpy will save it as object (narray)
-        # therefore, the object is "pickled" into a byte stream and unpickled from byte stream into an object.
-        # loaded pickled data seem to be able  to execute arbitrary code - for safety reasons pickling is therefore
-        # disabled and needs to be enabled for the specific unpickle of meta data byte stream
-        np.load.__defaults__ = (None, True, True, 'ASCII')
-        res = self.get_single_sweep_parameter_from_database(data_array, "meta_data")
+        return self.get_single_sweep_values_according_to_parameter(data_array, 'meta_data')
 
-        # finally disable pickle again
-        np.load.__defaults__ = (None, False, True, 'ASCII')
-        return res
 
     def get_single_sweep_data_from_database(self,data_array):
         """
-        returns the data array for a specific sweep
+        Requests a specific sweep trace from the database
         :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
         :return: data array (numpy array)
         """
 
-        return self.get_single_sweep_parameter_from_database(data_array,"data_array")
+        return self.get_single_sweep_values_according_to_parameter(data_array,'trace_signal')
 
-    def get_single_sweep_parameter_from_database(self,data_array,parameter):
-        """
-        performs a database request on the sweep table to get the value for the specified parameter.
-        To make sure that only series names available in the selected experiments therefore a join with experiment
-        table considering the current analysis id will be performed.
-        :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
-        :param parameter: string represenation of the paramter (==column name)
-        :return: value of the requested parameter
-        """
+    def get_single_sweep_values_according_to_parameter(self,data_array,param):
+        '''
+        Requests different sweep data regarding the selected param.
+        :param data_array: data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
+        :param param: 'trace_signal' or 'meta_data'
+        :return: in case of 'trace_signal' -> numpy array, when 'meta_data' -> dict
+        '''
 
-        # variable declaration not needed - just here to increase code readability
+        # declaration not necessary - just here to improve readability
         experiment_name = data_array[0]
         series_identifier = data_array[1]
         sweep_number = data_array[2]
 
-        q = f'SELECT {parameter} FROM sweeps WHERE experiment_name == \"{experiment_name}\"  AND series_identifier == \"{series_identifier}\" AND sweep_number == \"{sweep_number}\";'
-        res = self.get_data_from_database(self.database, q)
-        return res[0][0]
+        # step 1:  get the name of the sweep table for this series: calling the name generator function,
+        # a database request would be possible too but might be more time consuming
+        column_name = 'sweep_' + str(sweep_number)
+
+        if param=='trace_signal':
+            sweep_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
+            q = f'SELECT {column_name} FROM {sweep_table_name}'
+            # query fetches a dict - only values needed, key == column name == not needed == will not be returned
+            # cast to list needed before one can access the numpy array at position 0
+            return list(self.database.execute(q).fetchnumpy().values())[0]
+
+        else:
+            sweep_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
+            q = f'SELECT Parameter, {column_name} FROM {sweep_table_name}'
+            # returns a dict {'key':'value', 'key':'value',...} where keys will be parameter names
+            return {x[0]:x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+
 
     def discard_specific_series(self, experiment_name, series_name, series_identifier):
         """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
@@ -663,3 +860,40 @@ class DataDB():
 
         return data_string
     '''
+
+'''
+    def get_single_sweep_meta_data_from_database(self,data_array):
+        """
+        returns the meta data array for a specific sweep
+        :param data_array: data array with 3 fields (experiment_name, series_identifier, sweep_number)
+        :return: meta data array (numpy array)
+        """
+
+        # since the meta_data object is a a list of list, numpy will save it as object (narray)
+        # therefore, the object is "pickled" into a byte stream and unpickled from byte stream into an object.
+        # loaded pickled data seem to be able  to execute arbitrary code - for safety reasons pickling is therefore
+        # disabled and needs to be enabled for the specific unpickle of meta data byte stream
+        np.load.__defaults__ = (None, True, True, 'ASCII')
+        res = self.get_single_sweep_parameter_from_database(data_array, "meta_data")
+
+        # finally disable pickle again
+        np.load.__defaults__ = (None, False, True, 'ASCII')
+        return res
+        
+           def get_sweep_id_list_for_offline_analysis(self,series_name):
+        """
+        returns a list of id's of sweeps to be analyzed for this sepcific series name and analysis_id
+        :param series_name:
+        :return:
+        """
+        q = """select r.sweep_id from (select s.experiment_name, s.series_identifier, s.sweep_id from sweeps s inner join 
+        experiment_analysis_mapping m where s.experiment_name = m.experiment_name AND m.analysis_id = (?)) r inner join 
+        experiment_series es where r.experiment_name = es.experiment_name AND r.series_identifier = es.series_identifier 
+        AND es.series_name = (?) ;"""
+        sweep_id_tuples = self.get_data_from_database(self.database,q,(self.analysis_id,series_name))
+        sweep_id_list = []
+        for t in sweep_id_tuples:
+            sweep_id_list.append(t[0])
+        return sweep_id_list
+
+'''

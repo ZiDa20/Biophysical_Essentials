@@ -15,6 +15,9 @@ from PySide6.QtWidgets import *  # type: ignore
 from self_configuration import Config_Widget
 from online_analysis_widget import Online_Analysis
 from offline_analysis_widget import Offline_Analysis
+from database_viewer_widget import Database_Viewer
+import Figures_rc
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -356,7 +359,22 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.online_analysis, 2, 0, 1, 1)
 
 
+
         self.gridLayout_2.addWidget(self.side_left_menu, 0, 0, 2, 1)
+        self.database_viewer = QPushButton(self.side_left_menu)
+        self.database_viewer.setObjectName(u"database_viewer")
+        self.database = Database_Viewer()
+        self.database.setObjectName(u"database")
+        self.notebook.addWidget(self.database)
+
+
+        #self.gridLayout.addWidget(self.database_viewer, 5, 0, 1, 1)
+
+
+
+
+        self.gridLayout_2.addWidget(self.notebook, 0, 1, 1, 2)
+
 
         MainWindow.setCentralWidget(self.centralwidget)
 

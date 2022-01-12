@@ -532,7 +532,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("ready for analysis")
 
     def start_offline_analysis_of_single_series(self,current_tab):
+        '''
+        Performs analysis according to the selected criteria.
+        Before the analysis starts, the selected criteria will be stored in the database
+        :param current_tab:
+        :return:
+        '''
+
+        # store analysis parameter in the database
         self.write_function_grid_values_into_database(current_tab)
+
+        # perform the analysis and write results to the database
         self.offline_manager.execute_single_series_analysis(current_tab.objectName())
 
     def write_function_grid_values_into_database(self,current_tab):

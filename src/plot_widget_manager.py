@@ -105,16 +105,23 @@ class PlotWidgetManager(QtCore.QRunnable):
                     data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
                     meta_data_array = child.data(5,0)
                 else:
+                    # get data as numpy array
                     data = db.get_single_sweep_data_from_database(data_request_information)
-                    meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
 
-                    # only calc the time once for all sweeps
+                    # get meta data as dict {'key':['value'], .. .}
+                    meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
+                    debug  = 0
+
+
+                # only calc the time once for all sweeps
                 if self.time is None:
                     self.time = self.get_time_from_meta_data(meta_data_array)
                     recording_mode = self.get_recording_mode(meta_data_array)
+                    '''
                     if self.analysis_mode:
                         self.offline_manager.write_ms_spaced_time_array_to_analysis_series_table(self.time,series_name)
                         self.offline_manager.write_recording_mode_to_analysis_series_table(recording_mode,series_name)
+                    '''
                     self.y_unit = self.get_y_unit_from_meta_data(meta_data_array)
 
                 if self.y_unit == "V":
