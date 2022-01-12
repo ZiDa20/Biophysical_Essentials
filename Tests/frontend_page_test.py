@@ -58,8 +58,9 @@ class TestFrontPage(unittest.TestCase):
     def test_build_gui(self):
         """Test the building of the GUI, also the location and the naming of the Buttons are tested
         """
-        print("testing_approached")
+
         menu = self.ui.buttons
+        print("testing_approached")
         print(menu[0].text())
         message = "First value and second value are not equal !"
         self.assertEqual(len(menu),4,message)

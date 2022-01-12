@@ -358,8 +358,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.online_analysis, 2, 0, 1, 1)
 
-
-
         self.gridLayout_2.addWidget(self.side_left_menu, 0, 0, 2, 1)
         self.database_viewer = QPushButton(self.side_left_menu)
         self.database_viewer.setObjectName(u"database_viewer")

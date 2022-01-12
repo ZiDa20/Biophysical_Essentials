@@ -81,27 +81,30 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def animate_menu(self):
         """ animation of the side-bar for open and close animation,
-        @toDO should change animation speed for smoother animation """ 
+        @toDO should change animation speed for smoother animation """
         width = self.ui.side_left_menu.width() # get the width of the menu
-        self.animation = QPropertyAnimation(self.ui.side_left_menu, b"maximumWidth")
-        self.animation.setStartValue(width)
-        
+        print(width)
         if width >= 300:
             print("yeah")
-            width = 51
+            newWidth = 51
             self.erase_button_text()
+            newWidth = 51
         else:
-            width = 300
+            print("hello")
+            newWidth = 300
             self.write_button_text()
 
-        self.animation.setEndValue(width)
-
         self.ui.side_left_menu.setMinimumSize(0,0)
-        self.animation.setDuration(1000)
-        self.animation.setEasingCurve(QEasingCurve.Linear) # set the Animation 
+        self.animation = QPropertyAnimation(self.ui.side_left_menu, b"size")
+        self.animation.setDuration(4000)
+        self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
+        self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
+        self.animation.setEasingCurve(QEasingCurve.InOutQuart) # set the Animation
         self.animation.start()
-        self.ui.side_left_menu.setMaximumSize(1500, 1500)
-        self.ui.side_left_menu.setMinimumSize(width, self.ui.side_left_menu.height())
+        self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
+        self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
+
+
 
         
 
