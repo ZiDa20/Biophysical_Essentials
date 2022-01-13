@@ -8,19 +8,34 @@ class Frontend_Style():
         # style 1 = dark mode
         self.current_style = 1
 
-        self.light_style = u"QFrame{ background-color: \"#e6e6e6\"; }\n" \
-                           "QPushButton{ padding: 5px 10px; " \
-                           "             border-width: 1px ;" \
-                           "             border-radius: 10px ; " \
-                           "             border-color: #2986cc;"\
-                           "             border-radius:10px;" \
+        self.sideframe_light_style = u"QWidget{background-color: \"#e6e6e6\";}\n" \
+                                "QPushButton{padding: 10px 10px;"\
+                                "	        border: none;" \
+                                "	        border-radius:5px;" \
+                                "	        background-color: \"#e6e6e6\";}"\
+                                "QPushButton:hover{background-color: \"#54545a\";}"
+
+
+        self.sideframe_dark_style = u"QWidget{background-color: \"#232629\";}\n" \
+                                "QPushButton{padding: 10px 10px;"\
+                                "	        padding-left: 20px;" \
+                                "	        border: none;" \
+                                "	        border-radius:5px;" \
+                                "	        background-color: \"#232629\";}"\
+                                "QPushButton:hover{background-color: \"#54545a\";}"
+                                  
+                                  
+        self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; }\n" \
+                           "QPushButton{ padding: 10px 10px; " \
+                           "             border None ;" \
+                           "             border-radius:5px;" \
                            "             color:#2986cc; " \
                            "             background-color: \"#e6e6e6\";}" \
                            "QPushButton:hover{ background-color: \"#2986cc\";} " \
                            "QDialog{background-color: \"#ffffff\"; }"
 
 
-        self.dark_style = u"QFrame{ background-color: \"#232629\";\ } \n" \
+        self.dark_style = u"QWidget{ background-color: \"#232629\";\ } \n" \
                            "QPushButton{ padding: 5px 10px; " \
                            "             border-width: 0px ;" \
                            "             border-radius: 10px ; " \
@@ -43,6 +58,12 @@ class Frontend_Style():
 
     def get_light_style(self):
         return self.light_style
+    
+    def get_sideframe_light(self):
+        return self.sideframe_light_style
+
+    def get_sideframe_dark(self):
+        return self.sideframe_dark_style
 
     def set_pop_up_dialog_style_sheet(self,dialog):
         '''

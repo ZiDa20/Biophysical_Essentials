@@ -1,138 +1,92 @@
 import sys
 import os
 sys.path.append(os.getcwd()[:-5] + "src")
+sys.path.append(os.getcwd()[:-5] + "QT_GUI")
 import unittest
-from frontend import *
-import asyncio
-import tkinter as tk
+from start import *
 from matplotlib.figure import Figure
-from backend_manager import *
-"hello"
-
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtTest import QTest
+import io
 
 class TestFrontPage(unittest.TestCase):
-    """ Author MZ --> test the frontend page
+    """ Author MZ --> test the Start Page for validity and for functionality using unittests
     unittests """
     # this will run on a separate thread.
-    async def _start_app(self):
-        """ asynchronous starting of the mainloop to check for tests """
-        print("this thread is running:")
-        self.app.mainloop()
 
     def setUp(self):
-        """ set up the testing enviroment """
-        self.appearance = "azure"
-        self.app = GuiEtools(appearance = self.appearance)
-        self._start_app()
+        """Setup an instance of the App running """
+        print("setup test case")
 
+        #You suppress here:
+        suppress_text = io.StringIO()
+        sys.stdout = suppress_text 
+
+        if not QApplication.instance(): # check if app is already and instance if not then build
+            self.app = QApplication(sys.argv)
+        else:# else use the already established instance
+            self.app = QApplication.instance()
+
+        sys.stdout = sys.__stdout__
+
+        # constructor of the mainwindow
+        self.ui = MainWindow()
+        
     def tearDown(self):
-        """ quit the application at the end of the test """
+        """Close the App later"""
+        self.app.deleteLater()
 
-        if self.app.window:
-            self.app.window.destroy()
+    def test_menu_buttons(self):
+        """Check if the buttons are clickable in the menu and if the notebook is switching appropriately"""
+        menu = self.ui.buttons
+        configuration = menu[0] #cjeck the configuration window
+        online = menu[1] #check the 
+        offline = menu[2]
 
-    def test_startup(self):
-        """ starting and testing of the window and check for the windows title """
+        # we should add the statistics window here too 
+        statistics = menu[3]
+        print(f"current index of the notebook: {self.ui.ui.notebook.currentIndex()}")
+        QTest.mouseClick(configuration, Qt.LeftButton)
+        self.assertEqual(self.ui.ui.notebook.currentIndex(), 0, "Windows are not properly attached")
+        QTest.mouseClick(online, Qt.LeftButton)
+        self.assertEqual(self.ui.ui.notebook.currentIndex(), 1, "Windows are not properly attached")
+        QTest.mouseClick(offline, Qt.LeftButton)
+        self.assertEqual(self.ui.ui.notebook.currentIndex(), 2, "Windows are not properly attached")
+        
+    def test_build_gui(self):
+        """Test the building of the GUI, also the location and the naming of the Buttons are tested
+        """
 
-        print("testing the title of the screen")
-        title = self.app.window.title()
-        expected = "Intra Cellular Recording Mode"
-        self.assertEqual(title, expected)
+        menu = self.ui.buttons
+        print("testing_approached")
+        print(menu[0].text())
+        message = "First value and second value are not equal !"
+        self.assertEqual(len(menu),4,message)
+        self.assertEqual(menu[0].text(),"Self Configuration","Configuration Button not ordered properly")
+        self.assertEqual(menu[1].text(),"Online Analysis","Online Button not ordered properly")
+        self.assertEqual(menu[2].text(),"Offline Analysis","Online Button not ordered properly")
+        self.assertEqual(menu[3].text(),"Statistics","Online Button not ordered properly")
 
-    def test_appearance(self):
-        """ check for the light mode in the beginning """
-        print("...testing the appearance of the app")
-        appearance = self.app.appearance
-        self.assertEqual(appearance, self.appearance)
+    def test_menu_moving(self):
+        """Here we test the hamburger Menu when clicked if it opens or closes"""
+        self.assertEqual(self.ui.ui.side_left_menu.width(), 300)
+        QTest.mouseClick(self.ui.ui.hamburger_button, Qt.LeftButton)
+        print(f"The menu is: {self.ui.ui.side_left_menu.width()}")
+        self.assertEqual(self.ui.ui.side_left_menu.width(), 51)
+        QTest.mouseClick(self.ui.ui.hamburger_button, Qt.LeftButton)
+        print(f"The menu is: {self.ui.ui.side_left_menu.width()}")
+        self.assertEqual(self.ui.ui.side_left_menu.width(), 300)
 
-    def test_button_calling(self):
-        """ check for the button loaded in the frontend """
-        button_texts = [i["text"] for i in [self.app.button_conf, self.app.button_ana, self.app.button_off, self.app.button_stat]]
-        print(button_texts)
-        self.assertListEqual(button_texts, ['Start configuration', ' Online Analysis', 'Offline Analysis', 'Report/Statistics'])
 
-    def test_button_configuration(self):
-        """ check for the notebook oaded in the configuration """
-        self.app.draw_analysis(self.app.configuration, func = 1)
-        self.assertEqual(len(self.app.Note.frames),4)
-        notes_names = [self.app.Note.note.tab(i, option = "text") for i in self.app.Note.note.tabs()]
-        self.assertListEqual(notes_names, ["Experiment Initialization","Batch Settings","Communication Log", "Camera"])
+    def test_tab_widgets(self):
+        """check the number of tabs that are build for each tabWidget,
+        can be changed if the number of tabs are changed"""
+        self.assertEqual(self.ui.ui.config.self_configuration_notebook.count(),3, "Wrong number of Tabs in configuration")
+        self.assertEqual(self.ui.ui.online.online_analysis.count(), 2, "Wrong number of Tabs in online analysis")
 
-    def test_button_online(self):
-        """ check for the notebook loaded in the online analysis """
-        self.app.draw_analysis(self.app.online_analysis, func = 2)
-        self.assertEqual(len(self.app.Note.frames),2)
-        notes_names = [self.app.Note.note.tab(i, option = "text") for i in self.app.Note.note.tabs()]
-        self.assertListEqual(notes_names, ["Live Data","Labbook"])
-
-    def test_button_offline(self):
-        """ check for the notebook loaded in the offline analysis """
-        self.app.draw_analysis(self.app.offline_analysis, func = 0)
-        self.assertEqual(len(self.app.Note.frames),4)
-        notes_names = [self.app.Note.note.tab(i, option = "text") for i in self.app.Note.note.tabs()]
-        self.assertListEqual(notes_names, ["Metadata","Start an Analysis","Visualization","Report"])
-
-    def test_button_statistics(self):
-        """ check for the notebook in the statistics tab """
-        self.app.draw_analysis(self.app.statistics, func = 3)
-        self.assertEqual(len(self.app.Note.frames),3)
-        notes_names = [self.app.Note.note.tab(i, option = "text") for i in self.app.Note.note.tabs()]
-        self.assertListEqual(notes_names, ["Statistical tests", "Parameter", "Quality Control"])
-
-    def test_online_tree(self):
-        """ check if the treeview is loaded properly """
-        self.app.draw_analysis(self.app.online_analysis, func = 2)
-        path = os.getcwd()[:-6]
-        self.app.online_manager.dat_file_name = path + "/Data/Raw_digi/201229_01.dat"
-        self.app.ona.read_dat_file(self.app.ona.tree, "new")
-        children = self.app.ona.tree.get_children()
-        self.assertEqual(children[0], "Group1")
-
-    def test_heka_struct_sizes(self):
-        """ needs a rework """
-        self.app.draw_analysis(self.app.online_analysis, func = 2)
-        path = os.getcwd()[:-6]
-        self.app.online_manager.dat_file_name = path + "/Data/Raw_digi/201229_01.dat"
-        self.app.ona.read_dat_file(self.app.ona.tree, "new")
-
-    def test_length_of_series(self):
-        """ Check for the length of the series of the example file"""
-        self.app.draw_analysis(self.app.online_analysis, func = 2)
-        path = os.getcwd()[:-6]
-        self.app.online_manager.dat_file_name = path + "/Data/Raw_digi/201229_01.dat"
-        self.app.ona.read_dat_file(self.app.ona.tree, "new")
-        #self.assertListEqual(self.app.online_manager.bundle,['.dat', '.pul', '.pgf', '.amp', '', '.mrk', '.mth'])
-        self.assertEqual(len(self.app.online_manager.get_pgf_voltage("Group1_Series2")[1]), 21)
-        self.assertEqual(len(self.app.online_manager.get_pgf_voltage("Group1_Series3")[1]), 25)
-        self.assertEqual(len(self.app.online_manager.get_pgf_voltage("Group1_Series4")[1]), 23)
-        self.assertEqual(len(self.app.online_manager.get_pgf_voltage("Group1_Series5")[1]), 1)
-        self.assertEqual(len(self.app.online_manager.get_pgf_voltage("Group1_Series6")[1]), 5)
-
-    def test_item_ids(self):
-        """ Check item_ids """
-        self.app.draw_analysis(self.app.online_analysis, func = 2)
-        path = os.getcwd()[:-6]
-        self.app.online_manager.dat_file_name = path + "/Data/Raw_digi/201229_01.dat"
-        self.app.ona.read_dat_file(self.app.ona.tree, "new")
-        self.assertEqual(self.app.online_manager.read_series_from_dat_file(self.app.ona.tree, "Group1_Series2"),21)
-
-    def test_metadata(self):
-        """ Check MetaData for the raw analysis file 2"""
-        self.app.draw_analysis(self.app.online_analysis, func = 2)
-        path = os.getcwd()[:-6]
-        self.app.online_manager.dat_file_name = path + "/Data/Raw_digi/201229_01.dat"
-        self.app.ona.read_dat_file(self.app.ona.tree, "new")
-        self.app.online_manager.get_series_recording_mode("Group1_Series1")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series2_Sweep1_Trace1","Label"), "Imon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series1_Sweep1_Trace1","Label"), "Imon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series3_Sweep1_Trace1","Label"), "Imon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series4_Sweep1_Trace1","Label"), "Imon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series5_Sweep1_Trace1","Label"), "Vmon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series6_Sweep1_Trace1","Label"), "Vmon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series7_Sweep1_Trace1","Label"), "Vmon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series8_Sweep1_Trace1","Label"), "Vmon")
-        self.assertEqual(self.app.online_manager.get_metadata("Group1_Series9_Sweep1_Trace1","Label"), "Vmon")
-
+    
 
 if __name__ == '__main__':
     unittest.main()

@@ -73,6 +73,7 @@ class TreeViewManager():
         '''
         Function to fill selected and discarded tree view with tree representations of experiments containing only one
         specific series.
+
         :param selected_tree: treeview object to be filled with the selected objects
         :param discarded_tree: treeview object to be filled with the discarded objects
         :param dat_files: list of file names
@@ -98,16 +99,31 @@ class TreeViewManager():
         :param directory_path: string of the .dat-file directory path
         :return: a data filled QTreeWidget
         '''
+
         for i in dat_files:
             file = directory_path + "/" + i
+
+            # open the file
             bundle = self.open_bundle_of_file(file)
-            # add the experiment name into experiment table
+
+            # add the experiment name into experiment table and create the mapping between this experiment id and the current offline analysis id
+            # the mapping table is there to map an experiment (by it's id) to a new analysis id instead of creating a copy of all data in the xperiment
+
+            splitted_name = i.split(".")
+
             if database_mode:
-                self.database.add_experiment_to_experiment_table(i)
-                self.database.create_mapping_between_experiments_and_analysis_id(i)
+                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0])
+                self.database.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
+
+                # no database interaction when the file is already in the database to safe time
+                # @todo ask the user whether this is ok or not - give a manual option
+                if insertion_state == 0:
+                    database_mode = insertion_state
+                    print("turned off database mode ")
 
             pgf_tuple_list = self.read_series_specific_pgf_trace([],bundle,[])
-            tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, i,self.database,database_mode,series_name,tree_level)
+            tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, splitted_name[0]
+                                                                             ,self.database,database_mode,series_name,tree_level)
             #pgf_nodes = self.read_pgf_information([],bundle,[])
         return tree, discarded_tree
 
@@ -191,7 +207,7 @@ class TreeViewManager():
 
     def add_group_to_treeview(self,tree,discarded_tree, node_label,experiment_name,pixmap):
         '''
-        Adds group item (experiment) to the treeview.
+        Adds a new group item (experiment) to the treeview.
         :param tree: tree where to add the new group
         :param discarded_tree:
         :param node_label:
@@ -207,7 +223,7 @@ class TreeViewManager():
         else:
             parent = QTreeWidgetItem(top_level_item_amount)
 
-        # analysis mode decodes whether data will be written to database or not
+        # analysis mode decodes whether data will be written(1) to database or not(0)
         if self.analysis_mode == 0:
             parent.setText(0, node_label)
             parent.setData(3, 0, [0])  # hard coded tue to .dat file structure
@@ -219,7 +235,7 @@ class TreeViewManager():
         tree.addTopLevelItem(parent)
 
         # add discard button in coloumn 2
-        print("adding discard button to parent ")
+        # print("adding discard button to parent ")
         discard_button = QPushButton()
         discard_button.setStyleSheet("border:none")
         discard_button.setIcon(pixmap)
@@ -298,30 +314,41 @@ class TreeViewManager():
             # returns the input tree and parent
             return parent, tree
 
-    def add_sweep_to_treeview(self, series_name,parent,node_type,data_base_mode,bundle,database,experiment_name,metadata):
+    def add_sweep_to_treeview(self, series_name,parent,node_type,data_base_mode,bundle,database,experiment_id,metadata):
+     '''
+     Adds the data array and related meta data to the database.
+     :param series_name: name (vartype text) of the recorded series (e.g. IV)
+     :param parent: parent widget item -> in this case a series item
+     :param node_type:
+     :param data_base_mode:
+     :param bundle:
+     :param database:
+     :param experiment_id:
+     :param metadata:
+     :return:
+     '''
 
-        if series_name is None or series_name == parent.text(0):
-            child = QTreeWidgetItem(parent)
-            child.setText(0, node_type)
-            child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setCheckState(self.checkbox_column, Qt.Unchecked)
-            sweep_number = self.get_number_from_string(node_type)
-            data = parent.data(3, 0)
+     if series_name is None or series_name == parent.text(0):
+        child = QTreeWidgetItem(parent)
+        child.setText(0, node_type)
+        child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+        child.setCheckState(self.checkbox_column, Qt.Unchecked)
+        sweep_number = self.get_number_from_string(node_type)
+        data = parent.data(3, 0)
 
 
-            if self.analysis_mode == 0:
-                data.append(sweep_number - 1)
-                data.append(0)
+        if self.analysis_mode == 0:
+            data.append(sweep_number - 1)
+            data.append(0)
+        else:
+            data.append(sweep_number)
+            series_identifier = self.get_number_from_string(data[1])
 
-            else:
-                data.append(sweep_number)
-                series_identifier = self.get_number_from_string(data[1])
-
-                if data_base_mode:
-                    data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
-                    series_identifier = parent.data(4, 0)
-                    # insert the sweep
-                    database.add_single_sweep_tp_database(experiment_name, series_identifier, sweep_number, metadata,
+            if data_base_mode:
+                data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
+                series_identifier = parent.data(4, 0)
+                # insert the sweep
+                database.add_single_sweep_to_database(experiment_id, series_identifier, sweep_number, metadata,
                                                           data_array)
 
             child.setData(3, 0, data)
@@ -695,8 +722,8 @@ class TreeViewManager():
 
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
-        print("Node type:")
-        print(node_type)
+        #print("Node type:")
+        #print(node_type)
 
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]

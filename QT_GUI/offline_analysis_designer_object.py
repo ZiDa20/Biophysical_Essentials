@@ -12,6 +12,7 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from specififc_analysis_tab import *
+from groupbox_resizing_class import *
 
 
 class Ui_Offline_Analysis(object):
@@ -200,7 +201,7 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_4.addItem(self.verticalSpacer_15, 14, 0, 1, 1)
 
-        self.groupBox = QGroupBox(self.start_page)
+        self.groupBox = GroupBoxSize(self.start_page)
         self.groupBox.setObjectName(u"groupBox")
         self.groupBox.setMaximumSize(QSize(509, 350))
         self.groupBox.setFont(font)
