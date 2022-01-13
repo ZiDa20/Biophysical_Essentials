@@ -17,11 +17,13 @@ from tkinter_camera import *
 from frontend_style import Frontend_Style
 
 class MainWindow(QMainWindow, QtStyleTools):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent = None):
+        super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.settings_button.clicked.connect(self.open_settings)
+
+        self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
         self.frontend_style = Frontend_Style()
@@ -44,8 +46,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.default_mode = 1
 
         #make button
-        buttons = (self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics)
-        for i, button in enumerate(buttons):
+        self.buttons = (self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics)
+        for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
         #self.configuration_elements = Config_Widget()
@@ -79,7 +81,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def animate_menu(self):
         """ animation of the side-bar for open and close animation,
-        @toDO should change animation speed for smoother animation """ 
+        @toDO should change animation speed for smoother animation """
         width = self.ui.side_left_menu.width() # get the width of the menu
         print(width)
         if width >= 300:
@@ -97,10 +99,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.animation.setDuration(4000)
         self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
         self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
-        self.animation.setEasingCurve(QEasingCurve.InOutQuart) # set the Animation 
+        self.animation.setEasingCurve(QEasingCurve.InOutQuart) # set the Animation
         self.animation.start()
         self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
         self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
+
+
+
+        
 
 
     def konsole_menu(self):
@@ -171,9 +177,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def change_to_lightmode(self):
         # @toDO should be added to the designer class 
-        print("entered the function")
-        print(self.default_mode)
-        print(self.style().metaObject().className())
 
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
@@ -183,45 +186,19 @@ class MainWindow(QMainWindow, QtStyleTools):
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None;")
-            self.ui.side_left_menu.setStyleSheet(u"QFrame{\n"
-                                                    "	background-color: \"#e6e6e6\";\n"
-                                                    "\n"
-                                                    "}\n"
-                                                    "\n"
-                                                    "QPushButton{\n"
-                                                    "	padding: 10px 10px;\n"
-                                                    "	border: none;\n"
-                                                    "	border-radius:5px;\n"
-                                                    "	background-color: \"#e6e6e6\";\n"
-                                                    "}\n"
-                                                    "\n"
-                                                    "QPushButton:hover{\n"
-                                                    "	background-color: \"#ff8117\";\n"
-                                                    "}")
+            print(self.frontend_style.get_sideframe_dark())
+            self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
            
             
         else:
+            self.set_darkmode(1) # set the darkmode back to 1 for the switch
             self.apply_stylesheet(self, "dark_red.xml")
             with open('Menu_button.css') as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None;")
-            self.ui.side_left_menu.setStyleSheet(u"QFrame{\n"
-                                                            "	background-color: \"#232629\";\n"
-                                                            "\n"
-                                                            "}\n"
-                                                            "\n"
-                                                            "QPushButton{\n"
-                                                            "	padding: 10px 10px;\n"
-                                                            "	border: none;\n"
-                                                            "	border-radius:5px;\n"
-                                                            "	background-color: \"#232629\";\n"
-                                                            "}\n"
-                                                            "\n"
-                                                            "QPushButton:hover{\n"
-                                                            "	background-color: \"#54545a\";\n"
-                                                            "}") 
+            self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
  
-            self.set_darkmode(1)
+            
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
@@ -243,16 +220,16 @@ class MainWindow(QMainWindow, QtStyleTools):
         print(f"this is the current mode: {self.default_mode}")
         return self.default_mode
 
+    """
     def test_blurring(self):
-        """currently not working at all"""
-        effect = QGraphicsBlurEffect()
-        effect.setEnabled(True)
-        #effect.setBlurRadius(50)
-        print("intialized blurring")
+        currently not working at all
+        effect = BlurEffect()
         self.ui.side_left_menu.setGraphicsEffect(effect)
-        self.ui.side_left_menu.show()
+        effect.setEnabled(False)
+        effect.setBlurRadius(50)
+        print("intialized blurring")
         effect.setBlurRadius(20)
-        print(effect)
+    """
 
 
 if __name__ == "__main__":
@@ -265,8 +242,3 @@ if __name__ == "__main__":
     window.show()
     sys.exit(app.exec())
 
-class MainWindow(QWidget,Ui_MainWindow):
-    """ Promotion class, to set up the main window """
-    def __init__(self,parent = None):
-        QWidget.__init__(self,parent)
-        self.setupUi(self)

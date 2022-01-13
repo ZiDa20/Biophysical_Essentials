@@ -54,8 +54,8 @@ class OfflineManager():
         # get series specific time from database
         time = self.database.get_time_in_ms_of_analyzed_series(series_name)
 
-        # get sweep id's (they are unique ! in the database )
-        sweep_ids = self.database.get_sweep_id_list_for_offline_analysis(series_name)
+        # get name of sweep tables
+        sweep_table_names = self.database.get_sweep_table_names_for_offline_analysis(series_name)
 
 
         # read analysis functions from database
@@ -63,27 +63,35 @@ class OfflineManager():
 
 
         # calculate result for each single sweep data trace and write the result into the database
-        for id in sweep_ids:
-            data = self.database.get_single_sweep_data_from_database_by_sweep_id(id)
+        for table_name in sweep_table_names:
 
-            raw_analysis_class_object = ra.AnalysisRaw(time,data)
+            entire_sweep_table = self.database.get_entire_sweep_table(table_name)
 
-            for a in analysis_functions:
-                # list of cursor bound tuples
-                cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(a,series_name)
+            for column in entire_sweep_table:
 
-                for c in cursor_bounds:
-                    # negative bound values decode invalid/not selected bounds
-                    if c[0] > 0.0  and c[1] > 0.0:
-                        raw_analysis_class_object._lower_bounds = c[0]
-                        raw_analysis_class_object._upper_bounds = c[1]
+                data = list(entire_sweep_table.get(column))
 
-                        raw_analysis_class_object.construct_trace()
-                        raw_analysis_class_object.slice_trace()
+                raw_analysis_class_object = ra.AnalysisRaw(time,data)
 
-                        res = raw_analysis_class_object.call_function_by_string_name(a)
-                        self.database.write_result_to_database(c[2],id,res)
+                for a in analysis_functions:
+                    # list of cursor bound tuples
+                    cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(a,series_name)
 
+                    for c in cursor_bounds:
+                        # negative bound values decode invalid/not selected bounds
+                        if c[0] > 0.0  and c[1] > 0.0:
+                            raw_analysis_class_object._lower_bounds = c[0]
+                            raw_analysis_class_object._upper_bounds = c[1]
+
+                            raw_analysis_class_object.construct_trace()
+                            raw_analysis_class_object.slice_trace()
+
+                            res = raw_analysis_class_object.call_function_by_string_name(a)
+
+                            sweep_number = str(column).split('_')[1]
+                            self.database.write_result_to_database(c[2],table_name,sweep_number,res)
+        print("analysis finished")
+        #@todo change button from start analysis to see results and link it
 
 
 
@@ -92,8 +100,14 @@ class OfflineManager():
         return self.database
 
     def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list):
+        ''' Whenever the user selects a directory, a treeview of this directory will be created and by that,
+        the database entries will be generated. Primary key constraints will check whether the data are already in
+        the database and avoid copies of already existing data '''
+
+        # initialize a new database or connect to an existing one saved in global self.database variable
         self.init_database()
-        data_list = self.package_list(self._directory_path)
+
+        # create a new tree view manager class object and connect it to the database
         self.tree_view_manager = TreeViewManager(self.database)
 
         # meta_data_option_list can be an empty list: in this case, the treeeview manager will provide default elements
@@ -107,14 +121,22 @@ class OfflineManager():
 
             self.tree_view_manager.meta_data_option_list = meta_data_option_list
 
+        data_list = self.package_list(self._directory_path)
+
+        # create the treeview with the 2 treeviews "tree" and "discarded tree" in 2 different tabs, 1 = database mode
         self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
+
+
         return self.tree_view_manager
 
     # Database functions
     def init_database(self):
-        # creates the analysis database if not available or adds a new analysis by a new unique id to the table
-        self.database.create_analysis_database()
-        self.database.create_database_tables()
+        # creates a new analysis database and writes the tables or connects to an existing database
+        if self.database.create_analysis_database():
+            self.database.create_database_tables()
+
+        # inserts new analysis id with default username admin
+        # TODO implement roles admin, user, etc. ..
         self.analysis_id = self.database.insert_new_analysis("admin")
 
 

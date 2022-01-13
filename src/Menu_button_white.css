@@ -22,7 +22,7 @@ QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
 }}
 
 QTabWidget[accessibleName="tab_widgets"] QTabBar {{
-  background-color: {QTMATERIAL_PRIMARYCOLOR};
+  background-color: #ff8117;
   color:{QTMATERIAL_SECONDARYCOLOR};
   border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
 }}

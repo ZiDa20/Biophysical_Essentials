@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="Logo"/>
   <qresource prefix="Button">
+    <file>Gui_Icons/Frosted-Glass.jpg</file>
     <file>QT_GUI/Button/Logo/setting_button.png</file>
     <file>QT_GUI/Button/Logo/konsole_button.png</file>
     <file>Logo/Lightmode_button.png</file>

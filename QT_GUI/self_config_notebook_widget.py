@@ -11,6 +11,7 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+from groupbox_resizing_class import GroupBoxSize #??
 from dropable_list_view import *
 
 
@@ -46,7 +47,7 @@ class Ui_Config_Widget(object):
         self.page.setObjectName(u"page")
         self.gridLayout_17 = QGridLayout(self.page)
         self.gridLayout_17.setObjectName(u"gridLayout_17")
-        self.groupBox_30 = QGroupBox(self.page)
+        self.groupBox_30 = GroupBoxSize(self.page)
         self.groupBox_30.setObjectName(u"groupBox_30")
         self.gridLayout_19 = QGridLayout(self.groupBox_30)
         self.gridLayout_19.setObjectName(u"gridLayout_19")
@@ -706,7 +707,7 @@ class Ui_Config_Widget(object):
 
         self.gridLayout.addWidget(self.groupBox_23, 0, 0, 1, 1)
 
-        self.groupBox_17 = QGroupBox(self.page_2)
+        self.groupBox_17 = GroupBoxSize(self.page_2)
         self.groupBox_17.setObjectName(u"groupBox_17")
         sizePolicy.setHeightForWidth(self.groupBox_17.sizePolicy().hasHeightForWidth())
         self.groupBox_17.setSizePolicy(sizePolicy)
@@ -816,7 +817,7 @@ class Ui_Config_Widget(object):
 
         self.gridLayout.addWidget(self.groupBox_7, 0, 4, 3, 1)
 
-        self.groupBox_4 = QGroupBox(self.page_2)
+        self.groupBox_4 = GroupBoxSize(self.page_2)
         self.groupBox_4.setObjectName(u"groupBox_4")
         sizePolicy.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
         self.groupBox_4.setSizePolicy(sizePolicy)
