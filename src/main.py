@@ -5,9 +5,6 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 import unittest
 
-
-
-
 # missing: Test assertions, whole current clamp part, GUI (streamlit local host?, flask)
 # maybe replace pandas operations by numpy for speed
 # implement statistical tests

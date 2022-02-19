@@ -5,7 +5,7 @@ import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
-from main_window import Ui_MainWindow
+from QT_GUI.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
 import logging
@@ -15,6 +15,7 @@ from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from tkinter_camera import *
 from frontend_style import Frontend_Style
+from src.data_db import DuckDBDatabaseHandler
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self, parent = None):
@@ -27,10 +28,22 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # introduce style sheet to be used by start .py
         self.frontend_style = Frontend_Style()
-
         # distribute this style object to all other classes to be used
         # whenever the style will be changed, all classes share the same style object and adapt it's appearance
         self.ui.offline.frontend_style = self.frontend_style
+
+        # handler functions for the database and the database itself
+        # only one handler with one database will be used in this entire program
+        self.local_database_handler = DuckDBDatabaseHandler()
+
+        # share the object with offline analysis and database viewer
+        self.ui.offline.update_database_handler_object(self.local_database_handler)
+        self.ui.database.update_database_handler(self.local_database_handler)
+
+
+
+
+
         #self.ui.online.frontend_style = self.frontend_style
 
         # Logger for the Main function called start

@@ -10,7 +10,7 @@ import csv
 import sys
 import os
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
+from QT_GUI.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 
 class TreeViewManager():
     """ Main class to handle interactions with treeviews. In general two  usages are defined right now:

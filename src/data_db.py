@@ -15,12 +15,13 @@ import datetime
 import pandas as pd
 
 
-class DataDB():
-    ''' A class to handle all data in a sqlite3 generated during offline analysis.
+class DuckDBDatabaseHandler():
+    ''' A class to handle all data in a duck db database.
      @date: 23.06.2021, @author dz'''
     # /home/zida20/Desktop/Promotion/SoftwareProjekte/Etools/src/analysis_database.db
 
     def __init__(self):
+        #
         self.database = None
         self.analysis_id = None
 
@@ -38,7 +39,19 @@ class DataDB():
 
         # change manually for now .. maybe to be implemented in settings tabs
         self.database_architecture = self.duck_db_database # you can select between 'DUCK_DB' or 'SQ_LITE
-        # '
+        self.init_database()
+
+
+    # Database functions
+    def init_database(self):
+        # creates a new analysis database and writes the tables or connects to an existing database
+        if self.create_analysis_database():
+            self.create_database_tables()
+
+        # inserts new analysis id with default username admin
+        # TODO implement roles admin, user, etc. ..
+        self.analysis_id = self.insert_new_analysis("admin")
+
 
     """---------------------------------------------------"""
     """ General database functions                        """
@@ -77,13 +90,14 @@ class DataDB():
         if self.db_file_name in dir_list:
             self.logger.info("Established connection to existing database: %s ", self.db_file_name)
         else:
-            self.logger.info("A new database was created. Created and Connected to new database: %s", self.db_file_name)
+            self.logger.info("A new database will created. Created and Connected to new database: %s", self.db_file_name)
             return_val = 1
 
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
                 self.database = duckdb.connect(cew + "/" + self.db_file_name, read_only=False)
+                self.logger.info("connection successfull")
             else:
                 self.database = sqlite3.connect(cew + "/" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
@@ -311,7 +325,7 @@ class DataDB():
 
     def get_sweep_table_names_for_offline_analysis(self,series_name):
         '''
-
+        returns table names for all with this analysis linked experiments containing a given series name
         :param series_name:  name of the series (e.g. Block Pulse, .. )
         :return: a list of sweep table names
         '''
@@ -334,8 +348,9 @@ class DataDB():
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?))"""
-        return self.get_data_from_database(self.database, q, (self.analysis_id,series_name))
-
+        res = self.get_data_from_database(self.database, q, (self.analysis_id,series_name))
+        #res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
     def get_entire_sweep_table(self,table_name):
         '''
         Fetches all sweeps in a sweep table.

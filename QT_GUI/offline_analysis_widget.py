@@ -29,14 +29,14 @@ from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop
 pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
-from src.Offline_Analysis.Offline_Analysis_Result_Visualizer import OfflineAnalysisResultVisualizer
+from src.Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
     def __init__(self,parent = None):
-        QWidget.__init__(self,parent)
+        QWidget.__init__(self, parent)
         self.setupUi(self)
 
         # start page of offline analysis
@@ -49,18 +49,38 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
         self.add_filter_button.clicked.connect(self.add_filter_to_offline_analysis)
         self.add_filter_button.setEnabled(False)
+        # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
+        self.frontend_style = None
+        self.database_handler = None
 
         self.offline_manager = OfflineManager()
         self.offline_analysis_widgets.setCurrentIndex(0)
 
-        # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
-        self.frontend_style=None
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.visualization_tab_widget, self.database_handler)
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
 
+    def update_database_handler_object(self,updated_object):
+        self.database_handler = updated_object
+        self.offline_manager.database = updated_object
+        self.result_visualizer.database_handler = updated_object
 
-    @
+    @Slot()
+    def open_analysis_results(self):
+        """
+        Open an existing analysis from the database
+        :return:
+        """
+
+        #@TODO write a popup to look to the database first or enter an analysis id immediately,
+        # maybe also give a filter function to browse by date or username
+
+        # for now, analysis is static number 42
+        self.Offline_Analysis_Notebook.setCurrentIndex(1)
+        self.result_visualizer.show_results_for_current_analysis(42)
+
+
 
     @Slot()
     def start_blank_analysis(self):
@@ -555,7 +575,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
             # plot the calculated results
-            self.result_visualizer = OfflineAnalysisResultVisualizer(self.visualization_tab_widget,self.offline_manager.database)
+
             self.result_visualizer.show_results_for_current_analysis(self.offline_manager.analysis_id)
 
 

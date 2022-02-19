@@ -4,18 +4,25 @@ from PySide6.QtWidgets import *  # type: ignore
 import duckdb
 import os
 from database_viewer_designer_object import Ui_Database_Viewer
+from src.data_db import DuckDBDatabaseHandler
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
-    def __init__(self,parent = None):
+    def __init__(self,parent=None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
+        #self.data_base_stacked_widget.setCurrentIndex(0)
         self.data_base_stacked_widget.setCurrentIndex(0)
 
-        self.connect_to_database.clicked.connect(self.open_database)
+        self.connect_to_database.clicked.connect(self.show_basic_tables)
+
+        self.database_handler = None
         self.query_execute.clicked.connect(self.query_data)
+
+    def update_database_handler(self,database_handler):
+        self.database_handler = database_handler
 
     @Slot()
     def open_database(self):
@@ -36,6 +43,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         Request available tables and plot the content
         :return:
         '''
+        self.data_base_stacked_widget.setCurrentIndex(1)
+        self.database = self.database_handler.database
 
         q = """SELECT * FROM information_schema.tables"""
         tables_names = self.database.execute(q).fetchall()
@@ -54,6 +63,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             button_list[l].clicked.connect(self.pull_table_from_database)
             button_list[l].show()
         print(tables)
+        print("finished")
 
     @Slot(str)
     def pull_table_from_database(self):
