@@ -201,7 +201,7 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_4.addItem(self.verticalSpacer_15, 14, 0, 1, 1)
 
-        self.groupBox = GroupBoxSize(self.start_page)
+        self.groupBox = QGroupBox(self.start_page)
         self.groupBox.setObjectName(u"groupBox")
         self.groupBox.setMaximumSize(QSize(509, 350))
         self.groupBox.setFont(font)
@@ -212,9 +212,9 @@ class Ui_Offline_Analysis(object):
         self.pushButton_8 = QPushButton(self.groupBox)
         self.pushButton_8.setObjectName(u"pushButton_8")
         self.pushButton_8.setGeometry(QRect(40, 170, 161, 71))
-        self.pushButton_9 = QPushButton(self.groupBox)
-        self.pushButton_9.setObjectName(u"pushButton_9")
-        self.pushButton_9.setGeometry(QRect(40, 280, 161, 41))
+        self.open_analysis_results_button = QPushButton(self.groupBox)
+        self.open_analysis_results_button.setObjectName(u"open_analysis_results_button")
+        self.open_analysis_results_button.setGeometry(QRect(40, 280, 161, 41))
         self.label_3 = QLabel(self.groupBox)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(230, 60, 241, 31))
@@ -510,7 +510,7 @@ class Ui_Offline_Analysis(object):
         self.visualization_tab_widget = QTabWidget(self.visualization)
         self.visualization_tab_widget.setObjectName(u"visualization_tab_widget")
         self.visualization_tab_widget.setGeometry(QRect(0, 0, 1641, 961))
-        self.template_tab_2 = SpecificAnalysisTab()
+        self.template_tab_2 = QWidget()
         self.template_tab_2.setObjectName(u"template_tab_2")
         self.visualization_tab_widget.addTab(self.template_tab_2, "")
         self.Offline_Analysis_Notebook.addTab(self.visualization, "")
@@ -521,7 +521,7 @@ class Ui_Offline_Analysis(object):
         self.retranslateUi(Offline_Analysis)
 
         self.Offline_Analysis_Notebook.setCurrentIndex(0)
-        self.offline_analysis_widgets.setCurrentIndex(1)
+        self.offline_analysis_widgets.setCurrentIndex(0)
         self.directory_tree_widget.setCurrentIndex(0)
 
 
@@ -534,7 +534,7 @@ class Ui_Offline_Analysis(object):
         self.blank_analysis_button.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Analysis", None))
         self.pushButton_8.setText(QCoreApplication.translate("Offline_Analysis", u"Analysis from \n"
 " previous Analysis", None))
-        self.pushButton_9.setText(QCoreApplication.translate("Offline_Analysis", u"Open Analysis Results", None))
+        self.open_analysis_results_button.setText(QCoreApplication.translate("Offline_Analysis", u"Open Analysis Results", None))
         self.label_3.setText(QCoreApplication.translate("Offline_Analysis", u"Start a new analysis from the scratch !", None))
         self.label_4.setText(QCoreApplication.translate("Offline_Analysis", u"Use an existing analysis from the database \n"
 "and modify paramters for a new analysis !", None))
@@ -567,3 +567,4 @@ class Ui_Offline_Analysis(object):
         self.visualization_tab_widget.setTabText(self.visualization_tab_widget.indexOf(self.template_tab_2), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
     # retranslateUi
+

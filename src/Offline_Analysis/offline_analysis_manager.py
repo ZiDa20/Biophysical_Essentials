@@ -1,7 +1,7 @@
-import raw_analysis as ra
-from online_analysis_manager import *
-import data_db
-from treeview_manager import *
+import src.raw_analysis as ra
+from src.online_analysis_manager import *
+from src.data_db import DuckDBDatabaseHandler
+from src.treeview_manager import *
 
 
 class OfflineManager():
@@ -22,8 +22,8 @@ class OfflineManager():
         # list of series specific analysis functions and their coursor bounds
         self.series_specific_analysis_list=[]
 
-        # database object
-        self.database = data_db.DataDB()
+        # database object to setted by the main function
+        self.database = None
         self.analysis_id = None
 
         self.tree_view_manager = None
@@ -82,13 +82,9 @@ class OfflineManager():
 
                             sweep_number = str(column).split('_')[1]
                             self.database.write_result_to_database(c[2],table_name,sweep_number,res)
+
         print("analysis finished")
-        #@todo change button from start analysis to see results and link it
-
-        # start visulization:
-        # from results table -> current id,
-
-
+        return True
 
 
     def get_database(self):
@@ -100,7 +96,7 @@ class OfflineManager():
         the database and avoid copies of already existing data '''
 
         # initialize a new database or connect to an existing one saved in global self.database variable
-        self.init_database()
+        # self.init_database() # better check fo connection at this point
 
         # create a new tree view manager class object and connect it to the database
         self.tree_view_manager = TreeViewManager(self.database)
@@ -123,16 +119,6 @@ class OfflineManager():
 
 
         return self.tree_view_manager
-
-    # Database functions
-    def init_database(self):
-        # creates a new analysis database and writes the tables or connects to an existing database
-        if self.database.create_analysis_database():
-            self.database.create_database_tables()
-
-        # inserts new analysis id with default username admin
-        # TODO implement roles admin, user, etc. ..
-        self.analysis_id = self.database.insert_new_analysis("admin")
 
 
     def write_analysis_series_types_to_database(self,series_type_list):

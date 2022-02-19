@@ -361,6 +361,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.side_left_menu, 0, 0, 2, 1)
         self.database_viewer = QPushButton(self.side_left_menu)
         self.database_viewer.setObjectName(u"database_viewer")
+
         self.database = Database_Viewer()
         self.database.setObjectName(u"database")
         self.notebook.addWidget(self.database)
