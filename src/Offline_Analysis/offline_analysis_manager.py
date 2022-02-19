@@ -1,13 +1,5 @@
-import tkinter.ttk as ttk
-import tkinter as tk
-
-import numpy as np
-
 import raw_analysis as ra
-from tkinter import filedialog
-import os
 from online_analysis_manager import *
-import time
 import data_db
 from treeview_manager import *
 
@@ -48,7 +40,7 @@ class OfflineManager():
 
     def execute_single_series_analysis(self,series_name):
         """Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
-        Therefore, sweep data traces will be load from the database, an analysis object will be created and results will be written
+        Therefore, sweep data traces will be load from the database, an analysis object will be created to calculate results and results will be written
         into the database. """
 
         # get series specific time from database
@@ -92,6 +84,9 @@ class OfflineManager():
                             self.database.write_result_to_database(c[2],table_name,sweep_number,res)
         print("analysis finished")
         #@todo change button from start analysis to see results and link it
+
+        # start visulization:
+        # from results table -> current id,
 
 
 

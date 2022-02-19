@@ -13,7 +13,7 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
-from offline_analysis_manager import OfflineManager
+from src.Offline_Analysis.offline_analysis_manager import OfflineManager
 from data_db import *
 from treeview_manager import *
 import pyqtgraph as pg
@@ -29,6 +29,8 @@ from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop
 pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
+from src.Offline_Analysis.Offline_Analysis_Result_Visualizer import OfflineAnalysisResultVisualizer
+
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -40,6 +42,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # start page of offline analysis
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
 
+        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
@@ -53,9 +56,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
         self.frontend_style=None
 
-
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
+
+
+    @
 
     @Slot()
     def start_blank_analysis(self):
@@ -543,7 +548,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.write_function_grid_values_into_database(current_tab)
 
         # perform the analysis and write results to the database
-        self.offline_manager.execute_single_series_analysis(current_tab.objectName())
+        finished_successfully = self.offline_manager.execute_single_series_analysis(current_tab.objectName())
+
+        if finished_successfully:
+            # switch to the visualization tab
+            self.Offline_Analysis_Notebook.setCurrentIndex(1)
+
+            # plot the calculated results
+            self.result_visualizer = OfflineAnalysisResultVisualizer(self.visualization_tab_widget,self.offline_manager.database)
+            self.result_visualizer.show_results_for_current_analysis(self.offline_manager.analysis_id)
+
 
     def write_function_grid_values_into_database(self,current_tab):
         """
