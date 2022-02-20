@@ -29,12 +29,14 @@ class AnalysisRaw():
 
     def get_elements(self,recording_mode):
         if recording_mode == "Voltage Clamp":
-            return ["min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
+            return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
+        if function_name == "max_current":
+            return self.max_current()
         if function_name == "min_current":
             return self.min_current()
         if function_name == "mean_current":
@@ -102,6 +104,7 @@ class AnalysisRaw():
     def mean_current(self):
         self._mean = np.mean(self.sliced_volt)
         return self._mean
+
     def min_current(self):
         self._min = np.min(self.sliced_volt)
         return self._min
