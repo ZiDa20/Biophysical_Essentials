@@ -125,6 +125,12 @@ class TreeViewManager():
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, splitted_name[0]
                                                                              ,self.database,database_mode,series_name,tree_level)
             #pgf_nodes = self.read_pgf_information([],bundle,[])
+            print("created tree for file" + i)
+            # turn on database mode for the next file
+            database_mode = 1
+            print("turned on database mode ")
+
+
         return tree, discarded_tree
 
     def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree, experiment_name, database,data_base_mode,series_name=None, tree_level= None):
