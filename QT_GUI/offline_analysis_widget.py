@@ -78,7 +78,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # for now, analysis is static number 42
         self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        self.result_visualizer.show_results_for_current_analysis(42)
+        self.result_visualizer.show_results_for_current_analysis(110)
 
 
 
@@ -576,7 +576,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             # plot the calculated results
 
-            self.result_visualizer.show_results_for_current_analysis(self.offline_manager.analysis_id)
+            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id)
 
 
     def write_function_grid_values_into_database(self,current_tab):
