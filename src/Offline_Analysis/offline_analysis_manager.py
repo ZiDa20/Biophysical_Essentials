@@ -122,7 +122,7 @@ class OfflineManager():
 
 
     def write_analysis_series_types_to_database(self,series_type_list):
-        self.database.write_analysis_series_types_to_database(series_type_list)
+        self.database.write_analysis_series_types_to_database(series_type_list,self.analysis_id)
 
     def write_recording_mode_to_analysis_series_table(self,recording_mode,series_name):
         self.database.write_recording_mode_to_analysis_series_table(recording_mode,series_name,self.analysis_id)

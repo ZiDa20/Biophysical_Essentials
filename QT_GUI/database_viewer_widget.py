@@ -79,8 +79,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             # returns a dict, keys = column names, values = array = single rows
             table_dict = self.database.execute(q).fetchnumpy()
             self.create_table_from_dict(table_dict)
-        except:
-            print("failed")
+        except Exception as e:
+            print("failed" + str(e))
 
 
     def create_table_from_dict(self,table_dict):
