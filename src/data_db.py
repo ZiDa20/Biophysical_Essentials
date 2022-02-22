@@ -148,7 +148,7 @@ class DuckDBDatabaseHandler():
 
         sql_create_series_table = """CREATE TABLE analysis_series(
                                                    analysis_series_name text,
-                                                   time DOUBLE[],
+                                                   time text,
                                                    recording_mode text,
                                                    analysis_id integer,
                                                    primary key (analysis_series_name, analysis_id)
@@ -284,11 +284,46 @@ class DuckDBDatabaseHandler():
         @date: 23.06.2021, @author: dz '''
 
         for n in name_list:
-            q = f'INSERT INTO analysis_series (analysis_series_name,analysis_id) VALUES (?,?) '
-            self.database = self.execute_sql_command(self.database,q,(n,self.analysis_id))
-            self.logger.info("inserting new analysis_series with id", self.analysis_id)
+
+            # query the recording mode
+            recording_mode = self.query_recording_mode(n)
+
+            q = """insert into analysis_series (analysis_series_name, recording_mode, analysis_id) values (?,?,?) """
+            self.database = self.execute_sql_command(self.database,q,(n,recording_mode,self.analysis_id))
+            self.logger.info(f'inserting new analysis_series with id  {self.analysis_id}')
+
         self.logger.info("inserted all series")
 
+    def query_recording_mode(self,series_name):
+        """
+        Get the recording mode from the meta data table of a (by-name-) specified series
+        :param series_name:
+        :return: str Voltage Clamp or Current Clamp
+        """
+        print(str(series_name))
+        print(self.analysis_id)
+        q = """select experiment_name from experiment_series where series_name=(?) intersect
+        (select experiment_name from experiment_analysis_mapping where analysis_id = (?))"""
+        experiment_names_list = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
+
+        print(experiment_names_list)
+
+        q = """ select meta_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
+        name = self.get_data_from_database(self.database, q, (experiment_names_list[0][0], series_name))[0][0]
+
+        q = f'SELECT Parameter, sweep_1 FROM {name}'
+        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+        x = str(meta_data_dict.get('RecordingMode'))
+        print(x)
+        if x == 'b\'\\x03\'':
+            return "Voltage Clamp"
+        else:
+            return "Current Clamp"
+
+
+
+    # deprecated dz 22.02.2022
     def write_ms_spaced_time_array_to_analysis_series_table(self,time_np_array, analysis_series_name, analysis_id ):
         """
 
@@ -302,6 +337,17 @@ class DuckDBDatabaseHandler():
         q = 'update analysis_series set recording_mode = (?) where analysis_series_name = (?) AND analysis_id = (?)'
         self.database = self.execute_sql_command(self.database,q,(recording_mode,analysis_series_name,analysis_id))
 
+    def get_recording_mode_from_analysis_series_table(self,analysis_series_name):
+        """
+        returns the recording mode as string Voltage Clamp or Current Clamp
+        :param analysis_series_name:
+        :param analysis_id:
+        :return:
+        """
+        q = """select recording_mode from analysis_series where analysis_series_name = (?) AND analysis_id = (?)"""
+        return self.get_data_from_database(self.database, q, (analysis_series_name, self.analysis_id))[0][0]
+
+    # deprecated dz 22.02.2022
     def get_time_in_ms_of_analyzed_series(self,series_name):
 
         # time should be equal for all sweeps of a series

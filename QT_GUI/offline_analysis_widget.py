@@ -333,7 +333,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def built_analysis_specific_notebook(self,series_names_list):
 
         # add selection to database
-        self.offline_manager.write_analysis_series_types_to_database(series_names_list)
+        self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         self.tab_list = []
         self.tabWidget.removeTab(0)
@@ -403,7 +403,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog_grid = QGridLayout(dialog)
 
         # 2) get recording mode of the specific series
-        recording_mode = "Voltage Clamp"
+        recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(series_name)
 
         # 3) request recording mode specific analysis functions
         analysis_function_names = AnalysisRaw().get_elements(recording_mode)
@@ -452,7 +452,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 print(str(value))
                 current_tab.analysis_table_widget.setItem(row,0,QTableWidgetItem(str(value)))
                 self.table_buttons[row] = QPushButton("Add")
+                self.c = QPushButton("Configure")
                 current_tab.analysis_table_widget.setCellWidget(row,3,self.table_buttons[row])
+                current_tab.analysis_table_widget.setCellWidget(row, 4, self.c)
+
                 self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row,current_tab))
 
         current_tab.analysis_table_widget.show()
