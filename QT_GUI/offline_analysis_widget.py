@@ -453,17 +453,34 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 current_tab.analysis_table_widget.setItem(row,0,QTableWidgetItem(str(value)))
                 self.table_buttons[row] = QPushButton("Add")
                 current_tab.analysis_table_widget.setCellWidget(row,3,self.table_buttons[row])
-                self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row))
+                self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row,current_tab))
 
         current_tab.analysis_table_widget.show()
 
 
-    @Slot(float)
-    def add_coursor_bounds(self,row_number):
+    def remove_existing_dragable_lines(self,row_number,current_tab):
+        number_of_rows = current_tab.analysis_table_widget.rowCount()
+
+        for r in range(0,number_of_rows):
+            if current_tab.analysis_table_widget.item(r,1) is not None:
+                current_tab.analysis_table_widget.removeCellWidget (r, 3)
+                self.b= QPushButton("Change")
+                current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
+                self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
+
+            try:
+                self.current_tab_plot_manager.remove_dragable_lines()
+            except:
+                print("nothing to delete")
+
+    def add_coursor_bounds(self,row_number,current_tab):
         """
         This function will add 2 dragable lines to the plot which will be provided by the global plot manager object
         :return:
         """
+
+        self.remove_existing_dragable_lines(row_number,current_tab)
+
         # 1) insert dragable coursor bounds into pyqt graph
         left_val, right_val = self.current_tab_plot_manager.show_draggable_lines(row_number)
 
@@ -502,15 +519,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.check_ready_for_analysis(current_tab)
 
     def check_ready_for_analysis(self,current_tab):
-
+        """
+        function that checks for coursor bounds in all selected functions in this tab to be not empty.
+        if this is the case the start analysis button becomes clickable
+        :param current_tab:
+        :return:
+        """
+        #print("Checking ready  for analysis")
         for row in range(0,(current_tab.analysis_table_widget.rowCount())):
             if current_tab.analysis_table_widget.item(row,1) is None or current_tab.analysis_table_widget.item(row,2) is None:
                 return
 
-        current_tab.start_analysis_button.setEnabled(True)
-        current_tab.start_analysis_button.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
-        print("ready for analysis")
-
+        # make sure to connect start_analysis_button only once  .. otherwise a loop gets created # BUGFIX
+        if current_tab.start_analysis_button.isEnabled() is False:
+            current_tab.start_analysis_button.setEnabled(True)
+            current_tab.start_analysis_button.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
 
     def start_offline_analysis_of_single_series(self,current_tab):
@@ -520,6 +543,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab:
         :return:
         '''
+
+
 
         # store analysis parameter in the database
         self.write_function_grid_values_into_database(current_tab)
@@ -549,22 +574,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         column_count =current_tab.analysis_table_widget.columnCount()
 
         ### to be continued here
+        print(row_count)
+        for r in range(0,row_count):
+            analysis_function = current_tab.analysis_table_widget.item(r, 0).text()
+            #print("analysis function ", analysis_function)
+            lower_bound = round(float(current_tab.analysis_table_widget.item(r,1).text()),2)
+            upper_bound = round(float(current_tab.analysis_table_widget.item(r,2).text()),2)
+            #print(lower_bound)
+            #print(upper_bound)
+            db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function, analysis_series_name, lower_bound, upper_bound)
 
 
-        it_len = int(column_count/2) # there will be always an even
-        print("column count", column_count)
-        print(it_len)
-
-        for r in range(5,row_count-1):
-
-                for c in range(0,it_len+1,2):
-                    print (c)
-                    analysis_function = current_tab.function_selection_grid.itemAtPosition(r, 0).widget().text()
-                    print("analysis function ", analysis_function)
-                    lower_bound = self.get_cursor_bound_value_from_grid(r, c+1, current_tab)
-                    upper_bound = self.get_cursor_bound_value_from_grid(r, c+2, current_tab)
-                    db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,analysis_series_name,lower_bound,upper_bound )
-
+        print("finished")
 
     def get_cursor_bound_value_from_grid(self,row,column,current_tab):
         """

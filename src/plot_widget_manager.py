@@ -214,8 +214,15 @@ class PlotWidgetManager(QtCore.QRunnable):
         self.plot_widget.addItem(self.right_cursor)
         self.right_cursor.sigPositionChangeFinished.connect(self.draggable_right_cursor_moved)
 
+
+
         return left_val,right_val
 
+    def remove_dragable_lines(self):
+        self.plot_widget.removeItem(self.left_coursor)
+        self.plot_widget.removeItem(self.right_cursor)
+        self.left_coursor.clearMarkers()
+        self.right_cursor.clearMarkers()
 
     def draggable_left_cursor_moved(self):
         print("the line was moved ", self.left_coursor.value())
