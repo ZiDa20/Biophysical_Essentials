@@ -1,4 +1,6 @@
 from src.data_db import DuckDBDatabaseHandler
+from QT_GUI.update_dave.specific_visualization_plot import ResultPlotVisualizer
+
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
 
@@ -46,7 +48,11 @@ class OfflineAnalysisResultVisualizer():
 
         for analysis in list_of_analysis:
             print(str(analysis))
-            updated_layout = self.single_analysis_visualization(main_layout,analysis_id,analysis[0])
+            custom_plot_widget = ResultPlotVisualizer()
+            custom_plot_widget.specific_plot_box.setTitle("Analysis" + str(analysis))
+            self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
+
+            main_layout.addWidget(custom_plot_widget)
 
         # after all plots have been added
         all_plots = QWidget()
@@ -55,16 +61,16 @@ class OfflineAnalysisResultVisualizer():
 
 
 
-    def single_analysis_visualization(self,main_layout,analysis_id,analysis_function_id):
+    def single_analysis_visualization(self,parent_widget,analysis_id,analysis_function_id):
         """
         3) for each specific function -> create plot from available results
         :return:
         """
         # tuple -> analysis function id at pos 0
-        graph_n_layout = QVBoxLayout()
+        graph_n_layout = parent_widget.plot_layout
         analysis_specific_plot_widget = pg.PlotWidget()
         graph_n_layout.addWidget(analysis_specific_plot_widget)
-        main_layout.addLayout(graph_n_layout,stretch=1)
+
 
         # iterate results table, select all results according to analysis_id and function_id,
 
