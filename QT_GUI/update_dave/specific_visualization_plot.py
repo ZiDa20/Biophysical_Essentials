@@ -122,15 +122,25 @@ class Ui_result_plot_visualizer(object):
 
         self.gridLayout_2.addWidget(self.split_data_label, 4, 8, 1, 1)
 
-        self.comboBox = QComboBox(self.specific_plot_box)
-        self.comboBox.setObjectName(u"comboBox")
+        self.plot_type_combo_box = QComboBox(self.specific_plot_box)
+        self.plot_type_combo_box.setObjectName(u"plot_type_combo_box")
 
-        self.gridLayout_2.addWidget(self.comboBox, 2, 8, 1, 2)
+        self.gridLayout_2.addWidget(self.plot_type_combo_box, 2, 8, 1, 2)
 
-        self.comboBox_2 = QComboBox(self.specific_plot_box)
-        self.comboBox_2.setObjectName(u"comboBox_2")
+        self.split_data_combo_box = QComboBox(self.specific_plot_box)
+        self.split_data_combo_box.setObjectName(u"split_data_combo_box")
 
-        self.gridLayout_2.addWidget(self.comboBox_2, 5, 8, 1, 2)
+        self.gridLayout_2.addWidget(self.split_data_combo_box, 5, 8, 1, 2)
+
+        self.save_plot_button = QPushButton(self.specific_plot_box)
+        self.save_plot_button.setObjectName(u"save_plot_button")
+
+        self.gridLayout_2.addWidget(self.save_plot_button, 7, 8, 1, 2)
+
+        self.export_data_button = QPushButton(self.specific_plot_box)
+        self.export_data_button.setObjectName(u"export_data_button")
+
+        self.gridLayout_2.addWidget(self.export_data_button, 9, 8, 1, 2)
 
 
         self.retranslateUi(result_plot_visualizer)
@@ -143,10 +153,18 @@ class Ui_result_plot_visualizer(object):
         self.specific_plot_box.setTitle(QCoreApplication.translate("result_plot_visualizer", u"GroupBox", None))
         self.plot_type.setText(QCoreApplication.translate("result_plot_visualizer", u"Plot Type", None))
         self.split_data_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Split Data", None))
+        self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Plot", None))
+        self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"Export Data", None))
     # retranslateUi
+
 
 
 class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+
+
+        ## manually added
+        self.analysis_id = None
+        self.analysis_function_id = None
