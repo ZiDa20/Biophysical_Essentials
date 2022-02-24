@@ -1,6 +1,6 @@
 from src.data_db import DuckDBDatabaseHandler
 from QT_GUI.update_dave.specific_visualization_plot import ResultPlotVisualizer
-
+from functools import partial
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
 
@@ -10,6 +10,10 @@ class OfflineAnalysisResultVisualizer():
         # pyqt tab widget object
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
+
+        self.split_data_functions =[ "No Split", "Split By Meta Data"]
+
+        self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
 
 
     def show_results_for_current_analysis(self,analysis_id: int):
@@ -48,7 +52,12 @@ class OfflineAnalysisResultVisualizer():
 
         for analysis in list_of_analysis:
             print(str(analysis))
+            # create new custom plot visualizer and parametrize data
             custom_plot_widget = ResultPlotVisualizer()
+
+            custom_plot_widget.analysis_id = analysis_id
+            custom_plot_widget.analysis_function_id = analysis[0]
+
             custom_plot_widget.specific_plot_box.setTitle("Analysis" + str(analysis))
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
@@ -71,6 +80,12 @@ class OfflineAnalysisResultVisualizer():
         analysis_specific_plot_widget = pg.PlotWidget()
         graph_n_layout.addWidget(analysis_specific_plot_widget)
 
+        # add options
+        parent_widget.split_data_combo_box.addItems(self.split_data_functions)
+        parent_widget.split_data_combo_box.currentTextChanged.connect(partial(self.split_data_changed,parent_widget))
+
+
+        parent_widget.plot_type_combo_box.addItems(self.plot_type)
 
         # iterate results table, select all results according to analysis_id and function_id,
 
@@ -113,5 +128,43 @@ class OfflineAnalysisResultVisualizer():
 
         for a in range(len(x_data)):
                 analysis_specific_plot_widget.plot(x_data[a], y_data[a])
+
+
+
+    def split_data_changed(self,parent_widget,new_text):
+        """
+        will be called when the text in a combo box changes
+        :param parent_widget: plot widget where the change needs to be made : QWidget
+        :param new_text: String of the new text
+        :return:
+        """
+        print("split data in " + parent_widget.specific_plot_box.title())
+
+        if new_text == "Split By Meta Data":
+            self.plot_data_splitted_by_meta_data(parent_widget)
+
+
+    def plot_data_splitted_by_meta_data(self, parent_widget: ResultPlotVisualizer):
+        """
+
+        :param parent_widget:
+        :return:
+        """
+
+        # remove the old plot
+        parent_widget.plot_layout.takeAt(0)
+
+        # create a new plot
+        new_plot_widget = pg.PlotWidget()
+        parent_widget.plot_layout.addWidget(new_plot_widget)
+
+        # introduce color and legend according to meta data groups
+
+        q = """select  result_value,sweep_number,sweep_table_name from results where analysis_id =(?) and analysis_function_id =(?) order by sweep_table_name,sweep_number"""
+        result_list = self.database_handler.get_data_from_database(self.database_handler.database, q, [analysis_id, analysis_function_id])
+
+
+
+
 
 

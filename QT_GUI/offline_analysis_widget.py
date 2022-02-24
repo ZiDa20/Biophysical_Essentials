@@ -76,9 +76,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #@TODO write a popup to look to the database first or enter an analysis id immediately,
         # maybe also give a filter function to browse by date or username
 
-        # for now, analysis is static number 42
+        # for now, analysis is static number ->
         self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        self.result_visualizer.show_results_for_current_analysis(110)
+        self.result_visualizer.show_results_for_current_analysis(43)
 
 
 
