@@ -160,8 +160,8 @@ class OfflineAnalysisResultVisualizer():
 
         # introduce color and legend according to meta data groups
 
-        q = """select  result_value,sweep_number,sweep_table_name from results where analysis_id =(?) and analysis_function_id =(?) order by sweep_table_name,sweep_number"""
-        result_list = self.database_handler.get_data_from_database(self.database_handler.database, q, [analysis_id, analysis_function_id])
+        #q = """select  result_value,sweep_number,sweep_table_name from results where analysis_id =(?) and analysis_function_id =(?) order by sweep_table_name,sweep_number"""
+        #result_list = self.database_handler.get_data_from_database(self.database_handler.database, q, [analysis_id, analysis_function_id])
 
 
 
