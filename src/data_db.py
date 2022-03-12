@@ -437,6 +437,24 @@ class DuckDBDatabaseHandler():
                 self.logger.info("failed adding experiment %s with error %s", name, e)
                 return -1
 
+    def add_meta_data_group_to_existing_experiment(self, experiment_name:str, meta_data_group:str):
+        """
+        Insert meta data group into an exsiting experiment
+        :param experiment_name: name of the experiment
+        :param meta_data_group: name of the meta data group
+        :return:
+        """
+
+        q = """update experiments set meta_data_group = (?) where experiment_name = (?)"""
+        try:
+            self.database = self.execute_sql_command(self.database, q, [meta_data_group, experiment_name])
+            self.logger.info("Wrote meta data group %s for experiment %s into database", meta_data_group,
+                             experiment_name)
+            return True
+        except Exception as e:
+            self.logger.info("FAILED to write meta data group %s for experiment %s into database with error: %s", meta_data_group,
+                             experiment_name, str(e))
+            return False
 
 
     """---------------------------------------------------"""

@@ -169,6 +169,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     @Slot()
     def select_series_to_be_analized(self):
+        """
+        executed after all experiment files have been loaded
+        :return:
+        """
         # get_series_from_datbase
         db = self.offline_manager.get_database()
 
@@ -176,9 +180,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # A distinct list will be saved
         series_names_string_list = db.get_distinct_non_discarded_series_names()
         print (series_names_string_list)
+
         # create a pop-up-window to allow user selection of series to be analyzed
         self.display_select_series_dialog(series_names_string_list)
-        # create a new tabwidget with equal tabs according to the selected series
+
+        # -> this will create a new tab widget with equal tabs according to the selected series
+
+        # the meta data groups need to be updated in the database
+        self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
+
+
 
     def display_select_series_dialog(self,series_names_string_list):
         """
@@ -280,12 +291,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style.set_pop_up_dialog_style_sheet(meta_data_popup)
 
         directory = self.offline_manager._directory_path
-        tmp_tree_manager = TreeViewManager()
+        tmp_tree_manager = TreeViewManager(self.database_handler)
         tmp_tree_manager.meta_data_group_column = 1
         tmp_tree_manager.checkbox_column = 3
         tmp_tree_manager.analysis_mode = 1
         tmp_tree_manager.frontend_style = self.frontend_style
+
         tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
+
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
 

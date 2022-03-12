@@ -9,6 +9,7 @@ from functools import partial
 import csv
 import sys
 import os
+import logging
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from QT_GUI.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 
@@ -30,6 +31,7 @@ class TreeViewManager():
     """
 
     def __init__(self,database=None):
+
         self.database = database
 
         # column 1 shows checkbox to select an item and provide information about selected items
@@ -66,6 +68,16 @@ class TreeViewManager():
         self.stim_channel_count = 0
 
         self._data_view_STATE = 0
+
+        # introduce logger
+        self.logger=logging.getLogger()
+        self.logger.setLevel(logging.DEBUG)
+        file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
+        print(file_handler)
+        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        self.logger.info('Treeview Manager Initialized')
 
     """ ############################## Chapter A Create treeview functions ######################################### """
 
@@ -112,6 +124,7 @@ class TreeViewManager():
             splitted_name = i.split(".")
 
             if database_mode:
+
                 insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0])
                 self.database.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
 
@@ -370,6 +383,8 @@ class TreeViewManager():
 
         self.experimental_combo_box.currentTextChanged.connect(self.add_new_meta_data_group)
 
+
+
         return tree
 
 
@@ -487,6 +502,23 @@ class TreeViewManager():
                 combo_box = self.insert_meta_data_items_into_combo_box(combo_box)
                 input_tree.setItemWidget(tmp_item,self.meta_data_group_column,combo_box)
 
+    def update_experiment_meta_data_in_database(self, input_tree):
+        """
+        Goes through the experiment names and writes them into the database.
+        Called before tab widget for series specific analysis will be created -> after click on series specific analysis
+        :param input_tree: tree which information will be written to the database
+        :return:
+        """
+        self.logger.info('writing meta data from treeview into data base')
+
+        top_level_items_amount = input_tree.topLevelItemCount()
+
+        for n in range(top_level_items_amount):
+            experiment_name  = input_tree.topLevelItem(n).text(0)
+            meta_data_group = input_tree.itemWidget(input_tree.topLevelItem(n),self.meta_data_group_column).currentText()
+
+            self.database.add_meta_data_group_to_existing_experiment(experiment_name,meta_data_group)
+
 
     def cancel_button_clicked(self,dialog):
         '''
@@ -513,7 +545,7 @@ class TreeViewManager():
         current_item_text = combo_box.currentText()
 
         combo_box.clear()
-        # reverse the list to always have the newly added geoup at the top
+        # reverse the list to always have the newly added group at the top
         reverse_list = list(reversed(self.meta_data_option_list))
         combo_box.addItems(reverse_list)
 
@@ -522,6 +554,8 @@ class TreeViewManager():
             combo_box.setCurrentText(reverse_list[0])
         else:
             combo_box.setCurrentText(current_item_text)
+            # write change to the database
+
         return combo_box
 
 
