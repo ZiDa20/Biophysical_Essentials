@@ -48,7 +48,7 @@ class OfflineManager():
 
         # get name of sweep tables
         sweep_table_names = self.database.get_sweep_table_names_for_offline_analysis(series_name)
-
+        print(sweep_table_names)
 
         # read analysis functions from database
         analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
@@ -58,6 +58,12 @@ class OfflineManager():
         for table_name in sweep_table_names:
 
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
+
+            # error handling
+            if entire_sweep_table is None:
+                print(series_name)
+                print("Error found in table " + table_name)
+
 
             for column in entire_sweep_table:
 

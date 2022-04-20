@@ -115,6 +115,8 @@ class TreeViewManager():
         for i in dat_files:
             file = directory_path + "/" + i
 
+            self.logger.info("processing file " + file)
+
             # open the file
             bundle = self.open_bundle_of_file(file)
 
@@ -134,7 +136,8 @@ class TreeViewManager():
                     database_mode = insertion_state
                     print("turned off database mode ")
 
-            pgf_tuple_list = self.read_series_specific_pgf_trace([],bundle,[])
+            #pgf_tuple_list = self.read_series_specific_pgf_trace([],bundle,[])
+
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, splitted_name[0]
                                                                              ,self.database,database_mode,series_name,tree_level)
             #pgf_nodes = self.read_pgf_information([],bundle,[])
@@ -186,6 +189,8 @@ class TreeViewManager():
         except AttributeError:
             node_label = ''
 
+        self.logger.info("processed" + node_type)
+
         # create the discard button to move an item from one tree to another
         discard_button = QPushButton()
         pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
@@ -195,6 +200,9 @@ class TreeViewManager():
         metadata = node
         #print(node_type)
         #print(metadata)
+
+
+
         if "Pulsed" in node_type:
             print("skipped")
             parent = ""
@@ -206,6 +214,7 @@ class TreeViewManager():
             parent,tree = self.add_series_to_treeview(tree, discarded_tree, parent, series_name, node_label, node_list,
                                                       node_type, experiment_name, data_base_mode, database, pixmap)
 
+
         if "Sweep" in node_type and tree_level>2:
             parent = self.add_sweep_to_treeview(series_name, parent, node_type, data_base_mode, bundle, database,
                                                 experiment_name, metadata)
@@ -215,7 +224,12 @@ class TreeViewManager():
                 # trace meta data information will be added to the sweep level
                 parent.setData(5,0,node.get_fields())
 
+        if "NoneType" in node_type:
+            self.logger.info("None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
+            return tree, discarded_tree
+
         node_list.append([node_type, node_label, parent])
+
 
         for i in range(len(node.children)):
             self.create_treeview_from_single_dat_file(index + [i], bundle, parent, node_list, tree, discarded_tree, experiment_name,

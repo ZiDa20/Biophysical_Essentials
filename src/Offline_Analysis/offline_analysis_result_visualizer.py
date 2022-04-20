@@ -3,6 +3,7 @@ from QT_GUI.update_dave.specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
+import pyqtgraph.exporters
 from PySide6 import QtCore
 class OfflineAnalysisResultVisualizer():
 
@@ -10,12 +11,15 @@ class OfflineAnalysisResultVisualizer():
         # pyqt tab widget object
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
-
         self.split_data_functions =[ "No Split", "Split By Meta Data"]
-
         self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
-
         self.plot_colors = ['b', 'g','r','c','m','y','k','w']
+        self.result_directory = ""
+
+
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
+        self.black_pen = pg.mkPen(color=(0, 0, 0))
 
     def show_results_for_current_analysis(self,analysis_id: int):
         """
@@ -93,7 +97,7 @@ class OfflineAnalysisResultVisualizer():
 
 
 
-    def handle_plot_widget_settings(self,parent_widget):
+    def handle_plot_widget_settings(self,parent_widget:ResultPlotVisualizer):
         """
         Handle the setting of the plot widget, which is inside a custom made widget called parent widget.
         The plot needs to be cleared and combo boxes might need to be initialized.
@@ -110,6 +114,7 @@ class OfflineAnalysisResultVisualizer():
             analysis_specific_plot_widget = pg.PlotWidget()
             parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
 
+            parent_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image,parent_widget))
             # add options only once
             try:
                 if parent_widget.split_data_combo_box.currentText() not in self.split_data_functions:
@@ -126,6 +131,20 @@ class OfflineAnalysisResultVisualizer():
 
         except Exception as e:
             print(str(e))
+
+    def save_plot_as_image(self,parent_widget:ResultPlotVisualizer):
+
+        result_path = QFileDialog.getSaveFileName()[0]
+
+        analysis_specif_widget= parent_widget.plot_layout.itemAt(0).widget()
+
+        exporter = pg.exporters.ImageExporter(analysis_specif_widget.plotItem)
+
+        print(result_path)
+        exporter.export(result_path)
+
+        print("saved plot in " + result_path)
+
 
     def plot_type_changed(self,parent_widget,new_text):
         """
@@ -180,7 +199,7 @@ class OfflineAnalysisResultVisualizer():
 
                         group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
 
-                    analysis_specific_plot_widget.plot(group_mean,pen=pg.mkPen(self.plot_colors[meta_data_types.index(i)], width=3), name="mean " + i)
+                    analysis_specific_plot_widget.plot(group_mean,pen=pg.mkPen(self.plot_colors[meta_data_types.index(i)], width=3))#, name="mean " + i)
 
                     # go through each series
 
@@ -269,7 +288,7 @@ class OfflineAnalysisResultVisualizer():
         x_data, y_data = self.fetch_x_and_y_data(result_list, number_of_sweeps)
 
         for a in range(len(x_data)):
-                analysis_specific_plot_widget.plot(x_data[a], y_data[a])
+                analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen = self.black_pen)
 
 
     def get_list_of_results(self,analysis_id,analysis_function_id):
