@@ -13,5 +13,3 @@ c
 .bioqypt/
 bioqypt/
 venv/
-.src/*.db
-.src/*.db.wal
