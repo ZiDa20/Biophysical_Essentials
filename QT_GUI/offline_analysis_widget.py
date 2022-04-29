@@ -169,6 +169,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     @Slot()
     def select_series_to_be_analized(self):
+        """
+        executed after all experiment files have been loaded
+        :return:
+        """
         # get_series_from_datbase
         db = self.offline_manager.get_database()
 
@@ -176,9 +180,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # A distinct list will be saved
         series_names_string_list = db.get_distinct_non_discarded_series_names()
         print (series_names_string_list)
+
         # create a pop-up-window to allow user selection of series to be analyzed
         self.display_select_series_dialog(series_names_string_list)
-        # create a new tabwidget with equal tabs according to the selected series
+
+        # -> this will create a new tab widget with equal tabs according to the selected series
+
+        # the meta data groups need to be updated in the database
+        self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
+
+
 
     def display_select_series_dialog(self,series_names_string_list):
         """
@@ -280,12 +291,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style.set_pop_up_dialog_style_sheet(meta_data_popup)
 
         directory = self.offline_manager._directory_path
-        tmp_tree_manager = TreeViewManager()
+        tmp_tree_manager = TreeViewManager(self.database_handler)
         tmp_tree_manager.meta_data_group_column = 1
         tmp_tree_manager.checkbox_column = 3
         tmp_tree_manager.analysis_mode = 1
         tmp_tree_manager.frontend_style = self.frontend_style
+
         tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
+
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
 
@@ -439,6 +452,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         print(self.selected_analysis_functions)
         current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+<<<<<<< HEAD
 
         # MSUT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
         current_tab.analysis_table_widget.setColumnCount(5)
@@ -476,6 +490,45 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             except:
                 print("nothing to delete")
 
+=======
+
+        # MSUT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+        current_tab.analysis_table_widget.setColumnCount(5)
+        current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
+
+        self.table_buttons = [0] * len(self.selected_analysis_functions)
+
+        for row in range(len(self.selected_analysis_functions)):
+                print(str(row))
+                value = self.selected_analysis_functions[row]
+                print(str(value))
+                current_tab.analysis_table_widget.setItem(row,0,QTableWidgetItem(str(value)))
+                self.table_buttons[row] = QPushButton("Add")
+                self.c = QPushButton("Configure")
+                current_tab.analysis_table_widget.setCellWidget(row,3,self.table_buttons[row])
+                current_tab.analysis_table_widget.setCellWidget(row, 4, self.c)
+
+                self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row,current_tab))
+
+        current_tab.analysis_table_widget.show()
+
+
+    def remove_existing_dragable_lines(self,row_number,current_tab):
+        number_of_rows = current_tab.analysis_table_widget.rowCount()
+
+        for r in range(0,number_of_rows):
+            if current_tab.analysis_table_widget.item(r,1) is not None:
+                current_tab.analysis_table_widget.removeCellWidget (r, 3)
+                self.b= QPushButton("Change")
+                current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
+                self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
+
+            try:
+                self.current_tab_plot_manager.remove_dragable_lines()
+            except:
+                print("nothing to delete")
+
+>>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
     def add_coursor_bounds(self,row_number,current_tab):
         """
         This function will add 2 dragable lines to the plot which will be provided by the global plot manager object

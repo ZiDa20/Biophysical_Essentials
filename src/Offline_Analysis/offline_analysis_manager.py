@@ -43,12 +43,16 @@ class OfflineManager():
         Therefore, sweep data traces will be load from the database, an analysis object will be created to calculate results and results will be written
         into the database. """
 
+        #@todo give normalization as argument to the function
+        cslow_normalization = 1
+
         # get series specific time from database
         time = self.database.get_time_in_ms_of_analyzed_series(series_name)
 
         # get name of sweep tables
         sweep_table_names = self.database.get_sweep_table_names_for_offline_analysis(series_name)
 
+        print(sweep_table_names)
 
         # read analysis functions from database
         analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
@@ -58,6 +62,12 @@ class OfflineManager():
         for table_name in sweep_table_names:
 
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
+
+            # error handling
+            if entire_sweep_table is None:
+                print(series_name)
+                print("Error found in table " + table_name)
+
 
             for column in entire_sweep_table:
 
@@ -79,6 +89,15 @@ class OfflineManager():
                             raw_analysis_class_object.slice_trace()
 
                             res = raw_analysis_class_object.call_function_by_string_name(a)
+
+                            if cslow_normalization:
+                                cslow = self.database.get_cslow_value_for_sweep_table(table_name)
+
+                                print(res)
+                                print(cslow)
+                                res = res/cslow
+                                print("normalized")
+                                print(res)
 
                             sweep_number = str(column).split('_')[1]
                             self.database.write_result_to_database(c[2],table_name,sweep_number,res)
