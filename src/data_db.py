@@ -383,28 +383,6 @@ class DuckDBDatabaseHandler():
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
 
-    def get_cslow_value_for_sweep_table(self,series_name):
-        '''
-        get the cslow value for a specific sweep
-        :param series_name: name of the sweep table in the database
-        :return:
-        :authored: dz, 29.04.2022
-        '''
-
-        # get meta data table name where experiment series = series_name
-        # get cslow value from this specific meta data table name
-
-        q = f'select meta_data_table_name from experiment_series where sweep_table_name = \'{series_name}\''
-        # should return a list with only one tuple where the  key = meta data table name
-        meta_data_table_name = self.get_data_from_database(self.database, q)[0][0]
-        q = f'SELECT Parameter, sweep_1 FROM {meta_data_table_name}'
-        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
-
-        return float(meta_data_dict.get('CSlow'))
-
-
-
-
 
     def get_entire_sweep_table(self, table_name):
         '''
@@ -475,6 +453,35 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
+
+    def get_experiment_name_for_given_sweep_table_name(self,sweep_table_name):
+        """
+        Get's the name of the experiment for a given sweep table name
+        :param sweep_table_name: string of the name
+        :return:
+         :authored: dz, 29.04.2022
+        """
+        q = f'select experiment_name from experiment_series where sweep_table_name = \'{sweep_table_name}\''
+        return self.get_data_from_database(self.database, q)[0][0]
+
+    def get_cslow_value_for_sweep_table(self, series_name):
+        '''
+        get the cslow value for a specific sweep
+        :param series_name: name of the sweep table in the database
+        :return:
+        :authored: dz, 29.04.2022
+        '''
+
+        # get meta data table name where experiment series = series_name
+        # get cslow value from this specific meta data table name
+
+        q = f'select meta_data_table_name from experiment_series where sweep_table_name = \'{series_name}\''
+        # should return a list with only one tuple where the  key = meta data table name
+        meta_data_table_name = self.get_data_from_database(self.database, q)[0][0]
+        q = f'SELECT Parameter, sweep_1 FROM {meta_data_table_name}'
+        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+        return float(meta_data_dict.get('CSlow'))
 
     def add_single_series_to_database(self, experiment_name, series_name, series_identifier):
         self.logger.info(

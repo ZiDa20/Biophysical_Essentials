@@ -4,7 +4,13 @@ from functools import partial
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
 import pyqtgraph.exporters
-from PySide6 import QtCore
+from PySide6 import QtWebEngineWidgets
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import PySide6.QtWebEngineWidgets
+
+
 class OfflineAnalysisResultVisualizer():
 
     def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
@@ -66,6 +72,7 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.specific_plot_box.setTitle("Analysis" + str(analysis))
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
+
             main_layout.addWidget(custom_plot_widget)
 
         # after all plots have been added
@@ -85,6 +92,9 @@ class OfflineAnalysisResultVisualizer():
         """
 
         analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
+
+        # self.browser = QtWebEngineWidgets.QWebEngineView(self)
+
 
         result_list = self.get_list_of_results(analysis_id,analysis_function_id)
 
@@ -111,8 +121,12 @@ class OfflineAnalysisResultVisualizer():
             parent_widget.plot_layout.takeAt(0)
 
             # create a new plot and insert it into the already exsiting plot layout
-            analysis_specific_plot_widget = pg.PlotWidget()
-            parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
+            #analysis_specific_plot_widget = pg.PlotWidget()
+            #parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
+
+            browser = QtWebEngineWidgets.QWebEngineView()
+            parent_widget.plot_layout.addWidget(browser)
+
 
             parent_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image,parent_widget))
             # add options only once
@@ -127,7 +141,11 @@ class OfflineAnalysisResultVisualizer():
             except Exception as e:
                 print(str(e))
 
+            '''
             return analysis_specific_plot_widget
+            '''
+
+            return browser
 
         except Exception as e:
             print(str(e))
@@ -207,15 +225,6 @@ class OfflineAnalysisResultVisualizer():
 
                             # if so, calculate
 
-
-
-
-
-
-
-
-
-
         if new_text == self.plot_type[2]:  # boxplots
             print("not implemented yet")
 
@@ -245,7 +254,7 @@ class OfflineAnalysisResultVisualizer():
 
     def plot_meta_data_wise(self,analysis_specific_plot_widget: pg.PlotWidget, result_list,number_of_series,meta_data_groups):
         """
-        rearrange the plot to color each trace aacording to it's meta data group.
+        rearrange the plot to color each trace according to it's meta data group.
 
         :param analysis_specific_plot_widget:
         :param result_list:
@@ -256,22 +265,36 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps= int(len(result_list) / number_of_series)
         meta_data_types = list(dict.fromkeys(meta_data_groups))
 
-        x_data,y_data = self.fetch_x_and_y_data( result_list, number_of_sweeps)
+        x_data,y_data, series_names = self.fetch_x_and_y_data( result_list, number_of_sweeps)
 
-        analysis_specific_plot_widget.addLegend()
+        #analysis_specific_plot_widget.addLegend()
+
+        default_colors = ["Black","Blue","Red","Orange","Green"]
+
+        fig = go.Figure()
 
         # for each data trace ( = a sub list) create the plot in the correct color according to meta data group
         for a in range(len(x_data)):
 
                 meta_data_group = meta_data_groups[a]
 
+
+
                 for m in meta_data_types:
                     if m == meta_data_group:
                         pos = meta_data_types.index(m)
                         #print(self.plot_colors[pos])
-                        analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen=pg.mkPen(self.plot_colors[pos], width=3), name=m)
+                        #analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen=pg.mkPen(self.plot_colors[pos], width=3), name=m)
 
+                        fig.add_trace(go.Scatter(x=x_data[a], y=y_data[a],
+                                                 mode='lines',
+                                                 name=m + ": " + series_names[a], line=dict(color=default_colors[pos])))
 
+        fig.update_layout(
+                        autosize=False,
+                        width=500,
+                        height=400)
+        analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
 
     def simple_plot(self,analysis_specific_plot_widget, result_list,number_of_series):
@@ -285,11 +308,21 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps= int(len(result_list) / number_of_series)
         print("calculated_sweep_number = " + str(number_of_sweeps))
 
-        x_data, y_data = self.fetch_x_and_y_data(result_list, number_of_sweeps)
+        x_data, y_data, series_names = self.fetch_x_and_y_data(result_list, number_of_sweeps)
 
+        fig = go.Figure()
         for a in range(len(x_data)):
-                analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen = self.black_pen)
+                #analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen = self.black_pen)
+                fig.add_trace(go.Scatter(x=x_data[a], y=y_data[a],
+                                         mode='lines',
+                                         name=series_names[a],line=dict(color='Black')))
 
+        fig.update_layout(
+            autosize=False,
+            width=500,
+            height=400)
+
+        analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
     def get_list_of_results(self,analysis_id,analysis_function_id):
         """
@@ -317,7 +350,7 @@ class OfflineAnalysisResultVisualizer():
 
         y_data = []
         x_data = []
-
+        names =  []
         # create a list of lists for each series
         for a in range(0, len(result_list), number_of_sweeps):
             series_y_data = []
@@ -328,8 +361,9 @@ class OfflineAnalysisResultVisualizer():
 
             y_data.append(series_y_data)
             x_data.append(series_x_data)
+            names.append(self.database_handler.get_experiment_name_for_given_sweep_table_name(result_list[a + b][2]))
 
-        return x_data, y_data
+        return x_data, y_data, names
 
     def split_data_changed(self,parent_widget,new_text):
         """
