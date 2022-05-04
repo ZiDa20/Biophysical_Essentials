@@ -296,6 +296,7 @@ class DuckDBDatabaseHandler():
         print(experiment_names_list)
 
         q = """ select meta_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
+        self.logger.info(f'select meta_data_table_name from experiment_series where experiment_name = \"{experiment_names_list[0][0]}\" and series_name = \"{series_name}\" ')
         name = self.get_data_from_database(self.database, q, (experiment_names_list[0][0], series_name))[0][0]
 
         q = f'SELECT Parameter, sweep_1 FROM {name}'
@@ -731,6 +732,7 @@ class DuckDBDatabaseHandler():
 
         # create table names
         imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
+
         imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
 
         # @TODO extend for leakage currents also
@@ -911,8 +913,14 @@ class DuckDBDatabaseHandler():
         res = self.execute_sql_command(self.database, q, (state, experiment_name, series_name, series_identifier))
 
     def get_distinct_non_discarded_series_names(self):
+        """
+        get all distinct series names from experiments mapped with the current analysis id
+        :return:
+        """
 
-        q = """select distinct series_name from experiment_series where "discarded" == 0"""
+        q = f'select distinct exp.series_name from experiment_series exp inner join experiment_analysis_mapping map ' \
+            f'on exp.experiment_name = map.experiment_name where map.analysis_id = \'{self.analysis_id}\' and exp.discarded = 0'
+
         return self.get_data_from_database(self.database, q)
 
     ###### deprecated ######
