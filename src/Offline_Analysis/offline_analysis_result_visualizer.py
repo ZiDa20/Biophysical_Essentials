@@ -189,7 +189,7 @@ class OfflineAnalysisResultVisualizer():
 
             else:
                  analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
-                 analysis_specific_plot_widget.addLegend()
+                 #analysis_specific_plot_widget.addLegend()
 
                  #calculate mean trace per meta data group
                  # get the group per series
@@ -197,6 +197,8 @@ class OfflineAnalysisResultVisualizer():
 
                  # get the total number of different groups
                  meta_data_types = list(dict.fromkeys(meta_data_groups))
+
+                 fig = go.Figure()
 
                  # calculate mean per group
                  for i in meta_data_types:
@@ -215,15 +217,25 @@ class OfflineAnalysisResultVisualizer():
                                 print(result_list[a + b*number_of_sweeps])
                                 sweep_mean.append(result_list[a + b*number_of_sweeps][0])
 
+
                         group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
 
-                    analysis_specific_plot_widget.plot(group_mean,pen=pg.mkPen(self.plot_colors[meta_data_types.index(i)], width=3))#, name="mean " + i)
+                    fig.add_trace(go.Scatter(y=group_mean, mode='lines', name=i ))
+
+
 
                     # go through each series
 
                         # check if the meta data group matches the current one in i
 
                             # if so, calculate
+
+                 fig.update_layout(
+                     autosize=False,
+                     width=500,
+                     height=400)
+
+                 analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
         if new_text == self.plot_type[2]:  # boxplots
             print("not implemented yet")
