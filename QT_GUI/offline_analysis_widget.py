@@ -46,6 +46,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
+        self.go_back_button.clicked.connect(self.go_to_main_page)
+
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
         self.add_filter_button.clicked.connect(self.add_filter_to_offline_analysis)
         self.add_filter_button.setEnabled(False)
@@ -87,6 +89,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
         new button interactions offered """
         self.offline_analysis_widgets.setCurrentIndex(1)
+
+
+    @Slot()
+    def go_to_main_page(self):
+        self.offline_analysis_widgets.setCurrentIndex(0)
 
     @Slot()
     def open_directory(self):
@@ -356,6 +363,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             new_tab_widget=SpecificAnalysisTab()
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
             new_tab_widget.setObjectName(s)
+            new_tab_widget.go_back_tp_page_2.clicked.connect(self.go_to_offline_analysis_page_2)
             self.tabWidget.insertTab(series_names_list.index(s),new_tab_widget,s)
             self.tab_list.append(new_tab_widget)
             self.plot_widgets= []
@@ -366,6 +374,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.tabWidget.setCurrentIndex(1)
         self.tabWidget.setCurrentIndex(0)
 
+    @Slot()
+    def go_to_offline_analysis_page_2(self):
+        self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
     def tab_changed(self,index):

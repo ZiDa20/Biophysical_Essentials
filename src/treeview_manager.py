@@ -603,23 +603,26 @@ class TreeViewManager():
 
     def tree_button_clicked(self, item, experiment_tree,discarded_tree,function):
         """function can be -reinsert- or -discard-"""
-        if ".dat" in item.text(0):
-            # this will be executed for .dat files
-            # @todo needs to be eddited for group in online_analysis
-            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
-            #database.move_experiment_to_discarded_experiments_table(item.text(0))
-        else:
-            self.move_series_from_treeview_a_to_b(item,experiment_tree,discarded_tree, function)
+
+        if item.parent():
+            print(item.text(0))
+            self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function)
 
             experiment_name = item.parent().text(0)
             series_name = item.text(0)
-            series_identifier = item.data(4,0)
+            series_identifier = item.data(4, 0)
 
             if self.database is not None:
                 if function == "reinsert":
-                    self.database.reinsert_specific_series(experiment_name,series_name,series_identifier)
+                    self.database.reinsert_specific_series(experiment_name, series_name, series_identifier)
                 else:
                     self.database.discard_specific_series(experiment_name, series_name, series_identifier)
+        else:
+            # @todo needs to be eddited for group in online_analysis
+            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
+
+            #database.move_experiment_to_discarded_experiments_table(item.text(0))
+
 
     def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move .dat and its specific children """
@@ -657,11 +660,14 @@ class TreeViewManager():
         tree_b.addTopLevelItem(item)
         tree_b.setItemWidget(item, self.discard_column,
                              self.create_row_specific_widget(item, tree_a, tree_b,function))
+        self.add_new_meta_data_combo_box(tree_b, item)
 
         for c in range(child_amount):
             child = item.child(c)
             tree_b.setItemWidget(child, self.discard_column,
                                  self.create_row_specific_widget(child, tree_a, tree_b,function))
+            self.add_new_meta_data_combo_box(tree_b, child)
+
 
     def move_series_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move a series from tree a to tree b, therefore it will be removed from tree a"""
@@ -687,6 +693,8 @@ class TreeViewManager():
                 # insert to the last position
                 tree_b.topLevelItem(i).insertChild(child_amount, item)
                 tree_b.setItemWidget(item,self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b,function))
+
+                self.add_new_meta_data_combo_box(tree_b,item)
                 return
 
         # 3) add a new topLevelItem if no matching parent was found before
@@ -700,6 +708,7 @@ class TreeViewManager():
 
         tree_b.topLevelItem(discarded_tree_top_level_amount).insertChild(0, item)
         tree_b.setItemWidget(item, self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b,function))
+        self.add_new_meta_data_combo_box(tree_b, new_parent)
 
         #return tree_a,tree_b
 
