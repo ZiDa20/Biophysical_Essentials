@@ -400,6 +400,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.selected_tree_widget.expandToDepth(0)
 
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
+
         self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
 
 

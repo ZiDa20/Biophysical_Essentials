@@ -44,7 +44,7 @@ class OfflineManager():
         into the database. """
 
         #@todo give normalization as argument to the function
-        cslow_normalization = 1
+        cslow_normalization = 0
 
         # get series specific time from database
         time = self.database.get_time_in_ms_of_analyzed_series(series_name)
