@@ -501,7 +501,10 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table analysis_functions   """
     """----------------------------------------------------------"""
 
-    ###
+    def get_analysis_function_name_from_id(self,analysis_function_id):
+        q= f'select function_name from analysis_functions where analysis_function_id = {analysis_function_id}'
+        r = self.get_data_from_database(self.database, q)
+        return r[0][0]
 
     def write_analysis_function_name_and_cursor_bounds_to_database(self, analysis_function, analysis_series_name,
                                                                    lower_bound, upper_bound):

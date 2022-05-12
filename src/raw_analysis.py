@@ -201,7 +201,7 @@ class AnalysisRaw():
 
             else:
                 smoothed_first_derivative[i] = smoothed_val
-                print("no error")
+                #print("no error")
 
 
         smoothed_first_derivative = np.round(smoothed_first_derivative,2)

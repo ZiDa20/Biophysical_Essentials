@@ -1,3 +1,5 @@
+import numpy as np
+
 from src.data_db import DuckDBDatabaseHandler
 from QT_GUI.update_dave.specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
@@ -7,8 +9,19 @@ import pyqtgraph.exporters
 from PySide6 import QtWebEngineWidgets
 import pandas as pd
 import plotly.express as px
+
+
 import plotly.graph_objects as go
 import PySide6.QtWebEngineWidgets
+from PySide6 import QtCore
+
+import matplotlib
+import matplotlib.backends.backend_tkagg
+
+from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.backends.backend_qtagg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
 
 
 class OfflineAnalysisResultVisualizer():
@@ -21,7 +34,12 @@ class OfflineAnalysisResultVisualizer():
         self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
         self.plot_colors = ['b', 'g','r','c','m','y','k','w']
         self.result_directory = ""
+        self.default_colors = ['k','b','r','g','c']
 
+
+        #@todo maybe more clever to have an extra table in the database where to save this information
+        self.function_plot_type = "sweep_wise"
+        self.series_wise_function_list = ['Single_action_potential_analysis']
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
@@ -69,7 +87,16 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
 
-            custom_plot_widget.specific_plot_box.setTitle("Analysis" + str(analysis))
+            analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+
+
+            if analysis_name in self.series_wise_function_list:
+                self.function_plot_type = "series_wise"
+            else:
+                self.function_plot_type = "sweep_wise"
+
+            custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
+            custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
 
@@ -91,19 +118,18 @@ class OfflineAnalysisResultVisualizer():
         :return:
         """
 
-        analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
+        canvas = self.handle_plot_widget_settings(parent_widget)
 
         # self.browser = QtWebEngineWidgets.QWebEngineView(self)
 
-
+        # list of triples [(result_value, sweep_number, sweep_table_name)]
         result_list = self.get_list_of_results(analysis_id,analysis_function_id)
-
         number_of_series = self.get_number_of_series(result_list)
 
         if meta_data_list:
-            self.plot_meta_data_wise(analysis_specific_plot_widget, result_list, number_of_series,meta_data_list)
+            self.plot_meta_data_wise(canvas, result_list, number_of_series,meta_data_list)
         else:
-            self.simple_plot(analysis_specific_plot_widget, result_list, number_of_series)
+            self.simple_plot(canvas, result_list, number_of_series)
 
 
 
@@ -124,11 +150,10 @@ class OfflineAnalysisResultVisualizer():
             #analysis_specific_plot_widget = pg.PlotWidget()
             #parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
 
-            browser = QtWebEngineWidgets.QWebEngineView()
-            parent_widget.plot_layout.addWidget(browser)
+            canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            parent_widget.plot_layout.addWidget(canvas)
 
 
-            parent_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image,parent_widget))
             # add options only once
             try:
                 if parent_widget.split_data_combo_box.currentText() not in self.split_data_functions:
@@ -145,7 +170,7 @@ class OfflineAnalysisResultVisualizer():
             return analysis_specific_plot_widget
             '''
 
-            return browser
+            return canvas
 
         except Exception as e:
             print(str(e))
@@ -154,13 +179,8 @@ class OfflineAnalysisResultVisualizer():
 
         result_path = QFileDialog.getSaveFileName()[0]
 
-        analysis_specif_widget= parent_widget.plot_layout.itemAt(0).widget()
-
-        exporter = pg.exporters.ImageExporter(analysis_specif_widget.plotItem)
-
-        print(result_path)
-        exporter.export(result_path)
-
+        canvas= parent_widget.plot_layout.itemAt(0).widget()
+        canvas.print_figure(result_path)
         print("saved plot in " + result_path)
 
 
@@ -188,8 +208,7 @@ class OfflineAnalysisResultVisualizer():
                   self.calculate_and_plot_mean_over_all(parent_widget,number_of_sweeps,number_of_series,result_list)
 
             else:
-                 analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
-                 #analysis_specific_plot_widget.addLegend()
+                 canvas  = self.handle_plot_widget_settings(parent_widget)
 
                  #calculate mean trace per meta data group
                  # get the group per series
@@ -198,7 +217,7 @@ class OfflineAnalysisResultVisualizer():
                  # get the total number of different groups
                  meta_data_types = list(dict.fromkeys(meta_data_groups))
 
-                 fig = go.Figure()
+                 ax = canvas.figure.subplots()
 
                  # calculate mean per group
                  for i in meta_data_types:
@@ -220,22 +239,12 @@ class OfflineAnalysisResultVisualizer():
 
                         group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
 
-                    fig.add_trace(go.Scatter(y=group_mean, mode='lines', name=i ))
+
+                    ax.plot(group_mean, self.default_colors[meta_data_types.index(i)], label='i')
+
+                 ax.legend()
 
 
-
-                    # go through each series
-
-                        # check if the meta data group matches the current one in i
-
-                            # if so, calculate
-
-                 fig.update_layout(
-                     autosize=False,
-                     width=500,
-                     height=400)
-
-                 analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
         if new_text == self.plot_type[2]:  # boxplots
             print("not implemented yet")
@@ -259,12 +268,14 @@ class OfflineAnalysisResultVisualizer():
 
             mean_trace.append(sum(mean_sweep) / len(mean_sweep))
 
-        analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
+        canvas = self.handle_plot_widget_settings(parent_widget)
+        ax = canvas.figure.subplots()
+        ax.plot(mean_trace,'k', label = 'Mean')
+        ax.legend()
 
-        analysis_specific_plot_widget.plot(mean_trace)
         #@todo add standard deviation to the plot too !
 
-    def plot_meta_data_wise(self,analysis_specific_plot_widget: pg.PlotWidget, result_list,number_of_series,meta_data_groups):
+    def plot_meta_data_wise(self,canvas: pg.PlotWidget, result_list,number_of_series,meta_data_groups):
         """
         rearrange the plot to color each trace according to it's meta data group.
 
@@ -281,35 +292,26 @@ class OfflineAnalysisResultVisualizer():
 
         #analysis_specific_plot_widget.addLegend()
 
-        default_colors = ["Black","Blue","Red","Orange","Green"]
 
-        fig = go.Figure()
+
+        ax = canvas.figure.subplots()
 
         # for each data trace ( = a sub list) create the plot in the correct color according to meta data group
         for a in range(len(x_data)):
 
                 meta_data_group = meta_data_groups[a]
 
-
-
                 for m in meta_data_types:
                     if m == meta_data_group:
                         pos = meta_data_types.index(m)
-                        #print(self.plot_colors[pos])
-                        #analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen=pg.mkPen(self.plot_colors[pos], width=3), name=m)
+                        if self.function_plot_type == "sweep_wise":
+                            ax.plot(x_data[a], y_data[a],self.default_colors[pos], label=series_names[a])
+                        else:
+                            ax.plot(sum(y_data[a])/len(y_data[a]), self.default_colors[pos], label=series_names[a])
 
-                        fig.add_trace(go.Scatter(x=x_data[a], y=y_data[a],
-                                                 mode='lines',
-                                                 name=m + ": " + series_names[a], line=dict(color=default_colors[pos])))
+                        ax.legend()
 
-        fig.update_layout(
-                        autosize=False,
-                        width=500,
-                        height=400)
-        analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
-
-
-    def simple_plot(self,analysis_specific_plot_widget, result_list,number_of_series):
+    def simple_plot(self,canvas, result_list,number_of_series):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
         :param analysis_specific_plot_widget:
@@ -320,21 +322,24 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps= int(len(result_list) / number_of_series)
         print("calculated_sweep_number = " + str(number_of_sweeps))
 
+        # each sub list represents the results of a single series
         x_data, y_data, series_names = self.fetch_x_and_y_data(result_list, number_of_sweeps)
 
-        fig = go.Figure()
+        # analysis_specific_plot_widget is the figure
+        ax = canvas.figure.subplots()
+
+
         for a in range(len(x_data)):
-                #analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen = self.black_pen)
-                fig.add_trace(go.Scatter(x=x_data[a], y=y_data[a],
-                                         mode='lines',
-                                         name=series_names[a],line=dict(color='Black')))
+                if self.function_plot_type == "sweep_wise":
+                    ax.plot(x_data[a],y_data[a], 'k', label=series_names[a])
+                else:
+                    ax.plot([sum(y_data[a]) / len(y_data[a])], 'k', label=series_names[a])
 
-        fig.update_layout(
-            autosize=False,
-            width=500,
-            height=400)
+        # @todo: add shade of stde
+        ax.legend()
+        canvas.show()
 
-        analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
+       # analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
     def get_list_of_results(self,analysis_id,analysis_function_id):
         """
@@ -451,3 +456,5 @@ class OfflineAnalysisResultVisualizer():
 
         print("found series = " + str(number_of_series))
         return number_of_series
+
+
