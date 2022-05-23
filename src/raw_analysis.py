@@ -36,7 +36,9 @@ class AnalysisRaw():
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["Single_action_potential_analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+            return ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
+                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]",
+                    "AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -54,8 +56,14 @@ class AnalysisRaw():
             return self.time_to_minimum()
 
         # @TODO add current clamp functions
-        if function_name== "Single_action_potential_analysis":
-            return self.single_action_potential_analysis()
+        if function_name== "Single_AP_Amplitude [mV]":
+            return self.single_action_potential_analysis("Amplitude")
+        if function_name== "Single_AP_Threshold_Amplitude[mV]":
+            return self.single_action_potential_analysis("Threshold_Amplitude")
+        if function_name== "Single_AP_Afterhyperpolarization_Amplitude [mV]":
+            return self.single_action_potential_analysis("AHP_Amplitude")
+        if function_name== "Single_AP_Afterhyperpolarization_time[ms]":
+            return self.single_action_potential_analysis("t_AHP")
 
     @property
     def lower_bounds(self):
@@ -160,7 +168,7 @@ class AnalysisRaw():
         self.area =  np.trapz(self.sliced_trace[:,0],self.sliced_trace[:,1])
         return abs(self.area)*10000
 
-    def single_action_potential_analysis(self):
+    def single_action_potential_analysis(self,value):
         manual_threshold = 0.010 * 1000
 
         np.set_printoptions(suppress=False)
@@ -221,6 +229,7 @@ class AnalysisRaw():
 
         for pos in threshold_pos:
             if np.all(smoothed_first_derivative[pos:pos+2*smoothing_window_length]>manual_threshold):
+                #np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
                 threshold_pos = pos
                 break
 
@@ -228,12 +237,12 @@ class AnalysisRaw():
         t_threshold = self.time[threshold_pos]
         v_threshold = self.data[threshold_pos]
 
-        amplitude = np.max(self.data)
+
         time_to_amplitude = self.time[np.argmax(self.data) ]
         
         amplitude_pos = np.argmax(self.data)
         
-        delta_amplitude = amplitude - v_threshold
+        # delta_amplitude = amplitude - v_threshold
 
 
         # get the point of hyperpolarisation which is the first extremum (minimum) after the AP peak
@@ -248,8 +257,16 @@ class AnalysisRaw():
 
         t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos+2*ahp_pos)]==ahp)] [0] + time_to_amplitude
 
-        print("done")
-        return amplitude
+        if value == "Amplitude":
+            return np.max(self.data)
+        if value == "Threshold_Amplitude":
+                return self.data[threshold_pos]
+        if value == "AHP_Amplitude":
+            return np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)])
+        if value== "t_AHP":
+            t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
+            t_ahp+= time_to_amplitude
+            return  t_ahp
 
 
     @classmethod

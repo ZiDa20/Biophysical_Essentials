@@ -39,7 +39,8 @@ class OfflineAnalysisResultVisualizer():
 
         #@todo maybe more clever to have an extra table in the database where to save this information
         self.function_plot_type = "sweep_wise"
-        self.series_wise_function_list = ['Single_action_potential_analysis']
+        self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
+                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]"]
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
@@ -97,6 +98,7 @@ class OfflineAnalysisResultVisualizer():
 
             custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
+            custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
 
@@ -175,6 +177,18 @@ class OfflineAnalysisResultVisualizer():
         except Exception as e:
             print(str(e))
 
+    def export_plot_data(self,parent_widget:ResultPlotVisualizer):
+
+        result_directory = QFileDialog.getExistingDirectory()
+        try:
+            parent_widget.export_data_frame.to_csv(result_directory+"/result_export_analysis_function_id_"
+                                                   + str(parent_widget.analysis_function_id) + ".csv")
+            print("file stored successfully")
+        except Exception as e:
+            print("Results were not stored successfully")
+            print(e)
+
+
     def save_plot_as_image(self,parent_widget:ResultPlotVisualizer):
 
         result_path = QFileDialog.getSaveFileName()[0]
@@ -194,12 +208,14 @@ class OfflineAnalysisResultVisualizer():
         if new_text == self.plot_type[0]: # == overlay all
             self.split_data_changed(parent_widget,parent_widget.split_data_combo_box.currentText())
 
+        result_list = self.get_list_of_results(parent_widget.analysis_id, parent_widget.analysis_function_id)
+
+        number_of_series = self.get_number_of_series(result_list)
+        number_of_sweeps = int(len(result_list) / number_of_series)
+
         if new_text == self.plot_type[1]: # plot means
 
-            result_list = self.get_list_of_results(parent_widget.analysis_id,parent_widget.analysis_function_id)
 
-            number_of_series = self.get_number_of_series(result_list)
-            number_of_sweeps = int(len(result_list) / number_of_series)
 
             # check whether meta data groups need to be taken into consideration
             if parent_widget.split_data_combo_box.currentText() == self.split_data_functions[0]: # no split
@@ -211,6 +227,7 @@ class OfflineAnalysisResultVisualizer():
                  canvas  = self.handle_plot_widget_settings(parent_widget)
 
                  #calculate mean trace per meta data group
+
                  # get the group per series
                  meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
 
@@ -219,35 +236,100 @@ class OfflineAnalysisResultVisualizer():
 
                  ax = canvas.figure.subplots()
 
+                 # pandas dataframe to store plotted results to be exported easily
+                 parent_widget.export_data_frame = pd.DataFrame()
+
                  # calculate mean per group
                  for i in meta_data_types:
 
                     group_mean = []
 
-                    for a in range(number_of_sweeps):
-                        sweep_mean = []
+                    if self.function_plot_type == "sweep_wise":
 
-                        for b in range(number_of_series):
+                        for a in range(number_of_sweeps):
+                            sweep_mean = []
 
-                            pos = int((a + b*number_of_sweeps)/number_of_sweeps)
-                            print(str(i))
-                            print(str(pos))
-                            if meta_data_groups[pos] == i:
-                                print(result_list[a + b*number_of_sweeps])
-                                sweep_mean.append(result_list[a + b*number_of_sweeps][0])
+                            for b in range(number_of_series):
 
+                                pos = int((a + b*number_of_sweeps)/number_of_sweeps)
+                                #print(str(i))
+                                #print(str(pos))
+                                if meta_data_groups[pos] == i:
 
-                        group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
+                                        #print(result_list[a + b*number_of_sweeps])
+                                        sweep_mean.append(result_list[a + b*number_of_sweeps][0])
 
+                            group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
+                    else:
+                        # not impelemented because this a scenario that might be not used
+                        print("debug")
 
                     ax.plot(group_mean, self.default_colors[meta_data_types.index(i)], label='i')
+                    parent_widget.export_data_frame.insert(0,i,group_mean)
 
-                 ax.legend()
 
+                 ax.legend(meta_data_types)
+                 print(parent_widget.export_data_frame)
 
 
         if new_text == self.plot_type[2]:  # boxplots
-            print("not implemented yet")
+            if self.function_plot_type == "sweep_wise" :
+                print("not implemented yet")
+            else:
+
+
+                canvas = self.handle_plot_widget_settings(parent_widget)
+                meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
+                meta_data_types = list(dict.fromkeys(meta_data_groups))
+                ax = canvas.figure.subplots()
+
+                box_plot_matrix = np.empty((len(meta_data_types),number_of_series))
+                box_plot_matrix[:] = np.nan
+
+
+
+                #plot a box for each metadata type
+                for type in meta_data_types:
+
+                    # get the positions of the series names
+                    type_specific_series_pos = [i for i, x in enumerate(meta_data_groups) if x==type]
+                    insert_at_pos_x = meta_data_types.index(type)
+
+                    if len(type_specific_series_pos)> 0 :
+                        for pos in type_specific_series_pos:
+
+                            # calc mean for this series
+
+                            try:
+                                insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[0,]))[0][0]
+
+                                series_sweep_values = []
+                                for sweep_pos in range(pos,pos + number_of_sweeps):
+                                    series_sweep_values.append(result_list[sweep_pos][0])
+
+                                mean_val = np.mean(series_sweep_values)
+
+
+                                box_plot_matrix[insert_at_pos_x][insert_at_pos_y] = mean_val
+                            except Exception as e:
+                                print("Error - this should not happen")
+                                print(e)
+
+
+
+                    else:
+                        try:
+                            insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[insert_at_pos_x,]))[0][0]
+                            box_plot_matrix[insert_at_pos_x][insert_at_pos_y] = np.mean(
+                                result_list[type_specific_series_pos:type_specific_series_pos + number_of_sweeps][0])
+
+                        except Exception as e:
+                            print("Error - this should not happen" )
+                            print(e)
+
+                ax.boxplot(box_plot_matrix)
+                ax.legend(meta_data_types)
+
 
     def calculate_and_plot_mean_over_all(self,parent_widget, number_of_sweeps, number_of_series, result_list):
         """
@@ -307,7 +389,7 @@ class OfflineAnalysisResultVisualizer():
                         if self.function_plot_type == "sweep_wise":
                             ax.plot(x_data[a], y_data[a],self.default_colors[pos], label=series_names[a])
                         else:
-                            ax.plot(sum(y_data[a])/len(y_data[a]), self.default_colors[pos], label=series_names[a])
+                            ax.plot(1,sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor=self.default_colors[pos], label=series_names[a])
 
                         ax.legend()
 
@@ -333,7 +415,7 @@ class OfflineAnalysisResultVisualizer():
                 if self.function_plot_type == "sweep_wise":
                     ax.plot(x_data[a],y_data[a], 'k', label=series_names[a])
                 else:
-                    ax.plot([sum(y_data[a]) / len(y_data[a])], 'k', label=series_names[a])
+                    ax.plot(1,sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
 
         # @todo: add shade of stde
         ax.legend()

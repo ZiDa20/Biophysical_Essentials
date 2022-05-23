@@ -44,7 +44,15 @@ class OfflineManager():
         into the database. """
 
         #@todo give normalization as argument to the function
-        cslow_normalization = 0
+        try:
+            if self.database.get_recording_mode_from_analysis_series_table(series_name) == "Voltage Clamp":
+                cslow_normalization = 1
+            else:
+                cslow_normalization = 0
+        except Exception as e:
+            print("Error in Excecute_Single_Series_Analysis")
+            print(e)
+            cslow_normalization = 0
 
         # get series specific time from database
         time = self.database.get_time_in_ms_of_analyzed_series(series_name)
@@ -100,7 +108,10 @@ class OfflineManager():
                                 print(res)
 
                             sweep_number = str(column).split('_')[1]
-                            self.database.write_result_to_database(c[2],table_name,sweep_number,res)
+                            try:
+                                self.database.write_result_to_database(c[2],table_name,sweep_number,res)
+                            except Exception as e:
+                                print(e)
 
         print("analysis finished")
         return True

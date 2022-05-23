@@ -380,7 +380,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     @Slot()
     def tab_changed(self,index):
-        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is changed. Index is the tab number correlating with a global list of tab objects self.tab_list
+        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
+        changed. Index is the tab number correlating with a global list of tab objects self.tab_list
         @author dz, 20.07.2021"""
 
         current_tab = self.tab_list[index]
@@ -465,7 +466,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print(self.selected_analysis_functions)
         current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # MSUT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+        # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
         current_tab.analysis_table_widget.setColumnCount(5)
         current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
 

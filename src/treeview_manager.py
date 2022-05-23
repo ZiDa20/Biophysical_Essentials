@@ -94,6 +94,7 @@ class TreeViewManager():
         experiment
         :return: None
         '''
+
         print("specific analysis view for series ", series_name)
 
         # analysis mode 1 = offline analysis
@@ -101,6 +102,70 @@ class TreeViewManager():
 
         # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
+
+    def create_treeview_from_database(self,selected_tree,discarded_tree,analysis_number,series_name=None):
+        """
+        @todo finish implementation ~ approx 8h dz, 13.05.2022
+        """
+
+        discard_button = QPushButton()
+        pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+        discard_button.setIcon(pixmap)
+
+        # get the experiments linked with this analysis number
+        not_discard_experiments_stored_in_db = self.database.get_not_discarded_experiment_names_by_offline_analysis_number(analysis_number)
+
+        # @todo not implemented yet - also add !
+        discard_experiments_stored_in_db = []
+
+        # add the common tree root
+        parent = ""
+
+        # for each experiment built a single tree and append to the main
+        for experiment in not_discard_experiments_stored_in_db:
+
+            # add experiment as top level item, read meta data group too
+
+            # create a new toplevelitem according to the toplevelcount
+            top_level_item_amount = selected_tree.topLevelItemCount()
+
+            if top_level_item_amount == 0:
+                parent = QTreeWidgetItem(selected_tree)
+            else:
+                parent = QTreeWidgetItem(top_level_item_amount)
+
+            parent.setText(0, experiment)
+
+            # insert the created parent
+            selected_tree.addTopLevelItem(parent)
+
+            # add discard button in the globaly specified discard column
+            selected_tree.setItemWidget(parent, self.discard_column, discard_button)
+
+            # add correct meta data group
+            tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
+
+            not_discarded_experiment_series_stored_in_db = self.database.get_not_discarded_series_names_for_experiment
+            if series_name is None:
+                # have to add all series
+                print("create treeview from database for all series is not implemented yet")
+            else:
+                selected_tree, parent = self.add_series_to_treeview()
+
+                series_related_sweeps_stored_in_db = self.database.get_sweeps_for_series()
+
+                child = QTreeWidgetItem(parent)
+                child.setText(0, series_name)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setCheckState(self.checkbox_column, Qt.Unchecked)
+
+
+
+
+                # add sweeps
+                        # add traces
+
+
 
     def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None,tree_level=None):
         '''
@@ -612,14 +677,16 @@ class TreeViewManager():
             series_name = item.text(0)
             series_identifier = item.data(4, 0)
 
-            if self.database is not None:
-                if function == "reinsert":
+            #if self.database is not None:
+            if function == "reinsert":
                     self.database.reinsert_specific_series(experiment_name, series_name, series_identifier)
-                else:
+            else:
                     self.database.discard_specific_series(experiment_name, series_name, series_identifier)
         else:
             # @todo needs to be eddited for group in online_analysis
             self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
+
+
 
             #database.move_experiment_to_discarded_experiments_table(item.text(0))
 
