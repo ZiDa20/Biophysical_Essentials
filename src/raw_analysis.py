@@ -124,6 +124,7 @@ class AnalysisRaw():
 
     def min_current(self):
         self._min = np.min(self.sliced_volt)
+        min_II = np.min(self.data)
         return self._min
 
     def time_to_maximum(self):

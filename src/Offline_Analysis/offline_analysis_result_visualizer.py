@@ -131,7 +131,7 @@ class OfflineAnalysisResultVisualizer():
         if meta_data_list:
             self.plot_meta_data_wise(canvas, result_list, number_of_series,meta_data_list)
         else:
-            self.simple_plot(canvas, result_list, number_of_series)
+            self.simple_plot(parent_widget, canvas, result_list, number_of_series)
 
 
 
@@ -243,7 +243,7 @@ class OfflineAnalysisResultVisualizer():
                  for i in meta_data_types:
 
                     group_mean = []
-
+                    group_std = []
                     if self.function_plot_type == "sweep_wise":
 
                         for a in range(number_of_sweeps):
@@ -259,12 +259,15 @@ class OfflineAnalysisResultVisualizer():
                                         #print(result_list[a + b*number_of_sweeps])
                                         sweep_mean.append(result_list[a + b*number_of_sweeps][0])
 
-                            group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
+                            group_mean.append(np.mean(sweep_mean))
+                            group_std.append(np.std(sweep_mean))
                     else:
                         # not impelemented because this a scenario that might be not used
                         print("debug")
+                    x = list(range(0, len(group_mean)))
 
-                    ax.plot(group_mean, self.default_colors[meta_data_types.index(i)], label='i')
+                    ax.errorbar(x,group_mean, yerr=group_std, fmt='--o')
+                    #ax.errorplot(y=group_mean, yerr= group_std) #self.default_colors[meta_data_types.index(i)], label='i')
                     parent_widget.export_data_frame.insert(0,i,group_mean)
 
 
@@ -283,7 +286,7 @@ class OfflineAnalysisResultVisualizer():
                 meta_data_types = list(dict.fromkeys(meta_data_groups))
                 ax = canvas.figure.subplots()
 
-                box_plot_matrix = np.empty((len(meta_data_types),number_of_series))
+                box_plot_matrix = np.empty((number_of_series,len(meta_data_types)))
                 box_plot_matrix[:] = np.nan
 
 
@@ -301,7 +304,7 @@ class OfflineAnalysisResultVisualizer():
                             # calc mean for this series
 
                             try:
-                                insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[0,]))[0][0]
+                                insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[:,insert_at_pos_x]))[0][0]
 
                                 series_sweep_values = []
                                 for sweep_pos in range(pos,pos + number_of_sweeps):
@@ -310,7 +313,7 @@ class OfflineAnalysisResultVisualizer():
                                 mean_val = np.mean(series_sweep_values)
 
 
-                                box_plot_matrix[insert_at_pos_x][insert_at_pos_y] = mean_val
+                                box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
                             except Exception as e:
                                 print("Error - this should not happen")
                                 print(e)
@@ -327,8 +330,18 @@ class OfflineAnalysisResultVisualizer():
                             print("Error - this should not happen" )
                             print(e)
 
-                ax.boxplot(box_plot_matrix)
-                ax.legend(meta_data_types)
+                false_true_mask = ~np.isnan(box_plot_matrix)
+                filtered_box_plot_data=[d[m] for d, m in zip(box_plot_matrix.T, false_true_mask.T)]
+
+                ax.violinplot(filtered_box_plot_data)
+                ax.set_xticks(np.arange(1, len(meta_data_types) + 1), labels=meta_data_types)
+                ax.set_xlim(0.25, len(meta_data_types) + 0.75)
+
+                parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
+
+
+
+
 
 
     def calculate_and_plot_mean_over_all(self,parent_widget, number_of_sweeps, number_of_series, result_list):
@@ -393,7 +406,7 @@ class OfflineAnalysisResultVisualizer():
 
                         ax.legend()
 
-    def simple_plot(self,canvas, result_list,number_of_series):
+    def simple_plot(self,parent_widget,canvas, result_list,number_of_series):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
         :param analysis_specific_plot_widget:
@@ -404,6 +417,7 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps= int(len(result_list) / number_of_series)
         print("calculated_sweep_number = " + str(number_of_sweeps))
 
+        parent_widget.export_data_frame = pd.DataFrame()
         # each sub list represents the results of a single series
         x_data, y_data, series_names = self.fetch_x_and_y_data(result_list, number_of_sweeps)
 
@@ -414,6 +428,7 @@ class OfflineAnalysisResultVisualizer():
         for a in range(len(x_data)):
                 if self.function_plot_type == "sweep_wise":
                     ax.plot(x_data[a],y_data[a], 'k', label=series_names[a])
+                    parent_widget.export_data_frame.insert(0, series_names[a],y_data[a])
                 else:
                     ax.plot(1,sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
 

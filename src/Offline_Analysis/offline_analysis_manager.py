@@ -1,3 +1,5 @@
+import pandas as pd
+
 import src.raw_analysis as ra
 from src.online_analysis_manager import *
 from src.data_db import DuckDBDatabaseHandler
@@ -71,6 +73,9 @@ class OfflineManager():
 
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
 
+            if table_name == 'imon_signal_220315_02_Series2':
+                pd.DataFrame(entire_sweep_table).to_csv("debug_signal.csv")
+
             # error handling
             if entire_sweep_table is None:
                 print(series_name)
@@ -103,7 +108,7 @@ class OfflineManager():
 
                                 print(res)
                                 print(cslow)
-                                res = res/cslow
+                                res = res/1
                                 print("normalized")
                                 print(res)
 
