@@ -464,25 +464,31 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab = self.tab_list[current_index]
 
         print(self.selected_analysis_functions)
-        current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-        current_tab.analysis_table_widget.setColumnCount(5)
-        current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
+        existing_row_numbers = current_tab.analysis_table_widget.rowCount()
 
-        self.table_buttons = [0] * len(self.selected_analysis_functions)
+        if existing_row_numbers == 0:
+            current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+            current_tab.analysis_table_widget.setColumnCount(5)
+            current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
+            self.table_buttons = [0] * len(self.selected_analysis_functions)
+        else:
+            current_tab.analysis_table_widget.setRowCount(existing_row_numbers + len(self.selected_analysis_functions))
+            self.table_buttons = self.table_buttons +  [0]*len(self.selected_analysis_functions)
 
         for row in range(len(self.selected_analysis_functions)):
-                print(str(row))
+                row_to_insert = row + existing_row_numbers
                 value = self.selected_analysis_functions[row]
                 print(str(value))
-                current_tab.analysis_table_widget.setItem(row,0,QTableWidgetItem(str(value)))
-                self.table_buttons[row] = QPushButton("Add")
+                current_tab.analysis_table_widget.setItem(row_to_insert,0,QTableWidgetItem(str(value)))
+                self.table_buttons[row_to_insert] = QPushButton("Add")
                 self.c = QPushButton("Configure")
-                current_tab.analysis_table_widget.setCellWidget(row,3,self.table_buttons[row])
-                current_tab.analysis_table_widget.setCellWidget(row, 4, self.c)
+                current_tab.analysis_table_widget.setCellWidget(row_to_insert,3,self.table_buttons[row_to_insert])
+                current_tab.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
 
-                self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row,current_tab))
+                self.table_buttons[row_to_insert].clicked.connect(partial(self.add_coursor_bounds,row_to_insert,current_tab))
 
         current_tab.analysis_table_widget.show()
 
