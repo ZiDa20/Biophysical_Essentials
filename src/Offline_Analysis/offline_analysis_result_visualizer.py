@@ -46,7 +46,7 @@ class OfflineAnalysisResultVisualizer():
         pg.setConfigOption('foreground', 'k')
         self.black_pen = pg.mkPen(color=(0, 0, 0))
 
-    def show_results_for_current_analysis(self,analysis_id: int):
+    def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
         """
         1) Identify the number of series and create tabs for each analyzed series
         :param analysis_id:
@@ -54,15 +54,24 @@ class OfflineAnalysisResultVisualizer():
         """
         # print("Plotting results for analysis id " + str(analysis_id))
 
+        # @todo check if the tab already existis:
+
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
         print(list_of_series)
+
+
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             self.analysis_function_specific_visualization(series[0],analysis_id)
 
+        if self.visualization_tab_widget.tabText(0)=='Tab 1':
+            self.visualization_tab_widget.removeTab(0)
+
+        if series_name:
+            self.visualization_tab_widget.setCurrentIndex(list_of_series.index((series_name,)))
 
     def analysis_function_specific_visualization(self,series,analysis_id):
         """
@@ -107,7 +116,20 @@ class OfflineAnalysisResultVisualizer():
         # after all plots have been added
         all_plots = QWidget()
         all_plots.setLayout(main_layout)
-        self.visualization_tab_widget.addTab(all_plots,series)
+
+        existing_tab_names = []
+        for existing_tab in range(self.visualization_tab_widget.count()):
+            existing_tab_names.append( self.visualization_tab_widget.tabText(existing_tab) )
+
+        # to handle going forth and back between single analysis and result visualizer
+        if series in existing_tab_names:
+            # in case the tab was already created
+            self.visualization_tab_widget.removeTab(existing_tab_names.index(series))
+            self.visualization_tab_widget.insertTab(existing_tab_names.index(series),all_plots,series)
+
+        else:
+            # if the tab was not created it will be appended at the end
+            self.visualization_tab_widget.addTab(all_plots,series)
 
 
 

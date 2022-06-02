@@ -586,8 +586,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
             # plot the calculated results
-
-            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id)
+            current_tab_index = self.tabWidget.currentIndex()
+            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.tabWidget.tabText(current_tab_index))
 
 
     def write_function_grid_values_into_database(self,current_tab):

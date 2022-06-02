@@ -108,7 +108,7 @@ class OfflineManager():
 
                                 print(res)
                                 print(cslow)
-                                res = res/1
+                                res = res/cslow
                                 print("normalized")
                                 print(res)
 
