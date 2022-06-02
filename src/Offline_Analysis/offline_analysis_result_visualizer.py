@@ -87,7 +87,7 @@ class OfflineAnalysisResultVisualizer():
         print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
 
-        main_layout = QHBoxLayout()
+        main_layout = QGridLayout()
 
         for analysis in list_of_analysis:
             print(str(analysis))
@@ -110,8 +110,12 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
+            # widgets per row = 2
 
-            main_layout.addWidget(custom_plot_widget)
+            widget_x_pos = list_of_analysis.index(analysis) // 2 # 2 widgets per row
+            widgte_y_pos = list_of_analysis.index(analysis) % 2 # 2 widgets per row
+
+            main_layout.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
 
         # after all plots have been added
         all_plots = QWidget()
