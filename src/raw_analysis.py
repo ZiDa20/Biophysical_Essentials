@@ -38,7 +38,7 @@ class AnalysisRaw():
         else:
             return ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]",
-                    "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+                    "Rheobase_Detection", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -65,6 +65,8 @@ class AnalysisRaw():
         if function_name== "Single_AP_Afterhyperpolarization_time[ms]":
             return self.single_action_potential_analysis("t_AHP")
 
+        if function_name == "Rheobase_Detection":
+            return self.ap_detection()
     @property
     def lower_bounds(self):
         """ get the lower and upper bounds """
@@ -169,14 +171,26 @@ class AnalysisRaw():
         self.area =  np.trapz(self.sliced_trace[:,0],self.sliced_trace[:,1])
         return abs(self.area)*10000
 
+    def ap_detection(self):
+        manual_threshold = 0.010  # * 1000 # where
+        if np.max(self.data) > manual_threshold:
+            return 0
+        else:
+
+            return 1
+
     def single_action_potential_analysis(self,value):
-        manual_threshold = 0.010 * 1000
+
+
+        ap_threshold_reached = False
+
+        manual_threshold = 0.010 #* 1000 # where
 
         np.set_printoptions(suppress=False)
         first_derivative = []
 
-        self.data = np.multiply(self.data,1000)
-        self.data = np.round(self.data,2)
+        #self.data = np.multiply(self.data,1000)
+        #self.data = np.round(self.data,2)
 
         for i in range(len(self.time)-1):
             first_derivative.append(((self.data[i+1]-self.data[i])/(self.time[i+1]-self.time[i])))
@@ -258,16 +272,59 @@ class AnalysisRaw():
 
         t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos+2*ahp_pos)]==ahp)] [0] + time_to_amplitude
 
-        if value == "Amplitude":
-            return np.max(self.data)
-        if value == "Threshold_Amplitude":
-                return self.data[threshold_pos]
-        if value == "AHP_Amplitude":
-            return np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)])
-        if value== "t_AHP":
-            t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
-            t_ahp+= time_to_amplitude
-            return  t_ahp
+        # only run analysis if there is an action potential, otherwise return nan
+        if np.max(self.data) > manual_threshold:
+
+
+            if value == "Amplitude" :
+                print("Amplitude")
+                print(np.max(self.data))
+                return np.max(self.data)
+
+            if value == "Threshold_Amplitude":
+                    print("Threshold_Amplitude")
+                    print(self.data[threshold_pos])
+                    return self.data[threshold_pos]
+
+            if value == "AHP_Amplitude":
+                print("AHP_Amplitude")
+                print(np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)]))
+                return np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)])
+
+            if value== "t_AHP":
+                t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
+                t_ahp+= time_to_amplitude
+                print("t_AHP")
+                print(t_ahp)
+                return  t_ahp
+
+            if value=="delta_ap_threshold":
+                print("delta_ap_threshold")
+                return abs(np.max(self.data))-abs(v_threshold)
+
+            if value == "time_to_ahp":
+                print("time_to_ahp")
+                print(self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0])
+                return self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
+
+            if value == "max_first_derivate":
+                print("max_first_derivate")
+                print(np.max(smoothed_first_derivative))
+                return np.max(smoothed_first_derivative)
+
+            if value == "min_first_derivate":
+                print("min_first_derivate")
+                print(np.min(smoothed_first_derivative))
+                return np.min(smoothed_first_derivative)
+
+            if value == "time_max_first_derivate":
+                print("time_max_first_derivate")
+                print(self.time[np.argwhere(smoothed_first_derivative==np.max(smoothed_first_derivative))])
+                return self.time[np.argwhere(smoothed_first_derivative==np.max(smoothed_first_derivative))]
+
+
+        print("returning nan")
+        return np.nan
 
 
     @classmethod

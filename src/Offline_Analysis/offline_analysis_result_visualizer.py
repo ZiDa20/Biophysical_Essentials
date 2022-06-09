@@ -5,6 +5,8 @@ from QT_GUI.update_dave.specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
+from collections import OrderedDict
+
 import pyqtgraph.exporters
 from PySide6 import QtWebEngineWidgets
 import pandas as pd
@@ -40,7 +42,19 @@ class OfflineAnalysisResultVisualizer():
         #@todo maybe more clever to have an extra table in the database where to save this information
         self.function_plot_type = "sweep_wise"
         self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
-                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]"]
+                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
+
+
+
+        self.specific_analysis_functions = {
+            "Single_AP_Amplitude [mV]": self.visualize_series_wise,
+            "Single_AP_Threshold_Amplitude[mV]": self.visualize_series_wise,
+            "Single_AP_Afterhyperpolarization_Amplitude [mV]":self.visualize_series_wise,
+            "Single_AP_Afterhyperpolarization_time[ms]": self.visualize_series_wise,
+            "Rheobase_Detection" : self.rheobase_visualization
+        }
+
+
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
@@ -101,8 +115,12 @@ class OfflineAnalysisResultVisualizer():
 
 
             if analysis_name in self.series_wise_function_list:
+                print("Analyzing")
+                print(analysis_name)
                 self.function_plot_type = "series_wise"
             else:
+                print("Analyzing")
+                print(analysis_name)
                 self.function_plot_type = "sweep_wise"
 
             custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
@@ -157,7 +175,8 @@ class OfflineAnalysisResultVisualizer():
         if meta_data_list:
             self.plot_meta_data_wise(canvas, result_list, number_of_series,meta_data_list)
         else:
-            self.simple_plot(parent_widget, canvas, result_list, number_of_series)
+            series_name = self.database_handler.get_analysis_function_name_from_id(analysis_function_id)
+            self.simple_plot(parent_widget, canvas, result_list, number_of_series,series_name)
 
 
 
@@ -432,7 +451,7 @@ class OfflineAnalysisResultVisualizer():
 
                         ax.legend()
 
-    def simple_plot(self,parent_widget,canvas, result_list,number_of_series):
+    def simple_plot(self,parent_widget,canvas, result_list,number_of_series,series_name):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
         :param analysis_specific_plot_widget:
@@ -450,19 +469,58 @@ class OfflineAnalysisResultVisualizer():
         # analysis_specific_plot_widget is the figure
         ax = canvas.figure.subplots()
 
-
+        '''
         for a in range(len(x_data)):
                 if self.function_plot_type == "sweep_wise":
                     ax.plot(x_data[a],y_data[a], 'k', label=series_names[a])
                     parent_widget.export_data_frame.insert(0, series_names[a],y_data[a])
                 else:
                     ax.plot(1,sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
+        '''
+
+        # experiment: have a dict with a specific analysis function for each series
+        # e.g. analize_sweep_wise , analize_series_wise, specific_rheobase_analysis
+
+        for a in range(len(x_data)):
+            self.specific_analysis_functions.get(series_name)(ax,x_data,y_data,series_names,parent_widget,a)
 
         # @todo: add shade of stde
         ax.legend()
         canvas.show()
 
        # analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
+
+    def visualize_sweep_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
+        ax.plot(x_data[a], y_data[a], 'k', label=series_names[a])
+        parent_widget.export_data_frame.insert(0, series_names[a], y_data[a])
+
+    def visualize_series_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
+        '''
+
+        :param ax:
+        :param x_data:
+        :param y_data:
+        :param series_names:
+        :param parent_widget:
+        :param a:
+        :return:
+        '''
+        ax.plot(1, sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
+
+    def rheobase_visualization(self,ax,x_data,y_data,series_names,parent_widget,a):
+        '''
+
+        :param ax:
+        :param x_data:
+        :param y_data:
+        :param series_names:
+        :param parent_widget:
+        :param a:
+        :return:
+        '''
+        # plot the first value greater than 0
+        first_rheobase_current = next(x[0] for x in enumerate(y_data) if x[1] > 0)
+        ax.plot(1, first_rheobase_current, marker="o", markerfacecolor='k', label=series_names[a])
 
     def get_list_of_results(self,analysis_id,analysis_function_id):
         """

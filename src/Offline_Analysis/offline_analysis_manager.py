@@ -71,6 +71,7 @@ class OfflineManager():
         # calculate result for each single sweep data trace and write the result into the database
         for table_name in sweep_table_names:
 
+            # dict
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
 
             if table_name == 'imon_signal_220315_02_Series2':
@@ -86,6 +87,11 @@ class OfflineManager():
 
                 data = list(entire_sweep_table.get(column))
 
+                # @todo better way ? dict hast no order - thats why index doesn't work here
+                # eg. sweep_1
+                sweep_number = column.split("_")
+                ra._sweep = int(sweep_number[1])
+                print(ra._sweep)
                 raw_analysis_class_object = ra.AnalysisRaw(time,data)
 
                 for a in analysis_functions:
@@ -95,6 +101,7 @@ class OfflineManager():
                     for c in cursor_bounds:
                         # negative bound values decode invalid/not selected bounds
                         if c[0] > 0.0  and c[1] > 0.0:
+
                             raw_analysis_class_object._lower_bounds = c[0]
                             raw_analysis_class_object._upper_bounds = c[1]
 

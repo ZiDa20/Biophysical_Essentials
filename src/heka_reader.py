@@ -796,19 +796,24 @@ class Data(object):
         dtype = [np.int16, np.int32, np.float16, np.float32][fmt]
         data = np.fromfile(fh, count=trace.DataPoints, dtype=dtype)
 
-        print('{:.6e}=>{:0=6.2f}e-15'.format(trace.DataScaler,trace.DataScaler/1e-15))
+        #print('{:.6e}=>{:0=6.2f}e-15'.format(trace.DataScaler,trace.DataScaler/1e-15))
         roundet_scaler ='{:.6e}=>{:0=5.1f}e-15'.format(trace.DataScaler,trace.DataScaler/1e-15)
         roundet_scaler = roundet_scaler.split('=>')
         roundet_scaler = float(roundet_scaler[1])
 
-        print('{:.6e}=>{:0=6.2f}e-12'.format(trace.ZeroData, trace.ZeroData / 1e-12))
+        #print('{:.6e}=>{:0=6.2f}e-12'.format(trace.ZeroData, trace.ZeroData / 1e-12))
         roundet_zero = '{:.6e}=>{:0=6.2f}e-12'.format(trace.ZeroData, trace.ZeroData / 1e-12)
         roundet_zero = roundet_zero.split('=>')
         roundet_zero = float(roundet_zero[1])
 
-        return_res_old = data * trace.DataScaler + trace.ZeroData
+        return_res_old = data * trace.DataScaler - trace.ZeroData
+        r1 = data * trace.DataScaler + trace.ZeroData # original !!!!
+        r2 = data * trace.DataScaler + trace.ZeroData/2
+        r3 = data * trace.DataScaler + 2*trace.ZeroData
+        r4 = data * trace.DataScaler - trace.ZeroData/2
+        r5 = data * trace.DataScaler
         return_res = data* roundet_scaler + roundet_zero
-        return return_res
+        return return_res_old
 
 
 class Bundle(object):

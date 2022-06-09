@@ -141,7 +141,8 @@ class DuckDBDatabaseHandler():
                                               discarded boolean,
                                               primary key (experiment_name,series_identifier),
                                               sweep_table_name text,
-                                              meta_data_table_name text
+                                              meta_data_table_name text,
+                                              pgf_data_table_name text
                                               ); """
 
         sql_create_series_table = """CREATE TABLE analysis_series(
@@ -510,6 +511,11 @@ class DuckDBDatabaseHandler():
         r = self.get_data_from_database(self.database, q)
         return r[0][0]
 
+    def get_analysis_series_name_by_analysis_function_id(self,analysis_function_id):
+        q = f'select analysis_series_name from analysis_functions where analysis_function_id = {analysis_function_id}'
+        r = self.get_data_from_database(self.database, q)
+        return r[0][0]
+
     def write_analysis_function_name_and_cursor_bounds_to_database(self, analysis_function, analysis_series_name,
                                                                    lower_bound, upper_bound):
         try:
@@ -739,7 +745,6 @@ class DuckDBDatabaseHandler():
 
         # create table names
         imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
-
         imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
 
         # @TODO extend for leakage currents also
@@ -930,6 +935,33 @@ class DuckDBDatabaseHandler():
 
         return self.get_data_from_database(self.database, q)
 
+    '''-------------------------------------------------------'''
+    '''     create series specific pgf trace table            '''
+    '''-------------------------------------------------------'''
+
+    def create_series_specific_pgf_table (self, data_frame, pgf_table_name,experiment_name, series_identifier):
+        """ adds new pgf table to the database        """
+        self.database.register('df_1', data_frame)
+
+        try:
+            # create a new sweep table
+            self.database.execute(f'create table {pgf_table_name} as select * from df_1')
+
+            try:
+                # update the series table by inserting the newly created pgf table name
+                q = """update experiment_series set pgf_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+
+                self.execute_sql_command(self.database, q, (pgf_table_name, experiment_name, series_identifier))
+
+                self.logger.info("Successfully created %s table of series %s in experiment %s", pgf_table_name,
+                                 series_identifier, experiment_name)
+
+            except Exception as e:
+                self.logger.info("Update Series table failed with error %s", e)
+
+        except Exception as e:
+            self.logger.info("Error::Couldn't create a new table with error %s", e)
+
     ###### deprecated ######
 
     # @todo deprecated ?
@@ -976,6 +1008,8 @@ class DuckDBDatabaseHandler():
                     values = (experiment_number, series_identifier, sweep_number, meta_data)
 
                     self.database = self.execute_sql_command(self.database, sql_command, values)
+
+
 
     '''
     def get_sweep_meta_data(self,datalist,pos):
