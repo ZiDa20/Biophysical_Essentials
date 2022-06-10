@@ -1,7 +1,7 @@
-import src.raw_analysis as ra
-from src.online_analysis_manager import *
-from src.data_db import DuckDBDatabaseHandler
-from src.treeview_manager import *
+import raw_analysis as ra
+from online_analysis_manager import *
+from data_db import DuckDBDatabaseHandler
+from treeview_manager import *
 
 
 class OfflineManager():

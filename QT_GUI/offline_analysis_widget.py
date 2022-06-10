@@ -7,13 +7,14 @@
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
+
 import pyqtgraph
 from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
-from src.Offline_Analysis.offline_analysis_manager import OfflineManager
+from Offline_Analysis.offline_analysis_manager import OfflineManager
 from data_db import *
 from treeview_manager import *
 import pyqtgraph as pg
@@ -29,7 +30,7 @@ from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop
 pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
-from src.Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
+from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
@@ -452,7 +453,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         print(self.selected_analysis_functions)
         current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-<<<<<<< HEAD
 
         # MSUT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
         current_tab.analysis_table_widget.setColumnCount(5)
@@ -490,45 +490,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             except:
                 print("nothing to delete")
 
-=======
-
-        # MSUT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-        current_tab.analysis_table_widget.setColumnCount(5)
-        current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
-
-        self.table_buttons = [0] * len(self.selected_analysis_functions)
-
-        for row in range(len(self.selected_analysis_functions)):
-                print(str(row))
-                value = self.selected_analysis_functions[row]
-                print(str(value))
-                current_tab.analysis_table_widget.setItem(row,0,QTableWidgetItem(str(value)))
-                self.table_buttons[row] = QPushButton("Add")
-                self.c = QPushButton("Configure")
-                current_tab.analysis_table_widget.setCellWidget(row,3,self.table_buttons[row])
-                current_tab.analysis_table_widget.setCellWidget(row, 4, self.c)
-
-                self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row,current_tab))
-
-        current_tab.analysis_table_widget.show()
-
-
-    def remove_existing_dragable_lines(self,row_number,current_tab):
-        number_of_rows = current_tab.analysis_table_widget.rowCount()
-
-        for r in range(0,number_of_rows):
-            if current_tab.analysis_table_widget.item(r,1) is not None:
-                current_tab.analysis_table_widget.removeCellWidget (r, 3)
-                self.b= QPushButton("Change")
-                current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
-                self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
-
-            try:
-                self.current_tab_plot_manager.remove_dragable_lines()
-            except:
-                print("nothing to delete")
-
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
     def add_coursor_bounds(self,row_number,current_tab):
         """
         This function will add 2 dragable lines to the plot which will be provided by the global plot manager object

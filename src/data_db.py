@@ -13,6 +13,7 @@ import io
 import logging
 import datetime
 import pandas as pd
+from numba import jit
 
 
 class DuckDBDatabaseHandler():
@@ -39,16 +40,9 @@ class DuckDBDatabaseHandler():
         self.sq_lite_database = "SQ_Lite"
 
         # change manually for now .. maybe to be implemented in settings tabs
-<<<<<<< HEAD
-        self.database_architecture = self.duck_db_database # you can select between 'DUCK_DB' or 'SQ_LITE
-        self.init_database()
-
-
-=======
         self.database_architecture = self.duck_db_database  # you can select between 'DUCK_DB' or 'SQ_LITE
         self.init_database()
 
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
     # Database functions
     def init_database(self):
         # creates a new analysis database and writes the tables or connects to an existing database
@@ -58,21 +52,18 @@ class DuckDBDatabaseHandler():
         # inserts new analysis id with default username admin
         # TODO implement roles admin, user, etc. ..
         self.analysis_id = self.insert_new_analysis("admin")
-<<<<<<< HEAD
-
-=======
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
 
     """---------------------------------------------------"""
     """ General database functions                        """
     """---------------------------------------------------"""
 
+    @jit
     def adapt_array(self, arr):
         out = io.BytesIO()
         np.save(out, arr)
         out.seek(0)
         return sqlite3.Binary(out.read())
-
+    @jit
     def convert_array(self, text):
         out = io.BytesIO(text)
         out.seek(0)
@@ -99,12 +90,8 @@ class DuckDBDatabaseHandler():
         if self.db_file_name in dir_list:
             self.logger.info("Established connection to existing database: %s ", self.db_file_name)
         else:
-<<<<<<< HEAD
-            self.logger.info("A new database will created. Created and Connected to new database: %s", self.db_file_name)
-=======
             self.logger.info("A new database will created. Created and Connected to new database: %s",
                              self.db_file_name)
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
             return_val = 1
 
         try:
@@ -287,28 +274,16 @@ class DuckDBDatabaseHandler():
         @date: 23.06.2021, @author: dz '''
 
         for n in name_list:
-<<<<<<< HEAD
-
-=======
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
             # query the recording mode
             recording_mode = self.query_recording_mode(n)
 
             q = """insert into analysis_series (analysis_series_name, recording_mode, analysis_id) values (?,?,?) """
-<<<<<<< HEAD
-            self.database = self.execute_sql_command(self.database,q,(n,recording_mode,self.analysis_id))
-=======
             self.database = self.execute_sql_command(self.database, q, (n, recording_mode, self.analysis_id))
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
             self.logger.info(f'inserting new analysis_series with id  {self.analysis_id}')
 
         self.logger.info("inserted all series")
 
-<<<<<<< HEAD
-    def query_recording_mode(self,series_name):
-=======
     def query_recording_mode(self, series_name):
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
         """
         Get the recording mode from the meta data table of a (by-name-) specified series
         :param series_name:
@@ -335,15 +310,8 @@ class DuckDBDatabaseHandler():
         else:
             return "Current Clamp"
 
-<<<<<<< HEAD
-
-
-    # deprecated dz 22.02.2022
-    def write_ms_spaced_time_array_to_analysis_series_table(self,time_np_array, analysis_series_name, analysis_id ):
-=======
     # deprecated dz 22.02.2022
     def write_ms_spaced_time_array_to_analysis_series_table(self, time_np_array, analysis_series_name, analysis_id):
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
         """
 
         :param time_np_array: time in milliseconds already converted into numpy array
@@ -356,11 +324,7 @@ class DuckDBDatabaseHandler():
         q = 'update analysis_series set recording_mode = (?) where analysis_series_name = (?) AND analysis_id = (?)'
         self.database = self.execute_sql_command(self.database, q, (recording_mode, analysis_series_name, analysis_id))
 
-<<<<<<< HEAD
-    def get_recording_mode_from_analysis_series_table(self,analysis_series_name):
-=======
     def get_recording_mode_from_analysis_series_table(self, analysis_series_name):
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
         """
         returns the recording mode as string Voltage Clamp or Current Clamp
         :param analysis_series_name:
@@ -371,12 +335,8 @@ class DuckDBDatabaseHandler():
         return self.get_data_from_database(self.database, q, (analysis_series_name, self.analysis_id))[0][0]
 
     # deprecated dz 22.02.2022
-<<<<<<< HEAD
-    def get_time_in_ms_of_analyzed_series(self,series_name):
-=======
     def get_time_in_ms_of_analyzed_series(self, series_name):
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
-
+    
         # time should be equal for all sweeps of a series
 
         res = self.get_experiments_by_series_name_and_analysis_id(series_name)
@@ -421,12 +381,6 @@ class DuckDBDatabaseHandler():
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?))"""
-<<<<<<< HEAD
-        res = self.get_data_from_database(self.database, q, (self.analysis_id,series_name))
-        #res = self.get_data_from_database(self.database, q, (self.analysis_id))
-        return res
-    def get_entire_sweep_table(self,table_name):
-=======
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
@@ -448,14 +402,13 @@ class DuckDBDatabaseHandler():
         q = f'SELECT Parameter, sweep_1 FROM {meta_data_table_name}'
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
-        return float(meta_data_dict.get('CSlow'))
+        return float(meta_data_dict.get('RsValue'))
 
 
 
 
 
     def get_entire_sweep_table(self, table_name):
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
         '''
         Fetches all sweeps in a sweep table.
         :param table_name:

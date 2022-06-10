@@ -1,5 +1,5 @@
 QPushButton {{
-  color: #ff8117;
+  color: #fff5cc;
   text-transform: none;
   background-color: {QTMATERIAL_SECONDARYCOLOR};
   border-radius : 10px;
@@ -7,7 +7,7 @@ QPushButton {{
 
 ListView{{
   background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
-  border: 1px solid #ff8117;
+  border: 1px solid #fff5cc;
 }}
 
 QScrollArea > QWidget > QWidget {{
@@ -20,12 +20,12 @@ QScrollArea > QWidget > QWidget {{
 
 QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid #ff8117;
+  border: 1px solid #fff5cc;
 
 }}
 
 QTabWidget[accessibleName="tab_widgets"] QTabBar {{
-  background-color: #ff8117;
+  background-color: #fff5cc;
   color:{QTMATERIAL_SECONDARYCOLOR};
   border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
 }}
@@ -37,7 +37,7 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
 
 QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid #ff8117;
+  border: 1px solid #fff5cc;
 
 }}
 

@@ -4,7 +4,7 @@ from PySide6.QtWidgets import *  # type: ignore
 import duckdb
 import os
 from database_viewer_designer_object import Ui_Database_Viewer
-from src.data_db import DuckDBDatabaseHandler
+from data_db import DuckDBDatabaseHandler
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):

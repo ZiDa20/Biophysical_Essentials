@@ -39,7 +39,7 @@ class Frontend_Style():
                            "QPushButton{ padding: 5px 10px; " \
                            "             border-width: 0px ;" \
                            "             border-radius: 10px ; " \
-                           "             border-color: #151E3D;"\
+                           "             border-color: #fff5cc;"\
                            "             border-radius:10px;" \
                            "             color:white; " \
                            "             background-color: #151E3D;}" \

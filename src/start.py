@@ -5,7 +5,7 @@ import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
-from QT_GUI.main_window import Ui_MainWindow
+from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
 import logging
@@ -15,7 +15,7 @@ from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from tkinter_camera import *
 from frontend_style import Frontend_Style
-from src.data_db import DuckDBDatabaseHandler
+from data_db import DuckDBDatabaseHandler
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self, parent = None):
@@ -69,7 +69,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         #print(self.ui.config.Load_meta_data_experiment_12)
 
         # connect to the metadata file path 
-        self.ui.hamburger_button.clicked.connect(self.animate_menu)
+        #self.ui.hamburger_button.clicked.connect(self.animate_menu)
         self.ui.konsole_button.clicked.connect(self.konsole_menu)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
@@ -79,8 +79,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         # connect settings button
         self.write_button_text()
         #self.test_blurring()
-        self.ui.side_left_menu.setMinimumSize(300, 1000)
-        self.ui.side_left_menu.setMaximumSize(300, 1800)
+        #self.ui.side_left_menu.setMinimumSize(300, 1000)
+        #self.ui.side_left_menu.setMaximumSize(300, 1800)
 
     def transfer_file_to_online(self):
         """ transfer the self.configuration data to the online analysis """
@@ -92,9 +92,11 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.settings = SettingsWindow()
         self.settings.show()
 
+    """
+    not used anymore
     def animate_menu(self):
-        """ animation of the side-bar for open and close animation,
-        @toDO should change animation speed for smoother animation """
+        animation of the side-bar for open and close animation,
+        @toDO should change animation speed for smoother animation 
         width = self.ui.side_left_menu.width() # get the width of the menu
         print(width)
         if width >= 300:
@@ -116,12 +118,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.animation.start()
         self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
         self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
-
-
+    """
 
         
-
-
     def konsole_menu(self):
         """ toDO: still opens every time whne layout is changing--> bugfix better integratin into the layout
          """
@@ -179,12 +178,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.settings_button.setText("")
 
     def write_button_text(self):
-        self.ui.self_configuration.setText("Self Configuration")
-        self.ui.online_analysis.setText("Online Analysis")
-        self.ui.offline_analysis.setText("Offline Analysis")
+        self.ui.self_configuration.setText("  Configuration")
+        self.ui.online_analysis.setText(" Online Analysis")
+        self.ui.offline_analysis.setText(" Offline Analysis")
         self.ui.statistics.setText("Statistics")
-        self.ui.darkmode_button.setText("Change Theme")
-        self.ui.konsole_button.setText("Terminal")
+        #self.ui.darkmode_button.setText("Change Theme")
+        #self.ui.konsole_button.setText("Terminal")
         self.ui.settings_button.setText("Settings")
 
 

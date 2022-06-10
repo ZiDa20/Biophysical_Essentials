@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import sys
+from numba import jit
 
 
 class AnalysisRaw():
@@ -35,6 +36,7 @@ class AnalysisRaw():
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
+        #WHY? (mz)
         if function_name == "max_current":
             return self.max_current()
         if function_name == "min_current":
@@ -80,6 +82,7 @@ class AnalysisRaw():
         else:
             raise TypeError("Wrong Input please specificy floats")
 
+    #@jit
     def construct_trace(self):
         """ construct the trace """
         try:
@@ -87,7 +90,7 @@ class AnalysisRaw():
         except:
             raise ValueError("Please use the same dimension, only 1-dimensional arrays should be used")
 
-
+    @jit
     def slice_trace(self):
         """ slice the trace based on the incoming upper and lower bounds """
         if all([self._lower_bounds, self._upper_bounds]):
@@ -95,32 +98,41 @@ class AnalysisRaw():
             self.sliced_volt = self.sliced_trace[:,1]
         else:
             raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
-
+    @jit
     def max_current(self):
-        """ determine the max voltage """
+        """ determine the max voltage for the selected sliced region
+        params:
+        self <- object """
         self._max = np.max(self.sliced_volt)
         return self._max
-
+    @jit
     def mean_current(self):
+        """ determine the mean voltage for the selected sliced region
+        params:
+        self <- object"""
         self._mean = np.mean(self.sliced_volt)
         return self._mean
-
+    @jit
     def min_current(self):
+        """determine the mean voltage for the selected sliced region
+        params: 
+        self <- object"""
         self._min = np.min(self.sliced_volt)
         return self._min
-
+    @jit
     def time_to_maximum(self):
+        """"""
         index = self.index_calculation(self._max)
         time = self.sliced_trace[:,0][:index]
         self._max_time = self.calculate_time(np.max(time),np.min(time))
         print(self._max_time)
-
+    @jit
     def time_to_minimum(self):
         index = self.index_calculation(self._min)
         time = self.sliced_trace[:,0][:index]
         self._min_time = self.calculate_time(np.max(time),np.min(time))
         print(self._min_time)
-
+    @jit
     def time_to_threshold(self, threshold):
         if type(threshold) in [int,float]:
             index = self.index_calculation(threshold, True)
@@ -129,14 +141,14 @@ class AnalysisRaw():
             print(self._threshold_time)
         else:
             raise ValueError("Please use a float or integer as a valid voltage threshold")
-
+    @jit
     def index_calculation(self, value, comp = None):
         if comp:
             index = np.where(self.sliced_volt > value)[0][0]
             return index
         index = np.where(self.sliced_volt == value)[0][0]
         return index
-
+    @jit
     def calculate_time(self,maximum, minimum):
         time = maximum-minimum
         if time < 0:
@@ -146,7 +158,7 @@ class AnalysisRaw():
             raise "Rseries changed to much is flagged for quality check"
             qc = 0
             return rseries, qc
-
+    @jit
     def get_area(self):
         self.area =  np.trapz(self.sliced_trace[:,0],self.sliced_trace[:,1])
         return abs(self.area)*10000

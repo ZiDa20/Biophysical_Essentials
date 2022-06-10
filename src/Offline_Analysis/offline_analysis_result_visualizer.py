@@ -1,27 +1,18 @@
-from src.data_db import DuckDBDatabaseHandler
-from QT_GUI.update_dave.specific_visualization_plot import ResultPlotVisualizer
+import sys
+sys.path.append(".../QT_GUI")
+from data_db import DuckDBDatabaseHandler
+from update_dave.specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
-<<<<<<< HEAD
-
-=======
 import pyqtgraph.exporters
 from PySide6 import QtCore
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
 class OfflineAnalysisResultVisualizer():
 
     def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
         # pyqt tab widget object
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
-<<<<<<< HEAD
-
-        self.split_data_functions =[ "No Split", "Split By Meta Data"]
-
-        self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
-
-=======
         self.split_data_functions =[ "No Split", "Split By Meta Data"]
         self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
         self.plot_colors = ['b', 'g','r','c','m','y','k','w']
@@ -31,7 +22,6 @@ class OfflineAnalysisResultVisualizer():
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         self.black_pen = pg.mkPen(color=(0, 0, 0))
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
 
     def show_results_for_current_analysis(self,analysis_id: int):
         """
@@ -87,68 +77,6 @@ class OfflineAnalysisResultVisualizer():
 
 
 
-<<<<<<< HEAD
-    def single_analysis_visualization(self,parent_widget,analysis_id,analysis_function_id):
-        """
-        3) for each specific function -> create plot from available results
-        :return:
-        """
-        # tuple -> analysis function id at pos 0
-        graph_n_layout = parent_widget.plot_layout
-        analysis_specific_plot_widget = pg.PlotWidget()
-        graph_n_layout.addWidget(analysis_specific_plot_widget)
-
-        # add options
-        parent_widget.split_data_combo_box.addItems(self.split_data_functions)
-        parent_widget.split_data_combo_box.currentTextChanged.connect(partial(self.split_data_changed,parent_widget))
-
-
-        parent_widget.plot_type_combo_box.addItems(self.plot_type)
-
-        # iterate results table, select all results according to analysis_id and function_id,
-
-        q="""select  result_value,sweep_number,sweep_table_name from results where analysis_id =(?) and analysis_function_id =(?) order by sweep_table_name,sweep_number"""
-        result_list = self.database_handler.get_data_from_database(self.database_handler.database, q, [analysis_id, analysis_function_id])
-
-        print(result_list)
-
-        # result list ordered by sweep numbers  -> get the number of series by checking table names
-
-        number_of_series = 0
-        current_series_name = ""
-
-        for i in result_list:
-                if i[2] != current_series_name:
-                    current_series_name = i[2]
-                    number_of_series +=1
-
-        print("found series = " + str(number_of_series))
-
-        # group the results by equal sweep numbers
-        # plot to the visualization tab
-
-        number_of_sweeps= int(len(result_list) / number_of_series)
-        print("calculated_sweep_number = " + str(number_of_sweeps))
-
-        y_data = []
-        x_data = []
-
-        for a in range (0,len(result_list),number_of_sweeps):
-                series_y_data = []
-                series_x_data = []
-                for b in range(number_of_sweeps):
-                    series_y_data.append(result_list[a+b][0])
-                    series_x_data.append(result_list[a+b][1])
-
-
-                y_data.append(series_y_data)
-                x_data.append(series_x_data)
-
-        for a in range(len(x_data)):
-                analysis_specific_plot_widget.plot(x_data[a], y_data[a])
-
-
-=======
     def single_analysis_visualization(self,parent_widget,analysis_id,analysis_function_id,meta_data_list = None):
         """
         for each specific analysis function -> create plot from available results
@@ -404,7 +332,6 @@ class OfflineAnalysisResultVisualizer():
             x_data.append(series_x_data)
 
         return x_data, y_data
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
 
     def split_data_changed(self,parent_widget,new_text):
         """
@@ -418,12 +345,9 @@ class OfflineAnalysisResultVisualizer():
         if new_text == "Split By Meta Data":
             self.plot_data_splitted_by_meta_data(parent_widget)
 
-<<<<<<< HEAD
-=======
         if new_text == "No Split":
             self.single_analysis_visualization(parent_widget,parent_widget.analysis_id,parent_widget.analysis_function_id)
 
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5
 
     def plot_data_splitted_by_meta_data(self, parent_widget: ResultPlotVisualizer):
         """
@@ -432,25 +356,6 @@ class OfflineAnalysisResultVisualizer():
         :return:
         """
 
-<<<<<<< HEAD
-        # remove the old plot
-        parent_widget.plot_layout.takeAt(0)
-
-        # create a new plot
-        new_plot_widget = pg.PlotWidget()
-        parent_widget.plot_layout.addWidget(new_plot_widget)
-
-        # introduce color and legend according to meta data groups
-
-        #q = """select  result_value,sweep_number,sweep_table_name from results where analysis_id =(?) and analysis_function_id =(?) order by sweep_table_name,sweep_number"""
-        #result_list = self.database_handler.get_data_from_database(self.database_handler.database, q, [analysis_id, analysis_function_id])
-
-
-
-
-
-
-=======
         analysis_id = parent_widget.analysis_id
         analysis_function_id = parent_widget.analysis_function_id
 
@@ -502,4 +407,3 @@ class OfflineAnalysisResultVisualizer():
 
         print("found series = " + str(number_of_series))
         return number_of_series
->>>>>>> 5f192f5687d52aa672a845f93156d541960b34c5

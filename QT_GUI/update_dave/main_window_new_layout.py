@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main_window.ui'
+## Form generated from reading UI file 'main_window_new_layout.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.1
 ##
@@ -12,10 +12,10 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
-from self_configuration import Config_Widget
+from self_config_notebook_widget import Config_Widget
 from online_analysis_widget import Online_Analysis
-from offline_analysis_widget import Offline_Analysis
-from database_viewer_widget import Database_Viewer
+from offline_analysis import Offline_Analysis
+
 import Figures_rc
 
 class Ui_MainWindow(object):
@@ -36,20 +36,19 @@ class Ui_MainWindow(object):
         self.centralwidget.setSizePolicy(sizePolicy)
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setContentsMargins(0, 0, 0, 6)
         self.notebook = QStackedWidget(self.centralwidget)
         self.notebook.setObjectName(u"notebook")
         sizePolicy.setHeightForWidth(self.notebook.sizePolicy().hasHeightForWidth())
         self.notebook.setSizePolicy(sizePolicy)
         self.notebook.setMinimumSize(QSize(956, 500))
         self.notebook.setMaximumSize(QSize(16777215, 1000))
-        self.online = Online_Analysis()
-        self.config = Config_Widget(self.online)
+        self.config = Config_Widget()
         self.config.setObjectName(u"config")
         sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
         self.config.setSizePolicy(sizePolicy)
         self.notebook.addWidget(self.config)
-
+        self.online = Online_Analysis()
         self.online.setObjectName(u"online")
         sizePolicy.setHeightForWidth(self.online.sizePolicy().hasHeightForWidth())
         self.online.setSizePolicy(sizePolicy)
@@ -305,9 +304,6 @@ class Ui_MainWindow(object):
 
 
         self.gridLayout.addWidget(self.side_left_menu, 1, 0, 1, 1)
-        self.database = Database_Viewer()
-        self.database.setObjectName(u"database")
-        self.notebook.addWidget(self.database)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
