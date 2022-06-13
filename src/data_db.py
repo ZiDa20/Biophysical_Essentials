@@ -962,6 +962,24 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             self.logger.info("Error::Couldn't create a new table with error %s", e)
 
+
+    def get_pgf_holding_value(self,series_name):
+        """
+
+        :param series_name:
+        :return:
+        """
+
+        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+
+        # take the first element, get the pgf_table_name, extract holding and
+
+        q = f'select pgf_table_name from experiment_series where experiment_name = {experiment_names[0][0]}'
+
+        self.execute_sql_command(self.database, q)
+
+
+
     ###### deprecated ######
 
     # @todo deprecated ?

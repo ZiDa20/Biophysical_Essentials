@@ -90,9 +90,9 @@ class OfflineManager():
                 # @todo better way ? dict hast no order - thats why index doesn't work here
                 # eg. sweep_1
                 sweep_number = column.split("_")
-                ra._sweep = int(sweep_number[1])
-                print(ra._sweep)
+
                 raw_analysis_class_object = ra.AnalysisRaw(time,data)
+                raw_analysis_class_object._sweep = int(sweep_number[1])
 
                 for a in analysis_functions:
                     # list of cursor bound tuples
@@ -107,6 +107,11 @@ class OfflineManager():
 
                             raw_analysis_class_object.construct_trace()
                             raw_analysis_class_object.slice_trace()
+
+                            # @todo: how can this be done bether ?? more generic???
+                            if analysis_functions == "Rheobase_Detection":
+                                # get the holding value from the database and incrementation steps from database pgf table
+                                self.database.get_pgf_holding_value(series_name)
 
                             res = raw_analysis_class_object.call_function_by_string_name(a)
 

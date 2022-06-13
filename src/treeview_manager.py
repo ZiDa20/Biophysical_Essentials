@@ -287,9 +287,15 @@ class TreeViewManager():
             parent,tree = self.add_group_to_treeview(tree, discarded_tree, node_label, experiment_name, pixmap)
 
         if "Series" in node_type and tree_level>1:
+
+            sliced_pgf_tuple_data_frame = None
+
+            if pgf_tuple_data_frame:
+                sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+
             parent,tree = self.add_series_to_treeview(tree, discarded_tree, parent, series_name, node_label, node_list,
                                                       node_type, experiment_name, data_base_mode, database, pixmap,
-                                                      pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label])
+                                                      sliced_pgf_tuple_data_frame)
 
 
 
@@ -299,6 +305,7 @@ class TreeViewManager():
 
         if "Trace" in node_type and tree_level>3:
             if self.analysis_mode==0:
+
                 # trace meta data information will be added to the sweep level
                 parent.setData(5,0,node.get_fields())
 
@@ -467,10 +474,9 @@ class TreeViewManager():
                 database.add_single_sweep_to_database(experiment_id, series_identifier, sweep_number, metadata,
                                                           data_array)
 
-            child.setData(3, 0, data)
-            parent = child
-
-            return parent
+        child.setData(3, 0, data)
+        parent = child
+        return parent
 
     def add_new_meta_data_combo_box(self,tree,parent):
         self.experimental_combo_box = QComboBox()

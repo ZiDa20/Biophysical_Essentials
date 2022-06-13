@@ -5,9 +5,6 @@ import pandas as pd
 import sys
 import csv
 
-
-
-
 class AnalysisRaw():
 
     def __init__(self,time = None, data = None):
@@ -31,6 +28,10 @@ class AnalysisRaw():
         self._max = None
         self._mean = None
         self._min = None
+
+        # for extended analysis
+        self.holding = None
+        self.increment = None
 
     def get_elements(self,recording_mode):
         if recording_mode == "Voltage Clamp":
@@ -67,6 +68,8 @@ class AnalysisRaw():
 
         if function_name == "Rheobase_Detection":
             return self.ap_detection()
+
+
     @property
     def lower_bounds(self):
         """ get the lower and upper bounds """
@@ -112,7 +115,6 @@ class AnalysisRaw():
             self.sliced_volt = self.sliced_trace[:,1]
         else:
             raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
-
 
 
     def max_current(self):
@@ -176,6 +178,7 @@ class AnalysisRaw():
         if np.max(self.data) > manual_threshold:
             return 0
         else:
+            # get the holding value and the incrementation steps from the pgf data for this series
 
             return 1
 
