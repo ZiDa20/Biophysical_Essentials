@@ -188,7 +188,7 @@ class PlotWidgetManager(QtCore.QRunnable):
         return time
 
     def tree_view_click_handler(self, item):
-        print('Text of first column in item is ', item.text(0))
+        print(f'Text of first column in item is {item.text(0)}')
 
         if "Sweep" in item.text(0):
             self.sweep_clicked(item)

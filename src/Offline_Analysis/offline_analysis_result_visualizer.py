@@ -4,9 +4,20 @@ from data_db import DuckDBDatabaseHandler
 from update_dave.specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
 from PySide6.QtWidgets import *
+from collections import OrderedDict
+
+import pandas as pd
+import matplotlib as mpl
+#mpl.use("Qt5Agg")
+import matplotlib.backends.backend_tkagg
+
 import pyqtgraph as pg
-import pyqtgraph.exporters
-from PySide6 import QtCore
+from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.backends.backend_qt5agg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
+
+
 class OfflineAnalysisResultVisualizer():
 
     def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
@@ -17,13 +28,31 @@ class OfflineAnalysisResultVisualizer():
         self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
         self.plot_colors = ['b', 'g','r','c','m','y','k','w']
         self.result_directory = ""
+        self.default_colors = ['k','b','r','g','c']
+
+
+        #@todo maybe more clever to have an extra table in the database where to save this information
+        self.function_plot_type = "sweep_wise"
+        self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
+                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
+
+
+
+        self.specific_analysis_functions = {
+            "Single_AP_Amplitude [mV]": self.visualize_series_wise,
+            "Single_AP_Threshold_Amplitude[mV]": self.visualize_series_wise,
+            "Single_AP_Afterhyperpolarization_Amplitude [mV]":self.visualize_series_wise,
+            "Single_AP_Afterhyperpolarization_time[ms]": self.visualize_series_wise,
+            "Rheobase_Detection" : self.rheobase_visualization
+        }
+
 
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         self.black_pen = pg.mkPen(color=(0, 0, 0))
 
-    def show_results_for_current_analysis(self,analysis_id: int):
+    def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
         """
         1) Identify the number of series and create tabs for each analyzed series
         :param analysis_id:
@@ -31,15 +60,24 @@ class OfflineAnalysisResultVisualizer():
         """
         # print("Plotting results for analysis id " + str(analysis_id))
 
+        # @todo check if the tab already existis:
+
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
         print(list_of_series)
+
+
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             self.analysis_function_specific_visualization(series[0],analysis_id)
 
+        if self.visualization_tab_widget.tabText(0)=='Tab 1':
+            self.visualization_tab_widget.removeTab(0)
+
+        if series_name:
+            self.visualization_tab_widget.setCurrentIndex(list_of_series.index((series_name,)))
 
     def analysis_function_specific_visualization(self,series,analysis_id):
         """
@@ -55,7 +93,7 @@ class OfflineAnalysisResultVisualizer():
         print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
 
-        main_layout = QHBoxLayout()
+        main_layout = QGridLayout()
 
         for analysis in list_of_analysis:
             print(str(analysis))
@@ -65,15 +103,47 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
 
-            custom_plot_widget.specific_plot_box.setTitle("Analysis" + str(analysis))
+            analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+
+
+            if analysis_name in self.series_wise_function_list:
+                print("Analyzing")
+                print(analysis_name)
+                self.function_plot_type = "series_wise"
+            else:
+                print("Analyzing")
+                print(analysis_name)
+                self.function_plot_type = "sweep_wise"
+
+            custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
+            custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
+            custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
-            main_layout.addWidget(custom_plot_widget)
+            # widgets per row = 2
+
+            widget_x_pos = list_of_analysis.index(analysis) // 2 # 2 widgets per row
+            widgte_y_pos = list_of_analysis.index(analysis) % 2 # 2 widgets per row
+
+            main_layout.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
 
         # after all plots have been added
         all_plots = QWidget()
         all_plots.setLayout(main_layout)
-        self.visualization_tab_widget.addTab(all_plots,series)
+
+        existing_tab_names = []
+        for existing_tab in range(self.visualization_tab_widget.count()):
+            existing_tab_names.append( self.visualization_tab_widget.tabText(existing_tab) )
+
+        # to handle going forth and back between single analysis and result visualizer
+        if series in existing_tab_names:
+            # in case the tab was already created
+            self.visualization_tab_widget.removeTab(existing_tab_names.index(series))
+            self.visualization_tab_widget.insertTab(existing_tab_names.index(series),all_plots,series)
+
+        else:
+            # if the tab was not created it will be appended at the end
+            self.visualization_tab_widget.addTab(all_plots,series)
 
 
 
@@ -86,16 +156,19 @@ class OfflineAnalysisResultVisualizer():
         :return:
         """
 
-        analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
+        canvas = self.handle_plot_widget_settings(parent_widget)
 
+        # self.browser = QtWebEngineWidgets.QWebEngineView(self)
+
+        # list of triples [(result_value, sweep_number, sweep_table_name)]
         result_list = self.get_list_of_results(analysis_id,analysis_function_id)
-
         number_of_series = self.get_number_of_series(result_list)
 
         if meta_data_list:
-            self.plot_meta_data_wise(analysis_specific_plot_widget, result_list, number_of_series,meta_data_list)
+            self.plot_meta_data_wise(canvas, result_list, number_of_series,meta_data_list)
         else:
-            self.simple_plot(analysis_specific_plot_widget, result_list, number_of_series)
+            series_name = self.database_handler.get_analysis_function_name_from_id(analysis_function_id)
+            self.simple_plot(parent_widget, canvas, result_list, number_of_series,series_name)
 
 
 
@@ -113,10 +186,14 @@ class OfflineAnalysisResultVisualizer():
             parent_widget.plot_layout.takeAt(0)
 
             # create a new plot and insert it into the already exsiting plot layout
-            analysis_specific_plot_widget = pg.PlotWidget()
-            parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
+            #analysis_specific_plot_widget = pg.PlotWidget()
+            #parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
 
-            parent_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image,parent_widget))
+            canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            print(f"The type of the Canvas is {type(canvas)}")
+            parent_widget.plot_layout.addWidget(canvas)
+
+
             # add options only once
             try:
                 if parent_widget.split_data_combo_box.currentText() not in self.split_data_functions:
@@ -129,22 +206,33 @@ class OfflineAnalysisResultVisualizer():
             except Exception as e:
                 print(str(e))
 
+            '''
             return analysis_specific_plot_widget
+            '''
+
+            return canvas
 
         except Exception as e:
             print(str(e))
+
+    def export_plot_data(self,parent_widget:ResultPlotVisualizer):
+
+        result_directory = QFileDialog.getExistingDirectory()
+        try:
+            parent_widget.export_data_frame.to_csv(result_directory+"/result_export_analysis_function_id_"
+                                                   + str(parent_widget.analysis_function_id) + ".csv")
+            print("file stored successfully")
+        except Exception as e:
+            print("Results were not stored successfully")
+            print(e)
+
 
     def save_plot_as_image(self,parent_widget:ResultPlotVisualizer):
 
         result_path = QFileDialog.getSaveFileName()[0]
 
-        analysis_specif_widget= parent_widget.plot_layout.itemAt(0).widget()
-
-        exporter = pg.exporters.ImageExporter(analysis_specif_widget.plotItem)
-
-        print(result_path)
-        exporter.export(result_path)
-
+        canvas= parent_widget.plot_layout.itemAt(0).widget()
+        canvas.print_figure(result_path)
         print("saved plot in " + result_path)
 
 
@@ -158,12 +246,14 @@ class OfflineAnalysisResultVisualizer():
         if new_text == self.plot_type[0]: # == overlay all
             self.split_data_changed(parent_widget,parent_widget.split_data_combo_box.currentText())
 
+        result_list = self.get_list_of_results(parent_widget.analysis_id, parent_widget.analysis_function_id)
+
+        number_of_series = self.get_number_of_series(result_list)
+        number_of_sweeps = int(len(result_list) / number_of_series)
+
         if new_text == self.plot_type[1]: # plot means
 
-            result_list = self.get_list_of_results(parent_widget.analysis_id,parent_widget.analysis_function_id)
 
-            number_of_series = self.get_number_of_series(result_list)
-            number_of_sweeps = int(len(result_list) / number_of_series)
 
             # check whether meta data groups need to be taken into consideration
             if parent_widget.split_data_combo_box.currentText() == self.split_data_functions[0]: # no split
@@ -172,54 +262,125 @@ class OfflineAnalysisResultVisualizer():
                   self.calculate_and_plot_mean_over_all(parent_widget,number_of_sweeps,number_of_series,result_list)
 
             else:
-                 analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
-                 analysis_specific_plot_widget.addLegend()
+                 canvas  = self.handle_plot_widget_settings(parent_widget)
 
                  #calculate mean trace per meta data group
+
                  # get the group per series
                  meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
 
                  # get the total number of different groups
                  meta_data_types = list(dict.fromkeys(meta_data_groups))
 
+                 ax = canvas.figure.subplots()
+
+                 # pandas dataframe to store plotted results to be exported easily
+                 parent_widget.export_data_frame = pd.DataFrame()
+
                  # calculate mean per group
                  for i in meta_data_types:
 
                     group_mean = []
+                    group_std = []
+                    if self.function_plot_type == "sweep_wise":
 
-                    for a in range(number_of_sweeps):
-                        sweep_mean = []
+                        for a in range(number_of_sweeps):
+                            sweep_mean = []
 
-                        for b in range(number_of_series):
+                            for b in range(number_of_series):
 
-                            pos = int((a + b*number_of_sweeps)/number_of_sweeps)
-                            print(str(i))
-                            print(str(pos))
-                            if meta_data_groups[pos] == i:
-                                print(result_list[a + b*number_of_sweeps])
-                                sweep_mean.append(result_list[a + b*number_of_sweeps][0])
+                                pos = int((a + b*number_of_sweeps)/number_of_sweeps)
+                                #print(str(i))
+                                #print(str(pos))
+                                if meta_data_groups[pos] == i:
 
-                        group_mean.append(sum(sweep_mean)/(len(sweep_mean)))
+                                        #print(result_list[a + b*number_of_sweeps])
+                                        sweep_mean.append(result_list[a + b*number_of_sweeps][0])
 
-                    analysis_specific_plot_widget.plot(group_mean,pen=pg.mkPen(self.plot_colors[meta_data_types.index(i)], width=3))#, name="mean " + i)
+                            group_mean.append(np.mean(sweep_mean))
+                            group_std.append(np.std(sweep_mean))
+                    else:
+                        # not impelemented because this a scenario that might be not used
+                        print("debug")
+                    x = list(range(0, len(group_mean)))
 
-                    # go through each series
-
-                        # check if the meta data group matches the current one in i
-
-                            # if so, calculate
-
-
-
-
-
-
+                    ax.errorbar(x,group_mean, yerr=group_std, fmt='--o')
+                    #ax.errorplot(y=group_mean, yerr= group_std) #self.default_colors[meta_data_types.index(i)], label='i')
+                    parent_widget.export_data_frame.insert(0,i,group_mean)
 
 
+                 ax.legend(meta_data_types)
+                 print(parent_widget.export_data_frame)
 
 
         if new_text == self.plot_type[2]:  # boxplots
-            print("not implemented yet")
+            if self.function_plot_type == "sweep_wise" :
+                print("not implemented yet")
+            else:
+
+
+                canvas = self.handle_plot_widget_settings(parent_widget)
+                meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
+                meta_data_types = list(dict.fromkeys(meta_data_groups))
+                ax = canvas.figure.subplots()
+
+                box_plot_matrix = np.empty((number_of_series,len(meta_data_types)))
+                box_plot_matrix[:] = np.nan
+
+
+
+                #plot a box for each metadata type
+                for type in meta_data_types:
+
+                    # get the positions of the series names
+                    type_specific_series_pos = [i for i, x in enumerate(meta_data_groups) if x==type]
+                    insert_at_pos_x = meta_data_types.index(type)
+
+                    if len(type_specific_series_pos)> 0 :
+                        for pos in type_specific_series_pos:
+
+                            # calc mean for this series
+
+                            try:
+                                insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[:,insert_at_pos_x]))[0][0]
+
+                                series_sweep_values = []
+                                for sweep_pos in range(pos,pos + number_of_sweeps):
+                                    series_sweep_values.append(result_list[sweep_pos][0])
+
+                                mean_val = np.mean(series_sweep_values)
+
+
+                                box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
+                            except Exception as e:
+                                print("Error - this should not happen")
+                                print(e)
+
+
+
+                    else:
+                        try:
+                            insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[insert_at_pos_x,]))[0][0]
+                            box_plot_matrix[insert_at_pos_x][insert_at_pos_y] = np.mean(
+                                result_list[type_specific_series_pos:type_specific_series_pos + number_of_sweeps][0])
+
+                        except Exception as e:
+                            print("Error - this should not happen" )
+                            print(e)
+
+                false_true_mask = ~np.isnan(box_plot_matrix)
+                filtered_box_plot_data=[d[m] for d, m in zip(box_plot_matrix.T, false_true_mask.T)]
+
+                ax.violinplot(filtered_box_plot_data)
+                ax.set_xticks(np.arange(1, len(meta_data_types) + 1), labels=meta_data_types)
+                ax.set_xlim(0.25, len(meta_data_types) + 0.75)
+
+                parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
+
+
+
+
+
 
     def calculate_and_plot_mean_over_all(self,parent_widget, number_of_sweeps, number_of_series, result_list):
         """
@@ -240,14 +401,16 @@ class OfflineAnalysisResultVisualizer():
 
             mean_trace.append(sum(mean_sweep) / len(mean_sweep))
 
-        analysis_specific_plot_widget = self.handle_plot_widget_settings(parent_widget)
+        canvas = self.handle_plot_widget_settings(parent_widget)
+        ax = canvas.figure.subplots()
+        ax.plot(mean_trace,'k', label = 'Mean')
+        ax.legend()
 
-        analysis_specific_plot_widget.plot(mean_trace)
         #@todo add standard deviation to the plot too !
 
-    def plot_meta_data_wise(self,analysis_specific_plot_widget: pg.PlotWidget, result_list,number_of_series,meta_data_groups):
+    def plot_meta_data_wise(self,canvas: pg.PlotWidget, result_list,number_of_series,meta_data_groups):
         """
-        rearrange the plot to color each trace aacording to it's meta data group.
+        rearrange the plot to color each trace according to it's meta data group.
 
         :param analysis_specific_plot_widget:
         :param result_list:
@@ -258,9 +421,13 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps= int(len(result_list) / number_of_series)
         meta_data_types = list(dict.fromkeys(meta_data_groups))
 
-        x_data,y_data = self.fetch_x_and_y_data( result_list, number_of_sweeps)
+        x_data,y_data, series_names = self.fetch_x_and_y_data( result_list, number_of_sweeps)
 
-        analysis_specific_plot_widget.addLegend()
+        #analysis_specific_plot_widget.addLegend()
+
+
+
+        ax = canvas.figure.subplots()
 
         # for each data trace ( = a sub list) create the plot in the correct color according to meta data group
         for a in range(len(x_data)):
@@ -270,13 +437,14 @@ class OfflineAnalysisResultVisualizer():
                 for m in meta_data_types:
                     if m == meta_data_group:
                         pos = meta_data_types.index(m)
-                        #print(self.plot_colors[pos])
-                        analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen=pg.mkPen(self.plot_colors[pos], width=3), name=m)
+                        if self.function_plot_type == "sweep_wise":
+                            ax.plot(x_data[a], y_data[a],self.default_colors[pos], label=series_names[a])
+                        else:
+                            ax.plot(1,sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor=self.default_colors[pos], label=series_names[a])
 
+                        ax.legend()
 
-
-
-    def simple_plot(self,analysis_specific_plot_widget, result_list,number_of_series):
+    def simple_plot(self,parent_widget,canvas, result_list,number_of_series,series_name):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
         :param analysis_specific_plot_widget:
@@ -287,11 +455,65 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps= int(len(result_list) / number_of_series)
         print("calculated_sweep_number = " + str(number_of_sweeps))
 
-        x_data, y_data = self.fetch_x_and_y_data(result_list, number_of_sweeps)
+        parent_widget.export_data_frame = pd.DataFrame()
+        # each sub list represents the results of a single series
+        x_data, y_data, series_names = self.fetch_x_and_y_data(result_list, number_of_sweeps)
+
+        # analysis_specific_plot_widget is the figure
+        ax = canvas.figure.subplots()
+
+        '''
+        for a in range(len(x_data)):
+                if self.function_plot_type == "sweep_wise":
+                    ax.plot(x_data[a],y_data[a], 'k', label=series_names[a])
+                    parent_widget.export_data_frame.insert(0, series_names[a],y_data[a])
+                else:
+                    ax.plot(1,sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
+        '''
+
+        # experiment: have a dict with a specific analysis function for each series
+        # e.g. analize_sweep_wise , analize_series_wise, specific_rheobase_analysis
 
         for a in range(len(x_data)):
-                analysis_specific_plot_widget.plot(x_data[a], y_data[a], pen = self.black_pen)
+            self.specific_analysis_functions.get(series_name)(ax,x_data,y_data,series_names,parent_widget,a)
 
+        # @todo: add shade of stde
+        ax.legend()
+        canvas.show()
+
+       # analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
+
+    def visualize_sweep_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
+        ax.plot(x_data[a], y_data[a], 'k', label=series_names[a])
+        parent_widget.export_data_frame.insert(0, series_names[a], y_data[a])
+
+    def visualize_series_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
+        '''
+
+        :param ax:
+        :param x_data:
+        :param y_data:
+        :param series_names:
+        :param parent_widget:
+        :param a:
+        :return:
+        '''
+        ax.plot(1, sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
+
+    def rheobase_visualization(self,ax,x_data,y_data,series_names,parent_widget,a):
+        '''
+
+        :param ax:
+        :param x_data:
+        :param y_data:
+        :param series_names:
+        :param parent_widget:
+        :param a:
+        :return:
+        '''
+        # plot the first value greater than 0
+        first_rheobase_current = next(x[0] for x in enumerate(y_data) if x[1] > 0)
+        ax.plot(1, first_rheobase_current, marker="o", markerfacecolor='k', label=series_names[a])
 
     def get_list_of_results(self,analysis_id,analysis_function_id):
         """
@@ -319,7 +541,7 @@ class OfflineAnalysisResultVisualizer():
 
         y_data = []
         x_data = []
-
+        names =  []
         # create a list of lists for each series
         for a in range(0, len(result_list), number_of_sweeps):
             series_y_data = []
@@ -330,8 +552,9 @@ class OfflineAnalysisResultVisualizer():
 
             y_data.append(series_y_data)
             x_data.append(series_x_data)
+            names.append(self.database_handler.get_experiment_name_for_given_sweep_table_name(result_list[a + b][2]))
 
-        return x_data, y_data
+        return x_data, y_data, names
 
     def split_data_changed(self,parent_widget,new_text):
         """
@@ -407,3 +630,5 @@ class OfflineAnalysisResultVisualizer():
 
         print("found series = " + str(number_of_series))
         return number_of_series
+
+

@@ -271,7 +271,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """ grab the current picture one by one with 50 FPS """
         camera_image = self.camera.grab_video() # grab video retrieved np.array image
         imgs = Image.fromarray(camera_image) # conversion
-        image = imgs.resize((561,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
+        image = imgs.resize((300,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
         imgqt = ImageQt.ImageQt(image) # convert to qt image
         self.camera_image_recording = QPixmap.fromImage(imgqt)
         self.scence_trial.clear()
@@ -314,6 +314,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             for i,t in enumerate(image_list):
                 label = QLabel() # we set a label in the layout which should then be filled with the pixmap
                 label.setPixmap(t)
+                label.resize(100,100)
                 self.camera_horizontal.addWidget(label) # add to the layout 
 
 

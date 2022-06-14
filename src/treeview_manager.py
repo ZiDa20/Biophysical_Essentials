@@ -11,7 +11,10 @@ import sys
 import os
 import logging
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+#from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
+import pandas as pd
+
 
 class TreeViewManager():
     """ Main class to handle interactions with treeviews. In general two  usages are defined right now:
@@ -94,6 +97,7 @@ class TreeViewManager():
         experiment
         :return: None
         '''
+
         print("specific analysis view for series ", series_name)
 
         # analysis mode 1 = offline analysis
@@ -101,6 +105,70 @@ class TreeViewManager():
 
         # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
+
+    def create_treeview_from_database(self,selected_tree,discarded_tree,analysis_number,series_name=None):
+        """
+        @todo finish implementation ~ approx 8h dz, 13.05.2022
+        """
+
+        discard_button = QPushButton()
+        pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+        discard_button.setIcon(pixmap)
+
+        # get the experiments linked with this analysis number
+        not_discard_experiments_stored_in_db = self.database.get_not_discarded_experiment_names_by_offline_analysis_number(analysis_number)
+
+        # @todo not implemented yet - also add !
+        discard_experiments_stored_in_db = []
+
+        # add the common tree root
+        parent = ""
+
+        # for each experiment built a single tree and append to the main
+        for experiment in not_discard_experiments_stored_in_db:
+
+            # add experiment as top level item, read meta data group too
+
+            # create a new toplevelitem according to the toplevelcount
+            top_level_item_amount = selected_tree.topLevelItemCount()
+
+            if top_level_item_amount == 0:
+                parent = QTreeWidgetItem(selected_tree)
+            else:
+                parent = QTreeWidgetItem(top_level_item_amount)
+
+            parent.setText(0, experiment)
+
+            # insert the created parent
+            selected_tree.addTopLevelItem(parent)
+
+            # add discard button in the globaly specified discard column
+            selected_tree.setItemWidget(parent, self.discard_column, discard_button)
+
+            # add correct meta data group
+            tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
+
+            not_discarded_experiment_series_stored_in_db = self.database.get_not_discarded_series_names_for_experiment
+            if series_name is None:
+                # have to add all series
+                print("create treeview from database for all series is not implemented yet")
+            else:
+                selected_tree, parent = self.add_series_to_treeview()
+
+                series_related_sweeps_stored_in_db = self.database.get_sweeps_for_series()
+
+                child = QTreeWidgetItem(parent)
+                child.setText(0, series_name)
+                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                child.setCheckState(self.checkbox_column, Qt.Unchecked)
+
+
+
+
+                # add sweeps
+                        # add traces
+
+
 
     def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None,tree_level=None):
         '''
@@ -136,12 +204,20 @@ class TreeViewManager():
                     database_mode = insertion_state
                     print("turned off database mode ")
 
-            #pgf_tuple_list = self.read_series_specific_pgf_trace([],bundle,[])
+            pgf_tuple_data_frame= self.read_series_specific_pgf_trace_into_df([],bundle,[],None,None,None)
 
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, splitted_name[0]
-                                                                             ,self.database,database_mode,series_name,tree_level)
-            #pgf_nodes = self.read_pgf_information([],bundle,[])
+                                                                             ,self.database,database_mode,pgf_tuple_data_frame,series_name,tree_level)
+
+
+
+
+            print(pgf_tuple_data_frame)
+
             print("created tree for file" + i)
+
+
+
             # turn on database mode for the next file
             database_mode = 1
             print("turned on database mode ")
@@ -149,7 +225,8 @@ class TreeViewManager():
 
         return tree, discarded_tree
 
-    def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree, experiment_name, database,data_base_mode,series_name=None, tree_level= None):
+    def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree,
+                                             experiment_name, database,data_base_mode,pgf_tuple_data_frame=None, series_name=None, tree_level= None):
         """
         Creates the treeview and also writes series (info + data) and sweep (info + data) into the database
         :param index:
@@ -211,8 +288,16 @@ class TreeViewManager():
             parent,tree = self.add_group_to_treeview(tree, discarded_tree, node_label, experiment_name, pixmap)
 
         if "Series" in node_type and tree_level>1:
+
+            sliced_pgf_tuple_data_frame = None
+
+            if pgf_tuple_data_frame is None:
+                sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+
             parent,tree = self.add_series_to_treeview(tree, discarded_tree, parent, series_name, node_label, node_list,
-                                                      node_type, experiment_name, data_base_mode, database, pixmap)
+                                                      node_type, experiment_name, data_base_mode, database, pixmap,
+                                                      sliced_pgf_tuple_data_frame)
+
 
 
         if "Sweep" in node_type and tree_level>2:
@@ -221,6 +306,7 @@ class TreeViewManager():
 
         if "Trace" in node_type and tree_level>3:
             if self.analysis_mode==0:
+
                 # trace meta data information will be added to the sweep level
                 parent.setData(5,0,node.get_fields())
 
@@ -233,7 +319,7 @@ class TreeViewManager():
 
         for i in range(len(node.children)):
             self.create_treeview_from_single_dat_file(index + [i], bundle, parent, node_list, tree, discarded_tree, experiment_name,
-                                                      database, data_base_mode,series_name,tree_level)
+                                                      database, data_base_mode,pgf_tuple_data_frame,series_name,tree_level)
 
         self.final_tree = tree
         return tree, discarded_tree
@@ -281,7 +367,8 @@ class TreeViewManager():
 
         return parent,tree
 
-    def add_series_to_treeview(self,tree,discarded_tree,parent,series_name,node_label,node_list,node_type,experiment_name,data_base_mode,database,pixmap):
+    def add_series_to_treeview(self,tree,discarded_tree,parent,series_name,node_label,node_list,node_type,
+                               experiment_name,data_base_mode,database,pixmap,pgf_tuple_data_frame=None):
         '''
         Function to add a new series-node to the tree.
         :param tree: treeview of the selected objects
@@ -313,6 +400,10 @@ class TreeViewManager():
 
             if data_base_mode:
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
+
+                database.create_series_specific_pgf_table(pgf_tuple_data_frame,
+                                                          "pgf_table_"+experiment_name+"_" + node_type,
+                                                          experiment_name, node_type)
 
             if self.analysis_mode == 0:
                 data.append(series_number - 1)
@@ -384,10 +475,9 @@ class TreeViewManager():
                 database.add_single_sweep_to_database(experiment_id, series_identifier, sweep_number, metadata,
                                                           data_array)
 
-            child.setData(3, 0, data)
-            parent = child
-
-            return parent
+        child.setData(3, 0, data)
+        parent = child
+        return parent
 
     def add_new_meta_data_combo_box(self,tree,parent):
         self.experimental_combo_box = QComboBox()
@@ -603,23 +693,28 @@ class TreeViewManager():
 
     def tree_button_clicked(self, item, experiment_tree,discarded_tree,function):
         """function can be -reinsert- or -discard-"""
-        if ".dat" in item.text(0):
-            # this will be executed for .dat files
-            # @todo needs to be eddited for group in online_analysis
-            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
-            #database.move_experiment_to_discarded_experiments_table(item.text(0))
-        else:
-            self.move_series_from_treeview_a_to_b(item,experiment_tree,discarded_tree, function)
+
+        if item.parent():
+            print(item.text(0))
+            self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function)
 
             experiment_name = item.parent().text(0)
             series_name = item.text(0)
-            series_identifier = item.data(4,0)
+            series_identifier = item.data(4, 0)
 
-            if self.database is not None:
-                if function == "reinsert":
-                    self.database.reinsert_specific_series(experiment_name,series_name,series_identifier)
-                else:
+            #if self.database is not None:
+            if function == "reinsert":
+                    self.database.reinsert_specific_series(experiment_name, series_name, series_identifier)
+            else:
                     self.database.discard_specific_series(experiment_name, series_name, series_identifier)
+        else:
+            # @todo needs to be eddited for group in online_analysis
+            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
+
+
+
+            #database.move_experiment_to_discarded_experiments_table(item.text(0))
+
 
     def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move .dat and its specific children """
@@ -657,11 +752,14 @@ class TreeViewManager():
         tree_b.addTopLevelItem(item)
         tree_b.setItemWidget(item, self.discard_column,
                              self.create_row_specific_widget(item, tree_a, tree_b,function))
+        self.add_new_meta_data_combo_box(tree_b, item)
 
         for c in range(child_amount):
             child = item.child(c)
             tree_b.setItemWidget(child, self.discard_column,
                                  self.create_row_specific_widget(child, tree_a, tree_b,function))
+            self.add_new_meta_data_combo_box(tree_b, child)
+
 
     def move_series_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move a series from tree a to tree b, therefore it will be removed from tree a"""
@@ -687,6 +785,8 @@ class TreeViewManager():
                 # insert to the last position
                 tree_b.topLevelItem(i).insertChild(child_amount, item)
                 tree_b.setItemWidget(item,self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b,function))
+
+                self.add_new_meta_data_combo_box(tree_b,item)
                 return
 
         # 3) add a new topLevelItem if no matching parent was found before
@@ -700,6 +800,7 @@ class TreeViewManager():
 
         tree_b.topLevelItem(discarded_tree_top_level_amount).insertChild(0, item)
         tree_b.setItemWidget(item, self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b,function))
+        self.add_new_meta_data_combo_box(tree_b, new_parent)
 
         #return tree_a,tree_b
 
@@ -755,8 +856,47 @@ class TreeViewManager():
         # close the file
         f.close()
 
-    ############## pgf file reading
 
+    def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, holding_potential = None, series_name = None, sweep_number =None):
+
+        # open the pulse generator part of the bundle
+        root = bundle.pgf
+        node = root
+        for i in index:
+            node = node[i]
+
+        # node type e.g. stimulation, chanel or stimchannel
+        node_type = node.__class__.__name__
+        #print("Node type:")
+        #print(node_type)
+
+        if node_type.endswith('PGF'):
+            node_type = node_type[:-3]
+
+
+        if node_type.endswith('PGF'):
+            node_type = node_type[:-3]
+
+        if node_type == "Stimulation":
+            series_name = node.EntryName
+            sweep_number = node.NumberSweeps
+        if node_type == "Channel":
+            # Holding
+            holding_potential = node.Holding
+
+        if node_type == "StimChannel":
+            duration = node.Duration
+            increment = node.DeltaVIncrement
+            voltage = node.Voltage
+
+            data_list.append([series_name,str(sweep_number),node_type,str(holding_potential),str(duration),str(increment),str(voltage)])
+
+        for i in range(len(node.children)):
+            self.read_series_specific_pgf_trace_into_df(index+[i], bundle,data_list, holding_potential, series_name,sweep_number)
+
+        return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage"])
+
+    ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
         '''
         Function to generate series specific pgf trace. The result will be always a list of lists to handle  step protocols

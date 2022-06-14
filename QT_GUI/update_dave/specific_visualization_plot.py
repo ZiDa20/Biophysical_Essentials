@@ -11,14 +11,14 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-
+from groupbox_resizing_class import *
 
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
         if not result_plot_visualizer.objectName():
             result_plot_visualizer.setObjectName(u"result_plot_visualizer")
         result_plot_visualizer.resize(683, 489)
-        self.specific_plot_box = QGroupBox(result_plot_visualizer)
+        self.specific_plot_box = GroupBoxSize(result_plot_visualizer)
         self.specific_plot_box.setObjectName(u"specific_plot_box")
         self.specific_plot_box.setGeometry(QRect(10, 10, 651, 421))
         self.gridLayout_2 = QGridLayout(self.specific_plot_box)
@@ -168,3 +168,7 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         ## manually added
         self.analysis_id = None
         self.analysis_function_id = None
+
+        # object where plot data will be stored to be exported easily
+        self.export_data_frame = None
+

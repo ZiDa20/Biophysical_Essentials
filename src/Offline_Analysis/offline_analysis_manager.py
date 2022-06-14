@@ -44,7 +44,15 @@ class OfflineManager():
         into the database. """
 
         #@todo give normalization as argument to the function
-        cslow_normalization = 1
+        try:
+            if self.database.get_recording_mode_from_analysis_series_table(series_name) == "Voltage Clamp":
+                cslow_normalization = 1
+            else:
+                cslow_normalization = 0
+        except Exception as e:
+            print("Error in Excecute_Single_Series_Analysis")
+            print(e)
+            cslow_normalization = 0
 
         # get series specific time from database
         time = self.database.get_time_in_ms_of_analyzed_series(series_name)
@@ -61,7 +69,11 @@ class OfflineManager():
         # calculate result for each single sweep data trace and write the result into the database
         for table_name in sweep_table_names:
 
+            # dict
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
+
+            if table_name == 'imon_signal_220315_02_Series2':
+                pd.DataFrame(entire_sweep_table).to_csv("debug_signal.csv")
 
             # error handling
             if entire_sweep_table is None:
@@ -73,7 +85,12 @@ class OfflineManager():
 
                 data = list(entire_sweep_table.get(column))
 
+                # @todo better way ? dict hast no order - thats why index doesn't work here
+                # eg. sweep_1
+                sweep_number = column.split("_")
+
                 raw_analysis_class_object = ra.AnalysisRaw(time,data)
+                raw_analysis_class_object._sweep = int(sweep_number[1])
 
                 for a in analysis_functions:
                     # list of cursor bound tuples
@@ -82,11 +99,17 @@ class OfflineManager():
                     for c in cursor_bounds:
                         # negative bound values decode invalid/not selected bounds
                         if c[0] > 0.0  and c[1] > 0.0:
+
                             raw_analysis_class_object._lower_bounds = c[0]
                             raw_analysis_class_object._upper_bounds = c[1]
 
                             raw_analysis_class_object.construct_trace()
                             raw_analysis_class_object.slice_trace()
+
+                            # @todo: how can this be done bether ?? more generic???
+                            if analysis_functions == "Rheobase_Detection":
+                                # get the holding value from the database and incrementation steps from database pgf table
+                                self.database.get_pgf_holding_value(series_name)
 
                             res = raw_analysis_class_object.call_function_by_string_name(a)
 
@@ -100,7 +123,10 @@ class OfflineManager():
                                 print(res)
 
                             sweep_number = str(column).split('_')[1]
-                            self.database.write_result_to_database(c[2],table_name,sweep_number,res)
+                            try:
+                                self.database.write_result_to_database(c[2],table_name,sweep_number,res)
+                            except Exception as e:
+                                print(e)
 
         print("analysis finished")
         return True

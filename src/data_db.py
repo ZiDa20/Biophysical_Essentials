@@ -143,7 +143,8 @@ class DuckDBDatabaseHandler():
                                               discarded boolean,
                                               primary key (experiment_name,series_identifier),
                                               sweep_table_name text,
-                                              meta_data_table_name text
+                                              meta_data_table_name text,
+                                              pgf_data_table_name text
                                               ); """
 
         sql_create_series_table = """CREATE TABLE analysis_series(
@@ -298,6 +299,7 @@ class DuckDBDatabaseHandler():
         print(experiment_names_list)
 
         q = """ select meta_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
+        self.logger.info(f'select meta_data_table_name from experiment_series where experiment_name = \"{experiment_names_list[0][0]}\" and series_name = \"{series_name}\" ')
         name = self.get_data_from_database(self.database, q, (experiment_names_list[0][0], series_name))[0][0]
 
         q = f'SELECT Parameter, sweep_1 FROM {name}'
@@ -368,9 +370,13 @@ class DuckDBDatabaseHandler():
 
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
-            q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?)"""
-            sweep_table_names.append(
-                self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name))[0][0])
+            q2 = """select discarded from experiment_series where experiment_name = (?) AND series_name = (?)"""
+            r = self.get_data_from_database(self.database, q2, (experiment_tuple[0], series_name))[0][0]
+
+            if r is False:
+                q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)"""
+                r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
+                sweep_table_names.append(r)
 
         return sweep_table_names
 
@@ -478,6 +484,35 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
 
+    def get_experiment_name_for_given_sweep_table_name(self,sweep_table_name):
+        """
+        Get's the name of the experiment for a given sweep table name
+        :param sweep_table_name: string of the name
+        :return:
+         :authored: dz, 29.04.2022
+        """
+        q = f'select experiment_name from experiment_series where sweep_table_name = \'{sweep_table_name}\''
+        return self.get_data_from_database(self.database, q)[0][0]
+
+    def get_cslow_value_for_sweep_table(self, series_name):
+        '''
+        get the cslow value for a specific sweep
+        :param series_name: name of the sweep table in the database
+        :return:
+        :authored: dz, 29.04.2022
+        '''
+
+        # get meta data table name where experiment series = series_name
+        # get cslow value from this specific meta data table name
+
+        q = f'select meta_data_table_name from experiment_series where sweep_table_name = \'{series_name}\''
+        # should return a list with only one tuple where the  key = meta data table name
+        meta_data_table_name = self.get_data_from_database(self.database, q)[0][0]
+        q = f'SELECT Parameter, sweep_1 FROM {meta_data_table_name}'
+        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+        return float(meta_data_dict.get('CSlow'))
+
     def add_single_series_to_database(self, experiment_name, series_name, series_identifier):
         self.logger.info(
             "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
@@ -495,7 +530,15 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table analysis_functions   """
     """----------------------------------------------------------"""
 
-    ###
+    def get_analysis_function_name_from_id(self,analysis_function_id):
+        q= f'select function_name from analysis_functions where analysis_function_id = {analysis_function_id}'
+        r = self.get_data_from_database(self.database, q)
+        return r[0][0]
+
+    def get_analysis_series_name_by_analysis_function_id(self,analysis_function_id):
+        q = f'select analysis_series_name from analysis_functions where analysis_function_id = {analysis_function_id}'
+        r = self.get_data_from_database(self.database, q)
+        return r[0][0]
 
     def write_analysis_function_name_and_cursor_bounds_to_database(self, analysis_function, analysis_series_name,
                                                                    lower_bound, upper_bound):
@@ -906,9 +949,60 @@ class DuckDBDatabaseHandler():
         res = self.execute_sql_command(self.database, q, (state, experiment_name, series_name, series_identifier))
 
     def get_distinct_non_discarded_series_names(self):
+        """
+        get all distinct series names from experiments mapped with the current analysis id
+        :return:
+        """
 
-        q = """select distinct series_name from experiment_series where "discarded" == 0"""
+        q = f'select distinct exp.series_name from experiment_series exp inner join experiment_analysis_mapping map ' \
+            f'on exp.experiment_name = map.experiment_name where map.analysis_id = \'{self.analysis_id}\' and exp.discarded = 0'
+
         return self.get_data_from_database(self.database, q)
+
+    '''-------------------------------------------------------'''
+    '''     create series specific pgf trace table            '''
+    '''-------------------------------------------------------'''
+
+    def create_series_specific_pgf_table (self, data_frame, pgf_table_name,experiment_name, series_identifier):
+        """ adds new pgf table to the database        """
+        self.database.register('df_1', data_frame)
+
+        try:
+            # create a new sweep table
+            self.database.execute(f'create table {pgf_table_name} as select * from df_1')
+
+            try:
+                # update the series table by inserting the newly created pgf table name
+                q = """update experiment_series set pgf_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+
+                self.execute_sql_command(self.database, q, (pgf_table_name, experiment_name, series_identifier))
+
+                self.logger.info("Successfully created %s table of series %s in experiment %s", pgf_table_name,
+                                 series_identifier, experiment_name)
+
+            except Exception as e:
+                self.logger.info("Update Series table failed with error %s", e)
+
+        except Exception as e:
+            self.logger.info("Error::Couldn't create a new table with error %s", e)
+
+
+    def get_pgf_holding_value(self,series_name):
+        """
+
+        :param series_name:
+        :return:
+        """
+
+        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+
+        # take the first element, get the pgf_table_name, extract holding and
+
+        q = f'select pgf_table_name from experiment_series where experiment_name = {experiment_names[0][0]}'
+
+        self.execute_sql_command(self.database, q)
+
+
 
     ###### deprecated ######
 
@@ -956,6 +1050,8 @@ class DuckDBDatabaseHandler():
                     values = (experiment_number, series_identifier, sweep_number, meta_data)
 
                     self.database = self.execute_sql_command(self.database, sql_command, values)
+
+
 
     '''
     def get_sweep_meta_data(self,datalist,pos):

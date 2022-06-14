@@ -1,12 +1,14 @@
 import sys
 import os
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-import pandas as pd
-from settings_window import * 
-from start import *
-from qt_material import apply_stylesheet
+import pandas as pd 
+#from start import *
 from tkinter_camera import * 
-
+from settings_window import Ui_Settings
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+from functools import partial
 
 class SettingsWindow(QWidget,Ui_Settings):
     def __init__(self,parent = None):
@@ -20,8 +22,7 @@ class SettingsWindow(QWidget,Ui_Settings):
         for index, button in enumerate(settings_buttons):
             button.clicked.connect(partial(self.stackedWidget_4.setCurrentIndex, index))
         self.pushButton_13.clicked.connect(self.initialize_camera)
-        self.quit_settings.clicked.connect(self.quit)
-
+    
 
     def switch_modes(self, default_mode):
         with open('Menu_button.css') as file:

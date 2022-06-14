@@ -47,6 +47,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
+        self.go_back_button.clicked.connect(self.go_to_main_page)
+
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
         self.add_filter_button.clicked.connect(self.add_filter_to_offline_analysis)
         self.add_filter_button.setEnabled(False)
@@ -79,7 +81,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # for now, analysis is static number ->
         self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        self.result_visualizer.show_results_for_current_analysis(43)
+        self.result_visualizer.show_results_for_current_analysis(39)
 
 
 
@@ -88,6 +90,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
         new button interactions offered """
         self.offline_analysis_widgets.setCurrentIndex(1)
+
+
+    @Slot()
+    def go_to_main_page(self):
+        self.offline_analysis_widgets.setCurrentIndex(0)
 
     @Slot()
     def open_directory(self):
@@ -357,6 +364,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             new_tab_widget=SpecificAnalysisTab()
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
             new_tab_widget.setObjectName(s)
+            new_tab_widget.go_back_tp_page_2.clicked.connect(self.go_to_offline_analysis_page_2)
             self.tabWidget.insertTab(series_names_list.index(s),new_tab_widget,s)
             self.tab_list.append(new_tab_widget)
             self.plot_widgets= []
@@ -367,10 +375,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.tabWidget.setCurrentIndex(1)
         self.tabWidget.setCurrentIndex(0)
 
+    @Slot()
+    def go_to_offline_analysis_page_2(self):
+        self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
     def tab_changed(self,index):
-        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is changed. Index is the tab number correlating with a global list of tab objects self.tab_list
+        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
+        changed. Index is the tab number correlating with a global list of tab objects self.tab_list
         @author dz, 20.07.2021"""
 
         current_tab = self.tab_list[index]
@@ -401,6 +413,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.selected_tree_widget.expandToDepth(0)
 
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
+
         self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
 
 
@@ -452,25 +465,31 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab = self.tab_list[current_index]
 
         print(self.selected_analysis_functions)
-        current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        # MSUT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-        current_tab.analysis_table_widget.setColumnCount(5)
-        current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
+        existing_row_numbers = current_tab.analysis_table_widget.rowCount()
 
-        self.table_buttons = [0] * len(self.selected_analysis_functions)
+        if existing_row_numbers == 0:
+            current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+            current_tab.analysis_table_widget.setColumnCount(5)
+            current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
+            self.table_buttons = [0] * len(self.selected_analysis_functions)
+        else:
+            current_tab.analysis_table_widget.setRowCount(existing_row_numbers + len(self.selected_analysis_functions))
+            self.table_buttons = self.table_buttons +  [0]*len(self.selected_analysis_functions)
 
         for row in range(len(self.selected_analysis_functions)):
-                print(str(row))
+                row_to_insert = row + existing_row_numbers
                 value = self.selected_analysis_functions[row]
                 print(str(value))
-                current_tab.analysis_table_widget.setItem(row,0,QTableWidgetItem(str(value)))
-                self.table_buttons[row] = QPushButton("Add")
+                current_tab.analysis_table_widget.setItem(row_to_insert,0,QTableWidgetItem(str(value)))
+                self.table_buttons[row_to_insert] = QPushButton("Add")
                 self.c = QPushButton("Configure")
-                current_tab.analysis_table_widget.setCellWidget(row,3,self.table_buttons[row])
-                current_tab.analysis_table_widget.setCellWidget(row, 4, self.c)
+                current_tab.analysis_table_widget.setCellWidget(row_to_insert,3,self.table_buttons[row_to_insert])
+                current_tab.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
 
-                self.table_buttons[row].clicked.connect(partial(self.add_coursor_bounds,row,current_tab))
+                self.table_buttons[row_to_insert].clicked.connect(partial(self.add_coursor_bounds,row_to_insert,current_tab))
 
         current_tab.analysis_table_widget.show()
 
@@ -574,8 +593,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
             # plot the calculated results
-
-            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id)
+            current_tab_index = self.tabWidget.currentIndex()
+            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.tabWidget.tabText(current_tab_index))
 
 
     def write_function_grid_values_into_database(self,current_tab):

@@ -22,7 +22,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.settings_button.clicked.connect(self.open_settings)
+        
 
         self.setCentralWidget(self.ui.centralwidget)
 
@@ -59,7 +59,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.default_mode = 1
 
         #make button
-        self.buttons = (self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics)
+        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
         for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
@@ -87,10 +87,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         file_path = self.ui.config.get_file_path()
         self.ui.online.open_single_dat_file(str(file_path))
 
-    def open_settings(self):
-        """ This should be changed to the main settings"""
-        self.settings = SettingsWindow()
-        self.settings.show()
 
     """
     not used anymore
