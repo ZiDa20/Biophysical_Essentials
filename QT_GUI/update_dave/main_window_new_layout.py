@@ -3,28 +3,34 @@
 ################################################################################
 ## Form generated from reading UI file 'main_window_new_layout.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.1
+## Created by: Qt User Interface Compiler version 6.3.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLayout,
+    QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
+    QStackedWidget, QWidget)
 
-from self_configuration import Config_Widget
-from online_analysis_widget import Online_Analysis
-from offline_analysis_widget import Offline_Analysis
-from settings_dialog import SettingsWindow
 from database_viewer_widget import Database_Viewer
-
+from offline_analysis_widget import Offline_Analysis
+from online_analysis_widget import Online_Analysis
+from self_configuration import Config_Widget
+from settings_dialog import SettingsWindow
 import Figures_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1280, 950)
+        MainWindow.resize(1537, 950)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -70,7 +76,7 @@ class Ui_MainWindow(object):
         self.settings.setObjectName(u"settings")
         self.notebook.addWidget(self.settings)
 
-        self.gridLayout.addWidget(self.notebook, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.notebook, 1, 0, 1, 1)
 
         self.side_left_menu = QWidget(self.centralwidget)
         self.side_left_menu.setObjectName(u"side_left_menu")
@@ -287,8 +293,23 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.darkmode_button)
 
+        self.minimize_button = QPushButton(self.side_left_menu)
+        self.minimize_button.setObjectName(u"minimize_button")
 
-        self.gridLayout.addWidget(self.side_left_menu, 1, 0, 1, 1)
+        self.horizontalLayout.addWidget(self.minimize_button)
+
+        self.pushButton_3 = QPushButton(self.side_left_menu)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+
+        self.horizontalLayout.addWidget(self.pushButton_3)
+
+        self.maximize_button = QPushButton(self.side_left_menu)
+        self.maximize_button.setObjectName(u"maximize_button")
+
+        self.horizontalLayout.addWidget(self.maximize_button)
+
+
+        self.gridLayout.addWidget(self.side_left_menu, 0, 0, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -308,5 +329,8 @@ class Ui_MainWindow(object):
         self.statistics.setText("")
         self.settings_button.setText("")
         self.darkmode_button.setText("")
+        self.minimize_button.setText(QCoreApplication.translate("MainWindow", u"-", None))
+        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"+", None))
+        self.maximize_button.setText(QCoreApplication.translate("MainWindow", u"X", None))
     # retranslateUi
 

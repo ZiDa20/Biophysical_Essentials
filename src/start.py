@@ -16,7 +16,8 @@ from settings_dialog import *
 from tkinter_camera import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
-from qframelesswindow import FramelessWindow
+from BlurWindow.blurWindow import GlobalBlur
+from pyqt_custom_titlebar_window import CustomTitlebarWindow
 
 # add this for making the background blurring
 
@@ -26,6 +27,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.center()
+        #GlobalBlur(self.winId(),Dark=True,QWidget=self)
         
         self.setCentralWidget(self.ui.centralwidget)
 
@@ -80,14 +84,41 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # connect settings button
         self.write_button_text()
+        self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
+        self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
+        self.ui.maximize_button.clicked.connect(self.quit_application)
         #self.test_blurring()
         #self.ui.side_left_menu.setMinimumSize(300, 1000)
         #self.ui.side_left_menu.setMaximumSize(300, 1800)
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QGuiApplication.primaryScreen().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def mousePressEvent(self, event):
+        self.oldPos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        delta = QPoint (event.globalPos() - self.oldPos)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.oldPos = event.globalPos()
 
     def transfer_file_to_online(self):
         """ transfer the self.configuration data to the online analysis """
         file_path = self.ui.config.get_file_path()
         self.ui.online.open_single_dat_file(str(file_path))
+
+
+    def minimize(self):
+        self.showMinimized()
+
+    def maximize(self):
+        self.showMaximized()
+
+    def quit_application(self):
+        QCoreApplication.quit()
 
 
     """
@@ -261,14 +292,11 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme='dark_red.xml')
     stylesheet = app.styleSheet()
     with open('Menu_button.css') as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    app.exec()
 
