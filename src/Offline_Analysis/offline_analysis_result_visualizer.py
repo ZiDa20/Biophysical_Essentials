@@ -7,13 +7,13 @@ from PySide6.QtWidgets import *
 from collections import OrderedDict
 
 import pandas as pd
-import matplotlib as mpl
+#import matplotlib as mpl
 #mpl.use("Qt5Agg")
-import matplotlib.backends.backend_tkagg
+#import matplotlib.backends.backend_tkagg
 
 import pyqtgraph as pg
 from matplotlib.backends.qt_compat import QtWidgets
-from matplotlib.backends.backend_qt5agg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qtagg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
 

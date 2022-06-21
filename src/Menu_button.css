@@ -1,8 +1,8 @@
 QPushButton {{
-  color: #fff5cc;
+  background-color: #fff5cc;
+  color: black;
   text-transform: none;
-  background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border-radius : 10px;
+
 }}
 
 ListView{{
@@ -31,7 +31,11 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar {{
 }}
 
 QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
-  color:{QTMATERIAL_SECONDARYCOLOR};
+  color:black;
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
+  color:grey;
 }}
 
 
@@ -42,16 +46,46 @@ QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar {{
-  background-color: #ff8117;
-  color:{QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
+  background-color: #fff5cc;
+  border: 1px solid #97ccf2;;
+  border-radius: 2px
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::selected {{
-  color:{QTMATERIAL_SECONDARYCOLOR};
+  color:black;
+  shad
 }}
+
+QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::!selected {{
+  color:grey;
+}}
+
 
 
 QTreeView {{
   background-color:  {QTMATERIAL_SECONDARYCOLOR}
+}}
+
+
+QGroupBox[objectName="button_box_1"]{{
+  color:black;
+  border: 1px #fff5cc;
+}}
+
+
+QStackedWidget{{
+  background-color: rgba(20,20,20,0);
+}}
+
+QWidget[objectName="centralwidget"]{{
+  background-color: rgba(20,20,20,50);
+}}
+
+QMainWindow{{
+  background-color: rgba(39,36,38,85);
+}}
+
+
+QWidget[objectName="side_left_menu"]{{
+  background-color: green;
 }}

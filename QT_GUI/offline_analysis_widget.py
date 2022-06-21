@@ -81,7 +81,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # for now, analysis is static number ->
         self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        self.result_visualizer.show_results_for_current_analysis(39)
+        self.result_visualizer.show_results_for_current_analysis(14)
 
 
 

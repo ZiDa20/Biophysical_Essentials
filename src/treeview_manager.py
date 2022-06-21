@@ -291,7 +291,7 @@ class TreeViewManager():
 
             sliced_pgf_tuple_data_frame = None
 
-            if pgf_tuple_data_frame is None:
+            if pgf_tuple_data_frame is not None:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
 
             parent,tree = self.add_series_to_treeview(tree, discarded_tree, parent, series_name, node_label, node_list,

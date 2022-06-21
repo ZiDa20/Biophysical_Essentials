@@ -12,15 +12,15 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
-from dropable_list_view import ListView
 from groupbox_resizing_class import GroupBoxSize
+from dropable_list_view import ListView
 
 
 class Ui_Config_Widget(object):
     def setupUi(self, Config_Widget):
         if not Config_Widget.objectName():
             Config_Widget.setObjectName(u"Config_Widget")
-        Config_Widget.resize(1745, 980)
+        Config_Widget.resize(1408, 1014)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -39,15 +39,15 @@ class Ui_Config_Widget(object):
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.horizontalSpacer_41 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_3.addItem(self.horizontalSpacer_41, 3, 0, 1, 1)
-
-        self.horizontalSpacer_52 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_3.addItem(self.horizontalSpacer_52, 1, 0, 1, 1)
+        self.gridLayout_3.addItem(self.horizontalSpacer_41, 2, 0, 1, 1)
 
         self.horizontalSpacer_42 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_3.addItem(self.horizontalSpacer_42, 4, 0, 1, 1)
+        self.gridLayout_3.addItem(self.horizontalSpacer_42, 3, 0, 1, 1)
+
+        self.horizontalSpacer_52 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_3.addItem(self.horizontalSpacer_52, 0, 0, 1, 1)
 
         self.meta_data_loading_1 = QStackedWidget(self.experiment_initialization_3)
         self.meta_data_loading_1.setObjectName(u"meta_data_loading_1")
@@ -774,15 +774,7 @@ class Ui_Config_Widget(object):
         sizePolicy.setHeightForWidth(self.groupBox_7.sizePolicy().hasHeightForWidth())
         self.groupBox_7.setSizePolicy(sizePolicy)
         self.groupBox_7.setMaximumSize(QSize(250, 16777215))
-        self.groupBox_7.setStyleSheet(u"QGroupBox {\n"
-"\n"
-"background-color: #fff5cc;\n"
-"}\n"
-"\n"
-"QLabell {\n"
-"\n"
-"color:black;\n"
-"}")
+        self.groupBox_7.setStyleSheet(u"")
         self.gridLayout_9 = QGridLayout(self.groupBox_7)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.metadata_table = QPushButton(self.groupBox_7)
@@ -943,21 +935,21 @@ class Ui_Config_Widget(object):
 
         self.meta_data_loading_1.addWidget(self.page_2)
 
-        self.gridLayout_3.addWidget(self.meta_data_loading_1, 2, 0, 1, 1)
-
-        self.label_21 = QLabel(self.experiment_initialization_3)
-        self.label_21.setObjectName(u"label_21")
-        font2 = QFont()
-        font2.setPointSize(15)
-        self.label_21.setFont(font2)
-
-        self.gridLayout_3.addWidget(self.label_21, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.meta_data_loading_1, 1, 0, 1, 1)
 
         self.self_configuration_notebook.addTab(self.experiment_initialization_3, "")
         self.batch_communication_3 = QWidget()
         self.batch_communication_3.setObjectName(u"batch_communication_3")
         self.gridLayout_23 = QGridLayout(self.batch_communication_3)
         self.gridLayout_23.setObjectName(u"gridLayout_23")
+        self.horizontalSpacer_45 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_23.addItem(self.horizontalSpacer_45, 2, 0, 1, 1)
+
+        self.horizontalSpacer_44 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_23.addItem(self.horizontalSpacer_44, 0, 0, 1, 1)
+
         self.groupBox_19 = QGroupBox(self.batch_communication_3)
         self.groupBox_19.setObjectName(u"groupBox_19")
         self.groupBox_19.setFont(font1)
@@ -979,7 +971,7 @@ class Ui_Config_Widget(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 274, 370))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 206, 351))
         self.gridLayout_16 = QGridLayout(self.scrollAreaWidgetContents_5)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.listWidget = ListView(self.scrollAreaWidgetContents_5)
@@ -1016,7 +1008,7 @@ class Ui_Config_Widget(object):
         self.scrollArea.setAlignment(Qt.AlignRight|Qt.AlignTop|Qt.AlignTrailing)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 274, 370))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 206, 350))
         self.gridLayout_27 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_27.setObjectName(u"gridLayout_27")
         self.SeriesWidget = ListView(self.scrollAreaWidgetContents)
@@ -1048,7 +1040,7 @@ class Ui_Config_Widget(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollAreaWidgetContents_4 = QWidget()
         self.scrollAreaWidgetContents_4.setObjectName(u"scrollAreaWidgetContents_4")
-        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 274, 370))
+        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 207, 350))
         self.gridLayout_29 = QGridLayout(self.scrollAreaWidgetContents_4)
         self.gridLayout_29.setObjectName(u"gridLayout_29")
         self.SeriesWidget_2 = ListView(self.scrollAreaWidgetContents_4)
@@ -1079,7 +1071,7 @@ class Ui_Config_Widget(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollAreaWidgetContents_3 = QWidget()
         self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 274, 370))
+        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 207, 351))
         self.gridLayout_26 = QGridLayout(self.scrollAreaWidgetContents_3)
         self.gridLayout_26.setObjectName(u"gridLayout_26")
         self.general_commands_labels = ListView(self.scrollAreaWidgetContents_3)
@@ -1112,7 +1104,7 @@ class Ui_Config_Widget(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 274, 370))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 206, 351))
         self.gridLayout_28 = QGridLayout(self.scrollAreaWidgetContents_2)
         self.gridLayout_28.setObjectName(u"gridLayout_28")
         self.protocol_widget = ListView(self.scrollAreaWidgetContents_2)
@@ -1198,23 +1190,187 @@ class Ui_Config_Widget(object):
         self.gridLayout_10.addLayout(self.gridLayout_39, 1, 1, 4, 1)
 
 
-        self.gridLayout_23.addWidget(self.groupBox_19, 2, 0, 1, 1)
+        self.gridLayout_23.addWidget(self.groupBox_19, 1, 0, 1, 1)
 
-        self.horizontalSpacer_44 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.gridLayout_30 = QGridLayout()
+        self.gridLayout_30.setObjectName(u"gridLayout_30")
+        self.gridLayout_34 = QGridLayout()
+        self.gridLayout_34.setObjectName(u"gridLayout_34")
+        self.groupBox_3 = QGroupBox(self.batch_communication_3)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        sizePolicy5 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
+        self.groupBox_3.setSizePolicy(sizePolicy5)
+        self.groupBox_3.setMinimumSize(QSize(0, 350))
+        self.groupBox_3.setStyleSheet(u"")
+        self.horizontalLayout_4 = QHBoxLayout(self.groupBox_3)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.gridLayout_31 = QGridLayout()
+        self.gridLayout_31.setObjectName(u"gridLayout_31")
+        self.gridLayout_31.setHorizontalSpacing(0)
+        self.gridLayout_31.setVerticalSpacing(5)
+        self.label_12 = QLabel(self.groupBox_3)
+        self.label_12.setObjectName(u"label_12")
+        sizePolicy1.setHeightForWidth(self.label_12.sizePolicy().hasHeightForWidth())
+        self.label_12.setSizePolicy(sizePolicy1)
+        self.label_12.setStyleSheet(u"")
 
-        self.gridLayout_23.addItem(self.horizontalSpacer_44, 1, 0, 1, 1)
+        self.gridLayout_31.addWidget(self.label_12, 3, 0, 1, 1)
 
-        self.horizontalSpacer_45 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.label_14 = QLabel(self.groupBox_3)
+        self.label_14.setObjectName(u"label_14")
+        sizePolicy1.setHeightForWidth(self.label_14.sizePolicy().hasHeightForWidth())
+        self.label_14.setSizePolicy(sizePolicy1)
 
-        self.gridLayout_23.addItem(self.horizontalSpacer_45, 3, 0, 1, 1)
+        self.gridLayout_31.addWidget(self.label_14, 9, 0, 1, 1)
 
-        self.label_18 = QLabel(self.batch_communication_3)
-        self.label_18.setObjectName(u"label_18")
-        self.label_18.setFont(font2)
+        self.label_10 = QLabel(self.groupBox_3)
+        self.label_10.setObjectName(u"label_10")
+        sizePolicy1.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
+        self.label_10.setSizePolicy(sizePolicy1)
 
-        self.gridLayout_23.addWidget(self.label_18, 0, 0, 1, 1)
+        self.gridLayout_31.addWidget(self.label_10, 5, 0, 1, 1)
 
-        self.groupBox_8 = QGroupBox(self.batch_communication_3)
+        self.cfast_qc = QLineEdit(self.groupBox_3)
+        self.cfast_qc.setObjectName(u"cfast_qc")
+        sizePolicy1.setHeightForWidth(self.cfast_qc.sizePolicy().hasHeightForWidth())
+        self.cfast_qc.setSizePolicy(sizePolicy1)
+        self.cfast_qc.setMaximumSize(QSize(150, 16777215))
+
+        self.gridLayout_31.addWidget(self.cfast_qc, 8, 0, 1, 1)
+
+        self.cslow_qc = QLineEdit(self.groupBox_3)
+        self.cslow_qc.setObjectName(u"cslow_qc")
+        self.cslow_qc.setMaximumSize(QSize(150, 16777215))
+
+        self.gridLayout_31.addWidget(self.cslow_qc, 4, 0, 1, 1)
+
+        self.label_13 = QLabel(self.groupBox_3)
+        self.label_13.setObjectName(u"label_13")
+        sizePolicy1.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
+        self.label_13.setSizePolicy(sizePolicy1)
+
+        self.gridLayout_31.addWidget(self.label_13, 7, 0, 1, 1)
+
+        self.cfast_qc_2 = QLineEdit(self.groupBox_3)
+        self.cfast_qc_2.setObjectName(u"cfast_qc_2")
+        sizePolicy1.setHeightForWidth(self.cfast_qc_2.sizePolicy().hasHeightForWidth())
+        self.cfast_qc_2.setSizePolicy(sizePolicy1)
+        self.cfast_qc_2.setMaximumSize(QSize(150, 16777215))
+
+        self.gridLayout_31.addWidget(self.cfast_qc_2, 6, 0, 1, 1)
+
+        self.rseries_qc = QLineEdit(self.groupBox_3)
+        self.rseries_qc.setObjectName(u"rseries_qc")
+        sizePolicy1.setHeightForWidth(self.rseries_qc.sizePolicy().hasHeightForWidth())
+        self.rseries_qc.setSizePolicy(sizePolicy1)
+        self.rseries_qc.setMinimumSize(QSize(150, 0))
+        self.rseries_qc.setMaximumSize(QSize(150, 16777215))
+
+        self.gridLayout_31.addWidget(self.rseries_qc, 1, 0, 1, 1, Qt.AlignLeft)
+
+        self.label_15 = QLabel(self.groupBox_3)
+        self.label_15.setObjectName(u"label_15")
+        sizePolicy1.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
+        self.label_15.setSizePolicy(sizePolicy1)
+        font2 = QFont()
+        font2.setPointSize(12)
+        self.label_15.setFont(font2)
+        self.label_15.setStyleSheet(u"")
+
+        self.gridLayout_31.addWidget(self.label_15, 0, 0, 1, 1, Qt.AlignLeft)
+
+
+        self.horizontalLayout_4.addLayout(self.gridLayout_31)
+
+        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.horizontalLayout_4.addItem(self.verticalSpacer_7)
+
+        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.horizontalLayout_4.addItem(self.verticalSpacer_5)
+
+        self.gridLayout_25 = QGridLayout()
+        self.gridLayout_25.setObjectName(u"gridLayout_25")
+        self.label_17 = QLabel(self.groupBox_3)
+        self.label_17.setObjectName(u"label_17")
+        sizePolicy6 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.label_17.sizePolicy().hasHeightForWidth())
+        self.label_17.setSizePolicy(sizePolicy6)
+        self.label_17.setFont(font2)
+        self.label_17.setStyleSheet(u"")
+
+        self.gridLayout_25.addWidget(self.label_17, 0, 0, 1, 1)
+
+        self.label_30 = QLabel(self.groupBox_3)
+        self.label_30.setObjectName(u"label_30")
+
+        self.gridLayout_25.addWidget(self.label_30, 1, 0, 1, 1)
+
+        self.transfer_to_online_analysis_button = QPushButton(self.groupBox_3)
+        self.transfer_to_online_analysis_button.setObjectName(u"transfer_to_online_analysis_button")
+        sizePolicy1.setHeightForWidth(self.transfer_to_online_analysis_button.sizePolicy().hasHeightForWidth())
+        self.transfer_to_online_analysis_button.setSizePolicy(sizePolicy1)
+        self.transfer_to_online_analysis_button.setMinimumSize(QSize(150, 30))
+        self.transfer_to_online_analysis_button.setMaximumSize(QSize(150, 300))
+
+        self.gridLayout_25.addWidget(self.transfer_to_online_analysis_button, 7, 0, 1, 1)
+
+        self.verticalSpacer_10 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_25.addItem(self.verticalSpacer_10, 8, 0, 1, 1)
+
+        self.label_33 = QLabel(self.groupBox_3)
+        self.label_33.setObjectName(u"label_33")
+
+        self.gridLayout_25.addWidget(self.label_33, 3, 0, 1, 1)
+
+        self.pushButton = QPushButton(self.groupBox_3)
+        self.pushButton.setObjectName(u"pushButton")
+        sizePolicy1.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
+        self.pushButton.setSizePolicy(sizePolicy1)
+        self.pushButton.setMinimumSize(QSize(150, 0))
+        self.pushButton.setMaximumSize(QSize(150, 16777215))
+
+        self.gridLayout_25.addWidget(self.pushButton, 4, 0, 1, 1)
+
+        self.label_19 = QLabel(self.groupBox_3)
+        self.label_19.setObjectName(u"label_19")
+        sizePolicy6.setHeightForWidth(self.label_19.sizePolicy().hasHeightForWidth())
+        self.label_19.setSizePolicy(sizePolicy6)
+        self.label_19.setFont(font2)
+        self.label_19.setStyleSheet(u"")
+
+        self.gridLayout_25.addWidget(self.label_19, 6, 0, 1, 1)
+
+        self.switch_to_testing = QPushButton(self.groupBox_3)
+        self.switch_to_testing.setObjectName(u"switch_to_testing")
+        sizePolicy1.setHeightForWidth(self.switch_to_testing.sizePolicy().hasHeightForWidth())
+        self.switch_to_testing.setSizePolicy(sizePolicy1)
+        self.switch_to_testing.setMinimumSize(QSize(150, 30))
+        self.switch_to_testing.setMaximumSize(QSize(150, 20))
+
+        self.gridLayout_25.addWidget(self.switch_to_testing, 2, 0, 1, 1)
+
+        self.horizontalSpacer_19 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_25.addItem(self.horizontalSpacer_19, 5, 0, 1, 1)
+
+
+        self.horizontalLayout_4.addLayout(self.gridLayout_25)
+
+
+        self.gridLayout_34.addWidget(self.groupBox_3, 0, 0, 1, 1)
+
+
+        self.gridLayout_30.addLayout(self.gridLayout_34, 1, 0, 1, 1)
+
+        self.groupBox_8 = GroupBoxSize(self.batch_communication_3)
         self.groupBox_8.setObjectName(u"groupBox_8")
         self.gridLayout_40 = QGridLayout(self.groupBox_8)
         self.gridLayout_40.setObjectName(u"gridLayout_40")
@@ -1317,11 +1473,6 @@ class Ui_Config_Widget(object):
 
         self.gridLayout_41.addLayout(self.pyqt_window, 0, 0, 1, 1)
 
-        self.label_11 = QLabel(self.select_commands)
-        self.label_11.setObjectName(u"label_11")
-
-        self.gridLayout_41.addWidget(self.label_11, 1, 0, 1, 1)
-
         self.visualization_stacked.addWidget(self.select_commands)
 
         self.pyqt_window_grid.addWidget(self.visualization_stacked, 0, 0, 1, 1)
@@ -1329,198 +1480,14 @@ class Ui_Config_Widget(object):
 
         self.gridLayout_36.addLayout(self.pyqt_window_grid, 2, 0, 1, 1)
 
-        self.gridLayout_34 = QGridLayout()
-        self.gridLayout_34.setObjectName(u"gridLayout_34")
-        self.horizontalSpacer_22 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_34.addItem(self.horizontalSpacer_22, 0, 0, 1, 1)
-
-        self.groupBox_3 = GroupBoxSize(self.groupBox_8)
-        self.groupBox_3.setObjectName(u"groupBox_3")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
-        sizePolicy5.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
-        self.groupBox_3.setSizePolicy(sizePolicy5)
-        self.groupBox_3.setMinimumSize(QSize(0, 350))
-        self.groupBox_3.setStyleSheet(u"QGroupBox {\n"
-"\n"
-"background-color:#fff5cc;\n"
-"color: black\n"
-"\n"
-"}\n"
-"\n"
-"QLabel {\n"
-"\n"
-"color:black;\n"
-"}")
-        self.horizontalLayout_4 = QHBoxLayout(self.groupBox_3)
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.gridLayout_31 = QGridLayout()
-        self.gridLayout_31.setObjectName(u"gridLayout_31")
-        self.gridLayout_31.setHorizontalSpacing(0)
-        self.gridLayout_31.setVerticalSpacing(5)
-        self.label_12 = QLabel(self.groupBox_3)
-        self.label_12.setObjectName(u"label_12")
-        sizePolicy1.setHeightForWidth(self.label_12.sizePolicy().hasHeightForWidth())
-        self.label_12.setSizePolicy(sizePolicy1)
-        self.label_12.setStyleSheet(u"color:black")
-
-        self.gridLayout_31.addWidget(self.label_12, 3, 0, 1, 1)
-
-        self.label_14 = QLabel(self.groupBox_3)
-        self.label_14.setObjectName(u"label_14")
-        sizePolicy1.setHeightForWidth(self.label_14.sizePolicy().hasHeightForWidth())
-        self.label_14.setSizePolicy(sizePolicy1)
-
-        self.gridLayout_31.addWidget(self.label_14, 9, 0, 1, 1)
-
-        self.label_10 = QLabel(self.groupBox_3)
-        self.label_10.setObjectName(u"label_10")
-        sizePolicy1.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
-        self.label_10.setSizePolicy(sizePolicy1)
-
-        self.gridLayout_31.addWidget(self.label_10, 5, 0, 1, 1)
-
-        self.cfast_qc = QLineEdit(self.groupBox_3)
-        self.cfast_qc.setObjectName(u"cfast_qc")
-        sizePolicy1.setHeightForWidth(self.cfast_qc.sizePolicy().hasHeightForWidth())
-        self.cfast_qc.setSizePolicy(sizePolicy1)
-        self.cfast_qc.setMaximumSize(QSize(150, 16777215))
-
-        self.gridLayout_31.addWidget(self.cfast_qc, 8, 0, 1, 1)
-
-        self.cslow_qc = QLineEdit(self.groupBox_3)
-        self.cslow_qc.setObjectName(u"cslow_qc")
-        self.cslow_qc.setMaximumSize(QSize(150, 16777215))
-
-        self.gridLayout_31.addWidget(self.cslow_qc, 4, 0, 1, 1)
-
-        self.label_13 = QLabel(self.groupBox_3)
-        self.label_13.setObjectName(u"label_13")
-        sizePolicy1.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
-        self.label_13.setSizePolicy(sizePolicy1)
-
-        self.gridLayout_31.addWidget(self.label_13, 7, 0, 1, 1)
-
-        self.cfast_qc_2 = QLineEdit(self.groupBox_3)
-        self.cfast_qc_2.setObjectName(u"cfast_qc_2")
-        sizePolicy1.setHeightForWidth(self.cfast_qc_2.sizePolicy().hasHeightForWidth())
-        self.cfast_qc_2.setSizePolicy(sizePolicy1)
-        self.cfast_qc_2.setMaximumSize(QSize(150, 16777215))
-
-        self.gridLayout_31.addWidget(self.cfast_qc_2, 6, 0, 1, 1)
-
-        self.rseries_qc = QLineEdit(self.groupBox_3)
-        self.rseries_qc.setObjectName(u"rseries_qc")
-        sizePolicy1.setHeightForWidth(self.rseries_qc.sizePolicy().hasHeightForWidth())
-        self.rseries_qc.setSizePolicy(sizePolicy1)
-        self.rseries_qc.setMinimumSize(QSize(150, 0))
-        self.rseries_qc.setMaximumSize(QSize(150, 16777215))
-
-        self.gridLayout_31.addWidget(self.rseries_qc, 1, 0, 1, 1, Qt.AlignLeft)
-
-        self.label_15 = QLabel(self.groupBox_3)
-        self.label_15.setObjectName(u"label_15")
-        sizePolicy1.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
-        self.label_15.setSizePolicy(sizePolicy1)
-        font3 = QFont()
-        font3.setPointSize(12)
-        self.label_15.setFont(font3)
-        self.label_15.setStyleSheet(u"color:black\n"
-"")
-
-        self.gridLayout_31.addWidget(self.label_15, 0, 0, 1, 1, Qt.AlignLeft)
-
-
-        self.horizontalLayout_4.addLayout(self.gridLayout_31)
-
-        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.horizontalLayout_4.addItem(self.verticalSpacer_5)
-
-        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.horizontalLayout_4.addItem(self.verticalSpacer_7)
-
-        self.gridLayout_25 = QGridLayout()
-        self.gridLayout_25.setObjectName(u"gridLayout_25")
-        self.label_33 = QLabel(self.groupBox_3)
-        self.label_33.setObjectName(u"label_33")
-
-        self.gridLayout_25.addWidget(self.label_33, 3, 0, 1, 1)
-
-        self.switch_to_testing = QPushButton(self.groupBox_3)
-        self.switch_to_testing.setObjectName(u"switch_to_testing")
-        sizePolicy1.setHeightForWidth(self.switch_to_testing.sizePolicy().hasHeightForWidth())
-        self.switch_to_testing.setSizePolicy(sizePolicy1)
-        self.switch_to_testing.setMinimumSize(QSize(200, 30))
-        self.switch_to_testing.setMaximumSize(QSize(300, 20))
-
-        self.gridLayout_25.addWidget(self.switch_to_testing, 2, 0, 1, 1)
-
-        self.pushButton = QPushButton(self.groupBox_3)
-        self.pushButton.setObjectName(u"pushButton")
-
-        self.gridLayout_25.addWidget(self.pushButton, 4, 0, 1, 1)
-
-        self.label_30 = QLabel(self.groupBox_3)
-        self.label_30.setObjectName(u"label_30")
-
-        self.gridLayout_25.addWidget(self.label_30, 1, 0, 1, 1)
-
-        self.transfer_to_online_analysis_button = QPushButton(self.groupBox_3)
-        self.transfer_to_online_analysis_button.setObjectName(u"transfer_to_online_analysis_button")
-        sizePolicy1.setHeightForWidth(self.transfer_to_online_analysis_button.sizePolicy().hasHeightForWidth())
-        self.transfer_to_online_analysis_button.setSizePolicy(sizePolicy1)
-        self.transfer_to_online_analysis_button.setMinimumSize(QSize(200, 30))
-        self.transfer_to_online_analysis_button.setMaximumSize(QSize(300, 300))
-
-        self.gridLayout_25.addWidget(self.transfer_to_online_analysis_button, 6, 0, 1, 1)
-
-        self.label_19 = QLabel(self.groupBox_3)
-        self.label_19.setObjectName(u"label_19")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.label_19.sizePolicy().hasHeightForWidth())
-        self.label_19.setSizePolicy(sizePolicy6)
-        self.label_19.setFont(font3)
-        self.label_19.setStyleSheet(u"color:black;")
-
-        self.gridLayout_25.addWidget(self.label_19, 5, 0, 1, 1)
-
-        self.label_17 = QLabel(self.groupBox_3)
-        self.label_17.setObjectName(u"label_17")
-        sizePolicy6.setHeightForWidth(self.label_17.sizePolicy().hasHeightForWidth())
-        self.label_17.setSizePolicy(sizePolicy6)
-        self.label_17.setFont(font3)
-        self.label_17.setStyleSheet(u"color:black;")
-
-        self.gridLayout_25.addWidget(self.label_17, 0, 0, 1, 1)
-
-        self.verticalSpacer_10 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_25.addItem(self.verticalSpacer_10, 7, 0, 1, 1)
-
-
-        self.horizontalLayout_4.addLayout(self.gridLayout_25)
-
-
-        self.gridLayout_34.addWidget(self.groupBox_3, 2, 0, 1, 1)
-
-        self.horizontalSpacer_19 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_34.addItem(self.horizontalSpacer_19, 1, 0, 1, 1)
-
-
-        self.gridLayout_36.addLayout(self.gridLayout_34, 4, 0, 1, 1)
-
 
         self.gridLayout_40.addLayout(self.gridLayout_36, 0, 0, 1, 1)
 
 
-        self.gridLayout_23.addWidget(self.groupBox_8, 2, 1, 1, 1)
+        self.gridLayout_30.addWidget(self.groupBox_8, 0, 0, 1, 1)
+
+
+        self.gridLayout_23.addLayout(self.gridLayout_30, 1, 1, 1, 1)
 
         self.self_configuration_notebook.addTab(self.batch_communication_3, "")
         self.camera_3 = QWidget()
@@ -1529,6 +1496,50 @@ class Ui_Config_Widget(object):
         self.camera_3.setSizePolicy(sizePolicy5)
         self.gridLayout_13 = QGridLayout(self.camera_3)
         self.gridLayout_13.setObjectName(u"gridLayout_13")
+        self.gridLayout_38 = QGridLayout()
+        self.gridLayout_38.setObjectName(u"gridLayout_38")
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.label_31 = QLabel(self.camera_3)
+        self.label_31.setObjectName(u"label_31")
+        sizePolicy1.setHeightForWidth(self.label_31.sizePolicy().hasHeightForWidth())
+        self.label_31.setSizePolicy(sizePolicy1)
+        self.label_31.setFont(font2)
+        self.label_31.setStyleSheet(u"color:black")
+
+        self.verticalLayout.addWidget(self.label_31, 0, Qt.AlignTop)
+
+        self.camera_snapshot = QWidget(self.camera_3)
+        self.camera_snapshot.setObjectName(u"camera_snapshot")
+        sizePolicy7 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Expanding)
+        sizePolicy7.setHorizontalStretch(0)
+        sizePolicy7.setVerticalStretch(0)
+        sizePolicy7.setHeightForWidth(self.camera_snapshot.sizePolicy().hasHeightForWidth())
+        self.camera_snapshot.setSizePolicy(sizePolicy7)
+        self.camera_snapshot.setMinimumSize(QSize(100, 0))
+        self.camera_snapshot.setMaximumSize(QSize(200, 16777215))
+        self.horizontalLayout_2 = QHBoxLayout(self.camera_snapshot)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.camera_horizontal = QVBoxLayout()
+        self.camera_horizontal.setObjectName(u"camera_horizontal")
+
+        self.horizontalLayout_2.addLayout(self.camera_horizontal)
+
+
+        self.verticalLayout.addWidget(self.camera_snapshot)
+
+
+        self.gridLayout_38.addLayout(self.verticalLayout, 0, 0, 1, 1)
+
+
+        self.gridLayout_13.addLayout(self.gridLayout_38, 1, 1, 1, 1)
+
+        self.horizontalSpacer_16 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_13.addItem(self.horizontalSpacer_16, 1, 2, 1, 1)
+
+        self.gridLayout_15 = QGridLayout()
+        self.gridLayout_15.setObjectName(u"gridLayout_15")
         self.groupBox = GroupBoxSize(self.camera_3)
         self.groupBox.setObjectName(u"groupBox")
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
@@ -1537,43 +1548,6 @@ class Ui_Config_Widget(object):
         self.groupBox.setMaximumSize(QSize(800, 16777215))
         self.gridLayout_14 = QGridLayout(self.groupBox)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
-        self.verticalLayout_2 = QVBoxLayout()
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.button_start_camera = QPushButton(self.groupBox)
-        self.button_start_camera.setObjectName(u"button_start_camera")
-
-        self.verticalLayout_2.addWidget(self.button_start_camera)
-
-        self.button_take_snapshot = QPushButton(self.groupBox)
-        self.button_take_snapshot.setObjectName(u"button_take_snapshot")
-
-        self.verticalLayout_2.addWidget(self.button_take_snapshot)
-
-        self.button_stop_camera = QPushButton(self.groupBox)
-        self.button_stop_camera.setObjectName(u"button_stop_camera")
-
-        self.verticalLayout_2.addWidget(self.button_stop_camera)
-
-        self.verticalSpacer_8 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.verticalLayout_2.addItem(self.verticalSpacer_8)
-
-
-        self.gridLayout_14.addLayout(self.verticalLayout_2, 0, 1, 1, 1)
-
-        self.Camera_Live_Feed = QGraphicsView(self.groupBox)
-        self.Camera_Live_Feed.setObjectName(u"Camera_Live_Feed")
-        sizePolicy.setHeightForWidth(self.Camera_Live_Feed.sizePolicy().hasHeightForWidth())
-        self.Camera_Live_Feed.setSizePolicy(sizePolicy)
-        self.Camera_Live_Feed.setMinimumSize(QSize(0, 350))
-
-        self.gridLayout_14.addWidget(self.Camera_Live_Feed, 0, 0, 1, 1)
-
-        self.Taken_Snapshot = QGraphicsView(self.groupBox)
-        self.Taken_Snapshot.setObjectName(u"Taken_Snapshot")
-
-        self.gridLayout_14.addWidget(self.Taken_Snapshot, 1, 0, 1, 1)
-
         self.verticalLayout_4 = QVBoxLayout()
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.button_discard_snapshot = QPushButton(self.groupBox)
@@ -1596,75 +1570,96 @@ class Ui_Config_Widget(object):
         self.verticalLayout_4.addItem(self.verticalSpacer_13)
 
 
-        self.gridLayout_14.addLayout(self.verticalLayout_4, 1, 1, 1, 1)
+        self.gridLayout_14.addLayout(self.verticalLayout_4, 2, 1, 1, 1)
+
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.button_start_camera = QPushButton(self.groupBox)
+        self.button_start_camera.setObjectName(u"button_start_camera")
+
+        self.verticalLayout_2.addWidget(self.button_start_camera)
+
+        self.button_take_snapshot = QPushButton(self.groupBox)
+        self.button_take_snapshot.setObjectName(u"button_take_snapshot")
+
+        self.verticalLayout_2.addWidget(self.button_take_snapshot)
+
+        self.button_stop_camera = QPushButton(self.groupBox)
+        self.button_stop_camera.setObjectName(u"button_stop_camera")
+
+        self.verticalLayout_2.addWidget(self.button_stop_camera)
+
+        self.verticalSpacer_8 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_2.addItem(self.verticalSpacer_8)
 
 
-        self.gridLayout_13.addWidget(self.groupBox, 1, 1, 1, 1)
+        self.gridLayout_14.addLayout(self.verticalLayout_2, 1, 1, 1, 1)
+
+        self.Camera_Live_Feed = QGraphicsView(self.groupBox)
+        self.Camera_Live_Feed.setObjectName(u"Camera_Live_Feed")
+        sizePolicy.setHeightForWidth(self.Camera_Live_Feed.sizePolicy().hasHeightForWidth())
+        self.Camera_Live_Feed.setSizePolicy(sizePolicy)
+        self.Camera_Live_Feed.setMinimumSize(QSize(0, 350))
+
+        self.gridLayout_14.addWidget(self.Camera_Live_Feed, 1, 0, 1, 1)
+
+        self.Taken_Snapshot = QGraphicsView(self.groupBox)
+        self.Taken_Snapshot.setObjectName(u"Taken_Snapshot")
+
+        self.gridLayout_14.addWidget(self.Taken_Snapshot, 2, 0, 1, 1)
+
+
+        self.gridLayout_15.addWidget(self.groupBox, 1, 0, 1, 1)
 
         self.label_16 = QLabel(self.camera_3)
         self.label_16.setObjectName(u"label_16")
         sizePolicy1.setHeightForWidth(self.label_16.sizePolicy().hasHeightForWidth())
         self.label_16.setSizePolicy(sizePolicy1)
-        self.label_16.setFont(font2)
+        font3 = QFont()
+        font3.setPointSize(15)
+        self.label_16.setFont(font3)
 
-        self.gridLayout_13.addWidget(self.label_16, 0, 1, 1, 1)
-
-        self.gridLayout_38 = QGridLayout()
-        self.gridLayout_38.setObjectName(u"gridLayout_38")
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label_31 = QLabel(self.camera_3)
-        self.label_31.setObjectName(u"label_31")
-        sizePolicy1.setHeightForWidth(self.label_31.sizePolicy().hasHeightForWidth())
-        self.label_31.setSizePolicy(sizePolicy1)
-        self.label_31.setFont(font3)
-        self.label_31.setStyleSheet(u"color:black")
-
-        self.verticalLayout.addWidget(self.label_31, 0, Qt.AlignTop)
-
-        self.camera_snapshot = QWidget(self.camera_3)
-        self.camera_snapshot.setObjectName(u"camera_snapshot")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Expanding)
-        sizePolicy7.setHorizontalStretch(0)
-        sizePolicy7.setVerticalStretch(0)
-        sizePolicy7.setHeightForWidth(self.camera_snapshot.sizePolicy().hasHeightForWidth())
-        self.camera_snapshot.setSizePolicy(sizePolicy7)
-        self.camera_snapshot.setMinimumSize(QSize(200, 0))
-        self.camera_snapshot.setMaximumSize(QSize(400, 16777215))
-        self.horizontalLayout_2 = QHBoxLayout(self.camera_snapshot)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.camera_horizontal = QVBoxLayout()
-        self.camera_horizontal.setObjectName(u"camera_horizontal")
-
-        self.horizontalLayout_2.addLayout(self.camera_horizontal)
+        self.gridLayout_15.addWidget(self.label_16, 0, 0, 1, 1)
 
 
-        self.verticalLayout.addWidget(self.camera_snapshot)
-
-
-        self.gridLayout_38.addLayout(self.verticalLayout, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addLayout(self.gridLayout_38, 1, 2, 1, 1)
-
-        self.horizontalSpacer_16 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_13.addItem(self.horizontalSpacer_16, 1, 3, 1, 1)
-
-        self.horizontalSpacer_20 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_13.addItem(self.horizontalSpacer_20, 1, 0, 1, 1)
+        self.gridLayout_13.addLayout(self.gridLayout_15, 1, 0, 1, 1)
 
         self.self_configuration_notebook.addTab(self.camera_3, "")
 
-        self.gridLayout_2.addWidget(self.self_configuration_notebook, 0, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.self_configuration_notebook, 3, 0, 1, 1)
+
+        self.horizontalSpacer_20 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_20, 2, 0, 1, 1)
+
+        self.frame = QFrame(Config_Widget)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.gridLayout_37 = QGridLayout(self.frame)
+        self.gridLayout_37.setObjectName(u"gridLayout_37")
+        self.label_11 = QLabel(self.frame)
+        self.label_11.setObjectName(u"label_11")
+        font4 = QFont()
+        font4.setPointSize(16)
+        self.label_11.setFont(font4)
+
+        self.gridLayout_37.addWidget(self.label_11, 0, 0, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.frame, 1, 0, 1, 1)
+
+        self.horizontalSpacer_22 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_22, 0, 0, 1, 1)
 
 
         self.retranslateUi(Config_Widget)
 
-        self.self_configuration_notebook.setCurrentIndex(2)
+        self.self_configuration_notebook.setCurrentIndex(1)
         self.meta_data_loading_1.setCurrentIndex(1)
-        self.visualization_stacked.setCurrentIndex(0)
+        self.visualization_stacked.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Config_Widget)
@@ -1672,6 +1667,9 @@ class Ui_Config_Widget(object):
 
     def retranslateUi(self, Config_Widget):
         Config_Widget.setWindowTitle(QCoreApplication.translate("Config_Widget", u"Form", None))
+#if QT_CONFIG(tooltip)
+        self.self_configuration_notebook.setToolTip(QCoreApplication.translate("Config_Widget", u"<html><head/><body><p>Perform the Batch Communication Experiment, via direct communication with the Patch Master.</p><p>Only available with HEKA Patchmaster Systems</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.groupBox_30.setTitle(QCoreApplication.translate("Config_Widget", u"Cells", None))
         self.label_207.setText(QCoreApplication.translate("Config_Widget", u"License ID", None))
         self.label_209.setText(QCoreApplication.translate("Config_Widget", u"Passage #", None))
@@ -1747,7 +1745,6 @@ class Ui_Config_Widget(object):
         self.label_2.setText(QCoreApplication.translate("Config_Widget", u"PGF File", None))
         self.label_5.setText(QCoreApplication.translate("Config_Widget", u"Online Analysis File", None))
         self.button_protocol_set.setText(QCoreApplication.translate("Config_Widget", u"Set", None))
-        self.label_21.setText(QCoreApplication.translate("Config_Widget", u"Setup your Experiment", None))
         self.self_configuration_notebook.setTabText(self.self_configuration_notebook.indexOf(self.experiment_initialization_3), QCoreApplication.translate("Config_Widget", u"Experiment Initialization", None))
         self.groupBox_19.setTitle(QCoreApplication.translate("Config_Widget", u"Protocol Sequence Generator", None))
         self.label.setText(QCoreApplication.translate("Config_Widget", u"Final Patch Clamping Sequence:", None))
@@ -1759,7 +1756,19 @@ class Ui_Config_Widget(object):
         self.start_experiment_button.setText(QCoreApplication.translate("Config_Widget", u"Start Experiment", None))
         self.stop_experiment_button.setText(QCoreApplication.translate("Config_Widget", u"Stop Experiment", None))
         self.pushButton_10.setText(QCoreApplication.translate("Config_Widget", u"Clear Sequences", None))
-        self.label_18.setText(QCoreApplication.translate("Config_Widget", u"Start your Patch-Clamp Experiment", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("Config_Widget", u"Control Buttons", None))
+        self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries:", None))
+        self.label_14.setText(QCoreApplication.translate("Config_Widget", u"Cell:", None))
+        self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow:", None))
+        self.label_13.setText(QCoreApplication.translate("Config_Widget", u"Cfast:", None))
+        self.label_15.setText(QCoreApplication.translate("Config_Widget", u"Quality Metrics:", None))
+        self.label_17.setText(QCoreApplication.translate("Config_Widget", u"ToolBar:", None))
+        self.label_30.setText(QCoreApplication.translate("Config_Widget", u"Check Batch Communication:", None))
+        self.transfer_to_online_analysis_button.setText(QCoreApplication.translate("Config_Widget", u"Transfer to Online Analysis", None))
+        self.label_33.setText(QCoreApplication.translate("Config_Widget", u"Download Patchmaster Notebook", None))
+        self.pushButton.setText(QCoreApplication.translate("Config_Widget", u"Download Notebook", None))
+        self.label_19.setText(QCoreApplication.translate("Config_Widget", u"Connect to Online Analysis:", None))
+        self.switch_to_testing.setText(QCoreApplication.translate("Config_Widget", u"Switch to testing", None))
         self.groupBox_8.setTitle(QCoreApplication.translate("Config_Widget", u"Analysis", None))
         self.label_26.setText(QCoreApplication.translate("Config_Widget", u"Notebook Online Analysis:", None))
         self.groupBox_21.setTitle(QCoreApplication.translate("Config_Widget", u"Test the Connection to the Patchmaster", None))
@@ -1768,30 +1777,17 @@ class Ui_Config_Widget(object):
         self.label_42.setText(QCoreApplication.translate("Config_Widget", u"Batch Communication Response", None))
         self.label_40.setText(QCoreApplication.translate("Config_Widget", u"Submit your Commands", None))
         self.label_41.setText(QCoreApplication.translate("Config_Widget", u"Control File received", None))
-        self.label_11.setText("")
-        self.groupBox_3.setTitle(QCoreApplication.translate("Config_Widget", u"Control Buttons", None))
-        self.label_12.setText(QCoreApplication.translate("Config_Widget", u"Rseries:", None))
-        self.label_14.setText(QCoreApplication.translate("Config_Widget", u"Cell:", None))
-        self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Cslow:", None))
-        self.label_13.setText(QCoreApplication.translate("Config_Widget", u"Cfast:", None))
-        self.label_15.setText(QCoreApplication.translate("Config_Widget", u"Quality Metrics:", None))
-        self.label_33.setText(QCoreApplication.translate("Config_Widget", u"Download Patchmaster Notebook", None))
-        self.switch_to_testing.setText(QCoreApplication.translate("Config_Widget", u"Switch to testing", None))
-        self.pushButton.setText(QCoreApplication.translate("Config_Widget", u"Download Notebook", None))
-        self.label_30.setText(QCoreApplication.translate("Config_Widget", u"Check Batch Communication:", None))
-        self.transfer_to_online_analysis_button.setText(QCoreApplication.translate("Config_Widget", u"Transfer to Online Analysis", None))
-        self.label_19.setText(QCoreApplication.translate("Config_Widget", u"Connect to Online Analysis:", None))
-        self.label_17.setText(QCoreApplication.translate("Config_Widget", u"ToolBar:", None))
         self.self_configuration_notebook.setTabText(self.self_configuration_notebook.indexOf(self.batch_communication_3), QCoreApplication.translate("Config_Widget", u"Batch Communication", None))
+        self.label_31.setText(QCoreApplication.translate("Config_Widget", u"Image Galery:", None))
         self.groupBox.setTitle(QCoreApplication.translate("Config_Widget", u"Live Camera Feed", None))
-        self.button_start_camera.setText(QCoreApplication.translate("Config_Widget", u"Start Camera", None))
-        self.button_take_snapshot.setText(QCoreApplication.translate("Config_Widget", u"Take Snapshot", None))
-        self.button_stop_camera.setText(QCoreApplication.translate("Config_Widget", u"Stop Camera", None))
         self.button_discard_snapshot.setText(QCoreApplication.translate("Config_Widget", u"Discard Snapshot", None))
         self.button_save_snapshot.setText(QCoreApplication.translate("Config_Widget", u"Save Snapshot", None))
         self.button_transfer_to_labbook.setText(QCoreApplication.translate("Config_Widget", u"Transfer to Labbook", None))
+        self.button_start_camera.setText(QCoreApplication.translate("Config_Widget", u"Start Camera", None))
+        self.button_take_snapshot.setText(QCoreApplication.translate("Config_Widget", u"Take Snapshot", None))
+        self.button_stop_camera.setText(QCoreApplication.translate("Config_Widget", u"Stop Camera", None))
         self.label_16.setText(QCoreApplication.translate("Config_Widget", u"Camera Module ", None))
-        self.label_31.setText(QCoreApplication.translate("Config_Widget", u"Image Galery:", None))
         self.self_configuration_notebook.setTabText(self.self_configuration_notebook.indexOf(self.camera_3), QCoreApplication.translate("Config_Widget", u"Camera", None))
+        self.label_11.setText(QCoreApplication.translate("Config_Widget", u"Patchmaster Connection", None))
     # retranslateUi
 

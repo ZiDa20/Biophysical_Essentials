@@ -16,6 +16,10 @@ from settings_dialog import *
 from tkinter_camera import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
+from qframelesswindow import FramelessWindow
+
+# add this for making the background blurring
+
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self, parent = None):
@@ -23,7 +27,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         
-
         self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
@@ -70,7 +73,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # connect to the metadata file path 
         #self.ui.hamburger_button.clicked.connect(self.animate_menu)
-        self.ui.konsole_button.clicked.connect(self.konsole_menu)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
         #testing
@@ -174,10 +176,11 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.settings_button.setText("")
 
     def write_button_text(self):
+        self.ui.home_window.setText("  Home")
         self.ui.self_configuration.setText("  Configuration")
         self.ui.online_analysis.setText(" Online Analysis")
         self.ui.offline_analysis.setText(" Offline Analysis")
-        self.ui.statistics.setText("Statistics")
+        self.ui.statistics.setText("Database View")
         #self.ui.darkmode_button.setText("Change Theme")
         #self.ui.konsole_button.setText("Terminal")
         self.ui.settings_button.setText("Settings")
@@ -188,12 +191,20 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
-            self.apply_stylesheet(self, "light_red.xml", invert_secondary=True)
+            self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
             with open('Menu_button_white.css') as file:
                 print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
-            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None;")
+            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None; \n"
+                                                    "color: #d2691e;\n"
+                                                    "padding: 5px 10px;\n"
+                                                    "background-position: left;\n"
+                                                    "border: none;\n"
+                                                    "border-radius: 5px;\n"
+                                                    "\n"
+                                                        "\n")
+                                                 
             print(self.frontend_style.get_sideframe_dark())
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
            
@@ -203,7 +214,15 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.apply_stylesheet(self, "dark_red.xml")
             with open('Menu_button.css') as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None;")
+            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
+                                                    "background-repeat:None;\n"
+                                                    "color: #d2691e;\n"
+                                                    "padding: 5px 10px;\n"
+                                                    "background-position: left;\n"
+                                                    "border: none;\n"
+                                                    "border-radius: 5px;\n"
+                                                    "\n"
+                                                        "\n")
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
  
             
@@ -242,6 +261,9 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme='dark_red.xml')
     stylesheet = app.styleSheet()
     with open('Menu_button.css') as file:

@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1568, 950)
+        MainWindow.resize(1280, 950)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -261,39 +261,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
 
-        self.konsole_button = QPushButton(self.side_left_menu)
-        self.konsole_button.setObjectName(u"konsole_button")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.konsole_button.sizePolicy().hasHeightForWidth())
-        self.konsole_button.setSizePolicy(sizePolicy1)
-        self.konsole_button.setMinimumSize(QSize(20, 0))
-        self.konsole_button.setMaximumSize(QSize(60, 80))
-        self.konsole_button.setFont(font)
-        self.konsole_button.setStyleSheet(u"QPushButton {\n"
-"\n"
-"\n"
-"background-image: url(../QT_GUI/Button/Logo/konsole_button.png);\n"
-"background-repeat:None;\n"
-"color: #d2691e;\n"
-"padding: 5px 10px;\n"
-"background-position: left;\n"
-"border: none;\n"
-"border-radius: 5px;\n"
-"\n"
-"\n"
-"}")
-
-        self.horizontalLayout.addWidget(self.konsole_button)
-
         self.darkmode_button = QPushButton(self.side_left_menu)
         self.darkmode_button.setObjectName(u"darkmode_button")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.darkmode_button.sizePolicy().hasHeightForWidth())
-        self.darkmode_button.setSizePolicy(sizePolicy2)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.darkmode_button.sizePolicy().hasHeightForWidth())
+        self.darkmode_button.setSizePolicy(sizePolicy1)
         self.darkmode_button.setMinimumSize(QSize(20, 0))
         self.darkmode_button.setMaximumSize(QSize(60, 80))
         self.darkmode_button.setFont(font)
@@ -312,28 +286,6 @@ class Ui_MainWindow(object):
 "}")
 
         self.horizontalLayout.addWidget(self.darkmode_button)
-
-        self.hamburger_button = QPushButton(self.side_left_menu)
-        self.hamburger_button.setObjectName(u"hamburger_button")
-        sizePolicy2.setHeightForWidth(self.hamburger_button.sizePolicy().hasHeightForWidth())
-        self.hamburger_button.setSizePolicy(sizePolicy2)
-        self.hamburger_button.setMinimumSize(QSize(20, 0))
-        self.hamburger_button.setMaximumSize(QSize(60, 80))
-        self.hamburger_button.setStyleSheet(u"QPushButton {\n"
-"\n"
-"\n"
-"background-image: url(../QT_GUI/Button/Logo/hamburger_menu.png);\n"
-"background-repeat:None;\n"
-"color: #d2691e;\n"
-"padding: 5px 10px;\n"
-"background-position: left;\n"
-"border: none;\n"
-"border-radius: 5px;\n"
-"\n"
-"\n"
-"}")
-
-        self.horizontalLayout.addWidget(self.hamburger_button)
 
 
         self.gridLayout.addWidget(self.side_left_menu, 1, 0, 1, 1)
@@ -355,8 +307,6 @@ class Ui_MainWindow(object):
         self.offline_analysis.setText("")
         self.statistics.setText("")
         self.settings_button.setText("")
-        self.konsole_button.setText("")
         self.darkmode_button.setText("")
-        self.hamburger_button.setText("")
     # retranslateUi
 

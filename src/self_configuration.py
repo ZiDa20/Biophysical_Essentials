@@ -56,7 +56,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # logger added --> ToDO: should be used for developers as well as for users should be disriminated 
         self.logger=logging.getLogger() 
         self.logger.setLevel(logging.DEBUG)
-        file_handler = logging.FileHandler('../Logs/configuration.log')
+        file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
@@ -244,13 +244,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """ Basler camera initalizing  
         ToDO: Error handling"""
 
-        print("stuff worked")
+        self.logger.info("Camera will be initialized")
         self.camera = BayerCamera()
         #initialize the camera 
         camera_status = self.camera.init_camera()
         self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
         if camera_status is None: # initialization of the camera and error response if not correctly initialized
             self.scence_trial.addText("Camera is not connected please check the connection in the settings app")
+            self.logger.warning("Camera was not found please check the connection")
             self.Camera_Live_Feed.setScene(self.scence_trial)
             self.button_start_camera.setEnabled(False)
             self.button_stop_camera.setEnabled(False)
@@ -258,14 +259,20 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         else:
             print("Camera is connected")
+            self.logger.info("Camera is connected!")
             self.scence_trial.addText("Please start capturing!")
             self.Camera_Live_Feed.setScene(self.scence_trial)
 
     def start_camera_timer(self):
         """ added the asnychronous Qtimer for the Camera initalizion"""
-        self.start_cam = QTimer() # camera timer 
-        self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
-        self.start_cam.start(222)  # (333,self.start_camera)
+        try:
+            self.start_cam = QTimer() # camera timer 
+            self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
+            self.start_cam.start(222)  # (333,self.start_camera)
+            self.logger.info("Qthread for Camera caption is running")
+        except Exception as e:
+            self.logger.error(f"Here is the Error description of the camera running task: {e}")
+
 
     def start_camera(self):
         """ grab the current picture one by one with 50 FPS """
@@ -278,9 +285,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.scence_trial.addPixmap(self.camera_image_recording)
 
     def stop_camera(self):
-        """ stop the camera timer """
-        print("yeah I m here for the camera")
+        """ Stopping the Qthread for the Camera """
         self.start_cam.stop() # here the camera Qtimer is stopped
+        self.logger("Camera Thread is stopped")
 
     def show_snapshot(self):
         """ does transfer the current snapshot to the galery view """
@@ -299,7 +306,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         try:
             if len(image_liste) > 4: # if stack overcrowded
                 image_liste.pop()
-                print("Expected List Length reached")
+                self.logger.info("Stacked is crowded pushing last image out")
                 return image_liste
             else:
                 return image_liste
@@ -325,7 +332,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.online.image_experiment.setScene(self.snapshot_scence)
             experiment_image.addPixmap(self.trial_figure)
         except Exception as e:
-            print(e)
+            self.logger.error("Qgrpahics not added check")
              # draw into the galery
 
 
@@ -338,6 +345,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         
         print(self.res)
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + self.res + "\n")
+        self.logger.info("This command was send to the patchmaster: ""+"+f'{self.submission_count}' + "\n" + self.res + "\n")
         self.submission_count += 1
         if self.check_session:
             print("still checking commands")
@@ -371,10 +379,13 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """add Docstring"""
         # Get Input from the Sequences and the Protocols
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListSequences\n") # get the potential Series that can be started
+    
+        self.logger.info("send this comment: " "+"+f'{self.submission_count}' + "\n" + "ListSequences\n")
         sleep(0.2) # sleep is inserted because of laggy writing to the response file from the patchmaster
         sequences = self.backend_manager.update_response_file_content()
         self.increment_count()
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListProtocols\n") # get the protocols that can be started
+        self.logger.info("send this comment: " "+"+f'{self.submission_count}' + "\n" + "ListProtocols\n")
         sleep(0.2)
         protocol_responses = self.backend_manager.update_response_file_content() # get the protocol responses 
         self.increment_count() # always increment the batch communication count 
@@ -553,7 +564,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 self.tscurve_1.update()
 
                 # here drawing should be provided to the online analysis class
-                
                 self.trial_setup(final_notebook_dataframe,item, progress_callback)
 
             except Exception as e:

@@ -3,8 +3,11 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 import duckdb
 import os
+
+from matplotlib.pyplot import table
 from database_viewer_designer_object import Ui_Database_Viewer
 from data_db import DuckDBDatabaseHandler
+import pyqtgraph as pg
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -20,6 +23,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         self.database_handler = None
         self.query_execute.clicked.connect(self.query_data)
+        self.data_base_content = None
+        self.plot = None
+        
+        
+
+
+
 
     def update_database_handler(self,database_handler):
         self.database_handler = database_handler
@@ -48,22 +58,45 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         q = """SELECT * FROM information_schema.tables"""
         tables_names = self.database.execute(q).fetchall()
-        tables = []
+
+        self.table_dictionary = {"imon_signal" : [], "pgf_tables":[], "imon_meta": [], "experiment": [], "analysis_table":[]}
+        
         # for each table, create a button in a dropdown list
         # connect the button to a function plotting the table
         button_list = []
         for l in range (len(tables_names)):
             sub_list = tables_names[l]
             table_name = sub_list[2]
-            tables.append(table_name)
-            button_list.append(QPushButton(self.available_tables_gb))
-            button_list[l].setText(table_name)
-            button_list[l].setGeometry(QRect(10, 30+l*41, 150, 41))
-            button_list[l].setObjectName('%s' % table_name)
-            button_list[l].clicked.connect(self.pull_table_from_database)
-            button_list[l].show()
-        print(tables)
-        print("finished")
+
+            if "imon_signal" in table_name:
+                self.table_dictionary["imon_signal"].append(table_name)
+            if "imon_meta" in table_name:
+                self.table_dictionary["imon_meta"].append(table_name)
+            if "experiment" in table_name:
+                self.table_dictionary["experiment"].append(table_name)
+            if "analysis" in table_name:
+                self.table_dictionary["analysis_table"].append(table_name)
+            if "pgf" in table_name:
+                self.table_dictionary["pgf_tables"].append(table_name)
+
+
+        for key, value in self.table_dictionary.items():
+            button = QPushButton(key)
+            self.button_database_series.addWidget(button)
+            button.clicked.connect(self.retrieve_tables)
+
+
+    def retrieve_tables(self):
+        """ When button clicked then we should retrieve the associated tables to structure the 
+        Tables better"""
+        text = self.sender().text()
+        retrieved_tables = sorted(self.table_dictionary.get(text))
+        self.database_table.clear()
+        for tables in retrieved_tables:
+            self.database_table.addItem(tables)
+        
+        self.database_table.itemClicked.connect(self.pull_table_from_database)
+        #print("finished")
 
     @Slot(str)
     def pull_table_from_database(self):
@@ -72,7 +105,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         :param table_name:
         :return:
         '''
-        table_name = self.sender().text()
+        table_name = self.sender().currentItem().text()
         q = f'SELECT * from {table_name}'
 
         try:
@@ -92,23 +125,29 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         column_names = list(table_dict.keys())
         row_values = list(table_dict.values())
 
-        data_base_content = QTableWidget(self.groupBox_3)
-        data_base_content.setGeometry(20, 20, 691, 581)
-        data_base_content.setColumnCount(len(column_names))
+        if self.data_base_content:
+            self.table_layout.removeWidget(self.data_base_content)
+
+
+        self.data_base_content = QTableWidget()
+        self.table_layout.addWidget(self.data_base_content)
+        self.data_base_content.setGeometry(20, 20, 691, 581)
+        self.data_base_content.setColumnCount(len(column_names))
         row_count = len(row_values[0])
-        data_base_content.setRowCount(len(row_values[0]))
+        self.data_base_content.setRowCount(len(row_values[0]))
 
         for column in range(len(column_names)):
-            data_base_content.setHorizontalHeaderItem(column, QTableWidgetItem(column_names[column]))
-            data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            data_base_content.resizeColumnToContents(column)
+            self.data_base_content.setHorizontalHeaderItem(column, QTableWidgetItem(column_names[column]))
+            self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.data_base_content.resizeColumnToContents(column)
 
         for column in range(len(column_names)):
             for row in range(len(row_values[0])):
                 value = row_values[column][row]
-                data_base_content.setItem(row,column,QTableWidgetItem(str(value)))
+                self.data_base_content.setItem(row,column,QTableWidgetItem(str(value)))
 
-        data_base_content.show()
+        self.data_base_content.show()
+        self.data_base_content.cellClicked.connect(self.retrieve_column)
 
 
 
@@ -124,3 +163,30 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         except Exception as e:
             #@todo open console and feed back the catched exception
             print("Error: %s", e)
+
+    
+    def retrieve_column(self):
+        """ Here we can retrieve the data of the the selected columns"""
+        print("I am in this function for selecting the table")
+        column = self.data_base_content.currentColumn()
+        data = []
+        for row in range(self.data_base_content.rowCount()):
+            it = self.data_base_content.item(row, column)
+            data.append(it.text() if it is not None else "")
+        try:
+            float_table = [float(x) for x in data]
+            self.draw_table(float_table)
+        except Exception as e:
+            print(f"The Error is: {e}" )
+
+
+
+    def draw_table(self, table):
+        """
+        Draws the selected column if it contains numbers"""
+        if self.plot:
+            self.gridLayout_10.removeWidget(self.plot)
+            self.plot.setParent(None)
+        self.plot = pg.plot(table)
+        self.gridLayout_10.addWidget(self.plot)
+
