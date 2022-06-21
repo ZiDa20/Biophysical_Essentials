@@ -168,7 +168,7 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         ## manually added
         self.analysis_id = None
         self.analysis_function_id = None
-
+        self.analysis_name = None
         # object where plot data will be stored to be exported easily
         self.export_data_frame = None
 

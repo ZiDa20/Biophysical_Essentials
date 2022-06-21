@@ -33,6 +33,9 @@ class AnalysisRaw():
         self.holding = None
         self.increment = None
 
+        # for debug purpose:
+        self.table_name = None
+
     def get_elements(self,recording_mode):
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
@@ -174,20 +177,30 @@ class AnalysisRaw():
         return abs(self.area)*10000
 
     def ap_detection(self):
+        """
+
+        :return:
+        """
         manual_threshold = 0.010  # * 1000 # where
-        if np.max(self.data) > manual_threshold:
-            return 0
+        if np.max(self.data) < manual_threshold:
+            return None
         else:
             # get the holding value and the incrementation steps from the pgf data for this series
-
-            return 1
+            # sweeps , holding, increment
+            injected_current = self.holding + (self._sweep-1)* self.increment
+            return injected_current
 
     def single_action_potential_analysis(self,value):
 
-
-        ap_threshold_reached = False
-
         manual_threshold = 0.010 #* 1000 # where
+        smoothing_window_length = 19
+
+
+        # will return nan  if no AP peak with the manually specified threshold was detected
+        if np.max(self.data)<manual_threshold:
+            print(self.table_name)
+            print(self._sweep)
+            return None
 
         np.set_printoptions(suppress=False)
         first_derivative = []
@@ -208,8 +221,14 @@ class AnalysisRaw():
         #first_derivative = first_derivative.astype(float)
         first_derivative = np.round(first_derivative,2)
 
+        # if all values are 0 it will return
+        if all(v == 0 for v in first_derivative):
+            print(self.table_name)
+            print(self._sweep)
+            return None
+
         smoothed_first_derivative = first_derivative.copy()
-        smoothing_window_length = 19
+
 
         for i in range(len(first_derivative)):
 
@@ -243,14 +262,22 @@ class AnalysisRaw():
         writer.writerow(smoothed_first_derivative)
 
          # returns a tuple of true values and therefore needs to be taken at pos 0
-        threshold_pos = np.where(smoothed_first_derivative>=manual_threshold)[0]
+        threshold_pos_origin = np.where(smoothed_first_derivative>=manual_threshold)[0]
 
-        for pos in threshold_pos:
-            if np.all(smoothed_first_derivative[pos:pos+2*smoothing_window_length]>manual_threshold):
+        threshold_pos = None
+
+        for pos in threshold_pos_origin:
+            if np.all(smoothed_first_derivative[pos:pos+2*smoothing_window_length]>manual_threshold) \
+                    or (np.max(self.data[pos:pos+2*smoothing_window_length])==np.max(self.data)):
                 #np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
                 threshold_pos = pos
                 break
 
+        # if still none means there was no real AP
+        if threshold_pos is None:
+            print(self.table_name)
+            print(self._sweep)
+            return None
 
         t_threshold = self.time[threshold_pos]
         v_threshold = self.data[threshold_pos]
@@ -271,7 +298,14 @@ class AnalysisRaw():
         ahp_pos = np.argmax(smoothed_first_derivative[amplitude_pos:]>=0)
 
         # double the window to make sure to not miss the minimum due to the smoothing before
-        ahp = np.amin( self.data[amplitude_pos:(amplitude_pos+2*ahp_pos)] )
+        try:
+            ahp = np.amin(self.data[amplitude_pos:(amplitude_pos+2*ahp_pos)] )
+        except Exception as e:
+            print(e) # happens if ahp_pos is zero
+            print(self.table_name)
+            print(self._sweep)
+            return None
+
 
         t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos+2*ahp_pos)]==ahp)] [0] + time_to_amplitude
 
@@ -287,6 +321,8 @@ class AnalysisRaw():
             if value == "Threshold_Amplitude":
                     print("Threshold_Amplitude")
                     print(self.data[threshold_pos])
+                    if  self.data[threshold_pos].size>1:
+                        print("debug")
                     return self.data[threshold_pos]
 
             if value == "AHP_Amplitude":
@@ -324,11 +360,6 @@ class AnalysisRaw():
                 print("time_max_first_derivate")
                 print(self.time[np.argwhere(smoothed_first_derivative==np.max(smoothed_first_derivative))])
                 return self.time[np.argwhere(smoothed_first_derivative==np.max(smoothed_first_derivative))]
-
-
-        print("returning nan")
-        return np.nan
-
 
     @classmethod
     def __sub__(cls, first_trace, second_trace):

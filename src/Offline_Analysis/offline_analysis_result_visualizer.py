@@ -18,10 +18,11 @@ import PySide6.QtWebEngineWidgets
 from PySide6 import QtCore
 
 import matplotlib
-import matplotlib.backends.backend_tkagg
+#import matplotlib.backends.backend_tkagg
 
 from matplotlib.backends.qt_compat import QtWidgets
-from matplotlib.backends.backend_qtagg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+#from matplotlib.backends.backend_qtagg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
 
@@ -45,8 +46,14 @@ class OfflineAnalysisResultVisualizer():
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
 
 
+        # one main dict that provides all standard evaluation functions. gives also rise to the option to implement a specific function
+        # @todo write this to an extra class to provide these information all over the code
 
         self.specific_analysis_functions = {
+            "max_current": self.visualize_sweep_wise,
+            "min_current": self.visualize_sweep_wise,
+            "mean_current": self.visualize_sweep_wise,
+            "area_current": self.visualize_sweep_wise,
             "Single_AP_Amplitude [mV]": self.visualize_series_wise,
             "Single_AP_Threshold_Amplitude[mV]": self.visualize_series_wise,
             "Single_AP_Afterhyperpolarization_Amplitude [mV]":self.visualize_series_wise,
@@ -112,6 +119,8 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.analysis_function_id = analysis[0]
 
             analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+
+            custom_plot_widget.analysis_name = analysis_name
 
 
             if analysis_name in self.series_wise_function_list:
@@ -247,7 +256,7 @@ class OfflineAnalysisResultVisualizer():
         """
         will be called when the plot type in the related combo box will be changed by the user
         :param parent_widget:
-        :param new_text:
+        :param new_text: text of the combo box e.g. 'overlay all', 'boxplot'
         :return:
         """
         if new_text == self.plot_type[0]: # == overlay all
@@ -259,8 +268,6 @@ class OfflineAnalysisResultVisualizer():
         number_of_sweeps = int(len(result_list) / number_of_series)
 
         if new_text == self.plot_type[1]: # plot means
-
-
 
             # check whether meta data groups need to be taken into consideration
             if parent_widget.split_data_combo_box.currentText() == self.split_data_functions[0]: # no split
@@ -319,12 +326,7 @@ class OfflineAnalysisResultVisualizer():
                  ax.legend(meta_data_types)
                  print(parent_widget.export_data_frame)
 
-
         if new_text == self.plot_type[2]:  # boxplots
-            if self.function_plot_type == "sweep_wise" :
-                print("not implemented yet")
-            else:
-
 
                 canvas = self.handle_plot_widget_settings(parent_widget)
                 meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
@@ -334,37 +336,53 @@ class OfflineAnalysisResultVisualizer():
                 box_plot_matrix = np.empty((number_of_series,len(meta_data_types)))
                 box_plot_matrix[:] = np.nan
 
-
+                group_sizes = []
 
                 #plot a box for each metadata type
                 for type in meta_data_types:
 
+                    type_counter = 0
                     # get the positions of the series names
                     type_specific_series_pos = [i for i, x in enumerate(meta_data_groups) if x==type]
                     insert_at_pos_x = meta_data_types.index(type)
 
                     if len(type_specific_series_pos)> 0 :
+
                         for pos in type_specific_series_pos:
 
                             # calc mean for this series
-
                             try:
                                 insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[:,insert_at_pos_x]))[0][0]
 
                                 series_sweep_values = []
-                                for sweep_pos in range(pos,pos + number_of_sweeps):
+
+                                for sweep_pos in range(pos*number_of_sweeps,(pos +1)*number_of_sweeps):
                                     series_sweep_values.append(result_list[sweep_pos][0])
 
-                                mean_val = np.mean(series_sweep_values)
 
+                                if parent_widget.analysis_name == 'Rheobase_Detection':
+                                    # needs no else since box_plot_matrix is already initialized with nans
+                                    if not all(v is None for v in series_sweep_values):
+                                        first_rheobase_current_index = next(x[0] for x in enumerate(series_sweep_values) if x[1] != None)
+                                        mean_val = series_sweep_values [first_rheobase_current_index]
+                                        type_counter+=1
+                                        box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
+                                else:
+                                    # plot for sweep wise
+                                    none_free_y_data = []
+                                    for i in series_sweep_values:
+                                        if i is not None:
+                                            none_free_y_data.append(i)
 
-                                box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
+                                    if len(none_free_y_data) > 0:
+                                        mean_val = np.mean(series_sweep_values)
+                                        box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
+                                        type_counter += 1
+
                             except Exception as e:
                                 print("Error - this should not happen")
                                 print(e)
-
-
-
+                        group_sizes.append(type_counter)
                     else:
                         try:
                             insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[insert_at_pos_x,]))[0][0]
@@ -378,12 +396,26 @@ class OfflineAnalysisResultVisualizer():
                 false_true_mask = ~np.isnan(box_plot_matrix)
                 filtered_box_plot_data=[d[m] for d, m in zip(box_plot_matrix.T, false_true_mask.T)]
 
-                ax.violinplot(filtered_box_plot_data)
+                custom_labels = []
+                for i in range(0,len(meta_data_types)):
+                    custom_labels.append(meta_data_types[i] + ": " + str(group_sizes[i]))
+
+                plot = ax.boxplot(filtered_box_plot_data,#notch=True,  # notch shape
+                     vert=True,  # vertical box alignment
+                     patch_artist=True)
+
+                #ax.violinplot(filtered_box_plot_data)
                 ax.set_xticks(np.arange(1, len(meta_data_types) + 1), labels=meta_data_types)
                 ax.set_xlim(0.25, len(meta_data_types) + 0.75)
 
-                parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
 
+                for patch, color in zip(plot['boxes'], self.default_colors[0:len(plot['boxes'])]):
+                        patch.set_facecolor(color)
+
+                ax.legend(plot['boxes'],custom_labels)
+
+                parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
+                plot(parent_widget.export_data_frame)
 
 
 
@@ -482,8 +514,12 @@ class OfflineAnalysisResultVisualizer():
         # e.g. analize_sweep_wise , analize_series_wise, specific_rheobase_analysis
 
         for a in range(len(x_data)):
-            self.specific_analysis_functions.get(series_name)(ax,x_data,y_data,series_names,parent_widget,a)
-
+            try:
+                self.specific_analysis_functions.get(series_name)(ax,x_data,y_data,series_names,parent_widget,a)
+            except Exception as e:
+                print(e)
+                print(series_names)
+                print(f'Error in dict call for series with series name {series_name}')
         # @todo: add shade of stde
         ax.legend()
         canvas.show()
@@ -505,22 +541,34 @@ class OfflineAnalysisResultVisualizer():
         :param a:
         :return:
         '''
-        ax.plot(1, sum(y_data[a]) / len(y_data[a]), marker="o", markerfacecolor='k', label=series_names[a])
+        none_free_y_data = []
+        for i in y_data[a]:
+            if i is not None:
+                none_free_y_data.append(i)
+
+        if len(none_free_y_data)>0:
+            ax.plot(1, sum(none_free_y_data) / len(none_free_y_data), marker="o", markerfacecolor='k', label=series_names[a])
 
     def rheobase_visualization(self,ax,x_data,y_data,series_names,parent_widget,a):
         '''
 
         :param ax:
         :param x_data:
-        :param y_data:
+        :param y_data: result values : list of lists: each sublist presents one series, contains None if no AP was detected
         :param series_names:
         :param parent_widget:
         :param a:
         :return:
         '''
-        # plot the first value greater than 0
-        first_rheobase_current = next(x[0] for x in enumerate(y_data) if x[1] > 0)
-        ax.plot(1, first_rheobase_current, marker="o", markerfacecolor='k', label=series_names[a])
+
+        # plot the first value unequal none
+
+        # if there was no action potential in the rheobase, all y values will be none and will be therefore not further analized
+        if not all(v is None for v in y_data[a]):
+            first_rheobase_current_index = next(x[0] for x in enumerate(y_data[a]) if x[1] != None)
+            ax.plot(1, y_data[a][first_rheobase_current_index], marker="o", markerfacecolor='k', label=series_names[a])
+        else:
+            return
 
     def get_list_of_results(self,analysis_id,analysis_function_id):
         """
@@ -554,7 +602,10 @@ class OfflineAnalysisResultVisualizer():
             series_y_data = []
             series_x_data = []
             for b in range(number_of_sweeps):
-                series_y_data.append(result_list[a + b][0])
+                try:
+                    series_y_data.append(result_list[a + b][0])
+                except Exception as e:
+                    print(e)
                 series_x_data.append(result_list[a + b][1])
 
             y_data.append(series_y_data)

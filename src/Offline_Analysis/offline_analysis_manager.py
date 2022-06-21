@@ -46,8 +46,9 @@ class OfflineManager():
         into the database. """
 
         #@todo give normalization as argument to the function
+        series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(series_name)
         try:
-            if self.database.get_recording_mode_from_analysis_series_table(series_name) == "Voltage Clamp":
+            if series_specific_recording_mode == "Voltage Clamp":
                 cslow_normalization = 1
             else:
                 cslow_normalization = 0
@@ -62,6 +63,14 @@ class OfflineManager():
         # get name of sweep tables
         sweep_table_names = self.database.get_sweep_table_names_for_offline_analysis(series_name)
 
+        # holding value - voltage or current from e.g. 'IV', ...
+        # @todo this only needed for specific analysis of rheobase
+        increment = self.database.get_data_from_pgf_table(series_name, "increment", 1)
+        holding = self.database.get_data_from_pgf_table(series_name, "holding", 0)
+
+        # increment steps
+
+
         print(sweep_table_names)
 
         # read analysis functions from database
@@ -74,8 +83,10 @@ class OfflineManager():
             # dict
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
 
-            if table_name == 'imon_signal_220315_02_Series2':
-                pd.DataFrame(entire_sweep_table).to_csv("debug_signal.csv")
+
+            #if table_name == 'imon_signal_220315_02_Series2':
+                #pd.DataFrame(entire_sweep_table).to_csv("debug_signal.csv")
+
 
             # error handling
             if entire_sweep_table is None:
@@ -85,15 +96,22 @@ class OfflineManager():
 
             for column in entire_sweep_table:
 
-                data = list(entire_sweep_table.get(column))
+                data = entire_sweep_table.get(column)
 
                 # @todo better way ? dict hast no order - thats why index doesn't work here
                 # eg. sweep_1
                 sweep_number = column.split("_")
 
-                raw_analysis_class_object = ra.AnalysisRaw(time,data)
-                raw_analysis_class_object._sweep = int(sweep_number[1])
+                # if current clamp data .. data need to be rescaled first
+                if series_specific_recording_mode != "Voltage Clamp":
+                    y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(table_name,column)
+                    data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
+                raw_analysis_class_object = ra.AnalysisRaw(time, data)
+                raw_analysis_class_object._sweep = int(sweep_number[1])
+                raw_analysis_class_object.increment = increment
+                raw_analysis_class_object.holding = holding
+                raw_analysis_class_object.table_name = table_name
                 for a in analysis_functions:
                     # list of cursor bound tuples
                     cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(a,series_name)

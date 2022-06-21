@@ -148,6 +148,7 @@ class TreeViewManager():
             tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
 
             not_discarded_experiment_series_stored_in_db = self.database.get_not_discarded_series_names_for_experiment
+
             if series_name is None:
                 # have to add all series
                 print("create treeview from database for all series is not implemented yet")
@@ -290,7 +291,7 @@ class TreeViewManager():
 
             sliced_pgf_tuple_data_frame = None
 
-            if pgf_tuple_data_frame:
+            if pgf_tuple_data_frame is not None:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
 
             parent,tree = self.add_series_to_treeview(tree, discarded_tree, parent, series_name, node_label, node_list,
@@ -890,8 +891,11 @@ class TreeViewManager():
 
             data_list.append([series_name,str(sweep_number),node_type,str(holding_potential),str(duration),str(increment),str(voltage)])
 
-        for i in range(len(node.children)):
-            self.read_series_specific_pgf_trace_into_df(index+[i], bundle,data_list, holding_potential, series_name,sweep_number)
+        try:
+            for i in range(len(node.children)):
+                self.read_series_specific_pgf_trace_into_df(index+[i], bundle,data_list, holding_potential, series_name,sweep_number)
+        except Exception as e:
+            print(e)
 
         return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage"])
 

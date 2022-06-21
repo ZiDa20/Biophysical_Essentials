@@ -30,7 +30,7 @@ pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
 from src.Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
-
+from PySide6.QtCore import QThreadPool
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -62,6 +62,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
+
+        self.offline_analysis_thread_manager = QThreadPool()
 
     def update_database_handler_object(self,updated_object):
         self.database_handler = updated_object
@@ -146,8 +148,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # tree generation will be done in the backend because also database initilization will be performed alongside, will return the tree manager
         # tree manager will be global to be accessible for filter menu
-        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view, self.outfiltered_tree_view, meta_data_option_list)
 
+        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
+                                                                     self.outfiltered_tree_view, meta_data_option_list)
+        #self.offline_analysis_thread_manager.start(
         # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)
         self.experiments_tree_view.setColumnWidth(1, 25)
@@ -282,6 +286,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     option_list.append(row[1])
             csv_file.close()
 
+            #@todo : start a new tab here ?
             self.continue_open_directory(dialog,option_list,meta_data_assignments)
 
     def create_meta_data_template(self,old_dialog):
