@@ -20,7 +20,7 @@ QScrollArea > QWidget > QWidget {{
 
 QTabWidget[accessibleName="self_configuration_notebook"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid #fff5cc;
+
 
 }}
 
