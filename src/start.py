@@ -17,7 +17,6 @@ from tkinter_camera import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
-from pyqt_custom_titlebar_window import CustomTitlebarWindow
 
 # add this for making the background blurring
 
@@ -29,7 +28,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.setupUi(self)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center()
-        #GlobalBlur(self.winId(),Dark=True,QWidget=self)
+        GlobalBlur(self.winId(), Acrylic=True)
         
         self.setCentralWidget(self.ui.centralwidget)
 

@@ -64,9 +64,6 @@ QStackedWidget{{
 }}
 
 QWidget[objectName="centralwidget"]{{
-  background-color: rgba(223,223,223,80);
+  background-color: rgba(223,223,223,20);
 }}
 
-QWidget[objectName="side_left_menu"]{{
-  background-color: green;
-}}
