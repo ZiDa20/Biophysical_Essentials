@@ -33,6 +33,7 @@ class TestFrontPage(unittest.TestCase):
 
         # constructor of the mainwindow
         self.ui = MainWindow()
+        self.ui.local_database_handler.database.close()
         
     def tearDown(self):
         """Close the App later"""
@@ -54,7 +55,9 @@ class TestFrontPage(unittest.TestCase):
         self.assertEqual(self.ui.ui.notebook.currentIndex(), 1, "Windows are not properly attached")
         QTest.mouseClick(offline, Qt.LeftButton)
         self.assertEqual(self.ui.ui.notebook.currentIndex(), 2, "Windows are not properly attached")
+        self.ui.local_database_handler.database.close()
         
+
     def test_build_gui(self):
         """Test the building of the GUI, also the location and the naming of the Buttons are tested
         """
@@ -63,21 +66,17 @@ class TestFrontPage(unittest.TestCase):
         print("testing_approached")
         print(menu[0].text())
         message = "First value and second value are not equal !"
-        self.assertEqual(len(menu),4,message)
-        self.assertEqual(menu[0].text(),"Self Configuration","Configuration Button not ordered properly")
-        self.assertEqual(menu[1].text(),"Online Analysis","Online Button not ordered properly")
-        self.assertEqual(menu[2].text(),"Offline Analysis","Online Button not ordered properly")
-        self.assertEqual(menu[3].text(),"Statistics","Online Button not ordered properly")
+        self.assertEqual(len(menu),6,message)
+        self.assertEqual(menu[0].text(),"  Home","Configuration Button not ordered properly")
+        self.assertEqual(menu[1].text(),"  Configuration","Online Button not ordered properly")
+        self.assertEqual(menu[2].text()," Online Analysis","Online Button not ordered properly")
+        self.assertEqual(menu[3].text()," Offline Analysis","Online Button not ordered properly")
+        self.ui.local_database_handler.database.close()
 
     def test_menu_moving(self):
         """Here we test the hamburger Menu when clicked if it opens or closes"""
-        self.assertEqual(self.ui.ui.side_left_menu.width(), 300)
-        QTest.mouseClick(self.ui.ui.hamburger_button, Qt.LeftButton)
-        print(f"The menu is: {self.ui.ui.side_left_menu.width()}")
-        self.assertEqual(self.ui.ui.side_left_menu.width(), 51)
-        QTest.mouseClick(self.ui.ui.hamburger_button, Qt.LeftButton)
-        print(f"The menu is: {self.ui.ui.side_left_menu.width()}")
-        self.assertEqual(self.ui.ui.side_left_menu.width(), 300)
+        self.assertEqual(self.ui.ui.side_left_menu.width(), 100)
+        self.ui.local_database_handler.database.close()
 
 
     def test_tab_widgets(self):
@@ -85,6 +84,7 @@ class TestFrontPage(unittest.TestCase):
         can be changed if the number of tabs are changed"""
         self.assertEqual(self.ui.ui.config.self_configuration_notebook.count(),3, "Wrong number of Tabs in configuration")
         self.assertEqual(self.ui.ui.online.online_analysis.count(), 2, "Wrong number of Tabs in online analysis")
+        self.ui.local_database_handler.database.close()
 
     
 

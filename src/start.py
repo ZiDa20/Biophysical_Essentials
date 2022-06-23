@@ -26,10 +26,19 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self._not_launched = True
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center()
-        GlobalBlur(self.winId(), Acrylic=True)
+        self.statusBar()
         
+        self.gripSize = 16
+        self.grips = []
+        for i in range(4):
+            grip = QSizeGrip(self)
+            grip.resize(self.gripSize, self.gripSize)
+            self.grips.append(grip)
+
+       
         self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
@@ -89,6 +98,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         #self.test_blurring()
         #self.ui.side_left_menu.setMinimumSize(300, 1000)
         #self.ui.side_left_menu.setMaximumSize(300, 1800)
+        GlobalBlur(self.winId(), Acrylic=True)
 
     def center(self):
         qr = self.frameGeometry()
@@ -100,10 +110,35 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.oldPos = event.globalPos()
 
     def mouseMoveEvent(self, event):
-        delta = QPoint (event.globalPos() - self.oldPos)
-        self.move(self.x() + delta.x(), self.y() + delta.y())
-        self.oldPos = event.globalPos()
+        if (event.y()) < 60:
+            GlobalBlur(self.winId(), Acrylic=False)
+            delta = QPoint (event.globalPos() - self.oldPos)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.oldPos = event.globalPos()
 
+    def mouseReleaseEvent(self, event):
+        GlobalBlur(self.winId(), Acrylic=True)
+
+    def resizeEvent(self, event):
+        #check this flag to avoid overriding of acrylic effect at start since resize is triggered
+        if self._not_launched:
+            self._not_launched = False
+            return
+        # during resize change to aero effect to avoid lag
+        GlobalBlur(self.winId(), Acrylic=False)
+        QMainWindow.resizeEvent(self,event)
+        rect = self.rect()
+        # top left grip doesn't need to be moved...
+        # top right
+        self.grips[1].move(rect.right() - self.gripSize, 0)
+        # bottom right
+        self.grips[2].move(
+            rect.right() - self.gripSize, rect.bottom() - self.gripSize)
+        # bottom left
+        self.grips[3].move(0, rect.bottom() - self.gripSize)
+
+
+        
     def transfer_file_to_online(self):
         """ transfer the self.configuration data to the online analysis """
         file_path = self.ui.config.get_file_path()
@@ -114,7 +149,15 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.showMinimized()
 
     def maximize(self):
-        self.showMaximized()
+        """Still a bug in here"""
+        if (self.height() == 1040) and (self.width() == 1920):
+            self.setGeometry(191,45,1537, 950)
+            
+
+        else:
+            print("yes")
+            self.setGeometry(0,0,1920,1040)
+            
 
     def quit_application(self):
         QCoreApplication.quit()

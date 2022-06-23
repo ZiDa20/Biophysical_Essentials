@@ -7,11 +7,7 @@ from PySide6.QtWidgets import *
 import pyqtgraph as pg
 from collections import OrderedDict
 
-
 import pandas as pd
-
-
-
 from PySide6 import QtCore
 
 import matplotlib

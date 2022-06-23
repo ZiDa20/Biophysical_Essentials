@@ -92,7 +92,7 @@ QMainWindow{{
   background-color: rgba(39,36,38,85);
 }}
 
-
-QWidget[objectName="side_left_menu"]{{
-  background-color: green;
+QStatusBar{{
+  background-color: rgba(39,36,38,85);
 }}
+

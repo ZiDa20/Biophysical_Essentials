@@ -19,7 +19,7 @@ class Ui_Online_Analysis(object):
     def setupUi(self, Online_Analysis):
         if not Online_Analysis.objectName():
             Online_Analysis.setObjectName(u"Online_Analysis")
-        Online_Analysis.resize(1679, 1123)
+        Online_Analysis.resize(1679, 1106)
         self.gridLayout_5 = QGridLayout(Online_Analysis)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.online_analysis = QTabWidget(Online_Analysis)
@@ -167,9 +167,7 @@ class Ui_Online_Analysis(object):
 
         self.label_6 = QLabel(self.button_box_1)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setStyleSheet(u"QLabel{\n"
-"color:black\n"
-"}")
+        self.label_6.setStyleSheet(u"")
 
         self.gridLayout_21.addWidget(self.label_6, 0, 0, 1, 1)
 
@@ -321,7 +319,7 @@ class Ui_Online_Analysis(object):
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout_7 = QGridLayout(self.groupBox)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.tableWidget = QTableView(self.groupBox)
+        self.tableWidget = QTableWidget(self.groupBox)
         self.tableWidget.setObjectName(u"tableWidget")
         sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         sizePolicy4.setHorizontalStretch(0)
@@ -449,7 +447,32 @@ class Ui_Online_Analysis(object):
 
         self.online_analysis.addTab(self.labbook_window, "")
 
-        self.gridLayout_5.addWidget(self.online_analysis, 0, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.online_analysis, 3, 0, 1, 1)
+
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_5.addItem(self.horizontalSpacer_8, 2, 0, 1, 1)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_5.addItem(self.horizontalSpacer_3, 0, 0, 1, 1)
+
+        self.frame = QFrame(Online_Analysis)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.gridLayout_3 = QGridLayout(self.frame)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.label_8 = QLabel(self.frame)
+        self.label_8.setObjectName(u"label_8")
+        font2 = QFont()
+        font2.setPointSize(16)
+        self.label_8.setFont(font2)
+
+        self.gridLayout_3.addWidget(self.label_8, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addWidget(self.frame, 1, 0, 1, 1)
 
 
         self.retranslateUi(Online_Analysis)
@@ -512,5 +535,6 @@ class Ui_Online_Analysis(object):
         self.save_labbook_button.setText(QCoreApplication.translate("Online_Analysis", u"Save Labbook", None))
         self.label_12.setText(QCoreApplication.translate("Online_Analysis", u"Experiment Report", None))
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window), QCoreApplication.translate("Online_Analysis", u"Labbook", None))
+        self.label_8.setText(QCoreApplication.translate("Online_Analysis", u"Online Analysis ", None))
     # retranslateUi
 

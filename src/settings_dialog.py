@@ -2,9 +2,8 @@ import sys
 import os
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 import pandas as pd 
-#from start import *
 from tkinter_camera import * 
-from settings_window import Ui_Settings
+from settings_designer import Ui_Settings
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore

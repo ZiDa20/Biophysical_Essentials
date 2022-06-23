@@ -44,10 +44,11 @@ class DuckDBDatabaseHandler():
 
     # Database functions
     def init_database(self):
+        print("hello database is initiated!!!!!!!!!!!!!!!!")
         # creates a new analysis database and writes the tables or connects to an existing database
         if self.create_analysis_database():
             self.create_database_tables()
-
+        
         # inserts new analysis id with default username admin
         # TODO implement roles admin, user, etc. ..
         self.analysis_id = self.insert_new_analysis("admin")
@@ -81,9 +82,11 @@ class DuckDBDatabaseHandler():
             # Converts TEXT to np.array when selecting
             sqlite3.register_converter("array", self.convert_array)
 
-        cew = os.getcwd()
-        dir_list = os.listdir(cew)
-
+       
+        cew = os.path.dirname(os.getcwd())
+        dir_list = os.listdir(cew+ "/src/")
+        print(dir_list)
+        print(cew)
         return_val = 0
         if self.db_file_name in dir_list:
             self.logger.info("Established connection to existing database: %s ", self.db_file_name)
@@ -95,10 +98,10 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                self.database = duckdb.connect(cew + "/" + self.db_file_name, read_only=False)
+                self.database = duckdb.connect(cew + '\\src\\' + self.db_file_name, read_only=False)
                 self.logger.info("connection successfull")
             else:
-                self.database = sqlite3.connect(cew + "/" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
+                self.database = sqlite3.connect(cew + "\\src\\" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
             self.logger.info("An error occured during database initialization. Error Message: %s", e)
 
