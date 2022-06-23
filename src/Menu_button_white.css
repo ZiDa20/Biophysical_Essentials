@@ -1,14 +1,13 @@
 QPushButton {{
-    color: #ff8117;
+    color: black;
     text-transform: none;
-    background-color: {QTMATERIAL_SECONDARYCOLOR};
-    border-radius : 10px;
+    background-color: #97ccf2;
   }}
 
   
 ListView{{
   background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
-  border: 1px solid #ff8117;
+  border: 1px solid;
 }}
 
 QScrollArea > QWidget > QWidget {{
@@ -17,12 +16,13 @@ QScrollArea > QWidget > QWidget {{
 
 QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid #ff8117;
+  border: 1px solid grey;
+  border-radius: 10px;
 
 }}
 
 QTabWidget[accessibleName="tab_widgets"] QTabBar {{
-  background-color: #ff8117;
+  background-color: #97ccf2;
   color:{QTMATERIAL_SECONDARYCOLOR};
   border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
 }}
@@ -34,15 +34,39 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
 
 QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid grey;
+  border-radius: 5px
 
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar {{
-  background-color: #ff8117;
+  background-color: #97ccf2;
   color:{QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::selected {{
-  color:{QTMATERIAL_SECONDARYCOLOR};
+  color:black;
+}}
+
+
+QGroupBox[objectName="button_box_1"]{{
+  border-radius: 10px;
+}}
+
+QGroupBox[objectName="button_box_1"] QLabel{{
+  color: black;
+}}
+
+
+
+QStackedWidget{{
+  background-color: rgba(255,255,255,0);
+}}
+
+QWidget[objectName="centralwidget"]{{
+  background-color: rgba(223,223,223,20);
+}}
+
+QMainWindow{{
+  background-color: rgba(220,220,220,60);
 }}

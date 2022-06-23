@@ -13,7 +13,7 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
-from offline_analysis_manager import OfflineManager
+from Offline_Analysis.offline_analysis_manager import OfflineManager
 from data_db import *
 from treeview_manager import *
 import pyqtgraph as pg
@@ -29,39 +29,73 @@ from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop
 pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
+from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
+from PySide6.QtCore import QThreadPool
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
     def __init__(self,parent = None):
-        QWidget.__init__(self,parent)
+        QWidget.__init__(self, parent)
         self.setupUi(self)
 
         # start page of offline analysis
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
 
+        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
+        self.go_back_button.clicked.connect(self.go_to_main_page)
+
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
         self.add_filter_button.clicked.connect(self.add_filter_to_offline_analysis)
         self.add_filter_button.setEnabled(False)
+        # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
+        self.frontend_style = None
+        self.database_handler = None
 
         self.offline_manager = OfflineManager()
         self.offline_analysis_widgets.setCurrentIndex(0)
 
-        # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
-        self.frontend_style=None
-
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.visualization_tab_widget, self.database_handler)
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
+
+        self.offline_analysis_thread_manager = QThreadPool()
+
+    def update_database_handler_object(self,updated_object):
+        self.database_handler = updated_object
+        self.offline_manager.database = updated_object
+        self.result_visualizer.database_handler = updated_object
+
+    @Slot()
+    def open_analysis_results(self):
+        """
+        Open an existing analysis from the database
+        :return:
+        """
+
+        #@TODO write a popup to look to the database first or enter an analysis id immediately,
+        # maybe also give a filter function to browse by date or username
+
+        # for now, analysis is static number ->
+        self.Offline_Analysis_Notebook.setCurrentIndex(1)
+        self.result_visualizer.show_results_for_current_analysis(39)
+
+
 
     @Slot()
     def start_blank_analysis(self):
         """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
         new button interactions offered """
         self.offline_analysis_widgets.setCurrentIndex(1)
+
+
+    @Slot()
+    def go_to_main_page(self):
+        self.offline_analysis_widgets.setCurrentIndex(0)
 
     @Slot()
     def open_directory(self):
@@ -114,8 +148,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # tree generation will be done in the backend because also database initilization will be performed alongside, will return the tree manager
         # tree manager will be global to be accessible for filter menu
-        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view, self.outfiltered_tree_view, meta_data_option_list)
 
+        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
+                                                                     self.outfiltered_tree_view, meta_data_option_list)
+        #self.offline_analysis_thread_manager.start(
         # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)
         self.experiments_tree_view.setColumnWidth(1, 25)
@@ -144,6 +180,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     @Slot()
     def select_series_to_be_analized(self):
+        """
+        executed after all experiment files have been loaded
+        :return:
+        """
         # get_series_from_datbase
         db = self.offline_manager.get_database()
 
@@ -151,9 +191,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # A distinct list will be saved
         series_names_string_list = db.get_distinct_non_discarded_series_names()
         print (series_names_string_list)
+
         # create a pop-up-window to allow user selection of series to be analyzed
         self.display_select_series_dialog(series_names_string_list)
-        # create a new tabwidget with equal tabs according to the selected series
+
+        # -> this will create a new tab widget with equal tabs according to the selected series
+
+        # the meta data groups need to be updated in the database
+        self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
+
+
 
     def display_select_series_dialog(self,series_names_string_list):
         """
@@ -239,6 +286,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     option_list.append(row[1])
             csv_file.close()
 
+            #@todo : start a new tab here ?
             self.continue_open_directory(dialog,option_list,meta_data_assignments)
 
     def create_meta_data_template(self,old_dialog):
@@ -255,12 +303,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style.set_pop_up_dialog_style_sheet(meta_data_popup)
 
         directory = self.offline_manager._directory_path
-        tmp_tree_manager = TreeViewManager()
+        tmp_tree_manager = TreeViewManager(self.database_handler)
         tmp_tree_manager.meta_data_group_column = 1
         tmp_tree_manager.checkbox_column = 3
         tmp_tree_manager.analysis_mode = 1
         tmp_tree_manager.frontend_style = self.frontend_style
+
         tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
+
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
 
@@ -308,7 +358,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def built_analysis_specific_notebook(self,series_names_list):
 
         # add selection to database
-        self.offline_manager.write_analysis_series_types_to_database(series_names_list)
+        self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         self.tab_list = []
         self.tabWidget.removeTab(0)
@@ -318,6 +368,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             new_tab_widget=SpecificAnalysisTab()
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
             new_tab_widget.setObjectName(s)
+            new_tab_widget.go_back_tp_page_2.clicked.connect(self.go_to_offline_analysis_page_2)
             self.tabWidget.insertTab(series_names_list.index(s),new_tab_widget,s)
             self.tab_list.append(new_tab_widget)
             self.plot_widgets= []
@@ -328,10 +379,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.tabWidget.setCurrentIndex(1)
         self.tabWidget.setCurrentIndex(0)
 
+    @Slot()
+    def go_to_offline_analysis_page_2(self):
+        self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
     def tab_changed(self,index):
-        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is changed. Index is the tab number correlating with a global list of tab objects self.tab_list
+        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
+        changed. Index is the tab number correlating with a global list of tab objects self.tab_list
         @author dz, 20.07.2021"""
 
         current_tab = self.tab_list[index]
@@ -362,6 +417,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.selected_tree_widget.expandToDepth(0)
 
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
+
         self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
 
 
@@ -378,7 +434,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog_grid = QGridLayout(dialog)
 
         # 2) get recording mode of the specific series
-        recording_mode = "Voltage Clamp"
+        recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(series_name)
 
         # 3) request recording mode specific analysis functions
         analysis_function_names = AnalysisRaw().get_elements(recording_mode)
@@ -394,7 +450,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # 5) add button to the dialog, since it's in the dialog only the button can be of local type
         confirm_selection_button = QPushButton("Confirm Selected Analysis Functions", dialog)
-        confirm_selection_button.clicked.connect(partial(self.update_selected_analysis_function_grid,checkbox_list,analysis_function_names,dialog))
+        confirm_selection_button.clicked.connect(partial(self.update_selected_analysis_function_table,checkbox_list,analysis_function_names,dialog))
 
         # 6) Add button widget to correct grid position, finally execute the dialog
         dialog_grid.addWidget(confirm_selection_button,len(analysis_function_names),0)
@@ -402,134 +458,123 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
-    def update_selected_analysis_function_grid(self,checkbox_list,analysis_function_name_list,dialog):
+    def update_selected_analysis_function_table(self,checkbox_list,analysis_function_name_list,dialog):
+        '''enters data into the analysis table after the dialog has been closed'''
         dialog.close()
 
         # read from database - if no settings have been made before execute initalization
 
-        selected_analysis_functions = self.get_selected_checkboxes(checkbox_list,analysis_function_name_list)
+        self.selected_analysis_functions = self.get_selected_checkboxes(checkbox_list,analysis_function_name_list)
         current_index = self.tabWidget.currentIndex()
         current_tab = self.tab_list[current_index]
 
-        # remove initial widgets
-        current_tab.function_selection_grid.removeWidget(current_tab.column_1_row_1)
-        current_tab.column_1_row_1.deleteLater()
-        current_tab.function_selection_grid.removeWidget(current_tab.column_2_row_2)
-        current_tab.column_2_row_2.deleteLater()
-        current_tab.function_selection_grid.removeWidget(current_tab.column_3_row_3)
-        current_tab.column_3_row_3.deleteLater()
-        current_tab.function_selection_grid.removeWidget(current_tab.select_series_analysis_functions)
-        current_tab.select_series_analysis_functions.deleteLater()
+        print(self.selected_analysis_functions)
 
-        #current_tab.function_selection_grid.removeWidget(current_tab.label_2)
-        #current_tab.label_2.deleteLater()
+        existing_row_numbers = current_tab.analysis_table_widget.rowCount()
 
-        # add new labels
-        print("indexes", current_tab.function_selection_grid.count())
-        print("rows", current_tab.function_selection_grid.rowCount())
-        print("columns", current_tab.function_selection_grid.columnCount())
+        if existing_row_numbers == 0:
+            current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
-        print("selected_analysis functions",selected_analysis_functions)
-        for f in selected_analysis_functions:
+            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+            current_tab.analysis_table_widget.setColumnCount(5)
+            current_tab.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
+            self.table_buttons = [0] * len(self.selected_analysis_functions)
+        else:
+            current_tab.analysis_table_widget.setRowCount(existing_row_numbers + len(self.selected_analysis_functions))
+            self.table_buttons = self.table_buttons +  [0]*len(self.selected_analysis_functions)
 
-            l = QLabel(f)
-            l2 = QLabel("None")
-            l3 = QLabel("None")
-            add_specific_boundaries = QPushButton("Add")
+        for row in range(len(self.selected_analysis_functions)):
+                row_to_insert = row + existing_row_numbers
+                value = self.selected_analysis_functions[row]
+                print(str(value))
+                current_tab.analysis_table_widget.setItem(row_to_insert,0,QTableWidgetItem(str(value)))
+                self.table_buttons[row_to_insert] = QPushButton("Add")
+                self.c = QPushButton("Configure")
+                current_tab.analysis_table_widget.setCellWidget(row_to_insert,3,self.table_buttons[row_to_insert])
+                current_tab.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
 
-            row =  selected_analysis_functions.index(f) + 5
-            print("writing to row", row)
-            # add the name of the function to column 0
-            current_tab.function_selection_grid.addWidget(l,row, 0, Qt.AlignCenter)
-            # add left cursor bound to column 1
-            current_tab.function_selection_grid.addWidget(l2, row, 1, Qt.AlignCenter)
-            # add right cursor bound to column 2
-            current_tab.function_selection_grid.addWidget(l3, row, 2, Qt.AlignCenter)
-            # add button for specific to column 3
-            current_tab.function_selection_grid.addWidget(add_specific_boundaries,row,3, Qt.AlignCenter)
+                self.table_buttons[row_to_insert].clicked.connect(partial(self.add_coursor_bounds,row_to_insert,current_tab))
 
-            # write analysis series into database
+        current_tab.analysis_table_widget.show()
 
 
-        change_series_selection = QPushButton("Change")
-        current_tab.function_selection_grid.addWidget(change_series_selection,len(selected_analysis_functions)+5,0)
-        #change_series_selection.clicked.connect(partial(self.select_analysis_functions(current_tab.objectName())))
+    def remove_existing_dragable_lines(self,row_number,current_tab):
+        number_of_rows = current_tab.analysis_table_widget.rowCount()
 
-        add_common_boundaries = QPushButton("Add")
-        add_common_boundaries.clicked.connect(self.add_common_coursor_bounds)
-        current_tab.function_selection_grid.addWidget(add_common_boundaries, len(selected_analysis_functions) + 5, 1, 1, 2)
+        for r in range(0,number_of_rows):
+            if current_tab.analysis_table_widget.item(r,1) is not None:
+                current_tab.analysis_table_widget.removeCellWidget (r, 3)
+                self.b= QPushButton("Change")
+                current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
+                self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
 
-        #content_margins = current_tab.function_selection_grid.getContentsMargins()
+            try:
+                self.current_tab_plot_manager.remove_dragable_lines()
+            except:
+                print("nothing to delete")
 
-
-    @Slot(float)
-    def add_common_coursor_bounds(self):
+    def add_coursor_bounds(self,row_number,current_tab):
         """
         This function will add 2 dragable lines to the plot which will be provided by the global plot manager object
         :return:
         """
+
+        self.remove_existing_dragable_lines(row_number,current_tab)
+
         # 1) insert dragable coursor bounds into pyqt graph
-        left_val, right_val = self.current_tab_plot_manager.show_draggable_lines()
+        left_val, right_val = self.current_tab_plot_manager.show_draggable_lines(row_number)
 
         #2) connect to the signal taht will be emitted when cursor bounds are moved by user
         self.current_tab_plot_manager.left_bound_changed.cursor_bound_signal.connect(self.update_left_common_labels)
         self.current_tab_plot_manager.right_bound_changed.cursor_bound_signal.connect(self.update_right_common_labels)
 
+        print("function called")
+        print(row_number)
+
         #3) update the function selection grid
-        self.update_left_common_labels(left_val)
-        self.update_right_common_labels(right_val)
+        self.update_left_common_labels((left_val,row_number))
+        self.update_right_common_labels((right_val,row_number))
 
+    @Slot(tuple)
+    def update_left_common_labels(self,tuple_in):
+        row_number = tuple_in[1]
+        value = tuple_in[0]
+        self.update_cursor_bound_labels(value, 1, row_number)
 
-    def update_left_common_labels(self,value):
-        self.update_cursor_bound_labels(value, 1)
+    @Slot(tuple)
+    def update_right_common_labels(self,tuple_in):
+        row_number = tuple_in[1]
+        value = tuple_in[0]
+        self.update_cursor_bound_labels(value, 2,row_number)
 
-    def update_right_common_labels(self,value):
-        self.update_cursor_bound_labels(value, 2)
-
-    def update_cursor_bound_labels(self,value,column):
+    def update_cursor_bound_labels(self,value,column_number,row_number):
         current_index = self.tabWidget.currentIndex()
         current_tab = self.tab_list[current_index]
 
-        # get the number of analysis functions
-        nr_of_functions = current_tab.function_selection_grid.rowCount()-5-1
-        print(nr_of_functions)
-        # get the number of already defined coursor bounds
-        nr_of_common_cursors = 0 #self.offline_manager.get_number_of_common_coursor_bounds
+        print("updating: row = " + str(row_number) + " column=" + str(column_number) + " value= " + str(value))
 
-        for f in range(0,nr_of_functions):
-            row = 5+f
 
-            w = current_tab.function_selection_grid.itemAtPosition(row, column).widget()
-
-            current_tab.function_selection_grid.removeWidget(w)
-            w.deleteLater()
-
-            l = QLabel(str(round(value,3)))
-            current_tab.function_selection_grid.addWidget(l,row,column, Qt.AlignCenter)
-
-            #current_tab.function_selection_grid.removeWidget(widget)
+        current_tab.analysis_table_widget.setItem(row_number,column_number,QTableWidgetItem(str(value)))
 
         self.check_ready_for_analysis(current_tab)
 
     def check_ready_for_analysis(self,current_tab):
-        row_count = current_tab.function_selection_grid.rowCount()-5-1
-
-        for r in range(5,row_count+5):
-
-            # check left common bounds (column 1) to be not none
-            t1= current_tab.function_selection_grid.itemAtPosition(r, 1).widget().text()
-            # check right common bounds (column 2) to be not none
-            t2= current_tab.function_selection_grid.itemAtPosition(r, 2).widget().text()
-            if "None" in t1 or "None" in t2:
-                print("not ready for analysis")
+        """
+        function that checks for coursor bounds in all selected functions in this tab to be not empty.
+        if this is the case the start analysis button becomes clickable
+        :param current_tab:
+        :return:
+        """
+        #print("Checking ready  for analysis")
+        for row in range(0,(current_tab.analysis_table_widget.rowCount())):
+            if current_tab.analysis_table_widget.item(row,1) is None or current_tab.analysis_table_widget.item(row,2) is None:
                 return
 
+        # make sure to connect start_analysis_button only once  .. otherwise a loop gets created # BUGFIX
+        if current_tab.start_analysis_button.isEnabled() is False:
+            current_tab.start_analysis_button.setEnabled(True)
+            current_tab.start_analysis_button.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
-        # when not returned - all required fields are filled with data
-        self.start_analysis_button = QPushButton("Start Analysis")
-        current_tab.function_selection_grid.addWidget(self.start_analysis_button,row_count +5 ,3)
-        self.start_analysis_button.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
-        print("ready for analysis")
 
     def start_offline_analysis_of_single_series(self,current_tab):
         '''
@@ -539,37 +584,48 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
+
+
         # store analysis parameter in the database
         self.write_function_grid_values_into_database(current_tab)
 
         # perform the analysis and write results to the database
-        self.offline_manager.execute_single_series_analysis(current_tab.objectName())
+        finished_successfully = self.offline_manager.execute_single_series_analysis(current_tab.objectName())
+
+        if finished_successfully:
+            # switch to the visualization tab
+            self.Offline_Analysis_Notebook.setCurrentIndex(1)
+
+            # plot the calculated results
+            current_tab_index = self.tabWidget.currentIndex()
+            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.tabWidget.tabText(current_tab_index))
+
 
     def write_function_grid_values_into_database(self,current_tab):
         """
-        When the Start Single Series Analysis Button will be pressed, data from the function selection grid in the
+        When the Start Single Series Analysis Button will be pressed, data from the function selection table in the
         current tab will be written into the database.
         :param current_tab: tab object from which the function selection grid will be written to the database
         :return:
         """
-        row_count = current_tab.function_selection_grid.rowCount()
+        row_count = current_tab.analysis_table_widget.rowCount()
         db = self.offline_manager.get_database()
         analysis_series_name = current_tab.objectName()
-        column_count =current_tab.function_selection_grid.columnCount()
-        it_len = int(column_count/2) # there will be always an even
-        print("column count", column_count)
-        print(it_len)
+        column_count =current_tab.analysis_table_widget.columnCount()
 
-        for r in range(5,row_count-1):
+        ### to be continued here
+        print(row_count)
+        for r in range(0,row_count):
+            analysis_function = current_tab.analysis_table_widget.item(r, 0).text()
+            #print("analysis function ", analysis_function)
+            lower_bound = round(float(current_tab.analysis_table_widget.item(r,1).text()),2)
+            upper_bound = round(float(current_tab.analysis_table_widget.item(r,2).text()),2)
+            #print(lower_bound)
+            #print(upper_bound)
+            db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function, analysis_series_name, lower_bound, upper_bound)
 
-                for c in range(0,it_len+1,2):
-                    print (c)
-                    analysis_function = current_tab.function_selection_grid.itemAtPosition(r, 0).widget().text()
-                    print("analysis function ", analysis_function)
-                    lower_bound = self.get_cursor_bound_value_from_grid(r, c+1, current_tab)
-                    upper_bound = self.get_cursor_bound_value_from_grid(r, c+2, current_tab)
-                    db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,analysis_series_name,lower_bound,upper_bound )
 
+        print("finished")
 
     def get_cursor_bound_value_from_grid(self,row,column,current_tab):
         """

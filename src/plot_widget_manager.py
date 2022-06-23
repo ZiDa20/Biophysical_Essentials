@@ -20,10 +20,11 @@ class PlotWidgetManager(QtCore.QRunnable):
         mode 0: values will be read directly from the .dat file
         mode 1: values will be read from the database provided from the offline manager object
         """
-
+        pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
-        #self.plot_widget.setStyleSheet('dark_blue.xml')
-        # clear the layout from previous plot
+
+
+
         print("removed old widget")
         vertical_layout_widget.takeAt(0)
 
@@ -40,9 +41,17 @@ class PlotWidgetManager(QtCore.QRunnable):
         self.time = None
         # neccessary for succesfull signal emitting
         super().__init__()
+
+
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
         self.plot_widget.setBackground("#232629")
+        self.plot_widget.setBackground('e6e6e6')
+        self.plot_widget.getAxis('left').setPen('#f57505')
+        self.plot_widget.getAxis('bottom').setPen('#f57505')
+        self.plot_widget.getAxis('left').setTextPen('#f57505')
+        self.plot_widget.getAxis('bottom').setTextPen('#f57505')
+
 
 
     def sweep_clicked(self,item):
@@ -179,7 +188,7 @@ class PlotWidgetManager(QtCore.QRunnable):
         return time
 
     def tree_view_click_handler(self, item):
-        print('Text of first column in item is ', item.text(0))
+        print(f'Text of first column in item is {item.text(0)}')
 
         if "Sweep" in item.text(0):
             self.sweep_clicked(item)
@@ -189,7 +198,7 @@ class PlotWidgetManager(QtCore.QRunnable):
             else:
              self.series_clicked(item)
 
-    def show_draggable_lines(self):
+    def show_draggable_lines(self,row_number):
         left_val =  0.2*max(self.time)
         right_val = 0.8*max(self.time)
 
@@ -198,23 +207,36 @@ class PlotWidgetManager(QtCore.QRunnable):
         self.right_cursor = pg.InfiniteLine(movable=True)
         self.right_cursor.setValue(right_val)
 
+        self.row_number = row_number
+
         self.left_coursor.sigPositionChangeFinished.connect(self.draggable_left_cursor_moved)
         self.plot_widget.addItem(self.left_coursor)
         self.plot_widget.addItem(self.right_cursor)
         self.right_cursor.sigPositionChangeFinished.connect(self.draggable_right_cursor_moved)
 
+
+
         return left_val,right_val
 
+    def remove_dragable_lines(self):
+        self.plot_widget.removeItem(self.left_coursor)
+        self.plot_widget.removeItem(self.right_cursor)
+        self.left_coursor.clearMarkers()
+        self.right_cursor.clearMarkers()
 
     def draggable_left_cursor_moved(self):
         print("the line was moved ", self.left_coursor.value())
         # update labels, therefore return a signal to the main offline analysis widget which will be connected to an update function there
-        self.left_bound_changed.cursor_bound_signal.emit(self.left_coursor.value())
+        emit_tuple = (round(self.left_coursor.value(),2),self.row_number)
+        print(emit_tuple)
+        self.left_bound_changed.cursor_bound_signal.emit(emit_tuple)
 
     def draggable_right_cursor_moved(self):
         print("the line was moved ", self.right_cursor.value())
-        self.right_bound_changed.cursor_bound_signal.emit(self.right_cursor.value())
+        emit_tuple = (round(self.right_cursor.value(),2),self.row_number)
+        print(emit_tuple)
+        self.right_bound_changed.cursor_bound_signal.emit(emit_tuple)
 
 # needed to use an instance of this signal class in the offline main widget
 class CursorBoundSignal(QtCore.QObject):
-    cursor_bound_signal = QtCore.Signal(float)
+    cursor_bound_signal = QtCore.Signal(tuple)

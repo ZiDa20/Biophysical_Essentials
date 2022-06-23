@@ -56,7 +56,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # logger added --> ToDO: should be used for developers as well as for users should be disriminated 
         self.logger=logging.getLogger() 
         self.logger.setLevel(logging.DEBUG)
-        file_handler = logging.FileHandler('../Logs/configuration.log')
+        file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
@@ -66,7 +66,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         # save the form to the database
 
-        self.database_save.clicked.connect(self.save_to_database)
+        #self.database_save.clicked.connect(self.save_to_database)
 
         #connect to the camera control
         self.initialize_camera()
@@ -92,6 +92,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.pushButton_10.clicked.connect(self.clear_list) # change button name
         self.stop_experiment_button.clicked.connect(self.terminate_sequence) # change button name
         self.button_transfer_to_labbook.clicked.connect(self.transfer_image_gif)
+
+        self.check_connection.setText("Warning: \n \nPlease select the PGF, Analysis and Protocol File and set the Batch communication Path!")
         
         self.set_solutions()
 
@@ -107,10 +109,13 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         for i in intracellular_solutions:
             self.Intracellular_sol_com_1.addItem(i)
    
+    
     def set_buttons_beginning(self):
-        """ set the button state of a view buttons inactivate at the beginning"""
-        self.add_pixmap_for_green.setStyleSheet("color: red")
+        #set the button state of a view buttons inactivate at the beginning
+        #self.add_pixmap_for_green.setStyleSheet("color: red")
         self.transfer_to_online_analysis_button.setEnabled(False)
+        
+
 
     def meta_open_directory(self):
         '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
@@ -200,10 +205,24 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.backend_manager.create_ascii_file_from_template()
             self.submit_patchmaster_files()
             self.set_dat_file_name(self.experiment_type_desc.text())
-            self.self_configuration_notebook.setCurrentIndex(1)
+            #self.self_configuration_notebook.setCurrentIndex(1)
             self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
             sleep(1)
             self.increment_count()
+            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ConnectionIdentify" +"\n")
+            self.increment_count()
+            sleep(1)
+
+            connection = self.backend_manager.read_connection_response()
+
+            if connection:
+                self.check_connection.setText("Connected: \n \nBatch Communication successfully connect \n \nToDo: \n \n Change to the Batch Communication Tab \n \n Patchmaster Message: \n \n" + connection)
+            
+            else:
+                self.check_connection.setText("No communication generated, please check Batch communication")
+            print(connection)
+
+            
                            
         else:
             self.Batch1.setText("please select a Path for the Patch File")
@@ -225,13 +244,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """ Basler camera initalizing  
         ToDO: Error handling"""
 
-        print("stuff worked")
+        self.logger.info("Camera will be initialized")
         self.camera = BayerCamera()
         #initialize the camera 
         camera_status = self.camera.init_camera()
         self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
         if camera_status is None: # initialization of the camera and error response if not correctly initialized
             self.scence_trial.addText("Camera is not connected please check the connection in the settings app")
+            self.logger.warning("Camera was not found please check the connection")
             self.Camera_Live_Feed.setScene(self.scence_trial)
             self.button_start_camera.setEnabled(False)
             self.button_stop_camera.setEnabled(False)
@@ -239,37 +259,43 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         else:
             print("Camera is connected")
+            self.logger.info("Camera is connected!")
             self.scence_trial.addText("Please start capturing!")
             self.Camera_Live_Feed.setScene(self.scence_trial)
 
     def start_camera_timer(self):
         """ added the asnychronous Qtimer for the Camera initalizion"""
-        self.start_cam = QTimer() # camera timer 
-        self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
-        self.start_cam.start(222)  # (333,self.start_camera)
+        try:
+            self.start_cam = QTimer() # camera timer 
+            self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
+            self.start_cam.start(222)  # (333,self.start_camera)
+            self.logger.info("Qthread for Camera caption is running")
+        except Exception as e:
+            self.logger.error(f"Here is the Error description of the camera running task: {e}")
+
 
     def start_camera(self):
         """ grab the current picture one by one with 50 FPS """
         camera_image = self.camera.grab_video() # grab video retrieved np.array image
         imgs = Image.fromarray(camera_image) # conversion
-        image = imgs.resize((561,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
+        image = imgs.resize((300,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
         imgqt = ImageQt.ImageQt(image) # convert to qt image
         self.camera_image_recording = QPixmap.fromImage(imgqt)
         self.scence_trial.clear()
         self.scence_trial.addPixmap(self.camera_image_recording)
 
     def stop_camera(self):
-        """ stop the camera timer """
-        print("yeah I m here for the camera")
+        """ Stopping the Qthread for the Camera """
         self.start_cam.stop() # here the camera Qtimer is stopped
+        self.logger("Camera Thread is stopped")
 
     def show_snapshot(self):
         """ does transfer the current snapshot to the galery view """
         image_list = self.check_list_lenght(self.image_stack) # self.image_stack is der stack der images generiert
-        image_list.insert(0,self.trial_figure) # neues image wird an stelle 1 gepusht
+        image_list.insert(0,self.camera_image_recording) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self)
         self.Taken_Snapshot.setScene(self.snapshot_scence)
-        self.snapshot_scence.addPixmap(self.trial_figure)
+        self.snapshot_scence.addPixmap(self.camera_image_recording)
         self.draw_snapshots_on_galery(image_list) # draw into the galery
 
 
@@ -280,22 +306,23 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         try:
             if len(image_liste) > 4: # if stack overcrowded
                 image_liste.pop()
-                print("Expected List Length reached")
-                return image_list
+                self.logger.info("Stacked is crowded pushing last image out")
+                return image_liste
             else:
-                return image_list
+                return image_liste
         except Exception as e:
             print(repr(f"This is the Error: {e}"))
 
     def draw_snapshots_on_galery(self, image_list):
         # function to draw the taken snapshot into the image galery
-        for i in reversed(range(self.horizontalLayout.count())): 
-            self.horizontalLayout.itemAt(i).widget().setParent(None)
+        for i in reversed(range(self.camera_horizontal.count())): 
+            self.camera_horizontal.itemAt(i).widget().setParent(None)
         if len(self.image_stack) > 0: #looping through the image stack
             for i,t in enumerate(image_list):
                 label = QLabel() # we set a label in the layout which should then be filled with the pixmap
                 label.setPixmap(t)
-                self.horizontalLayout.addWidget(label) # add to the layout 
+                label.resize(100,100)
+                self.camera_horizontal.addWidget(label) # add to the layout 
 
 
     def transfer_image_gif(self):
@@ -305,7 +332,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.online.image_experiment.setScene(self.snapshot_scence)
             experiment_image.addPixmap(self.trial_figure)
         except Exception as e:
-            print(e)
+            self.logger.error("Qgrpahics not added check")
              # draw into the galery
 
 
@@ -318,6 +345,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         
         print(self.res)
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + self.res + "\n")
+        self.logger.info("This command was send to the patchmaster: ""+"+f'{self.submission_count}' + "\n" + self.res + "\n")
         self.submission_count += 1
         if self.check_session:
             print("still checking commands")
@@ -351,10 +379,13 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """add Docstring"""
         # Get Input from the Sequences and the Protocols
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListSequences\n") # get the potential Series that can be started
+    
+        self.logger.info("send this comment: " "+"+f'{self.submission_count}' + "\n" + "ListSequences\n")
         sleep(0.2) # sleep is inserted because of laggy writing to the response file from the patchmaster
         sequences = self.backend_manager.update_response_file_content()
         self.increment_count()
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListProtocols\n") # get the protocols that can be started
+        self.logger.info("send this comment: " "+"+f'{self.submission_count}' + "\n" + "ListProtocols\n")
         sleep(0.2)
         protocol_responses = self.backend_manager.update_response_file_content() # get the protocol responses 
         self.increment_count() # always increment the batch communication count 
@@ -533,7 +564,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 self.tscurve_1.update()
 
                 # here drawing should be provided to the online analysis class
-                
                 self.trial_setup(final_notebook_dataframe,item, progress_callback)
 
             except Exception as e:

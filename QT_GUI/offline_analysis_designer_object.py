@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'offline_analysis_main_widget.ui'
+## Form generated from reading UI file 'offline_analysis_designer_object_120522.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.1
 ##
@@ -14,12 +14,11 @@ from PySide6.QtWidgets import *  # type: ignore
 from specififc_analysis_tab import *
 from groupbox_resizing_class import *
 
-
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
             Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(956, 986)
+        Offline_Analysis.resize(974, 986)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -201,7 +200,7 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_4.addItem(self.verticalSpacer_15, 14, 0, 1, 1)
 
-        self.groupBox = GroupBoxSize(self.start_page)
+        self.groupBox = QGroupBox(self.start_page)
         self.groupBox.setObjectName(u"groupBox")
         self.groupBox.setMaximumSize(QSize(509, 350))
         self.groupBox.setFont(font)
@@ -212,9 +211,9 @@ class Ui_Offline_Analysis(object):
         self.pushButton_8 = QPushButton(self.groupBox)
         self.pushButton_8.setObjectName(u"pushButton_8")
         self.pushButton_8.setGeometry(QRect(40, 170, 161, 71))
-        self.pushButton_9 = QPushButton(self.groupBox)
-        self.pushButton_9.setObjectName(u"pushButton_9")
-        self.pushButton_9.setGeometry(QRect(40, 280, 161, 41))
+        self.open_analysis_results_button = QPushButton(self.groupBox)
+        self.open_analysis_results_button.setObjectName(u"open_analysis_results_button")
+        self.open_analysis_results_button.setGeometry(QRect(40, 280, 161, 41))
         self.label_3 = QLabel(self.groupBox)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(230, 60, 241, 31))
@@ -246,86 +245,46 @@ class Ui_Offline_Analysis(object):
         self.blank_analysis.setObjectName(u"blank_analysis")
         self.gridLayout_2 = QGridLayout(self.blank_analysis)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.horizontalSpacer_32 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_32, 1, 14, 1, 1)
-
-        self.verticalSpacer_34 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_34, 15, 0, 1, 1)
-
-        self.verticalSpacer_29 = QSpacerItem(20, 36, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_29, 1, 0, 1, 1)
-
-        self.verticalSpacer_28 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_28, 14, 0, 1, 1)
-
-        self.horizontalSpacer_22 = QSpacerItem(44, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_22, 1, 15, 1, 1)
-
         self.verticalSpacer_37 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_37, 16, 0, 1, 1)
-
-        self.horizontalSpacer_21 = QSpacerItem(44, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_21, 1, 10, 1, 1)
 
         self.horizontalSpacer_18 = QSpacerItem(44, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.gridLayout_2.addItem(self.horizontalSpacer_18, 1, 13, 1, 1)
 
-        self.verticalSpacer_26 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_39 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_2.addItem(self.verticalSpacer_26, 19, 0, 1, 1)
+        self.gridLayout_2.addItem(self.verticalSpacer_39, 7, 0, 1, 1)
 
-        self.horizontalSpacer_26 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.verticalSpacer_35 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_2.addItem(self.horizontalSpacer_26, 1, 12, 1, 1)
-
-        self.add_filter_group_box = QGroupBox(self.blank_analysis)
-        self.add_filter_group_box.setObjectName(u"add_filter_group_box")
-        self.gridLayout_9 = QGridLayout(self.add_filter_group_box)
-        self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.add_filter_button = QPushButton(self.add_filter_group_box)
-        self.add_filter_button.setObjectName(u"add_filter_button")
-
-        self.gridLayout_9.addWidget(self.add_filter_button, 0, 0, 1, 1)
-
-        self.label_7 = QLabel(self.add_filter_group_box)
-        self.label_7.setObjectName(u"label_7")
-
-        self.gridLayout_9.addWidget(self.label_7, 0, 1, 1, 1)
-
-
-        self.gridLayout_2.addWidget(self.add_filter_group_box, 7, 1, 2, 16)
+        self.gridLayout_2.addItem(self.verticalSpacer_35, 17, 0, 1, 1)
 
         self.verticalSpacer_32 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_32, 10, 0, 1, 1)
 
-        self.verticalSpacer_38 = QSpacerItem(20, 38, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_33 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_2.addItem(self.verticalSpacer_38, 5, 0, 1, 1)
+        self.gridLayout_2.addItem(self.verticalSpacer_33, 12, 0, 1, 1)
 
-        self.horizontalSpacer_25 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_31 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addItem(self.horizontalSpacer_25, 1, 4, 1, 1)
+        self.gridLayout_2.addItem(self.horizontalSpacer_31, 1, 17, 1, 1)
 
-        self.horizontalSpacer_19 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.compare_series = QPushButton(self.blank_analysis)
+        self.compare_series.setObjectName(u"compare_series")
 
-        self.gridLayout_2.addItem(self.horizontalSpacer_19, 1, 11, 1, 1)
+        self.gridLayout_2.addWidget(self.compare_series, 20, 13, 1, 1)
 
-        self.horizontalSpacer_24 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_21 = QSpacerItem(44, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addItem(self.horizontalSpacer_24, 1, 1, 1, 1)
+        self.gridLayout_2.addItem(self.horizontalSpacer_21, 1, 10, 1, 1)
 
-        self.verticalSpacer_41 = QSpacerItem(20, 37, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.horizontalSpacer_30 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addItem(self.verticalSpacer_41, 4, 0, 1, 1)
+        self.gridLayout_2.addItem(self.horizontalSpacer_30, 1, 9, 1, 1)
 
         self.headline_layout = QVBoxLayout()
         self.headline_layout.setObjectName(u"headline_layout")
@@ -339,6 +298,111 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_2.addLayout(self.headline_layout, 3, 5, 1, 11)
 
+        self.verticalSpacer_22 = QSpacerItem(20, 37, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_22, 3, 0, 1, 1)
+
+        self.horizontalSpacer_26 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_26, 1, 12, 1, 1)
+
+        self.verticalSpacer_28 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_28, 14, 0, 1, 1)
+
+        self.horizontalSpacer_19 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_19, 1, 11, 1, 1)
+
+        self.verticalSpacer_23 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_23, 8, 0, 1, 1)
+
+        self.verticalSpacer_29 = QSpacerItem(20, 36, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_29, 1, 0, 1, 1)
+
+        self.horizontalSpacer_25 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_25, 1, 4, 1, 1)
+
+        self.horizontalSpacer_23 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_23, 1, 8, 1, 1)
+
+        self.verticalSpacer_41 = QSpacerItem(20, 37, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_41, 4, 0, 1, 1)
+
+        self.verticalSpacer_25 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_25, 13, 0, 1, 1)
+
+        self.verticalSpacer_30 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_30, 9, 0, 1, 1)
+
+        self.horizontalSpacer_29 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_29, 1, 7, 1, 1)
+
+        self.verticalSpacer_27 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_27, 20, 0, 1, 1)
+
+        self.verticalSpacer_36 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_36, 18, 0, 1, 1)
+
+        self.horizontalSpacer_34 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_34, 1, 5, 1, 1)
+
+        self.horizontalSpacer_22 = QSpacerItem(44, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_22, 1, 15, 1, 1)
+
+        self.horizontalSpacer_27 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_27, 1, 2, 1, 1)
+
+        self.horizontalSpacer_32 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_32, 1, 14, 1, 1)
+
+        self.verticalSpacer_38 = QSpacerItem(20, 38, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_38, 5, 0, 1, 1)
+
+        self.go_back_button = QPushButton(self.blank_analysis)
+        self.go_back_button.setObjectName(u"go_back_button")
+
+        self.gridLayout_2.addWidget(self.go_back_button, 20, 4, 1, 1)
+
+        self.horizontalSpacer_24 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_24, 1, 1, 1, 1)
+
+        self.verticalSpacer_34 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_34, 15, 0, 1, 1)
+
+        self.verticalSpacer_24 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_24, 11, 0, 1, 1)
+
+        self.horizontalSpacer_28 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_28, 1, 6, 1, 1)
+
+        self.verticalSpacer_26 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_2.addItem(self.verticalSpacer_26, 19, 0, 1, 1)
+
+        self.horizontalSpacer_33 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_33, 1, 16, 1, 1)
+
         self.verticalSpacer_40 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_40, 6, 0, 1, 1)
@@ -347,14 +411,6 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_2.addItem(self.horizontalSpacer_20, 1, 3, 1, 1)
 
-        self.verticalSpacer_27 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_27, 20, 0, 1, 1)
-
-        self.horizontalSpacer_29 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_29, 1, 7, 1, 1)
-
         self.groupBox_2 = QGroupBox(self.blank_analysis)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.select_directory_button = QPushButton(self.groupBox_2)
@@ -362,83 +418,19 @@ class Ui_Offline_Analysis(object):
         self.select_directory_button.setGeometry(QRect(10, 30, 111, 41))
         self.selected_directory = QLabel(self.groupBox_2)
         self.selected_directory.setObjectName(u"selected_directory")
-        self.selected_directory.setGeometry(QRect(160, 30, 601, 42))
+        self.selected_directory.setGeometry(QRect(160, 30, 221, 42))
 
-        self.gridLayout_2.addWidget(self.groupBox_2, 4, 1, 2, 16)
-
-        self.horizontalSpacer_31 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_31, 1, 17, 1, 1)
-
-        self.verticalSpacer_23 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_23, 8, 0, 1, 1)
-
-        self.verticalSpacer_24 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_24, 11, 0, 1, 1)
-
-        self.horizontalSpacer_27 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_27, 1, 2, 1, 1)
-
-        self.verticalSpacer_22 = QSpacerItem(20, 37, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_22, 3, 0, 1, 1)
-
-        self.verticalSpacer_30 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_30, 9, 0, 1, 1)
-
-        self.verticalSpacer_25 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_25, 13, 0, 1, 1)
-
-        self.horizontalSpacer_34 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_34, 1, 5, 1, 1)
-
-        self.verticalSpacer_35 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_35, 17, 0, 1, 1)
-
-        self.verticalSpacer_33 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_33, 12, 0, 1, 1)
-
-        self.verticalSpacer_39 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_39, 7, 0, 1, 1)
-
-        self.horizontalSpacer_23 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_23, 1, 8, 1, 1)
-
-        self.verticalSpacer_36 = QSpacerItem(20, 39, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_36, 18, 0, 1, 1)
-
-        self.horizontalSpacer_30 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_30, 1, 9, 1, 1)
-
-        self.horizontalSpacer_28 = QSpacerItem(41, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_28, 1, 6, 1, 1)
-
-        self.horizontalSpacer_33 = QSpacerItem(45, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_2.addItem(self.horizontalSpacer_33, 1, 16, 1, 1)
+        self.gridLayout_2.addWidget(self.groupBox_2, 4, 1, 2, 9)
 
         self.groupBox_4 = QGroupBox(self.blank_analysis)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
         self.groupBox_4.setSizePolicy(sizePolicy1)
         self.groupBox_4.setMinimumSize(QSize(300, 0))
-        self.groupBox_4.setMaximumSize(QSize(400, 16777215))
+        self.groupBox_4.setMaximumSize(QSize(600, 16777215))
         self.gridLayout_5 = QGridLayout(self.groupBox_4)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.directory_tree_widget = QTabWidget(self.groupBox_4)
@@ -457,13 +449,30 @@ class Ui_Offline_Analysis(object):
         self.discarde_tree_view.setObjectName(u"discarde_tree_view")
         self.outfiltered_tree_view = QTreeWidget(self.discarde_tree_view)
         self.outfiltered_tree_view.setObjectName(u"outfiltered_tree_view")
-        self.outfiltered_tree_view.setGeometry(QRect(0, 0, 341, 421))
+        self.outfiltered_tree_view.setGeometry(QRect(0, 0, 431, 561))
         self.directory_tree_widget.addTab(self.discarde_tree_view, "")
 
-        self.gridLayout_5.addWidget(self.directory_tree_widget, 0, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.directory_tree_widget, 1, 0, 1, 1)
 
 
-        self.gridLayout_2.addWidget(self.groupBox_4, 10, 1, 10, 7)
+        self.gridLayout_2.addWidget(self.groupBox_4, 7, 1, 13, 9)
+
+        self.add_filter_group_box = QGroupBox(self.blank_analysis)
+        self.add_filter_group_box.setObjectName(u"add_filter_group_box")
+        self.gridLayout_9 = QGridLayout(self.add_filter_group_box)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.add_filter_button = QPushButton(self.add_filter_group_box)
+        self.add_filter_button.setObjectName(u"add_filter_button")
+
+        self.gridLayout_9.addWidget(self.add_filter_button, 0, 0, 1, 1)
+
+        self.label_7 = QLabel(self.add_filter_group_box)
+        self.label_7.setObjectName(u"label_7")
+
+        self.gridLayout_9.addWidget(self.label_7, 0, 1, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.add_filter_group_box, 4, 11, 2, 7)
 
         self.groupBox_5 = QGroupBox(self.blank_analysis)
         self.groupBox_5.setObjectName(u"groupBox_5")
@@ -480,12 +489,7 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_7.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
 
-        self.gridLayout_2.addWidget(self.groupBox_5, 10, 9, 9, 8)
-
-        self.compare_series = QPushButton(self.blank_analysis)
-        self.compare_series.setObjectName(u"compare_series")
-
-        self.gridLayout_2.addWidget(self.compare_series, 19, 11, 1, 4)
+        self.gridLayout_2.addWidget(self.groupBox_5, 7, 11, 13, 7)
 
         self.offline_analysis_widgets.addWidget(self.blank_analysis)
         self.analysis_specific_notebook = QWidget()
@@ -510,7 +514,7 @@ class Ui_Offline_Analysis(object):
         self.visualization_tab_widget = QTabWidget(self.visualization)
         self.visualization_tab_widget.setObjectName(u"visualization_tab_widget")
         self.visualization_tab_widget.setGeometry(QRect(0, 0, 1641, 961))
-        self.template_tab_2 = SpecificAnalysisTab()
+        self.template_tab_2 = QWidget()
         self.template_tab_2.setObjectName(u"template_tab_2")
         self.visualization_tab_widget.addTab(self.template_tab_2, "")
         self.Offline_Analysis_Notebook.addTab(self.visualization, "")
@@ -522,7 +526,7 @@ class Ui_Offline_Analysis(object):
 
         self.Offline_Analysis_Notebook.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
-        self.directory_tree_widget.setCurrentIndex(0)
+        self.directory_tree_widget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Offline_Analysis)
@@ -534,17 +538,16 @@ class Ui_Offline_Analysis(object):
         self.blank_analysis_button.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Analysis", None))
         self.pushButton_8.setText(QCoreApplication.translate("Offline_Analysis", u"Analysis from \n"
 " previous Analysis", None))
-        self.pushButton_9.setText(QCoreApplication.translate("Offline_Analysis", u"Open Analysis Results", None))
+        self.open_analysis_results_button.setText(QCoreApplication.translate("Offline_Analysis", u"Open Analysis Results", None))
         self.label_3.setText(QCoreApplication.translate("Offline_Analysis", u"Start a new analysis from the scratch !", None))
         self.label_4.setText(QCoreApplication.translate("Offline_Analysis", u"Use an existing analysis from the database \n"
 "and modify paramters for a new analysis !", None))
         self.label_5.setText(QCoreApplication.translate("Offline_Analysis", u"Opens the visualization of results of \n"
 "already succesfully performed analysis", None))
         self.label_2.setText(QCoreApplication.translate("Offline_Analysis", u"SELECT A SPECIFIC OFFLINE ANALYSIS", None))
-        self.add_filter_group_box.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Selection", None))
-        self.add_filter_button.setText(QCoreApplication.translate("Offline_Analysis", u"Add Filter", None))
-        self.label_7.setText(QCoreApplication.translate("Offline_Analysis", u"No Filter Selected", None))
+        self.compare_series.setText(QCoreApplication.translate("Offline_Analysis", u"SELECT SERIES TO BE ANALYZED", None))
         self.label.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Offline Analysis", None))
+        self.go_back_button.setText(QCoreApplication.translate("Offline_Analysis", u"Go Back", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Location", None))
         self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Select Directory", None))
         self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"No Path Selected", None))
@@ -556,14 +559,18 @@ class Ui_Offline_Analysis(object):
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Offline_Analysis", u"Object", None));
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Offline_Analysis", u"Selected", None))
         ___qtreewidgetitem1 = self.outfiltered_tree_view.headerItem()
-        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Offline_Analysis", u"Reinsert", None));
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Offline_Analysis", u"Selected", None));
+        ___qtreewidgetitem1.setText(3, QCoreApplication.translate("Offline_Analysis", u"Reinsert", None));
+        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Offline_Analysis", u"Group", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Offline_Analysis", u"Sel", None));
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Offline_Analysis", u"Object", None));
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarde_tree_view), QCoreApplication.translate("Offline_Analysis", u"Discarded", None))
+        self.add_filter_group_box.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Selection", None))
+        self.add_filter_button.setText(QCoreApplication.translate("Offline_Analysis", u"Add Filter", None))
+        self.label_7.setText(QCoreApplication.translate("Offline_Analysis", u"No Filter Selected", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
-        self.compare_series.setText(QCoreApplication.translate("Offline_Analysis", u"SELECT SERIES TO BE ANALYZED", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.template_tab), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.Start_Analysis), QCoreApplication.translate("Offline_Analysis", u"Start Analysis", None))
         self.visualization_tab_widget.setTabText(self.visualization_tab_widget.indexOf(self.template_tab_2), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
     # retranslateUi
+

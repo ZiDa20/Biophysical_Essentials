@@ -10,14 +10,13 @@ class CurrentClamp():
     def __init__(self):
         """ redo the init function --> should be filled with parameters for fitting """ 
         self.window = 101
-        #self.treshold = 70 # threshold to detect an action potential 
+      
+    
         self.threshold = 0 # select the threshold for peak detection
         self.prominence = 0.1
         self.lower = None
         self.upper = None
 
-
-    
     def set_window_length(self, window):
         self.window = window
         print(self.window)

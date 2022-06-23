@@ -15,22 +15,50 @@ from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from tkinter_camera import *
 from frontend_style import Frontend_Style
+from data_db import DuckDBDatabaseHandler
+from BlurWindow.blurWindow import GlobalBlur
+
+# add this for making the background blurring
+
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.settings_button.clicked.connect(self.open_settings)
+        self._not_launched = True
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.center()
+        self.statusBar()
+        
+        self.gripSize = 16
+        self.grips = []
+        for i in range(4):
+            grip = QSizeGrip(self)
+            grip.resize(self.gripSize, self.gripSize)
+            self.grips.append(grip)
 
+       
         self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
         self.frontend_style = Frontend_Style()
-
         # distribute this style object to all other classes to be used
         # whenever the style will be changed, all classes share the same style object and adapt it's appearance
         self.ui.offline.frontend_style = self.frontend_style
+
+        # handler functions for the database and the database itself
+        # only one handler with one database will be used in this entire program
+        self.local_database_handler = DuckDBDatabaseHandler()
+
+        # share the object with offline analysis and database viewer
+        self.ui.offline.update_database_handler_object(self.local_database_handler)
+        self.ui.database.update_database_handler(self.local_database_handler)
+
+
+
+
+
         #self.ui.online.frontend_style = self.frontend_style
 
         # Logger for the Main function called start
@@ -46,7 +74,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.default_mode = 1
 
         #make button
-        self.buttons = (self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics)
+        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
         for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
@@ -56,8 +84,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         #print(self.ui.config.Load_meta_data_experiment_12)
 
         # connect to the metadata file path 
-        self.ui.hamburger_button.clicked.connect(self.animate_menu)
-        self.ui.konsole_button.clicked.connect(self.konsole_menu)
+        #self.ui.hamburger_button.clicked.connect(self.animate_menu)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
         #testing
@@ -65,23 +92,82 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # connect settings button
         self.write_button_text()
+        self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
+        self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
+        self.ui.maximize_button.clicked.connect(self.quit_application)
         #self.test_blurring()
-        self.ui.side_left_menu.setMinimumSize(300, 1000)
-        self.ui.side_left_menu.setMaximumSize(300, 1800)
+        #self.ui.side_left_menu.setMinimumSize(300, 1000)
+        #self.ui.side_left_menu.setMaximumSize(300, 1800)
+        GlobalBlur(self.winId(), Acrylic=True)
 
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QGuiApplication.primaryScreen().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def mousePressEvent(self, event):
+        self.oldPos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        if (event.y()) < 60:
+            GlobalBlur(self.winId(), Acrylic=False)
+            delta = QPoint (event.globalPos() - self.oldPos)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.oldPos = event.globalPos()
+
+    def mouseReleaseEvent(self, event):
+        GlobalBlur(self.winId(), Acrylic=True)
+
+    def resizeEvent(self, event):
+        #check this flag to avoid overriding of acrylic effect at start since resize is triggered
+        if self._not_launched:
+            self._not_launched = False
+            return
+        # during resize change to aero effect to avoid lag
+        GlobalBlur(self.winId(), Acrylic=False)
+        QMainWindow.resizeEvent(self,event)
+        rect = self.rect()
+        # top left grip doesn't need to be moved...
+        # top right
+        self.grips[1].move(rect.right() - self.gripSize, 0)
+        # bottom right
+        self.grips[2].move(
+            rect.right() - self.gripSize, rect.bottom() - self.gripSize)
+        # bottom left
+        self.grips[3].move(0, rect.bottom() - self.gripSize)
+
+
+        
     def transfer_file_to_online(self):
         """ transfer the self.configuration data to the online analysis """
         file_path = self.ui.config.get_file_path()
         self.ui.online.open_single_dat_file(str(file_path))
 
-    def open_settings(self):
-        """ This should be changed to the main settings"""
-        self.settings = SettingsWindow()
-        self.settings.show()
 
+    def minimize(self):
+        self.showMinimized()
+
+    def maximize(self):
+        """Still a bug in here"""
+        if (self.height() == 1040) and (self.width() == 1920):
+            self.setGeometry(191,45,1537, 950)
+            
+
+        else:
+            print("yes")
+            self.setGeometry(0,0,1920,1040)
+            
+
+    def quit_application(self):
+        QCoreApplication.quit()
+
+
+    """
+    not used anymore
     def animate_menu(self):
-        """ animation of the side-bar for open and close animation,
-        @toDO should change animation speed for smoother animation """
+        animation of the side-bar for open and close animation,
+        @toDO should change animation speed for smoother animation 
         width = self.ui.side_left_menu.width() # get the width of the menu
         print(width)
         if width >= 300:
@@ -103,12 +189,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.animation.start()
         self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
         self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
-
-
+    """
 
         
-
-
     def konsole_menu(self):
         """ toDO: still opens every time whne layout is changing--> bugfix better integratin into the layout
          """
@@ -166,12 +249,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.settings_button.setText("")
 
     def write_button_text(self):
-        self.ui.self_configuration.setText("Self Configuration")
-        self.ui.online_analysis.setText("Online Analysis")
-        self.ui.offline_analysis.setText("Offline Analysis")
-        self.ui.statistics.setText("Statistics")
-        self.ui.darkmode_button.setText("Change Theme")
-        self.ui.konsole_button.setText("Terminal")
+        self.ui.home_window.setText("  Home")
+        self.ui.self_configuration.setText("  Configuration")
+        self.ui.online_analysis.setText(" Online Analysis")
+        self.ui.offline_analysis.setText(" Offline Analysis")
+        self.ui.statistics.setText("Database View")
+        #self.ui.darkmode_button.setText("Change Theme")
+        #self.ui.konsole_button.setText("Terminal")
         self.ui.settings_button.setText("Settings")
 
 
@@ -180,12 +264,20 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
-            self.apply_stylesheet(self, "light_red.xml", invert_secondary=True)
+            self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
             with open('Menu_button_white.css') as file:
                 print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
-            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None;")
+            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None; \n"
+                                                    "color: #d2691e;\n"
+                                                    "padding: 5px 10px;\n"
+                                                    "background-position: left;\n"
+                                                    "border: none;\n"
+                                                    "border-radius: 5px;\n"
+                                                    "\n"
+                                                        "\n")
+                                                 
             print(self.frontend_style.get_sideframe_dark())
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
            
@@ -195,7 +287,15 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.apply_stylesheet(self, "dark_red.xml")
             with open('Menu_button.css') as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None;")
+            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
+                                                    "background-repeat:None;\n"
+                                                    "color: #d2691e;\n"
+                                                    "padding: 5px 10px;\n"
+                                                    "background-position: left;\n"
+                                                    "border: none;\n"
+                                                    "border-radius: 5px;\n"
+                                                    "\n"
+                                                        "\n")
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
  
             
@@ -240,5 +340,5 @@ if __name__ == "__main__":
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    app.exec()
 

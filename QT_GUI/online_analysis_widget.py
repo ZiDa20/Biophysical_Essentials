@@ -147,6 +147,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """ draws the table of the .dat metadata as indicated by the .pul Bundle file """
         try:
             self.table_model = PandasTable(data)
+            print(self.table_model)
             #self.tableWidget.setStyleSheet("background-color:#232629; ")
             self.tableWidget.setModel(self.table_model)
         except Exception as e:

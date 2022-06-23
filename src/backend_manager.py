@@ -72,6 +72,7 @@ class BackendManager:
             return False
         else:
             return True
+
     # a function to read the content of the E9Batch.In file
     def update_control_file_content(self):
         if self._batch_path:
@@ -123,7 +124,7 @@ class BackendManager:
 
 
     def get_parameters(self):
-        """get Parameters"""
+        """get Patch Clamp Paramters for viewing Parameters"""
         sleep(0.5)
         response = self.get_query_status()
         response = response.split(" ")[1:]
@@ -182,21 +183,27 @@ class BackendManager:
                 self.c_f.write(self.new_commands)
                 self.update_control_file_content()
                 self.c_f.close()
+
         except Exception as error:
                 print(repr(error))
 
 
     def get_response_file_content(self):
         # asynchron read seems to be dependent from the used os
+        #toDO; shouldnt we use context manager for this? 
         self.response_file_content = open(self.batch_path + '/E9BatchOut.txt', "r")
-
 
     def check_input_file_existence(self):
         return os.path.exists(self.batch_path + '/E9Batch.In')
 
-
     def get_file_path(self, increment):
         self.send_text_input()
+
+    def read_connection_response(self):
+        with open(self.batch_path + '/E9Batch.Out', "r") as file_object:
+                epc_param = file_object.read()
+                print(epc_param)
+                return epc_param
         
     #def transfer_data_to_offline(self, name):
     #    #should transfer the .dat file if closed or analysis finished

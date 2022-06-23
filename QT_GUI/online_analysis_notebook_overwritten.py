@@ -186,7 +186,7 @@ class Ui_Form(object):
 
         self.verticalLayout_3.addWidget(self.label_2)
 
-        self.tableWidget = QTableWidget(self.verticalLayoutWidget_3)
+        self.tableWidget = QTableView(self.verticalLayoutWidget_3)
         self.tableWidget.setObjectName(u"tableWidget")
 
         self.verticalLayout_3.addWidget(self.tableWidget)

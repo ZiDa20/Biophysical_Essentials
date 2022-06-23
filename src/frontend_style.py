@@ -8,11 +8,11 @@ class Frontend_Style():
         # style 1 = dark mode
         self.current_style = 1
 
-        self.sideframe_light_style = u"QWidget{background-color: \"#e6e6e6\";}\n" \
+        self.sideframe_light_style = u"QWidget{background-color: \"#FFFFFF\";}\n" \
                                 "QPushButton{padding: 10px 10px;"\
                                 "	        border: none;" \
                                 "	        border-radius:5px;" \
-                                "	        background-color: \"#e6e6e6\";}"\
+                                "	        background-color: \"#FFFFFF\";}"\
                                 "QPushButton:hover{background-color: \"#54545a\";}"
 
 
@@ -39,7 +39,7 @@ class Frontend_Style():
                            "QPushButton{ padding: 5px 10px; " \
                            "             border-width: 0px ;" \
                            "             border-radius: 10px ; " \
-                           "             border-color: #151E3D;"\
+                           "             border-color: #fff5cc;"\
                            "             border-radius:10px;" \
                            "             color:white; " \
                            "             background-color: #151E3D;}" \
