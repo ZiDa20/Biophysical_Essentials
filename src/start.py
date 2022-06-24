@@ -2,7 +2,13 @@ import sys
 import os
 import time
 
-sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/MainWindow/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/DatabaseViewer/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
 from main_window import Ui_MainWindow
@@ -30,6 +36,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center()
         self.statusBar()
+        
         
         self.gripSize = 16
         self.grips = []
@@ -107,7 +114,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.move(qr.topLeft())
 
     def mousePressEvent(self, event):
+        
         self.oldPos = event.globalPos()
+        print(self.oldPos)
+
 
     def mouseMoveEvent(self, event):
         if (event.y()) < 60:
@@ -126,16 +136,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             return
         # during resize change to aero effect to avoid lag
         GlobalBlur(self.winId(), Acrylic=False)
-        QMainWindow.resizeEvent(self,event)
-        rect = self.rect()
-        # top left grip doesn't need to be moved...
-        # top right
-        self.grips[1].move(rect.right() - self.gripSize, 0)
-        # bottom right
-        self.grips[2].move(
-            rect.right() - self.gripSize, rect.bottom() - self.gripSize)
-        # bottom left
-        self.grips[3].move(0, rect.bottom() - self.gripSize)
+       
 
 
         
@@ -265,7 +266,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            with open('Menu_button_white.css') as file:
+            with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
@@ -285,7 +286,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
             self.apply_stylesheet(self, "dark_red.xml")
-            with open('Menu_button.css') as file:
+            with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
                                                     "background-repeat:None;\n"
@@ -336,7 +337,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     apply_stylesheet(app, theme='dark_red.xml')
     stylesheet = app.styleSheet()
-    with open('Menu_button.css') as file:
+    with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()

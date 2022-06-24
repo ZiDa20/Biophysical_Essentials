@@ -1,8 +1,8 @@
+import unittest
 import sys
 import os
-sys.path.append(os.getcwd()[:-5] + "src")
-sys.path.append(os.getcwd()[:-5] + "QT_GUI")
-import unittest
+sys.path.append(os.path.dirname(os.getcwd()) + "/src")
+#sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI")
 from start import *
 from matplotlib.figure import Figure
 from PySide6.QtCore import *  # type: ignore
