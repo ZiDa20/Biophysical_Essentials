@@ -1,0 +1,98 @@
+QPushButton {{
+  background-color: #fff5cc;
+  color: black;
+  text-transform: none;
+
+}}
+
+ListView{{
+  background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+  border: 1px solid #fff5cc;
+}}
+
+QScrollArea > QWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+}}
+
+.big_button {{
+  height: 100px;
+}}
+
+QTabWidget[accessibleName="self_configuration_notebook"] QStackedWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+
+
+}}
+
+
+QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid #fff5cc;
+
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QTabBar {{
+  background-color: #fff5cc;
+  color:{QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
+  color:black;
+}}
+
+QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
+  color:grey;
+}}
+
+
+QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid #fff5cc;
+
+}}
+
+QTabWidget[objectName="online_analysis_tabs"] QTabBar {{
+  background-color: #fff5cc;
+  border: 1px solid #97ccf2;;
+  border-radius: 2px
+}}
+
+QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::selected {{
+  color:black;
+  shad
+}}
+
+QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::!selected {{
+  color:grey;
+}}
+
+
+
+QTreeView {{
+  background-color:  {QTMATERIAL_SECONDARYCOLOR}
+}}
+
+
+QGroupBox[objectName="button_box_1"]{{
+  color:black;
+  border: 1px #fff5cc;
+}}
+
+
+QStackedWidget{{
+  background-color: rgba(20,20,20,0);
+}}
+
+QWidget[objectName="centralwidget"]{{
+  background-color: rgba(20,20,20,50);
+}}
+
+QMainWindow{{
+  background-color: rgba(39,36,38,85);
+}}
+
+QStatusBar{{
+  background-color: rgba(39,36,38,85);
+}}
+

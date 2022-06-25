@@ -1,8 +1,15 @@
-import numpy as np
+
+
+import sys
+import os
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
+
+
 
 from data_db import DuckDBDatabaseHandler
-from update_dave.specific_visualization_plot import ResultPlotVisualizer
+from specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
+import numpy as np
 from PySide6.QtWidgets import *
 import pyqtgraph as pg
 from collections import OrderedDict

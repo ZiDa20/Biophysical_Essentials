@@ -2,7 +2,13 @@ import sys
 import os
 import time
 
-sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/MainWindow/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/DatabaseViewer/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
+sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
 from main_window import Ui_MainWindow
@@ -18,27 +24,24 @@ from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
 
-# add this for making the background blurring
-
 
 class MainWindow(QMainWindow, QtStyleTools):
     def __init__(self, parent = None):
+        """Initialize the MainWindow class for starting the Application
+
+        Args:
+            parent (QWidget, optional): Can Add a widget here as a parent. Defaults to None.
+        """        
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self._not_launched = True
+        self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.center()
-        self.statusBar()
+        self.center() # center
+        self.statusBar() # add Status Bar to the App
         
-        self.gripSize = 16
-        self.grips = []
-        for i in range(4):
-            grip = QSizeGrip(self)
-            grip.resize(self.gripSize, self.gripSize)
-            self.grips.append(grip)
 
-       
+        print(self.ui.notebook.currentIndex())
         self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
@@ -50,14 +53,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
-
+        
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler)
         self.ui.database.update_database_handler(self.local_database_handler)
-
-
-
-
 
         #self.ui.online.frontend_style = self.frontend_style
 
@@ -95,21 +94,32 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        #self.test_blurring()
-        #self.ui.side_left_menu.setMinimumSize(300, 1000)
-        #self.ui.side_left_menu.setMaximumSize(300, 1800)
         GlobalBlur(self.winId(), Acrylic=True)
 
     def center(self):
+        """Function to center the application at the start into the middle of the screen
+        """        
         qr = self.frameGeometry()
         cp = QGuiApplication.primaryScreen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
     def mousePressEvent(self, event):
+        """Function to detect mouse press
+
+        Args:
+            event (event): is a mouse Press Event
+        """        
         self.oldPos = event.globalPos()
+        print(self.oldPos)
+
 
     def mouseMoveEvent(self, event):
+        """Function to get the mouse moving events
+
+        Args:
+            event (event): retrieve the mouse move event
+        """        
         if (event.y()) < 60:
             GlobalBlur(self.winId(), Acrylic=False)
             delta = QPoint (event.globalPos() - self.oldPos)
@@ -117,129 +127,58 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.oldPos = event.globalPos()
 
     def mouseReleaseEvent(self, event):
+        """Function to detect the mouse release event
+
+        Args:
+            event (event): Mouse release
+        """      
+
         GlobalBlur(self.winId(), Acrylic=True)
 
     def resizeEvent(self, event):
+        """resizing of MainWindow
+
+        Args:
+            event (event): Retrieve resizing events of the main window
+        """        
+
         #check this flag to avoid overriding of acrylic effect at start since resize is triggered
         if self._not_launched:
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
         GlobalBlur(self.winId(), Acrylic=False)
-        QMainWindow.resizeEvent(self,event)
-        rect = self.rect()
-        # top left grip doesn't need to be moved...
-        # top right
-        self.grips[1].move(rect.right() - self.gripSize, 0)
-        # bottom right
-        self.grips[2].move(
-            rect.right() - self.gripSize, rect.bottom() - self.gripSize)
-        # bottom left
-        self.grips[3].move(0, rect.bottom() - self.gripSize)
-
-
+       
         
     def transfer_file_to_online(self):
-        """ transfer the self.configuration data to the online analysis """
+        """Function to transfer the Patchmaster generated .Dat file to the online Analysis
+        for further analysis
+        """        
         file_path = self.ui.config.get_file_path()
         self.ui.online.open_single_dat_file(str(file_path))
 
 
     def minimize(self):
+        """ Function to minimize the window"""
         self.showMinimized()
 
     def maximize(self):
-        """Still a bug in here"""
+        """Function to maximize of to retrive the original window state"""
         if (self.height() == 1040) and (self.width() == 1920):
             self.setGeometry(191,45,1537, 950)
             
-
         else:
             print("yes")
-            self.setGeometry(0,0,1920,1040)
+            self.setGeometry(0,0,1920,1040) # maximize the window
             
 
     def quit_application(self):
+        """ Function to quit the app"""
         QCoreApplication.quit()
 
 
-    """
-    not used anymore
-    def animate_menu(self):
-        animation of the side-bar for open and close animation,
-        @toDO should change animation speed for smoother animation 
-        width = self.ui.side_left_menu.width() # get the width of the menu
-        print(width)
-        if width >= 300:
-            print("yeah")
-            newWidth = 51
-            self.erase_button_text()
-            newWidth = 51
-        else:
-            print("hello")
-            newWidth = 300
-            self.write_button_text()
-
-        self.ui.side_left_menu.setMinimumSize(0,0)
-        self.animation = QPropertyAnimation(self.ui.side_left_menu, b"size")
-        self.animation.setDuration(4000)
-        self.animation.setStartValue(QSize(width,self.ui.side_left_menu.height()))
-        self.animation.setEndValue(QSize(newWidth,self.ui.side_left_menu.height()))
-        self.animation.setEasingCurve(QEasingCurve.InOutQuart) # set the Animation
-        self.animation.start()
-        self.ui.side_left_menu.setMaximumSize(newWidth, 1500)
-        self.ui.side_left_menu.setMinimumSize(newWidth, self.ui.side_left_menu.height())
-    """
-
-        
-    def konsole_menu(self):
-        """ toDO: still opens every time whne layout is changing--> bugfix better integratin into the layout
-         """
-        height = self.ui.frame.height()
-        position = self.ui.frame.pos()
-        self.ui.frame.setStyleSheet("background:transparent")
-        self.ui.frame.setStyleSheet("QFrame:hover{\n"
-                                                    "	background-color: \"#ff8117\";\n"
-                                                    "}")
-        if height > 351:
-            print("changed_console_height")
-            newHeight = 21
-        else:
-            print("changed_console_height_to_351")
-            newHeight = 500
-
-        if position.y() == 600:
-            newPosition = 1500
-
-        else:
-            newPosition = 600
-
-        # sets the minimum and maximum size of the konsole model
-        self.ui.frame.setMinimumSize(0, 0)
-        self.ui.frame.setMaximumSize(300, 300)
-
-        #get the size of the konsole
-        self.animation = QPropertyAnimation(self.ui.frame, b"size")
-        #get the position of the konsole       
-        self.position = QPropertyAnimation(self.ui.frame, b"pos")
-        print(f"size of the konsole is: {self.animation} and position of the konsole is: {position}")
-        self.animation.setDuration(500)
-        self.position.setDuration(100)
-
-
-        self.position.setStartValue(QPoint(self.ui.frame.pos().x(), position.y()))
-        self.position.setEndValue(QPoint(self.ui.frame.pos().x(), newPosition))
-        self.position.start()
-
-
-        self.animation.setStartValue(QSize(self.ui.frame.width(), height))
-        self.animation.setEndValue(QSize(self.ui.frame.width(), newHeight))
-        self.animation.setEasingCurve(QEasingCurve.InOutQuart)
-
-
-        self.animation.start()
-
     def erase_button_text(self):
+        """ Set the Menu button text to noting"""
         self.ui.self_configuration.setText("")
         self.ui.online_analysis.setText("")
         self.ui.offline_analysis.setText("")
@@ -249,6 +188,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.settings_button.setText("")
 
     def write_button_text(self):
+        """ Add names to the buttons"""
         self.ui.home_window.setText("  Home")
         self.ui.self_configuration.setText("  Configuration")
         self.ui.online_analysis.setText(" Online Analysis")
@@ -265,7 +205,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            with open('Menu_button_white.css') as file:
+            with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
@@ -285,7 +225,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
             self.apply_stylesheet(self, "dark_red.xml")
-            with open('Menu_button.css') as file:
+            with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
                                                     "background-repeat:None;\n"
@@ -311,8 +251,11 @@ class MainWindow(QMainWindow, QtStyleTools):
         #self.offline_analizer.setupUi(self)
 
     def set_darkmode(self, default_mode):
-        """ Function to retrieve the current state of the design
-        default_mode -> boolean (1 if light and 0 if darkmode)""" 
+        """Is important for setting the dark mode and white mode
+
+        Args:
+            default_mode (int): 0 or 1 for dark or light mode
+        """        
         self.default_mode = default_mode
 
     def get_darkmode(self):
@@ -320,23 +263,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         print(f"this is the current mode: {self.default_mode}")
         return self.default_mode
 
-    """
-    def test_blurring(self):
-        currently not working at all
-        effect = BlurEffect()
-        self.ui.side_left_menu.setGraphicsEffect(effect)
-        effect.setEnabled(False)
-        effect.setBlurRadius(50)
-        print("intialized blurring")
-        effect.setBlurRadius(20)
-    """
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     apply_stylesheet(app, theme='dark_red.xml')
     stylesheet = app.styleSheet()
-    with open('Menu_button.css') as file:
+    with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()
