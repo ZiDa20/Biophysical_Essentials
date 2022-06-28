@@ -132,6 +132,7 @@ class DuckDBDatabaseHandler():
 
         sql_create_experiments_table = """CREATE TABLE experiments(
                                                experiment_name text PRIMARY KEY,
+                                               experiment_label text,
                                                meta_data_group text,
                                                labbook_table_name text,
                                                image_directory text
@@ -483,6 +484,32 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
 
+    def get_meta_data_group_of_specific_experiment(self, experiment_name):
+        """
+
+        :param experiment_name:
+        :return:
+        :author dz, 28.06.2022
+        """
+        q = f'select meta_data_group from experiments where experiment_name = \'{experiment_name}\''
+        return self.get_data_from_database(self.database, q)[0][0]
+
+
+    def get_sweep_table_for_specific_series(self,experiment_name, series_identifier):
+        """
+        Returns sweep_data_table for one specific series in an experiment identified by experiment name and series identifier
+        :param experiment_name:
+        :param series_identifier:
+        :return: data table as pandas data frame
+        :author: dz, 27.06.2022
+        """
+
+        q = """select sweep_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        data_table_name = self.get_data_from_database(self.database, q, (experiment_name, series_identifier))[0][0]
+
+        self.database.execute(f'SELECT * FROM {data_table_name}')
+        return self.database.fetchdf()
+
     def get_experiment_name_for_given_sweep_table_name(self,sweep_table_name):
         """
         Get's the name of the experiment for a given sweep table name
@@ -524,6 +551,43 @@ class DuckDBDatabaseHandler():
             self.logger.info("insertion finished succesfully")
         except Exception as e:
             self.logger.info("insertion finished FAILED because of error %s", e)
+
+    def get_experiment_names_by_experiment_label(self,experiment_label):
+        """
+
+        :param experiment_label:
+        :return:
+        :author: dz, 27.06.2022
+        """
+
+        experiment_label = 'demo'
+
+        #q = f'select experiment_label from experiments'
+        #r1 = self.get_data_from_database(self.database, q)
+
+        q = f'select experiment_name from experiments'
+        r2 = self.get_data_from_database(self.database, q)
+
+        #q = f'select experiment_name from experiments where experiment_label = \'{experiment_label}\' '
+        #q = f"""select experiment_label from experiments where experiment_name = \' {201229_01} \' """
+        #r = self.get_data_from_database(self.database,q)
+
+        experiment_names = []
+        for i in r2:
+            experiment_names.append(i[0])
+
+        return experiment_names
+
+    def get_series_names_of_specific_experiment(self,experiment_name):
+        """
+        
+        :param experiment_name:
+        :return: a list of tuples [(series_name, series_identifier), ... ] e.g. [('Block Pulse', 'Series1'), ('IV','Series2'), .. ]
+        :author: dz, 22.06.2022
+        """
+        q = f'select series_name, series_identifier from experiment_series where experiment_name = \'{experiment_name}\''
+        r = self.get_data_from_database(self.database,q)
+        return r
 
     """----------------------------------------------------------"""
     """    Functions to interact with table analysis_functions   """

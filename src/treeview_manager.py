@@ -105,17 +105,16 @@ class TreeViewManager():
         # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
 
-    def create_treeview_from_database(self,selected_tree,discarded_tree,analysis_number,series_name=None):
+
+
+    def create_treeview_from_database(self,selected_tree,discarded_tree,experiment_label,series_name=None):
         """
         @todo finish implementation ~ approx 8h dz, 13.05.2022
+        # experiment label is to read all experiments asssociated with e.g. excitability recordings mir6540
         """
 
-        discard_button = QPushButton()
-        pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
-        discard_button.setIcon(pixmap)
-
         # get the experiments linked with this analysis number
-        not_discard_experiments_stored_in_db = self.database.get_not_discarded_experiment_names_by_offline_analysis_number(analysis_number)
+        not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label)
 
         # @todo not implemented yet - also add !
         discard_experiments_stored_in_db = []
@@ -142,31 +141,65 @@ class TreeViewManager():
             selected_tree.addTopLevelItem(parent)
 
             # add discard button in the globaly specified discard column
+            discard_button = QPushButton()
+            pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+            discard_button.setIcon(pixmap)
+
+            discard_button.clicked.connect(partial(self.discard_button_clicked, parent, selected_tree, discarded_tree))
             selected_tree.setItemWidget(parent, self.discard_column, discard_button)
 
+
+            # add combo box for meta data group selection
+            selected_tree = self.add_meta_data_combo_box_and_assign(experiment,selected_tree, parent)
             # add correct meta data group
-            tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
+            #tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
 
-            not_discarded_experiment_series_stored_in_db = self.database.get_not_discarded_series_names_for_experiment
+            series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment)
 
-            if series_name is None:
+            if series_identifier_tuple is None:
                 # have to add all series
                 print("create treeview from database for all series is not implemented yet")
+                series_identifier_tuple = self.database.get_series_names_of_specific_experiment
+
+                for tuple in series_identifier_tuple:
+                    series_name = tuple[0]
+                    child = QTreeWidgetItem(parent)
+                    child.setText(0, series_name)
+
+                    # get the sweeps
             else:
-                selected_tree, parent = self.add_series_to_treeview()
 
-                series_related_sweeps_stored_in_db = self.database.get_sweeps_for_series()
+                for tuple in series_identifier_tuple:
 
-                child = QTreeWidgetItem(parent)
-                child.setText(0, series_name)
-                child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-                child.setCheckState(self.checkbox_column, Qt.Unchecked)
+                    series_name = tuple[0]
+                    child = QTreeWidgetItem(parent)
+                    child.setText(0, series_name)
+                    child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
+                    child.setCheckState(self.checkbox_column, Qt.Unchecked)
 
+                    discard_button = QPushButton()
+                    pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+                    discard_button.setIcon(pixmap)
+
+                    discard_button.clicked.connect(
+                        partial(self.discard_button_clicked, child, selected_tree, discarded_tree))
+                    #selected_tree.setItemWidget(child, self.discard_column, discard_button)
+
+                    # get the data as a dataframe, tuple[1] holds the exact identifier
+                    sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,tuple[1])
+                    column_names = sweep_table_data_frame.columns.values.tolist()
+
+                    for sweep_number in range(0,len(sweep_table_data_frame.columns)):
+                        sweep_child = QTreeWidgetItem(child)
+                        sweep_child.setText(0,column_names[sweep_number] )
 
 
 
                 # add sweeps
                         # add traces
+
+        return selected_tree, discarded_tree
+
 
 
 
@@ -491,7 +524,29 @@ class TreeViewManager():
 
         return tree
 
+    def add_meta_data_combo_box_and_assign(self,experiment_name,tree,widget,series_identifier=None):
+        """
 
+        :return:
+        :author dz, 28.06.2022
+        """
+        self.experimental_combo_box = QComboBox()
+
+        #per default
+        meta_data_group_name = 'None'
+
+        if series_identifier is None:
+            meta_data_group_name = self.database.get_meta_data_group_of_specific_experiment(experiment_name)
+            self.meta_data_option_list.append(meta_data_group_name)
+        else:
+            print("not implement yet")
+        self.experimental_combo_box = self.insert_meta_data_items_into_combo_box(self.experimental_combo_box)
+        self.experimental_combo_box.setCurrentText(meta_data_group_name)
+        tree.setItemWidget(widget, self.meta_data_group_column, self.experimental_combo_box)
+
+        self.experimental_combo_box.currentTextChanged.connect(self.add_new_meta_data_group)
+
+        return tree
 
     """######################### Chapter B Functions to interact with created treeviews ############################"""
 

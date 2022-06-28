@@ -149,8 +149,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # tree generation will be done in the backend because also database initilization will be performed alongside, will return the tree manager
         # tree manager will be global to be accessible for filter menu
 
-        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
-                                                                     self.outfiltered_tree_view, meta_data_option_list)
+        #
+
+        #self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
+                                                                     #self.outfiltered_tree_view, meta_data_option_list)
+
+        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
+                                                                     self.outfiltered_tree_view,"", series_name=None)
         #self.offline_analysis_thread_manager.start(
         # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)
@@ -158,12 +164,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.setColumnWidth(2, 100)
         self.experiments_tree_view.setColumnWidth(3, 25)
 
-        self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(meta_data_group_assignment_list)
+        #self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(meta_data_group_assignment_list)
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1)
+        #self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1)
 
-        self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-        self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+        #self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+        #self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
 
         # show selected tree_view
         self.directory_tree_widget.setCurrentIndex(0)
@@ -173,7 +179,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print(self.experiments_tree_view.topLevelItem(0).child(0).text(0))
         #self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0).child(0).setCheckState(1,Qt.Checked))
 
-        self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
+        #self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
 
         self.add_filter_button.setEnabled(True)
 
@@ -309,7 +315,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         tmp_tree_manager.analysis_mode = 1
         tmp_tree_manager.frontend_style = self.frontend_style
 
-        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
+        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget, None,
+                                                        self.offline_manager.package_list(directory), directory, 0,
+                                                        None, 2)
 
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
