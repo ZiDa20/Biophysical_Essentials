@@ -393,6 +393,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.tab_list.append(new_tab_widget)
             self.plot_widgets= []
 
+            if s != "Rheoramp":
+                new_tab_widget.turn_on_peak_detection.setVisible(False)
+            else:
+                print("turning on detection mode")
+                #new_tab_widget.turn_on_peak_detection.toogled.connect()
+
+
             # add this selection to table series in the database
 
         self.tabWidget.currentChanged.connect(self.tab_changed)
