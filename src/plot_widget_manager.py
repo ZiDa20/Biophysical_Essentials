@@ -5,8 +5,14 @@ from PySide6.QtWidgets import *  # type: ignore
 from treeview_manager import *
 import pyqtgraph as pg
 import numpy as np
+
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
+
+
 class PlotWidgetManager(QtCore.QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
@@ -23,13 +29,15 @@ class PlotWidgetManager(QtCore.QRunnable):
         pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
 
-
+        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        #parent_widget.plot_layout.addWidget(canvas)
 
         print("removed old widget")
         vertical_layout_widget.takeAt(0)
 
         # add the new plot widget
         vertical_layout_widget.insertWidget(0,self.plot_widget)
+        #vertical_layout_widget.insertWidget(0, self.canvas)
 
         self.tree_view = tree_view
 
@@ -83,6 +91,52 @@ class PlotWidgetManager(QtCore.QRunnable):
 
         else:
             item.setCheckState(1, Qt.Unchecked)
+
+    def series_clicked_load_from_database(self,item):
+        """
+        When a series was clicked, data arrays all of its sweeps signal traces will be plotted.
+        The data therefore will be loaded live from the database.
+        :param item:
+        :return:
+        :author: dz, 29.06.2022
+        """
+        self.plot_widget.clear()
+        series_name = item.text(0)
+
+        # The data table will be pulled from the database from table 'experiment_series'.
+        # the correct table name is identified by the tuple (experiment_name, series_identifier)
+        # stored in the series item at position 3
+
+        data_request_information = item.data(3, 0)
+
+        db = self.offline_manager.get_database()
+        series_df = db.get_sweep_table_for_specific_series(data_request_information[0],data_request_information[1])
+
+        #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
+
+        # get the meta data to correctly display y values of traces
+        meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],data_request_information[1])
+        self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
+
+        self.time = self.get_time_from_meta_data(meta_data_df)
+
+        column_names = series_df.columns.values.tolist()
+
+        ax = self.canvas.figure.subplots()
+
+        # plot for each sweep
+        for name in column_names:
+            data = series_df[name].values.tolist()
+            data = np.array(data)
+
+            if self.y_unit == "V":
+                y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
+                data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+
+            self.plot_widget.plot(data)
+        ax.legend()
+        #self.canvas.show()
+
 
 
     def series_clicked(self,item):
@@ -162,11 +216,20 @@ class PlotWidgetManager(QtCore.QRunnable):
             print("recording mode : Current Clamp")
             return "Current Clamp"
 
-    def get_y_min_max_meta_data_values(self,meta_data):
-        meta_dict= self.get_dict(meta_data)
-        y_min = float(meta_dict.get('Ymin'))
-        y_max = float(meta_dict.get('Ymax'))
-        return y_min,y_max
+    def get_y_min_max_meta_data_values(self,meta_data_frame,sweep_name):
+        """
+        Return specific ymin and ymax for each sweep
+        :param meta_data_frame:
+        :param sweep_name:
+        :return:
+        """
+        pos = meta_data_frame['Parameter'].tolist().index('Ymin')
+        y_min = meta_data_frame[sweep_name].tolist()[pos]
+
+        pos = meta_data_frame['Parameter'].tolist().index('Ymax')
+        y_max = meta_data_frame[sweep_name].tolist()[pos]
+
+        return float(y_min), float(y_max)
 
     def get_dict(self,meta_data):
         """ checks type of meta_data and returns anyway the dictionary of the meta data array"""
@@ -175,15 +238,24 @@ class PlotWidgetManager(QtCore.QRunnable):
         else:
            return meta_data
 
-    def get_y_unit_from_meta_data(self,meta_data):
-        meta_dict = self.get_dict(meta_data)
-        return meta_dict.get('YUnit')
+    def get_y_unit_from_meta_data(self,meta_data_frame):
+        """
+        YUnit is equal for all sweeps
+        :param meta_data:
+        :return:
+        """
+        ind = meta_data_frame['Parameter'].tolist().index('YUnit')
+        return meta_data_frame['sweep_1'].tolist()[ind]
 
-    def get_time_from_meta_data(self,meta_data):
-        meta_dict = self.get_dict(meta_data)
-        x_start = float(meta_dict.get('XStart'))
-        x_interval = float(meta_dict.get('XInterval'))
-        number_of_datapoints = int(meta_dict.get('DataPoints'))
+
+    def get_time_from_meta_data(self,meta_data_frame):
+        x_start_pos = meta_data_frame['Parameter'].tolist().index('XStart')
+        x_interval_pos = meta_data_frame['Parameter'].tolist().index('XInterval')
+        number_of_points_pos = meta_data_frame['Parameter'].tolist().index('DataPoints')
+
+        x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
+        x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
+        number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
         return time
 
@@ -196,7 +268,8 @@ class PlotWidgetManager(QtCore.QRunnable):
             if ".dat" in item.text(0):
                 print("To see data traces, click on a sweep or a series")
             else:
-             self.series_clicked(item)
+             self.series_clicked_load_from_database(item)
+             #self.series_clicked(item)
 
     def show_draggable_lines(self,row_number):
         left_val =  0.2*max(self.time)

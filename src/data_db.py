@@ -29,7 +29,7 @@ class DuckDBDatabaseHandler():
         # logger settings
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
-        file_handler = logging.FileHandler('../../Logs/database_manager.log')
+        file_handler = logging.FileHandler('../Logs/database_manager.log')
         print(file_handler)
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
@@ -73,7 +73,7 @@ class DuckDBDatabaseHandler():
         returns false if an existing database was connected '''
 
         if self.database_architecture == self.duck_db_database:
-            self.db_file_name = "../duck_db_analysis_database.db"
+            self.db_file_name = "duck_db_analysis_database.db"
         else:
             self.db_file_name = "analysis_database.db"
             # Converts np.array to TEXT when inserting
@@ -341,6 +341,27 @@ class DuckDBDatabaseHandler():
         """
         q = """select recording_mode from analysis_series where analysis_series_name = (?) AND analysis_id = (?)"""
         return self.get_data_from_database(self.database, q, (analysis_series_name, self.analysis_id))[0][0]
+
+    def get_time_in_ms_of_by_sweep_table_name(self,sweep_table_name):
+        """
+
+        :param sweep_table_name:
+        :return:
+        :author: dz, 29.06.2022
+        """
+        q = f'select meta_data_table_name from experiment_series where sweep_table_name = \'{sweep_table_name}\' '
+        meta_data_table_name = self.get_data_from_database(self.database, q)[0][0]
+
+        # calculated time again as in plot widget manager
+        q = f'SELECT Parameter, sweep_1 FROM {meta_data_table_name}'
+
+        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+        x_start = float(meta_data_dict.get('XStart'))
+        x_interval = float(meta_data_dict.get('XInterval'))
+        number_of_datapoints = int(meta_data_dict.get('DataPoints'))
+        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
+        return time
 
     # used dz 29.06.2022#
     def get_time_in_ms_of_analyzed_series(self, experiment_name, series_identifier):
@@ -1017,16 +1038,16 @@ class DuckDBDatabaseHandler():
             # returns a dict {'key':'value', 'key':'value',...} where keys will be parameter names
             return {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
-    def discard_specific_series(self, experiment_name, series_name, series_identifier):
+    def discard_specific_series(self, experiment_name, series_identifier):
         """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
-        self.change_experiment_series_discarded_state(experiment_name, series_name, series_identifier, 1)
+        self.change_experiment_series_discarded_state(experiment_name, series_identifier, 1)
 
-    def reinsert_specific_series(self, experiment_name, series_name, series_identifier):
-        self.change_experiment_series_discarded_state(experiment_name, series_name, series_identifier, 0)
+    def reinsert_specific_series(self, experiment_name, series_identifier):
+        self.change_experiment_series_discarded_state(experiment_name, series_identifier, 0)
 
-    def change_experiment_series_discarded_state(self, experiment_name, series_name, series_identifier, state):
-        q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_name = (?) AND series_identifier = (?);"""
-        res = self.execute_sql_command(self.database, q, (state, experiment_name, series_name, series_identifier))
+    def change_experiment_series_discarded_state(self, experiment_name, series_identifier, state):
+        q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_identifier = (?);"""
+        res = self.execute_sql_command(self.database, q, (state, experiment_name, series_identifier))
 
     def get_distinct_non_discarded_series_names(self):
         """
