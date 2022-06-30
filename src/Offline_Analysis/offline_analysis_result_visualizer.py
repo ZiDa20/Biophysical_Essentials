@@ -54,11 +54,13 @@ class OfflineAnalysisResultVisualizer():
             "min_current": self.visualize_sweep_wise,
             "mean_current": self.visualize_sweep_wise,
             "area_current": self.visualize_sweep_wise,
+            "mean_voltage": self.visualize_series_wise,
             "Single_AP_Amplitude [mV]": self.visualize_series_wise,
             "Single_AP_Threshold_Amplitude[mV]": self.visualize_series_wise,
             "Single_AP_Afterhyperpolarization_Amplitude [mV]":self.visualize_series_wise,
             "Single_AP_Afterhyperpolarization_time[ms]": self.visualize_series_wise,
-            "Rheobase_Detection" : self.rheobase_visualization
+            "Rheobase_Detection" : self.rheobase_visualization,
+            "Rheoramp_Analysis":self.visualize_sweep_wise #self.rheoramp_analysis
         }
 
 
@@ -558,6 +560,9 @@ class OfflineAnalysisResultVisualizer():
 
         if len(none_free_y_data)>0:
             ax.plot(1, sum(none_free_y_data) / len(none_free_y_data), marker="o", markerfacecolor='k', label=series_names[a])
+
+    def rheoramp_analysis(self):
+        print("not implemented")
 
     def rheobase_visualization(self,ax,x_data,y_data,series_names,parent_widget,a):
         '''

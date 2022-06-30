@@ -174,7 +174,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # write the meta data to the tree
 
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
 
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
@@ -393,13 +393,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.tab_list.append(new_tab_widget)
             self.plot_widgets= []
 
-            if s != "Rheoramp":
-                new_tab_widget.turn_on_peak_detection.setVisible(False)
-            else:
-                print("turning on detection mode")
-                #new_tab_widget.turn_on_peak_detection.toogled.connect()
-
-
             # add this selection to table series in the database
 
         self.tabWidget.currentChanged.connect(self.tab_changed)
@@ -421,6 +414,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print(index)
         current_tab = self.tab_list[index]
         series_name = current_tab.objectName()
+
+
         current_tab.tabWidget.setStyleSheet("QTabWidget::pane { border: 0; }")
         # set the text of the head label as series name - customized to the selected tab
         # current_tab.headline.setText(series_name + " Specific Analysis Functions")
@@ -440,8 +435,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
         self.current_tab_plot_manager = None
 
+        if series_name != "Rheoramp":
+            current_tab.turn_on_peak_detection.setVisible(False)
+        else:
+            current_tab.turn_on_peak_detection.setVisible(True)
+
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
-                                                                  self.experiments_tree_view, 1)
+                                                                  self.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible())
 
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)

@@ -41,9 +41,9 @@ class AnalysisRaw():
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
+            return ["mean_voltage", "Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]",
-                    "Rheobase_Detection", "Rheoramp-Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+                    "Rheobase_Detection", "Rheoramp_Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -61,6 +61,8 @@ class AnalysisRaw():
             return self.time_to_minimum()
 
         # @TODO add current clamp functions
+        if function_name == "mean_voltage":
+            return self.mean_current()
         if function_name== "Single_AP_Amplitude [mV]":
             return self.single_action_potential_analysis("Amplitude")
         if function_name== "Single_AP_Threshold_Amplitude[mV]":
@@ -73,7 +75,7 @@ class AnalysisRaw():
         if function_name == "Rheobase_Detection":
             return self.ap_detection()
 
-        if function_name == "Rheoramp-Analysis":
+        if function_name == "Rheoramp_Analysis":
             return self.rheo_ramp_analysis()
 
 
@@ -185,7 +187,11 @@ class AnalysisRaw():
 
         :return:
         """
-        peaks, _  = find_peaks(self.data, threshold=0.1,distance=10)
+        peaks, _ = find_peaks(self.data, height=0.00, distance=10)
+        if (len(peaks)) > 0:
+            return(len(peaks))
+        else:
+            return None
 
 
     def ap_detection(self):

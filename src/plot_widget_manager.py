@@ -5,6 +5,9 @@ from PySide6.QtWidgets import *  # type: ignore
 from treeview_manager import *
 import pyqtgraph as pg
 import numpy as np
+from scipy.signal import find_peaks
+
+
 
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
@@ -16,7 +19,7 @@ from PySide6.QtCore import Signal
 class PlotWidgetManager(QtCore.QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
-    def __init__(self,vertical_layout_widget,manager_object,tree_view,mode):
+    def __init__(self,vertical_layout_widget,manager_object,tree_view,mode,detection):
         """
         INIT:
         :param vertical_layout_widget: layout to be filled with the plotwidget created by this class
@@ -28,6 +31,8 @@ class PlotWidgetManager(QtCore.QRunnable):
         """
         pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
+
+        self.detection_mode = detection
 
         self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
         #parent_widget.plot_layout.addWidget(canvas)
@@ -133,12 +138,20 @@ class PlotWidgetManager(QtCore.QRunnable):
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
-            self.plot_widget.plot(self.time,data)
+            self.plot_widget.plot(self.time, data)
+
+            if self.detection_mode:
+                peaks, _ = find_peaks(data, height = 0.00,distance=10)
+                print('peaks')
+                print(peaks)
+                self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
+
         ax.legend()
+
         #self.canvas.show()
 
 
-
+    # deprecated dz 30.06.2022
     def series_clicked(self,item):
         self.plot_widget.clear()
         print("series clicked")
@@ -198,6 +211,9 @@ class PlotWidgetManager(QtCore.QRunnable):
                 #self.plot_widget.addItem(y_axis_item)
                 self.plot_widget.setLabel(axis='left', text=self.y_unit)
                 self.plot_widget.setLabel(axis='bottom', text='Time (ms)')
+
+
+
 
         else:
             item.setCheckState(1,Qt.Unchecked)
