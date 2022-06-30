@@ -29,7 +29,7 @@ class DuckDBDatabaseHandler():
         # logger settings
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
-        file_handler = logging.FileHandler('../Logs/database_manager.log')
+        file_handler = logging.FileHandler('../../Logs/database_manager.log')
         print(file_handler)
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
@@ -73,7 +73,7 @@ class DuckDBDatabaseHandler():
         returns false if an existing database was connected '''
 
         if self.database_architecture == self.duck_db_database:
-            self.db_file_name = "duck_db_analysis_database.db"
+            self.db_file_name = "../duck_db_analysis_database.db"
         else:
             self.db_file_name = "analysis_database.db"
             # Converts np.array to TEXT when inserting
@@ -281,8 +281,12 @@ class DuckDBDatabaseHandler():
             recording_mode = self.query_recording_mode(n)
 
             q = """insert into analysis_series (analysis_series_name, recording_mode, analysis_id) values (?,?,?) """
-            self.database = self.execute_sql_command(self.database, q, (n, recording_mode, self.analysis_id))
-            self.logger.info(f'inserting new analysis_series with id  {self.analysis_id}')
+
+            try:
+                self.database = self.execute_sql_command(self.database, q, (n, recording_mode, self.analysis_id))
+                self.logger.info(f'inserting new analysis_series with id  {self.analysis_id}')
+            except Exception as e:
+                self.logger.info(f'ERROR while inserting new analysis_series with id  {self.analysis_id}')
 
         self.logger.info("inserted all series")
 
@@ -338,16 +342,12 @@ class DuckDBDatabaseHandler():
         q = """select recording_mode from analysis_series where analysis_series_name = (?) AND analysis_id = (?)"""
         return self.get_data_from_database(self.database, q, (analysis_series_name, self.analysis_id))[0][0]
 
-    # deprecated dz 22.02.2022
-    def get_time_in_ms_of_analyzed_series(self, series_name):
-
-        # time should be equal for all sweeps of a series
-
-        res = self.get_experiments_by_series_name_and_analysis_id(series_name)
+    # used dz 29.06.2022#
+    def get_time_in_ms_of_analyzed_series(self, experiment_name, series_identifier):
 
         # get the related meta data table name from the first experiment in the list
         q = """select meta_data_table_name from experiment_series where experiment_name = (?) AND series_name = (?)"""
-        res = self.get_data_from_database(self.database, q, (res[0][0], series_name))[0][0]
+        res = self.get_data_from_database(self.database, q, (experiment_name, series_identifier))[0][0]
 
         # calculated time again as in plot widget manager
         q = f'SELECT Parameter, sweep_1 FROM {res}'
@@ -429,6 +429,16 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
+    def get_meta_data_group_of_specific_experiment(self, experiment_name):
+        """
+
+        :param experiment_name:
+        :return:
+        :author dz, 28.06.2022
+        """
+        q = f'select meta_data_group from experiments where experiment_name = \'{experiment_name}\''
+        return self.get_data_from_database(self.database, q)[0][0]
+
 
     def add_experiment_to_experiment_table(self, name, meta_data_group=None, series_name=None, mapping_id=None):
         '''
@@ -484,18 +494,17 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
 
-    def get_meta_data_group_of_specific_experiment(self, experiment_name):
+    def get_meta_data_table_of_specific_series(self, experiment_name:str, series_identifier: str):
         """
-
         :param experiment_name:
+        :param series_name:
         :return:
-        :author dz, 28.06.2022
+        :author: dz, 29.06.2022
         """
-        q = f'select meta_data_group from experiments where experiment_name = \'{experiment_name}\''
-        return self.get_data_from_database(self.database, q)[0][0]
+        q = """select meta_data_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        return self.return_requested_table(q, experiment_name, series_identifier)
 
-
-    def get_sweep_table_for_specific_series(self,experiment_name, series_identifier):
+    def get_sweep_table_for_specific_series(self, experiment_name: str, series_identifier: str):
         """
         Returns sweep_data_table for one specific series in an experiment identified by experiment name and series identifier
         :param experiment_name:
@@ -505,6 +514,16 @@ class DuckDBDatabaseHandler():
         """
 
         q = """select sweep_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        return self.return_requested_table(q,experiment_name,series_identifier)
+
+    def return_requested_table(self, q: str, experiment_name: str, series_identifier: str):
+        """
+        internal function to reduce code copy. returns a requested table as data frame
+        :param q:
+        :param experiment_name:
+        :param series_identifier:
+        :return: pandas df
+        """
         data_table_name = self.get_data_from_database(self.database, q, (experiment_name, series_identifier))[0][0]
 
         self.database.execute(f'SELECT * FROM {data_table_name}')
@@ -894,9 +913,7 @@ class DuckDBDatabaseHandler():
         '''
 
         self.logger.info("Inserting sweep %s into existing table %s ", str(sweep_number), table_name)
-
         self.database.execute(f'SELECT * FROM {table_name}')
-
         res_df = self.database.fetchdf()
 
         try:
