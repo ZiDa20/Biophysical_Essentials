@@ -30,7 +30,7 @@ pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
-from PySide6.QtCore import QThreadPool
+
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -153,6 +153,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                      self.outfiltered_tree_view, meta_data_option_list)
         #self.offline_analysis_thread_manager.start(
         # display settings for the tree view in the blank analysis
+        
+
         self.experiments_tree_view.setColumnWidth(0, 100)
         self.experiments_tree_view.setColumnWidth(1, 25)
         self.experiments_tree_view.setColumnWidth(2, 100)
@@ -176,7 +178,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
 
         self.add_filter_button.setEnabled(True)
-
+    
 
     @Slot()
     def select_series_to_be_analized(self):
@@ -273,6 +275,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
         dialog.exec_()
+
+        
 
     def open_meta_data_template_file(self, dialog):
         meta_data_assignments = []

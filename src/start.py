@@ -2,6 +2,9 @@ import sys
 import os
 import time
 
+
+#Path import
+################################################################################
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/MainWindow/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/DatabaseViewer/ui_py")
@@ -9,6 +12,9 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
+##################################################################################
+
+
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
 from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
 from main_window import Ui_MainWindow
@@ -38,8 +44,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        self.statusBar() # add Status Bar to the App
+
         
+        #self.progressBar.setValue()
 
         print(self.ui.notebook.currentIndex())
         self.setCentralWidget(self.ui.centralwidget)
@@ -53,6 +60,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
+
+        if self.local_database_handler:
+            self.statusBar().showMessage("Database Connection Loaded")
         
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler)
@@ -74,9 +84,14 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         #make button
         self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
+        self.home_buttons = (self.ui.configuration_home_2, self.ui.online_analysis_home_2, self.ui.offline_analysis_home_2, self.ui.database_viewer_home_2)
+
         for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
+
+        for i, button in enumerate(self.home_buttons):
+            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
         #self.configuration_elements = Config_Widget()
 
         #self.ui.statistics_2.setProperty("class", "big_button")
@@ -165,10 +180,11 @@ class MainWindow(QMainWindow, QtStyleTools):
     def maximize(self):
         """Function to maximize of to retrive the original window state"""
         if (self.height() == 1040) and (self.width() == 1920):
-            self.setGeometry(191,45,1537, 950)
+            self.setGeometry(self.window_geometry)
             
         else:
             print("yes")
+            self.window_geometry = self.geometry()
             self.setGeometry(0,0,1920,1040) # maximize the window
             
 
@@ -247,6 +263,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.frontend_style.current_style=self.default_mode
 
     def init_offline_analysis(self):
+
         self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
         #self.offline_analizer.setupUi(self)
 

@@ -180,6 +180,7 @@ class OfflineManager():
         data_list = self.package_list(self._directory_path)
 
         # create the treeview with the 2 treeviews "tree" and "discarded tree" in 2 different tabs, 1 = database mode
+
         self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
 
 

@@ -27,14 +27,15 @@ QTabWidget[accessibleName="self_configuration_notebook"] QStackedWidget > QWidge
 
 QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid #fff5cc;
+  border: 2px solid #fff5cc;
+  border-radius: 5px
 
 }}
 
 QTabWidget[accessibleName="tab_widgets"] QTabBar {{
   background-color: #fff5cc;
   color:{QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};;
+
 }}
 
 QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
@@ -48,25 +49,23 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
 
 QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 1px solid #fff5cc;
+  border: 2px solid #fff5cc;
+  border-radius: 5px
+
 
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar {{
   background-color: #fff5cc;
-  border: 1px solid #97ccf2;;
-  border-radius: 2px
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::selected {{
   color:black;
-  shad
 }}
 
 QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::!selected {{
   color:grey;
 }}
-
 
 
 QTreeView {{
@@ -86,13 +85,87 @@ QStackedWidget{{
 
 QWidget[objectName="centralwidget"]{{
   background-color: rgba(20,20,20,50);
+  border-radius: 10px
 }}
 
 QMainWindow{{
   background-color: rgba(39,36,38,85);
+  border-radius: 10px;
 }}
 
 QStatusBar{{
-  background-color: rgba(39,36,38,85);
+  background-color: rgba(49,54,59, 180);
+  border-radius: 0px 0px 10px 10px;
 }}
 
+QTabWidget[objectName="self_configuration_notebook"] QTabBar{{
+  border-radius: 5px;
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[objectName="self_configuration_notebook"] QTabBar::tab::selected{{
+  color: black;
+  background-color:#fff5cc;
+  border-radius: 5px
+}}
+
+
+QWidget[objectName="experiment_initialization_3"]{{
+  border-radius: 5px;
+  background-color: rgba(49,54,59, 180)
+}}
+
+QWidget[objectName="batch_communication_3"]{{
+  border-radius: 5px;
+  background-color: rgba(49,54,59, 180)
+}}
+
+QWidget[objectName="camera_3"]{{
+  border-radius: 5px;
+  background-color: rgba(49,54,59, 180)
+}}
+
+QWidget[objectName="page"]{{
+  background-color: rgba(49,54,59, 0);
+}}
+
+QWidget[objectName="page_2"]{{
+  background-color: rgba(49,54,59, 0);
+}}
+
+
+QTabWidget[objectName="online_analysis"] QTabBar{{
+  border-radius: 5px;
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[objectName="online_analysis"] QTabBar::tab::selected{{
+  color: black;
+  background-color:#fff5cc;
+  border-radius: 5px
+}}
+
+QWidget[objectName="online_analysis_window"]{{
+  border-radius: 5px;
+  background-color: rgba(49,54,59, 180)
+}}
+
+QWidget[objectName="labbook_window"]{{
+  background-color: rgba(49,54,59, 180);
+}}
+
+QProgressBar {{
+  border: 2px solid #fff5cc;
+  border-radius: 5px;
+  background-color: rgba(49,54,59, 180);
+}}
+
+QWidget[objectName="home"] {{
+
+  background-color: rgba(49,54,59, 0);
+}}
+
+QWidget[objectName="frame"]{{
+  background-color: rgba(49,54,59, 180);
+
+}}

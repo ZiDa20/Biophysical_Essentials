@@ -130,6 +130,7 @@ class TestFrontPage(unittest.TestCase):
         self.ui.local_database_handler.database.close()
 
     def test_check_current_window_open(self):
+        """ Check if the right notebook index opened directed to the home position of the application"""
         self.assertEqual(self.ui.ui.notebook.currentIndex(), 0, "Wrong Notebook Side opened")
         self.ui.local_database_handler.database.close()
         
@@ -138,12 +139,20 @@ class TestFrontPage(unittest.TestCase):
         """ Check if database if properly assigned constructed"""
         self.ui.local_database_handler.init_database()
         analysis_table = self.ui.local_database_handler.database.execute("Select ANALYSIS_ID from offline_analysis")
+        experiment = self.ui.local_database_handler.database.execute("Select * from experiments")
+        self.assertEqual(analysis_table.fetchall()[0][0], 1 , "no database")
+        self.assertEqual(experiment.fetchall(), 1 , "no database")
+       
+
+    """
+    def test_check_database_table_generated(self):
+        self.ui.local_database_handler.init_database()
+        analysis_table = self.ui.local_database_handler.database.execute("select * from experiments")
         #experiment = self.ui.local_database_handler.database.execute("Select * from experiments")
         self.assertEqual(analysis_table.fetchall()[0][0], 1 , "no database")
         #self.assertEqual(experiment.fetchall(), 1 , "no database")
         self.ui.local_database_handler.database.close()
-
-        
+    """   
 
 if __name__ == '__main__':
     unittest.main()

@@ -23,18 +23,23 @@ import traceback, sys
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     """ promotion of the self configuration widget"""
-    def __init__(self, online, parent = None,):
+    def __init__(self, online, progress_bar, status_bar, parent = None,):
         super(Config_Widget,self).__init__(parent)
         # initialize self_config_notebook_widget
         self.setupUi(self)
        
+        # added the Progress Bar to the self-configuration
         self.set_buttons_beginning()
-    
+        
+
+        #select the batch_path
         self.batch_path = None
         self.backend_manager = BackendManager()
         self.online_analysis = online # load the backend manager
+        #self.statusbar().showMessage("Connected")
     
-    
+        self.progressBar = progress_bar   
+        self.statusBar = status_bar
         # pathes for the pgf files
         self.pgf_file = None
         self.pro_file = None
@@ -43,7 +48,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
         self.config_list_changes = ["Whole Cell", "Current Clamp"]
 
-        self.experiment_dictionary = {} # add the data gained fro
+        # add the metadata to the experiment dictionary
+        self.experiment_dictionary = {}
 
         self.submission_count = 2 # count for incrementing batch communication 
 
@@ -217,7 +223,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
             if connection:
                 self.check_connection.setText("Connected: \n \nBatch Communication successfully connect \n \nToDo: \n \n Change to the Batch Communication Tab \n \n Patchmaster Message: \n \n" + connection)
-            
+                self.statusBar.showMessage("Connection to Patchmaster successfully established")
             else:
                 self.check_connection.setText("No communication generated, please check Batch communication")
             print(connection)
@@ -300,9 +306,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
 
     def check_list_lenght(self, image_liste):
-        """Here we check the lenght of the  to avoid overcrowding in the image galery
-        its set to 5 images
-        :param image_liste -> type(list) """
+        """Here we check the length of the Image Stack to push them out after 5 Images
+
+        Args:
+            image_liste (list): List of captured numpy arrays
+
+        Returns:
+            list: Image List of size 5
+        """        
         try:
             if len(image_liste) > 4: # if stack overcrowded
                 image_liste.pop()
@@ -469,21 +480,32 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.sequence_experiment_dictionary = {} # all derived online analyiss data will be stored here in a "Series":Data fashion
         self.increment_count()
         final_notebook_dataframe = pd.DataFrame() # initialize an empty dataframe which can be appended to
-        
         # goes through the list, when the list is done the transfer to online analysis button will turn green and transfer is possible
         for index in range(view_list.rowCount()):
+
+            # start the progress bar
+            max_value = (len(range(view_list.rowCount()))+1)
+            value = (index+1) * (100/max_value)
+            self.progressBar.setValue(value)
+            self.progressBar.setFormat(f"{value}/100")
+
+            # retrieve the series or protocol
             item = view_list.item(index).text() # get the name of the stacked protocols/series/programs
+            
+            # send it via batch communication
             self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""GetParameters Param-2,Param-3,Param-4,Param-12\n") # always check the parameters after each protocol
             #ToDO Define Cancel Options like Filters
             sleep(0.3) # sleep for allowing program write and read
-            params_response = self.backend_manager.get_parameters() # return the paramters and write them into the entry boxes
+
+            #this should update the parameters for each sweep and run
+            params_response = self.backend_manager.get_parameters() 
             self.increment_count()
             sleep(0.5)
-            self.rseries_qc.setText(params_response[3])
-            self.cslow_qc.setText(params_response[1])
-            self.cfast_qc.setText(params_response[0])
-            self.cfast_qc_2.setText(params_response[2])
 
+            # here we set the text
+            self.set_params(params_response)
+            
+            # Check which kind of parameter is queried
             if self.SeriesWidget.model().findItems(item):
                 """ check if item is in series list"""
                 logging.info(f"Series {item} will be executed")
@@ -516,8 +538,19 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 sleep(0.3)
 
         # turn the button green if sequence finished succesfully
+        self.progressBar.setValue(100)
         self.transfer_to_online_analysis_button.setEnabled(True)
 
+    def set_params(self, params_response):
+        """Retrieve the Parameter value and add to the entry boxes
+
+        Args:
+            params_response (list): List of Paramater 
+        """        
+        self.rseries_qc.setText(params_response[3])
+        self.cslow_qc.setText(params_response[1])
+        self.cfast_qc.setText(params_response[0])
+        self.cfast_qc_2.setText(params_response[2])
 
     def increment_count(self):
         #increment count to renew submission code for the patchmaster

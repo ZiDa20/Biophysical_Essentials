@@ -15,6 +15,7 @@ import datetime
 import pandas as pd
 
 
+
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db database.
      @date: 23.06.2021, @author dz'''
@@ -44,7 +45,6 @@ class DuckDBDatabaseHandler():
 
     # Database functions
     def init_database(self):
-        print("hello database is initiated!!!!!!!!!!!!!!!!")
         # creates a new analysis database and writes the tables or connects to an existing database
         if self.create_analysis_database():
             self.create_database_tables()
@@ -67,6 +67,7 @@ class DuckDBDatabaseHandler():
         out = io.BytesIO(text)
         out.seek(0)
         return np.load(out)
+
 
     def create_analysis_database(self):
         '''Creates a new database or connects to an already existing database. Returns True if a new database has been created,

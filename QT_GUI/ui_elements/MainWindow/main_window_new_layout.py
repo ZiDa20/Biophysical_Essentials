@@ -35,11 +35,6 @@ class Ui_MainWindow(object):
         MainWindow.setStyleSheet(u"QMainWindow{\n"
 "border-radius: 10px\n"
 "}")
-        self.progressBar = QProgressBar()
-        self.statusBar = MainWindow.statusBar()# add Status Bar to the App
-        self.statusBar.addPermanentWidget(self.progressBar)
-        self.progressBar.setFixedWidth(200)
-        self.progressBar.setAlignment(Qt.AlignLeft)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
@@ -202,8 +197,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addItem(self.verticalSpacer_2, 0, 0, 1, 1)
 
         self.notebook.addWidget(self.home)
-        self.online = Online_Analysis()
-        self.config = Config_Widget(self.online, self.progressBar,  self.statusBar)
+        self.config = Config_Widget()
         self.config.setObjectName(u"config")
         sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
         self.config.setSizePolicy(sizePolicy)
