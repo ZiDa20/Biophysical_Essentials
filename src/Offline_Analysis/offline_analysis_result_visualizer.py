@@ -275,7 +275,7 @@ class OfflineAnalysisResultVisualizer():
                   # calculate one mean for all and plot it
                   self.calculate_and_plot_mean_over_all(parent_widget,number_of_sweeps,number_of_series,result_list)
 
-            else:
+            else: # split by meta data group
                  canvas  = self.handle_plot_widget_settings(parent_widget)
 
                  #calculate mean trace per meta data group
@@ -286,6 +286,9 @@ class OfflineAnalysisResultVisualizer():
                  # get the total number of different groups
                  meta_data_types = list(dict.fromkeys(meta_data_groups))
 
+                 # data will be appended to this list whenever a series of the meta data group was processed
+                 meta_data_numbers = []
+
                  ax = canvas.figure.subplots()
 
                  # pandas dataframe to store plotted results to be exported easily
@@ -293,6 +296,9 @@ class OfflineAnalysisResultVisualizer():
 
                  # calculate mean per group
                  for i in meta_data_types:
+
+                    # count the amount of series for this meta data group
+                    meta_data_numbers.append(meta_data_groups.count(i))
 
                     group_mean = []
                     group_std = []
@@ -311,6 +317,7 @@ class OfflineAnalysisResultVisualizer():
                                         #print(result_list[a + b*number_of_sweeps])
                                         sweep_mean.append(result_list[a + b*number_of_sweeps][0])
 
+
                             group_mean.append(np.mean(sweep_mean))
                             group_std.append(np.std(sweep_mean))
                     else:
@@ -322,8 +329,11 @@ class OfflineAnalysisResultVisualizer():
                     #ax.errorplot(y=group_mean, yerr= group_std) #self.default_colors[meta_data_types.index(i)], label='i')
                     parent_widget.export_data_frame.insert(0,i,group_mean)
 
+                 custom_legend = []
+                 for i in range(0,len(meta_data_types)):
+                    custom_legend.append(meta_data_types[i] + " : n=" + str(meta_data_numbers[i]) )
 
-                 ax.legend(meta_data_types)
+                 ax.legend(custom_legend)
                  print(parent_widget.export_data_frame)
 
         if new_text == self.plot_type[2]:  # boxplots
@@ -415,7 +425,7 @@ class OfflineAnalysisResultVisualizer():
                 ax.legend(plot['boxes'],custom_labels)
 
                 parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
-                plot(parent_widget.export_data_frame)
+                print(parent_widget.export_data_frame)
 
 
 
@@ -604,13 +614,19 @@ class OfflineAnalysisResultVisualizer():
             for b in range(number_of_sweeps):
                 try:
                     series_y_data.append(result_list[a + b][0])
+                    series_x_data.append(result_list[a + b][1])
                 except Exception as e:
                     print(e)
-                series_x_data.append(result_list[a + b][1])
 
-            y_data.append(series_y_data)
-            x_data.append(series_x_data)
-            names.append(self.database_handler.get_experiment_name_for_given_sweep_table_name(result_list[a + b][2]))
+            
+            try:
+                y_data.append(series_y_data)
+                x_data.append(series_x_data)
+                names.append(self.database_handler.get_experiment_name_for_given_sweep_table_name(result_list[a + b][2]))
+            except Exception as e:
+                print(len(result_list))
+                print(e)
+
 
         return x_data, y_data, names
 

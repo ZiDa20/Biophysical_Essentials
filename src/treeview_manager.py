@@ -13,7 +13,7 @@ import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from Worker import Worker
-
+from data_db import *
 import pandas as pd
 
 
@@ -247,16 +247,27 @@ class TreeViewManager():
             bundle = self.open_bundle_of_file(file)
             splitted_name = i.split(".")
             pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
+            """
+            self.database.database.close()
 
-            #worker = Worker(self.single_file_into_db, index=[], bundle=bundle, experiment_name=splitted_name[0], database=self.database, data_access_array=[0,-1,0,0],
-                                     #series_identifier="", pgf_tuple_data_frame=pgf_tuple_data_frame)
+            worker = Worker(self.single_file_into_db, index=[], bundle=bundle, experiment_name=splitted_name[0], database=None, data_access_array=[0,-1,0,0],
+                                     series_identifier="", pgf_tuple_data_frame=pgf_tuple_data_frame)
 
-            #self.threadpool.start(worker)
-            #worker.signals.result.connect(self.print_output)
-            #worker.signals.finished.connect(partial(self.update_treeview,selected_tree,discarded_tree))
-            #worker.signals.progress.connect(self.progress_fn)
+            worker.signals.result.connect(self.print_output)
+            worker.signals.finished.connect(partial(self.update_treeview,selected_tree,discarded_tree))
+            worker.signals.progress.connect(self.progress_fn)
+
+            self.threadpool.start(worker)
+            """
+
             self.single_file_into_db([], bundle,  splitted_name[0], self.database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
             self.update_treeview(selected_tree,discarded_tree)
+
+    def print_output(self):
+        print('output')
+
+    def progress_fn(self):
+        print('progress')
 
     def update_treeview(self,selected_tree,discarded_tree):
         selected_tree.clear()
@@ -265,6 +276,12 @@ class TreeViewManager():
     #progress_callback
     def single_file_into_db(self,index, bundle, experiment_name, database, data_access_array , series_identifier, pgf_tuple_data_frame=None):
 
+            if database is None:
+                database = DuckDBDatabaseHandler.init_database()
+                self.database = database
+
+            self.logger.info("started treeview generation")
+            print("started treeview generation")
             root = bundle.pul
             node = root
 
@@ -877,6 +894,8 @@ class TreeViewManager():
             # assuming that a series button was clicked
             experiment_name = item.data(3,0)[0]
             series_identifier = item.data(3, 0)[1]
+
+            #@todo if the entire experiment gets removed label each series as discarded
 
             #if self.database is not None:
             if function == "reinsert":

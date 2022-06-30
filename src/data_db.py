@@ -413,13 +413,13 @@ class DuckDBDatabaseHandler():
 
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
-            q2 = """select discarded from experiment_series where experiment_name = (?) AND series_name = (?)"""
-            r = self.get_data_from_database(self.database, q2, (experiment_tuple[0], series_name))[0][0]
-
-            if r is False:
-                q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)"""
+            q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
+            try:
                 r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
                 sweep_table_names.append(r)
+            except Exception as e:
+                print(e)
+
 
         return sweep_table_names
 
@@ -625,7 +625,7 @@ class DuckDBDatabaseHandler():
         :return: a list of tuples [(series_name, series_identifier), ... ] e.g. [('Block Pulse', 'Series1'), ('IV','Series2'), .. ]
         :author: dz, 22.06.2022
         """
-        q = f'select series_name, series_identifier from experiment_series where experiment_name = \'{experiment_name}\''
+        q = f'select series_name, series_identifier from experiment_series where experiment_name = \'{experiment_name}\' and discarded = \'{False}\''
         r = self.get_data_from_database(self.database,q)
         return r
 

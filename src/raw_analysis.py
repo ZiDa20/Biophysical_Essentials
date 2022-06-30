@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import sys
 import csv
+from scipy.signal import find_peaks
 
 class AnalysisRaw():
 
@@ -42,7 +43,7 @@ class AnalysisRaw():
         else:
             return ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]",
-                    "Rheobase_Detection", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+                    "Rheobase_Detection", "Rheoramp-Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -71,6 +72,9 @@ class AnalysisRaw():
 
         if function_name == "Rheobase_Detection":
             return self.ap_detection()
+
+        if function_name == "Rheoramp-Analysis":
+            return self.rheo_ramp_analysis()
 
 
     @property
@@ -175,6 +179,14 @@ class AnalysisRaw():
     def get_area(self):
         self.area =  np.trapz(self.sliced_trace[:,0],self.sliced_trace[:,1])
         return abs(self.area)*10000
+
+    def rheo_ramp_analysis(self):
+        """
+
+        :return:
+        """
+        peaks, _  = find_peaks(self.data, threshold=0.1,distance=10)
+
 
     def ap_detection(self):
         """

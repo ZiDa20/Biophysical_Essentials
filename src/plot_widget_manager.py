@@ -133,7 +133,7 @@ class PlotWidgetManager(QtCore.QRunnable):
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
-            self.plot_widget.plot(data)
+            self.plot_widget.plot(self.time,data)
         ax.legend()
         #self.canvas.show()
 

@@ -82,7 +82,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # for now, analysis is static number ->
         self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        self.result_visualizer.show_results_for_current_analysis(39)
+
+        # static offline analysis number
+        self.result_visualizer.show_results_for_current_analysis(12)
 
 
 
@@ -137,24 +139,31 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.clear()
         self.outfiltered_tree_view.clear()
 
-
+        """
         self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
             self.experiments_tree_view,
             self.outfiltered_tree_view, meta_data_option_list)
 
+        
         self.blank_analysis_page_1_tree_manager.frontend_style = self.frontend_style
 
         self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(self.experiments_tree_view,
                                                                                   meta_data_group_assignment_list)
 
         self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
+        """
 
+
+        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
 
         """
-        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
+        self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
+                                                                     self.outfiltered_tree_view,[])
+
+        """
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
                                                                      self.outfiltered_tree_view,"", None)
-        """
+
 
         # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)
