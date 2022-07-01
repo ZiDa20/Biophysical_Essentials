@@ -126,11 +126,15 @@ class TreeViewManager():
         # add correct meta data group
         # tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
 
+
     def create_treeview_from_database(self,selected_tree,discarded_tree,experiment_label,specific_series_name=None):
-        """
-        @todo finish implementation ~ approx 8h dz, 13.05.2022
-        # experiment label is to read all experiments asssociated with e.g. excitability recordings mir6540
-        """
+        """ read through the database and fill the trees of selected and discarded items"""
+
+        # discarded = False = means read all selected items
+        self.fill_treeview_from_database(selected_tree,discarded_tree, experiment_label,False, specific_series_name)
+        self.fill_treeview_from_database(discarded_tree,selected_tree, experiment_label, True, specific_series_name)
+
+    def fill_treeview_from_database(self,tree,discarded_tree,experiment_label,discarded_state, specific_series_name):
 
         # get the experiments linked with this analysis number
         not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label)
@@ -148,20 +152,19 @@ class TreeViewManager():
             # @todo if already existing it will not be inserted again will happen since create_treeview_from_database will be called multiple times
             self.database.create_mapping_between_experiments_and_analysis_id(experiment)
 
-
             # add experiment as top level item, read meta data group too
             # create a new toplevelitem according to the toplevelcount
-            top_level_item_amount = selected_tree.topLevelItemCount()
+            top_level_item_amount = tree.topLevelItemCount()
 
             if top_level_item_amount == 0:
-                parent = QTreeWidgetItem(selected_tree)
+                parent = QTreeWidgetItem(tree)
             else:
                 parent = QTreeWidgetItem(top_level_item_amount)
 
             parent.setText(0, experiment)
 
             # list of tuples: [('Block Pulse', 'Series1'), ... ]
-            series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment)
+            series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment,discarded_state)
 
             if series_identifier_tuple is None:
                 #@todo error handling
@@ -178,7 +181,7 @@ class TreeViewManager():
 
                 if len(series_identifier_list)>0:
                     # the parent will only added if there are valid series inside
-                    self.insert_parent_into_treeview_from_database(selected_tree, discarded_tree, parent, experiment)
+                    self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment)
 
                     for series_identifier in series_identifier_list:
                         child = QTreeWidgetItem(parent)
@@ -190,9 +193,9 @@ class TreeViewManager():
                         discard_button.setIcon(pixmap)
 
                         discard_button.clicked.connect(
-                            partial(self.discard_button_clicked, child, selected_tree, discarded_tree))
+                            partial(self.discard_button_clicked, child, tree, discarded_tree))
 
-                        selected_tree.setItemWidget(child, self.discard_column, discard_button)
+                        tree.setItemWidget(child, self.discard_column, discard_button)
 
                         sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,
                                                                                                    series_identifier)
@@ -205,7 +208,7 @@ class TreeViewManager():
 
             else:
                 #insert the experiment as parent
-                self.insert_parent_into_treeview_from_database(selected_tree,discarded_tree,parent,experiment)
+                self.insert_parent_into_treeview_from_database(tree,discarded_tree,parent,experiment)
 
                 # add all series of an existing experiment to the parent item
                 for tuple in series_identifier_tuple:
@@ -225,10 +228,10 @@ class TreeViewManager():
                     discard_button.setIcon(pixmap)
 
                     discard_button.clicked.connect(
-                        partial(self.discard_button_clicked, child, selected_tree, discarded_tree))
+                        partial(self.discard_button_clicked, child, tree, discarded_tree))
 
                     # insert the button
-                    selected_tree.setItemWidget(child, self.discard_column, discard_button)
+                    tree.setItemWidget(child, self.discard_column, discard_button)
 
                     # get the data as a dataframe, tuple[1] holds the exact identifier
                     sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,series_identifier)
@@ -238,7 +241,7 @@ class TreeViewManager():
                         sweep_child = QTreeWidgetItem(child)
                         sweep_child.setText(0,column_names[sweep_number] )
 
-        return selected_tree, discarded_tree
+        #return selected_tree, discarded_tree
 
     def write_directory_into_database(self, dat_files, directory_path, selected_tree,discarded_tree):
         # write the .dat files into the database
@@ -283,6 +286,7 @@ class TreeViewManager():
                 self.database = database
 
             self.logger.info("started treeview generation")
+            #print("started treeview generation")
             root = bundle.pul
             node = root
 

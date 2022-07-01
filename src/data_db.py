@@ -618,14 +618,14 @@ class DuckDBDatabaseHandler():
 
         return experiment_names
 
-    def get_series_names_of_specific_experiment(self,experiment_name):
+    def get_series_names_of_specific_experiment(self,experiment_name,discarded):
         """
         
         :param experiment_name:
         :return: a list of tuples [(series_name, series_identifier), ... ] e.g. [('Block Pulse', 'Series1'), ('IV','Series2'), .. ]
         :author: dz, 22.06.2022
         """
-        q = f'select series_name, series_identifier from experiment_series where experiment_name = \'{experiment_name}\' and discarded = \'{False}\''
+        q = f'select series_name, series_identifier from experiment_series where experiment_name = \'{experiment_name}\' and discarded = \'{discarded}\''
         r = self.get_data_from_database(self.database,q)
         return r
 
