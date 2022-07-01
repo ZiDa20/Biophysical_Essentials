@@ -46,6 +46,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
+        self.load_from_database.clicked.connect(self.load_treeview_from_database)
         self.go_back_button.clicked.connect(self.go_to_main_page)
 
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
@@ -100,6 +101,37 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(0)
 
     @Slot()
+    def load_treeview_from_database(self):
+        """
+
+        :return:
+
+        :author: dz, 01.07.2022
+        """
+
+        # open a popup to allow experiment label selection by the user
+        # from the popup get the label
+        experiment_label = ""
+        self.experiments_tree_view.clear()
+        self.outfiltered_tree_view.clear()
+        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
+                                                                     self.outfiltered_tree_view,experiment_label, None)
+
+        self.experiments_tree_view.setColumnWidth(0, 100)
+        self.experiments_tree_view.setColumnWidth(1, 25)
+        self.experiments_tree_view.setColumnWidth(2, 100)
+        self.experiments_tree_view.setColumnWidth(3, 25)
+
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
+
+        self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+        self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+
+        # show selected tree_view
+        self.directory_tree_widget.setCurrentIndex(0)
+
+    @Slot()
     def open_directory(self):
         '''Opens a filedialog where a user can select a desired directory. After the selection, a dialog will open and ask
         the user to enter meta data groups. The popup will be closed after the user clicked the concerning button.
@@ -139,7 +171,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.clear()
         self.outfiltered_tree_view.clear()
 
-        """
+
         self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
             self.experiments_tree_view,
             self.outfiltered_tree_view, meta_data_option_list)
@@ -151,19 +183,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                                   meta_data_group_assignment_list)
 
         self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
-        """
-
-
-        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
-
-        """
-        self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
-                                                                     self.outfiltered_tree_view,[])
-
-        """
-        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
-                                                                     self.outfiltered_tree_view,"", None)
-
 
         # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)

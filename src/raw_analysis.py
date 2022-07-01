@@ -187,7 +187,8 @@ class AnalysisRaw():
 
         :return:
         """
-        peaks, _ = find_peaks(self.data, height=0.00, distance=10)
+        #@todo must be also changed in the plot widget mnaager
+        peaks, _ = find_peaks(self.data, height=0.00, distance=200)
         if (len(peaks)) > 0:
             return(len(peaks))
         else:

@@ -261,7 +261,9 @@ class TreeViewManager():
             """
 
             self.single_file_into_db([], bundle,  splitted_name[0], self.database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
-            self.update_treeview(selected_tree,discarded_tree)
+
+
+        self.update_treeview(selected_tree,discarded_tree)
 
     def print_output(self):
         print('output')
@@ -281,7 +283,6 @@ class TreeViewManager():
                 self.database = database
 
             self.logger.info("started treeview generation")
-            print("started treeview generation")
             root = bundle.pul
             node = root
 

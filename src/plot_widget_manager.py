@@ -141,7 +141,7 @@ class PlotWidgetManager(QtCore.QRunnable):
             self.plot_widget.plot(self.time, data)
 
             if self.detection_mode:
-                peaks, _ = find_peaks(data, height = 0.00,distance=10)
+                peaks, _ = find_peaks(data, height = 0.00,distance=200)
                 print('peaks')
                 print(peaks)
                 self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
