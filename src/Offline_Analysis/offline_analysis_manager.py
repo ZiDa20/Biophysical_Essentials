@@ -41,9 +41,15 @@ class OfflineManager():
 
 
     def execute_single_series_analysis(self,series_name):
-        """Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
+        """
+        Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
         Therefore, sweep data traces will be load from the database, an analysis object will be created to calculate results and results will be written
-        into the database. """
+        into the database.
+        :param series_name:
+        :return:
+        :author: dz, 30.06.2022
+
+        """
 
         #@todo give normalization as argument to the function
         series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(series_name)
@@ -58,7 +64,7 @@ class OfflineManager():
             cslow_normalization = 0
 
         # get series specific time from database
-        time = self.database.get_time_in_ms_of_analyzed_series(series_name)
+
 
         # get name of sweep tables
         sweep_table_names = self.database.get_sweep_table_names_for_offline_analysis(series_name)
@@ -67,9 +73,6 @@ class OfflineManager():
         # @todo this only needed for specific analysis of rheobase
         increment = self.database.get_data_from_pgf_table(series_name, "increment", 1)
         holding = self.database.get_data_from_pgf_table(series_name, "holding", 0)
-
-        # increment steps
-
 
         print(sweep_table_names)
 
@@ -82,7 +85,7 @@ class OfflineManager():
 
             # dict
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
-
+            time = self.database.get_time_in_ms_of_by_sweep_table_name(table_name)
 
             #if table_name == 'imon_signal_220315_02_Series2':
                 #pd.DataFrame(entire_sweep_table).to_csv("debug_signal.csv")
@@ -180,9 +183,9 @@ class OfflineManager():
         data_list = self.package_list(self._directory_path)
 
         # create the treeview with the 2 treeviews "tree" and "discarded tree" in 2 different tabs, 1 = database mode
-
-        self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
-
+        #self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
+        self.tree_view_manager.write_directory_into_database(data_list, self._directory_path,
+                                                                              tree, discarded_tree)
 
         return self.tree_view_manager
 

@@ -419,6 +419,9 @@ class Ui_Offline_Analysis(object):
         self.selected_directory = QLabel(self.groupBox_2)
         self.selected_directory.setObjectName(u"selected_directory")
         self.selected_directory.setGeometry(QRect(160, 30, 221, 42))
+        self.load_from_database = QPushButton(self.groupBox_2)
+        self.load_from_database.setObjectName(u"load_from_database")
+        self.load_from_database.setGeometry(QRect(280, 30, 131, 41))
 
         self.gridLayout_2.addWidget(self.groupBox_2, 4, 1, 2, 9)
 
@@ -549,8 +552,9 @@ class Ui_Offline_Analysis(object):
         self.label.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Offline Analysis", None))
         self.go_back_button.setText(QCoreApplication.translate("Offline_Analysis", u"Go Back", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Location", None))
-        self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Select Directory", None))
+        self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Load Directory", None))
         self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"No Path Selected", None))
+        self.load_from_database.setText(QCoreApplication.translate("Offline_Analysis", u"Load Database", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Hierarchie", None))
         ___qtreewidgetitem = self.experiments_tree_view.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Offline_Analysis", u"Discard", None));
@@ -573,4 +577,3 @@ class Ui_Offline_Analysis(object):
         self.visualization_tab_widget.setTabText(self.visualization_tab_widget.indexOf(self.template_tab_2), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
     # retranslateUi
-

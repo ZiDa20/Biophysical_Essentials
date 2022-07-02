@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 
 
 #Path import
@@ -12,11 +11,7 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-##################################################################################
-
-
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
-from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtWidgets import QApplication, QMainWindow
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -25,9 +20,8 @@ from qt_material import QtStyleTools
 from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
-from tkinter_camera import *
 from frontend_style import Frontend_Style
-from data_db import DuckDBDatabaseHandler
+from src.data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
 
 

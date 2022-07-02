@@ -30,7 +30,7 @@ pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
-
+from PySide6.QtCore import QThreadPool
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -46,6 +46,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
+        self.load_from_database.clicked.connect(self.load_treeview_from_database)
         self.go_back_button.clicked.connect(self.go_to_main_page)
 
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
@@ -82,7 +83,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # for now, analysis is static number ->
         self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        self.result_visualizer.show_results_for_current_analysis(39)
+
+        # static offline analysis number
+        self.result_visualizer.show_results_for_current_analysis(12)
 
 
 
@@ -96,6 +99,37 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     @Slot()
     def go_to_main_page(self):
         self.offline_analysis_widgets.setCurrentIndex(0)
+
+    @Slot()
+    def load_treeview_from_database(self):
+        """
+
+        :return:
+
+        :author: dz, 01.07.2022
+        """
+
+        # open a popup to allow experiment label selection by the user
+        # from the popup get the label
+        experiment_label = ""
+        self.experiments_tree_view.clear()
+        self.outfiltered_tree_view.clear()
+        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
+                                                                     self.outfiltered_tree_view,experiment_label, None)
+
+        self.experiments_tree_view.setColumnWidth(0, 100)
+        self.experiments_tree_view.setColumnWidth(1, 25)
+        self.experiments_tree_view.setColumnWidth(2, 100)
+        self.experiments_tree_view.setColumnWidth(3, 25)
+
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
+
+        self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+        self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+
+        # show selected tree_view
+        self.directory_tree_widget.setCurrentIndex(0)
 
     @Slot()
     def open_directory(self):
@@ -126,10 +160,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-        # from the tree object get the assigned meta data group of each experiment and series as a list
-
-        print(type(enter_meta_data_dialog))
-
         if not (meta_data_option_list and meta_data_group_assignment_list):
             meta_data_group_assignment_list = []
             meta_data_option_list = []
@@ -142,27 +172,28 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.outfiltered_tree_view.clear()
 
 
-        # read all the data in the specified directory
-        # -> read directory data into database
-        # @todo: display a reading animation in a pop up dialog
+        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
+            self.experiments_tree_view,
+            self.outfiltered_tree_view, meta_data_option_list)
 
-        # tree generation will be done in the backend because also database initilization will be performed alongside, will return the tree manager
-        # tree manager will be global to be accessible for filter menu
-
-        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(self.experiments_tree_view,
-                                                                     self.outfiltered_tree_view, meta_data_option_list)
-        #self.offline_analysis_thread_manager.start(
-        # display settings for the tree view in the blank analysis
         
+        self.blank_analysis_page_1_tree_manager.frontend_style = self.frontend_style
 
+        self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(self.experiments_tree_view,
+                                                                                  meta_data_group_assignment_list)
+
+        self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
+
+        # display settings for the tree view in the blank analysis
         self.experiments_tree_view.setColumnWidth(0, 100)
         self.experiments_tree_view.setColumnWidth(1, 25)
         self.experiments_tree_view.setColumnWidth(2, 100)
         self.experiments_tree_view.setColumnWidth(3, 25)
 
-        self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(meta_data_group_assignment_list)
+        # write the meta data to the tree
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1)
+
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
 
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
@@ -172,13 +203,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.expandToDepth(0)
 
         self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0))
-        print(self.experiments_tree_view.topLevelItem(0).child(0).text(0))
+        #print(self.experiments_tree_view.topLevelItem(0).child(0).text(0))
         #self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0).child(0).setCheckState(1,Qt.Checked))
 
-        self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
+        #self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
 
         self.add_filter_button.setEnabled(True)
-    
+
 
     @Slot()
     def select_series_to_be_analized(self):
@@ -276,8 +307,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         dialog.exec_()
 
-        
-
     def open_meta_data_template_file(self, dialog):
         meta_data_assignments = []
         option_list = []
@@ -313,7 +342,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         tmp_tree_manager.analysis_mode = 1
         tmp_tree_manager.frontend_style = self.frontend_style
 
-        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget,None,self.offline_manager.package_list(directory),directory,0,None,2)
+        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget, None,
+                                                        self.offline_manager.package_list(directory), directory, 0,
+                                                        None, 2)
 
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0,250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1,25)
@@ -365,7 +396,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         self.tab_list = []
-        self.tabWidget.removeTab(0)
+
+        # clear the tab widget to avoid any forth and back errors
+        for i in range(0,self.tabWidget.count()):
+            self.tabWidget.removeTab(i)
+
         for s in series_names_list:
 
             # create a new tab from default tab for each series
@@ -380,6 +415,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # add this selection to table series in the database
 
         self.tabWidget.currentChanged.connect(self.tab_changed)
+
+        # change to 1 and back to make sure tab 0 will be built
         self.tabWidget.setCurrentIndex(1)
         self.tabWidget.setCurrentIndex(0)
 
@@ -393,8 +430,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         changed. Index is the tab number correlating with a global list of tab objects self.tab_list
         @author dz, 20.07.2021"""
 
+        print(index)
         current_tab = self.tab_list[index]
         series_name = current_tab.objectName()
+
+
         current_tab.tabWidget.setStyleSheet("QTabWidget::pane { border: 0; }")
         # set the text of the head label as series name - customized to the selected tab
         # current_tab.headline.setText(series_name + " Specific Analysis Functions")
@@ -406,13 +446,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # clear needed fpr promoted widget - otherwise trees will be appended instead of replaced
         self.clear_promoted_tab_items(current_tab)
 
-        TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
+        # deprecated dz 29.06.2022
+        #TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
+        TreeViewManager(db).create_treeview_from_database(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,"",series_name)
+
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
         self.current_tab_plot_manager = None
 
+        if series_name != "Rheoramp":
+            current_tab.turn_on_peak_detection.setVisible(False)
+        else:
+            current_tab.turn_on_peak_detection.setVisible(True)
+
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
-                                                                  self.experiments_tree_view, 1)
+                                                                  self.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible())
 
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)

@@ -54,11 +54,13 @@ class OfflineAnalysisResultVisualizer():
             "min_current": self.visualize_sweep_wise,
             "mean_current": self.visualize_sweep_wise,
             "area_current": self.visualize_sweep_wise,
+            "mean_voltage": self.visualize_series_wise,
             "Single_AP_Amplitude [mV]": self.visualize_series_wise,
             "Single_AP_Threshold_Amplitude[mV]": self.visualize_series_wise,
             "Single_AP_Afterhyperpolarization_Amplitude [mV]":self.visualize_series_wise,
             "Single_AP_Afterhyperpolarization_time[ms]": self.visualize_series_wise,
-            "Rheobase_Detection" : self.rheobase_visualization
+            "Rheobase_Detection" : self.rheobase_visualization,
+            "Rheoramp_Analysis":self.visualize_sweep_wise #self.rheoramp_analysis
         }
 
 
@@ -251,6 +253,40 @@ class OfflineAnalysisResultVisualizer():
         canvas.print_figure(result_path)
         print("saved plot in " + result_path)
 
+    def plot_rheoramp_event_counts(self,parent_widget,result_list,number_of_sweeps):
+        canvas = self.handle_plot_widget_settings(parent_widget)
+        meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
+        meta_data_types = list(dict.fromkeys(meta_data_groups))
+        plot_matrix = []
+
+        for meta_type in meta_data_types:
+                type_specific_series_pos = [i for i, x in enumerate(meta_data_groups) if x == meta_type]
+                sweep_1 = []
+                sweep_2 = []
+                sweep_3 = []
+                sweep_4 = []
+                for pos in type_specific_series_pos:
+
+                    sweep_1.append(result_list[pos*4][0])
+                    sweep_2.append(result_list[pos*4+1][0])
+                    sweep_3.append(result_list[pos * 4 + 2][0])
+                    sweep_4.append(result_list[pos * 4 + 3][0])
+
+                sweep_1 = [0 if i is None else i for i in sweep_1]
+                sweep_2 = [0 if i is None else i for i in sweep_2]
+                sweep_3 = [0 if i is None else i for i in sweep_3]
+                sweep_4 = [0 if i is None else i for i in sweep_4]
+
+                plot_matrix.append(sweep_1)
+                plot_matrix.append(sweep_2)
+                plot_matrix.append(sweep_3)
+                plot_matrix.append(sweep_4)
+                #for pos in type_specific_series_pos:
+        ax = canvas.figure.subplots()
+
+        plot = ax.boxplot(plot_matrix,  # notch=True,  # notch shape
+                          vert=True,  # vertical box alignment
+                          patch_artist=True)
 
     def plot_type_changed(self,parent_widget,new_text):
         """
@@ -267,6 +303,9 @@ class OfflineAnalysisResultVisualizer():
         number_of_series = self.get_number_of_series(result_list)
         number_of_sweeps = int(len(result_list) / number_of_series)
 
+        if parent_widget.analysis_name == 'Rheoramp_Analysis':
+            self.plot_rheoramp_event_counts(parent_widget,result_list,number_of_sweeps)
+
         if new_text == self.plot_type[1]: # plot means
 
             # check whether meta data groups need to be taken into consideration
@@ -275,7 +314,7 @@ class OfflineAnalysisResultVisualizer():
                   # calculate one mean for all and plot it
                   self.calculate_and_plot_mean_over_all(parent_widget,number_of_sweeps,number_of_series,result_list)
 
-            else:
+            else: # split by meta data group
                  canvas  = self.handle_plot_widget_settings(parent_widget)
 
                  #calculate mean trace per meta data group
@@ -286,6 +325,9 @@ class OfflineAnalysisResultVisualizer():
                  # get the total number of different groups
                  meta_data_types = list(dict.fromkeys(meta_data_groups))
 
+                 # data will be appended to this list whenever a series of the meta data group was processed
+                 meta_data_numbers = []
+
                  ax = canvas.figure.subplots()
 
                  # pandas dataframe to store plotted results to be exported easily
@@ -293,6 +335,9 @@ class OfflineAnalysisResultVisualizer():
 
                  # calculate mean per group
                  for i in meta_data_types:
+
+                    # count the amount of series for this meta data group
+                    meta_data_numbers.append(meta_data_groups.count(i))
 
                     group_mean = []
                     group_std = []
@@ -311,19 +356,25 @@ class OfflineAnalysisResultVisualizer():
                                         #print(result_list[a + b*number_of_sweeps])
                                         sweep_mean.append(result_list[a + b*number_of_sweeps][0])
 
+
                             group_mean.append(np.mean(sweep_mean))
                             group_std.append(np.std(sweep_mean))
                     else:
                         # not impelemented because this a scenario that might be not used
                         print("debug")
+
+
                     x = list(range(0, len(group_mean)))
 
                     ax.errorbar(x,group_mean, yerr=group_std, fmt='--o')
                     #ax.errorplot(y=group_mean, yerr= group_std) #self.default_colors[meta_data_types.index(i)], label='i')
                     parent_widget.export_data_frame.insert(0,i,group_mean)
 
+                 custom_legend = []
+                 for i in range(0,len(meta_data_types)):
+                    custom_legend.append(meta_data_types[i] + " : n=" + str(meta_data_numbers[i]) )
 
-                 ax.legend(meta_data_types)
+                 ax.legend(custom_legend)
                  print(parent_widget.export_data_frame)
 
         if new_text == self.plot_type[2]:  # boxplots
@@ -358,7 +409,6 @@ class OfflineAnalysisResultVisualizer():
 
                                 for sweep_pos in range(pos*number_of_sweeps,(pos +1)*number_of_sweeps):
                                     series_sweep_values.append(result_list[sweep_pos][0])
-
 
                                 if parent_widget.analysis_name == 'Rheobase_Detection':
                                     # needs no else since box_plot_matrix is already initialized with nans
@@ -415,7 +465,7 @@ class OfflineAnalysisResultVisualizer():
                 ax.legend(plot['boxes'],custom_labels)
 
                 parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
-                plot(parent_widget.export_data_frame)
+                print(parent_widget.export_data_frame)
 
 
 
@@ -549,6 +599,9 @@ class OfflineAnalysisResultVisualizer():
         if len(none_free_y_data)>0:
             ax.plot(1, sum(none_free_y_data) / len(none_free_y_data), marker="o", markerfacecolor='k', label=series_names[a])
 
+    def rheoramp_analysis(self):
+        print("not implemented")
+
     def rheobase_visualization(self,ax,x_data,y_data,series_names,parent_widget,a):
         '''
 
@@ -604,13 +657,19 @@ class OfflineAnalysisResultVisualizer():
             for b in range(number_of_sweeps):
                 try:
                     series_y_data.append(result_list[a + b][0])
+                    series_x_data.append(result_list[a + b][1])
                 except Exception as e:
                     print(e)
-                series_x_data.append(result_list[a + b][1])
 
-            y_data.append(series_y_data)
-            x_data.append(series_x_data)
-            names.append(self.database_handler.get_experiment_name_for_given_sweep_table_name(result_list[a + b][2]))
+            
+            try:
+                y_data.append(series_y_data)
+                x_data.append(series_x_data)
+                names.append(self.database_handler.get_experiment_name_for_given_sweep_table_name(result_list[a + b][2]))
+            except Exception as e:
+                print(len(result_list))
+                print(e)
+
 
         return x_data, y_data, names
 
