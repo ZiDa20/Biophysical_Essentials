@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'offline_analysis_designer_object_120522.ui'
+## Form generated from reading UI file 'offline_analysis_designer_object_010722.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.1
 ##
@@ -11,8 +11,9 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-from specififc_analysis_tab import *
-from groupbox_resizing_class import *
+
+from specific_analysis_tab import SpecificAnalysisTab
+
 
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
@@ -419,6 +420,9 @@ class Ui_Offline_Analysis(object):
         self.selected_directory = QLabel(self.groupBox_2)
         self.selected_directory.setObjectName(u"selected_directory")
         self.selected_directory.setGeometry(QRect(160, 30, 221, 42))
+        self.load_from_database = QPushButton(self.groupBox_2)
+        self.load_from_database.setObjectName(u"load_from_database")
+        self.load_from_database.setGeometry(QRect(280, 30, 131, 41))
 
         self.gridLayout_2.addWidget(self.groupBox_2, 4, 1, 2, 9)
 
@@ -549,8 +553,9 @@ class Ui_Offline_Analysis(object):
         self.label.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Offline Analysis", None))
         self.go_back_button.setText(QCoreApplication.translate("Offline_Analysis", u"Go Back", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Location", None))
-        self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Select Directory", None))
+        self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Load Directory", None))
         self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"No Path Selected", None))
+        self.load_from_database.setText(QCoreApplication.translate("Offline_Analysis", u"Load Database", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Hierarchie", None))
         ___qtreewidgetitem = self.experiments_tree_view.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Offline_Analysis", u"Discard", None));

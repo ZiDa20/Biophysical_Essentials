@@ -22,11 +22,20 @@ import traceback, sys
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
-    """ promotion of the self configuration widget"""
+    # This class is used to create the configuration widget
+    # The configuration widget is used to configure the patch master configuration
     def __init__(self, online, progress_bar, status_bar, parent = None,):
-        super(Config_Widget,self).__init__(parent)
+        """initialize the configuration widget
+
+        online: the online analysis widget
+        progress_bar: the progress bar widget
+        status_bar: the status bar widget
+        parent: the parent widget
+        
+        """
+        super(Config_Widget,self).__init__(parent) # initialize the parent class
         # initialize self_config_notebook_widget
-        self.setupUi(self)
+        self.setupUi(self) # setup the ui file 
        
         # added the Progress Bar to the self-configuration
         self.set_buttons_beginning()
@@ -34,7 +43,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         #select the batch_path
         self.batch_path = None
-        self.backend_manager = BackendManager()
+        self.backend_manager = BackendManager() # initialize the backend manager
         self.online_analysis = online # load the backend manager
         #self.statusbar().showMessage("Connected")
     
@@ -53,7 +62,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         self.submission_count = 2 # count for incrementing batch communication 
 
-        self.image_stack = [] #image stack for taken snapshots
+        self.image_stack = [] # stack of images
         self.default_mode = 1
         self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
         self.pyqt_graph.setBackground("#232629")
@@ -68,6 +77,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.logger.addHandler(file_handler)
         self.logger.debug('A debug message')
 
+        # set the solutions
         self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # initialize meta data sheet opening boehringer special
 
         # save the form to the database
@@ -122,7 +132,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.transfer_to_online_analysis_button.setEnabled(False)
         
 
-
     def meta_open_directory(self):
         '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
         it's data will be loaded immediately into the databse'''
@@ -157,9 +166,10 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         name = name + "_" + str(self.data_file_ending) + ".dat"
         print(name)
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile new {name}" + "\n")
-        sleep(0.5)
-        self.increment_count()
-        
+        sleep(0.5) 
+        self.increment_count() # increment the count for the patch 
+        self.data_file_ending += 1 # increment the data file ending
+
     def set_batch_path(self):
         """ set the path for the batch files located"""
         self.batch_path = self.backend_manager.set_batch_path()
@@ -206,43 +216,55 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         there
          """
         
-        if self.batch_path:
-            file_existence = self.backend_manager.check_input_file_existence()
-            self.backend_manager.create_ascii_file_from_template()
-            self.submit_patchmaster_files()
-            self.set_dat_file_name(self.experiment_type_desc.text())
-            #self.self_configuration_notebook.setCurrentIndex(1)
-            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
-            sleep(1)
-            self.increment_count()
-            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ConnectionIdentify" +"\n")
-            self.increment_count()
-            sleep(1)
+        if self.batch_path: # if the path is already set
 
-            connection = self.backend_manager.read_connection_response()
+            try:
+                file_existence = self.backend_manager.check_input_file_existence()
+                self.backend_manager.create_ascii_file_from_template()
+                self.submit_patchmaster_files()
+                self.set_dat_file_name(self.experiment_type_desc.text())
+                #self.self_configuration_notebook.setCurrentIndex(1)
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
+                sleep(1)
+                self.increment_count()
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ConnectionIdentify" +"\n")
+                self.increment_count()
+                sleep(1)
+                connection = self.backend_manager.read_connection_response() # here we should check the response of the connection
+
+            except Exception as e:
+                self.logger.error(f"Patchmaster not connected properly: {e}")
+                self.check_connection.setText("Patchmaster not connected properly, please check the path and the Batch files")
+                self.statusBar.showMessage("Patchmaster not connected properly, please check the path and the Batch files")
+ 
+            
 
             if connection:
+                self.logger.info("Connection established")
                 self.check_connection.setText("Connected: \n \nBatch Communication successfully connect \n \nToDo: \n \n Change to the Batch Communication Tab \n \n Patchmaster Message: \n \n" + connection)
                 self.statusBar.showMessage("Connection to Patchmaster successfully established")
+ 
             else:
-                self.check_connection.setText("No communication generated, please check Batch communication")
-            print(connection)
-
-            
-                           
+                self.logger.warning("Connection to Patchmaster failed")
+                self.check_connection.setText("Connection to Patchmaster failed")
+                self.statusBar.showMessage("Connection to Patchmaster failed")
+    
+              
         else:
+            self.logger.info("No batch path set")
             self.Batch1.setText("please select a Path for the Patch File")
 
-        self.show_analysis_window()
+        self.show_analysis_window() # show the analysis window
 
     def switch_testing(self):
         """Switch to testing or to the plot visualization triggered by the button
         Its for potential problems between the connection of the heka patchmaster and the programm"""
-        current_notebook_index = self.visualization_stacked.currentIndex()
-        if current_notebook_index == 1:
+
+        current_notebook_index = self.visualization_stacked.currentIndex() # get the current index of the notebook
+        if current_notebook_index == 1: # if the current notebook is the plot notebook
             self.visualization_stacked.setCurrentIndex(0)
             self.switch_to_testing.setText("Switch to Plot")
-        else:
+        else: # if the current notebook is the testing notebook
             self.visualization_stacked.setCurrentIndex(1)
             self.switch_to_testing.setText("Switch to Testing")
             
@@ -250,15 +272,15 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """ Basler camera initalizing  
         ToDO: Error handling"""
 
-        self.logger.info("Camera will be initialized")
-        self.camera = BayerCamera()
+        self.logger.info("Camera will be initialized") # log the event
+        self.camera = BayerCamera() # initialize the camera
         #initialize the camera 
-        camera_status = self.camera.init_camera()
+        camera_status = self.camera.init_camera() # initialize the camera
         self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
         if camera_status is None: # initialization of the camera and error response if not correctly initialized
             self.scence_trial.addText("Camera is not connected please check the connection in the settings app")
             self.logger.warning("Camera was not found please check the connection")
-            self.Camera_Live_Feed.setScene(self.scence_trial)
+            self.Camera_Live_Feed.setScene(self.scence_trial) # set the scene to the live feed
             self.button_start_camera.setEnabled(False)
             self.button_stop_camera.setEnabled(False)
             self.button_take_snapshot.setEnabled(False)
@@ -272,9 +294,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def start_camera_timer(self):
         """ added the asnychronous Qtimer for the Camera initalizion"""
         try:
-            self.start_cam = QTimer() # camera timer 
-            self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
-            self.start_cam.start(222)  # (333,self.start_camera)
+            self.start_cam = QTimer() # create a timer
+            self.start_cam.timeout.connect(self.start_camera) # connect the timer to the start camera function
+            self.start_cam.start(222) # start the timer with a time interval of 222 ms
             self.logger.info("Qthread for Camera caption is running")
         except Exception as e:
             self.logger.error(f"Here is the Error description of the camera running task: {e}")
@@ -300,8 +322,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         image_list = self.check_list_lenght(self.image_stack) # self.image_stack is der stack der images generiert
         image_list.insert(0,self.camera_image_recording) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self)
-        self.Taken_Snapshot.setScene(self.snapshot_scence)
-        self.snapshot_scence.addPixmap(self.camera_image_recording)
+        self.Taken_Snapshot.setScene(self.snapshot_scence) # set the scene to the taken snapshot
+        self.snapshot_scence.addPixmap(self.camera_image_recording) # add the image to the scene
         self.draw_snapshots_on_galery(image_list) # draw into the galery
 
 
@@ -337,7 +359,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
 
     def transfer_image_gif(self):
-        #toDO add the option for gif mode here
+        """ Transfer the current image to the gif view """
         try: 
             experiment_image = QGraphicsScene(self)
             self.online.image_experiment.setScene(self.snapshot_scence)
@@ -350,13 +372,16 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def get_commands_from_textinput(self):
         """ retrieves the command send to the patchmaster and the response from the Batch.out file """
         print("get commands")
-        self.res = self.sub_command1.toPlainText()
+        self.res = self.sub_command1.toPlainText() 
         self.logger.debug(f'Batch communication input: {self.res}')
-        self.sub_command1.clear()
+        self.sub_command1.clear() # clear the text input
+        self.get_commands_from_textinput_2(self.res)
         
-        print(self.res)
-        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + self.res + "\n")
-        self.logger.info("This command was send to the patchmaster: ""+"+f'{self.submission_count}' + "\n" + self.res + "\n")
+
+    def get_commands_from_textinput_2(self, res):
+        """ retrieves the command send to the patchmaster and the response from the Batch.out file """
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + res + "\n")
+        self.logger.info("This command was send to the patchmaster: ""+"+f'{self.submission_count}' + "\n" + res + "\n")
         self.submission_count += 1
         if self.check_session:
             print("still checking commands")
@@ -405,7 +430,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.tscurve_1 = PlotCurve(
             linked_curve=self.pyqt_graph.plot(pen=pg.mkPen('r')),
         ) # use this package to make drawing from another thread Threadsafe
-        self.pyqt_window.addWidget(self.pyqt_graph)
+        self.pyqt_window.addWidget(self.pyqt_graph) # add the graph to the window
 
         # Preprocessing
         series = self.preprocess_series_protocols(sequences) # get the listed series from batch.out response
@@ -415,7 +440,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.make_sequence_labels(series, self.SeriesWidget) # enter items of sequences into drag and dropbable listview
         self.make_sequence_labels(protocols, self.protocol_widget) # enter items of protcols into drag and dropable listview
         self.make_general_commands() # add general commands to the general command listview
-        self.make_config_commands()
+        self.make_config_commands() # add config commands to the config command listview
         self.visualization_stacked.setCurrentIndex(1) # set the index to the testing Area
 
     def preprocess_series_protocols(self, sequences_reponses):
@@ -446,7 +471,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def submit_patchmaster_files(self):
         """ Submission of the loaded pgf, prot and onl file to the patchmaster and setting them"""
-        logging.info("Configuration Files setted up:....")
+        self.logger.info("Configuration Files setted up:....")
+        # set the files
         for file, command in zip([self.pgf_file, self.pro_file, self.onl_file],["OpenPgfFile","OpenProtFile","OpenOnlineFile"]):
             if file:
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}\n' + command + f" {file}\n") # send the file lcoation and name to the patchmaster
@@ -456,14 +482,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 logging.info("not all configuration files set:")
 
     def make_threading(self):
-        # generate a threadpool inherted from the runnable class and connect it to the workerclass
+        """ make the threading for the communication with the patchmaster """
         try: 
-            self.threadpool = QThreadPool()
-            self.worker = Worker(self.start_experiment_patch)
-            self.worker.signals.finished.connect(self.thread_complete)
-            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)
-            self.threadpool.start(self.worker)
-        except Exception as e:
+            self.threadpool = QThreadPool() # create the threadpool
+            self.worker = Worker(self.start_experiment_patch) # create the worker
+            self.worker.signals.finished.connect(self.thread_complete) # connect the worker to the thread_complete function
+            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)# connect the worker to the draw_live_plot function
+            self.threadpool.start(self.worker) # start the worker
+        except Exception as e: 
             print(e)
 
     def thread_complete(self):
@@ -608,18 +634,15 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             return None
         
     def get_final_notebook(self, notebook):
-        """ Dataframe has multiple commas therefore columns will be shifted to adjust for this
-        Get the final written notebook from the analysis"""
+        # get the final notebook
         columns = notebook.iloc[0].tolist()
         columns.pop(0)
-        columns = columns + ["NAN"]
+        columns = columns + ["NAN"] # add a column for the time stamp
         columns = [str(i).replace('"',"") for i in columns]
         final_notebook = notebook[1:]
         final_notebook.columns = columns
         final_notebook = final_notebook.iloc[:,4:]
         final_notebook = final_notebook.drop("NAN", axis = 1)
-        
-        print(final_notebook)
         return True
 
     def basic_configuration_protcols(self, item):
@@ -634,47 +657,54 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         func()
 
     def whole_cell(self):
+        """Sets the whole cell mode"""
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""Set E Mode 3; Whole Cell\n")
         self.increment_count()
 
     def holding(self):
+        """Sets the holding potential mode"""
+        #TODO: add the holding potential mode
         print("Add here the holding potential")
 
     def compensate(self):
+        #TODO: add the c-slow compensation mode
+        """Sets the C-slow compensation mode"""
         print("Add here the compensation function")
 
     def current_clamp(self):
+        """Sets the current clamp mode"""
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""Set E Mode 4; C-Clamp\n")
         self.increment_count()
 
     def execute_setup(self):
-        # setup protocol execturio command
+        """Executes the setup protocol"""
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SETUP\n")
         self.increment_count()
     
     def execute_seal(self):
-        # seal protocol exectuion command
+        """Executes the seal protocol"""
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SEAL\n")
         self.increment_count()
-        print()
+    
 
     def execute_whole_cell(self):
-        #whole_cell exection command 
+        """Executes the whole cell protocol"""
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol WHOLE-CELL\n")
         self.increment_count()
-        print(9)
+
 
     def terminate_sequence(self):
+        """Terminates the sequence"""
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Terminate\n") # Query to get the state of the amplifier
         self.increment_count()
 
             
     def clear_list(self):
-        # connect to the button 
+        """Clears the list of experiments"""
         self.listWidget.model().clear()
         
     def set_darkmode(self, default_mode):
-        #get the darkmode options
+        """Sets the dark mode"""
         self.default_mode = default_mode
    
     def get_darkmode(self):
@@ -683,6 +713,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         return self.default_mode
 
     def setting_appearance(self):
+        """Sets the appearance of the application"""
         default_mode = self.get_darkmode()
         if default_mode == 0:
             print("light_mode")
