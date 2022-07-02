@@ -4,6 +4,8 @@ import raw_analysis as ra
 from online_analysis_manager import *
 from data_db import DuckDBDatabaseHandler
 from treeview_manager import *
+from PySide6.QtCore import *  # type: ignore
+from Worker import Worker
 
 
 class OfflineManager():
@@ -184,11 +186,27 @@ class OfflineManager():
 
         # create the treeview with the 2 treeviews "tree" and "discarded tree" in 2 different tabs, 1 = database mode
         #self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
-        self.tree_view_manager.write_directory_into_database(data_list, self._directory_path,
-                                                                              tree, discarded_tree)
+        # add this to the upper function 
+        self.database.database.close()
+
+        # added worker to the analysis
+        self.threadpool = QThreadPool()
+        worker = Worker(self.tree_view_manager.write_directory_into_database, data_list, self._directory_path,tree, discarded_tree)
+
+        worker.signals.result.connect(self.print_output)
+        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
+        worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
+
+        self.threadpool.start(worker) # start the thread
 
         return self.tree_view_manager
 
+
+    def print_output(self):
+        return
+
+    def progress_fn(self):
+        return
 
     def write_analysis_series_types_to_database(self,series_type_list):
         self.database.write_analysis_series_types_to_database(series_type_list,self.analysis_id)
@@ -262,6 +280,7 @@ class OfflineManager():
             print(list[d][0])
             if "Group" in list[d][0]:
                 return d
+
 
     def get_series_specific_treeview(self,treeview,series_name):
         series_specific_treeview_list = [["","",""]]

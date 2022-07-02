@@ -17,7 +17,7 @@ import pandas as pd
 
 
 class DuckDBDatabaseHandler():
-    ''' A class to handle all data in a duck db database.
+    ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
 
     # /home/zida20/Desktop/Promotion/SoftwareProjekte/Etools/src/analysis_database.db
@@ -115,7 +115,7 @@ class DuckDBDatabaseHandler():
         '''function to create the tables needed for the default database'''
 
         # create a unique sequence analoque to auto increment function
-        create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequence;"""
+        create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequencent;"""
         self.database = self.execute_sql_command(self.database, create_unique_offline_analysis_sequence)
 
         # create all database tables assuming they do not exist'''
