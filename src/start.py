@@ -32,6 +32,8 @@ from BlurWindow.blurWindow import GlobalBlur
 
 
 class MainWindow(QMainWindow, QtStyleTools):
+
+
     def __init__(self, parent = None):
         """Initialize the MainWindow class for starting the Application
 
@@ -170,7 +172,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         for further analysis
         """        
         file_path = self.ui.config.get_file_path()
-        self.ui.online.open_single_dat_file(str(file_path))
+        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) # set the name of the .Dat file
+        self.ui.online.open_single_dat_file(str(file_path)) # open the .Dat file in the UI window
 
 
     def minimize(self):
@@ -263,7 +266,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.frontend_style.current_style=self.default_mode
 
     def init_offline_analysis(self):
-
+        """Function to initialize the offline analysis"""
         self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
         #self.offline_analizer.setupUi(self)
 
@@ -282,6 +285,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 
 if __name__ == "__main__":
+    """Main function to start the application"""
     app = QApplication(sys.argv)
     apply_stylesheet(app, theme='dark_red.xml')
     stylesheet = app.styleSheet()
