@@ -1,7 +1,6 @@
 import sys
 import os
 
-
 #Path import
 ################################################################################
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
@@ -21,9 +20,8 @@ from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from frontend_style import Frontend_Style
-from src.data_db import DuckDBDatabaseHandler
+from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
-
 
 class MainWindow(QMainWindow, QtStyleTools):
 
