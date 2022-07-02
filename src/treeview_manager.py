@@ -244,29 +244,35 @@ class TreeViewManager():
         #return selected_tree, discarded_tree
 
     def write_directory_into_database(self, dat_files, directory_path, selected_tree,discarded_tree):
-        # write the .dat files into the database
+        
         for i in dat_files:
             file = directory_path + "/" + i
             bundle = self.open_bundle_of_file(file)
             splitted_name = i.split(".")
             pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
-            """
+
+            # add this to the upper function 
             self.database.database.close()
 
+            # added worker to the analysis
             worker = Worker(self.single_file_into_db, index=[], bundle=bundle, experiment_name=splitted_name[0], database=None, data_access_array=[0,-1,0,0],
                                      series_identifier="", pgf_tuple_data_frame=pgf_tuple_data_frame)
 
             worker.signals.result.connect(self.print_output)
-            worker.signals.finished.connect(partial(self.update_treeview,selected_tree,discarded_tree))
-            worker.signals.progress.connect(self.progress_fn)
+            worker.signals.finished.connect(partial(self.update_treeview,selected_tree,discarded_tree)) # when done, update the treeview
+            worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
 
-            self.threadpool.start(worker)
-            """
+            self.threadpool.start(worker) # start the thread
 
             self.single_file_into_db([], bundle,  splitted_name[0], self.database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
+        #self.update_treeview(selected_tree,discarded_tree)
 
+    def finish_thread(self, selected_tree, discarded_tree):
 
+        self.DuckDBDatabaseHandler.close_database()
+        self.DuckDBDatabaseHandler.open_database()
         self.update_treeview(selected_tree,discarded_tree)
+
 
     def print_output(self):
         print('output')
