@@ -21,7 +21,6 @@ from self_config_notebook_widget import *
 import traceback, sys
 
 
-
 class Config_Widget(QWidget,Ui_Config_Widget):
     
     def __init__(self, online, progress_bar, status_bar, parent = None,):

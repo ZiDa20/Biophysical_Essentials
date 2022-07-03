@@ -38,13 +38,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
+
+
         self.desktop = QApplication.primaryScreen()
         self.screenRect = self.desktop.availableGeometry()
-
         
-        #self.progressBar.setValue()
-
-        print(self.ui.notebook.currentIndex())
+        # set the window geometry to the screen size
         self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
@@ -137,6 +136,10 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPos()
 
+        if event.globalPos().y() < 12:
+            window_size = self.geometry()
+            self.maximize(window_size)
+
     def mouseReleaseEvent(self, event):
         """Function to detect the mouse release event
 
@@ -174,18 +177,19 @@ class MainWindow(QMainWindow, QtStyleTools):
         """ Function to minimize the window"""
         self.showMinimized()
 
-    def maximize(self):
+    def maximize(self, window_size):
         """Function to maximize of to retrive the original window state"""
+        if window_size:
+            self.first_geometry = window_size
+
         if self.geometry() == self.screenRect:
-            self.setGeometry(self.window_geometry)
+            self.setGeometry(self.first_geometry)
             
         else:
-            print("yes")
-            
-            print(self.screenRect)
-            self.window_geometry = self.geometry()
+            self.first_geometry = self.geometry()
             self.setGeometry(self.screenRect) # maximize the window
-            
+
+
 
     def quit_application(self):
         """ Function to quit the app"""
@@ -204,7 +208,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def write_button_text(self):
         """ Add names to the buttons"""
-        self.ui.home_window.setText("  Home")
+        #self.ui.home_window.setText("  Home")
         self.ui.self_configuration.setText("  Configuration")
         self.ui.online_analysis.setText(" Online Analysis")
         self.ui.offline_analysis.setText(" Offline Analysis")
@@ -286,7 +290,7 @@ if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     os.environ['QT_MAC_WANTS_LAYER'] = '1'
     app.setAttribute(Qt.AA_EnableHighDpiScaling)
-    apply_stylesheet(app, theme='dark_red.xml')
+    apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
     with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))

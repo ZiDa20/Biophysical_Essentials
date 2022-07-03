@@ -99,7 +99,7 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                self.database = duckdb.connect(cew + '\\src\\' + self.db_file_name, read_only=False)
+                self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=False)
                 self.logger.info("connection successfull")
             else:
                 self.database = sqlite3.connect(cew + "\\src\\" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
@@ -493,7 +493,7 @@ class DuckDBDatabaseHandler():
 
     def open_connection(self):
         cew = os.path.dirname(os.getcwd())
-        self.database = duckdb.connect(cew + '\\src\\' + self.db_file_name, read_only=False)
+        self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=False)
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """

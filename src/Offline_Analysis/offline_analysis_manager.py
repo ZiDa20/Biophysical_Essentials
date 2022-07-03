@@ -225,10 +225,10 @@ class OfflineManager():
             data(int): progress of the worker thread
             
         """
-        print(data)
         self.progressbar.setValue(data[0])
         self.statusbar.showMessage(f"Writing data to database: {data[1]}")
-        print(data)
+
+
 
     def write_analysis_series_types_to_database(self,series_type_list):
         """ write the analysis series types to the database

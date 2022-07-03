@@ -2,6 +2,7 @@ QPushButton {{
   background-color: #fff5cc;
   color: black;
   text-transform: none;
+  height: 30px;
 
 }}
 
