@@ -251,14 +251,12 @@ class TreeViewManager():
         for i in dat_files:
             increment = 100/max_value
             progress_value = progress_value + increment
-            progress_callback.emit(progress_value)
-            print(i)
             file = directory_path + "/" + i
             bundle = self.open_bundle_of_file(file)
             splitted_name = i.split(".")
             pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
             self.single_file_into_db([], bundle,  splitted_name[0], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
-
+            progress_callback.emit((progress_value,i))
         #self.update_treeview(selected_tree,discarded_tree)
 
         database.database.close()
