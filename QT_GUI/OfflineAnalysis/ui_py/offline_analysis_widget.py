@@ -35,7 +35,7 @@ from PySide6.QtCore import QThreadPool
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
-    def __init__(self,parent = None):
+    def __init__(self,progress, status, parent = None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
@@ -56,7 +56,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style = None
         self.database_handler = None
 
-        self.offline_manager = OfflineManager()
+        self.offline_manager = OfflineManager(progress, status)
         self.offline_analysis_widgets.setCurrentIndex(0)
 
         self.result_visualizer = OfflineAnalysisResultVisualizer(self.visualization_tab_widget, self.database_handler)

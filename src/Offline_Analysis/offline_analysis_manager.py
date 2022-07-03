@@ -11,9 +11,11 @@ from Worker import Worker
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 
-    def __init__(self):
+    def __init__(self, progress, statusbar):
         self.meta_path = None
         self.dat_files = None
+        self.statusbar = statusbar
+        self.progressbar = progress
 
         self._directory_path = None
 
@@ -187,16 +189,17 @@ class OfflineManager():
         # create the treeview with the 2 treeviews "tree" and "discarded tree" in 2 different tabs, 1 = database mode
         #self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
         # add this to the upper function 
+
         self.database.database.close()
 
         # added worker to the analysis
         self.threadpool = QThreadPool()
-        worker = Worker(self.tree_view_manager.write_directory_into_database, data_list, self._directory_path,tree, discarded_tree)
+        self.threadpool.globalInstance().setMaxThreadCount(6)
+        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, data_list, self._directory_path)
 
-        worker.signals.result.connect(self.print_output)
+        #worker.signals.result.connect(self.print_output)
         worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
         worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
-
         self.threadpool.start(worker) # start the thread
 
         return self.tree_view_manager
@@ -205,7 +208,9 @@ class OfflineManager():
     def print_output(self):
         return
 
-    def progress_fn(self):
+    def progress_fn(self, data):
+        self.progressbar.setValue(data)
+        print(data)
         return
 
     def write_analysis_series_types_to_database(self,series_type_list):

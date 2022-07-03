@@ -38,6 +38,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
+        self.desktop = QApplication.primaryScreen()
+        self.screenRect = self.desktop.availableGeometry()
 
         
         #self.progressBar.setValue()
@@ -174,13 +176,15 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def maximize(self):
         """Function to maximize of to retrive the original window state"""
-        if (self.height() == 1040) and (self.width() == 1920):
+        if self.geometry() == self.screenRect:
             self.setGeometry(self.window_geometry)
             
         else:
             print("yes")
+            
+            print(self.screenRect)
             self.window_geometry = self.geometry()
-            self.setGeometry(0,0,1920,1040) # maximize the window
+            self.setGeometry(self.screenRect) # maximize the window
             
 
     def quit_application(self):
@@ -279,6 +283,9 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    os.environ['QT_MAC_WANTS_LAYER'] = '1'
+    app.setAttribute(Qt.AA_EnableHighDpiScaling)
     apply_stylesheet(app, theme='dark_red.xml')
     stylesheet = app.styleSheet()
     with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:

@@ -243,43 +243,41 @@ class TreeViewManager():
 
         #return selected_tree, discarded_tree
 
-    def write_directory_into_database(self, dat_files, directory_path, selected_tree,discarded_tree):
-        
+    def write_directory_into_database(self,database, dat_files, directory_path,progress_callback):
+        """ write the directory path into the database, as well as files """
+        max_value = len(dat_files)
+        progress_value = 0
+        database.open_connection()
         for i in dat_files:
+            increment = 100/max_value
+            progress_value = progress_value + increment
+            progress_callback.emit(progress_value)
+            print(i)
             file = directory_path + "/" + i
             bundle = self.open_bundle_of_file(file)
             splitted_name = i.split(".")
             pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
-            print("is working")
-            self.single_file_into_db([], bundle,  splitted_name[0], None, [0, -1, 0, 0],"", pgf_tuple_data_frame)
+            self.single_file_into_db([], bundle,  splitted_name[0], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
+
         #self.update_treeview(selected_tree,discarded_tree)
 
-    def finish_thread(self, selected_tree, discarded_tree):
-        #self.update_treeview(selected_tree,discarded_tree)
-        print("yes i am in the finished")
-        self.DuckDBDatabaseHandler.close_database()
-        self.DuckDBDatabaseHandler.open_database()
-        self.update_treeview(selected_tree,discarded_tree)
-
+        database.database.close()
+        return database
 
     def update_treeview(self,selected_tree,discarded_tree):
+        print("Qthread finished")
+        self.database.open_connection()
         selected_tree.clear()
         self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
 
     #progress_callback
-    def single_file_into_db(self,index, bundle, experiment_name, database, data_access_array , series_identifier, pgf_tuple_data_frame=None):
+    def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , series_identifier, pgf_tuple_data_frame=None):
 
+        
             if database is None:
-                print("still working")
-                #database = self.database.database.connect()
-                cew = os.path.dirname(os.getcwd())
-                self.database.database = duckdb.connect(cew + '\\src\\' + self.database.db_file_name, read_only=False)
                 database = self.database
-                print("still working...")
-                
-
+            
             self.logger.info("started treeview generation")
-            #print("started treeview generation")
             root = bundle.pul
             node = root
 
@@ -309,7 +307,7 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
-                self.database.add_experiment_to_experiment_table(experiment_name)
+                database.add_experiment_to_experiment_table(experiment_name)
 
             if "Series" in node_type:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
@@ -336,9 +334,10 @@ class TreeViewManager():
                 return
 
             for i in range(len(node.children)):
-                # progress_callback
-                self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array ,
-                                    series_identifier, pgf_tuple_data_frame)
+            #    progress_callback
+                self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array ,series_identifier, pgf_tuple_data_frame)
+        
+
 
 
     def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None,tree_level=None):
@@ -352,6 +351,8 @@ class TreeViewManager():
         '''
 
         for i in dat_files:
+
+            print(i)
             file = directory_path + "/" + i
 
             self.logger.info("processing file " + file)

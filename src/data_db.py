@@ -115,7 +115,7 @@ class DuckDBDatabaseHandler():
         '''function to create the tables needed for the default database'''
 
         # create a unique sequence analoque to auto increment function
-        create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequencent;"""
+        create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequence;"""
         self.database = self.execute_sql_command(self.database, create_unique_offline_analysis_sequence)
 
         # create all database tables assuming they do not exist'''
@@ -489,8 +489,12 @@ class DuckDBDatabaseHandler():
                     name)
                 return 0
             else:
-                self.logger.info("failed adding experiment %s with error %s", name, e)
+                self.logger.info("failed adding expseriment %s with error %s", name, e)
                 return -1
+
+    def open_connection(self):
+        cew = os.path.dirname(os.getcwd())
+        self.database = duckdb.connect(cew + '\\src\\' + self.db_file_name, read_only=False)
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """

@@ -1,6 +1,7 @@
 from PySide6.QtCore import *
 
 from WorkerSignals import *
+from data_db import DuckDBDatabaseHandler
 
 
 class Worker(QRunnable):
@@ -27,7 +28,7 @@ class Worker(QRunnable):
         self.signals = WorkerSignals()
 
         # Add the callback to our kwargs
-        #self.kwargs['progress_callback'] = self.signals.progress
+        self.kwargs['progress_callback'] = self.signals.progress
 
     @Slot()
     def run(self):
@@ -43,6 +44,7 @@ class Worker(QRunnable):
             exctype, value = sys.exc_info()[:2]
             self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
+            print(result)
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done

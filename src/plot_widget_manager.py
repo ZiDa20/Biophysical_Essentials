@@ -16,7 +16,7 @@ from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 
 
-class PlotWidgetManager(QtCore.QRunnable):
+class PlotWidgetManager():
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
     def __init__(self,vertical_layout_widget,manager_object,tree_view,mode,detection):
