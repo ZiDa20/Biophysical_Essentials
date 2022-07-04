@@ -319,7 +319,7 @@ class Ui_Online_Analysis(object):
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout_7 = QGridLayout(self.groupBox)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.tableWidget = QTableWidget(self.groupBox)
+        self.tableWidget = QTableView(self.groupBox)
         self.tableWidget.setObjectName(u"tableWidget")
         sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         sizePolicy4.setHorizontalStretch(0)

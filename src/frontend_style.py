@@ -11,7 +11,7 @@ class Frontend_Style():
         self.sideframe_light_style = u"QWidget{background-color: \"#FFFFFF\";}\n" \
                                 "QPushButton{padding: 10px 10px;"\
                                 "	        border: none;" \
-                                "	        border-radius:5px;" \
+                                "	        border-radius: 10px 10px 0px 0x;" \
                                 "	        background-color: \"#FFFFFF\";}"\
                                 "QPushButton:hover{background-color: \"#54545a\";}"
 
@@ -20,7 +20,7 @@ class Frontend_Style():
                                 "QPushButton{padding: 10px 10px;"\
                                 "	        padding-left: 20px;" \
                                 "	        border: none;" \
-                                "	        border-radius:5px;" \
+                                "	        border-radius: 10px 10px 0px 0x;" \
                                 "	        background-color: \"#232629\";}"\
                                 "QPushButton:hover{background-color: \"#54545a\";}"
                                   

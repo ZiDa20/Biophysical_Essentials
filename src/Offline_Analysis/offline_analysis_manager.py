@@ -4,14 +4,25 @@ import raw_analysis as ra
 from online_analysis_manager import *
 from data_db import DuckDBDatabaseHandler
 from treeview_manager import *
+from PySide6.QtCore import *  # type: ignore
+from Worker import Worker
 
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 
-    def __init__(self):
+    def __init__(self, progress, statusbar):
+
+        """ constructor of the manager class
+        
+        args:
+            progress(QProgressBar): progress bar of the main window
+            statusbar(QStatusBar): status bar of the main window
+        """
         self.meta_path = None
         self.dat_files = None
+        self.statusbar = statusbar
+        self.progressbar = progress
 
         self._directory_path = None
 
@@ -41,9 +52,15 @@ class OfflineManager():
 
 
     def execute_single_series_analysis(self,series_name):
-        """Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
+        """
+        Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
         Therefore, sweep data traces will be load from the database, an analysis object will be created to calculate results and results will be written
-        into the database. """
+        into the database.
+        :param series_name:
+        :return:
+        :author: dz, 30.06.2022
+
+        """
 
         #@todo give normalization as argument to the function
         series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(series_name)
@@ -58,7 +75,7 @@ class OfflineManager():
             cslow_normalization = 0
 
         # get series specific time from database
-        time = self.database.get_time_in_ms_of_analyzed_series(series_name)
+
 
         # get name of sweep tables
         sweep_table_names = self.database.get_sweep_table_names_for_offline_analysis(series_name)
@@ -67,9 +84,6 @@ class OfflineManager():
         # @todo this only needed for specific analysis of rheobase
         increment = self.database.get_data_from_pgf_table(series_name, "increment", 1)
         holding = self.database.get_data_from_pgf_table(series_name, "holding", 0)
-
-        # increment steps
-
 
         print(sweep_table_names)
 
@@ -82,7 +96,7 @@ class OfflineManager():
 
             # dict
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
-
+            time = self.database.get_time_in_ms_of_by_sweep_table_name(table_name)
 
             #if table_name == 'imon_signal_220315_02_Series2':
                 #pd.DataFrame(entire_sweep_table).to_csv("debug_signal.csv")
@@ -153,12 +167,19 @@ class OfflineManager():
 
 
     def get_database(self):
+        """ retrieves the database object from the manager class """
         return self.database
 
     def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list):
         ''' Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
-        the database and avoid copies of already existing data '''
+        the database and avoid copies of already existing data 
+        
+        args:
+            tree type(QTreeWidget): treeview of the directory
+        returns:
+            tree_view_manager type(TreeViewManager): treeview manager object
+        '''
 
         # initialize a new database or connect to an existing one saved in global self.database variable
         # self.init_database() # better check fo connection at this point
@@ -180,50 +201,142 @@ class OfflineManager():
         data_list = self.package_list(self._directory_path)
 
         # create the treeview with the 2 treeviews "tree" and "discarded tree" in 2 different tabs, 1 = database mode
-        self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
+        #self.tree_view_manager.create_treeview_from_directory(tree,discarded_tree, data_list, self._directory_path,1)
+        # add this to the upper function 
+
+        self.database.database.close()
+
+        # added worker to the analysis
+        self.threadpool = QThreadPool()
+        self.threadpool.globalInstance().setMaxThreadCount(6)
+        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, data_list, self._directory_path)
+
+        #worker.signals.result.connect(self.print_output)
+        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
+        worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
+        self.threadpool.start(worker) # start the thread
+
+        return self.tree_view_manager # return the treeview manager object
 
 
-        return self.tree_view_manager
+    def progress_fn(self,data):
+        """ check the progress of the worker thread which contains the readed dat files
+        args:
+            data(int): progress of the worker thread
+            
+        """
+        self.progressbar.setValue(data[0])
+        self.statusbar.showMessage(f"Writing data to database: {data[1]}")
+
 
 
     def write_analysis_series_types_to_database(self,series_type_list):
+        """ write the analysis series types to the database
+        
+        args:
+            series_type_list type(list): list of series types """
         self.database.write_analysis_series_types_to_database(series_type_list,self.analysis_id)
 
     def write_recording_mode_to_analysis_series_table(self,recording_mode,series_name):
+        """ write the recording mode to the database 
+        
+        args:
+            recording_mode type(str): recording mode
+            series_name type(str): series name 
+        """
         self.database.write_recording_mode_to_analysis_series_table(recording_mode,series_name,self.analysis_id)
 
     def write_ms_spaced_time_array_to_analysis_series_table(self,time,series_name):
+        """ write the millisecond spaced time array to the database 
+        
+        args:
+            time type(np.array): millisecond spaced time array
+            series_name type(str): series name
+        """
         time_array = np.array(time)
         self.database.write_ms_spaced_time_array_to_analysis_series_table(time_array,series_name, self.analysis_id)
 
     def write_series_type_specific_experiment_and_sweep_information(self,data_list,series_name):
-        '''fill database from series type specific treeview list, no duplicated insertation'''
+        '''fill database from series type specific treeview list, no duplicated insertation
+        
+        args:
+            data_list type(list): list of tuples with the following structure:
+            series_name type(string): name of the series
+            '''
         self.database.fill_database_from_treeview_list(data_list,series_name)
 
     def write_analysis_function_to_database(self,function_selection,series_name):
+        """ write the analysis function to the database 
+        
+        args:
+            function_selection type(string): name of the function
+            series_name type(string): name of the series
+        """
         self.database.write_analysis_function_to_database(function_selection,series_name)
 
     def write_coursor_bounds_to_database(self,left_coursor, right_coursor, series_name):
+        """ write the cursor bounds to the database 
+        
+        args:
+            left_coursor type(float): left bound of the cursor
+            right_coursor type(float): right bound of the cursor
+            series_name type(string): name of the series
+            
+        """
         self.database.write_coursor_bounds_to_database(left_coursor, right_coursor, series_name)
 
     def read_trace_data_and_write_to_database(self,series_name):
+        """ read the trace data from the directory and write it to the database 
+        
+        args:
+            series_name type(string): name of the series
+        """
         self.database.read_trace_data_and_write_to_database(series_name,self.dat_files)
 
     def calculate_single_series_results_and_write_to_database(self,series_name):
+        """ calculate the single series results and write them to the database
+        
+        args:
+            series_name type(string): name of the series
+        """
         self.database.calculate_single_series_results_and_write_to_database(series_name)
 
     def read_series_type_specific_analysis_functions_from_database(self,series_name):
-        '''function that will return a list of strings with analysis function names'''
+        '''function that will return a list of strings with analysis function names
+        
+        args:
+            series_name type(string): name of the series
+        returns:
+            analysis_function_list type(list): list of strings with analysis function names
+            
+        '''
         return self.database.read_series_type_specific_analysis_functions_from_database(series_name)
 
-
-
     def ask_file(self, frame):
+        """ ask the user to select a file 
+        
+        args:
+            frame type(QWidget): the frame where the file dialog will be shown
+        returns:
+            metadata_files type(list): list of metadata files
+        
+        """
         frame.option_add("*foreground","black")
         metadata_files = filedialog.askopenfilename(master=frame)
         return metadata_files#
     
     def ask_directory(self, frame, treeview):
+        """ ask the user to select a directory
+        
+        args:
+            frame type(QWidget): the frame where the file dialog will be shown
+            treeview type(QTreeView): the treeview that will be updated
+        returns:
+            directory_path type(string): the path to the directory
+            dat_files type(list): list of dat files in the directory
+            data_list type(list): list of tuples with the following structure:
+            tree type(QTreeView): the treeview that will be updated
+        """
         frame.option_add("*foreground","black")
         directory_path = filedialog.askdirectory(master=frame, initialdir=os.getcwd())
         data_list = self.package_list(directory_path)
@@ -254,12 +367,29 @@ class OfflineManager():
         return data_list, self.dat_files, tree
 
     def get_parent_pos(self,start_index,list):
+        """ get the parent position of the current index
+        
+        args:
+            start_index type(int): the current index
+            list type(list): the list that the index is in
+        returns:
+            parent_pos type(int): the parent position of the current index
+        """
         for d in range(start_index,-1,-1):
             print(list[d][0])
             if "Group" in list[d][0]:
                 return d
 
+
     def get_series_specific_treeview(self,treeview,series_name):
+        """ get the series specific treeview
+        
+        args:
+            treeview type(QTreeView): the treeview that will be updated
+            series_name type(string): the name of the series
+        returns:
+            treeview type(QTreeView): the treeview that will be updated
+        """
         series_specific_treeview_list = [["","",""]]
         prvs_parent_pos = -1
         for d in self.directory_content_list:
@@ -286,9 +416,14 @@ class OfflineManager():
 
 
     def get_available_series_names(self,file_content_list = None):
-        '''loop through all items of a given list and return all series names without name duplciates
-        @input  file_content_list: a list of triples with group, series, sweeps and traces
-        @return a list of strings with found series names '''
+        """ get the available series names, by looping through all possible series names
+        
+        args:
+            file_content_list type(list): the list of all the files in the directory
+        return:
+            series_names type(list): the list of all the series names
+            
+        """
 
         if not file_content_list:
             file_content_list=self.directory_content_list

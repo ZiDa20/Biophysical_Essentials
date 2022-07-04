@@ -1,7 +1,8 @@
 import sys
 import os
-import time
 
+#Path import
+################################################################################
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/MainWindow/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/DatabaseViewer/ui_py")
@@ -9,8 +10,7 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QGraphicsBlurEffect
-from PySide6.QtCore import QFile, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtWidgets import QApplication, QMainWindow
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -19,13 +19,13 @@ from qt_material import QtStyleTools
 from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
-from tkinter_camera import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
 
-
 class MainWindow(QMainWindow, QtStyleTools):
+
+
     def __init__(self, parent = None):
         """Initialize the MainWindow class for starting the Application
 
@@ -38,10 +38,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        self.statusBar() # add Status Bar to the App
-        
 
-        print(self.ui.notebook.currentIndex())
+
+        self.desktop = QApplication.primaryScreen()
+        self.screenRect = self.desktop.availableGeometry()
+        
+        # set the window geometry to the screen size
         self.setCentralWidget(self.ui.centralwidget)
 
         # introduce style sheet to be used by start .py
@@ -53,6 +55,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
+
+        if self.local_database_handler:
+            self.statusBar().showMessage("Database Connection Loaded")
         
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler)
@@ -74,9 +79,14 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         #make button
         self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
+        self.home_buttons = (self.ui.configuration_home_2, self.ui.online_analysis_home_2, self.ui.offline_analysis_home_2, self.ui.database_viewer_home_2)
+
         for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
+
+        for i, button in enumerate(self.home_buttons):
+            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
         #self.configuration_elements = Config_Widget()
 
         #self.ui.statistics_2.setProperty("class", "big_button")
@@ -126,6 +136,10 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPos()
 
+        if event.globalPos().y() < 12:
+            window_size = self.geometry()
+            self.maximize(window_size)
+
     def mouseReleaseEvent(self, event):
         """Function to detect the mouse release event
 
@@ -155,22 +169,27 @@ class MainWindow(QMainWindow, QtStyleTools):
         for further analysis
         """        
         file_path = self.ui.config.get_file_path()
-        self.ui.online.open_single_dat_file(str(file_path))
+        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) # set the name of the .Dat file
+        self.ui.online.open_single_dat_file(str(file_path)) # open the .Dat file in the UI window
 
 
     def minimize(self):
         """ Function to minimize the window"""
         self.showMinimized()
 
-    def maximize(self):
+    def maximize(self, window_size):
         """Function to maximize of to retrive the original window state"""
-        if (self.height() == 1040) and (self.width() == 1920):
-            self.setGeometry(191,45,1537, 950)
+        if window_size:
+            self.first_geometry = window_size
+
+        if self.geometry() == self.screenRect:
+            self.setGeometry(self.first_geometry)
             
         else:
-            print("yes")
-            self.setGeometry(0,0,1920,1040) # maximize the window
-            
+            self.first_geometry = self.geometry()
+            self.setGeometry(self.screenRect) # maximize the window
+
+
 
     def quit_application(self):
         """ Function to quit the app"""
@@ -189,7 +208,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def write_button_text(self):
         """ Add names to the buttons"""
-        self.ui.home_window.setText("  Home")
+        #self.ui.home_window.setText("  Home")
         self.ui.self_configuration.setText("  Configuration")
         self.ui.online_analysis.setText(" Online Analysis")
         self.ui.offline_analysis.setText(" Offline Analysis")
@@ -247,6 +266,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.frontend_style.current_style=self.default_mode
 
     def init_offline_analysis(self):
+        """Function to initialize the offline analysis"""
         self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
         #self.offline_analizer.setupUi(self)
 
@@ -265,8 +285,12 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 
 if __name__ == "__main__":
+    """Main function to start the application"""
     app = QApplication(sys.argv)
-    apply_stylesheet(app, theme='dark_red.xml')
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    os.environ['QT_MAC_WANTS_LAYER'] = '1'
+    app.setAttribute(Qt.AA_EnableHighDpiScaling)
+    apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
     with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))

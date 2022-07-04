@@ -3,34 +3,28 @@
 ################################################################################
 ## Form generated from reading UI file 'main_window_new_layout.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.1
+## Created by: Qt User Interface Compiler version 6.1.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLayout,
-    QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
-    QStackedWidget, QWidget)
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
 
-from database_viewer_widget import Database_Viewer
-from offline_analysis_widget import Offline_Analysis
-from online_analysis_widget import Online_Analysis
 from self_configuration import Config_Widget
+from online_analysis_widget import Online_Analysis
+from offline_analysis_widget import Offline_Analysis
 from settings_dialog import SettingsWindow
+from database_viewer_widget import Database_Viewer
+
 import Figures_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1537, 950)
+        MainWindow.resize(1280, 950)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -38,13 +32,22 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QSize(1280, 950))
         MainWindow.setMaximumSize(QSize(16777215, 16777215))
+        MainWindow.setStyleSheet(u"QMainWindow{\n"
+"border-radius: 10px\n"
+"}")
+        self.progressBar = QProgressBar()
+        self.statusBar = MainWindow.statusBar()# add Status Bar to the App
+        self.statusBar.addPermanentWidget(self.progressBar)
+        self.progressBar.setFixedWidth(200)
+        self.progressBar.setAlignment(Qt.AlignLeft)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
+        self.centralwidget.setStyleSheet(u"")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 2, 0, 0)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.notebook = QStackedWidget(self.centralwidget)
         self.notebook.setObjectName(u"notebook")
         sizePolicy.setHeightForWidth(self.notebook.sizePolicy().hasHeightForWidth())
@@ -53,19 +56,164 @@ class Ui_MainWindow(object):
         self.notebook.setMaximumSize(QSize(16777215, 1000))
         self.home = QWidget()
         self.home.setObjectName(u"home")
+        self.gridLayout_5 = QGridLayout(self.home)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.gridLayout_11 = QGridLayout()
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+        self.frame = QFrame(self.home)
+        self.frame.setObjectName(u"frame")
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Raised)
+        self.gridLayout_12 = QGridLayout(self.frame)
+        self.gridLayout_12.setObjectName(u"gridLayout_12")
+        self.gridLayout_13 = QGridLayout()
+        self.gridLayout_13.setObjectName(u"gridLayout_13")
+        self.gridLayout_14 = QGridLayout()
+        self.gridLayout_14.setObjectName(u"gridLayout_14")
+        self.gridLayout_15 = QGridLayout()
+        self.gridLayout_15.setObjectName(u"gridLayout_15")
+        self.online_analysis_home_2 = QPushButton(self.frame)
+        self.online_analysis_home_2.setObjectName(u"online_analysis_home_2")
+        self.online_analysis_home_2.setMinimumSize(QSize(200, 0))
+
+        self.gridLayout_15.addWidget(self.online_analysis_home_2, 2, 0, 1, 1)
+
+        self.database_viewer_home_2 = QPushButton(self.frame)
+        self.database_viewer_home_2.setObjectName(u"database_viewer_home_2")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.database_viewer_home_2.sizePolicy().hasHeightForWidth())
+        self.database_viewer_home_2.setSizePolicy(sizePolicy1)
+        self.database_viewer_home_2.setMinimumSize(QSize(200, 0))
+
+        self.gridLayout_15.addWidget(self.database_viewer_home_2, 4, 0, 1, 1)
+
+        self.pushButton_2 = QPushButton(self.frame)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+        self.pushButton_2.setMinimumSize(QSize(200, 0))
+
+        self.gridLayout_15.addWidget(self.pushButton_2, 5, 0, 1, 1)
+
+        self.offline_analysis_home_2 = QPushButton(self.frame)
+        self.offline_analysis_home_2.setObjectName(u"offline_analysis_home_2")
+        self.offline_analysis_home_2.setMinimumSize(QSize(200, 0))
+
+        self.gridLayout_15.addWidget(self.offline_analysis_home_2, 3, 0, 1, 1)
+
+        self.configuration_home_2 = QPushButton(self.frame)
+        self.configuration_home_2.setObjectName(u"configuration_home_2")
+        self.configuration_home_2.setMinimumSize(QSize(200, 0))
+
+        self.gridLayout_15.addWidget(self.configuration_home_2, 1, 0, 1, 1)
+
+
+        self.gridLayout_14.addLayout(self.gridLayout_15, 2, 0, 1, 1)
+
+        self.gridLayout_16 = QGridLayout()
+        self.gridLayout_16.setObjectName(u"gridLayout_16")
+        self.module_home_2 = QLabel(self.frame)
+        self.module_home_2.setObjectName(u"module_home_2")
+        font = QFont()
+        font.setPointSize(12)
+        self.module_home_2.setFont(font)
+
+        self.gridLayout_16.addWidget(self.module_home_2, 2, 0, 1, 1, Qt.AlignHCenter)
+
+        self.title_home_2 = QLabel(self.frame)
+        self.title_home_2.setObjectName(u"title_home_2")
+        font1 = QFont()
+        font1.setPointSize(15)
+        self.title_home_2.setFont(font1)
+
+        self.gridLayout_16.addWidget(self.title_home_2, 0, 0, 1, 1, Qt.AlignHCenter)
+
+
+        self.gridLayout_14.addLayout(self.gridLayout_16, 0, 1, 1, 1)
+
+        self.Logo_home_2 = QLabel(self.frame)
+        self.Logo_home_2.setObjectName(u"Logo_home_2")
+        sizePolicy1.setHeightForWidth(self.Logo_home_2.sizePolicy().hasHeightForWidth())
+        self.Logo_home_2.setSizePolicy(sizePolicy1)
+        self.Logo_home_2.setMinimumSize(QSize(200, 200))
+        self.Logo_home_2.setStyleSheet(u"background-image: url(../QT_GUI/Button/Logo/logo3.png)")
+
+        self.gridLayout_14.addWidget(self.Logo_home_2, 0, 0, 1, 1)
+
+        self.label_3 = QLabel(self.frame)
+        self.label_3.setObjectName(u"label_3")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy2)
+        self.label_3.setMinimumSize(QSize(0, 50))
+        self.label_3.setFont(font)
+
+        self.gridLayout_14.addWidget(self.label_3, 1, 0, 1, 1)
+
+        self.titlebar_home_2 = QLabel(self.frame)
+        self.titlebar_home_2.setObjectName(u"titlebar_home_2")
+
+        self.gridLayout_14.addWidget(self.titlebar_home_2, 1, 1, 1, 1)
+
+
+        self.gridLayout_13.addLayout(self.gridLayout_14, 0, 0, 1, 1)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_13.addItem(self.verticalSpacer_3, 1, 0, 1, 1)
+
+
+        self.gridLayout_12.addLayout(self.gridLayout_13, 1, 0, 1, 1)
+
+
+        self.gridLayout_11.addWidget(self.frame, 1, 0, 1, 1)
+
+
+        self.gridLayout_5.addLayout(self.gridLayout_11, 3, 0, 1, 1)
+
+        self.frame_2 = QFrame(self.home)
+        self.frame_2.setObjectName(u"frame_2")
+        sizePolicy2.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
+        self.frame_2.setSizePolicy(sizePolicy2)
+        self.frame_2.setMinimumSize(QSize(0, 50))
+        self.frame_2.setFrameShape(QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.gridLayout_9 = QGridLayout(self.frame_2)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.label_2 = QLabel(self.frame_2)
+        self.label_2.setObjectName(u"label_2")
+        font2 = QFont()
+        font2.setPointSize(16)
+        self.label_2.setFont(font2)
+
+        self.gridLayout_9.addWidget(self.label_2, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addWidget(self.frame_2, 1, 0, 1, 1)
+
+        self.verticalSpacer = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        self.gridLayout_5.addItem(self.verticalSpacer, 2, 0, 1, 1)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        self.gridLayout_5.addItem(self.verticalSpacer_2, 0, 0, 1, 1)
+
         self.notebook.addWidget(self.home)
         self.online = Online_Analysis()
-        self.config = Config_Widget(self.online)
+        self.config = Config_Widget(self.online, self.progressBar,  self.statusBar)
         self.config.setObjectName(u"config")
         sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
         self.config.setSizePolicy(sizePolicy)
         self.notebook.addWidget(self.config)
-        
+        self.online = Online_Analysis()
         self.online.setObjectName(u"online")
         sizePolicy.setHeightForWidth(self.online.sizePolicy().hasHeightForWidth())
         self.online.setSizePolicy(sizePolicy)
         self.notebook.addWidget(self.online)
-        self.offline = Offline_Analysis()
+        self.offline = Offline_Analysis(self.progressBar,  self.statusBar)
         self.offline.setObjectName(u"offline")
         sizePolicy.setHeightForWidth(self.offline.sizePolicy().hasHeightForWidth())
         self.offline.setSizePolicy(sizePolicy)
@@ -92,8 +240,6 @@ class Ui_MainWindow(object):
         self.side_left_menu.setAutoFillBackground(False)
         self.side_left_menu.setStyleSheet(u"QWidget{\n"
 "	background-color: \"#232629\";\n"
-"	border-radius:10\n"
-"px;\n"
 "\n"
 "}\n"
 "\n"
@@ -115,7 +261,7 @@ class Ui_MainWindow(object):
         self.home_window.setObjectName(u"home_window")
         sizePolicy.setHeightForWidth(self.home_window.sizePolicy().hasHeightForWidth())
         self.home_window.setSizePolicy(sizePolicy)
-        self.home_window.setMinimumSize(QSize(80, 0))
+        self.home_window.setMinimumSize(QSize(90, 0))
         self.home_window.setMaximumSize(QSize(200, 16777215))
         self.home_window.setStyleSheet(u"QPushButton {\n"
 "\n"
@@ -144,8 +290,6 @@ class Ui_MainWindow(object):
         self.self_configuration.setSizePolicy(sizePolicy)
         self.self_configuration.setMinimumSize(QSize(200, 0))
         self.self_configuration.setMaximumSize(QSize(300, 80))
-        font = QFont()
-        font.setPointSize(12)
         self.self_configuration.setFont(font)
         self.self_configuration.setContextMenuPolicy(Qt.PreventContextMenu)
         self.self_configuration.setStyleSheet(u"QPushButton {\n"
@@ -270,13 +414,10 @@ class Ui_MainWindow(object):
 
         self.darkmode_button = QPushButton(self.side_left_menu)
         self.darkmode_button.setObjectName(u"darkmode_button")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.darkmode_button.sizePolicy().hasHeightForWidth())
         self.darkmode_button.setSizePolicy(sizePolicy1)
-        self.darkmode_button.setMinimumSize(QSize(20, 0))
-        self.darkmode_button.setMaximumSize(QSize(60, 80))
+        self.darkmode_button.setMinimumSize(QSize(80, 0))
+        self.darkmode_button.setMaximumSize(QSize(100, 80))
         self.darkmode_button.setFont(font)
         self.darkmode_button.setStyleSheet(u"QPushButton {\n"
 "\n"
@@ -324,6 +465,17 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.online_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Online Analysis", None))
+        self.database_viewer_home_2.setText(QCoreApplication.translate("MainWindow", u"Database Viewer", None))
+        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))
+        self.offline_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Offline Analysis", None))
+        self.configuration_home_2.setText(QCoreApplication.translate("MainWindow", u"Configuration", None))
+        self.module_home_2.setText(QCoreApplication.translate("MainWindow", u"Patch Clamp Module", None))
+        self.title_home_2.setText(QCoreApplication.translate("MainWindow", u"Welcome to Biophysiocal Essentials Software", None))
+        self.Logo_home_2.setText("")
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Patch Modules:", None))
+        self.titlebar_home_2.setText("")
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Home ", None))
         self.home_window.setText("")
         self.online_analysis.setText("")
         self.offline_analysis.setText("")

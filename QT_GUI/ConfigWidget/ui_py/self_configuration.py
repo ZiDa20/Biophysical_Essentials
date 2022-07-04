@@ -22,19 +22,33 @@ import traceback, sys
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
-    """ promotion of the self configuration widget"""
-    def __init__(self, online, parent = None,):
-        super(Config_Widget,self).__init__(parent)
+    
+    def __init__(self, online, progress_bar, status_bar, parent = None,):
+        """Initialize the configuration widget
+        args:
+            online type(bool): if the program is online or not
+            progress_bar type(QProgressBar): progress bar for the progress of the experiment
+            status_bar type(QStatusBar): status bar for the status of the experiment
+            parent type(QWidget): parent widget
+        returns:
+            None
+        """
+        super(Config_Widget,self).__init__(parent) # initialize the parent class
         # initialize self_config_notebook_widget
-        self.setupUi(self)
+        self.setupUi(self) # setup the ui file 
        
+        # added the Progress Bar to the self-configuration
         self.set_buttons_beginning()
-    
+        
+
+        #select the batch_path
         self.batch_path = None
-        self.backend_manager = BackendManager()
+        self.backend_manager = BackendManager() # initialize the backend manager
         self.online_analysis = online # load the backend manager
+        #self.statusbar().showMessage("Connected")
     
-    
+        self.progressBar = progress_bar   
+        self.statusBar = status_bar
         # pathes for the pgf files
         self.pgf_file = None
         self.pro_file = None
@@ -43,11 +57,12 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
         self.config_list_changes = ["Whole Cell", "Current Clamp"]
 
-        self.experiment_dictionary = {} # add the data gained fro
+        # add the metadata to the experiment dictionary
+        self.experiment_dictionary = {}
 
         self.submission_count = 2 # count for incrementing batch communication 
 
-        self.image_stack = [] #image stack for taken snapshots
+        self.image_stack = [] # stack of images
         self.default_mode = 1
         self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
         self.pyqt_graph.setBackground("#232629")
@@ -62,6 +77,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.logger.addHandler(file_handler)
         self.logger.debug('A debug message')
 
+        # set the solutions
         self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # initialize meta data sheet opening boehringer special
 
         # save the form to the database
@@ -111,11 +127,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
    
     
     def set_buttons_beginning(self):
-        #set the button state of a view buttons inactivate at the beginning
-        #self.add_pixmap_for_green.setStyleSheet("color: red")
+        """ set the buttons to the beginning state"""
         self.transfer_to_online_analysis_button.setEnabled(False)
         
-
 
     def meta_open_directory(self):
         '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
@@ -146,14 +160,19 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.online_analysis_file_set.setText(self.onl_file)
 
     def set_dat_file_name(self, name):
-        """set the file name at the beginning of each recording
-        We should also detect the number of cells recorded"""
+        """set the dat file name that is used for the patchmaster
+        args:
+            name type(string): name of the dat file
+        returns:
+            None
+        """
         name = name + "_" + str(self.data_file_ending) + ".dat"
         print(name)
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile new {name}" + "\n")
-        sleep(0.5)
-        self.increment_count()
-        
+        sleep(0.5) 
+        self.increment_count() # increment the count for the patch 
+        self.data_file_ending += 1 # increment the data file ending
+
     def set_batch_path(self):
         """ set the path for the batch files located"""
         self.batch_path = self.backend_manager.set_batch_path()
@@ -200,43 +219,53 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         there
          """
         
-        if self.batch_path:
-            file_existence = self.backend_manager.check_input_file_existence()
-            self.backend_manager.create_ascii_file_from_template()
-            self.submit_patchmaster_files()
-            self.set_dat_file_name(self.experiment_type_desc.text())
-            #self.self_configuration_notebook.setCurrentIndex(1)
-            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
-            sleep(1)
-            self.increment_count()
-            self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ConnectionIdentify" +"\n")
-            self.increment_count()
-            sleep(1)
+        if self.batch_path: # if the path is already set
 
-            connection = self.backend_manager.read_connection_response()
+            try:
+                file_existence = self.backend_manager.check_input_file_existence()
+                self.backend_manager.create_ascii_file_from_template()
+                self.submit_patchmaster_files()
+                self.set_dat_file_name(self.experiment_type_desc.text())
+                #self.self_configuration_notebook.setCurrentIndex(1)
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
+                sleep(1)
+                self.increment_count()
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ConnectionIdentify" +"\n")
+                self.increment_count()
+                sleep(1)
+                connection = self.backend_manager.read_connection_response() # here we should check the response of the connection
 
-            if connection:
+            except Exception as e: # if the file does not exist
+                self.logger.error(f"Patchmaster not connected properly: {e}")
+                self.check_connection.setText("Patchmaster not connected properly, please check the path and the Batch files")
+                self.statusBar.showMessage("Patchmaster not connected properly, please check the path and the Batch files")
+ 
+            if connection: # if the connection is established
+                self.logger.info("Connection established")
                 self.check_connection.setText("Connected: \n \nBatch Communication successfully connect \n \nToDo: \n \n Change to the Batch Communication Tab \n \n Patchmaster Message: \n \n" + connection)
-            
-            else:
-                self.check_connection.setText("No communication generated, please check Batch communication")
-            print(connection)
-
-            
-                           
-        else:
+                self.statusBar.showMessage("Connection to Patchmaster successfully established")
+ 
+            else: # if the connection is not established
+                self.logger.warning("Connection to Patchmaster failed")
+                self.check_connection.setText("Connection to Patchmaster failed")
+                self.statusBar.showMessage("Connection to Patchmaster failed")
+    
+              
+        else:   # if the path is not set
+            self.logger.info("No batch path set")
             self.Batch1.setText("please select a Path for the Patch File")
 
-        self.show_analysis_window()
+        self.show_analysis_window() # show the analysis window
 
     def switch_testing(self):
         """Switch to testing or to the plot visualization triggered by the button
         Its for potential problems between the connection of the heka patchmaster and the programm"""
-        current_notebook_index = self.visualization_stacked.currentIndex()
-        if current_notebook_index == 1:
+
+        current_notebook_index = self.visualization_stacked.currentIndex() # get the current index of the notebook
+        if current_notebook_index == 1: # if the current notebook is the plot notebook
             self.visualization_stacked.setCurrentIndex(0)
             self.switch_to_testing.setText("Switch to Plot")
-        else:
+        else: # if the current notebook is the testing notebook
             self.visualization_stacked.setCurrentIndex(1)
             self.switch_to_testing.setText("Switch to Testing")
             
@@ -244,31 +273,30 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """ Basler camera initalizing  
         ToDO: Error handling"""
 
-        self.logger.info("Camera will be initialized")
-        self.camera = BayerCamera()
+        self.logger.info("Camera will be initialized") # log the event
+        self.camera = BayerCamera() # initialize the camera
         #initialize the camera 
-        camera_status = self.camera.init_camera()
+        camera_status = self.camera.init_camera() # initialize the camera
         self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
         if camera_status is None: # initialization of the camera and error response if not correctly initialized
             self.scence_trial.addText("Camera is not connected please check the connection in the settings app")
             self.logger.warning("Camera was not found please check the connection")
-            self.Camera_Live_Feed.setScene(self.scence_trial)
+            self.Camera_Live_Feed.setScene(self.scence_trial) # set the scene to the live feed
             self.button_start_camera.setEnabled(False)
             self.button_stop_camera.setEnabled(False)
             self.button_take_snapshot.setEnabled(False)
 
         else:
-            print("Camera is connected")
-            self.logger.info("Camera is connected!")
+            self.logger.info("Camera is connected!") # log the event
             self.scence_trial.addText("Please start capturing!")
             self.Camera_Live_Feed.setScene(self.scence_trial)
 
     def start_camera_timer(self):
         """ added the asnychronous Qtimer for the Camera initalizion"""
         try:
-            self.start_cam = QTimer() # camera timer 
-            self.start_cam.timeout.connect(self.start_camera)   # connected to camera methond
-            self.start_cam.start(222)  # (333,self.start_camera)
+            self.start_cam = QTimer() # create a timer
+            self.start_cam.timeout.connect(self.start_camera) # connect the timer to the start camera function
+            self.start_cam.start(222) # start the timer with a time interval of 222 ms
             self.logger.info("Qthread for Camera caption is running")
         except Exception as e:
             self.logger.error(f"Here is the Error description of the camera running task: {e}")
@@ -280,8 +308,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         imgs = Image.fromarray(camera_image) # conversion
         image = imgs.resize((300,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
         imgqt = ImageQt.ImageQt(image) # convert to qt image
-        self.camera_image_recording = QPixmap.fromImage(imgqt)
-        self.scence_trial.clear()
+        self.camera_image_recording = QPixmap.fromImage(imgqt) # convert to qt pixmap
+        self.scence_trial.clear()   # clear the scene
         self.scence_trial.addPixmap(self.camera_image_recording)
 
     def stop_camera(self):
@@ -294,24 +322,29 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         image_list = self.check_list_lenght(self.image_stack) # self.image_stack is der stack der images generiert
         image_list.insert(0,self.camera_image_recording) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self)
-        self.Taken_Snapshot.setScene(self.snapshot_scence)
-        self.snapshot_scence.addPixmap(self.camera_image_recording)
+        self.Taken_Snapshot.setScene(self.snapshot_scence) # set the scene to the taken snapshot
+        self.snapshot_scence.addPixmap(self.camera_image_recording) # add the image to the scene
         self.draw_snapshots_on_galery(image_list) # draw into the galery
 
 
     def check_list_lenght(self, image_liste):
-        """Here we check the lenght of the  to avoid overcrowding in the image galery
-        its set to 5 images
-        :param image_liste -> type(list) """
+        """Here we check the length of the Image Stack to push them out after 5 Images
+
+        Args:
+            image_liste (list): List of captured numpy arrays
+
+        Returns:
+            list: Image List of size 5
+        """        
         try:
             if len(image_liste) > 4: # if stack overcrowded
-                image_liste.pop()
+                image_liste.pop() # remove the last image
                 self.logger.info("Stacked is crowded pushing last image out")
                 return image_liste
             else:
                 return image_liste
         except Exception as e:
-            print(repr(f"This is the Error: {e}"))
+            print(repr(f"This is the Error: {e}"))  # print the error
 
     def draw_snapshots_on_galery(self, image_list):
         # function to draw the taken snapshot into the image galery
@@ -326,7 +359,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
 
     def transfer_image_gif(self):
-        #toDO add the option for gif mode here
+        """ Transfer the current image to the gif view """
         try: 
             experiment_image = QGraphicsScene(self)
             self.online.image_experiment.setScene(self.snapshot_scence)
@@ -339,13 +372,21 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def get_commands_from_textinput(self):
         """ retrieves the command send to the patchmaster and the response from the Batch.out file """
         print("get commands")
-        self.res = self.sub_command1.toPlainText()
+        self.res = self.sub_command1.toPlainText() 
         self.logger.debug(f'Batch communication input: {self.res}')
-        self.sub_command1.clear()
+        self.sub_command1.clear() # clear the text input
+        self.get_commands_from_textinput_2(self.res)
         
-        print(self.res)
-        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + self.res + "\n")
-        self.logger.info("This command was send to the patchmaster: ""+"+f'{self.submission_count}' + "\n" + self.res + "\n")
+
+    def get_commands_from_textinput_2(self, res):
+        """" retrieves the command send to the patchmaster and the response from the Batch.out file 
+        args:
+            res (str): string of the command send to the patchmaster
+        returns:
+            str: string of the response from the Batch.out file
+        """
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + res + "\n")
+        self.logger.info("This command was send to the patchmaster: ""+"+f'{self.submission_count}' + "\n" + res + "\n")
         self.submission_count += 1
         if self.check_session:
             print("still checking commands")
@@ -376,7 +417,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.sub_command1.clear()
 
     def show_analysis_window(self):
-        """add Docstring"""
+        """ show the analysis window """
         # Get Input from the Sequences and the Protocols
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ListSequences\n") # get the potential Series that can be started
     
@@ -394,7 +435,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.tscurve_1 = PlotCurve(
             linked_curve=self.pyqt_graph.plot(pen=pg.mkPen('r')),
         ) # use this package to make drawing from another thread Threadsafe
-        self.pyqt_window.addWidget(self.pyqt_graph)
+        self.pyqt_window.addWidget(self.pyqt_graph) # add the graph to the window
 
         # Preprocessing
         series = self.preprocess_series_protocols(sequences) # get the listed series from batch.out response
@@ -404,24 +445,35 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.make_sequence_labels(series, self.SeriesWidget) # enter items of sequences into drag and dropbable listview
         self.make_sequence_labels(protocols, self.protocol_widget) # enter items of protcols into drag and dropable listview
         self.make_general_commands() # add general commands to the general command listview
-        self.make_config_commands()
+        self.make_config_commands() # add config commands to the config command listview
         self.visualization_stacked.setCurrentIndex(1) # set the index to the testing Area
 
     def preprocess_series_protocols(self, sequences_reponses):
-        """get the list of protocols,get rid of the submission code"""
+        """ preprocess the sequences and protocols from the batch.out response
+        args:
+            sequences_reponses (str): string of the sequences and protocols from the batch.out response
+        returns:
+            patch_sequences (list): list of the sequences from the batch.out response
+        """
         patch_sequences = sequences_reponses[31: ].split(",")
         patch_sequences = [i.replace('"', "") for i in patch_sequences]
         patch_sequences = [i.replace("\n", "")for i in patch_sequences]
         return patch_sequences
          
     def make_sequence_labels(self, list_of_sequences,widget):
-        """ same as protocols"""
+        """ make the labels for the sequences and protocols
+        args:
+            list_of_sequences (list): list of the sequences from the batch.out response
+            widget (QWidget): widget to add the labels to
+        returns:
+            None
+        """
         for i in list_of_sequences:
             item = QStandardItem(i)
             widget.model().appendRow(item)
 
     def make_general_commands(self):
-        #insert items into general command list
+        """ make the general commands for the general command listview """
         for i in self.general_commands_list:
             item = QStandardItem(i)
             self.general_commands_labels.model().appendRow(item)
@@ -435,7 +487,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def submit_patchmaster_files(self):
         """ Submission of the loaded pgf, prot and onl file to the patchmaster and setting them"""
-        logging.info("Configuration Files setted up:....")
+        self.logger.info("Configuration Files setted up:....")
+        # set the files
         for file, command in zip([self.pgf_file, self.pro_file, self.onl_file],["OpenPgfFile","OpenProtFile","OpenOnlineFile"]):
             if file:
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}\n' + command + f" {file}\n") # send the file lcoation and name to the patchmaster
@@ -445,14 +498,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 logging.info("not all configuration files set:")
 
     def make_threading(self):
-        # generate a threadpool inherted from the runnable class and connect it to the workerclass
+        """ make the threading for the communication with the patchmaster """
         try: 
-            self.threadpool = QThreadPool()
-            self.worker = Worker(self.start_experiment_patch)
-            self.worker.signals.finished.connect(self.thread_complete)
-            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)
-            self.threadpool.start(self.worker)
-        except Exception as e:
+            self.threadpool = QThreadPool() # create the threadpool
+            self.worker = Worker(self.start_experiment_patch) # create the worker
+            self.worker.signals.finished.connect(self.thread_complete) # connect the worker to the thread_complete function
+            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)# connect the worker to the draw_live_plot function
+            self.threadpool.start(self.worker) # start the worker
+        except Exception as e: 
             print(e)
 
     def thread_complete(self):
@@ -463,27 +516,43 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.threadpool.stop(self.worker)
 
     def start_experiment_patch(self, progress_callback):
-        """ get the ListView entries and send them off via the backend manager"""
+        """ start the experiment with the patchmaster 
+        args:
+            progress_callback (function): function to call when the progress is updated
+        returns:
+            None
+        """
         # this should be exposed to threading!
         view_list = self.listWidget.model()
         self.sequence_experiment_dictionary = {} # all derived online analyiss data will be stored here in a "Series":Data fashion
         self.increment_count()
         final_notebook_dataframe = pd.DataFrame() # initialize an empty dataframe which can be appended to
-        
         # goes through the list, when the list is done the transfer to online analysis button will turn green and transfer is possible
         for index in range(view_list.rowCount()):
+
+            # start the progress bar
+            max_value = (len(range(view_list.rowCount()))+1)
+            value = (index+1) * (100/max_value)
+            self.progressBar.setValue(value)
+            self.progressBar.setFormat(f"{value}/100")
+
+            # retrieve the series or protocol
             item = view_list.item(index).text() # get the name of the stacked protocols/series/programs
+            
+            # send it via batch communication
             self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""GetParameters Param-2,Param-3,Param-4,Param-12\n") # always check the parameters after each protocol
             #ToDO Define Cancel Options like Filters
             sleep(0.3) # sleep for allowing program write and read
-            params_response = self.backend_manager.get_parameters() # return the paramters and write them into the entry boxes
+
+            #this should update the parameters for each sweep and run
+            params_response = self.backend_manager.get_parameters() 
             self.increment_count()
             sleep(0.5)
-            self.rseries_qc.setText(params_response[3])
-            self.cslow_qc.setText(params_response[1])
-            self.cfast_qc.setText(params_response[0])
-            self.cfast_qc_2.setText(params_response[2])
 
+            # here we set the text
+            self.set_params(params_response)
+            
+            # Check which kind of parameter is queried
             if self.SeriesWidget.model().findItems(item):
                 """ check if item is in series list"""
                 logging.info(f"Series {item} will be executed")
@@ -516,17 +585,33 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 sleep(0.3)
 
         # turn the button green if sequence finished succesfully
+        self.progressBar.setValue(100)
         self.transfer_to_online_analysis_button.setEnabled(True)
 
+    def set_params(self, params_response):
+        """Retrieve the Parameter value and add to the entry boxes
+
+        Args:
+            params_response (list): List of Paramater 
+        """        
+        self.rseries_qc.setText(params_response[3])
+        self.cslow_qc.setText(params_response[1])
+        self.cfast_qc.setText(params_response[0])
+        self.cfast_qc_2.setText(params_response[2])
 
     def increment_count(self):
         #increment count to renew submission code for the patchmaster
         self.submission_count += 1
 
     def trial_setup(self, notebook, item, progress_callback):
-        """gets the data and draws it into the fast analysis window
-        recursive function to redo analyis until query is not acquiring or executing anymore
-        ToDO:"""
+        """ setup the trial for the experiment
+        args:
+            notebook (pd.DataFrame): dataframe to append to
+            item (str): name of the series/protocol
+            progress_callback (function): function to call when the progress is updated
+        returns:
+            analyzed (bool): True if the protocol was analyzed, False if not
+        """
         sleep(0.2) # sleeping to avoid overflue by commands added to the batch communication
         item = item 
         final_notebook_dataframe = notebook # maybe deep copy
@@ -575,73 +660,138 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             return None
         
     def get_final_notebook(self, notebook):
-        """ Dataframe has multiple commas therefore columns will be shifted to adjust for this
-        Get the final written notebook from the analysis"""
+        """ gets the final notebook and returns it
+        
+        args:
+            notebook (pandas.DataFrame): notebook dataframe
+            
+        returns:
+            notebook (pandas.DataFrame): notebook dataframe"""
         columns = notebook.iloc[0].tolist()
         columns.pop(0)
-        columns = columns + ["NAN"]
+        columns = columns + ["NAN"] # add a column for the time stamp
         columns = [str(i).replace('"',"") for i in columns]
         final_notebook = notebook[1:]
         final_notebook.columns = columns
         final_notebook = final_notebook.iloc[:,4:]
         final_notebook = final_notebook.drop("NAN", axis = 1)
-        
-        print(final_notebook)
         return True
 
     def basic_configuration_protcols(self, item):
-        # make basic functions to adjust for whole-cell conrfiguration, seal configurations and 
+        """Executes the basic configuration protocols
+        
+        args:
+            item (str): item to be executed
+            
+        returns:
+            None"""
+
         function_dictionary = {"Setup": self.execute_setup, "Seal": self.execute_seal, "Whole-cell": self.execute_whole_cell}
         func = function_dictionary.get(item,lambda :'Invalid')
         func()
 
     def change_mode_protocols(self, item):
+        """Executes the change mode protocols
+        
+        args:
+            item (str): item to be executed
+        returns:
+            None
+        """
+
         function_dictionary = {"Whole Cell": self.whole_cell,"Current Clamp": self.current_clamp, "Holding Potential": self.holding, "C-slow compensation": self.compensate}
         func = function_dictionary.get(item, lambda: "Invalid")
         func()
 
     def whole_cell(self):
+        """Executes the whole cell protocol
+        
+        args:
+            None
+        returns:
+            None
+        """
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""Set E Mode 3; Whole Cell\n")
         self.increment_count()
 
     def holding(self):
+        """Sets the holding potential mode"""
+        #TODO: add the holding potential mode
         print("Add here the holding potential")
 
     def compensate(self):
+        """Sets the C-slow compensation mode
+        args:
+            None
+        returns:
+            None
+        """
         print("Add here the compensation function")
 
     def current_clamp(self):
+        """Sets the current clamp mode
+        args:
+            None
+        returns:
+            None
+        """
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""Set E Mode 4; C-Clamp\n")
         self.increment_count()
 
     def execute_setup(self):
-        # setup protocol execturio command
+        """Executes the setup protocol
+        args:
+            None
+        returns:
+            None
+        """
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SETUP\n")
         self.increment_count()
     
     def execute_seal(self):
-        # seal protocol exectuion command
+        """Executes the seal protocol
+        args:
+            None
+        returns:
+            None
+        """
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol SEAL\n")
         self.increment_count()
-        print()
+    
 
     def execute_whole_cell(self):
-        #whole_cell exection command 
+        """Executes the whole cell protocol
+        args:
+            None
+        returns:
+            None
+        """
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n""ExecuteProtocol WHOLE-CELL\n")
         self.increment_count()
-        print(9)
+
 
     def terminate_sequence(self):
+        """Terminates the sequence
+        args:
+            None
+        returns:
+            None
+        """
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "Terminate\n") # Query to get the state of the amplifier
         self.increment_count()
 
             
     def clear_list(self):
-        # connect to the button 
+        """Clears the list of experiments
+        args:
+            None
+        returns:
+            None
+        """
         self.listWidget.model().clear()
         
     def set_darkmode(self, default_mode):
-        #get the darkmode options
+        """Sets the dark mode"""
         self.default_mode = default_mode
    
     def get_darkmode(self):
@@ -650,6 +800,12 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         return self.default_mode
 
     def setting_appearance(self):
+        """Sets the appearance of the application
+        args:
+            None
+        returns:
+            None
+        """
         default_mode = self.get_darkmode()
         if default_mode == 0:
             print("light_mode")

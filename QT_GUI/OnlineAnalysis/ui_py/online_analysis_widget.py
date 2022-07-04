@@ -150,6 +150,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             print(self.table_model)
             #self.tableWidget.setStyleSheet("background-color:#232629; ")
             self.tableWidget.setModel(self.table_model)
+            self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception as e:
             print(e)
 

@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import sys
 import csv
+from scipy.signal import find_peaks
 
 class AnalysisRaw():
 
@@ -40,9 +41,9 @@ class AnalysisRaw():
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
+            return ["mean_voltage", "Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]",
-                    "Rheobase_Detection", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+                    "Rheobase_Detection", "Rheoramp_Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -60,6 +61,8 @@ class AnalysisRaw():
             return self.time_to_minimum()
 
         # @TODO add current clamp functions
+        if function_name == "mean_voltage":
+            return self.mean_current()
         if function_name== "Single_AP_Amplitude [mV]":
             return self.single_action_potential_analysis("Amplitude")
         if function_name== "Single_AP_Threshold_Amplitude[mV]":
@@ -71,6 +74,9 @@ class AnalysisRaw():
 
         if function_name == "Rheobase_Detection":
             return self.ap_detection()
+
+        if function_name == "Rheoramp_Analysis":
+            return self.rheo_ramp_analysis()
 
 
     @property
@@ -175,6 +181,19 @@ class AnalysisRaw():
     def get_area(self):
         self.area =  np.trapz(self.sliced_trace[:,0],self.sliced_trace[:,1])
         return abs(self.area)*10000
+
+    def rheo_ramp_analysis(self):
+        """
+
+        :return:
+        """
+        #@todo must be also changed in the plot widget mnaager
+        peaks, _ = find_peaks(self.data, height=0.00, distance=200)
+        if (len(peaks)) > 0:
+            return(len(peaks))
+        else:
+            return None
+
 
     def ap_detection(self):
         """
