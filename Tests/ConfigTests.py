@@ -94,6 +94,8 @@ class TestConfigWidget(TestCaseBase):
         self.assertEqual(itemsTextList[0:4], ["Block Pulse","IV","IV-120","IV-40"], "PGF file is not properly opened")
         self.assertEqual(protocolText[0:4], ["Test Pulse","IV & Rheo","2xRheo&Ramp","Heat Ramp"], "Protocol file is not properly opened")
 
+
+    
     
 if __name__ == '__main__':
     unittest.main()

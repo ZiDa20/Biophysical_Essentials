@@ -104,7 +104,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        #GlobalBlur(self.winId(), Acrylic=True)
+        GlobalBlur(self.winId(), Acrylic=True)
 
     def center(self):
         """Function to center the application at the start into the middle of the screen
@@ -131,7 +131,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.y()) < 60:
-            #GlobalBlur(self.winId(), Acrylic=False)
+            GlobalBlur(self.winId(), Acrylic=False)
             delta = QPoint (event.globalPos() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPos()
@@ -147,7 +147,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): Mouse release
         """      
 
-        #GlobalBlur(self.winId(), Acrylic=True)
+        GlobalBlur(self.winId(), Acrylic=True)
 
     def resizeEvent(self, event):
         """resizing of MainWindow
@@ -161,7 +161,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
-        #GlobalBlur(self.winId(), Acrylic=False)
+        GlobalBlur(self.winId(), Acrylic=False)
        
         
     def transfer_file_to_online(self):
