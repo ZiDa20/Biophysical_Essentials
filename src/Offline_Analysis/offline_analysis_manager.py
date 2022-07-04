@@ -7,6 +7,10 @@ from treeview_manager import *
 from PySide6.QtCore import *  # type: ignore
 from Worker import Worker
 
+import sys
+
+from src.Offline_Analysis.Analysis_Functions.MaxCurrent import *
+
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
@@ -50,6 +54,29 @@ class OfflineManager():
     def directory_path(self,val):
         self._directory_path = val
 
+    def get_registered_analysis_class(self,analysis_function_name):
+        mapping = {
+            "max_current":MaxCurrent
+        }
+        return mapping.get(analysis_function_name,lambda: MaxCurrent)
+
+    def execute_single_series_analysis_II(self,series_name):
+
+        # read analysis functions from database
+        analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
+
+        for fn in analysis_functions:
+            # get the correct class object
+            class_name = self.get_registered_analysis_class(fn)
+            #class_object = class_name()
+
+            # run the calculation which will be also written to the database
+            class_name.calculate_results()
+
+            # read the data from the database and create the specific result visualization
+            #AnalysisClass().visualize_results()
+
+        return True
 
     def execute_single_series_analysis(self,series_name):
         """

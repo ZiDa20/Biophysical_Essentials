@@ -10,6 +10,10 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
+
+sys.path.append(os.path.dirname(os.getcwd()) + "src/OfflineAnalysis/AnalysisFunctions")
+sys.path.append(os.path.dirname(os.getcwd()) + "src/OfflineAnalysis/AnalysisFunctions/Function_Templates")
+
 from PySide6.QtWidgets import QApplication, QMainWindow
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
