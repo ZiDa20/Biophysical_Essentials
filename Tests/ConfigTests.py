@@ -63,7 +63,7 @@ class TestConfigWidget(TestCaseBase):
         
     def tearDown(self):
         """Close the App later"""
-        self.app.deleteLater()
+        self.app.deleteLater() 
     
     
     def test_batch_file(self):
@@ -71,7 +71,7 @@ class TestConfigWidget(TestCaseBase):
         since the out file is builded by the Patchmaster
         """        
         QTest.mouseClick(self.ui.ui.self_configuration, Qt.LeftButton)
-        self.ui.ui.config.batch_path = os.getcwd()
+        self.ui.ui.config.batch_path = os.getcwd() # retrieve the batch path
         self.ui.ui.config.backend_manager._batch_path = os.getcwd()
         QTest.mouseClick(self.ui.ui.config.establish_connection_button,Qt.LeftButton)
         self.assertIsFile(self.ui.ui.config.batch_path + "\\E9Batch.In")

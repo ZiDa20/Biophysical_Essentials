@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-=
 
 ################################################################################
 ## Form generated from reading UI file 'main_window_new_layout.ui'
@@ -20,6 +20,7 @@ from database_viewer_widget import Database_Viewer
 
 import Figures_rc
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -35,6 +36,8 @@ class Ui_MainWindow(object):
         MainWindow.setStyleSheet(u"QMainWindow{\n"
 "border-radius: 10px\n"
 "}")
+
+        #add this above the central widget
         self.progressBar = QProgressBar()
         self.statusBar = MainWindow.statusBar()# add Status Bar to the App
         self.statusBar.addPermanentWidget(self.progressBar)
@@ -239,7 +242,7 @@ class Ui_MainWindow(object):
         self.side_left_menu.setLayoutDirection(Qt.LeftToRight)
         self.side_left_menu.setAutoFillBackground(False)
         self.side_left_menu.setStyleSheet(u"QWidget{\n"
-"	background-color: \"#232629\";\n"
+"	background-color:rgba(4,7,26, 180) ;\n"
 "\n"
 "}\n"
 "\n"
@@ -247,7 +250,7 @@ class Ui_MainWindow(object):
 "	padding: 1px 5px;\n"
 "	border: none;\n"
 "	border-radius:5px;\n"
-"	background-color: \"#232629\";\n"
+"	background-color: rgba(4,7,26, 0);\n"
 "}\n"
 "\n"
 "QPushButton:hover{\n"
@@ -297,7 +300,6 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/SC_button.png);\n"
 "background-repeat:None;\n"
-"color: #d2691e;\n"
 "padding: 5px 10px;\n"
 "background-position: left;\n"
 "border: none;\n"
@@ -327,7 +329,6 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/Ona_button.png);\n"
 "background-repeat:None;\n"
-"color: #d2691e;\n"
 "padding: 5px 10px;\n"
 "background-position: left;\n"
 "border: none;\n"
@@ -350,7 +351,6 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/Ofa_button.png);\n"
 "background-repeat:None;\n"
-"color: #d2691e;\n"
 "padding: 5px 10px;\n"
 "background-position: left;\n"
 "border: none;\n"
@@ -374,7 +374,6 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/St_button.png);\n"
 "background-repeat:None;\n"
-"color: #d2691e;\n"
 "padding: 5px 10px;\n"
 "background-position: left;\n"
 "border: none;\n"
@@ -397,7 +396,6 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/setting_button.png);\n"
 "background-repeat:None;\n"
-"color: #d2691e;\n"
 "padding: 5px 10px;\n"
 "background-position: left;\n"
 "border: none;\n"
@@ -424,7 +422,6 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/Lightmode_button.png);\n"
 "background-repeat:None;\n"
-"color: #d2691e;\n"
 "padding: 5px 10px;\n"
 "background-position: left;\n"
 "border: none;\n"

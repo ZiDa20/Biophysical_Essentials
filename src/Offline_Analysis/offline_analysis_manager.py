@@ -51,7 +51,7 @@ class OfflineManager():
         self._directory_path = val
 
 
-    def execute_single_series_analysis(self,series_name):
+    def execute_single_series_analysis(self,series_name, progress_callback):
         """
         Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .
         Therefore, sweep data traces will be load from the database, an analysis object will be created to calculate results and results will be written
@@ -62,6 +62,7 @@ class OfflineManager():
 
         """
 
+    
         #@todo give normalization as argument to the function
         series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(series_name)
         try:
@@ -90,11 +91,15 @@ class OfflineManager():
         # read analysis functions from database
         analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
 
-
+        progress_value = 100/len(sweep_table_names)
+        progress = 0
         # calculate result for each single sweep data trace and write the result into the database
         for table_name in sweep_table_names:
-
+        
             # dict
+            progress += progress_value
+            value_result = f"Analyzing Table Name: {table_name}"
+            progress_callback.emit((progress, value_result))
             entire_sweep_table = self.database.get_entire_sweep_table(table_name)
             time = self.database.get_time_in_ms_of_by_sweep_table_name(table_name)
 
@@ -162,7 +167,6 @@ class OfflineManager():
                             except Exception as e:
                                 print(e)
 
-        print("analysis finished")
         return True
 
 

@@ -5,7 +5,7 @@ import duckdb
 import os
 
 from matplotlib.pyplot import table
-from database_viewer_designer_object import Ui_Database_Viewer
+from data_base_designer_object import Ui_Database_Viewer
 from data_db import DuckDBDatabaseHandler
 import pyqtgraph as pg
 
@@ -19,7 +19,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         #self.data_base_stacked_widget.setCurrentIndex(0)
         self.data_base_stacked_widget.setCurrentIndex(0)
 
-        self.connect_to_database.clicked.connect(self.show_basic_tables)
+        #self.connect_to_database.clicked.connect(self.show_basic_tables)
 
         self.database_handler = None
         self.query_execute.clicked.connect(self.query_data)
@@ -28,9 +28,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         
         
 
-
-
-
     def update_database_handler(self,database_handler):
         self.database_handler = database_handler
 
@@ -38,26 +35,29 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
     def open_database(self):
         #@todo: find a way to anyhow access the already opened database object from offline analysis
         """open a dropdown menu and connect to a database selected by the user"""
-        cew = os.getcwd()
+        cew = os.path.dirname(os.getcwd())
         self.db_file_name = "duck_db_analysis_database.db"
         try:
-            self.database = duckdb.connect(cew + "/" + self.db_file_name, read_only=True)
-            self.instruction_label.setText(f'You are connected to database {self.db_file_name}')
-            self.data_base_stacked_widget.setCurrentIndex(1)
-            self.show_basic_tables()
-        except:
+            self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=True)
+            #self.instruction_label.setText(f'You are connected to database {self.db_file_name}')
+            #self.data_base_stacked_widget.setCurrentIndex(1)
+            self.show_basic_tables(True)
+        except Exception as e:
+            print(e)
             print("failed")
 
-    def show_basic_tables(self):
+    def show_basic_tables(self,database_handler):
         '''
         Request available tables and plot the content
         :return:
         '''
-        self.data_base_stacked_widget.setCurrentIndex(1)
-        self.database = self.database_handler.database
+        database_handler.database.close()
+        database_handler.open_connection()
+        self.database = database_handler.database
 
         q = """SELECT * FROM information_schema.tables"""
         tables_names = self.database.execute(q).fetchall()
+        print(tables_names)
 
         self.table_dictionary = {"imon_signal" : [], "pgf_tables":[], "imon_meta": [], "experiment": [], "analysis_table":[]}
         
@@ -79,7 +79,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             if "pgf" in table_name:
                 self.table_dictionary["pgf_tables"].append(table_name)
 
+        # clean the list first to remove unwanted overlap after multiple calls
+        for i in reversed(range(self.button_database_series.count())):
+            self.button_database_series.removeItem(i)
 
+        # create a button for each table
         for key, value in self.table_dictionary.items():
             button = QPushButton(key)
             self.button_database_series.addWidget(button)

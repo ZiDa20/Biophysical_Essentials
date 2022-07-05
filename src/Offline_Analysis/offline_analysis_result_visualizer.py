@@ -2,9 +2,10 @@
 
 import sys
 import os
+from tkinter import Scrollbar
+
+from pip import main
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-
-
 
 from data_db import DuckDBDatabaseHandler
 from specific_visualization_plot import ResultPlotVisualizer
@@ -17,14 +18,40 @@ from collections import OrderedDict
 import pandas as pd
 from PySide6 import QtCore
 
-import matplotlib
+import matplotlib.pyplot as plt
 #import matplotlib.backends.backend_tkagg
 
 from matplotlib.backends.qt_compat import QtWidgets
 #from matplotlib.backends.backend_qtagg import(FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
+from tab_offline_result import OfflineResultTab
 
+print(plt.rcParams.keys())
+# determine the facecolors of the plot
+# we should use this to modify the plots when chanign modes
+plt.rcParams.update({ 
+    "axes.facecolor": (0,0,0,0),
+    "figure.facecolor": (0,0,0,0),
+    "text.color": "#fff5cc",  
+    "axes.labelcolor":   "#fff5cc",  
+    "axes.edgecolor":    "#fff5cc", 
+    "xtick.color":       "black", 
+    "ytick.color":       "black",  
+    "savefig.facecolor": "white",
+    "savefig.edgecolor": "black",
+    "savefig.dpi": "300",
+    "savefig.bbox": "tight",
+    "savefig.transparent": "True",
+    "font.family":       "Arial",
+    "figure.dpi":        100,
+    "backend":          "Qt5Agg",
+    "axes.spines.right": False,
+    "axes.spines.top": False,
+    "axes.grid": True,
+    "axes.grid.axis": "y",
+    "grid.color": "#04071a"
+})
 
 
 class OfflineAnalysisResultVisualizer():
@@ -35,9 +62,9 @@ class OfflineAnalysisResultVisualizer():
         self.database_handler = database
         self.split_data_functions =[ "No Split", "Split By Meta Data"]
         self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
-        self.plot_colors = ['b', 'g','r','c','m','y','k','w']
+        self.plot_colors = ['#fff5cc', 'g','r','c','m','y','k','w', 'b']
         self.result_directory = ""
-        self.default_colors = ['k','b','r','g','c']
+        self.default_colors = ['#fff5cc', 'k','b','r','g','c']
 
 
         #@todo maybe more clever to have an extra table in the database where to save this information
@@ -110,7 +137,8 @@ class OfflineAnalysisResultVisualizer():
         print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
 
-        main_layout = QGridLayout()
+        offline_tab = OfflineResultTab()
+        offline_tab.OfflineScroll.setStyleSheet("background-color: rgba(0,0,0,0")
 
         for analysis in list_of_analysis:
             print(str(analysis))
@@ -144,11 +172,8 @@ class OfflineAnalysisResultVisualizer():
             widget_x_pos = list_of_analysis.index(analysis) // 2 # 2 widgets per row
             widgte_y_pos = list_of_analysis.index(analysis) % 2 # 2 widgets per row
 
-            main_layout.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
+            offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
 
-        # after all plots have been added
-        all_plots = QWidget()
-        all_plots.setLayout(main_layout)
 
         existing_tab_names = []
         for existing_tab in range(self.visualization_tab_widget.count()):
@@ -158,12 +183,12 @@ class OfflineAnalysisResultVisualizer():
         if series in existing_tab_names:
             # in case the tab was already created
             self.visualization_tab_widget.removeTab(existing_tab_names.index(series))
-            self.visualization_tab_widget.insertTab(existing_tab_names.index(series),all_plots,series)
+            self.visualization_tab_widget.insertTab(existing_tab_names.index(series),data_widget,series)
 
         else:
             # if the tab was not created it will be appended at the end
-            self.visualization_tab_widget.addTab(all_plots,series)
-
+            self.visualization_tab_widget.addTab(offline_tab,series)
+            
 
 
     def single_analysis_visualization(self,parent_widget,analysis_id,analysis_function_id,meta_data_list = None):
@@ -175,7 +200,9 @@ class OfflineAnalysisResultVisualizer():
         :return:
         """
 
+
         canvas = self.handle_plot_widget_settings(parent_widget)
+        canvas.setStyleSheet("background-color: rgba(0,0,0,0)")
 
         # self.browser = QtWebEngineWidgets.QWebEngineView(self)
 
@@ -207,9 +234,10 @@ class OfflineAnalysisResultVisualizer():
             # create a new plot and insert it into the already exsiting plot layout
             #analysis_specific_plot_widget = pg.PlotWidget()
             #parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
-
-            canvas = FigureCanvas(Figure(figsize=(5, 3)))
-            parent_widget.plot_layout.addWidget(canvas)
+            figure = Figure(figsize=(5, 3))
+            canvas = FigureCanvas(figure)
+            canvas.setStyleSheet("background-color: rgba(0,0,0,0)")
+            parent_widget.plot_layout.addWidget(canvas, stretch = 0)
 
 
             # add options only once
@@ -248,10 +276,14 @@ class OfflineAnalysisResultVisualizer():
     def save_plot_as_image(self,parent_widget:ResultPlotVisualizer):
 
         result_path = QFileDialog.getSaveFileName()[0]
-
         canvas= parent_widget.plot_layout.itemAt(0).widget()
+        canvas.figure.axes[0].axes.spines['left'].set_color('black')
+        canvas.figure.axes[0].axes.spines['bottom'].set_color('black')
         canvas.print_figure(result_path)
-        print("saved plot in " + result_path)
+        canvas.figure.axes[0].axes.set_facecolor((0,0,0,0))
+        canvas.figure.axes[0].axes.spines['left'].set_color('#fff5cc')
+        canvas.figure.axes[0].axes.spines['bottom'].set_color('#fff5cc')
+    
 
     def plot_rheoramp_event_counts(self,parent_widget,result_list,number_of_sweeps):
         canvas = self.handle_plot_widget_settings(parent_widget)
@@ -571,13 +603,14 @@ class OfflineAnalysisResultVisualizer():
                 print(series_names)
                 print(f'Error in dict call for series with series name {series_name}')
         # @todo: add shade of stde
-        ax.legend()
+        #ax.legend()
         canvas.show()
 
        # analysis_specific_plot_widget.setHtml(fig.to_html(include_plotlyjs='cdn'))
 
     def visualize_sweep_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
-        ax.plot(x_data[a], y_data[a], 'k', label=series_names[a])
+        ax.clear()
+        ax.plot(x_data[a], y_data[a], '#fff5cc', label=series_names[a])
         parent_widget.export_data_frame.insert(0, series_names[a], y_data[a])
 
     def visualize_series_wise(self,ax,x_data,y_data,series_names,parent_widget,a):

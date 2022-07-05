@@ -31,6 +31,8 @@ import csv
 from filter_pop_up_handler import Filter_Settings
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 from PySide6.QtCore import QThreadPool
+from Worker import Worker
+from BlurWindow.blurWindow import GlobalBlur
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -39,6 +41,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
+        self.progressbar = progress
+        self.statusbar = status
         # start page of offline analysis
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
 
@@ -64,7 +68,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
 
-        self.offline_analysis_thread_manager = QThreadPool()
 
     def update_database_handler_object(self,updated_object):
         self.database_handler = updated_object
@@ -242,8 +245,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
         dialog = QDialog()
+        dialog.setWindowFlags(Qt.FramelessWindowHint)
+
         dialog_grid = QGridLayout(dialog)
         #series_names_string_list = ["Block Pulse", "IV"]
+        
         checkbox_list = []
         name_list = []
         for s in  series_names_string_list:
@@ -256,11 +262,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             name_list.append(name)
 
         confirm_series_selection_button = QPushButton("Compare Series", dialog)
+        dialog_quit = QPushButton("Cancel", dialog)
         confirm_series_selection_button.clicked.connect(partial(self.compare_series_clicked,checkbox_list,name_list,dialog))
+        dialog_quit.clicked.connect(partial(self.close_dialog,dialog))
         dialog_grid.addWidget(confirm_series_selection_button,len(name_list),0)
         dialog.setWindowTitle("Available Series To Be Analyzed")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
+
+    def close_dialog(self, dialog):
+        """ closes the dialog """
+        dialog.close()
 
     def add_filter_to_offline_analysis(self):
         '''will be called when the add filter button is clicked. function will open a filter popup. '''
@@ -636,21 +648,36 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-
-
         # store analysis parameter in the database
+        self.database_handler.database.close()
+        self.threadpool = QThreadPool()
+        self.worker = Worker(self.run_database_thread, current_tab)
+        self.worker.signals.finished.connect(self.finished_result_thread)
+        self.worker.signals.progress.connect(self.progress_bar_update_analysis)
+        self.threadpool.start(self.worker)
+
+    def run_database_thread(self, current_tab, progress_callback):
+        """"""
+        print("Qthread is running")
+        self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
+        progress = self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
+        print(progress)
+        self.database_handler.database.close()
 
-        # perform the analysis and write results to the database
-        finished_successfully = self.offline_manager.execute_single_series_analysis(current_tab.objectName())
+    def progress_bar_update_analysis(self,data):
+        self.progressbar.setValue(data[0])
+        self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
 
-        if finished_successfully:
-            # switch to the visualization tab
-            self.Offline_Analysis_Notebook.setCurrentIndex(1)
+    def finished_result_thread(self):
+        # switch to the visualization tab
+        print("here we are!")
+        self.database_handler.open_connection()
+        self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
-            # plot the calculated results
-            current_tab_index = self.tabWidget.currentIndex()
-            self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.tabWidget.tabText(current_tab_index))
+        # plot the calculated results
+        current_tab_index = self.tabWidget.currentIndex()
+        self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.tabWidget.tabText(current_tab_index))
 
 
     def write_function_grid_values_into_database(self,current_tab):

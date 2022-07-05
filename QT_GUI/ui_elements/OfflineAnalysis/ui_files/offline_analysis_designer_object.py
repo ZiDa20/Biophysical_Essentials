@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'offline_analysis_designer_object_120522.ui'
+## Form generated from reading UI file 'offline_analysis_designer_object_010722.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.1
 ##
@@ -11,8 +11,9 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-from specififc_analysis_tab import *
-from groupbox_resizing_class import *
+
+from specific_analysis_tab import SpecificAnalysisTab
+
 
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
@@ -531,7 +532,7 @@ class Ui_Offline_Analysis(object):
 
         self.retranslateUi(Offline_Analysis)
 
-        self.Offline_Analysis_Notebook.setCurrentIndex(0)
+        self.Offline_Analysis_Notebook.setCurrentIndex(1)
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.directory_tree_widget.setCurrentIndex(1)
 
@@ -581,3 +582,4 @@ class Ui_Offline_Analysis(object):
         self.visualization_tab_widget.setTabText(self.visualization_tab_widget.indexOf(self.template_tab_2), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
         self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
     # retranslateUi
+
