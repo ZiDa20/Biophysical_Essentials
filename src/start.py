@@ -114,7 +114,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        GlobalBlur(self.winId(), Acrylic=True)
+        #lobalBlur(self.winId(), Acrylic=True)
 
 
     def initialize_database(self):
@@ -146,7 +146,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.y()) < 60:
-            GlobalBlur(self.winId(), Acrylic=False)
+            #GlobalBlur(self.winId(), Acrylic=False)
             delta = QPoint (event.globalPos() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPos()
@@ -176,7 +176,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
-        GlobalBlur(self.winId(), Acrylic=False)
+        #GlobalBlur(self.winId(), Acrylic=False)
        
         
     def transfer_file_to_online(self):
@@ -298,9 +298,8 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 if __name__ == "__main__":
     """Main function to start the application"""
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "2"
     app = QApplication(sys.argv)
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-
     app.setAttribute(Qt.AA_EnableHighDpiScaling)
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()

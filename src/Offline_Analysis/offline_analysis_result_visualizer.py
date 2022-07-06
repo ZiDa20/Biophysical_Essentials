@@ -202,7 +202,7 @@ class OfflineAnalysisResultVisualizer():
 
 
         canvas = self.handle_plot_widget_settings(parent_widget)
-        canvas.setStyleSheet("background-color: rgba(0,0,0,0)")
+        #canvas.setStyleSheet("background-color: rgba(0,0,0,0)")
 
         # self.browser = QtWebEngineWidgets.QWebEngineView(self)
 
@@ -227,9 +227,12 @@ class OfflineAnalysisResultVisualizer():
         """
         try:
 
-            print("overriding existing plot widget")
             # remove the old plot if there is one already existing
-            parent_widget.plot_layout.takeAt(0)
+            # changed this so now this is working as expected: MZ
+            if parent_widget.plot_layout.count() > 0: # check if plot_layout as child widgets
+                for i in reversed(range(parent_widget.plot_layout.count())): # iterate backwards through the child widgets
+                    parent_widget.plot_layout.itemAt(i).widget().deleteLater() # delete the child widget
+            
 
             # create a new plot and insert it into the already exsiting plot layout
             #analysis_specific_plot_widget = pg.PlotWidget()
@@ -545,9 +548,6 @@ class OfflineAnalysisResultVisualizer():
         x_data,y_data, series_names = self.fetch_x_and_y_data( result_list, number_of_sweeps)
 
         #analysis_specific_plot_widget.addLegend()
-
-
-
         ax = canvas.figure.subplots()
 
         # for each data trace ( = a sub list) create the plot in the correct color according to meta data group
@@ -582,6 +582,7 @@ class OfflineAnalysisResultVisualizer():
 
         # analysis_specific_plot_widget is the figure
         ax = canvas.figure.subplots()
+        ax.clear()
 
         '''
         for a in range(len(x_data)):
