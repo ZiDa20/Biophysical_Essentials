@@ -211,7 +211,6 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
         self.config.setSizePolicy(sizePolicy)
         self.notebook.addWidget(self.config)
-        self.online = Online_Analysis()
         self.online.setObjectName(u"online")
         sizePolicy.setHeightForWidth(self.online.sizePolicy().hasHeightForWidth())
         self.online.setSizePolicy(sizePolicy)

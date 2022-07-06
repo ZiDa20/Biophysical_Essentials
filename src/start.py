@@ -40,7 +40,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        
+        self.setDockOptions(QMainWindow.AnimatedDocks | QMainWindow.AllowNestedDocks)
+        #self.addDockWidget(Qt.BottomDockWidgetArea,self.ui.config.dockWidget)
+        #
 
 
         self.desktop = QApplication.primaryScreen()
@@ -160,7 +162,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): Mouse release
         """      
 
-        GlobalBlur(self.winId(), Acrylic=True)
+        #GlobalBlur(self.winId(), Acrylic=True)
 
     def resizeEvent(self, event):
         """resizing of MainWindow

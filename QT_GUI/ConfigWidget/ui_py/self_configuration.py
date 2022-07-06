@@ -19,6 +19,7 @@ pg.setConfigOption('foreground', '#ff8117')
 from dvg_pyqtgraph_threadsafe import PlotCurve
 from self_config_notebook_widget import *
 import traceback, sys
+from functools import partial
 
 
 class Config_Widget(QWidget,Ui_Config_Widget):
@@ -36,84 +37,91 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         super(Config_Widget,self).__init__(parent) # initialize the parent class
         # initialize self_config_notebook_widget
         self.setupUi(self) # setup the ui file 
-       
+        self.CameraDock.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea, self.CameraDock)
         # added the Progress Bar to the self-configuration
         self.set_buttons_beginning()
         
-
         #select the batch_path
         self.batch_path = None
         self.backend_manager = BackendManager() # initialize the backend manager
         self.online_analysis = online # load the backend manager
-        #self.statusbar().showMessage("Connected")
-    
+        
+        # add the progresbar and status bar
         self.progressBar = progress_bar   
         self.statusBar = status_bar
-        # pathes for the pgf files
+
+        # Experiment Section
+        ## pathes for the pgf files
         self.pgf_file = None
         self.pro_file = None
         self.onl_file = None
         self.data_file_ending = 1
         self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
         self.config_list_changes = ["Whole Cell", "Current Clamp"]
+        self.check_connection.setText("Warning: \n \nPlease select the PGF, Analysis and Protocol File and set the Batch communication Path!")
+        self.experiment_dictionary = {} # create and experiment dictionary with Metadata
+        self.submission_count = 2 # each submitte command will increase counts 
 
-        # add the metadata to the experiment dictionary
-        self.experiment_dictionary = {}
-
-        self.submission_count = 2 # count for incrementing batch communication 
-
-        self.image_stack = [] # stack of images
-        self.default_mode = 1
+        ## setup pyqtgraph for experiment visualization
         self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
         self.pyqt_graph.setBackground("#232629")
+
+        # Camera Section
+        
+        self.image_stack = [] # stack of images
+        self._image_count = 0
+
+        #darkmode
+        self.default_mode = 1
+        
+        # check if session is implemeted
         self.check_session = None
 
-        # logger added --> ToDO: should be used for developers as well as for users should be disriminated 
-        self.logger=logging.getLogger() 
+        # Initialize the connections  
+        self.logger_setup()      
+        self.initialize_camera()
+        self.connections_clicked_experiment()
+        self.connections_clicked_camera()
+        self.connection_clicked_threading()
+        
+        self.set_solutions()
+
+    def connection_clicked_threading(self):
+        """ connect button to the threading"""
+        self.start_experiment_button.clicked.connect(self.make_threading) # spawns the thread
+        self.stop_experiment_button.clicked.connect(self.terminate_sequence) # terminate sequence to patchmater
+
+    def connections_clicked_camera(self):
+        """ connect the buttons to the camera """        
+        self.button_start_camera.clicked.connect(self.start_camera_timer) # intialize 
+        self.button_stop_camera.clicked.connect(self.stop_camera)
+        self.button_take_snapshot.clicked.connect(self.show_snapshot)
+
+    def connections_clicked_experiment(self):
+        """ connect the buttons to the experiment """
+        self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # retrieve the metadata from txt file
+        self.button_batch_1.clicked.connect(self.set_batch_path) # establish batch_path
+        self.establish_connection_button.clicked.connect(self.open_batch_path) # checks if the connection is owrking
+        self.button_pgf_set.clicked.connect(self.set_pgf_file) # sets pgf file
+        self.button_protocol_set.clicked.connect(self.set_protocol_file) # sets protocol file
+        self.button_onl_analysis_set.clicked.connect(self.set_online_file) # sets online analysis file
+        self.button_submit_command.clicked.connect(self.get_commands_from_textinput) # submit command for testing
+        self.button_clear_window.clicked.connect(self.end_communication_control) # clear the window
+        self.pushButton_10.clicked.connect(self.clear_list) # is cleaning ListViews
+        self.switch_to_testing.clicked.connect(self.switch_testing) # switches to the tesing mode
+
+    def logger_setup(self):
+        # logger added --> ToDO: should be used for developers as well as for users should be disriminated
+        print("initialized the logger")
+        self.logger= logging.getLogger() 
         self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.debug('A debug message')
-
-        # set the solutions
-        self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # initialize meta data sheet opening boehringer special
-
-        # save the form to the database
-
-        #self.database_save.clicked.connect(self.save_to_database)
-
-        #connect to the camera control
-        self.initialize_camera()
-        self.button_start_camera.clicked.connect(self.start_camera_timer) # intialize 
-        self.button_stop_camera.clicked.connect(self.stop_camera)
-        self.button_take_snapshot.clicked.connect(self.show_snapshot)
-
-        #switch to testing mode
-        self.switch_to_testing.clicked.connect(self.switch_testing)
-
-        #connect to the function for the batch communication
-        self.button_batch_1.clicked.connect(self.set_batch_path)
-        self.establish_connection_button.clicked.connect(self.open_batch_path)
-        self.button_pgf_set.clicked.connect(self.set_pgf_file)
-        self.button_protocol_set.clicked.connect(self.set_protocol_file)
-        self.button_onl_analysis_set.clicked.connect(self.set_online_file)
-        self.button_submit_command.clicked.connect(self.get_commands_from_textinput)
-        self.button_clear_window.clicked.connect(self.end_communication_control)
-        # initialize the camera module
-
-        #threading
-        self.start_experiment_button.clicked.connect(self.make_threading)
-        self.pushButton_10.clicked.connect(self.clear_list) # change button name
-        self.stop_experiment_button.clicked.connect(self.terminate_sequence) # change button name
-        self.button_transfer_to_labbook.clicked.connect(self.transfer_image_gif)
-
-        self.check_connection.setText("Warning: \n \nPlease select the PGF, Analysis and Protocol File and set the Batch communication Path!")
-        
-        self.set_solutions()
-
-
+    
     def set_solutions(self):
         """ set solutions that you can use for the experiment"""
         extracellular_solutions = ["ECS Standard","ECS Standard new","Sodium ECS", "Potassium ECS","Calcium ECS","aCSF","NMDG Solution", "low-calcium ECS"]
@@ -296,7 +304,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         try:
             self.start_cam = QTimer() # create a timer
             self.start_cam.timeout.connect(self.start_camera) # connect the timer to the start camera function
-            self.start_cam.start(222) # start the timer with a time interval of 222 ms
+            self.start_cam.start(33) # start the timer with a time interval of 222 ms
             self.logger.info("Qthread for Camera caption is running")
         except Exception as e:
             self.logger.error(f"Here is the Error description of the camera running task: {e}")
@@ -305,27 +313,53 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def start_camera(self):
         """ grab the current picture one by one with 50 FPS """
         camera_image = self.camera.grab_video() # grab video retrieved np.array image
+        self._image_count += 1 # increment the image count
         imgs = Image.fromarray(camera_image) # conversion
-        image = imgs.resize((300,451), Image.ANTIALIAS) # resizing to be of appropriate size for the window
+        image = imgs.resize((451,300), Image.ANTIALIAS) # resizing to be of appropriate size for the window
         imgqt = ImageQt.ImageQt(image) # convert to qt image
         self.camera_image_recording = QPixmap.fromImage(imgqt) # convert to qt pixmap
         self.scence_trial.clear()   # clear the scene
         self.scence_trial.addPixmap(self.camera_image_recording)
+        
+        if self._image_count % 33 == 0:
+            self.draw_video(self.camera_image_recording)
 
     def stop_camera(self):
         """ Stopping the Qthread for the Camera """
         self.start_cam.stop() # here the camera Qtimer is stopped
-        self.logger("Camera Thread is stopped")
+        self._image_count = 0
+        self.camera_stopped_transfer_video()
+        #self.logger("Camera Thread is stopped")
 
     def show_snapshot(self):
         """ does transfer the current snapshot to the galery view """
         image_list = self.check_list_lenght(self.image_stack) # self.image_stack is der stack der images generiert
         image_list.insert(0,self.camera_image_recording) # neues image wird an stelle 1 gepusht
-        self.snapshot_scence = QGraphicsScene(self)
+        self.snapshot_scence = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
         self.Taken_Snapshot.setScene(self.snapshot_scence) # set the scene to the taken snapshot
+         # set the scene to the online analysis
         self.snapshot_scence.addPixmap(self.camera_image_recording) # add the image to the scene
+        self.online_analysis.draw_scene(self.camera_image_recording)
         self.draw_snapshots_on_galery(image_list) # draw into the galery
 
+
+    def draw_video(self, imgs):
+        """ draw the video in the live feed 
+        args:
+            imgs type: numpy array  of the current image
+        """
+        try:
+            self.image_list.append(imgs)
+        except Exception as e:
+            print(e)
+        
+    
+    def camera_stopped_transfer_video(self):
+        """ transfer the video to the galery view """
+        print("transfer video")
+        self.online_analysis.video_mat = self.image_list
+        print(len(self.online_analysis.video_mat))
+        self.image_list = []
 
     def check_list_lenght(self, image_liste):
         """Here we check the length of the Image Stack to push them out after 5 Images
@@ -352,22 +386,15 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.camera_horizontal.itemAt(i).widget().setParent(None)
         if len(self.image_stack) > 0: #looping through the image stack
             for i,t in enumerate(image_list):
-                label = QLabel() # we set a label in the layout which should then be filled with the pixmap
-                label.setPixmap(t)
-                label.resize(100,100)
-                self.camera_horizontal.addWidget(label) # add to the layout 
 
-
-    def transfer_image_gif(self):
-        """ Transfer the current image to the gif view """
-        try: 
-            experiment_image = QGraphicsScene(self)
-            self.online.image_experiment.setScene(self.snapshot_scence)
-            experiment_image.addPixmap(self.trial_figure)
-        except Exception as e:
-            self.logger.error("Qgrpahics not added check")
-             # draw into the galery
-
+                label = QPushButton() # we set a label in the layout which should then be filled with the pixmap
+                label.setStyleSheet("height: 150px;background-color: rgba(0,0,0,0); border:1px solid #fff5cc;")
+                label.clicked.connect(partial(self.online_analysis.draw_scene,t)) # connect the label to the draw scene function
+                label.setIcon(QIcon(t)) # we set the pixmap to the label
+                label.setIconSize(QSize(200,280)) # we set the size of the pixmap
+                label.setFixedWidth(200)
+                
+                self.camera_horizontal.addWidget(label, alignment=Qt.AlignCenter) # add to the layout 
 
     def get_commands_from_textinput(self):
         """ retrieves the command send to the patchmaster and the response from the Batch.out file """

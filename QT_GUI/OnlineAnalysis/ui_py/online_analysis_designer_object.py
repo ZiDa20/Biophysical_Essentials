@@ -19,7 +19,7 @@ class Ui_Online_Analysis(object):
     def setupUi(self, Online_Analysis):
         if not Online_Analysis.objectName():
             Online_Analysis.setObjectName(u"Online_Analysis")
-        Online_Analysis.resize(1679, 1106)
+        Online_Analysis.resize(1106, 887)
         self.gridLayout_5 = QGridLayout(Online_Analysis)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.online_analysis = QTabWidget(Online_Analysis)
@@ -54,7 +54,7 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_2.addLayout(self.gridLayout_12, 2, 1, 1, 1)
 
-        self.verticalSpacer_7 = QSpacerItem(20, 330, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_7 = QSpacerItem(20, 200, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
         self.gridLayout_2.addItem(self.verticalSpacer_7, 3, 1, 1, 1)
 
@@ -84,7 +84,7 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout.addLayout(self.verticalLayout_6, 0, 0, 1, 1)
 
-        self.verticalSpacer_10 = QSpacerItem(5, 400, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_10 = QSpacerItem(5, 300, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
         self.gridLayout.addItem(self.verticalSpacer_10, 1, 0, 1, 1)
 
@@ -230,7 +230,7 @@ class Ui_Online_Analysis(object):
         self.groupBox_4.setObjectName(u"groupBox_4")
         sizePolicy.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
         self.groupBox_4.setSizePolicy(sizePolicy)
-        self.groupBox_4.setMinimumSize(QSize(0, 0))
+        self.groupBox_4.setMinimumSize(QSize(300, 0))
         self.groupBox_4.setMaximumSize(QSize(448, 16777215))
         self.gridLayout_18 = QGridLayout(self.groupBox_4)
         self.gridLayout_18.setObjectName(u"gridLayout_18")
@@ -245,7 +245,7 @@ class Ui_Online_Analysis(object):
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.tree_tab_widget.sizePolicy().hasHeightForWidth())
         self.tree_tab_widget.setSizePolicy(sizePolicy3)
-        self.tree_tab_widget.setMinimumSize(QSize(0, 600))
+        self.tree_tab_widget.setMinimumSize(QSize(300, 600))
         self.tree_tab_widget.setStyleSheet(u"")
         self.selected_tree_view = QWidget()
         self.selected_tree_view.setObjectName(u"selected_tree_view")
@@ -265,6 +265,7 @@ class Ui_Online_Analysis(object):
         self.treeWidget_2.setObjectName(u"treeWidget_2")
         sizePolicy.setHeightForWidth(self.treeWidget_2.sizePolicy().hasHeightForWidth())
         self.treeWidget_2.setSizePolicy(sizePolicy)
+        self.treeWidget_2.setMinimumSize(QSize(300, 0))
         self.treeWidget_2.setStyleSheet(u"")
 
         self.gridLayout_4.addWidget(self.treeWidget_2, 0, 0, 1, 1)
@@ -288,14 +289,11 @@ class Ui_Online_Analysis(object):
         self.labbook_window.setObjectName(u"labbook_window")
         self.gridLayout_20 = QGridLayout(self.labbook_window)
         self.gridLayout_20.setObjectName(u"gridLayout_20")
-        self.verticalSpacer_4 = QSpacerItem(20, 30, QSizePolicy.Minimum, QSizePolicy.Fixed)
-
-        self.gridLayout_20.addItem(self.verticalSpacer_4, 0, 2, 1, 1)
-
         self.groupBox_5 = QGroupBox(self.labbook_window)
         self.groupBox_5.setObjectName(u"groupBox_5")
         sizePolicy.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
         self.groupBox_5.setSizePolicy(sizePolicy)
+        self.groupBox_5.setMinimumSize(QSize(300, 0))
         self.groupBox_5.setMaximumSize(QSize(448, 16777215))
         self.gridLayout_17 = QGridLayout(self.groupBox_5)
         self.gridLayout_17.setObjectName(u"gridLayout_17")
@@ -317,9 +315,11 @@ class Ui_Online_Analysis(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.groupBox = GroupBoxSize(self.labbook_window)
         self.groupBox.setObjectName(u"groupBox")
+        sizePolicy3.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy3)
         self.gridLayout_7 = QGridLayout(self.groupBox)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.tableWidget = QTableView(self.groupBox)
+        self.tableWidget = QTableWidget(self.groupBox)
         self.tableWidget.setObjectName(u"tableWidget")
         sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         sizePolicy4.setHorizontalStretch(0)
@@ -334,19 +334,25 @@ class Ui_Online_Analysis(object):
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.graphicsView = QGraphicsView(self.groupBox)
         self.graphicsView.setObjectName(u"graphicsView")
-        self.graphicsView.setMinimumSize(QSize(450, 0))
+        self.graphicsView.setMinimumSize(QSize(250, 0))
+        self.graphicsView.setMaximumSize(QSize(16777215, 300))
 
         self.gridLayout_9.addWidget(self.graphicsView, 1, 1, 1, 1)
 
         self.label_9 = QLabel(self.groupBox)
         self.label_9.setObjectName(u"label_9")
-        sizePolicy.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
-        self.label_9.setSizePolicy(sizePolicy)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
+        self.label_9.setSizePolicy(sizePolicy5)
 
         self.gridLayout_9.addWidget(self.label_9, 0, 0, 1, 1)
 
         self.label_13 = QLabel(self.groupBox)
         self.label_13.setObjectName(u"label_13")
+        sizePolicy5.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
+        self.label_13.setSizePolicy(sizePolicy5)
 
         self.gridLayout_9.addWidget(self.label_13, 0, 1, 1, 1)
 
@@ -354,7 +360,8 @@ class Ui_Online_Analysis(object):
         self.image_experiment.setObjectName(u"image_experiment")
         sizePolicy3.setHeightForWidth(self.image_experiment.sizePolicy().hasHeightForWidth())
         self.image_experiment.setSizePolicy(sizePolicy3)
-        self.image_experiment.setMinimumSize(QSize(450, 0))
+        self.image_experiment.setMinimumSize(QSize(250, 0))
+        self.image_experiment.setMaximumSize(QSize(16777215, 300))
         self.image_experiment.setLayoutDirection(Qt.LeftToRight)
 
         self.gridLayout_9.addWidget(self.image_experiment, 1, 0, 1, 1)
@@ -383,9 +390,6 @@ class Ui_Online_Analysis(object):
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.add_metadata_button = QPushButton(self.groupBox_3)
         self.add_metadata_button.setObjectName(u"add_metadata_button")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.add_metadata_button.sizePolicy().hasHeightForWidth())
         self.add_metadata_button.setSizePolicy(sizePolicy5)
         self.add_metadata_button.setMinimumSize(QSize(150, 0))
@@ -479,7 +483,7 @@ class Ui_Online_Analysis(object):
 
         self.online_analysis.setCurrentIndex(0)
         self.online_analysis_tabs.setCurrentIndex(0)
-        self.tree_tab_widget.setCurrentIndex(1)
+        self.tree_tab_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Online_Analysis)
@@ -537,4 +541,3 @@ class Ui_Online_Analysis(object):
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window), QCoreApplication.translate("Online_Analysis", u"Labbook", None))
         self.label_8.setText(QCoreApplication.translate("Online_Analysis", u"Online Analysis ", None))
     # retranslateUi
-
