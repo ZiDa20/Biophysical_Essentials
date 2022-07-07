@@ -27,6 +27,10 @@ from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2Q
 from matplotlib.figure import Figure
 from tab_offline_result import OfflineResultTab
 
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+
 print(plt.rcParams.keys())
 # determine the facecolors of the plot
 # we should use this to modify the plots when chanign modes
@@ -56,7 +60,7 @@ plt.rcParams.update({
 
 class OfflineAnalysisResultVisualizer():
 
-    def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
+    def __init__(self, visualization_tab_widget: QTreeWidget, database: DuckDBDatabaseHandler):
         # pyqt tab widget object
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
@@ -109,19 +113,25 @@ class OfflineAnalysisResultVisualizer():
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
-        print(list_of_series)
+        print(series_name)
 
-
+    
+        #self.visualization_tab_widget.currentItem().addChild()
         for series in list_of_series:
+            print(series)
             # create visualization for each specific series in specific tabs
             # print("running analysis")
-            self.analysis_function_specific_visualization(series[0],analysis_id)
+            if series[0] == series_name:
+                offline_tab = self.analysis_function_specific_visualization(series[0],analysis_id)
+                return offline_tab
+            else:
+                print("no analysis function selected")
+            #tabs.append(offline_tab)
 
-        if self.visualization_tab_widget.tabText(0)=='Tab 1':
-            self.visualization_tab_widget.removeTab(0)
+        
+    
 
-        if series_name:
-            self.visualization_tab_widget.setCurrentIndex(list_of_series.index((series_name,)))
+        
 
     def analysis_function_specific_visualization(self,series,analysis_id):
         """
@@ -132,9 +142,6 @@ class OfflineAnalysisResultVisualizer():
         q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
         list_of_analysis=self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
 
-        print("series= " + series)
-        print("list of analysis")
-        print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
 
         offline_tab = OfflineResultTab()
@@ -154,11 +161,9 @@ class OfflineAnalysisResultVisualizer():
 
 
             if analysis_name in self.series_wise_function_list:
-                print("Analyzing")
                 print(analysis_name)
                 self.function_plot_type = "series_wise"
             else:
-                print("Analyzing")
                 print(analysis_name)
                 self.function_plot_type = "sweep_wise"
 
@@ -174,7 +179,16 @@ class OfflineAnalysisResultVisualizer():
 
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
 
+        print(self.visualization_tab_widget.currentItem())
 
+        for i in range(self.visualization_tab_widget.currentItem().childCount()):
+            if i == 0:
+                print(self.visualization_tab_widget.currentItem())
+                print(self.visualization_tab_widget.currentItem().child(i).setData(3, Qt.UserRole, 0))
+    
+        return offline_tab
+        #for i in self.visualization_tab_widget
+        """
         existing_tab_names = []
         for existing_tab in range(self.visualization_tab_widget.count()):
             existing_tab_names.append( self.visualization_tab_widget.tabText(existing_tab) )
@@ -188,6 +202,8 @@ class OfflineAnalysisResultVisualizer():
         else:
             # if the tab was not created it will be appended at the end
             self.visualization_tab_widget.addTab(offline_tab,series)
+
+        """
             
 
 

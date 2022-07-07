@@ -15,28 +15,18 @@ from specififc_analysis_tab import *
 from groupbox_resizing_class import *
 
 class Ui_Offline_Analysis(object):
-    def setupUi(self, Offline_Analysis):
-        if not Offline_Analysis.objectName():
-            Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(1292, 986)
+ 
+    def setupUi(self, Form):
+        if not Form.objectName():
+            Form.setObjectName(u"Form")
+        Form.resize(1289, 679)
+        self.gridLayout = QGridLayout(Form)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.offline_analysis_widgets = QStackedWidget(Form)
+        self.offline_analysis_widgets.setObjectName(u"offline_analysis_widgets")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(Offline_Analysis.sizePolicy().hasHeightForWidth())
-        Offline_Analysis.setSizePolicy(sizePolicy)
-        self.gridLayout = QGridLayout(Offline_Analysis)
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.Offline_Analysis_Notebook = QTabWidget(Offline_Analysis)
-        self.Offline_Analysis_Notebook.setObjectName(u"Offline_Analysis_Notebook")
-        self.Offline_Analysis_Notebook.setTabShape(QTabWidget.Rounded)
-        self.Start_Analysis = QWidget()
-        self.Start_Analysis.setObjectName(u"Start_Analysis")
-        sizePolicy.setHeightForWidth(self.Start_Analysis.sizePolicy().hasHeightForWidth())
-        self.Start_Analysis.setSizePolicy(sizePolicy)
-        self.gridLayout_3 = QGridLayout(self.Start_Analysis)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.offline_analysis_widgets = QStackedWidget(self.Start_Analysis)
-        self.offline_analysis_widgets.setObjectName(u"offline_analysis_widgets")
         sizePolicy.setHeightForWidth(self.offline_analysis_widgets.sizePolicy().hasHeightForWidth())
         self.offline_analysis_widgets.setSizePolicy(sizePolicy)
         font = QFont()
@@ -415,7 +405,8 @@ class Ui_Offline_Analysis(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.select_directory_button = QPushButton(self.groupBox_2)
         self.select_directory_button.setObjectName(u"select_directory_button")
-        self.select_directory_button.setGeometry(QRect(10, 30, 111, 41))
+        self.select_directory_button.setGeometry(QRect(10, 30, 150, 41))
+        self.select_directory_button.setMinimumSize(QSize(150, 0))
         self.selected_directory = QLabel(self.groupBox_2)
         self.selected_directory.setObjectName(u"selected_directory")
         self.selected_directory.setGeometry(QRect(160, 30, 221, 42))
@@ -499,85 +490,100 @@ class Ui_Offline_Analysis(object):
         self.analysis_specific_notebook.setObjectName(u"analysis_specific_notebook")
         self.gridLayout_6 = QGridLayout(self.analysis_specific_notebook)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
-        self.tabWidget = QTabWidget(self.analysis_specific_notebook)
-        self.tabWidget.setObjectName(u"tabWidget")
-        self.template_tab = SpecificAnalysisTab()
-        self.template_tab.setObjectName(u"template_tab")
-        self.tabWidget.addTab(self.template_tab, "")
+        self.gridLayout_3 = QGridLayout()
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.SeriesItems = QTreeWidget(self.analysis_specific_notebook)
+        __qtreewidgetitem = QTreeWidgetItem()
+        __qtreewidgetitem.setText(0, u"1");
+        self.SeriesItems.setHeaderItem(__qtreewidgetitem)
+        self.SeriesItems.setObjectName(u"SeriesItems")
+        self.SeriesItems.setMinimumSize(QSize(200, 0))
+        self.SeriesItems.setMaximumSize(QSize(400, 16777215))
 
-        self.gridLayout_6.addWidget(self.tabWidget, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.SeriesItems, 1, 0, 1, 1)
+
+        self.BackButtonGrid = QHBoxLayout()
+        self.BackButtonGrid.setObjectName(u"BackButtonGrid")
+        self.series_selection = QPushButton(self.analysis_specific_notebook)
+        self.series_selection.setObjectName(u"series_selection")
+
+        self.BackButtonGrid.addWidget(self.series_selection)
+
+        self.new_analysis = QPushButton(self.analysis_specific_notebook)
+        self.new_analysis.setObjectName(u"new_analysis")
+
+        self.BackButtonGrid.addWidget(self.new_analysis)
+
+
+        self.gridLayout_3.addLayout(self.BackButtonGrid, 0, 0, 1, 1)
+
+        self.PlotItem = QWidget(self.analysis_specific_notebook)
+        self.PlotItem.setObjectName(u"PlotItem")
+        self.gridLayout_11 = QGridLayout(self.PlotItem)
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+        self.WidgetAnalysis = QGridLayout()
+        self.WidgetAnalysis.setObjectName(u"WidgetAnalysis")
+
+        self.gridLayout_11.addLayout(self.WidgetAnalysis, 0, 0, 1, 1)
+
+
+        self.gridLayout_3.addWidget(self.PlotItem, 1, 1, 1, 1)
+
+
+        self.gridLayout_6.addLayout(self.gridLayout_3, 0, 0, 1, 1)
 
         self.offline_analysis_widgets.addWidget(self.analysis_specific_notebook)
 
-        self.gridLayout_3.addWidget(self.offline_analysis_widgets, 1, 0, 1, 1)
-
-        self.Offline_Analysis_Notebook.addTab(self.Start_Analysis, "")
-        self.visualization = QWidget()
-        self.visualization.setObjectName(u"visualization")
-        self.gridLayout_10 = QGridLayout(self.visualization)
-        self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.visualization_tab_widget = QTabWidget(self.visualization)
-        self.visualization_tab_widget.setObjectName(u"visualization_tab_widget")
-        self.template_tab_2 = QWidget()
-        self.template_tab_2.setObjectName(u"template_tab_2")
-        self.visualization_tab_widget.addTab(self.template_tab_2, "")
-
-        self.gridLayout_10.addWidget(self.visualization_tab_widget, 0, 0, 1, 1)
-
-        self.Offline_Analysis_Notebook.addTab(self.visualization, "")
-
-        self.gridLayout.addWidget(self.Offline_Analysis_Notebook, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.offline_analysis_widgets, 0, 0, 1, 1)
 
 
-        self.retranslateUi(Offline_Analysis)
+        self.retranslateUi(Form)
 
-        self.Offline_Analysis_Notebook.setCurrentIndex(0)
-        self.offline_analysis_widgets.setCurrentIndex(1)
+        self.offline_analysis_widgets.setCurrentIndex(2)
         self.directory_tree_widget.setCurrentIndex(1)
 
 
-        QMetaObject.connectSlotsByName(Offline_Analysis)
+        QMetaObject.connectSlotsByName(Form)
     # setupUi
 
-    def retranslateUi(self, Offline_Analysis):
-        Offline_Analysis.setWindowTitle(QCoreApplication.translate("Offline_Analysis", u"Form", None))
-        self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Offline Analysis Options", None))
-        self.blank_analysis_button.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Analysis", None))
-        self.pushButton_8.setText(QCoreApplication.translate("Offline_Analysis", u"Analysis from \n"
+    def retranslateUi(self, Form):
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.groupBox.setTitle(QCoreApplication.translate("Form", u"Offline Analysis Options", None))
+        self.blank_analysis_button.setText(QCoreApplication.translate("Form", u"Blank Analysis", None))
+        self.pushButton_8.setText(QCoreApplication.translate("Form", u"Analysis from \n"
 " previous Analysis", None))
-        self.open_analysis_results_button.setText(QCoreApplication.translate("Offline_Analysis", u"Open Analysis Results", None))
-        self.label_3.setText(QCoreApplication.translate("Offline_Analysis", u"Start a new analysis from the scratch !", None))
-        self.label_4.setText(QCoreApplication.translate("Offline_Analysis", u"Use an existing analysis from the database \n"
+        self.open_analysis_results_button.setText(QCoreApplication.translate("Form", u"Open Analysis Results", None))
+        self.label_3.setText(QCoreApplication.translate("Form", u"Start a new analysis from the scratch !", None))
+        self.label_4.setText(QCoreApplication.translate("Form", u"Use an existing analysis from the database \n"
 "and modify paramters for a new analysis !", None))
-        self.label_5.setText(QCoreApplication.translate("Offline_Analysis", u"Opens the visualization of results of \n"
+        self.label_5.setText(QCoreApplication.translate("Form", u"Opens the visualization of results of \n"
 "already succesfully performed analysis", None))
-        self.label_2.setText(QCoreApplication.translate("Offline_Analysis", u"SELECT A SPECIFIC OFFLINE ANALYSIS", None))
-        self.compare_series.setText(QCoreApplication.translate("Offline_Analysis", u"SELECT SERIES TO BE ANALYZED", None))
-        self.label.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Offline Analysis", None))
-        self.go_back_button.setText(QCoreApplication.translate("Offline_Analysis", u"Go Back", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Location", None))
-        self.select_directory_button.setText(QCoreApplication.translate("Offline_Analysis", u"Load Directory", None))
-        self.selected_directory.setText(QCoreApplication.translate("Offline_Analysis", u"No Path Selected", None))
-        self.load_from_database.setText(QCoreApplication.translate("Offline_Analysis", u"Load Database", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Experiment Hierarchie", None))
+        self.label_2.setText(QCoreApplication.translate("Form", u"SELECT A SPECIFIC OFFLINE ANALYSIS", None))
+        self.compare_series.setText(QCoreApplication.translate("Form", u"SELECT SERIES TO BE ANALYZED", None))
+        self.label.setText(QCoreApplication.translate("Form", u"Blank Offline Analysis", None))
+        self.go_back_button.setText(QCoreApplication.translate("Form", u"Go Back", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("Form", u"Experiment Location", None))
+        self.select_directory_button.setText(QCoreApplication.translate("Form", u"Load Directory", None))
+        self.selected_directory.setText(QCoreApplication.translate("Form", u"No Path Selected", None))
+        self.load_from_database.setText(QCoreApplication.translate("Form", u"Load Database", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("Form", u"Experiment Hierarchie", None))
         ___qtreewidgetitem = self.experiments_tree_view.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Offline_Analysis", u"Discard", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Offline_Analysis", u"Group", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Offline_Analysis", u"Sel", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Offline_Analysis", u"Object", None));
-        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Offline_Analysis", u"Selected", None))
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Form", u"Discard", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Group", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Sel", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Object", None));
+        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Form", u"Selected", None))
         ___qtreewidgetitem1 = self.outfiltered_tree_view.headerItem()
-        ___qtreewidgetitem1.setText(3, QCoreApplication.translate("Offline_Analysis", u"Reinsert", None));
-        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Offline_Analysis", u"Group", None));
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Offline_Analysis", u"Sel", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Offline_Analysis", u"Object", None));
-        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarde_tree_view), QCoreApplication.translate("Offline_Analysis", u"Discarded", None))
-        self.add_filter_group_box.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Selection", None))
-        self.add_filter_button.setText(QCoreApplication.translate("Offline_Analysis", u"Add Filter", None))
-        self.label_7.setText(QCoreApplication.translate("Offline_Analysis", u"No Filter Selected", None))
-        self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.template_tab), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
-        self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.Start_Analysis), QCoreApplication.translate("Offline_Analysis", u"Start Analysis", None))
-        self.visualization_tab_widget.setTabText(self.visualization_tab_widget.indexOf(self.template_tab_2), QCoreApplication.translate("Offline_Analysis", u"Tab 1", None))
-        self.Offline_Analysis_Notebook.setTabText(self.Offline_Analysis_Notebook.indexOf(self.visualization), QCoreApplication.translate("Offline_Analysis", u"Visualization", None))
+        ___qtreewidgetitem1.setText(3, QCoreApplication.translate("Form", u"Reinsert", None));
+        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Form", u"Group", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Form", u"Sel", None));
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Form", u"Object", None));
+        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarde_tree_view), QCoreApplication.translate("Form", u"Discarded", None))
+        self.add_filter_group_box.setTitle(QCoreApplication.translate("Form", u"Filter Selection", None))
+        self.add_filter_button.setText(QCoreApplication.translate("Form", u"Add Filter", None))
+        self.label_7.setText(QCoreApplication.translate("Form", u"No Filter Selected", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("Form", u"Data View", None))
+        self.series_selection.setText(QCoreApplication.translate("Form", u"Series Selection", None))
+        self.new_analysis.setText(QCoreApplication.translate("Form", u"New Analysis", None))
     # retranslateUi
+
