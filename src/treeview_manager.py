@@ -313,6 +313,8 @@ class TreeViewManager():
                 database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                           "pgf_table_" + experiment_name + "_" + node_type,
                                                           experiment_name, node_type)
+
+
                 # update the series counter
                 data_access_array[1]+=1
                 # reset the sweep counter

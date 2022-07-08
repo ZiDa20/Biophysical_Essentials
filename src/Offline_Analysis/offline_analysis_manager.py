@@ -61,22 +61,39 @@ class OfflineManager():
         return mapping.get(analysis_function_name,lambda: MaxCurrent)
 
     def execute_single_series_analysis_II(self,series_name):
+        """
+        Performs all selected analysis calculations for a specific series name: e.g. all analysis functions
+        (min_current, mean_current, max_current) for a series called 'IV'
+        :param series_name:
+        :return:
+        """
 
         # read analysis functions from database
-        analysis_functions = self.database.get_series_specific_analysis_funtions(series_name)
+        analysis_function_tuple = self.database.get_series_specific_analysis_functions(series_name)
+        print(analysis_function_tuple)
 
-        for fn in analysis_functions:
-            # get the correct class object
-            class_name = self.get_registered_analysis_class(fn)
-            #class_object = class_name()
+        for fn in analysis_function_tuple:
+
+            # get the correct class analysis object
+            specific_analysis_class = self.get_registered_analysis_class(fn[0])
+
+            cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(fn[1], series_name)
+
+            # set up the series where the analysis should be applied and the database where the results will be stored
+            specific_analysis_class.series_name = series_name
+            specific_analysis_class.database = self.database
+            specific_analysis_class.lower_bound = cursor_bounds[0][0]
+            specific_analysis_class.upper_bound = cursor_bounds[0][1]
+            specific_analysis_class.analysis_function_id = fn[1]
 
             # run the calculation which will be also written to the database
-            class_name.calculate_results()
+            specific_analysis_class.calculate_results()
 
-            # read the data from the database and create the specific result visualization
-            #AnalysisClass().visualize_results()
+            #read the data from the database and create the specific result visualization
+                # therefore add
+            specific_analysis_class().visualize_results()
 
-        return True
+        return False #True
 
     def execute_single_series_analysis(self,series_name):
         """

@@ -8,10 +8,10 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
         self.function_name = 'max_current'
 
     @classmethod
-    def specific_calculation_II(self):
-        print ("calculating max")
-        #trace_max = np.max(sliced_trace)
-        #return trace_max
+    def specific_calculation(self):
+
+        max_val = np.max(self.sliced_volt)
+        return max_val
 
     @classmethod
     def calculate_results(self):
