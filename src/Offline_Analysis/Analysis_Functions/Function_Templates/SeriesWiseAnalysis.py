@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
 
-class SweepWiseAnalysisTemplate(object):
+class SeriesWiseAnalysisTemplate(object):
 	"""
-	Parent class to handle all analysis general processing to analyze each single sweep of a series:
-
+	Parent class to handle all analysis general processing to analyze complete series:
 	"""
 	def __init__(self):
 
@@ -16,7 +15,7 @@ class SweepWiseAnalysisTemplate(object):
 		self.voltage = None
 
 		self.database = None  # database
-		self.plot_type_options = ["No Split", "Split by Meta Data"]
+		self.plot_type_options = ["Boxplot"]
 
 		self.lower_bound = None
 		self.upper_bound = None
@@ -28,50 +27,7 @@ class SweepWiseAnalysisTemplate(object):
 		self.database = None
 		self.series_name = None
 
-	@property
-	def lower_bounds(self):
-		""" get the lower and upper bounds """
-		print("The lower bound: ")
-		return self._lower_bounds
 
-	@property
-	def upper_bounds(self):
-		print("The upper bound: ")
-		return self._upper_bounds
-
-	@lower_bounds.setter
-	def lower_bounds(self, lower_bound):
-		""" set the lower and upper bound """
-		if type(lower_bound) in [int, float]:
-			self._lower_bounds = lower_bound
-		else:
-			raise TypeError("Wrong Input please specificy floats")
-
-	@upper_bounds.setter
-	def upper_bounds(self, upper_bound):
-		""" set the lower and upper bound """
-		if type(upper_bound) in [int, float]:
-			self._upper_bounds = upper_bound
-		else:
-			raise TypeError("Wrong Input please specificy floats")
-
-	@classmethod
-	def construct_trace(self):
-		""" construct the trace """
-		try:
-			self.trace = np.vstack((self.time, self.data)).T
-		except:
-			raise ValueError("Please use the same dimension, only 1-dimensional arrays should be used")
-
-	@classmethod
-	def slice_trace(self):
-		""" slice the trace based on the incoming upper and lower bounds """
-		if all([self.lower_bound, self.upper_bound]):
-			self.sliced_trace = self.trace[
-				((self.trace[:, 0] > self.lower_bound) & (self.trace[:, 0] < self.upper_bound))]
-			self.sliced_volt = self.sliced_trace[:, 1]
-		else:
-			raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
 
 	def show_configuration_options(self):
 		print("not implemented")
@@ -87,6 +43,8 @@ class SweepWiseAnalysisTemplate(object):
 		# @todo get this from the configuration window
 		series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
 
+
+		# @todo Discuss - is that the case ?
 		try:
 			if series_specific_recording_mode == "Voltage Clamp":
 				cslow_normalization = 1
@@ -129,10 +87,6 @@ class SweepWiseAnalysisTemplate(object):
 				if series_specific_recording_mode != "Voltage Clamp":
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
-
-				# slice trace according to coursor bounds
-				self.construct_trace()
-				self.slice_trace()
 
 				res = self.specific_calculation()
 

@@ -1,5 +1,6 @@
 
 from Offline_Analysis.Analysis_Functions.MaxCurrent import *
+from Offline_Analysis.Analysis_Functions.ActionPotentialFitting import *
 
 class AnalysisFunctionRegistration():
     """
@@ -10,6 +11,6 @@ class AnalysisFunctionRegistration():
     def get_registered_analysis_class(cls,analysis_function_name):
         mapping = {
             "max_current":MaxCurrent,
-            "min_current":MaxCurrent
+            "Action Potential Fitting" : ActionPotentialFitting
         }
         return mapping.get(analysis_function_name,lambda: MaxCurrent)

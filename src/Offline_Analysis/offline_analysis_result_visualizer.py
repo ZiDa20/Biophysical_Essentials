@@ -34,8 +34,8 @@ class OfflineAnalysisResultVisualizer():
         # pyqt tab widget object
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
-        self.split_data_functions =[ "No Split", "Split By Meta Data"]
-        self.plot_type = ["Overlay All", "Line Plot Means", "Boxplot" ]
+        self.split_data_functions = [] # [ "No Split", "Split By Meta Data"]
+        self.plot_type = [] # ["Overlay All", "Line Plot Means", "Boxplot" ]
         self.plot_colors = ['b', 'g','r','c','m','y','k','w']
         self.result_directory = ""
         self.default_colors = ['k','b','r','g','c']
@@ -146,7 +146,7 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
 
-            self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
+            self.single_analysis_visualization(custom_plot_widget)
 
             # widgets per row = 2
 
@@ -173,7 +173,7 @@ class OfflineAnalysisResultVisualizer():
             # if the tab was not created it will be appended at the end
             self.visualization_tab_widget.addTab(all_plots,series)
 
-    def single_analysis_visualization(self,parent_widget,analysis_id,analysis_function_id,meta_data_list = None):
+    def single_analysis_visualization(self,parent_widget,plot_type=None):
         """
         for each specific analysis function -> create plot from available results
         :param parent_widget: widget where to put the plot widget into
@@ -182,7 +182,8 @@ class OfflineAnalysisResultVisualizer():
         :return:
         """
 
-        canvas = self.handle_plot_widget_settings(parent_widget)
+        analysis_id = parent_widget.analysis_id
+        analysis_function_id =  parent_widget.analysis_function_id
 
         print("calling result list for")
         print(analysis_id)
@@ -191,19 +192,16 @@ class OfflineAnalysisResultVisualizer():
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
 
-        class_object.visualize_results(parent_widget, canvas, "Split by Meta Data")
+        canvas = self.handle_plot_widget_settings_II(parent_widget, class_object().plot_type_options)
+
+        if plot_type is None:
+            class_object.visualize_results(parent_widget, canvas, class_object().plot_type_options[0])
+        else:
+            class_object.visualize_results(parent_widget, canvas, plot_type)
+
         #class_object.visualize_results(parent_widget,canvas,"No Split")
 
-        # here should the series specific plotting start
-        """
-        if meta_data_list:
-            self.plot_meta_data_wise(canvas, result_list, number_of_series,meta_data_list)
-        else:
-            series_name = self.database_handler.get_analysis_function_name_from_id(analysis_function_id)
-            self.simple_plot(parent_widget, canvas, result_list, number_of_series,series_name)
-        """
-
-
+    # deprecated dz 11.07.2022
     def handle_plot_widget_settings(self,parent_widget:ResultPlotVisualizer):
         """
         Handle the setting of the plot widget, which is inside a custom made widget called parent widget.
@@ -222,18 +220,71 @@ class OfflineAnalysisResultVisualizer():
             #parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
 
             canvas = FigureCanvas(Figure(figsize=(5, 3)))
+
             parent_widget.plot_layout.addWidget(canvas)
 
 
             # add options only once
             try:
                 if parent_widget.split_data_combo_box.currentText() not in self.split_data_functions:
+
                     parent_widget.split_data_combo_box.addItems(self.split_data_functions)
+
                     parent_widget.split_data_combo_box.currentTextChanged.connect(
                         partial(self.split_data_changed, parent_widget))
+
                     parent_widget.plot_type_combo_box.addItems(self.plot_type)
+
                     parent_widget.plot_type_combo_box.currentTextChanged.connect(
                         partial(self.plot_type_changed, parent_widget))
+            except Exception as e:
+                print(str(e))
+
+            '''
+            return analysis_specific_plot_widget
+            '''
+
+            return canvas
+
+        except Exception as e:
+            print(str(e))
+
+
+    def handle_plot_widget_settings_II(self,parent_widget:ResultPlotVisualizer,plot_type_list):
+        """
+        Handle the setting of the plot widget, which is inside a custom made widget called parent widget.
+        The plot needs to be cleared and combo boxes might need to be initialized.
+        :param parent_widget:
+        :return:
+        """
+        try:
+
+            print("overriding existing plot widget")
+            # remove the old plot if there is one already existing
+            parent_widget.plot_layout.takeAt(0)
+
+            # create a new plot and insert it into the already exsiting plot layout
+            #analysis_specific_plot_widget = pg.PlotWidget()
+            #parent_widget.plot_layout.addWidget(analysis_specific_plot_widget)
+
+            canvas = FigureCanvas(Figure(figsize=(5, 3)))
+
+            parent_widget.plot_layout.addWidget(canvas)
+
+
+            # add options only once
+            try:
+                if parent_widget.plot_type_combo_box.currentText() not in plot_type_list:
+                    """
+                    parent_widget.split_data_combo_box.addItems(plot_type_list)
+
+                    parent_widget.split_data_combo_box.currentTextChanged.connect(
+                        partial(self.split_data_changed, parent_widget))
+                    """
+                    parent_widget.plot_type_combo_box.addItems(plot_type_list)
+
+                    parent_widget.plot_type_combo_box.currentTextChanged.connect(
+                        partial(self.plot_type_changed_II, parent_widget))
             except Exception as e:
                 print(str(e))
 
@@ -301,6 +352,14 @@ class OfflineAnalysisResultVisualizer():
                           vert=True,  # vertical box alignment
                           patch_artist=True)
 
+
+    def plot_type_changed_II(self,parent_widget,new_text):
+        """
+        will change the plot type
+        """
+
+        self.single_analysis_visualization(parent_widget,new_text)
+
     def plot_type_changed(self,parent_widget,new_text):
         """
         will be called when the plot type in the related combo box will be changed by the user
@@ -308,6 +367,9 @@ class OfflineAnalysisResultVisualizer():
         :param new_text: text of the combo box e.g. 'overlay all', 'boxplot'
         :return:
         """
+
+
+
         if new_text == self.plot_type[0]: # == overlay all
             self.split_data_changed(parent_widget,parent_widget.split_data_combo_box.currentText())
 
@@ -696,10 +758,10 @@ class OfflineAnalysisResultVisualizer():
         print("split data in " + parent_widget.specific_plot_box.title())
 
         if new_text == "Split By Meta Data":
-            self.plot_data_splitted_by_meta_data(parent_widget)
+            self.plot_data_splitted_by_meta_data(parent_widget, new_text)
 
         if new_text == "No Split":
-            self.single_analysis_visualization(parent_widget,parent_widget.analysis_id,parent_widget.analysis_function_id)
+            self.single_analysis_visualization(parent_widget,new_text)
 
 
     def plot_data_splitted_by_meta_data(self, parent_widget: ResultPlotVisualizer):
