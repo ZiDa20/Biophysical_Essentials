@@ -11,8 +11,8 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
 
-sys.path.append(os.path.dirname(os.getcwd()) + "src/OfflineAnalysis/AnalysisFunctions")
-sys.path.append(os.path.dirname(os.getcwd()) + "src/OfflineAnalysis/AnalysisFunctions/Function_Templates")
+sys.path.append(os.path.dirname(os.getcwd()) + "/src/OfflineAnalysis/AnalysisFunctions")
+sys.path.append(os.path.dirname(os.getcwd()) + "/src/OfflineAnalysis/AnalysisFunctions/Function_Templates")
 
 from PySide6.QtWidgets import QApplication, QMainWindow
 from main_window import Ui_MainWindow
@@ -291,8 +291,8 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ['QT_MAC_WANTS_LAYER'] = '1'
+    #os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    #os.environ['QT_MAC_WANTS_LAYER'] = '1'
     app.setAttribute(Qt.AA_EnableHighDpiScaling)
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()

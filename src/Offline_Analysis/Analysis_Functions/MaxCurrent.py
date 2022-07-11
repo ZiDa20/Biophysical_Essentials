@@ -1,5 +1,5 @@
 
-from src.Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 class MaxCurrent(SweepWiseAnalysisTemplate):
 
@@ -18,5 +18,5 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
         return super(MaxCurrent,self).calculate_results()
 
     @classmethod
-    def visualize_results(self):
-        return super(MaxCurrent,self).visualize_results()
+    def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id):
+        return super(MaxCurrent,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)

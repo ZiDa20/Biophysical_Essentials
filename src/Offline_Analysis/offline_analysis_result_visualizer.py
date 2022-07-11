@@ -25,6 +25,7 @@ from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 
 class OfflineAnalysisResultVisualizer():
@@ -80,6 +81,7 @@ class OfflineAnalysisResultVisualizer():
         # @todo check if the tab already existis:
 
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
+
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
         print(list_of_series)
@@ -87,7 +89,11 @@ class OfflineAnalysisResultVisualizer():
 
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
-            # print("running analysis")
+            print("running analysis")
+
+            print(series[0])
+            print(analysis_id)
+
             self.analysis_function_specific_visualization(series[0],analysis_id)
 
         if self.visualization_tab_widget.tabText(0)=='Tab 1':
@@ -121,10 +127,11 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.analysis_function_id = analysis[0]
 
             analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+            custom_plot_widget.analysis_name = analysis_name
 
             custom_plot_widget.analysis_name = analysis_name
 
-
+            """
             if analysis_name in self.series_wise_function_list:
                 print("Analyzing")
                 print(analysis_name)
@@ -133,10 +140,12 @@ class OfflineAnalysisResultVisualizer():
                 print("Analyzing")
                 print(analysis_name)
                 self.function_plot_type = "sweep_wise"
+            """
 
             custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
+
             self.single_analysis_visualization(custom_plot_widget,analysis_id,analysis[0])
 
             # widgets per row = 2
@@ -164,8 +173,6 @@ class OfflineAnalysisResultVisualizer():
             # if the tab was not created it will be appended at the end
             self.visualization_tab_widget.addTab(all_plots,series)
 
-
-
     def single_analysis_visualization(self,parent_widget,analysis_id,analysis_function_id,meta_data_list = None):
         """
         for each specific analysis function -> create plot from available results
@@ -177,18 +184,24 @@ class OfflineAnalysisResultVisualizer():
 
         canvas = self.handle_plot_widget_settings(parent_widget)
 
-        # self.browser = QtWebEngineWidgets.QWebEngineView(self)
+        print("calling result list for")
+        print(analysis_id)
+        print(analysis_function_id)
 
-        # list of triples [(result_value, sweep_number, sweep_table_name)]
-        result_list = self.get_list_of_results(analysis_id,analysis_function_id)
-        number_of_series = self.get_number_of_series(result_list)
+        # get the class object name for this analysis
+        class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
 
+        class_object.visualize_results(parent_widget, canvas, "Split by Meta Data")
+        #class_object.visualize_results(parent_widget,canvas,"No Split")
+
+        # here should the series specific plotting start
+        """
         if meta_data_list:
             self.plot_meta_data_wise(canvas, result_list, number_of_series,meta_data_list)
         else:
             series_name = self.database_handler.get_analysis_function_name_from_id(analysis_function_id)
             self.simple_plot(parent_widget, canvas, result_list, number_of_series,series_name)
-
+        """
 
 
     def handle_plot_widget_settings(self,parent_widget:ResultPlotVisualizer):

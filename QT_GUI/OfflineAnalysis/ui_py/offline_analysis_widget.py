@@ -636,8 +636,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-
-
         # store analysis parameter in the database
         self.write_function_grid_values_into_database(current_tab)
 
@@ -650,6 +648,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             # plot the calculated results
             current_tab_index = self.tabWidget.currentIndex()
+
             self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.tabWidget.tabText(current_tab_index))
 
 

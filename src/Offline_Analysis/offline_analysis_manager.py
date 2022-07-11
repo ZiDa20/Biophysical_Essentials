@@ -8,9 +8,10 @@ from PySide6.QtCore import *  # type: ignore
 from Worker import Worker
 
 import sys
-
-from src.Offline_Analysis.Analysis_Functions.MaxCurrent import *
-
+import os
+sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis/Analysis_Functions")#/Function_Templates")
+from AnalysisFunctionRegistration import *
+#from src.Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
@@ -54,12 +55,6 @@ class OfflineManager():
     def directory_path(self,val):
         self._directory_path = val
 
-    def get_registered_analysis_class(self,analysis_function_name):
-        mapping = {
-            "max_current":MaxCurrent
-        }
-        return mapping.get(analysis_function_name,lambda: MaxCurrent)
-
     def execute_single_series_analysis_II(self,series_name):
         """
         Performs all selected analysis calculations for a specific series name: e.g. all analysis functions
@@ -75,7 +70,7 @@ class OfflineManager():
         for fn in analysis_function_tuple:
 
             # get the correct class analysis object
-            specific_analysis_class = self.get_registered_analysis_class(fn[0])
+            specific_analysis_class = AnalysisFunctionRegistration().get_registered_analysis_class(fn[0])
 
             cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(fn[1], series_name)
 
@@ -89,11 +84,7 @@ class OfflineManager():
             # run the calculation which will be also written to the database
             specific_analysis_class.calculate_results()
 
-            #read the data from the database and create the specific result visualization
-                # therefore add
-            specific_analysis_class().visualize_results()
-
-        return False #True
+        return True #False #
 
     def execute_single_series_analysis(self,series_name):
         """
