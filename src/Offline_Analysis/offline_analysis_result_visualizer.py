@@ -113,7 +113,7 @@ class OfflineAnalysisResultVisualizer():
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
-        print(series_name)
+        print(f"This is the series list: f{series_name}")
 
     
         #self.visualization_tab_widget.currentItem().addChild()
@@ -130,9 +130,6 @@ class OfflineAnalysisResultVisualizer():
 
         
     
-
-        
-
     def analysis_function_specific_visualization(self,series,analysis_id):
         """
         2) identify the amount of analysis functions (different functions OR different boundaries) per series ( = plots per tab)

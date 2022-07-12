@@ -40,9 +40,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        self.setDockOptions(QMainWindow.AnimatedDocks | QMainWindow.AllowNestedDocks)
         #self.addDockWidget(Qt.BottomDockWidgetArea,self.ui.config.dockWidget)
-        #
+        
 
 
         self.desktop = QApplication.primaryScreen()
@@ -114,7 +113,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        #lobalBlur(self.winId(), Acrylic=True)
+        #GlobalBlur(self.winId(), Acrylic=True)
 
 
     def initialize_database(self):
@@ -135,7 +134,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         Args:
             event (event): is a mouse Press Event
         """        
-        self.oldPos = event.globalPos()
+        self.oldPos = event.globalPosition().toPoint()
         print(self.oldPos)
 
 
@@ -145,13 +144,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         Args:
             event (event): retrieve the mouse move event
         """        
-        if (event.y()) < 60:
+        if (event.pos().y()) < 60:
             #GlobalBlur(self.winId(), Acrylic=False)
-            delta = QPoint (event.globalPos() - self.oldPos)
+            delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
-            self.oldPos = event.globalPos()
+            self.oldPos = event.globalPosition().toPoint()
 
-        if event.globalPos().y() < 12:
+        if event.globalPosition().y() < 12:
             window_size = self.geometry()
             self.maximize(window_size)
 
@@ -298,7 +297,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 if __name__ == "__main__":
     """Main function to start the application"""
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "2"
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
     app.setAttribute(Qt.AA_EnableHighDpiScaling)
     apply_stylesheet(app, theme='hello.xml')

@@ -57,7 +57,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         q = """SELECT * FROM information_schema.tables"""
         tables_names = self.database.execute(q).fetchall()
-        print(tables_names)
 
         self.table_dictionary = {"imon_signal" : [], "pgf_tables":[], "imon_meta": [], "experiment": [], "analysis_table":[]}
         
@@ -81,7 +80,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         # clean the list first to remove unwanted overlap after multiple calls
         for i in reversed(range(self.button_database_series.count())):
-            self.button_database_series.removeItem(i)
+            self.button_database_series.itemAt(i).widget().deleteLater()
 
         # create a button for each table
         for key, value in self.table_dictionary.items():
@@ -130,7 +129,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         row_values = list(table_dict.values())
 
         if self.data_base_content:
-            self.table_layout.removeWidget(self.data_base_content)
+            print("yes there is something in")
+            for i in reversed(range(self.table_layout.count())):
+                self.table_layout.itemAt(i).widget().deleteLater()
 
 
         self.data_base_content = QTableWidget()
