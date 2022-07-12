@@ -6,6 +6,7 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
     def __init__(self):
         SweepWiseAnalysisTemplate.__init__(self)
         self.function_name = 'max_current'
+        self.plot_type_options = ["No Split", "Split by Meta Data"]
 
     @classmethod
     def specific_calculation(self):

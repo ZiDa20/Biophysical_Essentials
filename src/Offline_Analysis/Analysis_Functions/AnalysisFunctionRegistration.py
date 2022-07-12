@@ -12,6 +12,13 @@ class AnalysisFunctionRegistration():
         mapping = {
             "max_current":MaxCurrent,
             "Action Potential Fitting" : ActionPotentialFitting,
-            "AP_Amplitude": ActionPotentialFitting
+            "AP_Amplitude": ActionPotentialFitting,
+            'Threshold_Amplitude': ActionPotentialFitting,
+            'AHP_Amplitude': ActionPotentialFitting,
+            't_AHP': ActionPotentialFitting,
+            'time_to_ahp': ActionPotentialFitting,
+            'delta_ap_threshold': ActionPotentialFitting,
+            'max_first_derivate': ActionPotentialFitting,
+            'min_first_derivate':ActionPotentialFitting
         }
         return mapping.get(analysis_function_name,lambda: MaxCurrent)

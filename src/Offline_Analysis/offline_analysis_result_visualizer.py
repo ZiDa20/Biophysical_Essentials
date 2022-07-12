@@ -195,6 +195,9 @@ class OfflineAnalysisResultVisualizer():
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
 
+        print(parent_widget.analysis_name)
+        print(class_object().function_name)
+
         canvas = self.handle_plot_widget_settings_II(parent_widget, class_object().plot_type_options)
 
         if plot_type is None:

@@ -86,6 +86,9 @@ class OfflineManager():
 
         return True #False #
 
+
+
+    # can be removed ?!
     def execute_single_series_analysis(self,series_name):
         """
         Analysis function for single series types (e.g. Block Pulse, IV, ....) in offline analysis mode .

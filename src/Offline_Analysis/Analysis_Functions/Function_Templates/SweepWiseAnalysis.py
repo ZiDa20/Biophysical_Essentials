@@ -199,6 +199,10 @@ class SweepWiseAnalysisTemplate(object):
 		print("specific result calculation")
 
 	@classmethod
+	def run_late_register_feature(cls):
+		print("not implemented for sweep wise")
+
+	@classmethod
 	def visualize_results(self, parent_widget, canvas, visualization_type):
 
 		result_table_names = self.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
