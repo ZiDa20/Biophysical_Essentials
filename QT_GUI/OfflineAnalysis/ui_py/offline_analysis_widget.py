@@ -174,7 +174,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
             self.experiments_tree_view,
-            self.outfiltered_tree_view, meta_data_option_list)
+            self.outfiltered_tree_view, meta_data_option_list, meta_data_group_assignment_list)
 
         
         self.blank_analysis_page_1_tree_manager.frontend_style = self.frontend_style

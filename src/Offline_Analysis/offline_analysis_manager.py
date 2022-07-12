@@ -208,7 +208,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list):
+    def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list, meta_data_assignment_list=None):
         ''' Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
         the database and avoid copies of already existing data 
@@ -235,6 +235,7 @@ class OfflineManager():
                 meta_data_option_list = ["None"] + meta_data_option_list
 
             self.tree_view_manager.meta_data_option_list = meta_data_option_list
+            self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
 

@@ -463,7 +463,7 @@ class DuckDBDatabaseHandler():
         return self.get_data_from_database(self.database, q)[0][0]
 
 
-    def add_experiment_to_experiment_table(self, name, meta_data_group=None, series_name=None, mapping_id=None):
+    def add_experiment_to_experiment_table(self, name, meta_data_group):
         '''
         Adding a new experiment to the database table 'experiments'. Name-Duplicates (e.g. 211224_01) are NOT allowed-
         the experiment name of the already existing experiment will added to the current offline analysis mapping table.
@@ -477,10 +477,10 @@ class DuckDBDatabaseHandler():
         :return 0: experiment was not added because it already exists, 1 it was added sucessfully, -1 something went wrong
         '''
         self.logger.info("adding experiment %s to_experiment_table", name)
-        q = f'insert into experiments (experiment_name) values (?)'
+        q = f'insert into experiments (experiment_name,meta_data_group) values (?,?)'
 
         try:
-            self.database = self.execute_sql_command(self.database, q, [name])
+            self.database = self.execute_sql_command(self.database, q, [name,meta_data_group])
             self.logger.info("added %s successfully", name)
             return 1
         except Exception as e:

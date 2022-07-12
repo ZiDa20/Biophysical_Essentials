@@ -19,6 +19,8 @@ class AnalysisFunctionRegistration():
             'time_to_ahp': ActionPotentialFitting,
             'delta_ap_threshold': ActionPotentialFitting,
             'max_first_derivate': ActionPotentialFitting,
-            'min_first_derivate':ActionPotentialFitting
+            'min_first_derivate':ActionPotentialFitting,
+            'Rheobase-Detection':RheobaseDetection
+
         }
         return mapping.get(analysis_function_name,lambda: MaxCurrent)

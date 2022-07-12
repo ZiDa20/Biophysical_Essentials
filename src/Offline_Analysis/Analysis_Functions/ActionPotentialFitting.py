@@ -86,28 +86,31 @@ class ActionPotentialFitting(object):
 
                 res = self.specific_calculation()
 
-                # print("result")
-                # print(res)
-                if cslow_normalization:
-                    cslow = self.database.get_cslow_value_for_sweep_table(data_table)
-                    res = res / cslow
-                    print("normalized")
+                # res can be none if there is a beat that had no action potential
+                if res is not None:
+                    print("result")
                     print(res)
 
-                # get the sweep number
-                sweep_number = column.split("_")
-                sweep_number = int(sweep_number[1])
+                    if cslow_normalization:
+                        cslow = self.database.get_cslow_value_for_sweep_table(data_table)
+                        res = res / cslow
+                        print("normalized")
+                        print(res)
 
-                if result_data_frame.empty:
-                    result_data_frame = pd.DataFrame.from_dict(res, orient='index')
-                else:
-                    col_count = len(result_data_frame.columns)
-                    print(col_count)
-                    result_data_frame.insert(col_count, str(sweep_number), list(res.values()), True)
+                    # get the sweep number
+                    sweep_number = column.split("_")
+                    sweep_number = int(sweep_number[1])
+
+                    if result_data_frame.empty:
+                        result_data_frame = pd.DataFrame.from_dict(res, orient='index')
+                    else:
+                        col_count = len(result_data_frame.columns)
+                        #print(col_count)
+                        result_data_frame.insert(col_count, str(sweep_number), list(res.values()), True)
 
             # write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
             result_data_frame['Fitting Parameters'] = result_data_frame.index
-            print(result_data_frame)
+            #print(result_data_frame)
 
             new_specific_result_table_name = self.create_new_specific_result_table_name(self.database.analysis_id,
                                                                                         data_table)
@@ -167,8 +170,8 @@ class ActionPotentialFitting(object):
 
         # if all values are 0 it will return
         if all(v == 0 for v in first_derivative):
-            print(self.table_name)
-            print(self._sweep)
+            # print(self.table_name)
+            # print(self._sweep)
             return None
 
         smoothed_first_derivative = first_derivative.copy()
@@ -242,8 +245,7 @@ class ActionPotentialFitting(object):
             ahp = np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)])
         except Exception as e:
             print(e)  # happens if ahp_pos is zero
-            print(self.table_name)
-            print(self._sweep)
+
             return None
 
         t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
@@ -262,7 +264,7 @@ class ActionPotentialFitting(object):
             # fitting_parameters['time_max_first_derivate'] = self.time[np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))]
             fitting_parameters['min_first_derivate'] = np.min(smoothed_first_derivative)
 
-        print(fitting_parameters)
+        #print(fitting_parameters)
 
         return fitting_parameters
 
@@ -276,15 +278,13 @@ class ActionPotentialFitting(object):
         ' check if this given analysis id is connected with a result, if not, the concerning Action Potential Fitting id needs to be read from the analysis function table'
 
         q = f"select * from results where analysis_function_id = \'{parent_widget.analysis_function_id}\'"
-        print(self.database.get_data_from_database(self.database.database, q))
+        #print(self.database.get_data_from_database(self.database.database, q))
 
         if not self.database.get_data_from_database(self.database.database, q):
-            print("None was returned ")
             q = """select analysis_function_id from analysis_functions where analysis_id = (?) and function_name = (?)"""
             apf_id = self.database.get_data_from_database(self.database.database, q,
                                                           [parent_widget.analysis_id, "Action Potential Fitting"])[0][0]
-            print("new id is")
-            print(apf_id)
+
             result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
                                                                apf_id)
 
@@ -307,38 +307,30 @@ class ActionPotentialFitting(object):
 
 
             q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where specific_result_table_name = \'{table}\'))'
+                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+                f'specific_result_table_name = \'{table}\'))'
 
             meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
 
-            print("queried data")
-            print(query_data_df)
-            print(meta_data_group)
+            # override the upper left plot panel which would not show any result data. By setting to AP Amplitude it
+            # will always display amplitude and the function itself does not need to be lte registered anymore
 
-            # in case of multiple rows, one specific can be selected
-            #query_data = self.specific_visualisation(query_data, parent_widget.analysis_function_id)
+            if parent_widget.analysis_name == "Action Potential Fitting":
+                parent_widget.analysis_name = "AP_Amplitude"
 
-            if parent_widget.analysis_name != "Action Potential Fitting":
-                x_data = np.mean(query_data_df.loc[parent_widget.analysis_name].values)
-                print(x_data)
-            else:
-                x_data = 0
+            # index has the same name as the function. Will not work if the names differ.
+            x_data = np.mean(query_data_df.loc[parent_widget.analysis_name].values)
 
             if meta_data_group in meta_data_groups:
-                # new_df = pd.DataFrame(np.array(x_data))
-                # print(new_df)
                 specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
                 specific_df.insert(0, str(table), x_data, True)
                 meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-
             else:
                 # add a new meta data group
                 meta_data_groups.append(meta_data_group)
-                # start a new dataframe
-
                 meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
 
-        print(meta_data_specific_df[0])
+        #print(meta_data_specific_df[0])
 
         # make the boxplot
         ax = canvas.figure.subplots()
@@ -347,12 +339,14 @@ class ActionPotentialFitting(object):
         for meta_data in meta_data_specific_df:
             boxplot_matrix.append(meta_data.iloc[0].values)
 
-        #false_true_mask = ~np.isnan(boxplot_matrix)
-        #filtered_box_plot_data = [d[m] for d, m in zip(boxplot_matrix.T, false_true_mask.T)]
-
+        # no nan handling required since sweeps without an AP are not stored in the dataframe
         filtered_box_plot_data = boxplot_matrix
 
+        print(filtered_box_plot_data)
+
+        # make custom labels containing the correct meta data group and the number of evaluated cells
         custom_labels = []
+
         for i in range(0, len(meta_data_groups)):
             custom_labels.append(meta_data_groups[i] + ": " + str(len(filtered_box_plot_data[i])))
 
@@ -369,145 +363,26 @@ class ActionPotentialFitting(object):
         for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
             patch.set_facecolor(color)
 
-        ax.legend(plot['boxes'], custom_labels)
+        ax.legend(plot['boxes'], custom_labels, loc='upper left')
 
-        #parent_widget.export_data_frame = pd.DataFrame(boxplot_matrix, columns=meta_data_groups)
-        #print(parent_widget.export_data_frame)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        """
-       
-
-        box_plot_matrix = np.empty((number_of_series, len(meta_data_types)))
-        box_plot_matrix[:] = np.nan
-
-        plot = ax.boxplot(filtered_box_plot_data,  # notch=True,  # notch shape
-                          vert=True,  # vertical box alignment
-                          patch_artist=True)
-
-        # ax.violinplot(filtered_box_plot_data)
-        ax.set_xticks(np.arange(1, len(meta_data_types) + 1), labels=meta_data_types)
-        ax.set_xlim(0.25, len(meta_data_types) + 0.75)
-
-        for patch, color in zip(plot['boxes'], self.default_colors[0:len(plot['boxes'])]):
-            patch.set_facecolor(color)
-
-        ax.legend(plot['boxes'], custom_labels)
-
-        parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
-
-
-
-
-
-
-        # plot a box for each metadata type
-        for type in meta_data_types:
-
-            type_counter = 0
-            # get the positions of the series names
-            type_specific_series_pos = [i for i, x in enumerate(meta_data_groups) if x == type]
-            insert_at_pos_x = meta_data_types.index(type)
-
-            if len(type_specific_series_pos) > 0:
-
-                for pos in type_specific_series_pos:
-
-                    # calc mean for this series
-                    try:
-                        insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[:, insert_at_pos_x]))[0][0]
-
-                        series_sweep_values = []
-
-                        for sweep_pos in range(pos * number_of_sweeps, (pos + 1) * number_of_sweeps):
-                            series_sweep_values.append(result_list[sweep_pos][0])
-
-                        if parent_widget.analysis_name == 'Rheobase_Detection':
-                            # needs no else since box_plot_matrix is already initialized with nans
-                            if not all(v is None for v in series_sweep_values):
-                                first_rheobase_current_index = next(
-                                    x[0] for x in enumerate(series_sweep_values) if x[1] != None)
-                                mean_val = series_sweep_values[first_rheobase_current_index]
-                                type_counter += 1
-                                box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
-                        else:
-                            # plot for sweep wise
-                            none_free_y_data = []
-                            for i in series_sweep_values:
-                                if i is not None:
-                                    none_free_y_data.append(i)
-
-                            if len(none_free_y_data) > 0:
-                                mean_val = np.mean(series_sweep_values)
-                                box_plot_matrix[insert_at_pos_y][insert_at_pos_x] = mean_val
-                                type_counter += 1
-
-                    except Exception as e:
-                        print("Error - this should not happen")
-                        print(e)
-                group_sizes.append(type_counter)
-            else:
-                try:
-                    insert_at_pos_y = np.argwhere(np.isnan(box_plot_matrix[insert_at_pos_x,]))[0][0]
-                    box_plot_matrix[insert_at_pos_x][insert_at_pos_y] = np.mean(
-                        result_list[type_specific_series_pos:type_specific_series_pos + number_of_sweeps][0])
-
-                except Exception as e:
-                    print("Error - this should not happen")
-                    print(e)
-
-        false_true_mask = ~np.isnan(box_plot_matrix)
-        filtered_box_plot_data = [d[m] for d, m in zip(box_plot_matrix.T, false_true_mask.T)]
-
-        custom_labels = []
-        for i in range(0, len(meta_data_types)):
-            custom_labels.append(meta_data_types[i] + ": " + str(group_sizes[i]))
-
-        plot = ax.boxplot(filtered_box_plot_data,  # notch=True,  # notch shape
-                          vert=True,  # vertical box alignment
-                          patch_artist=True)
-
-        # ax.violinplot(filtered_box_plot_data)
-        ax.set_xticks(np.arange(1, len(meta_data_types) + 1), labels=meta_data_types)
-        ax.set_xlim(0.25, len(meta_data_types) + 0.75)
-
-        for patch, color in zip(plot['boxes'], self.default_colors[0:len(plot['boxes'])]):
-            patch.set_facecolor(color)
-
-        ax.legend(plot['boxes'], custom_labels)
-
-        parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
-        print(parent_widget.export_data_frame)
-
-    """
+        parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
+        parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
+        parent_widget.export_data_frame.columns = meta_data_groups
 
     @classmethod
     def run_late_register_feature(self):
 
-        print("running late register")
+        #print("running late register")
 
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
+        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude', self.series_name, 0, 0)
+        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
+        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
         #self.database.write_analysis_function_name_and_cursor_bounds_to_database('time_to_ahp', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('max_first_derivate', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('max_first_derivate', self.series_name, 0, 0)
+
 
     @classmethod
     def specific_visualisation(self, queried_data, function_analysis_id):
@@ -516,15 +391,15 @@ class ActionPotentialFitting(object):
 
     @classmethod
     def get_list_of_result_tables(self, analysis_id, analysis_function_id):
-        """
-
-        """
+        '''
+        reading all specific result table names from the database
+        '''
         q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
         result_list = self.database.get_data_from_database(self.database.database, q,
                                                            [analysis_id, analysis_function_id])
-        print(analysis_id)
-        print(analysis_function_id)
-        print(q)
+        #print(analysis_id)
+        #print(analysis_function_id)
+        #print(q)
         result_list = (list(zip(*result_list))[0])
         return result_list
 

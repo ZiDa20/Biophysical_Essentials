@@ -49,6 +49,7 @@ class TreeViewManager():
 
         # list of meta data group names represented as strings
         self.meta_data_option_list=["+ Add", "None"]
+        self.meta_data_assignment_list = []
 
         # frontend style can be set to show all popups in the correct theme and color
         self.frontend_style = None
@@ -245,6 +246,9 @@ class TreeViewManager():
 
     def write_directory_into_database(self,database, dat_files, directory_path,progress_callback):
         """ write the directory path into the database, as well as files """
+
+        self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
+
         max_value = len(dat_files)
         progress_value = 0
         database.open_connection()
@@ -305,7 +309,16 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
-                database.add_experiment_to_experiment_table(experiment_name)
+                group_name = None
+                try:
+                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
+                    group_name = self.meta_data_assignment_list[pos][1]
+                    #print(group_name)
+                except:
+                    group_name = "None"
+                    #print("experiment has no meta data assignment")
+
+                database.add_experiment_to_experiment_table(experiment_name, group_name)
 
             if "Series" in node_type:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
