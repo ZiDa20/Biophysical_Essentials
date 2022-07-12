@@ -201,7 +201,6 @@ class MainWindow(QMainWindow, QtStyleTools):
             
         else:
             self.first_geometry = self.geometry()
-            print(self.first_geometry)
             self.setGeometry(self.screenRect) # maximize the window
 
 

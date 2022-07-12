@@ -146,8 +146,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         # show and retrieve the selected columns
         self.data_base_content.show()
         self.data_base_content.clicked.connect(self.retrieve_column)
-
-
+        
 
     @Slot()
     def query_data(self):

@@ -416,7 +416,8 @@ class OfflineAnalysisResultVisualizer():
 
                     ax.errorbar(x,group_mean, yerr=group_std, fmt='--o')
                     #ax.errorplot(y=group_mean, yerr= group_std) #self.default_colors[meta_data_types.index(i)], label='i')
-                    parent_widget.export_data_frame.insert(0,i,group_mean)
+                    dataframe = pd.DataFrame(group_mean, columns=[i])
+                    parent_widget.export_data_frame = pd.concat([parent_widget.export_data_frame, dataframe], axis=1)
 
                  custom_legend = []
                  for i in range(0,len(meta_data_types)):
@@ -513,7 +514,7 @@ class OfflineAnalysisResultVisualizer():
                 ax.legend(plot['boxes'],custom_labels)
 
                 parent_widget.export_data_frame = pd.DataFrame(box_plot_matrix, columns=meta_data_types)
-                print(parent_widget.export_data_frame)
+            
 
 
 
@@ -625,7 +626,9 @@ class OfflineAnalysisResultVisualizer():
     def visualize_sweep_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
         ax.clear()
         ax.plot(x_data[a], y_data[a], '#fff5cc', label=series_names[a])
-        parent_widget.export_data_frame.insert(0, series_names[a], y_data[a])
+        print(series_names[a], y_data[a])
+        dataframe = pd.DataFrame(y_data[a], columns=[series_names[a]])
+        parent_widget.export_data_frame = pd.concat([parent_widget.export_data_frame, dataframe], axis = 1)
 
     def visualize_series_wise(self,ax,x_data,y_data,series_names,parent_widget,a):
         '''
