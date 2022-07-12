@@ -271,8 +271,6 @@ class SweepWiseAnalysisTemplate(object):
 				specific_df.insert(0, str(result_table_list.index(table)), x_data, True)
 				meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
 
-
-
 			else:
 				# add a new meta data group
 				meta_data_groups.append(meta_data_group)

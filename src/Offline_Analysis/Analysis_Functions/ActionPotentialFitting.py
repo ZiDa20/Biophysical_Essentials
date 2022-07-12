@@ -7,6 +7,7 @@ class ActionPotentialFitting(SeriesWiseAnalysisTemplate):
     def __init__(self):
         SeriesWiseAnalysisTemplate.__init__(self)
         self.function_name = 'Action Potential Fitting'
+        self.series_name = None
 
 
     @classmethod
@@ -95,8 +96,6 @@ class ActionPotentialFitting(SeriesWiseAnalysisTemplate):
 
         # if still none means there was no real AP
         if threshold_pos is None:
-            print(self.table_name)
-            print(self._sweep)
             return None
 
         t_threshold = self.time[threshold_pos]
@@ -136,10 +135,11 @@ class ActionPotentialFitting(SeriesWiseAnalysisTemplate):
             fitting_parameters['time_to_ahp'] = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
             fitting_parameters['delta_ap_threshold'] = abs(np.max(self.data)) - abs(v_threshold)
             fitting_parameters['max_first_derivate'] = np.max(smoothed_first_derivative)
-            fitting_parameters['time_max_first_derivate'] = self.time[np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))]
+            #fitting_parameters['time_max_first_derivate'] = self.time[np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))]
             fitting_parameters['min_first_derivate'] = np.min(smoothed_first_derivative)
 
-        return self.fitting_parameters
+        print(fitting_parameters)
+        return fitting_parameters
 
     @classmethod
     def calculate_results(self):

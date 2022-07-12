@@ -108,6 +108,8 @@ class OfflineAnalysisResultVisualizer():
         :param series:
         :return:
         """
+
+        # series name e.g. IV
         q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
         list_of_analysis=self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
 
@@ -125,6 +127,7 @@ class OfflineAnalysisResultVisualizer():
 
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
+            custom_plot_widget.series_name = series
 
             analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
             custom_plot_widget.analysis_name = analysis_name

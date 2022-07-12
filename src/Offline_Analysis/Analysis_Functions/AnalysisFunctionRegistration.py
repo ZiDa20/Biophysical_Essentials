@@ -11,6 +11,7 @@ class AnalysisFunctionRegistration():
     def get_registered_analysis_class(cls,analysis_function_name):
         mapping = {
             "max_current":MaxCurrent,
-            "Action Potential Fitting" : ActionPotentialFitting
+            "Action Potential Fitting" : ActionPotentialFitting,
+            "AP_Amplitude": ActionPotentialFitting
         }
         return mapping.get(analysis_function_name,lambda: MaxCurrent)
