@@ -162,7 +162,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
 
         final_pandas.index = pd.Series(list_rows)
-        print(final_pandas.columns)
         final_pandas = final_pandas[["Label","RsValue","CSlow"]]
         final_pandas["comments"] = final_pandas.shape[0] * [""]
         

@@ -8,6 +8,8 @@ from matplotlib.pyplot import table
 from data_base_designer_object import Ui_Database_Viewer
 from data_db import DuckDBDatabaseHandler
 import pyqtgraph as pg
+import pandas as pd
+from Pandas_Table import PandasTable
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -125,34 +127,25 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         :param table_dict: dict with table names as keys and row values as values
         :return:
         '''
-        column_names = list(table_dict.keys())
-        row_values = list(table_dict.values())
-
+   
+        # create the table from dict
+        pandas_frame = pd.DataFrame(table_dict)
         if self.data_base_content:
-            print("yes there is something in")
             for i in reversed(range(self.table_layout.count())):
                 self.table_layout.itemAt(i).widget().deleteLater()
 
-
-        self.data_base_content = QTableWidget()
+        # set the TableView and the Model
+        self.data_base_content = QTableView()
+        self.data_base_content.horizontalHeader().setSectionsClickable(True)
+        self.data_base_content_model = PandasTable(pandas_frame)
+        self.data_base_content.setModel(self.data_base_content_model)
+        self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) # stretch it
         self.table_layout.addWidget(self.data_base_content)
         self.data_base_content.setGeometry(20, 20, 691, 581)
-        self.data_base_content.setColumnCount(len(column_names))
-        row_count = len(row_values[0])
-        self.data_base_content.setRowCount(len(row_values[0]))
 
-        for column in range(len(column_names)):
-            self.data_base_content.setHorizontalHeaderItem(column, QTableWidgetItem(column_names[column]))
-            self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            self.data_base_content.resizeColumnToContents(column)
-
-        for column in range(len(column_names)):
-            for row in range(len(row_values[0])):
-                value = row_values[column][row]
-                self.data_base_content.setItem(row,column,QTableWidgetItem(str(value)))
-
+        # show and retrieve the selected columns
         self.data_base_content.show()
-        self.data_base_content.cellClicked.connect(self.retrieve_column)
+        self.data_base_content.clicked.connect(self.retrieve_column)
 
 
 
@@ -170,14 +163,21 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             print("Error: %s", e)
 
     
-    def retrieve_column(self):
-        """ Here we can retrieve the data of the the selected columns"""
-        print("I am in this function for selecting the table")
-        column = self.data_base_content.currentColumn()
+    def retrieve_column(self, index):
+        """ Here we can retrieve the data of the the selected columns
+        
+        args:
+            index type: QModelIndex Index of the selected row
+            
+        returns:
+            None"""
+
+        index = self.data_base_content.currentIndex().column()
         data = []
-        for row in range(self.data_base_content.rowCount()):
-            it = self.data_base_content.item(row, column)
-            data.append(it.text() if it is not None else "")
+
+        for row in range(self.data_base_content.model().rowCount(index)):
+            it = self.data_base_content.model().index(row, index).data()
+            data.append(it if it is not None else "")
         try:
             float_table = [float(x) for x in data]
             self.draw_table(float_table)
@@ -185,10 +185,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             print(f"The Error is: {e}" )
 
 
-
     def draw_table(self, table):
         """
-        Draws the selected column if it contains numbers"""
+        Draws the selected column if it contains numbers
+        
+        args:
+            table type(dataframe): list of numbers
+            """
         if self.plot:
             self.gridLayout_10.removeWidget(self.plot)
             self.plot.setParent(None)
