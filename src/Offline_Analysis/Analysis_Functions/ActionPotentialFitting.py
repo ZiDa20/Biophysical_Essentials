@@ -88,8 +88,8 @@ class ActionPotentialFitting(object):
 
                 # res can be none if there is a beat that had no action potential
                 if res is not None:
-                    print("result")
-                    print(res)
+                    #print("result")
+                    #print(res)
 
                     if cslow_normalization:
                         cslow = self.database.get_cslow_value_for_sweep_table(data_table)
@@ -342,7 +342,7 @@ class ActionPotentialFitting(object):
         # no nan handling required since sweeps without an AP are not stored in the dataframe
         filtered_box_plot_data = boxplot_matrix
 
-        print(filtered_box_plot_data)
+        #print(filtered_box_plot_data)
 
         # make custom labels containing the correct meta data group and the number of evaluated cells
         custom_labels = []
