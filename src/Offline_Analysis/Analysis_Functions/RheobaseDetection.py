@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+from natsort import natsorted, ns
 
 class RheobaseDetection(object):
     """
@@ -58,7 +58,12 @@ class RheobaseDetection(object):
 
             # get the data frame and make sure to sort sweep numbers correctly
             entire_sweep_table = self.database.get_entire_sweep_table_as_df(data_table)
-            entire_sweep_table = entire_sweep_table.sort_index(axis=1)
+            #entire_sweep_table.sort_index(axis=1, inplace = True)
+
+            number_of_sweeps = len(entire_sweep_table.columns)
+            column_names = list(entire_sweep_table.columns)
+            nat_sorted_columns = list(natsorted(column_names, key=lambda y: y.lower()))
+            entire_sweep_table = entire_sweep_table[nat_sorted_columns]
 
             # analyse by column
             for column in entire_sweep_table:
@@ -74,7 +79,9 @@ class RheobaseDetection(object):
 
                 if np.max(self.data) > ap_detection_threshold:
 
-                    try:
+                    # two options are allowed in here
+                    if sweep_number<=number_of_sweeps-2:
+
                         next_sweep = "sweep_"+str(sweep_number+1)
                         s1 = entire_sweep_table.get(next_sweep)
                         y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, next_sweep)
@@ -94,21 +101,22 @@ class RheobaseDetection(object):
 
                             result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
 
-                            #print(result_data_frame)
-
                             self.database.update_results_table_with_new_specific_result_table_name(
                                 self.database.analysis_id, self.analysis_function_id, data_table,
                                 new_specific_result_table_name, result_data_frame)
-
-                            # make sure to return and avoid further AP detection. Only the first is important
-                            #print('break')
-
                             break
 
-                    except Exception as e:
-                        print("handled error with message:")
-                        print(e)
-                        # print("no more sweep")
+                    else:
+                        injected_current = holding_value + (sweep_number - 1) * increment_value
+                        new_specific_result_table_name = self.create_new_specific_result_table_name(
+                            self.database.analysis_id, data_table)
+
+                        result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
+
+
+                        self.database.update_results_table_with_new_specific_result_table_name(
+                        self.database.analysis_id, self.analysis_function_id, data_table, new_specific_result_table_name, result_data_frame)
+                        break
 
 
     @classmethod
