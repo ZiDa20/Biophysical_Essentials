@@ -115,8 +115,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         self.get_columns_data_to_table()
 
-
-        
     def get_columns_data_to_table(self):
         #toDO add the documentation here
         count = self.treeWidget.topLevelItemCount()

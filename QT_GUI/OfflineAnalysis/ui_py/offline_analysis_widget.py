@@ -640,7 +640,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.write_function_grid_values_into_database(current_tab)
 
         # perform the analysis and write results to the database
-        finished_successfully = self.offline_manager.execute_single_series_analysis_II(current_tab.objectName())
+        finished_successfully = self.offline_manager.execute_single_series_analysis(current_tab.objectName())
 
         if finished_successfully:
             # switch to the visualization tab
