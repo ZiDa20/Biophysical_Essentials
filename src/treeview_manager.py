@@ -8,6 +8,7 @@ import csv
 import sys
 import os
 import logging
+from time import sleep
 
 import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
@@ -258,15 +259,14 @@ class TreeViewManager():
             self.single_file_into_db([], bundle,  splitted_name[0], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
             progress_callback.emit((progress_value,i))
         #self.update_treeview(selected_tree,discarded_tree)
-
+        
         database.database.close()
+        print("database closed")
+        sleep(1)
         return database
 
-    def update_treeview(self,selected_tree,discarded_tree):
-        print("Qthread finished")
-        self.database.open_connection()
-        selected_tree.clear()
-        self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
+    
+
 
     #progress_callback
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , series_identifier, pgf_tuple_data_frame=None):

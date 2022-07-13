@@ -211,6 +211,7 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             self.logger.error("Error in Execute SQL Command: %s", e)
             raise Exception(e)
+            
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
             tmp = database.cursor()

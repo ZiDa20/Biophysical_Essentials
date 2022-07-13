@@ -216,11 +216,21 @@ class OfflineManager():
         worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, data_list, self._directory_path)
 
         #worker.signals.result.connect(self.print_output)
-        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
+        worker.signals.finished.connect(partial(self.update_treeview,tree,discarded_tree)) # when done, update the treeview
         worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
         self.threadpool.start(worker) # start the thread
 
         return self.tree_view_manager # return the treeview manager object
+
+
+    def update_treeview(self,selected_tree,discarded_tree):
+        print("Qthread finished")
+        self.database.open_connection()
+
+        q = """SHOW TABLES"""
+        queried_parameter = self.database.database.execute(q).fetchall()
+        selected_tree.clear()
+        self.tree_view_manager.create_treeview_from_database(selected_tree, discarded_tree, "", None)
 
 
     def progress_fn(self,data):

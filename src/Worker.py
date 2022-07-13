@@ -2,6 +2,7 @@ from PySide6.QtCore import *
 
 from WorkerSignals import *
 from data_db import DuckDBDatabaseHandler
+from time import sleep
 
 
 class Worker(QRunnable):
@@ -44,7 +45,7 @@ class Worker(QRunnable):
             exctype, value = sys.exc_info()[:2]
             self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
-            print(result)
+            #sleep(60)
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done

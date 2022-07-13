@@ -116,6 +116,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         #GlobalBlur(self.winId(), Acrylic=True)
 
 
+        # set the animation 
+
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(100)
+
+
     def initialize_database(self):
        self.ui.notebook.setCurrentIndex(4)
        self.ui.database.show_basic_tables(self.local_database_handler)
@@ -197,13 +203,25 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.first_geometry = window_size
 
         if self.geometry() == self.screenRect:
-            self.setGeometry(QRect(320, 45, 1280, 950))
+            #self.setGeometry(QRect(320, 45, 1280, 950))
+            self.animate_resizing(size = True)
             
         else:
-            self.first_geometry = self.geometry()
-            self.setGeometry(self.screenRect) # maximize the window
+            self.animate_resizing()
+            #self.first_geometry = self.geometry()
+            #self.setGeometry(self.screenRect) # maximize the window
 
 
+    def animate_resizing(self, size = None):
+        """Function to animate the resizing of the window"""  
+        if size is None:      
+            self.animation.setStartValue(self.geometry())
+            self.animation.setEndValue(self.screenRect)
+            self.animation.start()
+        else:
+            self.animation.setStartValue(self.geometry())
+            self.animation.setEndValue(QRect(320, 45, 1280, 950))
+            self.animation.start()
 
     def quit_application(self):
         """ Function to quit the app"""
@@ -297,8 +315,9 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
-    app.setAttribute(Qt.AA_EnableHighDpiScaling)
+    
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
     with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:

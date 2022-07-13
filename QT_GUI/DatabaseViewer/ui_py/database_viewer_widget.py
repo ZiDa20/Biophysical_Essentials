@@ -10,6 +10,7 @@ from data_db import DuckDBDatabaseHandler
 import pyqtgraph as pg
 import pandas as pd
 from Pandas_Table import PandasTable
+import numpy as np
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -46,7 +47,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.show_basic_tables(True)
         except Exception as e:
             print(e)
-            print("failed")
+            
 
     def show_basic_tables(self,database_handler):
         '''
@@ -57,8 +58,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         database_handler.open_connection()
         self.database = database_handler.database
 
-        q = """SELECT * FROM information_schema.tables"""
-        tables_names = self.database.execute(q).fetchall()
+        q = """SHOW TABLES"""
+        tables_names = self.database.execute(q).fetchall() 
 
         self.table_dictionary = {"imon_signal" : [], "pgf_tables":[], "imon_meta": [], "experiment": [], "analysis_table":[]}
         
@@ -66,8 +67,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         # connect the button to a function plotting the table
         button_list = []
         for l in range (len(tables_names)):
-            sub_list = tables_names[l]
-            table_name = sub_list[2]
+            table_name = tables_names[l][0]
 
             if "imon_signal" in table_name:
                 self.table_dictionary["imon_signal"].append(table_name)
@@ -146,7 +146,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         # show and retrieve the selected columns
         self.data_base_content.show()
         self.data_base_content.clicked.connect(self.retrieve_column)
-        
+
 
     @Slot()
     def query_data(self):
@@ -178,22 +178,27 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             it = self.data_base_content.model().index(row, index).data()
             data.append(it if it is not None else "")
         try:
-            float_table = [float(x) for x in data]
+            float_table = np.asarray([float(x) for x in data])
             self.draw_table(float_table)
         except Exception as e:
             print(f"The Error is: {e}" )
 
 
-    def draw_table(self, table):
+    def draw_table(self, floating_numbers):
         """
         Draws the selected column if it contains numbers
         
         args:
-            table type(dataframe): list of numbers
+            floating_numbers type(np.array): list of numbers
             """
         if self.plot:
-            self.gridLayout_10.removeWidget(self.plot)
-            self.plot.setParent(None)
-        self.plot = pg.plot(table)
+            for i in reversed(range(self.gridLayout_10.count())):
+                self.gridLayout_10.itemAt(i).widget().deleteLater()
+        
+        
+        # this should show the sliced array
+        sliced_array = floating_numbers[::10]
+        self.plot = pg.plot(sliced_array)
+        self.plot.disableAutoRange()
         self.gridLayout_10.addWidget(self.plot)
 
