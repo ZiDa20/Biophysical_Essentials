@@ -276,18 +276,18 @@ class PlotWidgetManager(QRunnable):
         return time
 
     def tree_view_click_handler(self, item):
-        print(item)
-        print(f'Text of first column in item is {item.text(0)}')
-
-        if "Sweep" in item.text(0):
-            self.sweep_clicked(item)
-        else:
-            if ".dat" in item.text(0):
-                print("To see data traces, click on a sweep or a series")
+        #print(f'Text of first column in item is {item.text(0)}')
+        try:
+            if "Sweep" in item.text(0):
+                self.sweep_clicked(item)
             else:
-             self.series_clicked_load_from_database(item)
-             #self.series_clicked(item)
-
+                if ".dat" in item.text(0):
+                    print("To see data traces, click on a sweep or a series")
+                else:
+                 self.series_clicked_load_from_database(item)
+                 #self.series_clicked(item)
+        except Exception as e:
+            print("experiment or sweep was clicked which is not implemented yet")
     def show_draggable_lines(self,row_number):
         left_val =  0.2*max(self.time)
         right_val = 0.8*max(self.time)

@@ -70,6 +70,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # Camera Section
         
         self.image_stack = [] # stack of images
+        self.image_list = []
         self._image_count = 0
 
         #darkmode

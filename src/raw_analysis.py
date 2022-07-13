@@ -41,9 +41,8 @@ class AnalysisRaw():
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["mean_voltage", "Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
-                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms]",
-                    "Rheobase_Detection", "Rheoramp_Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+            return ["mean_voltage", "Single_AP_Amplitude [mV]", "Action Potential Fitting",
+                    "Rheobase-Detection", "Rheoramp_Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -229,7 +228,7 @@ class AnalysisRaw():
 
         for i in range(len(self.time)-1):
             first_derivative.append(((self.data[i+1]-self.data[i])/(self.time[i+1]-self.time[i])))
-            
+
         #dx = np.diff(self.time)
         #dy = np.diff(self.data)
         #first_derivative = dy/dx
@@ -261,7 +260,7 @@ class AnalysisRaw():
                 smoothed_val = np.mean(first_derivative[i- smoothing_window_length:i ])
 
             if math.isnan(smoothed_val):
-                print("nan error") 
+                print("nan error")
 
             else:
                 smoothed_first_derivative[i] = smoothed_val
@@ -303,9 +302,9 @@ class AnalysisRaw():
 
 
         time_to_amplitude = self.time[np.argmax(self.data) ]
-        
+
         amplitude_pos = np.argmax(self.data)
-        
+
         # delta_amplitude = amplitude - v_threshold
 
 

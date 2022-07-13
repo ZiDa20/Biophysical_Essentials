@@ -8,7 +8,6 @@ import csv
 import sys
 import os
 import logging
-from time import sleep
 
 import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
@@ -50,6 +49,7 @@ class TreeViewManager():
 
         # list of meta data group names represented as strings
         self.meta_data_option_list=["+ Add", "None"]
+        self.meta_data_assignment_list = []
 
         # frontend style can be set to show all popups in the correct theme and color
         self.frontend_style = None
@@ -246,6 +246,9 @@ class TreeViewManager():
 
     def write_directory_into_database(self,database, dat_files, directory_path,progress_callback):
         """ write the directory path into the database, as well as files """
+
+        self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
+
         max_value = len(dat_files)
         progress_value = 0
         database.open_connection()
@@ -259,14 +262,15 @@ class TreeViewManager():
             self.single_file_into_db([], bundle,  splitted_name[0], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
             progress_callback.emit((progress_value,i))
         #self.update_treeview(selected_tree,discarded_tree)
-        
+
         database.database.close()
-        print("database closed")
-        sleep(1)
         return database
 
-    
-
+    def update_treeview(self,selected_tree,discarded_tree):
+        print("Qthread finished")
+        self.database.open_connection()
+        selected_tree.clear()
+        self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
 
     #progress_callback
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , series_identifier, pgf_tuple_data_frame=None):
@@ -305,7 +309,16 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
-                database.add_experiment_to_experiment_table(experiment_name)
+                group_name = None
+                try:
+                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
+                    group_name = self.meta_data_assignment_list[pos][1]
+                    #print(group_name)
+                except:
+                    group_name = "None"
+                    #print("experiment has no meta data assignment")
+
+                database.add_experiment_to_experiment_table(experiment_name, group_name)
 
             if "Series" in node_type:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
@@ -313,6 +326,8 @@ class TreeViewManager():
                 database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                           "pgf_table_" + experiment_name + "_" + node_type,
                                                           experiment_name, node_type)
+
+
                 # update the series counter
                 data_access_array[1]+=1
                 # reset the sweep counter
