@@ -1,6 +1,7 @@
 
 from Offline_Analysis.Analysis_Functions.MaxCurrent import *
 from Offline_Analysis.Analysis_Functions.ActionPotentialFitting import *
+from Offline_Analysis.Analysis_Functions.RheobaseDetection import *
 
 class AnalysisFunctionRegistration():
     """

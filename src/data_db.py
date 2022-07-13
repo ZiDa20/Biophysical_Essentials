@@ -449,6 +449,18 @@ class DuckDBDatabaseHandler():
             print(table_name)
             return None
 
+    def get_entire_sweep_table_as_df(self, table_name):
+        '''
+        Fetches all sweeps in a sweep table.
+        :param table_name:
+        :return: the table as dict {column: numpy_array(data ... )]}
+        '''
+        try:
+            return self.database.execute(f'select * from {table_name}').fetchdf()
+        except Exception as e:
+            print(table_name)
+            return None
+
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
