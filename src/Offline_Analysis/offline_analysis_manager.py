@@ -11,13 +11,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis/Analysis_Functions")#/Function_Templates")
 from AnalysisFunctionRegistration import *
+from itertools import zip_longest
 #from src.Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 
     def __init__(self, progress, statusbar):
-
         """ constructor of the manager class
         
         args:
@@ -45,6 +45,7 @@ class OfflineManager():
         self.analysis_id = None
 
         self.tree_view_manager = None
+        self.bundle_liste = []
 
 
     @property
@@ -128,14 +129,47 @@ class OfflineManager():
 
         # added worker to the analysis
         self.threadpool = QThreadPool()
-        self.threadpool.globalInstance().setMaxThreadCount(6)
-        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, data_list, self._directory_path)
+        threads = self.threadpool.globalInstance().maxThreadCount()
+
+
+        if len(data_list) < threads:
+            data_list_final = list(self.chunks(data_list, threads/2))
+            for i,t in enumerate(data_list_final):
+                bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,t,self._directory_path)
+                bundle_worker.signals.result.connect(self.show_bundle_result)
+                self.threadpool.start(bundle_worker)
+
+        else:
+            data_list_final = list(self.chunks(data_list, threads-1))
+            for i,t in enumerate(data_list_final):
+                bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,t,self._directory_path)
+                bundle_worker.signals.result.connect(self.show_bundle_result)
+                self.threadpool.start(bundle_worker)
+
+
+        bundle_worker.signals.finished.connect(partial(self.run_database_threading,self.bundle_liste, tree, discarded_tree))
+        #worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, data_list, self._directory_path)
+        #worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
+        #worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
+        #self.threadpool.start(worker) # start the thread
+
+        return self.tree_view_manager # return the treeview manager object
+
+    def run_database_threading(self, bundle_liste, tree, discarded_tree):
+        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste)
         worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
         worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
         self.threadpool.start(worker) # start the thread
 
-        return self.tree_view_manager # return the treeview manager object
+    def show_bundle_result(self, result):
+        for i in result:
+            self.bundle_liste.append(i)
+        print(self.bundle_liste)
 
+    def chunks(self, lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), int(n)):
+            yield lst[i:i + int(n)]
 
     def progress_fn(self,data):
         """ check the progress of the worker thread which contains the readed dat files

@@ -244,7 +244,18 @@ class TreeViewManager():
 
         #return selected_tree, discarded_tree
 
-    def write_directory_into_database(self,database, dat_files, directory_path,progress_callback):
+    def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
+        bundle_list = []
+        for i in dat_files:
+            file = directory_path + "/" + i
+            bundle = self.open_bundle_of_file(file)
+            splitted_name = i.split(".")
+            bundle_list.append((bundle, splitted_name[0]))
+            
+        return bundle_list
+       
+
+    def write_directory_into_database(self,database, dat_files,progress_callback):
         """ write the directory path into the database, as well as files """
 
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
@@ -255,13 +266,10 @@ class TreeViewManager():
         for i in dat_files:
             increment = 100/max_value
             progress_value = progress_value + increment
-            file = directory_path + "/" + i
-            bundle = self.open_bundle_of_file(file)
-            splitted_name = i.split(".")
-            pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
-            self.single_file_into_db([], bundle,  splitted_name[0], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
+            pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], i[0], [], None, None, None)
+            self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
             progress_callback.emit((progress_value,i))
-        #self.update_treeview(selected_tree,discarded_tree)
+        
 
         database.database.close()
         return database

@@ -213,6 +213,7 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             self.logger.error("Error in Execute SQL Command: %s", e)
             raise Exception(e)
+            
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
             tmp = database.cursor()
@@ -420,7 +421,7 @@ class DuckDBDatabaseHandler():
                 r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
                 sweep_table_names.append(r)
             except Exception as e:
-                print(e)
+                self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
 
 
         return sweep_table_names
