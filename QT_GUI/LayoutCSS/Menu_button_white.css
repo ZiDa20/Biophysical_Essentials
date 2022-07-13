@@ -5,6 +5,17 @@ QPushButton {{
     border: 0px
   }}
 
+  QPushButton::pressed{{
+    background-color:  #fff5cc;
+    color: black;
+    text-transform: none;
+    height: 30px;
+  }}
+
+  QPushButton:hover{{
+    background-color: "#54545a";
+  }}
+
   
 ListView{{
   background-color: white;
@@ -146,4 +157,28 @@ QProgressBar {{
   border: 2px solid #97ccf2 ;
   border-radius: 5px;
   background-color: rgba(49,54,59, 180);
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QStackedWidget > QWidget {{
+  background-color: rgba(255,255,255,180) ;
+  border-radius: 5px
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar {{
+  border-radius: 5px;
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::selected {{
+  color: black;
+  background-color:#97ccf2;
+  border-radius: 5px
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::!selected {{
+  color:grey;
+}}
+
+QPushButton[objectName="self_configuration"]{{
+  color: #97ccf2;
 }}

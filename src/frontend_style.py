@@ -12,16 +12,18 @@ class Frontend_Style():
                                 "QPushButton{padding: 10px 10px;"\
                                 "	        border: none;" \
                                 "	        border-radius: 10px 10px 0px 0x;" \
-                                "	        background-color: \"#FFFFFF\";}"\
+                                "	        background-color: \"#FFFFFF\";"\
+                                "	        color: \"#97ccf2\";}"\
                                 "QPushButton:hover{background-color: \"#54545a\";}"
 
 
-        self.sideframe_dark_style = u"QWidget{background-color: \"#232629\";}\n" \
+        self.sideframe_dark_style = u"QWidget{background-color: rgba(4,7,26, 180);}\n" \
                                 "QPushButton{padding: 10px 10px;"\
                                 "	        padding-left: 20px;" \
                                 "	        border: none;" \
                                 "	        border-radius: 10px 10px 0px 0x;" \
-                                "	        background-color: \"#232629\";}"\
+                                "	        background-color: rgba(4,7,26, 0);"\
+                                "	        color: #fff5cc;}"\
                                 "QPushButton:hover{background-color: \"#54545a\";}"
                                   
                                   
@@ -35,7 +37,7 @@ class Frontend_Style():
                            "QDialog{background-color: \"#ffffff\"; }"
 
 
-        self.dark_style = u"QWidget{ background-color: \"#232629\";\ } \n" \
+        self.dark_style = u"QWidget{ background-color: rgba(4,7,26, 200);\ } \n" \
                            "QPushButton{ padding: 5px 10px; " \
                            "             border-width: 0px ;" \
                            "             border-radius: 10px ; " \

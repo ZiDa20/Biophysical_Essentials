@@ -44,9 +44,8 @@ class PandasTable(QAbstractTableModel):
                 return str(self._data.columns[section])
 
             if orientation == Qt.Vertical:
-                print(self._data.index[section])
                 return str(self._data.index[section])
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
 

@@ -178,9 +178,11 @@ class DuckDBDatabaseHandler():
                                             analysis_id integer,
                                             analysis_function_id integer,
                                             sweep_table_name text,
-                                            sweep_number integer,
-                                            result_value DOUBLE
+                                            specific_result_table_name text
                                             ); """
+
+        #sweep_number integer,
+        #result_value  DOUBLE
 
         try:
             self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
@@ -447,6 +449,18 @@ class DuckDBDatabaseHandler():
             print(table_name)
             return None
 
+    def get_entire_sweep_table_as_df(self, table_name):
+        '''
+        Fetches all sweeps in a sweep table.
+        :param table_name:
+        :return: the table as dict {column: numpy_array(data ... )]}
+        '''
+        try:
+            return self.database.execute(f'select * from {table_name}').fetchdf()
+        except Exception as e:
+            print(table_name)
+            return None
+
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
@@ -461,7 +475,7 @@ class DuckDBDatabaseHandler():
         return self.get_data_from_database(self.database, q)[0][0]
 
 
-    def add_experiment_to_experiment_table(self, name, meta_data_group=None, series_name=None, mapping_id=None):
+    def add_experiment_to_experiment_table(self, name, meta_data_group):
         '''
         Adding a new experiment to the database table 'experiments'. Name-Duplicates (e.g. 211224_01) are NOT allowed-
         the experiment name of the already existing experiment will added to the current offline analysis mapping table.
@@ -475,10 +489,10 @@ class DuckDBDatabaseHandler():
         :return 0: experiment was not added because it already exists, 1 it was added sucessfully, -1 something went wrong
         '''
         self.logger.info("adding experiment %s to_experiment_table", name)
-        q = f'insert into experiments (experiment_name) values (?)'
+        q = f'insert into experiments (experiment_name,meta_data_group) values (?,?)'
 
         try:
-            self.database = self.execute_sql_command(self.database, q, [name])
+            self.database = self.execute_sql_command(self.database, q, [name,meta_data_group])
             self.logger.info("added %s successfully", name)
             return 1
         except Exception as e:
@@ -664,35 +678,34 @@ class DuckDBDatabaseHandler():
         print("greatest identifier is: ", max(id_list)[0])
         return max(id_list)[0]
 
-    def get_series_specific_analysis_funtions(self, series_name):
-        q = """ select distinct function_name 
-        from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
+    def get_series_specific_analysis_functions(self, series_name):
+        """
+        get analysis function name and analysis function id that is linked offline analysis id
+        :param series_name:
+        :return: returns a tuple of analysis name, analysis_function_id
+        """
+        q = """ select function_name, analysis_function_id from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
         r = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
-        function_list = []
-        for t in r:
-            function_list.append(t[0])
-        return function_list
+        return r
 
-    def get_cursor_bounds_of_analysis_function(self, function_name, series_name):
+    def get_cursor_bounds_of_analysis_function(self, analysis_function_id, series_name):
         """
         Returns a list triples (lower, upper bound, id) for the specified analysis function name and the analysis id.
         :param function_name: name of the analysis function (e.g. min, max, .. )
         :param series_name: name of the analysis series (e.g. Block Pulse, ... )
-        :return: a list of cursor bound triples, with cursor bound values at positions 0 and 1 and the
+        :return: a list of cursor bound triples, with cursor bound values at positions 0 and 1 and thed
         function analysis id at the third position
         """
 
-        q = """select lower_bound, upper_bound, analysis_function_id 
-        from analysis_functions where function_name = (?) AND analysis_series_name=(?) AND analysis_id = (?)"""
-        r = self.get_data_from_database(self.database, q, (function_name, series_name, self.analysis_id))
-        cursor_bounds = []
-        for t in r:
-            cursor_bounds.append(t)
-        return cursor_bounds
+        q = """select lower_bound, upper_bound from analysis_functions where analysis_function_id = (?) AND analysis_series_name=(?) AND analysis_id = (?)"""
+        r = self.get_data_from_database(self.database, q, (analysis_function_id, series_name, self.analysis_id))
+
+        return r
 
     """----------------------------------------------------------"""
     """    Functions to interact with table sweeps   """
-    """----------------------------------------------------------"""
+    """----------------------------------------------------------
+    """
 
     def get_single_sweep_data_from_database_by_sweep_id(self, sweep_id):
         q = f'select data_array from sweeps where sweep_id = \"{sweep_id}\"'
@@ -1092,6 +1105,18 @@ class DuckDBDatabaseHandler():
             self.logger.info("Error::Couldn't create a new table with error %s", e)
 
 
+    def get_entire_pgf_table(self,data_table_name):
+        """
+        Query the enitre pgf table as dataframe as pandas data frame
+        :param data_table_name:
+        :return:
+        """
+        q = """select pgf_data_table_name from experiment_series where sweep_table_name = (?)"""
+        pgf_table_name = self.get_data_from_database(self.database, q, [data_table_name])[0][0]
+
+        self.database.execute(f'SELECT * FROM {pgf_table_name}')
+        return self.database.fetchdf()
+
     def get_data_from_pgf_table(self,series_name,data_name,segment_number):
         """
         reads pgf information from the database and returns the requested floa value of the specified segment
@@ -1126,6 +1151,35 @@ class DuckDBDatabaseHandler():
         # cast string and return as float value
         return float(val)
 
+    '''-------------------------------------------------------'''
+    '''     interaction with  table resutls       '''
+    '''-------------------------------------------------------'''
+    def update_results_table_with_new_specific_result_table_name(self, analysis_id,  function_analysis_id,
+                                                             data_table_name, new_specific_result_table_name, result_data_frame):
+
+        """
+        creates a specific result data frame and stores it in the database and also updates result overview table
+        :param analysis_id:
+        :param function_analysis_id:
+        :param data_table_name:
+        :param new_specific_result_table_name:
+        :param result_data_frame:
+        :return:
+        """
+        self.database.register('df_1', result_data_frame)
+        q = """insert into  results values (?,?,?,?) """ #set specific_result_table_name = (?) where analysis_id = (?) and analysis_function_id = (?) and sweep_table_name = (?) """
+
+        try:
+            # create a new sweep table
+            self.database.execute(f'create table {new_specific_result_table_name} as select * from df_1')
+
+            self.execute_sql_command(self.database, q, (analysis_id, function_analysis_id,data_table_name,new_specific_result_table_name))
+
+            self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,
+                             data_table_name, function_analysis_id)
+        except Exception as e:
+            print("error")
+            print(e)
     ###### deprecated ######
 
     # @todo deprecated ?

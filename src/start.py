@@ -10,6 +10,8 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
+##################################################################################
+#Importing the QT libraries
 from PySide6.QtWidgets import QApplication, QMainWindow
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
@@ -38,6 +40,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
+        #self.addDockWidget(Qt.BottomDockWidgetArea,self.ui.config.dockWidget)
+        
 
 
         self.desktop = QApplication.primaryScreen()
@@ -73,6 +77,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info('A trial message if the logger is working')
+        logging.getLogger('matplotlib.font_manager').disabled = True
 
         #darkmode implementation
         self.default_mode = 1
@@ -87,6 +92,10 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         for i, button in enumerate(self.home_buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
+
+
+        self.ui.statistics.clicked.connect(self.initialize_database)
+
         #self.configuration_elements = Config_Widget()
 
         #self.ui.statistics_2.setProperty("class", "big_button")
@@ -106,6 +115,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.maximize_button.clicked.connect(self.quit_application)
         GlobalBlur(self.winId(), Acrylic=True)
 
+
+        # set the animation 
+
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(100)
+
+
+    def initialize_database(self):
+       self.ui.notebook.setCurrentIndex(4)
+       self.ui.database.show_basic_tables(self.local_database_handler)
+
     def center(self):
         """Function to center the application at the start into the middle of the screen
         """        
@@ -120,7 +140,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         Args:
             event (event): is a mouse Press Event
         """        
-        self.oldPos = event.globalPos()
+        self.oldPos = event.globalPosition().toPoint()
         print(self.oldPos)
 
 
@@ -130,13 +150,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         Args:
             event (event): retrieve the mouse move event
         """        
-        if (event.y()) < 60:
+        if (event.pos().y()) < 60:
             GlobalBlur(self.winId(), Acrylic=False)
-            delta = QPoint (event.globalPos() - self.oldPos)
+            delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
-            self.oldPos = event.globalPos()
+            self.oldPos = event.globalPosition().toPoint()
 
-        if event.globalPos().y() < 12:
+        if event.globalPosition().y() < 12:
             window_size = self.geometry()
             self.maximize(window_size)
 
@@ -183,13 +203,25 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.first_geometry = window_size
 
         if self.geometry() == self.screenRect:
-            self.setGeometry(self.first_geometry)
+            #self.setGeometry(QRect(320, 45, 1280, 950))
+            self.animate_resizing(size = True)
             
         else:
-            self.first_geometry = self.geometry()
-            self.setGeometry(self.screenRect) # maximize the window
+            self.animate_resizing()
+            #self.first_geometry = self.geometry()
+            #self.setGeometry(self.screenRect) # maximize the window
 
 
+    def animate_resizing(self, size = None):
+        """Function to animate the resizing of the window"""  
+        if size is None:      
+            self.animation.setStartValue(self.geometry())
+            self.animation.setEndValue(self.screenRect)
+            self.animation.start()
+        else:
+            self.animation.setStartValue(self.geometry())
+            self.animation.setEndValue(QRect(320, 45, 1280, 950))
+            self.animation.start()
 
     def quit_application(self):
         """ Function to quit the app"""
@@ -208,15 +240,11 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def write_button_text(self):
         """ Add names to the buttons"""
-        #self.ui.home_window.setText("  Home")
         self.ui.self_configuration.setText("  Configuration")
         self.ui.online_analysis.setText(" Online Analysis")
         self.ui.offline_analysis.setText(" Offline Analysis")
         self.ui.statistics.setText("Database View")
-        #self.ui.darkmode_button.setText("Change Theme")
-        #self.ui.konsole_button.setText("Terminal")
         self.ui.settings_button.setText("Settings")
-
 
     def change_to_lightmode(self):
         # @toDO should be added to the designer class 
@@ -243,7 +271,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
-            self.apply_stylesheet(self, "dark_red.xml")
+            self.apply_stylesheet(self, "hello.xml")
             with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
@@ -286,10 +314,10 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 if __name__ == "__main__":
     """Main function to start the application"""
-    app = QApplication(sys.argv)
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ['QT_MAC_WANTS_LAYER'] = '1'
-    app.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    app = QApplication(sys.argv)
+    
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
     with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:

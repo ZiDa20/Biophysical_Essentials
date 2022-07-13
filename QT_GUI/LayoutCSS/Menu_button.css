@@ -6,8 +6,19 @@ QPushButton {{
 
 }}
 
+QPushButton::pressed{{
+  background-color:  #97ccf2;
+  color: black;
+  text-transform: none;
+  height: 30px;
+}}
+
+QPushButton:hover{{
+	background-color: "#54545a";
+}}
+
 ListView{{
-  background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+  background-color: rgba(4,7,26, 180) ;
   border: 1px solid #fff5cc;
 }}
 
@@ -21,8 +32,6 @@ QScrollArea > QWidget > QWidget {{
 
 QTabWidget[accessibleName="self_configuration_notebook"] QStackedWidget > QWidget {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
-
-
 }}
 
 
@@ -47,55 +56,33 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
   color:grey;
 }}
 
-
-QTabWidget[objectName="online_analysis_tabs"] QStackedWidget > QWidget {{
-  background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 2px solid #fff5cc;
-  border-radius: 5px
-
-
-}}
-
-QTabWidget[objectName="online_analysis_tabs"] QTabBar {{
-  background-color: #fff5cc;
-}}
-
-QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::selected {{
-  color:black;
-}}
-
-QTabWidget[objectName="online_analysis_tabs"] QTabBar::tab::!selected {{
-  color:grey;
-}}
-
-
 QTreeView {{
   background-color:  {QTMATERIAL_SECONDARYCOLOR}
 }}
 
 
 QGroupBox[objectName="button_box_1"]{{
-  color:black;
+  color:white;
   border: 1px #fff5cc;
 }}
 
 
 QStackedWidget{{
-  background-color: rgba(20,20,20,0);
+  background-color: rgba(4,7,26,0);
 }}
 
 QWidget[objectName="centralwidget"]{{
-  background-color: rgba(20,20,20,50);
+  background-color: rgba(4,7,26,50);
   border-radius: 10px
 }}
 
 QMainWindow{{
-  background-color: rgba(39,36,38,85);
+  background-color: rgba(4,7,26,85);
   border-radius: 10px;
 }}
 
 QStatusBar{{
-  background-color: rgba(49,54,59, 180);
+  background-color: rgba(4,7,26, 180);
   border-radius: 0px 0px 10px 10px;
 }}
 
@@ -113,25 +100,25 @@ QTabWidget[objectName="self_configuration_notebook"] QTabBar::tab::selected{{
 
 QWidget[objectName="experiment_initialization_3"]{{
   border-radius: 5px;
-  background-color: rgba(49,54,59, 180)
+  background-color: rgba(4,7,26, 180)
 }}
 
 QWidget[objectName="batch_communication_3"]{{
   border-radius: 5px;
-  background-color: rgba(49,54,59, 180)
+  background-color: rgba(4,7,26, 180)
 }}
 
 QWidget[objectName="camera_3"]{{
   border-radius: 5px;
-  background-color: rgba(49,54,59, 180)
+  background-color: rgba(4,7,26, 180)
 }}
 
 QWidget[objectName="page"]{{
-  background-color: rgba(49,54,59, 0);
+  background-color: rgba(4,7,26, 0);
 }}
 
 QWidget[objectName="page_2"]{{
-  background-color: rgba(49,54,59, 0);
+  background-color: rgba(4,7,26, 0);
 }}
 
 
@@ -148,25 +135,70 @@ QTabWidget[objectName="online_analysis"] QTabBar::tab::selected{{
 
 QWidget[objectName="online_analysis_window"]{{
   border-radius: 5px;
-  background-color: rgba(49,54,59, 180)
+  background-color: rgba(4,7,26, 180)
 }}
 
 QWidget[objectName="labbook_window"]{{
-  background-color: rgba(49,54,59, 180);
+  background-color: rgba(4,7,26, 180);
 }}
 
 QProgressBar {{
   border: 2px solid #fff5cc;
   border-radius: 5px;
-  background-color: rgba(49,54,59, 180);
+  background-color: rgba(4,7,26, 180);
 }}
 
 QWidget[objectName="home"] {{
 
-  background-color: rgba(49,54,59, 0);
+  background-color: rgba(4,7,26, 0);
 }}
 
 QWidget[objectName="frame"]{{
-  background-color: rgba(49,54,59, 180);
+  background-color: rgba(4,7,26, 180);
 
+}}
+
+
+QWidget[objectName="OfflineResultWidget"]{{
+  background-color: rgba(0,0,0,0)
+}}
+
+
+QStackedWidget[objectName="data_base_stacked_widget"]{{
+  background-color: rgba(4,7,26, 180)
+}}
+
+QWidget[objectName="data_base"]{{
+  background-color: rgba(4,7,26, 0)
+}}
+
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QStackedWidget > QWidget {{
+  background-color: rgba(4,7,26, 180) ;
+  border-radius: 5px
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar {{
+  border-radius: 5px;
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::selected {{
+  color: black;
+  background-color:#fff5cc;
+  border-radius: 5px
+}}
+
+QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::!selected {{
+  color:grey;
+}}
+
+QWidget[objectName="side_left_menu"]  QPushButton{{
+  color: #fff5cc;
+}}
+
+
+QMdiArea {{
+  qproperty-background: transparent;
+  border: 1px solid #fff5cc;
 }}

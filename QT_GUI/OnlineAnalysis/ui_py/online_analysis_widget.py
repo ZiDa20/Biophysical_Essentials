@@ -11,40 +11,48 @@ from online_analysis_manager import OnlineAnalysisManager
 from treeview_manager import TreeViewManager
 from plot_widget_manager import PlotWidgetManager
 from dvg_pyqtgraph_threadsafe import PlotCurve
+from time import sleep
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self,parent = None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
 
+        # initialize the OnlineAnalysis Manager
         self.online_manager = OnlineAnalysisManager()
-
         self.online_analysis.setCurrentIndex(0)
+        
+        # check if video matrix is there, image is there and initialize the video calls
+        self.video_mat = None
+        self.image = None
+        self.video_call = 0 # number of frames went through
+
+        # set the video Graphic Scence
+        self.online_video = QGraphicsScene(self)
+        self.online_video.addText("Load the Video if recorded from Experiment")
+        self.graphicsView.setScene(self.online_video)
+        # Connect the buttons, connect the logger
+        self.connections_clicked()
+        self.logger_connection()
+        self.drawing()
+
+
+    def connections_clicked(self):
+        """ connect the buttons to the corresponding functions """
         self.button_select_data_file.clicked.connect(self.open_single_dat_file)
         self.online_analysis.currentChanged.connect(self.online_analysis_tab_changed)
+        self.pushButton_2.clicked.connect(self.video_show)
 
-        # add some empty widgets for a better appearance
-        #self.tree_default_empty_widget = QGroupBox()
-        #self.tree_layout_online.addWidget(self.tree_default_empty_widget)
-        #self.tree_layout_online.setSpacing(0)
 
-        # logger settings
+    def logger_connection(self):
+         # logger settings
         self.logger=logging.getLogger() # introduce the logger
         self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/online_analysis.log')
-    
-
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.debug('Online Analysis Widget Debugger')
-
-        #self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
-        #self.pyqt_graph.setBackground("#232629")
-        #self.gridLayout_12.addWidget(self.pyqt_graph)
-        #self.online_analysis_tabs.setStyleSheet("background-color: #232629;")
-        self.drawing()
-
 
     @Slot()
     def online_analysis_tab_changed(self):
@@ -115,6 +123,23 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         self.get_columns_data_to_table()
 
+    def video_show(self):
+        """ show the video in the graphics view 
+        Generate the Qtimer for the function"""
+        if self.video_mat is not None:
+            self.start_video = QTimer() # create a timer
+            self.start_video.timeout.connect(self.run_video) # connect the timer to the start camera function
+            self.start_video.start(250) 
+            
+    def run_video(self):
+        self.video_call += 1 
+        item = self.video_mat[self.video_call]
+        self.online_video.clear()   # clear the scene
+        self.online_video.addPixmap(item)
+        print(self.video_call, len(self.video_mat))
+        if len(self.video_mat)-1 == self.video_call:
+            self.start_video.stop()
+            self.video_call = 0
 
         
     def get_columns_data_to_table(self):
@@ -137,7 +162,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
 
         final_pandas.index = pd.Series(list_rows)
-        print(final_pandas.columns)
         final_pandas = final_pandas[["Label","RsValue","CSlow"]]
         final_pandas["comments"] = final_pandas.shape[0] * [""]
         
@@ -174,6 +198,24 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.pyqt_graph.setBackground("#232629")
         self.verticalLayout_6.addWidget(self.pyqt_graph)
         print("initialized")
+
+    def draw_scene(self, image):
+
+        """ draws the image into the self.configuration window
+        
+        args:
+            image type: QImage: the image to be drawn
+        returns:
+            None
+            
+        """
+        self.online_scence = QGraphicsScene(self)
+        self.image_experiment.setScene(self.online_scence) # set the scene to the image
+        item = QGraphicsPixmapItem(image)
+        self.image_experiment.scene().addItem(item) #
+    
+
+
        
 
 
