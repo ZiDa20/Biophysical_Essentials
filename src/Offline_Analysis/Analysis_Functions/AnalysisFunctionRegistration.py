@@ -1,5 +1,7 @@
 
 from Offline_Analysis.Analysis_Functions.MaxCurrent import *
+from Offline_Analysis.Analysis_Functions.MinCurrent import *
+from Offline_Analysis.Analysis_Functions.MeanCurrent import *
 from Offline_Analysis.Analysis_Functions.ActionPotentialFitting import *
 from Offline_Analysis.Analysis_Functions.RheobaseDetection import *
 
@@ -11,7 +13,9 @@ class AnalysisFunctionRegistration():
     @classmethod
     def get_registered_analysis_class(cls,analysis_function_name):
         mapping = {
-            "max_current":MaxCurrent,
+            "max_current": MaxCurrent,
+            "min_current": MinCurrent,
+            "mean_current": MeanCurrent,
             "Action Potential Fitting" : ActionPotentialFitting,
             "AP_Amplitude": ActionPotentialFitting,
             'Threshold_Amplitude': ActionPotentialFitting,

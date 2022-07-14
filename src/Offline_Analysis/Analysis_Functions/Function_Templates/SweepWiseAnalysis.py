@@ -173,7 +173,7 @@ class SweepWiseAnalysisTemplate(object):
 
 			# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
 
-			new_specific_result_table_name = self.create_new_specific_result_table_name(self.database.analysis_id, data_table)
+			new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id, data_table)
 			self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
 																				   self.analysis_function_id,
 																				   data_table,
