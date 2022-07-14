@@ -380,9 +380,9 @@ class ActionPotentialFitting(object):
         #print("running late register")
 
         #self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('time_to_ahp', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('time_to_ahp', self.series_name, 0, 0)
         self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold', self.series_name, 0, 0)
         self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate', self.series_name,
                                                                                  0, 0)
