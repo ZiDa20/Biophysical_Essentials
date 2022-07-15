@@ -159,6 +159,7 @@ class SweepWiseAnalysisTemplate(object):
 
 				duration_list_float = []
 				volt_val = 0
+
 				for i in range(0,len(duration_list)):
 					duration_list_float.append(float(duration_list[i])*1000)
 

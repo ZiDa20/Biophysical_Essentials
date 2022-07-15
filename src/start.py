@@ -113,7 +113,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        #GlobalBlur(self.winId(), Acrylic=True)
+        GlobalBlur(self.winId(), Acrylic=True)
 
 
         # set the animation 

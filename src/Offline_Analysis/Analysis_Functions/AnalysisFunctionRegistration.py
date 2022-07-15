@@ -4,6 +4,8 @@ from Offline_Analysis.Analysis_Functions.MinCurrent import *
 from Offline_Analysis.Analysis_Functions.MeanCurrent import *
 from Offline_Analysis.Analysis_Functions.ActionPotentialFitting import *
 from Offline_Analysis.Analysis_Functions.RheobaseDetection import *
+from Offline_Analysis.Analysis_Functions.RheorampDetection import *
+
 
 class AnalysisFunctionRegistration():
     """
@@ -25,7 +27,8 @@ class AnalysisFunctionRegistration():
             'delta_ap_threshold': ActionPotentialFitting,
             'max_first_derivate': ActionPotentialFitting,
             'min_first_derivate':ActionPotentialFitting,
-            'Rheobase-Detection':RheobaseDetection
+            'Rheobase-Detection':RheobaseDetection,
+            'RheoRamp-Detection': RheorampDetection
 
         }
         return mapping.get(analysis_function_name,lambda: MaxCurrent)
