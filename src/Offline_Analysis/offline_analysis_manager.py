@@ -125,35 +125,49 @@ class OfflineManager():
             self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
-        self.database.database.close()
 
-        # added worker to the analysis
+        # create a threadpool
         self.threadpool = QThreadPool()
-        threads = self.threadpool.globalInstance().maxThreadCount()
+        threads = self.threadpool.globalInstance().maxThreadCount() # get the number of threads
 
-
-        if len(data_list) < threads:
+        # start the threadpool running the bundle read in function
+        if len(data_list) < threads: # 
             data_list_final = list(self.chunks(data_list, threads/2))
-            for i,t in enumerate(data_list_final):
-                bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,t,self._directory_path)
-                bundle_worker.signals.result.connect(self.show_bundle_result,Qt.DirectConnection)
-                self.threadpool.start(bundle_worker)
+            for i,t in enumerate(data_list_final): 
+                # read
+                bundle_worker = self.run_bundle_function_in_thread(t)
 
         else:
             data_list_final = list(self.chunks(data_list, threads-1))
             for i,t in enumerate(data_list_final):
-                bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,t,self._directory_path)
-                bundle_worker.signals.result.connect(self.show_bundle_result,Qt.DirectConnection)
-                self.threadpool.start(bundle_worker)
+                bundle_worker = self.run_bundle_function_in_thread(t)
+               
 
         bundle_worker.signals.finished.connect(partial(self.run_database_threading,self.bundle_liste, tree, discarded_tree))
         
         return self.tree_view_manager # return the treeview manager object
 
-    def run_database_threading(self, bundle_liste, tree, discarded_tree):
-        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste)
-        worker.signals.progress.connect(self.progress_fn, Qt.DirectConnection)
 
+    def run_bundle_function_in_thread(self,bundle_liste):
+        """
+        Runs the bundle function in a thread
+        @param bundle_liste:
+        @param tree:
+        @param discarded_tree:
+        author MZ, 13.07.2022
+        """
+        bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
+        bundle_worker.signals.result.connect(self.show_bundle_result,Qt.DirectConnection)
+        self.threadpool.start(bundle_worker)
+        return bundle_worker
+        
+
+    def run_database_threading(self, bundle_liste, tree, discarded_tree):
+        
+        self.threadpool.clear()
+        self.database.database.close()
+        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste)
+        worker.signals.progress.connect(self.progress_fn)
         worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
          # signal to update progress bar
         self.threadpool.start(worker) # start the thread

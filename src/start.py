@@ -114,7 +114,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
+        #GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
 
         # set the animation 
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.pos().y()) < 60:
-            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
+            #GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
             delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPosition().toPoint()
@@ -168,7 +168,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): Mouse release
         """      
 
-        GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
+        #GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
     def resizeEvent(self, event):
         """resizing of MainWindow
@@ -182,7 +182,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
-        GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
+        #GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
        
         
     def transfer_file_to_online(self):

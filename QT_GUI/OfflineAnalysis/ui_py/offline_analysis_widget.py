@@ -490,7 +490,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(3)
         
     def onItemClicked(self, it, col):
-        print(col)
+        """should be commented properly
+        toDO MZ"""
+       
         index_item = self.SeriesItems.currentIndex().row()
 
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
@@ -741,14 +743,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
     def run_database_thread(self, current_tab, progress_callback):
-        """"""
+        """ This function will run the analysis in a separate thread, that is selected
+        by the analysis function
+        :param current_tab:
+        :param progress_callback:
+        
+        """
         print("Qthread is running")
-        self.database_handler.open_connection()
+        self.database_handler.open_connection() # open connection to database in Thread
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
         self.database_handler.database.close()
 
     def progress_bar_update_analysis(self,data):
+        """ This function will update the progress bar in the analysis tab
+        :param data:
+        
+        """
         self.progressbar.setValue(data[0])
         self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
 

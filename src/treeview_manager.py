@@ -12,7 +12,7 @@ import logging
 import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
-
+from time import sleep
 from data_db import *
 import pandas as pd
 
@@ -245,60 +245,106 @@ class TreeViewManager():
         #return selected_tree, discarded_tree
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
-        bundle_list = []
-        try:
-            for i in dat_files:
-                file = directory_path + "/" + i
-                bundle = self.open_bundle_of_file(file)
-                pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
-                splitted_name = i.split(".")
-                bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame))
+        """ read the dat files in a separate thread that reads in through the directory 
+        adds the dat.files run through the heka reader to get the data file and pulse generator files
+        
+        args:
+           dat_files type: list of strings - the dat files to be read
+           directory_path type: string - the path to the directory where the dat files are located
+           progress_callback type: function - the function to be called when the progress changes
+           
+        returns:
+          bundle_list type: list of tuples - the list of bundles that were read 
+          
+        """
+        bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+        
+        for i in dat_files:
 
-        except Exception as e:
-            print(e)
+            try:
+                file = directory_path + "/" + i # the full path to the file
+                bundle = self.open_bundle_of_file(file) # open heka reader
+                pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
+                splitted_name = i.split(".") # retrieve the name
+                bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame)) 
+
+            except Exception as e:
+                # @todo error handling
+                self.logger.error("Bundle file could not be read: " + str(i) + " the error occured: " + str(e))
             
         return bundle_list
        
 
     def write_directory_into_database(self,database, dat_files,progress_callback):
-        """ write the directory path into the database, as well as files """
+        """ writes the bundle files as well as the pgf files and meta data files into the
+        database in a separate Threads. This is done to avoid blocking the GUI.
+        Tedious task with long running time, since only one connection can be opened at a time
+
+        args:
+           database type: database object - the database to write the data into
+           dat_files type: list of tuples - the bundle tuple files to be read
+           progress_callback type: function - the function to be called when the progress changes
+
+        returns:
+            database type: database object - the database to write the data into
+           """
 
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
 
+        ################################################################################################################
+        #Progress Bar setup
         max_value = len(dat_files)
         progress_value = 0
         database.open_connection()
+        ################################################################################################################
         for i in dat_files:
-            increment = 100/max_value
-            progress_value = progress_value + increment
-            self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", i[2])
-            print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
-            progress_callback.emit((progress_value,i))
+            # loop through the dat files and read them in
+            try:
+                increment = 100/max_value
+                progress_value = progress_value + increment
+                self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", i[2])
+                print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
+                progress_callback.emit((progress_value,i))
+            except Exception as e:
+                self.logger.error("The file could not be written to the database: " + str(i) + " the error occured: " + str(e))
+                database.database.close() # we close the database connection and emit an error message
         
-        print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
-        database.database.close()
-        print(database.database.is_connected())
-        sleep(10)
-        database.open_connection()
-        print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
 
-        #
+        database.database.close()
+        #print(database.database.is_connected())
+        sleep(10)
+
+        # trial to see if the database opens correctly
+        database.open_connection()
         return database.database
 
     def update_treeview(self,selected_tree,discarded_tree):
-        print("Qthread finished")
+        """ updates the treeview with the selected and discarded experiments following
+        database writing
+        toDO: put this also in a thread to avoid sluggish tree loading when lots of data are loaded
+        
+        args:
+           selected_tree type: QTreeWidget - the treeview to be updated with the selected experiments
+           discarded_tree type: QTreeWidget - the tree that is updated with the discarded experiments
+           
+        returns:
+           None"""
 
-        self.database.open_connection()
+        self.logger.info("Database writing thread successfully finished") #
+        self.database.open_connection() # open the connection to the database in main thread
 
-        df = self.database.database.execute("SELECT * FROM experiments").fetchall()
-        print(df)
-        self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
+        try:
+            df = self.database.database.execute("SELECT * FROM experiments").fetchall() # get all the experiments as sanity
+            if df:
+                self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
+        except Exception as e:
+            self.logger.error("Not able to open the database properly " + str(e))
 
     #progress_callback
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , series_identifier, pgf_tuple_data_frame=None):
 
-        
             if database is None:
+                print("no database detected")
                 database = self.database
             
             self.logger.info("started treeview generation")
@@ -364,7 +410,7 @@ class TreeViewManager():
                 data_access_array[2] += 1
 
             if "NoneType" in node_type:
-                self.logger.info(
+                self.logger.error(
                     "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
                 return
 
