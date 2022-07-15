@@ -78,7 +78,7 @@ class TreeViewManager():
 
         # introduce logger
         self.logger=logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
         file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
         print(file_handler)
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
@@ -246,11 +246,16 @@ class TreeViewManager():
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         bundle_list = []
-        for i in dat_files:
-            file = directory_path + "/" + i
-            bundle = self.open_bundle_of_file(file)
-            splitted_name = i.split(".")
-            bundle_list.append((bundle, splitted_name[0]))
+        try:
+            for i in dat_files:
+                file = directory_path + "/" + i
+                bundle = self.open_bundle_of_file(file)
+                pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)
+                splitted_name = i.split(".")
+                bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame))
+
+        except Exception as e:
+            print(e)
             
         return bundle_list
        
@@ -266,18 +271,27 @@ class TreeViewManager():
         for i in dat_files:
             increment = 100/max_value
             progress_value = progress_value + increment
-            pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], i[0], [], None, None, None)
-            self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
+            self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", i[2])
+            print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
             progress_callback.emit((progress_value,i))
         
-
+        print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
         database.database.close()
-        return database
+        print(database.database.is_connected())
+        sleep(10)
+        database.open_connection()
+        print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
+
+        #
+        return database.database
 
     def update_treeview(self,selected_tree,discarded_tree):
         print("Qthread finished")
+
         self.database.open_connection()
-        selected_tree.clear()
+
+        df = self.database.database.execute("SELECT * FROM experiments").fetchall()
+        print(df)
         self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
 
     #progress_callback

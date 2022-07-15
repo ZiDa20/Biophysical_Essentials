@@ -116,7 +116,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # logger added --> ToDO: should be used for developers as well as for users should be disriminated
         print("initialized the logger")
         self.logger= logging.getLogger() 
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
         file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)

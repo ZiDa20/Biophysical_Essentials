@@ -40,8 +40,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        #self.addDockWidget(Qt.BottomDockWidgetArea,self.ui.config.dockWidget)
-        
+        self.setAttribute(Qt.WA_TranslucentBackground)
+            
 
 
         self.desktop = QApplication.primaryScreen()
@@ -71,13 +71,14 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # Logger for the Main function called start
         self.logger=logging.getLogger() 
-        self.logger.setLevel(logging.DEBUG)
+        
         file_handler = logging.FileHandler('../Logs/start.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s') #Check formatting
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info('A trial message if the logger is working')
-        logging.getLogger('matplotlib.font_manager').disabled = True
+        self.logger.setLevel(logging.ERROR)
+        #logging.getLogger('matplotlib.font_manager').disabled = True
 
         #darkmode implementation
         self.default_mode = 1
@@ -113,7 +114,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        #GlobalBlur(self.winId(), Acrylic=True)
+        GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
 
         # set the animation 
@@ -151,7 +152,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.pos().y()) < 60:
-            #GlobalBlur(self.winId(), Acrylic=False)
+            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
             delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPosition().toPoint()
@@ -167,7 +168,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): Mouse release
         """      
 
-        #GlobalBlur(self.winId(), Acrylic=True)
+        GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
     def resizeEvent(self, event):
         """resizing of MainWindow
@@ -181,7 +182,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
-        #GlobalBlur(self.winId(), Acrylic=False)
+        GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
        
         
     def transfer_file_to_online(self):

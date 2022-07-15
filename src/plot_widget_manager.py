@@ -288,6 +288,8 @@ class PlotWidgetManager(QRunnable):
                  #self.series_clicked(item)
         except Exception as e:
             print("experiment or sweep was clicked which is not implemented yet")
+
+            
     def show_draggable_lines(self,row_number):
         left_val =  0.2*max(self.time)
         right_val = 0.8*max(self.time)

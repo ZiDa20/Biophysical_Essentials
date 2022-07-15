@@ -29,12 +29,11 @@ class DuckDBDatabaseHandler():
 
         # logger settings
         self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/database_manager.log')
-        print(file_handler)
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
+        self.logger.setLevel(logging.ERROR)
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
         self.sq_lite_database = "SQ_Lite"
@@ -507,8 +506,15 @@ class DuckDBDatabaseHandler():
                 return -1
 
     def open_connection(self):
+        
+        #if self.database.execute("SHOW TABLES").fetchall():
+        #    print("connection is still open")
+
         cew = os.path.dirname(os.getcwd())
         self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=False)
+        print(self.database)
+        print("database opened")
+        print(self.database.execute("SHOW TABLES").fetchall())
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """
