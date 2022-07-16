@@ -40,9 +40,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        self.setAttribute(Qt.WA_TranslucentBackground)
-            
 
+        print(sys.platform)
+
+        if sys.platform != "darwin":
+            self.setAttribute(Qt.WA_TranslucentBackground)
+            
 
         self.desktop = QApplication.primaryScreen()
         self.screenRect = self.desktop.availableGeometry()
@@ -114,7 +117,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        #GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
+
+        if sys.platform != "darwin":
+            GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
 
         # set the animation 
@@ -152,7 +157,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.pos().y()) < 60:
-            #GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
+            if sys.platform != "darwin":
+               GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
             delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPosition().toPoint()
@@ -167,8 +173,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         Args:
             event (event): Mouse release
         """      
-
-        #GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
+        if sys.platform != "darwin":   
+            GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
     def resizeEvent(self, event):
         """resizing of MainWindow
@@ -182,7 +188,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
-        #GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
+        if sys.platform != "darwin":
+            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
        
         
     def transfer_file_to_online(self):
@@ -321,7 +328,10 @@ if __name__ == "__main__":
     
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
-    with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
+    stylesheet_loaded = "Menu_button.css"
+    if sys.platform == "darwin":
+        stylesheet_loaded = "Menu_button_mac.css"
+    with open(os.path.dirname(os.getcwd()) + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()

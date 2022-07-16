@@ -41,7 +41,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea, self.CameraDock)
         # added the Progress Bar to the self-configuration
         self.set_buttons_beginning()
-        
+        self.CameraWindow.showMaximized()
+        self.CameraWindow.setWindowFlags(Qt.FramelessWindowHint)
         #select the batch_path
         self.batch_path = None
         self.backend_manager = BackendManager() # initialize the backend manager

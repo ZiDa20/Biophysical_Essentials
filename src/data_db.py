@@ -506,15 +506,11 @@ class DuckDBDatabaseHandler():
                 return -1
 
     def open_connection(self):
-        
-        #if self.database.execute("SHOW TABLES").fetchall():
-        #    print("connection is still open")
+        """ Opens a connection to the database"""
 
         cew = os.path.dirname(os.getcwd())
         self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=False)
-        print(self.database)
-        print("database opened")
-        print(self.database.execute("SHOW TABLES").fetchall())
+        self.logger.debug("opened connection to database %s", self.db_file_name)
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """
