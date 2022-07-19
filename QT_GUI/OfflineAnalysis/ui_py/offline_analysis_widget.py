@@ -74,6 +74,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.series_list = []
         self.SeriesItems.clear()
         self.parent_count = 0
+        self.current_tab_visualization = []
 
 
 
@@ -416,14 +417,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         
-        # clear the tab widget to avoid any forth and back errors
-        #for i in range(0,self.SeriesItems.count()):
-        #    self.tabWidget.removeTab(i)
-        # should be added to init to allow appending
-        
-
-        
-        for s in series_names_list:
+        for index, s in enumerate(series_names_list):
 
             # create a new tab from default tab for each series
             """
@@ -440,18 +434,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
             new_tab_widget.setObjectName(s)
             self.tab_list.append(new_tab_widget)
+            self.tab_changed(index,s)
             new_tab_widget.go_back_tp_page_2.clicked.connect(self.go_to_offline_analysis_page_2)
 
             # fill the treetabwidgetitems
             parent = QTreeWidgetItem()
             self.SeriesItems.addTopLevelItem(parent)
+
+
+            # set the child items of the widget
             plot = QTreeWidgetItem(parent)
             tables = QTreeWidgetItem(parent)
             statistics = QTreeWidgetItem(parent)
             plot.setText(0, "Plot")
             tables.setText(0, "Tables")
             statistics.setText(0, "Statistics")
-            parent.setText(0, s)
+            parent.setText(0, s + " Analysis Configurator")
             self.series_list.append(s)
 
             # child stacked notebook per parent node
@@ -465,11 +463,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             
             # set important data to the parent
-            parent.setData(1, Qt.UserRole, "parent")
-            parent.setData(2, Qt.UserRole, new_tab_widget)
-            parent.setData(4, Qt.UserRole, self.hierachy_stacked)
+            parent.setData(1, Qt.UserRole, "parent") # check if parent
+            parent.setData(2, Qt.UserRole, new_tab_widget) # save the widget
+            parent.setData(4, Qt.UserRole, self.hierachy_stacked) # save the child notebook
             parent.setData(5, Qt.UserRole, 0)
-            parent.setData(6, Qt.UserRole, self.parent_count)
+            parent.setData(6, Qt.UserRole, s) # specific series name
+            parent.setData(7, Qt.UserRole, index) # save the index 
+           
 
             # set the data for each of the child items
             # remove and use for loop
@@ -493,24 +493,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """should be commented properly
         toDO MZ"""
        
-        index_item = self.SeriesItems.currentIndex().row()
 
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
-            print("yes we are in the parent")
-            self.tab_changed(index_item,it.text(col))
-            parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
+            
+            # retrieve the parent on click
+            
+            parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
             stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
             stacked_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
             new_widget = self.SeriesItems.currentItem().data(2, Qt.UserRole)
             
-
+            # insert the windget
             stacked_widget.insertWidget(stacked_index, new_widget)
             stacked_widget.setCurrentIndex(stacked_index)
             self.analysis_stacked.setCurrentIndex(parent_stacked)
             
         else:
             parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
-            widget_stacked = self.SeriesItems.currentItem().data(4, Qt.UserRole)
             stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
             self.analysis_stacked.setCurrentIndex(parent_stacked)
             self.hierachy_stacked_list[parent_stacked].setCurrentIndex(stacked_widget_index)
@@ -567,6 +566,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
 
+        self.current_tab_visualization.append(self.current_tab_plot_manager)
+
 
     def clear_promoted_tab_items(self,unclean_tab):
         unclean_tab.selected_tree_widget.clear()
@@ -612,15 +613,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # read from database - if no settings have been made before execute initalization
 
         self.selected_analysis_functions = self.get_selected_checkboxes(checkbox_list,analysis_function_name_list)
-        current_index = self.SeriesItems.currentIndex().row()
-        print(current_index)
+        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.tab_list[current_index]
-
-        print(self.selected_analysis_functions)
-
         existing_row_numbers = current_tab.analysis_table_widget.rowCount()
-        print(existing_row_numbers)
-
+    
         if existing_row_numbers == 0:
             current_tab.analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
@@ -658,9 +654,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
 
-                self.current_tab_plot_manager.remove_dragable_lines(row_number)
+                self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
             try:
-                self.current_tab_plot_manager.remove_dragable_lines()
+                self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
             except:
                 print("nothing to delete")
 
@@ -670,22 +666,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-        # change the button text
-        print("row")
-        print(row_number)
-
-
-        self.current_tab_plot_manager.remove_dragable_lines(row_number)
+      
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
 
         # 1) insert dragable coursor bounds into pyqt graph
-        left_val, right_val = self.current_tab_plot_manager.show_draggable_lines(row_number)
+        left_val, right_val = self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
 
         #2) connect to the signal taht will be emitted when cursor bounds are moved by user
-        self.current_tab_plot_manager.left_bound_changed.cursor_bound_signal.connect(self.update_left_common_labels)
-        self.current_tab_plot_manager.right_bound_changed.cursor_bound_signal.connect(self.update_right_common_labels)
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(self.update_left_common_labels)
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].right_bound_changed.cursor_bound_signal.connect(self.update_right_common_labels)
 
-        print("function called")
-        print(row_number)
 
         #3) update the function selection grid
         self.update_left_common_labels((left_val,row_number))
@@ -709,9 +699,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.update_cursor_bound_labels(value, 2,row_number)
 
     def update_cursor_bound_labels(self,value,column_number,row_number):
-        current_index = self.SeriesItems.currentIndex().row()
+        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.tab_list[current_index]
-
         print("updating: row = " + str(row_number) + " column=" + str(column_number) + " value= " + str(value))
 
 
@@ -747,7 +736,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # store analysis parameter in the database
         self.database_handler.database.close()
-
         self.threadpool = QThreadPool()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
@@ -763,11 +751,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         """
         print("Qthread is running")
-        #self.database_handler.database.close()
-        #self.database_handler.open_connection()
-        # open connection to database in Thread
+        self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
+        self.database_handler.database.close()
 
     def progress_bar_update_analysis(self,data):
         """ This function will update the progress bar in the analysis tab
@@ -784,8 +771,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # plot the calculated results
         self.database_handler.open_connection()
         print(self.SeriesItems.currentItem().data(0,Qt.DisplayRole))
-        self.offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.SeriesItems.currentItem().data(0,Qt.DisplayRole))
-        self.analysis_stacked.setCurrentIndex(self.SeriesItems.currentItem().data(6,Qt.UserRole))
+        self.offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.SeriesItems.currentItem().data(6, Qt.UserRole))
+        self.analysis_stacked.setCurrentIndex(self.SeriesItems.currentItem().data(7,Qt.UserRole))
         print(self.SeriesItems.currentItem().data(6,Qt.UserRole))
         self.hierachy_stacked_list[self.SeriesItems.currentItem().child(0).data(6,Qt.UserRole)].insertWidget(1,self.offline_tab)
         self.hierachy_stacked_list[self.SeriesItems.currentItem().child(0).data(6,Qt.UserRole)].setCurrentIndex(1)

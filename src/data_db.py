@@ -3,6 +3,7 @@ import duckdb
 import os
 import datetime
 import re
+import sys
 
 import numpy
 
@@ -86,8 +87,6 @@ class DuckDBDatabaseHandler():
        
         cew = os.path.dirname(os.getcwd())
         dir_list = os.listdir(cew+ "/src/")
-        print(dir_list)
-        print(cew)
         return_val = 0
         if self.db_file_name in dir_list:
             self.logger.info("Established connection to existing database: %s ", self.db_file_name)
@@ -98,10 +97,12 @@ class DuckDBDatabaseHandler():
 
         try:
             if self.database_architecture == self.duck_db_database:
-                print("trying to acces the database")
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
                 path = cew + '/src/' + self.db_file_name
-                path = path.replace("/","\\")           
+                if sys.platform != "darwin":
+                    path = path.replace("/","\\")
+                else:
+                    path = path.replace("\\","/")       
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
             else:
@@ -514,7 +515,10 @@ class DuckDBDatabaseHandler():
         try:
             cew = os.path.dirname(os.getcwd())
             path = cew + '/src/' + self.db_file_name
-            path = path.replace("/","\\")
+            if sys.platform != "darwin": # check
+                path = path.replace("/","\\")
+            else:
+                path = path.replace("\\","/") 
             self.database = duckdb.connect(path, read_only=False)
             self.logger.debug("opened connection to database %s", self.db_file_name)
 

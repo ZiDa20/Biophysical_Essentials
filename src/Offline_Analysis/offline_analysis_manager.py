@@ -91,7 +91,6 @@ class OfflineManager():
             specific_analysis_class.calculate_results()
 
         self.database.database.close()
-        print("database closed")
         return True
 
     def get_database(self):
@@ -171,7 +170,7 @@ class OfflineManager():
         self.database.database.close()
         worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste)
         #worker.signals.progress.connect(self.progress_fn)
-        worker.signals.result.connect(self.set_database)
+        #worker.signals.result.connect(self.set_database)
         worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
          # signal to update progress bar
         self.threadpool.start(worker) # start the thread
@@ -180,8 +179,10 @@ class OfflineManager():
         for i in result:
             self.bundle_liste.append(i)
 
+    """
     def set_database(self, result):
         print(result)
+    """
 
     def chunks(self, lst, n):
         """Yield successive n-sized chunks from lst."""
