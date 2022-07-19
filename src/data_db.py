@@ -1121,6 +1121,19 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             self.logger.info("Error::Couldn't create a new table with error %s", e)
 
+    def get_entire_pgf_table_by_experiment_name_and_series_identifier(self,experiment_name, series_identifier):
+        """
+        Get the correct pgf table
+        @param experiment_name:
+        @param series_identifier:
+        @return:
+        """
+
+        q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        pgf_table_name = self.get_data_from_database(self.database, q, [experiment_name,series_identifier])[0][0]
+
+        self.database.execute(f'SELECT * FROM {pgf_table_name}')
+        return self.database.fetchdf()
 
     def get_entire_pgf_table(self,data_table_name):
         """

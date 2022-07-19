@@ -159,6 +159,7 @@ class SweepWiseAnalysisTemplate(object):
 
 				duration_list_float = []
 				volt_val = 0
+
 				for i in range(0,len(duration_list)):
 					duration_list_float.append(float(duration_list[i])*1000)
 
@@ -173,7 +174,7 @@ class SweepWiseAnalysisTemplate(object):
 
 			# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
 
-			new_specific_result_table_name = self.create_new_specific_result_table_name(self.database.analysis_id, data_table)
+			new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id, data_table)
 			self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
 																				   self.analysis_function_id,
 																				   data_table,
