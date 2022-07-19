@@ -1,6 +1,7 @@
 import sys
 import os
 
+
 #Path import
 ################################################################################
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
@@ -12,7 +13,8 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
 ##################################################################################
 #Importing the QT libraries
-from PySide6.QtWidgets import QApplication, QMainWindow
+#from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6 import *
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -24,6 +26,8 @@ from settings_dialog import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
+import duckdb
+print(duckdb.__version__)
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -62,6 +66,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
+        self.local_database_handler.database.execute("SET external_threads=1")
+        self.local_database_handler.database.execute("SET log_query_path='duck_db_analysis_database.log'")
 
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
@@ -233,6 +239,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def quit_application(self):
         """ Function to quit the app"""
+        self.local_database_handler.database.close()
         QCoreApplication.quit()
 
 

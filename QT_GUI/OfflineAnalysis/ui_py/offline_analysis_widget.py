@@ -735,6 +735,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # store analysis parameter in the database
         self.database_handler.database.close()
+
         self.threadpool = QThreadPool()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
@@ -750,10 +751,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         """
         print("Qthread is running")
-        self.database_handler.open_connection() # open connection to database in Thread
+        #self.database_handler.database.close()
+        #self.database_handler.open_connection()
+        # open connection to database in Thread
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
-        self.database_handler.database.close()
 
     def progress_bar_update_analysis(self,data):
         """ This function will update the progress bar in the analysis tab
@@ -766,9 +768,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def finished_result_thread(self):
         # switch to the visualization tab
         print("here we are!")
-        self.database_handler.open_connection()
         #self.Offline_Analysis_Notebook.setCurrentIndex(1)
         # plot the calculated results
+        self.database_handler.open_connection()
         print(self.SeriesItems.currentItem().data(0,Qt.DisplayRole))
         self.offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.SeriesItems.currentItem().data(0,Qt.DisplayRole))
         self.analysis_stacked.setCurrentIndex(self.SeriesItems.currentItem().data(6,Qt.UserRole))
@@ -786,9 +788,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
         row_count = current_tab.analysis_table_widget.rowCount()
-        db = self.offline_manager.get_database()
         analysis_series_name = current_tab.objectName()
         column_count =current_tab.analysis_table_widget.columnCount()
+        self.database_handler.open_connection()
+        
 
         ### to be continued here
         print(row_count)
@@ -799,7 +802,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             upper_bound = round(float(current_tab.analysis_table_widget.item(r,2).text()),2)
             #print(lower_bound)
             #print(upper_bound)
-            db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function, analysis_series_name, lower_bound, upper_bound)
+            self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function, analysis_series_name, lower_bound, upper_bound)
 
 
         print("finished")

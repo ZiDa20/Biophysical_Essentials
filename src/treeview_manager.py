@@ -270,7 +270,7 @@ class TreeViewManager():
 
             except Exception as e:
                 # @todo error handling
-                self.logger.error("Bundle file could not be read: " + str(i) + " the error occured: " + str(e))
+                self.logger.error("Bundle file could not be read: " + str(i[0]) + " the error occured: " + str(e))
             
         return bundle_list
        
@@ -295,7 +295,10 @@ class TreeViewManager():
         #Progress Bar setup
         max_value = len(dat_files)
         progress_value = 0
-        database.open_connection()
+        try:
+            database.open_connection()
+        except Exception as e:
+            self.logger.error("Could not open connection to database: " + str(e))
         ################################################################################################################
         for i in dat_files:
             # loop through the dat files and read them in
@@ -306,17 +309,15 @@ class TreeViewManager():
                 print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
                 progress_callback.emit((progress_value,i))
             except Exception as e:
-                self.logger.error("The file could not be written to the database: " + str(i) + " the error occured: " + str(e))
+                self.logger.error("The file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
                 database.database.close() # we close the database connection and emit an error message
         
-
-        database.database.close()
-        #print(database.database.is_connected())
-        sleep(10)
-
         # trial to see if the database opens correctly
-        database.open_connection()
-        return database.database
+
+        self.database.database.execute("Select experiment_name from experiments").fetchnumpy()
+  
+        self.database.database.close()
+        return "database closed"
 
     def update_treeview(self,selected_tree,discarded_tree):
         """ updates the treeview with the selected and discarded experiments following
@@ -329,11 +330,12 @@ class TreeViewManager():
            
         returns:
            None"""
-
+        self.database.open_connection()
         self.logger.info("Database writing thread successfully finished") #
-        self.database.open_connection() # open the connection to the database in main thread
+        #self.database.open_connection() # open the connection to the database in main thread
 
         try:
+            
             df = self.database.database.execute("SELECT * FROM experiments").fetchall() # get all the experiments as sanity
             if df:
                 self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
