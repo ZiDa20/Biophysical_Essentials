@@ -7,6 +7,7 @@ import pyqtgraph as pg
 import numpy as np
 from scipy.signal import find_peaks
 
+from draggable_lines import DraggableLines
 
 
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -32,16 +33,27 @@ class PlotWidgetManager(QRunnable):
         pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
 
+        #vertical_layout_widget = QVBoxLayout()
+
         self.detection_mode = detection
 
-        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
-        #parent_widget.plot_layout.addWidget(canvas)
+        try:
+            print("removed old widget")
+            vertical_layout_widget.takeAt(0)
 
-        print("removed old widget")
-        vertical_layout_widget.takeAt(0)
+        except Exception as e:
+            print(e)
+
+        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        vertical_layout_widget.addWidget(self.canvas)
+        print("added new widget")
+
+
+
+        #vertical_layout_widget.takeAt(0)
 
         # add the new plot widget
-        vertical_layout_widget.insertWidget(0,self.plot_widget)
+        #vertical_layout_widget.insertWidget(0,self.plot_widget)
         #vertical_layout_widget.insertWidget(0, self.canvas)
 
         self.tree_view = tree_view
@@ -55,15 +67,8 @@ class PlotWidgetManager(QRunnable):
         # neccessary for succesfull signal emitting
         super().__init__()
 
-
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
-        self.plot_widget.setBackground("#232629")
-        self.plot_widget.setBackground('e6e6e6')
-        self.plot_widget.getAxis('left').setPen('#f57505')
-        self.plot_widget.getAxis('bottom').setPen('#f57505')
-        self.plot_widget.getAxis('left').setTextPen('#f57505')
-        self.plot_widget.getAxis('bottom').setTextPen('#f57505')
 
 
 
@@ -105,7 +110,8 @@ class PlotWidgetManager(QRunnable):
         :return:
         :author: dz, 29.06.2022
         """
-        self.plot_widget.clear()
+        print("%s series was clicked", item.text(0))
+
         series_name = item.text(0)
 
         # The data table will be pulled from the database from table 'experiment_series'.
@@ -126,8 +132,11 @@ class PlotWidgetManager(QRunnable):
         self.time = self.get_time_from_meta_data(meta_data_df)
 
         column_names = series_df.columns.values.tolist()
+        fig = self.canvas.figure
+        fig.clf()
 
-        ax = self.canvas.figure.subplots()
+        self.ax = self.canvas.figure.subplots()
+
 
         # plot for each sweep
         for name in column_names:
@@ -138,7 +147,8 @@ class PlotWidgetManager(QRunnable):
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
-            self.plot_widget.plot(self.time, data)
+            #self.plot_widget.plot(self.time, data)
+            self.ax.plot(self.time,data, 'k', label="")
 
             if self.detection_mode:
                 peaks, _ = find_peaks(data, height = 0.00,distance=200)
@@ -146,8 +156,11 @@ class PlotWidgetManager(QRunnable):
                 print(peaks)
                 self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
 
-        ax.legend()
 
+        self.ax.spines['top'].set_visible(False)
+        self.ax.spines['right'].set_visible(False)
+        self.ax.set_xlabel('Time [ms]')
+        self.canvas.draw_idle()
         #self.canvas.show()
 
 
@@ -276,7 +289,9 @@ class PlotWidgetManager(QRunnable):
         return time
 
     def tree_view_click_handler(self, item):
-        #print(f'Text of first column in item is {item.text(0)}')
+
+        print(f'Text of first column in item is {item.text(0)}')
+
         try:
             if "Sweep" in item.text(0):
                 self.sweep_clicked(item)
@@ -287,26 +302,28 @@ class PlotWidgetManager(QRunnable):
                  self.series_clicked_load_from_database(item)
                  #self.series_clicked(item)
         except Exception as e:
+            print(e)
             print("experiment or sweep was clicked which is not implemented yet")
+
+
     def show_draggable_lines(self,row_number):
+
+        # default
         left_val =  0.2*max(self.time)
         right_val = 0.8*max(self.time)
 
-        self.left_coursor = pg.InfiniteLine(movable=True)
-        self.left_coursor.setValue(left_val)
-        self.right_cursor = pg.InfiniteLine(movable=True)
-        self.right_cursor.setValue(right_val)
+        self.left_coursor = DraggableLines(self.ax, "v", left_val,self.canvas, self.left_bound_changed,row_number)
+        self.right_coursor  = DraggableLines(self.ax, "v", right_val,self.canvas, self.right_bound_changed,row_number)
 
-        self.row_number = row_number
-
-        self.left_coursor.sigPositionChangeFinished.connect(self.draggable_left_cursor_moved)
-        self.plot_widget.addItem(self.left_coursor)
-        self.plot_widget.addItem(self.right_cursor)
-        self.right_cursor.sigPositionChangeFinished.connect(self.draggable_right_cursor_moved)
-
-
+        self.canvas.draw_idle()
 
         return left_val,right_val
+
+    def on_press(self,event):
+        self.left_coursor.clickonline(event)
+        self.right_coursor.clickonline(event)
+
+
 
     def remove_dragable_lines(self):
         self.plot_widget.removeItem(self.left_coursor)
@@ -314,19 +331,6 @@ class PlotWidgetManager(QRunnable):
         self.left_coursor.clearMarkers()
         self.right_cursor.clearMarkers()
 
-    def draggable_left_cursor_moved(self):
-        print("the line was moved ", self.left_coursor.value())
-        # update labels, therefore return a signal to the main offline analysis widget which will be connected to an update function there
-        emit_tuple = (round(self.left_coursor.value(),2),self.row_number)
-        print(emit_tuple)
-        self.left_bound_changed.cursor_bound_signal.emit(emit_tuple)
-
-    def draggable_right_cursor_moved(self):
-        print("the line was moved ", self.right_cursor.value())
-        emit_tuple = (round(self.right_cursor.value(),2),self.row_number)
-        print(emit_tuple)
-        self.right_bound_changed.cursor_bound_signal.emit(emit_tuple)
-
-# needed to use an instance of this signal class in the offline main widget
-class CursorBoundSignal(QtCore.QObject):
-    cursor_bound_signal = QtCore.Signal(tuple)
+# from QCore
+class CursorBoundSignal(QObject):
+    cursor_bound_signal = Signal(tuple)

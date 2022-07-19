@@ -85,57 +85,6 @@ class RheorampDetection(object):
 
                 print("added %s to database",new_specific_result_table_name )
 
-            """
-                if meta_data_group in meta_data_groups:
-                    specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-                    specific_df.insert(0, str(table), x_data, True)
-                    meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-                else:
-                    # add a new meta data group
-                    meta_data_groups.append(meta_data_group)
-                    meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
-
-                # print(meta_data_specific_df[0])
-
-                # make the boxplot
-            ax = canvas.figure.subplots()
-
-            boxplot_matrix = []
-            for meta_data in meta_data_specific_df:
-                boxplot_matrix.append(meta_data.iloc[0].values)
-
-            # no nan handling required since sweeps without an AP are not stored in the dataframe
-            filtered_box_plot_data = boxplot_matrix
-
-            # print(filtered_box_plot_data)
-
-            # make custom labels containing the correct meta data group and the number of evaluated cells
-            custom_labels = []
-
-            for i in range(0, len(meta_data_groups)):
-                custom_labels.append(meta_data_groups[i] + ": " + str(len(filtered_box_plot_data[i])))
-
-            plot = ax.boxplot(filtered_box_plot_data,  # notch=True,  # notch shape
-                              vert=True,  # vertical box alignment
-                              patch_artist=True)
-
-            # ax.violinplot(filtered_box_plot_data)
-            ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
-            ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
-
-            default_colors = ['k', 'b', 'r', 'g', 'c']
-
-            for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
-                patch.set_facecolor(color)
-
-            ax.legend(plot['boxes'], custom_labels, loc='upper left')
-
-            parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
-            parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
-            parent_widget.export_data_frame.columns = meta_data_groups
-
-            """
-
     @classmethod
     def merge_lists_to_list_of_tuples(self,list1, list2):
             merged_list = [(list1[i], list2[i]) for i in range(0, len(list1))]
@@ -181,9 +130,6 @@ class RheorampDetection(object):
 
             meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
 
-
-
-
             for column in query_data_df:
 
                 result_list = []
@@ -225,9 +171,6 @@ class RheorampDetection(object):
 
         sns.boxplot(data = result_df, x='sweep_number', y='count', hue = 'meta_data_name', ax = ax )
 
-
-
-
     @classmethod
     def get_list_of_result_tables(self, analysis_id, analysis_function_id):
         '''
@@ -241,55 +184,3 @@ class RheorampDetection(object):
         # print(q)
         result_list = (list(zip(*result_list))[0])
         return result_list
-
-
-        """
-        canvas = self.handle_plot_widget_settings(parent_widget)
-        meta_data_groups = self.get_meta_data_groups_for_results(result_list, number_of_sweeps)
-        meta_data_types = list(dict.fromkeys(meta_data_groups))
-        plot_matrix = []
-
-        for meta_type in meta_data_types:
-            type_specific_series_pos = [i for i, x in enumerate(meta_data_groups) if x == meta_type]
-            sweep_1 = []
-            sweep_2 = []
-            sweep_3 = []
-            sweep_4 = []
-            for pos in type_specific_series_pos:
-                sweep_1.append(result_list[pos * 4][0])
-                sweep_2.append(result_list[pos * 4 + 1][0])
-                sweep_3.append(result_list[pos * 4 + 2][0])
-                sweep_4.append(result_list[pos * 4 + 3][0])
-
-            sweep_1 = [0 if i is None else i for i in sweep_1]
-            sweep_2 = [0 if i is None else i for i in sweep_2]
-            sweep_3 = [0 if i is None else i for i in sweep_3]
-            sweep_4 = [0 if i is None else i for i in sweep_4]
-
-            plot_matrix.append(sweep_1)
-            plot_matrix.append(sweep_2)
-            plot_matrix.append(sweep_3)
-            plot_matrix.append(sweep_4)
-            # for pos in type_specific_series_pos:
-        ax = canvas.figure.subplots()
-
-        plot = ax.boxplot(plot_matrix,  # notch=True,  # notch shape
-                          vert=True,  # vertical box alignment
-                          patch_artist=True)
-
-
-        """
-def plot_rheoramp_event_counts(self, parent_widget, result_list, number_of_sweeps):
-    """
-
-    @param self:
-    @param parent_widget:
-    @param result_list:
-    @param number_of_sweeps:
-    @return:
-    """
-
-
-def rheoramp_analysis(self):
-    print("not implemented")
-
