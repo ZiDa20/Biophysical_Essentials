@@ -3,15 +3,18 @@ import matplotlib.lines as lines
 from PySide6.QtCore import *  # type: ignore
 
 class DraggableLines:
-    def __init__(self, ax, kind, XorY,canvas, bound_changed, row_number):
+    def __init__(self, ax, kind, XorY,canvas, bound_changed, row_number,scaling_factor):
         self.ax = ax
         self.c = canvas
         self.o = kind
         self.XorY = XorY
         self.line = None
+        self.scaling_factor = scaling_factor
 
         self.row_number = row_number
         self.bound_changed = bound_changed
+
+        default_colors = ['k', 'b', 'r', 'g', 'c']
 
         if kind == "h":
             x = [-1, 1]
@@ -19,9 +22,9 @@ class DraggableLines:
 
         elif kind == "v":
             x = [XorY, XorY]
-            y = [-1, 1]
+            y = [-1*self.scaling_factor, self.scaling_factor]
 
-        self.line = lines.Line2D(x, y, picker=True)
+        self.line = lines.Line2D(x, y, color = default_colors[row_number], picker=True)
         self.ax.add_line(self.line)
 
         self.sid = self.c.mpl_connect('pick_event', self.clickonline)

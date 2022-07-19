@@ -653,8 +653,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 current_tab.analysis_table_widget.removeCellWidget (r, 3)
                 self.b= QPushButton("Change")
                 current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
+
                 self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
 
+                self.current_tab_plot_manager.remove_dragable_lines(row_number)
             try:
                 self.current_tab_plot_manager.remove_dragable_lines()
             except:
@@ -666,7 +668,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-        self.remove_existing_dragable_lines(row_number,current_tab)
+        # change the button text
+        print("row")
+        print(row_number)
+
+
+        self.current_tab_plot_manager.remove_dragable_lines(row_number)
 
         # 1) insert dragable coursor bounds into pyqt graph
         left_val, right_val = self.current_tab_plot_manager.show_draggable_lines(row_number)
@@ -681,6 +688,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #3) update the function selection grid
         self.update_left_common_labels((left_val,row_number))
         self.update_right_common_labels((right_val,row_number))
+
+        current_tab.analysis_table_widget.removeCellWidget(row_number, 3)
+        self.b = QPushButton("Change")
+        current_tab.analysis_table_widget.setCellWidget(row_number, 3, self.b)
+        self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
 
     @Slot(tuple)
     def update_left_common_labels(self,tuple_in):

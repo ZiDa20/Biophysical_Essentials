@@ -111,7 +111,7 @@ class PlotWidgetManager(QRunnable):
         :author: dz, 29.06.2022
         """
         print("%s series was clicked", item.text(0))
-
+        split_view = True
         series_name = item.text(0)
 
         # The data table will be pulled from the database from table 'experiment_series'.
@@ -135,7 +135,16 @@ class PlotWidgetManager(QRunnable):
         fig = self.canvas.figure
         fig.clf()
 
-        self.ax = self.canvas.figure.subplots()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
 
 
         # plot for each sweep
@@ -146,9 +155,13 @@ class PlotWidgetManager(QRunnable):
             if self.y_unit == "V":
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+                # data scaling to mV
+                self.plot_scaling_factor = 1000
+            else:
+                # data scaling to nA
+                self.plot_scaling_factor = 1e9
 
-            #self.plot_widget.plot(self.time, data)
-            self.ax.plot(self.time,data, 'k', label="")
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
 
             if self.detection_mode:
                 peaks, _ = find_peaks(data, height = 0.00,distance=200)
@@ -157,11 +170,135 @@ class PlotWidgetManager(QRunnable):
                 self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
 
 
-        self.ax.spines['top'].set_visible(False)
-        self.ax.spines['right'].set_visible(False)
-        self.ax.set_xlabel('Time [ms]')
+        # finally also the pgf file needs to be added to the plot
+        # load the table
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],data_request_information[1])
+
+        print(pgf_table_df)
+
+        self.plot_pgf_signal(pgf_table_df,data)
+
+        self.ax1.spines['top'].set_visible(False)
+        self.ax1.spines['right'].set_visible(False)
+        self.ax2.spines['top'].set_visible(False)
+        self.ax2.spines['right'].set_visible(False)
+        self.ax2.set_xlabel('Time [ms]')
+        if self.y_unit == "V":
+            self.ax1.set_ylabel('Voltage [mV]')
+            self.ax2.set_ylabel('Current [nA]')
+        else:
+            self.ax1.set_ylabel('Current [nA]')
+            self.ax2.set_ylabel('Voltage [mV]')
         self.canvas.draw_idle()
+
         #self.canvas.show()
+
+    def plot_pgf_signal(self,pgf_table_df,data):
+        """
+        Function to decide whether step protocol or simple protocol needs to be created
+        @param pgf_table_df:
+        @param data:
+        @return:
+        """
+        increments = pgf_table_df['increment'].values.tolist()
+        increments = np.array(increments, dtype=float)
+
+        if np.all(increments ==0):
+            self.plot_pgf_simple_protocol(pgf_table_df,data)
+        else:
+            self.plot_pgf_step_protocol(pgf_table_df,data)
+
+    def plot_pgf_step_protocol(self,pgf_table_df,data):
+
+        # is there one step interval or are there multiple ones ?
+        increments = pgf_table_df['increment'].values.tolist()
+        increments = np.array(increments, dtype=float)
+
+        # according to the number n of intervals sweep_number * n signals need to be created
+        increment_intervals = np.where(increments>0)[0]
+        increment_interval_amount = len(increment_intervals)
+
+        durations = pgf_table_df['duration'].values.tolist()
+        voltages = pgf_table_df['voltage'].values.tolist()
+        holding = pgf_table_df['holding_potential'].values.tolist()
+
+
+        number_of_sweeps = pgf_table_df['sweep_number'].values.tolist()
+
+        for sweep_number in range(0,int(number_of_sweeps[0])):
+
+            pgf_signal = np.zeros(len(data))
+            total_duration = 0
+            start_pos = 0
+
+            for n in range(0, len(durations)):
+                #  nothign changes in the duration
+                d = 1000 * float(durations[n])
+                total_duration += d
+                try:
+                    end_pos = np.where(self.time > total_duration)[0][0]
+                except IndexError:
+                    # print("index error")
+                    end_pos = len(data)
+
+                print(n)
+                print(start_pos)
+                print(end_pos)
+
+                if increments[n]>0:
+                    print(1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n]))
+                    pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n])
+                else:
+                    if float(voltages[n]) == 0:
+                        pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
+                        print(1000 * float(holding[n]))
+                    else:
+                        pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
+                        print(1000*float(voltages[n]))
+
+                start_pos = end_pos
+
+
+            self.ax2.plot(self.time, pgf_signal)
+            print("finished sweep %s", sweep_number)
+
+    def plot_pgf_simple_protocol(self,pgf_table_df, data):
+        """
+        create a simple pgf trace signal
+        @param pgf_table_df:
+        @param data:
+        @return:
+        """
+        pgf_signal = np.zeros(len(data))
+
+        try:
+            # create traces
+
+            durations = pgf_table_df['duration'].values.tolist()
+            voltages = pgf_table_df['voltage'].values.tolist()
+            holding = pgf_table_df['holding_potential'].values.tolist()
+            total_duration = 0
+            start_pos = 0
+            for n in range(0,len(durations)):
+                d = 1000 * float(durations[n])
+                total_duration += d
+
+                try:
+                    end_pos = np.where(self.time > total_duration)[0][0]
+                except IndexError:
+                    #print("index error")
+                    end_pos = len(data)
+                print(end_pos)
+                if float(voltages[n])==0:
+                    pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
+                else:
+                    pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
+                start_pos = end_pos
+
+        except Exception as e:
+            print(e)
+
+        self.ax2.plot(self.time, pgf_signal)
 
 
     # deprecated dz 30.06.2022
@@ -312,8 +449,8 @@ class PlotWidgetManager(QRunnable):
         left_val =  0.2*max(self.time)
         right_val = 0.8*max(self.time)
 
-        self.left_coursor = DraggableLines(self.ax, "v", left_val,self.canvas, self.left_bound_changed,row_number)
-        self.right_coursor  = DraggableLines(self.ax, "v", right_val,self.canvas, self.right_bound_changed,row_number)
+        self.left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
+        self.right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
 
         self.canvas.draw_idle()
 
@@ -325,11 +462,22 @@ class PlotWidgetManager(QRunnable):
 
 
 
-    def remove_dragable_lines(self):
-        self.plot_widget.removeItem(self.left_coursor)
-        self.plot_widget.removeItem(self.right_cursor)
-        self.left_coursor.clearMarkers()
-        self.right_cursor.clearMarkers()
+    def remove_dragable_lines(self,row):
+        print("row number")
+        print(row)
+
+        try:
+            self.ax.lines.remove(self.left_coursor.line)
+            self.ax.lines.remove(self.right_coursor.line)
+
+            self.canvas.draw_idle()
+        except Exception as e:
+            print("all good")
+            print(e)
+
+        #self.plot_widget.removeItem(self.left_coursor)
+        #self.plot_widget.removeItem(self.right_cursor)
+
 
 # from QCore
 class CursorBoundSignal(QObject):

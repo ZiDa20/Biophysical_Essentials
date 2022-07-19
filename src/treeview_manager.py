@@ -267,6 +267,9 @@ class TreeViewManager():
             increment = 100/max_value
             progress_value = progress_value + increment
             pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], i[0], [], None, None, None)
+
+            print(pgf_tuple_data_frame)
+
             self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", pgf_tuple_data_frame)
             progress_callback.emit((progress_value,i))
         
@@ -330,6 +333,7 @@ class TreeViewManager():
 
             if "Series" in node_type:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+                print(sliced_pgf_tuple_data_frame)
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
                 database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                           "pgf_table_" + experiment_name + "_" + node_type,
@@ -1113,6 +1117,7 @@ class TreeViewManager():
                 self.read_series_specific_pgf_trace_into_df(index+[i], bundle,data_list, holding_potential, series_name,sweep_number)
         except Exception as e:
             print(e)
+
 
         return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage"])
 
