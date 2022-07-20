@@ -13,6 +13,7 @@ import io
 import logging
 import datetime
 import pandas as pd
+import re
 
 
 
@@ -29,12 +30,11 @@ class DuckDBDatabaseHandler():
 
         # logger settings
         self.logger = logging.getLogger()
-        self.logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler('../Logs/database_manager.log')
-        print(file_handler)
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
+        self.logger.setLevel(logging.ERROR)
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
         self.sq_lite_database = "SQ_Lite"
@@ -98,13 +98,16 @@ class DuckDBDatabaseHandler():
 
         try:
             if self.database_architecture == self.duck_db_database:
+                print("trying to acces the database")
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=False)
-                self.logger.info("connection successfull")
+                path = cew + '/src/' + self.db_file_name
+                path = path.replace("/","\\")           
+                self.database = duckdb.connect(path, read_only=False)
+                self.logger.info("connection successful")
             else:
                 self.database = sqlite3.connect(cew + "\\src\\" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
-            self.logger.info("An error occured during database initialization. Error Message: %s", e)
+            self.logger.error("An error occured during database initialization. Error Message: %s", e)
 
         if return_val == 0:
             return False
@@ -201,31 +204,31 @@ class DuckDBDatabaseHandler():
     # @todo refactor to write to database
     def execute_sql_command(self, database, sql_command, values=None):
         try:
-            tmp = database.cursor()
             if values:
-                tmp.execute(sql_command, values)
+                database.execute(sql_command, values)
                 # self.logger.info("Execute SQL Command: %s with values %s", sql_command,values)
             else:
-                tmp.execute(sql_command)
+                database.execute(sql_command)
                 # self.logger.info("Execute SQL Command: %s without values", sql_command)
             database.commit()
             return database
         except Exception as e:
             self.logger.error("Error in Execute SQL Command: %s", e)
             raise Exception(e)
+            
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
-            tmp = database.cursor()
+            #tmp = database.cursor()
             if values:
-                tmp.execute(sql_command, values)
+                database.execute(sql_command, values)
             else:
-                tmp.execute(sql_command)
+                database.execute(sql_command)
             if fetch_mode is None:
-                return tmp.fetchall()
+                return database.fetchall()
             if fetch_mode == 1:
-                return tmp.fetchnumpy()
+                return database.fetchnumpy()
             if fetch_mode == 2:
-                return tmp.fetchdf()
+                return database.fetchdf()
         except Exception as e:
             print(e)
 
@@ -420,7 +423,7 @@ class DuckDBDatabaseHandler():
                 r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
                 sweep_table_names.append(r)
             except Exception as e:
-                print(e)
+                self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
 
 
         return sweep_table_names
@@ -506,8 +509,19 @@ class DuckDBDatabaseHandler():
                 return -1
 
     def open_connection(self):
-        cew = os.path.dirname(os.getcwd())
-        self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=False)
+        """ Opens a connection to the database"""
+        print("trials to open connection")
+        try:
+            cew = os.path.dirname(os.getcwd())
+            path = cew + '/src/' + self.db_file_name
+            path = path.replace("/","\\")
+            self.database = duckdb.connect(path, read_only=False)
+            self.logger.debug("opened connection to database %s", self.db_file_name)
+
+        except Exception as e:
+            self.database.close()
+            self.open_connection()
+            self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """
@@ -684,9 +698,12 @@ class DuckDBDatabaseHandler():
         :param series_name:
         :return: returns a tuple of analysis name, analysis_function_id
         """
-        q = """ select function_name, analysis_function_id from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
-        r = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
-        return r
+        try:
+            q = """ select function_name, analysis_function_id from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
+            r = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
+            return r
+        except Exception as e:
+            self.logger.error(f'error in get_series_specific_analysis_functions: {e}')
 
     def get_cursor_bounds_of_analysis_function(self, analysis_function_id, series_name):
         """
@@ -1104,6 +1121,19 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             self.logger.info("Error::Couldn't create a new table with error %s", e)
 
+    def get_entire_pgf_table_by_experiment_name_and_series_identifier(self,experiment_name, series_identifier):
+        """
+        Get the correct pgf table
+        @param experiment_name:
+        @param series_identifier:
+        @return:
+        """
+
+        q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        pgf_table_name = self.get_data_from_database(self.database, q, [experiment_name,series_identifier])[0][0]
+
+        self.database.execute(f'SELECT * FROM {pgf_table_name}')
+        return self.database.fetchdf()
 
     def get_entire_pgf_table(self,data_table_name):
         """

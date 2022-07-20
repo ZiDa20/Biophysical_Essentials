@@ -7,6 +7,7 @@ import pyqtgraph as pg
 import numpy as np
 from scipy.signal import find_peaks
 
+from draggable_lines import DraggableLines
 
 
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -32,16 +33,27 @@ class PlotWidgetManager(QRunnable):
         pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
 
+        #vertical_layout_widget = QVBoxLayout()
+
         self.detection_mode = detection
 
-        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
-        #parent_widget.plot_layout.addWidget(canvas)
+        try:
+            print("removed old widget")
+            vertical_layout_widget.takeAt(0)
 
-        print("removed old widget")
-        vertical_layout_widget.takeAt(0)
+        except Exception as e:
+            print(e)
+
+        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        vertical_layout_widget.addWidget(self.canvas)
+        print("added new widget")
+
+
+
+        #vertical_layout_widget.takeAt(0)
 
         # add the new plot widget
-        vertical_layout_widget.insertWidget(0,self.plot_widget)
+        #vertical_layout_widget.insertWidget(0,self.plot_widget)
         #vertical_layout_widget.insertWidget(0, self.canvas)
 
         self.tree_view = tree_view
@@ -55,15 +67,8 @@ class PlotWidgetManager(QRunnable):
         # neccessary for succesfull signal emitting
         super().__init__()
 
-
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
-        self.plot_widget.setBackground("#232629")
-        self.plot_widget.setBackground('e6e6e6')
-        self.plot_widget.getAxis('left').setPen('#f57505')
-        self.plot_widget.getAxis('bottom').setPen('#f57505')
-        self.plot_widget.getAxis('left').setTextPen('#f57505')
-        self.plot_widget.getAxis('bottom').setTextPen('#f57505')
 
 
 
@@ -105,7 +110,8 @@ class PlotWidgetManager(QRunnable):
         :return:
         :author: dz, 29.06.2022
         """
-        self.plot_widget.clear()
+        print("%s series was clicked", item.text(0))
+        split_view = True
         series_name = item.text(0)
 
         # The data table will be pulled from the database from table 'experiment_series'.
@@ -126,8 +132,20 @@ class PlotWidgetManager(QRunnable):
         self.time = self.get_time_from_meta_data(meta_data_df)
 
         column_names = series_df.columns.values.tolist()
+        fig = self.canvas.figure
+        fig.clf()
 
-        ax = self.canvas.figure.subplots()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+
 
         # plot for each sweep
         for name in column_names:
@@ -137,8 +155,13 @@ class PlotWidgetManager(QRunnable):
             if self.y_unit == "V":
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+                # data scaling to mV
+                self.plot_scaling_factor = 1000
+            else:
+                # data scaling to nA
+                self.plot_scaling_factor = 1e9
 
-            self.plot_widget.plot(self.time, data)
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
 
             if self.detection_mode:
                 peaks, _ = find_peaks(data, height = 0.00,distance=200)
@@ -146,9 +169,136 @@ class PlotWidgetManager(QRunnable):
                 print(peaks)
                 self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
 
-        ax.legend()
+
+        # finally also the pgf file needs to be added to the plot
+        # load the table
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],data_request_information[1])
+
+        print(pgf_table_df)
+
+        self.plot_pgf_signal(pgf_table_df,data)
+
+        self.ax1.spines['top'].set_visible(False)
+        self.ax1.spines['right'].set_visible(False)
+        self.ax2.spines['top'].set_visible(False)
+        self.ax2.spines['right'].set_visible(False)
+        self.ax2.set_xlabel('Time [ms]')
+        if self.y_unit == "V":
+            self.ax1.set_ylabel('Voltage [mV]')
+            self.ax2.set_ylabel('Current [nA]')
+        else:
+            self.ax1.set_ylabel('Current [nA]')
+            self.ax2.set_ylabel('Voltage [mV]')
+        self.canvas.draw_idle()
 
         #self.canvas.show()
+
+    def plot_pgf_signal(self,pgf_table_df,data):
+        """
+        Function to decide whether step protocol or simple protocol needs to be created
+        @param pgf_table_df:
+        @param data:
+        @return:
+        """
+        increments = pgf_table_df['increment'].values.tolist()
+        increments = np.array(increments, dtype=float)
+
+        if np.all(increments ==0):
+            self.plot_pgf_simple_protocol(pgf_table_df,data)
+        else:
+            self.plot_pgf_step_protocol(pgf_table_df,data)
+
+    def plot_pgf_step_protocol(self,pgf_table_df,data):
+
+        # is there one step interval or are there multiple ones ?
+        increments = pgf_table_df['increment'].values.tolist()
+        increments = np.array(increments, dtype=float)
+
+        # according to the number n of intervals sweep_number * n signals need to be created
+        increment_intervals = np.where(increments>0)[0]
+        increment_interval_amount = len(increment_intervals)
+
+        durations = pgf_table_df['duration'].values.tolist()
+        voltages = pgf_table_df['voltage'].values.tolist()
+        holding = pgf_table_df['holding_potential'].values.tolist()
+
+
+        number_of_sweeps = pgf_table_df['sweep_number'].values.tolist()
+
+        for sweep_number in range(0,int(number_of_sweeps[0])):
+
+            pgf_signal = np.zeros(len(data))
+            total_duration = 0
+            start_pos = 0
+
+            for n in range(0, len(durations)):
+                #  nothign changes in the duration
+                d = 1000 * float(durations[n])
+                total_duration += d
+                try:
+                    end_pos = np.where(self.time > total_duration)[0][0]
+                except IndexError:
+                    # print("index error")
+                    end_pos = len(data)
+
+                print(n)
+                print(start_pos)
+                print(end_pos)
+
+                if increments[n]>0:
+                    print(1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n]))
+                    pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n])
+                else:
+                    if float(voltages[n]) == 0:
+                        pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
+                        print(1000 * float(holding[n]))
+                    else:
+                        pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
+                        print(1000*float(voltages[n]))
+
+                start_pos = end_pos
+
+
+            self.ax2.plot(self.time, pgf_signal)
+            print("finished sweep %s", sweep_number)
+
+    def plot_pgf_simple_protocol(self,pgf_table_df, data):
+        """
+        create a simple pgf trace signal
+        @param pgf_table_df:
+        @param data:
+        @return:
+        """
+        pgf_signal = np.zeros(len(data))
+
+        try:
+            # create traces
+
+            durations = pgf_table_df['duration'].values.tolist()
+            voltages = pgf_table_df['voltage'].values.tolist()
+            holding = pgf_table_df['holding_potential'].values.tolist()
+            total_duration = 0
+            start_pos = 0
+            for n in range(0,len(durations)):
+                d = 1000 * float(durations[n])
+                total_duration += d
+
+                try:
+                    end_pos = np.where(self.time > total_duration)[0][0]
+                except IndexError:
+                    #print("index error")
+                    end_pos = len(data)
+                print(end_pos)
+                if float(voltages[n])==0:
+                    pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
+                else:
+                    pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
+                start_pos = end_pos
+
+        except Exception as e:
+            print(e)
+
+        self.ax2.plot(self.time, pgf_signal)
 
 
     # deprecated dz 30.06.2022
@@ -276,7 +426,9 @@ class PlotWidgetManager(QRunnable):
         return time
 
     def tree_view_click_handler(self, item):
-        #print(f'Text of first column in item is {item.text(0)}')
+
+        print(f'Text of first column in item is {item.text(0)}')
+
         try:
             if "Sweep" in item.text(0):
                 self.sweep_clicked(item)
@@ -287,46 +439,45 @@ class PlotWidgetManager(QRunnable):
                  self.series_clicked_load_from_database(item)
                  #self.series_clicked(item)
         except Exception as e:
+            print(e)
             print("experiment or sweep was clicked which is not implemented yet")
+
     def show_draggable_lines(self,row_number):
+
+        # default
         left_val =  0.2*max(self.time)
         right_val = 0.8*max(self.time)
 
-        self.left_coursor = pg.InfiniteLine(movable=True)
-        self.left_coursor.setValue(left_val)
-        self.right_cursor = pg.InfiniteLine(movable=True)
-        self.right_cursor.setValue(right_val)
+        self.left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
+        self.right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
 
-        self.row_number = row_number
-
-        self.left_coursor.sigPositionChangeFinished.connect(self.draggable_left_cursor_moved)
-        self.plot_widget.addItem(self.left_coursor)
-        self.plot_widget.addItem(self.right_cursor)
-        self.right_cursor.sigPositionChangeFinished.connect(self.draggable_right_cursor_moved)
-
-
+        self.canvas.draw_idle()
 
         return left_val,right_val
 
-    def remove_dragable_lines(self):
-        self.plot_widget.removeItem(self.left_coursor)
-        self.plot_widget.removeItem(self.right_cursor)
-        self.left_coursor.clearMarkers()
-        self.right_cursor.clearMarkers()
+    def on_press(self,event):
+        self.left_coursor.clickonline(event)
+        self.right_coursor.clickonline(event)
 
-    def draggable_left_cursor_moved(self):
-        print("the line was moved ", self.left_coursor.value())
-        # update labels, therefore return a signal to the main offline analysis widget which will be connected to an update function there
-        emit_tuple = (round(self.left_coursor.value(),2),self.row_number)
-        print(emit_tuple)
-        self.left_bound_changed.cursor_bound_signal.emit(emit_tuple)
 
-    def draggable_right_cursor_moved(self):
-        print("the line was moved ", self.right_cursor.value())
-        emit_tuple = (round(self.right_cursor.value(),2),self.row_number)
-        print(emit_tuple)
-        self.right_bound_changed.cursor_bound_signal.emit(emit_tuple)
 
-# needed to use an instance of this signal class in the offline main widget
-class CursorBoundSignal(QtCore.QObject):
-    cursor_bound_signal = QtCore.Signal(tuple)
+    def remove_dragable_lines(self,row):
+        print("row number")
+        print(row)
+
+        try:
+            self.ax.lines.remove(self.left_coursor.line)
+            self.ax.lines.remove(self.right_coursor.line)
+
+            self.canvas.draw_idle()
+        except Exception as e:
+            print("all good")
+            print(e)
+
+        #self.plot_widget.removeItem(self.left_coursor)
+        #self.plot_widget.removeItem(self.right_cursor)
+
+
+# from QCore
+class CursorBoundSignal(QObject):
+    cursor_bound_signal = Signal(tuple)

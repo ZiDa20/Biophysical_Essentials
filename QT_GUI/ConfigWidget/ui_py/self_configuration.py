@@ -41,7 +41,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea, self.CameraDock)
         # added the Progress Bar to the self-configuration
         self.set_buttons_beginning()
-        
+        self.CameraWindow.showMaximized()
+        self.CameraWindow.setWindowFlags(Qt.FramelessWindowHint)
         #select the batch_path
         self.batch_path = None
         self.backend_manager = BackendManager() # initialize the backend manager
@@ -116,7 +117,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # logger added --> ToDO: should be used for developers as well as for users should be disriminated
         print("initialized the logger")
         self.logger= logging.getLogger() 
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
         file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)

@@ -1,19 +1,19 @@
 QPushButton {{
     color: black;
     text-transform: none;
-    background-color: #97ccf2;
-    border: 0px
+    border-color: #97ccf2;
+    height: 30px;
+    border-radius: 10px;
   }}
 
   QPushButton::pressed{{
-    background-color:  #fff5cc;
-    color: black;
-    text-transform: none;
-    height: 30px;
+    background-color:  #b5b8c7;
+    color: #97ccf2;
+    text-transform: scale(1.5);
   }}
 
   QPushButton:hover{{
-    background-color: "#54545a";
+    background-color: #eaecf1;
   }}
 
   
@@ -30,7 +30,6 @@ QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
   background-color: white;
   border: 2px solid #97ccf2;
   border-radius: 5px;
-
 }}
 
 
@@ -181,4 +180,16 @@ QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::!selected {{
 
 QPushButton[objectName="self_configuration"]{{
   color: #97ccf2;
+}}
+
+QWidget[objectName="side_left_menu"]  QPushButton:pressed{{
+  color: skyblue;
+  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
+  border-radius: 10px 10px 0px 0px;
+}}
+
+QMdiArea {{
+  qproperty-background: transparent;
+  border: 1px solid #fff5cc;
 }}

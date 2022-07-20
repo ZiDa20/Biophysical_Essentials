@@ -1687,7 +1687,7 @@ class Ui_Config_Widget(object):
 
         self.gridLayout_13.addWidget(self.CameraDock, 0, 0, 1, 1)
 
-        self.CameraMDI.addSubWindow(self.CameraWindow)
+        self.CameraMDI.addSubWindow(self.CameraWindow, Qt.FramelessWindowHint)
 
         self.gridLayout_15.addWidget(self.CameraMDI, 1, 0, 1, 1)
 

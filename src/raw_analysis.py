@@ -39,10 +39,10 @@ class AnalysisRaw():
 
     def get_elements(self,recording_mode):
         if recording_mode == "Voltage Clamp":
-            return ["max_current","min_current","mean_current","area_current","time-to-maximum","time-to-minimum"]
+            return ["max_current","min_current","mean_current"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["mean_voltage", "Single_AP_Amplitude [mV]", "Action Potential Fitting",
-                    "Rheobase-Detection", "Rheoramp_Analysis", "AP-fitting","Event-Detection","Cluster","Input Resistance"]
+            return ["mean_voltage",  "Action Potential Fitting",
+                    "Rheobase-Detection", "RheoRamp-Detection", "Cluster","Input Resistance"]
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
@@ -187,11 +187,7 @@ class AnalysisRaw():
         :return:
         """
         #@todo must be also changed in the plot widget mnaager
-        peaks, _ = find_peaks(self.data, height=0.00, distance=200)
-        if (len(peaks)) > 0:
-            return(len(peaks))
-        else:
-            return None
+
 
 
     def ap_detection(self):

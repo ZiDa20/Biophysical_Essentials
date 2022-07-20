@@ -117,7 +117,7 @@ class ActionPotentialFitting(object):
             result_data_frame['Fitting Parameters'] = result_data_frame.index
             #print(result_data_frame)
 
-            new_specific_result_table_name = self.create_new_specific_result_table_name(self.database.analysis_id,
+            new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id,
                                                                                         data_table)
             self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
                                                                                    self.analysis_function_id,
@@ -324,7 +324,10 @@ class ActionPotentialFitting(object):
                 parent_widget.analysis_name = "AP_Amplitude"
 
             # index has the same name as the function. Will not work if the names differ.
-            x_data = np.mean(query_data_df.loc[parent_widget.analysis_name].values)
+            try:
+                x_data = np.mean(query_data_df.loc[parent_widget.analysis_name].values)
+            except Exception as e:
+                break
 
             if meta_data_group in meta_data_groups:
                 specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
@@ -380,9 +383,9 @@ class ActionPotentialFitting(object):
         #print("running late register")
 
         #self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('time_to_ahp', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('time_to_ahp', self.series_name, 0, 0)
         self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold', self.series_name, 0, 0)
         self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate', self.series_name,
                                                                                  0, 0)

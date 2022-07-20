@@ -185,7 +185,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
             self.experiments_tree_view,
-            self.outfiltered_tree_view, meta_data_option_list)
+            self.outfiltered_tree_view, meta_data_option_list, meta_data_group_assignment_list)
 
         
         self.blank_analysis_page_1_tree_manager.frontend_style = self.frontend_style
@@ -490,7 +490,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(3)
         
     def onItemClicked(self, it, col):
-        print(col)
+        """should be commented properly
+        toDO MZ"""
+       
         index_item = self.SeriesItems.currentIndex().row()
 
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
@@ -653,8 +655,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 current_tab.analysis_table_widget.removeCellWidget (r, 3)
                 self.b= QPushButton("Change")
                 current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
+
                 self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
 
+                self.current_tab_plot_manager.remove_dragable_lines(row_number)
             try:
                 self.current_tab_plot_manager.remove_dragable_lines()
             except:
@@ -666,7 +670,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-        self.remove_existing_dragable_lines(row_number,current_tab)
+        # change the button text
+        print("row")
+        print(row_number)
+
+
+        self.current_tab_plot_manager.remove_dragable_lines(row_number)
 
         # 1) insert dragable coursor bounds into pyqt graph
         left_val, right_val = self.current_tab_plot_manager.show_draggable_lines(row_number)
@@ -681,6 +690,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #3) update the function selection grid
         self.update_left_common_labels((left_val,row_number))
         self.update_right_common_labels((right_val,row_number))
+
+        current_tab.analysis_table_widget.removeCellWidget(row_number, 3)
+        self.b = QPushButton("Change")
+        current_tab.analysis_table_widget.setCellWidget(row_number, 3, self.b)
+        self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
 
     @Slot(tuple)
     def update_left_common_labels(self,tuple_in):
@@ -733,6 +747,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # store analysis parameter in the database
         self.database_handler.database.close()
+
         self.threadpool = QThreadPool()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
@@ -741,23 +756,33 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
     def run_database_thread(self, current_tab, progress_callback):
-        """"""
+        """ This function will run the analysis in a separate thread, that is selected
+        by the analysis function
+        :param current_tab:
+        :param progress_callback:
+        
+        """
         print("Qthread is running")
-        self.database_handler.open_connection()
+        #self.database_handler.database.close()
+        #self.database_handler.open_connection()
+        # open connection to database in Thread
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
-        self.database_handler.database.close()
 
     def progress_bar_update_analysis(self,data):
+        """ This function will update the progress bar in the analysis tab
+        :param data:
+        
+        """
         self.progressbar.setValue(data[0])
         self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
 
     def finished_result_thread(self):
         # switch to the visualization tab
         print("here we are!")
-        self.database_handler.open_connection()
         #self.Offline_Analysis_Notebook.setCurrentIndex(1)
         # plot the calculated results
+        self.database_handler.open_connection()
         print(self.SeriesItems.currentItem().data(0,Qt.DisplayRole))
         self.offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id, self.SeriesItems.currentItem().data(0,Qt.DisplayRole))
         self.analysis_stacked.setCurrentIndex(self.SeriesItems.currentItem().data(6,Qt.UserRole))
@@ -775,9 +800,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
         row_count = current_tab.analysis_table_widget.rowCount()
-        db = self.offline_manager.get_database()
         analysis_series_name = current_tab.objectName()
         column_count =current_tab.analysis_table_widget.columnCount()
+        self.database_handler.open_connection()
+        
 
         ### to be continued here
         print(row_count)
@@ -788,7 +814,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             upper_bound = round(float(current_tab.analysis_table_widget.item(r,2).text()),2)
             #print(lower_bound)
             #print(upper_bound)
-            db.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function, analysis_series_name, lower_bound, upper_bound)
+            self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function, analysis_series_name, lower_bound, upper_bound)
 
 
         print("finished")

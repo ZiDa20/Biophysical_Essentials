@@ -1,6 +1,7 @@
 import sys
 import os
 
+
 #Path import
 ################################################################################
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
@@ -12,7 +13,8 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
 ##################################################################################
 #Importing the QT libraries
-from PySide6.QtWidgets import QApplication, QMainWindow
+#from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6 import *
 from main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -24,6 +26,8 @@ from settings_dialog import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
+import duckdb
+print(duckdb.__version__)
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -40,9 +44,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-        #self.addDockWidget(Qt.BottomDockWidgetArea,self.ui.config.dockWidget)
-        
 
+        print(sys.platform)
+
+        if sys.platform != "darwin":
+            self.setAttribute(Qt.WA_TranslucentBackground)
+            
 
         self.desktop = QApplication.primaryScreen()
         self.screenRect = self.desktop.availableGeometry()
@@ -59,6 +66,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
+        self.local_database_handler.database.execute("SET external_threads=1")
+        self.local_database_handler.database.execute("SET log_query_path='duck_db_analysis_database.log'")
 
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
@@ -71,13 +80,14 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # Logger for the Main function called start
         self.logger=logging.getLogger() 
-        self.logger.setLevel(logging.DEBUG)
+        
         file_handler = logging.FileHandler('../Logs/start.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s') #Check formatting
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info('A trial message if the logger is working')
-        logging.getLogger('matplotlib.font_manager').disabled = True
+        self.logger.setLevel(logging.ERROR)
+        #logging.getLogger('matplotlib.font_manager').disabled = True
 
         #darkmode implementation
         self.default_mode = 1
@@ -113,7 +123,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        GlobalBlur(self.winId(), Acrylic=True)
+
+        if sys.platform != "darwin":
+            GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
 
         # set the animation 
@@ -151,7 +163,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.pos().y()) < 60:
-            GlobalBlur(self.winId(), Acrylic=False)
+            if sys.platform != "darwin":
+               GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
             delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPosition().toPoint()
@@ -166,8 +179,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         Args:
             event (event): Mouse release
         """      
-
-        GlobalBlur(self.winId(), Acrylic=True)
+        if sys.platform != "darwin":   
+            GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
     def resizeEvent(self, event):
         """resizing of MainWindow
@@ -181,7 +194,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
-        GlobalBlur(self.winId(), Acrylic=False)
+        if sys.platform != "darwin":
+            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
        
         
     def transfer_file_to_online(self):
@@ -225,6 +239,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def quit_application(self):
         """ Function to quit the app"""
+        self.local_database_handler.database.close()
         QCoreApplication.quit()
 
 
@@ -320,7 +335,10 @@ if __name__ == "__main__":
     
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
-    with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
+    stylesheet_loaded = "Menu_button.css"
+    if sys.platform == "darwin":
+        stylesheet_loaded = "Menu_button_mac.css"
+    with open(os.path.dirname(os.getcwd()) + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()

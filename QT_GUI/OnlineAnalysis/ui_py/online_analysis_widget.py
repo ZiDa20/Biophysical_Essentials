@@ -47,7 +47,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
     def logger_connection(self):
          # logger settings
         self.logger=logging.getLogger() # introduce the logger
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
         file_handler = logging.FileHandler('../Logs/online_analysis.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)

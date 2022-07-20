@@ -11,13 +11,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis/Analysis_Functions")#/Function_Templates")
 from AnalysisFunctionRegistration import *
+from itertools import zip_longest
 #from src.Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 
     def __init__(self, progress, statusbar):
-
         """ constructor of the manager class
         
         args:
@@ -45,6 +45,7 @@ class OfflineManager():
         self.analysis_id = None
 
         self.tree_view_manager = None
+        self.bundle_liste = []
 
 
     @property
@@ -89,6 +90,8 @@ class OfflineManager():
             # run the calculation which will be also written to the database
             specific_analysis_class.calculate_results()
 
+        self.database.database.close()
+        print("database closed")
         return True
 
     def get_database(self):
@@ -124,18 +127,66 @@ class OfflineManager():
             self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
-        self.database.database.close()
 
-        # added worker to the analysis
+        # create a threadpool
         self.threadpool = QThreadPool()
-        self.threadpool.globalInstance().setMaxThreadCount(6)
-        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, data_list, self._directory_path)
-        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
-        worker.signals.progress.connect(self.progress_fn) # signal to update progress bar
-        self.threadpool.start(worker) # start the thread
+        self.threadpool.setExpiryTimeout(1000)
+        threads = self.threadpool.globalInstance().maxThreadCount() # get the number of threads
 
+        # start the threadpool running the bundle read in function
+        if len(data_list) < threads: # 
+            data_list_final = list(self.chunks(data_list, threads/2))
+            for i,t in enumerate(data_list_final): 
+                # read
+                bundle_worker = self.run_bundle_function_in_thread(t)
+
+        else:
+            data_list_final = list(self.chunks(data_list, threads-1))
+            for i,t in enumerate(data_list_final):
+                bundle_worker = self.run_bundle_function_in_thread(t)
+               
+
+        bundle_worker.signals.finished.connect(partial(self.run_database_threading,self.bundle_liste, tree, discarded_tree))
+        
         return self.tree_view_manager # return the treeview manager object
 
+
+    def run_bundle_function_in_thread(self,bundle_liste):
+        """
+        Runs the bundle function in a thread
+        @param bundle_liste:
+        @param tree:
+        @param discarded_tree:
+        author MZ, 13.07.2022
+        """
+        bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
+        bundle_worker.signals.result.connect(self.show_bundle_result,Qt.DirectConnection)
+        self.threadpool.start(bundle_worker)
+        return bundle_worker
+        
+
+    def run_database_threading(self, bundle_liste, tree, discarded_tree):
+        
+        self.threadpool.clear()
+        self.database.database.close()
+        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste)
+        #worker.signals.progress.connect(self.progress_fn)
+        worker.signals.result.connect(self.set_database)
+        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
+         # signal to update progress bar
+        self.threadpool.start(worker) # start the thread
+
+    def show_bundle_result(self, result):
+        for i in result:
+            self.bundle_liste.append(i)
+
+    def set_database(self, result):
+        print(result)
+
+    def chunks(self, lst, n):
+        """Yield successive n-sized chunks from lst."""
+        for i in range(0, len(lst), int(n)):
+            yield lst[i:i + int(n)]
 
     def progress_fn(self,data):
         """ check the progress of the worker thread which contains the readed dat files
