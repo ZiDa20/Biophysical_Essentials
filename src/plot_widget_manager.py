@@ -48,14 +48,6 @@ class PlotWidgetManager(QRunnable):
         vertical_layout_widget.addWidget(self.canvas)
         print("added new widget")
 
-
-
-        #vertical_layout_widget.takeAt(0)
-
-        # add the new plot widget
-        #vertical_layout_widget.insertWidget(0,self.plot_widget)
-        #vertical_layout_widget.insertWidget(0, self.canvas)
-
         self.tree_view = tree_view
 
         self.analysis_mode = mode
@@ -70,7 +62,8 @@ class PlotWidgetManager(QRunnable):
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
 
-
+        # all tuples of left and right bounds that will be plotted .. identified by its row number as a key
+        self.coursor_bound_tuple_dict = {}
 
     def sweep_clicked(self,item):
         """Whenever a sweep is clicked, this handler will be executed to handle the clicked item"""
@@ -444,12 +437,22 @@ class PlotWidgetManager(QRunnable):
 
     def show_draggable_lines(self,row_number):
 
-        # default
-        left_val =  0.2*max(self.time)
-        right_val = 0.8*max(self.time)
+        try:
+            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
+            left_val = round(coursor_tuple[0].XorY,2)
+            right_val = round(coursor_tuple[1].XorY,2)
+        except:
+            # default
+            left_val =  0.2*max(self.time)
+            right_val = 0.8*max(self.time)
 
-        self.left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
-        self.right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
+        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
+
+        self.coursor_bound_tuple_dict[str(row_number)] = (left_coursor,right_coursor)
+
+        self.left_coursor = left_coursor
+        self.right_coursor = right_coursor
 
         self.canvas.draw_idle()
 
@@ -466,8 +469,11 @@ class PlotWidgetManager(QRunnable):
         print(row)
 
         try:
-            self.ax.lines.remove(self.left_coursor.line)
-            self.ax.lines.remove(self.right_coursor.line)
+            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row))
+            self.ax1.lines.remove(coursor_tuple[0].line)
+            self.ax1.lines.remove(coursor_tuple[1].line)
+
+            self.coursor_bound_tuple_dict.pop(str(row))
 
             self.canvas.draw_idle()
         except Exception as e:
