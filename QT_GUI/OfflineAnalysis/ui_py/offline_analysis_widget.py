@@ -653,7 +653,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for r in range(0,number_of_rows):
             if current_tab.analysis_table_widget.item(r,1) is not None:
                 current_tab.analysis_table_widget.removeCellWidget (r, 3)
-                self.b= QPushButton("Change")
+                self.b= QPushButton("Reset")
                 current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
 
                 self.b.clicked.connect(partial(self.add_coursor_bounds,r,current_tab))
@@ -692,7 +692,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.update_right_common_labels((right_val,row_number))
 
         current_tab.analysis_table_widget.removeCellWidget(row_number, 3)
-        self.b = QPushButton("Change")
+        self.b = QPushButton("Reset")
         current_tab.analysis_table_widget.setCellWidget(row_number, 3, self.b)
         self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
 

@@ -178,9 +178,9 @@ class PlotWidgetManager(QRunnable):
         self.ax2.set_xlabel('Time [ms]')
         if self.y_unit == "V":
             self.ax1.set_ylabel('Voltage [mV]')
-            self.ax2.set_ylabel('Current [nA]')
+            self.ax2.set_ylabel('Current [pA]')
         else:
-            self.ax1.set_ylabel('Current [nA]')
+            self.ax1.set_ylabel('Current [pA]')
             self.ax2.set_ylabel('Voltage [mV]')
         self.canvas.draw_idle()
 
@@ -252,7 +252,7 @@ class PlotWidgetManager(QRunnable):
                 start_pos = end_pos
 
 
-            self.ax2.plot(self.time, pgf_signal)
+            self.ax2.plot(self.time, pgf_signal, c = 'k')
             print("finished sweep %s", sweep_number)
 
     def plot_pgf_simple_protocol(self,pgf_table_df, data):
@@ -291,7 +291,7 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        self.ax2.plot(self.time, pgf_signal)
+        self.ax2.plot(self.time, pgf_signal, c = 'k')
 
 
     # deprecated dz 30.06.2022
