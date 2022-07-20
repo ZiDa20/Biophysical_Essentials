@@ -169,7 +169,13 @@ class PlotWidgetManager(QRunnable):
 
         print(pgf_table_df)
 
-        self.plot_pgf_signal(pgf_table_df,data)
+        protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
+        print(protocol_steps)
+        for x in range(0,len(protocol_steps)):
+
+            x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
+            print(x_pos)
+            self.ax1.axvline(x_pos, c = 'tab:gray')
 
         self.ax1.spines['top'].set_visible(False)
         self.ax1.spines['right'].set_visible(False)
@@ -197,9 +203,9 @@ class PlotWidgetManager(QRunnable):
         increments = np.array(increments, dtype=float)
 
         if np.all(increments ==0):
-            self.plot_pgf_simple_protocol(pgf_table_df,data)
+            return self.plot_pgf_simple_protocol(pgf_table_df,data)
         else:
-            self.plot_pgf_step_protocol(pgf_table_df,data)
+            return self.plot_pgf_step_protocol(pgf_table_df,data)
 
     def plot_pgf_step_protocol(self,pgf_table_df,data):
 
@@ -223,11 +229,13 @@ class PlotWidgetManager(QRunnable):
             pgf_signal = np.zeros(len(data))
             total_duration = 0
             start_pos = 0
+            protocol_steps = []
 
             for n in range(0, len(durations)):
                 #  nothign changes in the duration
                 d = 1000 * float(durations[n])
                 total_duration += d
+                protocol_steps.append(d)
                 try:
                     end_pos = np.where(self.time > total_duration)[0][0]
                 except IndexError:
@@ -254,7 +262,7 @@ class PlotWidgetManager(QRunnable):
 
             self.ax2.plot(self.time, pgf_signal, c = 'k')
             print("finished sweep %s", sweep_number)
-
+        return protocol_steps
     def plot_pgf_simple_protocol(self,pgf_table_df, data):
         """
         create a simple pgf trace signal
@@ -262,6 +270,10 @@ class PlotWidgetManager(QRunnable):
         @param data:
         @return:
         """
+
+        # concat the y points where in the data plot slight grey lines should be drawn do indicate start of a pulse
+        protocol_steps = []
+
         pgf_signal = np.zeros(len(data))
 
         try:
@@ -275,6 +287,7 @@ class PlotWidgetManager(QRunnable):
             for n in range(0,len(durations)):
                 d = 1000 * float(durations[n])
                 total_duration += d
+                protocol_steps.append(d)
 
                 try:
                     end_pos = np.where(self.time > total_duration)[0][0]
@@ -293,6 +306,7 @@ class PlotWidgetManager(QRunnable):
 
         self.ax2.plot(self.time, pgf_signal, c = 'k')
 
+        return protocol_steps
 
     # deprecated dz 30.06.2022
     def series_clicked(self,item):
