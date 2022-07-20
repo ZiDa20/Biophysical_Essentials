@@ -13,6 +13,7 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
+
 from Offline_Analysis.offline_analysis_manager import OfflineManager
 from data_db import *
 from treeview_manager import *
@@ -134,7 +135,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.setColumnWidth(2, 100)
         self.experiments_tree_view.setColumnWidth(3, 25)
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout,self.offline_manager,self.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
 
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)

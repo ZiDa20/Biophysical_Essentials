@@ -8,10 +8,11 @@ import numpy as np
 from scipy.signal import find_peaks
 
 from draggable_lines import DraggableLines
-
-
+sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
+from DavesSuperPersonalCustomToolbar import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
+from mpl_interactions import ioff, panhandler, zoom_factory
 
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
@@ -20,7 +21,7 @@ from PySide6.QtCore import Signal
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
-    def __init__(self,vertical_layout_widget,manager_object,tree_view,mode,detection):
+    def __init__(self,vertical_layout_widget,manager_object,tree_view,mode,detection,toolbar_widget = None, toolbar_layout = None):
         """
         INIT:
         :param vertical_layout_widget: layout to be filled with the plotwidget created by this class
@@ -44,8 +45,40 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        self.canvas = FigureCanvas(Figure(figsize=(3,3)))
+        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas,parent = toolbar_widget) #self.navbar_widget)
+
+        """
+        self.navbar.clear()
+
+        # Adds Buttons
+        a = self.navbar.addAction(self.navbar._icon("home.png"), "Home", self.navbar.home)
+        # a.setToolTip('returns axes to original position')
+        a = self.navbar.addAction(self.navbar._icon("move.png"), "Pan", self.navbar.pan)
+
+        # Fixed with, otherwise navigation bar resize arbitrary
+        self.navbar.setFixedWidth(40)
+        """
+
+        self.navbar.setOrientation(QtCore.Qt.Vertical)
+        #self.navbar.setStyleSheet("background-color:White; border : 0px; ")
+
+        #self.navbar.resize(50,500)
         vertical_layout_widget.addWidget(self.canvas)
+        print("toolbar")
+        try:
+            print("toolbar horizontal space")
+            #toolbar_layout.addWidget(toolbar_widget, Qt.AlignCenter)
+        except Exception as e:
+            print(e)
+
+
+        #new = QPushButton(toolbar_widget)
+        #
+        #toolbar_layout.setAlignment(QtCore.Qt.AlignTop)
+        self.navbar.show()
+
+
         print("added new widget")
 
         self.tree_view = tree_view
@@ -76,6 +109,8 @@ class PlotWidgetManager(QRunnable):
             # data can be an array of the position in the bundle to read the data
             data_request_information = item.data(3,0)
             self.offline_analysis_canvas = pg.PlotWidget()
+
+
 
             self.offline_analysis_canvas.setBackground("#282629")
 
@@ -125,6 +160,7 @@ class PlotWidgetManager(QRunnable):
         self.time = self.get_time_from_meta_data(meta_data_df)
 
         column_names = series_df.columns.values.tolist()
+
         fig = self.canvas.figure
         fig.clf()
 
@@ -132,6 +168,7 @@ class PlotWidgetManager(QRunnable):
         if split_view:
             # initialise the figure. here we share X and Y axis
             axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            pan_handler = panhandler(self.canvas.figure)
             self.ax1 = axes[0]
             self.ax2 = axes[1]
         else:
@@ -186,7 +223,7 @@ class PlotWidgetManager(QRunnable):
             self.ax1.set_ylabel('Voltage [mV]')
             self.ax2.set_ylabel('Current [pA]')
         else:
-            self.ax1.set_ylabel('Current [pA]')
+            self.ax1.set_ylabel('Current [nA]')
             self.ax2.set_ylabel('Voltage [mV]')
         self.canvas.draw_idle()
 
