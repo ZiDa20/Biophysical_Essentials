@@ -75,7 +75,37 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.SeriesItems.clear()
         self.parent_count = 0
         self.current_tab_visualization = []
+        self.tree_widget_index_count = 0 # save the current maximal index of the tree
 
+        # animation of the side dataframe
+        self.series_selection.clicked.connect(self.animate_tree_view)
+
+
+    def animate_tree_view(self):
+        """Resize the Widget """
+        rect = self.SeriesItems.frameGeometry() # get the width of the menu
+        print(rect)
+        width = self.SeriesItems.width()
+        print(width)
+        if width == 300:
+            new_rect = QRect(9,53,0,self.SeriesItems.height())
+            final_width = 0
+        else:
+            new_rect = QRect(9,53,300,self.SeriesItems.height())
+            final_width = 300
+
+
+        self.SeriesItems.setMinimumSize(0,780)
+        self.SeriesItems.sizePolicy().setHorizontalStretch(50)
+        self.animation = QPropertyAnimation(self.SeriesItems, b"geometry")
+        self.animation.setDuration(500)
+        self.animation.setStartValue(rect)
+        self.animation.setEndValue(new_rect)
+        self.animation.setEasingCurve(QEasingCurve.InOutSine)# set the Animation
+        self.animation.start()
+        self.SeriesItems.setMaximumSize(final_width, 1666666)
+        self.SeriesItems.setMinimumSize(final_width, 780)
+        
 
 
     def update_database_handler_object(self,updated_object):
@@ -430,6 +460,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.plot_widgets= []
             """
             # add the tab
+            index += self.tree_widget_index_count
             new_tab_widget=SpecificAnalysisTab()
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
             new_tab_widget.setObjectName(s)
@@ -482,12 +513,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.parent_count += 1
             # add this selection to table
             #  series in the database
+            self
 
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.onItemClicked)
 
         #set the analysis notebook as index
         self.offline_analysis_widgets.setCurrentIndex(3)
+        self.tree_widget_index_count = index +1
         
     def onItemClicked(self, it, col):
         """should be commented properly

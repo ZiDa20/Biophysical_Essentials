@@ -466,8 +466,8 @@ class PlotWidgetManager(QRunnable):
         print(row)
 
         try:
-            self.ax.lines.remove(self.left_coursor.line)
-            self.ax.lines.remove(self.right_coursor.line)
+            self.ax1.lines.remove(self.left_coursor.line)
+            self.ax1.lines.remove(self.right_coursor.line)
 
             self.canvas.draw_idle()
         except Exception as e:

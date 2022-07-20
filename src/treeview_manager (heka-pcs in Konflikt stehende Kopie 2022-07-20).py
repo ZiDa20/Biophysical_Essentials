@@ -64,7 +64,8 @@ class TreeViewManager():
             print("setting analysis mode 1 (offline analysis)")
 
         self.threadpool = QThreadPool()
-    
+        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+
         self._node_list_STATE = []
         self._discardet_nodes_STATE = []
         self._pgf_info_STATE = []
@@ -125,6 +126,7 @@ class TreeViewManager():
         selected_tree = self.add_meta_data_combo_box_and_assign(experiment_name, selected_tree, parent)
         # add correct meta data group
         # tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
+
 
     def create_treeview_from_database(self,selected_tree,discarded_tree,experiment_label,specific_series_name=None):
         """ read through the database and fill the trees of selected and discarded items"""
@@ -304,6 +306,7 @@ class TreeViewManager():
                 increment = 100/max_value
                 progress_value = progress_value + increment
                 self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", i[2])
+                print(database.database.execute("Select experiment_name from experiments").fetchnumpy())
                 progress_callback.emit((progress_value,i))
             except Exception as e:
                 self.logger.error("The file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
@@ -343,6 +346,7 @@ class TreeViewManager():
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , series_identifier, pgf_tuple_data_frame=None):
 
             if database is None:
+                print("no database detected")
                 database = self.database
             
             self.logger.info("started treeview generation")
@@ -371,6 +375,7 @@ class TreeViewManager():
             metadata = node
 
             if "Pulsed" in node_type:
+                #print("skipped")
                 parent = ""
 
             if "Group" in node_type:
@@ -378,14 +383,16 @@ class TreeViewManager():
                 try:
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                     group_name = self.meta_data_assignment_list[pos][1]
+                    #print(group_name)
                 except:
                     group_name = "None"
-                    
+                    #print("experiment has no meta data assignment")
 
                 database.add_experiment_to_experiment_table(experiment_name, group_name)
 
             if "Series" in node_type:
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+                print(sliced_pgf_tuple_data_frame)
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
                 database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                           "pgf_table_" + experiment_name + "_" + node_type,
@@ -429,7 +436,9 @@ class TreeViewManager():
 
         for i in dat_files:
 
+            print(i)
             file = directory_path + "/" + i
+
             self.logger.info("processing file " + file)
 
             # open the file
@@ -442,23 +451,33 @@ class TreeViewManager():
 
             if database_mode:
 
-                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0], "None")
+                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0])
                 self.database.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
 
                 # no database interaction when the file is already in the database to safe time
                 # @todo ask the user whether this is ok or not - give a manual option
                 if insertion_state == 0:
                     database_mode = insertion_state
-                    self.logger.info("Insert file into database")
+                    print("turned off database mode ")
 
             pgf_tuple_data_frame= self.read_series_specific_pgf_trace_into_df([],bundle,[],None,None,None)
 
             tree, discarded_tree = self.create_treeview_from_single_dat_file([], bundle, "", [],tree, discarded_tree, splitted_name[0]
                                                                              ,self.database,database_mode,pgf_tuple_data_frame,series_name,tree_level)
 
+
+
+
+
+            print(pgf_tuple_data_frame)
+
+            print("created tree for file" + i)
+
+
+
             # turn on database mode for the next file
             database_mode = 1
-            self.logger.info("Database mode turned on in Online Analysis")
+            print("turned on database mode ")
 
 
         return tree, discarded_tree
@@ -511,7 +530,12 @@ class TreeViewManager():
         pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
         discard_button.setIcon(pixmap)
 
+        
         metadata = node
+        #print(node_type)
+        #print(metadata)
+
+
 
         if "Pulsed" in node_type:
             print("skipped")
@@ -548,6 +572,7 @@ class TreeViewManager():
             return tree, discarded_tree
 
         node_list.append([node_type, node_label, parent])
+
 
         for i in range(len(node.children)):
             self.create_treeview_from_single_dat_file(index + [i], bundle, parent, node_list, tree, discarded_tree, experiment_name,
@@ -586,8 +611,9 @@ class TreeViewManager():
         tree.addTopLevelItem(parent)
 
         # add discard button in coloumn 2
+        # print("adding discard button to parent ")
         discard_button = QPushButton()
-        discard_button.setStyleSheet("border:none;")
+        discard_button.setStyleSheet("border:none")
         discard_button.setIcon(pixmap)
         discard_button.clicked.connect(partial(self.discard_button_clicked, parent, tree, discarded_tree))
 
@@ -665,7 +691,7 @@ class TreeViewManager():
             return parent,tree
 
         else:
-            self.logger.info("Series name " + series_name + " is not equal to node label " + node_label)
+            print("rejected")
             # returns the input tree and parent
             return parent, tree
 
@@ -766,11 +792,14 @@ class TreeViewManager():
 
             try:
                 pos = name_list.index(top_level_item.text(0))
+                print(text_list[pos])
                 top_level_combo_box.setCurrentText(text_list[pos])
-        
+                #self.final_tree.setItemWidget(top_level_item,self.meta_data_group_column,top_level_combo_box)
+
             except Exception as e:
                 top_level_combo_box.setCurrentText("None")
-                self.logger.error("Could not assign meta data group for " + top_level_item.text(0))
+                print("Error in updating meta data group assignment")
+                print(e)
 
     def get_meta_data_group_assignments(self):
         '''
@@ -787,6 +816,8 @@ class TreeViewManager():
 
 
         return meta_data_group_assignments
+
+
 
 
     def add_new_meta_data_group(self,new_text):
@@ -806,7 +837,8 @@ class TreeViewManager():
             try:
                 self.frontend_style.set_pop_up_dialog_style_sheet(self.enter_meta_data_pop_up)
             except Exception as e:
-                self.logger.error("No styleobject found")
+                print(e)
+                print("Error in TreeViewManager/Add_new_meta_data: There was no style object defined for this treeview")
 
             # cancel button will just close the popup window
             self.enter_meta_data_pop_up.cancel_button.clicked.connect(partial(self.cancel_button_clicked,self.enter_meta_data_pop_up))
@@ -860,9 +892,8 @@ class TreeViewManager():
         self.logger.info('writing meta data from treeview into data base')
 
         top_level_items_amount = input_tree.topLevelItemCount()
-        top_level_items_amount
+
         for n in range(top_level_items_amount):
-            print(n)
             experiment_name  = input_tree.topLevelItem(n).text(0)
             meta_data_group = input_tree.itemWidget(input_tree.topLevelItem(n),self.meta_data_group_column).currentText()
 
@@ -877,6 +908,7 @@ class TreeViewManager():
         __edited__ = dz, 290921
         __tested__ = FALSE
         '''
+        print("closing dialog now")
         dialog.close()
 
     def insert_meta_data_items_into_combo_box(self,combo_box):
@@ -925,17 +957,21 @@ class TreeViewManager():
 
 
     def reinsert_button_clicked(self, item, experiment_tree, discarded_tree):
-        """ Function to reinsert a given item into the experiment tree via button clicked"""
+        print("reinsert button clicked")
+        # changed tree a and b in comparison to discard_button_clicked
         self.tree_button_clicked(item, discarded_tree, experiment_tree,"reinsert")
+        print("executed reinsert function")
 
     def discard_button_clicked(self, item, experiment_tree, discarded_tree):
-        """ Function to discard a given item into the discarded tree via button clicked"""
+        print("discard button clicked")
         self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard")
+        print("executed discard function")
 
     def tree_button_clicked(self, item, experiment_tree,discarded_tree,function):
         """function can be -reinsert- or -discard-"""
 
         if item.parent():
+            print(item.text(0))
             self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function)
 
             # assuming that a series button was clicked
@@ -964,6 +1000,8 @@ class TreeViewManager():
         child_amount = item.childCount()
         index_of_item_to_delete = tree_a.indexOfTopLevelItem(item)
         tli_amount = tree_b.topLevelItemCount() # number of top level items
+        print("toplevelamount in destination")
+        print(tli_amount)
 
         # 1) check if there is already a substructure of the experiment in tree b
         for i in range (tli_amount):
@@ -1066,6 +1104,7 @@ class TreeViewManager():
     """####################################### Chapter C Helper Functions ########################################  """
 
     def open_bundle_of_file(self,file_name):
+        print(file_name)
         return heka_reader.Bundle(file_name)
 
     def get_number_from_string(self,string):
