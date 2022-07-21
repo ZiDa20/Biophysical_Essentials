@@ -85,6 +85,28 @@ class PlotWidgetManager(QRunnable):
         # all tuples of left and right bounds that will be plotted .. identified by its row number as a key
         self.coursor_bound_tuple_dict = {}
 
+
+    def tree_view_click_handler(self, item):
+        """
+        handle all incoming clicks in the treeview related to plotting
+        @param item:
+        @return:
+        """
+        print(f'Text of first column in item is {item.text(0)}')
+
+        try:
+            if "Sweep" in item.text(0) or "sweep" in item.text(0):
+                self.sweep_in_treeview_clicked(item)
+            else:
+                if ".dat" in item.text(0):
+                    print("To see data traces, click on a sweep or a series")
+                else:
+                 self.series_in_treeview_clicked(item)
+                 #self.series_clicked(item)
+        except Exception as e:
+            print(e)
+            print("experiment or sweep was clicked which is not implemented yet")
+
     def sweep_clicked_load_from_dat_file(self,item):
         """Whenever a sweep is clicked in online analysis, this handler will be executed to handle the clicked item"""
         self.time = None
@@ -215,10 +237,67 @@ class PlotWidgetManager(QRunnable):
         self.navbar.setOrientation(QtCore.Qt.Vertical)
         self.vertical_layout.addWidget(self.canvas)
         self.navbar.show()
-
         self.handle_plot_visualization()
 
+    def sweep_clicked_load_from_dat_database(self,item):
 
+        print("sweep clicked")
+        print(item.text(0))
+        split_view = 1
+
+        data_request_information = item.parent().data(3, 0)
+
+        db = self.offline_manager.get_database()
+        series_df = db.get_sweep_table_for_specific_series(data_request_information[0], data_request_information[1])
+
+        # get the meta data to correctly display y values of traces
+        meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],
+                                                                 data_request_information[1])
+        self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
+
+        self.time = self.get_time_from_meta_data(meta_data_df)
+
+        fig = self.canvas.figure
+        fig.clf()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            pan_handler = panhandler(self.canvas.figure)
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+        data = series_df[item.text(0)].values.tolist()
+        data = np.array(data)
+
+        if self.y_unit == "V":
+            y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, name)
+            data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+            # data scaling to mV
+            self.plot_scaling_factor = 1000
+        else:
+            # data scaling to nA
+            self.plot_scaling_factor = 1e9
+
+        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k')
+
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],
+                                                                                        data_request_information[1])
+
+        sweep_number = item.text(0).split("_")
+        sweep_number = int(sweep_number[1])
+
+        protocol_steps = self.plot_pgf_signal(pgf_table_df, data, sweep_number)
+        print(protocol_steps)
+        for x in range(0, len(protocol_steps)):
+            x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
+            print(x_pos)
+            self.ax1.axvline(x_pos, c='tab:gray')
+
+        self.handle_plot_visualization()
 
     def series_clicked_load_from_database(self,item):
         """
@@ -259,8 +338,6 @@ class PlotWidgetManager(QRunnable):
 
         fig = self.canvas.figure
         fig.clf()
-
-
 
         if split_view:
             # initialise the figure. here we share X and Y axis
@@ -465,6 +542,8 @@ class PlotWidgetManager(QRunnable):
 
         return protocol_steps
 
+
+
     # deprecated dz 30.06.2022
     def series_clicked(self,item):
         self.plot_widget.clear()
@@ -611,22 +690,7 @@ class PlotWidgetManager(QRunnable):
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
         return time
 
-    def tree_view_click_handler(self, item):
 
-        print(f'Text of first column in item is {item.text(0)}')
-
-        try:
-            if "Sweep" in item.text(0):
-                self.sweep_in_treeview_clicked(item)
-            else:
-                if ".dat" in item.text(0):
-                    print("To see data traces, click on a sweep or a series")
-                else:
-                 self.series_in_treeview_clicked(item)
-                 #self.series_clicked(item)
-        except Exception as e:
-            print(e)
-            print("experiment or sweep was clicked which is not implemented yet")
 
     def sweep_in_treeview_clicked(self,item):
         if self.analysis_mode == 0:
