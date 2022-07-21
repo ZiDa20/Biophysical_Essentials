@@ -92,25 +92,23 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             print("no default widget found")
 
         # create two treeviews and write into self.treewidget and self.treewidget_2
-        TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,None)
+        pgf_data_frame = TreeViewManager().read_series_specific_pgf_trace_into_df([],bundle,[],None,None,None)
+        TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,pgf_data_frame)
+
         self.get_columns_data_to_table()
         self.tree_layouting_change.addWidget(self.tree_tab_widget)
         self.tree_tab_widget.setMaximumSize(QSize(330, 700))
        
 
-        #self.verticalLayout_5.addWidget(self.tree_tab_widget)
-
-
-        # initially show online analysis
+         # initially show online analysis
         self.tree_tab_widget.setCurrentIndex(0)
-        #self.tree_tab_widget.setStyleSheet("background-color: #232629;")
 
         # initially show all series of an experiment
         self.treeWidget.expandToDepth(0)
 
         # print first series into a plot widget
         self.online_analysis_plot_manager = PlotWidgetManager(self.tree_plot_widget_layout, self.online_manager,
-                                                             self.treeWidget, 0)
+                                                             self.treeWidget, 0, False,self.toolbar_widget)
 
         self.treeWidget.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
         self.treeWidget_2.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
@@ -158,7 +156,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 grand_child = top_item.child(t).child(0)
                 data = grand_child.data(5,0)
                 df = pd.DataFrame(data, index = [0])
-                final_pandas = final_pandas.append(df)
+                final_pandas = pd.concat([final_pandas,df])
+                #final_pandas = final_pandas.append(df)
 
 
         final_pandas.index = pd.Series(list_rows)

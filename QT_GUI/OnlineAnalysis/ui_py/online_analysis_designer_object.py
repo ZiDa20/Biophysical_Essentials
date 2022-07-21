@@ -3,17 +3,25 @@
 ################################################################################
 ## Form generated from reading UI file 'online_analysis_notebook.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.1
+## Created by: Qt User Interface Compiler version 6.3.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsView, QGridLayout,
+    QGroupBox, QHeaderView, QLabel, QLayout,
+    QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
+    QTableWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget)
 
 from groupbox_resizing_class import GroupBoxSize
-
 
 class Ui_Online_Analysis(object):
     def setupUi(self, Online_Analysis):
@@ -45,23 +53,24 @@ class Ui_Online_Analysis(object):
         self.recorded_series_plot_tab.setObjectName(u"recorded_series_plot_tab")
         self.gridLayout_2 = QGridLayout(self.recorded_series_plot_tab)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.gridLayout_12 = QGridLayout()
-        self.gridLayout_12.setObjectName(u"gridLayout_12")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.toolbar_layout = QGridLayout()
+        self.toolbar_layout.setObjectName(u"toolbar_layout")
+        self.toolbar_widget = QWidget(self.recorded_series_plot_tab)
+        self.toolbar_widget.setObjectName(u"toolbar_widget")
+        self.toolbar_widget.setMinimumSize(QSize(50, 0))
+        self.toolbar_widget.setMaximumSize(QSize(50, 16777215))
 
-        self.gridLayout_12.addItem(self.horizontalSpacer, 0, 3, 1, 1)
+        self.toolbar_layout.addWidget(self.toolbar_widget, 0, 0, 1, 1)
 
 
-        self.gridLayout_2.addLayout(self.gridLayout_12, 2, 1, 1, 1)
-
-        self.verticalSpacer_7 = QSpacerItem(20, 200, QSizePolicy.Minimum, QSizePolicy.Fixed)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_7, 3, 1, 1, 1)
+        self.gridLayout_2.addLayout(self.toolbar_layout, 0, 2, 3, 1)
 
         self.tree_plot_widget_layout = QVBoxLayout()
         self.tree_plot_widget_layout.setObjectName(u"tree_plot_widget_layout")
         self.label = QLabel(self.recorded_series_plot_tab)
         self.label.setObjectName(u"label")
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
         font = QFont()
         font.setPointSize(20)
         font.setBold(True)
@@ -72,7 +81,7 @@ class Ui_Online_Analysis(object):
         self.tree_plot_widget_layout.addWidget(self.label)
 
 
-        self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 0, 1, 2, 1)
+        self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 0, 1, 3, 1)
 
         self.online_analysis_tabs.addTab(self.recorded_series_plot_tab, "")
         self.live_recording_tab = QWidget()
@@ -541,3 +550,4 @@ class Ui_Online_Analysis(object):
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window), QCoreApplication.translate("Online_Analysis", u"Labbook", None))
         self.label_8.setText(QCoreApplication.translate("Online_Analysis", u"Online Analysis ", None))
     # retranslateUi
+
