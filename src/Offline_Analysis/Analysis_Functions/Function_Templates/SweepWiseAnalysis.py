@@ -217,6 +217,89 @@ class SweepWiseAnalysisTemplate(object):
 			self.plot_mean_per_meta_data(parent_widget, canvas, result_table_names)
 			#print("not implemented")
 
+		if visualization_type =="Boxplot":
+			print("boxplot visualization")
+			self.make_boxplot(parent_widget, canvas, result_table_names)
+
+
+	@classmethod
+	def make_boxplot(self,parent_widget, canvas, result_table_list):
+
+		meta_data_groups = []
+		meta_data_specific_df = []
+
+		for table in result_table_list:
+
+			self.database.database.execute(f'select * from {table}')
+			query_data_df = self.database.database.fetchdf()
+
+			print("querried data look like this")
+			print(query_data_df)
+
+			q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
+				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+				f'specific_result_table_name = \'{table}\'))'
+
+			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
+
+			# index has the same name as the function. Will not work if the names differ.
+			try:
+				x_data = 1000* query_data_df['Result'].values.tolist()[0]
+			except Exception as e:
+				break
+
+			print("xdata  data look like this")
+			print(x_data)
+
+			if meta_data_group in meta_data_groups:
+				specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
+				specific_df.insert(0, str(table), x_data, True)
+				meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
+			else:
+				# add a new meta data group
+				meta_data_groups.append(meta_data_group)
+				meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
+
+		# print(meta_data_specific_df[0])
+
+		# make the boxplot
+		ax = canvas.figure.subplots()
+
+		boxplot_matrix = []
+		for meta_data in meta_data_specific_df:
+			boxplot_matrix.append(meta_data.iloc[0].values)
+
+		# no nan handling required since sweeps without an AP are not stored in the dataframe
+		filtered_box_plot_data = boxplot_matrix
+
+		# print(filtered_box_plot_data)
+
+		# make custom labels containing the correct meta data group and the number of evaluated cells
+		custom_labels = []
+
+		for i in range(0, len(meta_data_groups)):
+			custom_labels.append(meta_data_groups[i] + ": " + str(len(filtered_box_plot_data[i])))
+
+		plot = ax.boxplot(filtered_box_plot_data,  # notch=True,  # notch shape
+						  vert=True,  # vertical box alignment
+						  patch_artist=True)
+
+		# ax.violinplot(filtered_box_plot_data)
+		ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
+		ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
+
+		default_colors = ['k', 'b', 'r', 'g', 'c']
+
+		for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
+			patch.set_facecolor(color)
+
+		ax.legend(plot['boxes'], custom_labels, loc='upper left')
+
+		parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
+		parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
+		parent_widget.export_data_frame.columns = meta_data_groups
+
+
 	@classmethod
 	def simple_plot(self, parent_widget, canvas, result_table_list):
 		"""

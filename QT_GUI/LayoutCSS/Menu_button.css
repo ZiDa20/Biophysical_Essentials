@@ -215,4 +215,15 @@ QMdiArea {{
 
 QTabWidget[objectName="tabWidget"] {{
   background-color:transparent;
+
+}}
+QWidget[objectName = "toolbar_widget"] {{
+background:transparent;
+}}
+
+QWidget[objectName = "toolbar_widget"] QWidget {{
+border:0px;
+border-radius: 10px;
+background-color:White;
+align:center;
 }}

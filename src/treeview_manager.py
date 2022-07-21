@@ -460,10 +460,11 @@ class TreeViewManager():
 
         return tree, discarded_tree
 
+
     def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree,
                                              experiment_name, database,data_base_mode,pgf_tuple_data_frame=None, series_name=None, tree_level= None):
         """
-        Creates the treeview and also writes series (info + data) and sweep (info + data) into the database
+        Creates treeview for online analysis without any database interaction
         :param index:
         :param bundle:
         :param parent:
@@ -476,6 +477,7 @@ class TreeViewManager():
         :param series_name:
         :return:
         """
+        print("online analysis here we go")
 
         # tree level controls the depth of the tree, 1= group, 2 = series, 3 = sweep, 4 = trace
         if tree_level is None:
@@ -507,7 +509,6 @@ class TreeViewManager():
         discard_button = QPushButton()
         pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
         discard_button.setIcon(pixmap)
-
         metadata = node
 
         if "Pulsed" in node_type:
@@ -622,7 +623,7 @@ class TreeViewManager():
             child = QTreeWidgetItem(parent)
             child.setText(0, node_label)
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-            child.setCheckState(self.checkbox_column, Qt.Unchecked)
+            #child.setCheckState(self.checkbox_column, Qt.Unchecked)
             series_number = self.get_number_from_string(node_type)
             data = parent.data(3, 0)
 
@@ -643,6 +644,9 @@ class TreeViewManager():
             # often the specific series identifier will be needed to ensure unique identification of series
             # whereas the user will the series name instead
             child.setData(4, 0, node_type)
+
+            # pgf tuple dataframe to be accessed in the treeview
+            child.setData(5,0,pgf_tuple_data_frame)
 
             child.setExpanded(False)
             parent = child
@@ -684,7 +688,7 @@ class TreeViewManager():
         child = QTreeWidgetItem(parent)
         child.setText(0, node_type)
         child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-        child.setCheckState(self.checkbox_column, Qt.Unchecked)
+        #child.setCheckState(self.checkbox_column, Qt.Unchecked)
         sweep_number = self.get_number_from_string(node_type)
         data = parent.data(3, 0)
 

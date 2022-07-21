@@ -4,6 +4,8 @@ from PySide6.QtWidgets import *  # type: ignore
 import logging
 import pandas as pd
 from Pandas_Table import *
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
 import pyqtgraph as pg
 
 from online_analysis_designer_object import Ui_Online_Analysis
@@ -31,6 +33,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_video = QGraphicsScene(self)
         self.online_video.addText("Load the Video if recorded from Experiment")
         self.graphicsView.setScene(self.online_video)
+
+        ##########
+        self.canvas_live_plot = FigureCanvas(Figure(figsize=(5, 3)))
+        
+        self.verticalLayout_6.addWidget(self.canvas_live_plot)
         # Connect the buttons, connect the logger
         self.connections_clicked()
         self.logger_connection()
@@ -92,25 +99,23 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             print("no default widget found")
 
         # create two treeviews and write into self.treewidget and self.treewidget_2
-        TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,None)
+        pgf_data_frame = TreeViewManager().read_series_specific_pgf_trace_into_df([],bundle,[],None,None,None)
+        TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,pgf_data_frame)
+
         self.get_columns_data_to_table()
         self.tree_layouting_change.addWidget(self.tree_tab_widget)
         self.tree_tab_widget.setMaximumSize(QSize(330, 700))
        
 
-        #self.verticalLayout_5.addWidget(self.tree_tab_widget)
-
-
-        # initially show online analysis
+         # initially show online analysis
         self.tree_tab_widget.setCurrentIndex(0)
-        #self.tree_tab_widget.setStyleSheet("background-color: #232629;")
 
         # initially show all series of an experiment
         self.treeWidget.expandToDepth(0)
 
         # print first series into a plot widget
         self.online_analysis_plot_manager = PlotWidgetManager(self.tree_plot_widget_layout, self.online_manager,
-                                                             self.treeWidget, 0)
+                                                             self.treeWidget, 0, False,self.toolbar_widget)
 
         self.treeWidget.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
         self.treeWidget_2.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
@@ -158,7 +163,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 grand_child = top_item.child(t).child(0)
                 data = grand_child.data(5,0)
                 df = pd.DataFrame(data, index = [0])
-                final_pandas = final_pandas.append(df)
+                final_pandas = pd.concat([final_pandas,df])
+                #final_pandas = final_pandas.append(df)
 
 
         final_pandas.index = pd.Series(list_rows)
@@ -184,19 +190,33 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         this will further projected to the online-anaysis """
         print(data_x)
         #print(data_x[0], print(data_x[1]))
-        #self.drawing()
-        self.pyqt_graph.plot(data_x[0], data_x[1])
+        self.canvas_live_plot.figure.clf()
+        
+        self.drawing()
+        self.ax1.plot(data_x[0], data_x[1])
         #self.pyqt_graph.setData(data_x[0], data_x[1])
         print("try to give an updated view of the data")
         
         print("no error occured here but also not drawn")
-        
+        self.canvas_live_plot.draw_idle()
 
     def drawing(self):
         """ redraws the graph into online analysis """
-        self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
-        self.pyqt_graph.setBackground("#232629")
-        self.verticalLayout_6.addWidget(self.pyqt_graph)
+        
+        self.ax1 = self.canvas_live_plot.figure.subplots() 
+        self.ax1.spines['top'].set_visible(False)
+        self.ax1.spines['right'].set_visible(False)
+
+        #@todo can we get the y unit here ???
+        """      
+        if self.y_unit == "V":
+            self.ax1.set_ylabel('Voltage [mV]')
+            self.ax2.set_ylabel('Current [pA]')
+        else:
+            self.ax1.set_ylabel('Current [nA]')
+            self.ax2.set_ylabel('Voltage [mV]')
+        """
+        #self.canvas_live_plot.draw()
         print("initialized")
 
     def draw_scene(self, image):

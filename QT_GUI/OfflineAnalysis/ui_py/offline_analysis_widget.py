@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
+###############################################################################
 ## Form generated from reading UI file 'offline_analysis_main_widget.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.1
@@ -166,7 +164,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.setColumnWidth(2, 100)
         self.experiments_tree_view.setColumnWidth(3, 25)
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
 
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
@@ -355,7 +353,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         if not meta_data_groups_in_db:
             dialog.select_from_database_button.setDisabled(True)
-
 
         dialog.exec_()
 

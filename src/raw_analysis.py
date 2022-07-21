@@ -42,7 +42,7 @@ class AnalysisRaw():
             return ["max_current","min_current","mean_current"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["mean_voltage",  "Action Potential Fitting",
-                    "Rheobase-Detection", "RheoRamp-Detection", "Cluster","Input Resistance"]
+                    "Rheobase-Detection", "RheoRamp-Detection", "Input Resistance"] # "Cluster",
 
     def call_function_by_string_name(self,function_name):
         # it seemed to be easier to call an return vals with if than with dictionary ... maybe not the best way (dz)
