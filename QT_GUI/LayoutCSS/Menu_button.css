@@ -212,3 +212,7 @@ QMdiArea {{
   qproperty-background: transparent;
   border: 1px solid #fff5cc;
 }}
+
+QTabWidget[objectName="tabWidget"] {{
+  background-color:transparent;
+}}

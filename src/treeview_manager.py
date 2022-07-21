@@ -37,15 +37,12 @@ class TreeViewManager():
     def __init__(self,database=None):
 
         self.database = database
-
-        # column 1 shows checkbox to select an item and provide information about selected items
-        self.checkbox_column = 1
-
+        
         # column 2 displays meta data group information
-        self.meta_data_group_column = 2
+        self.meta_data_group_column = 1
 
         # column 3 in the treeview shows red cross or blue reinsert arrow
-        self.discard_column = 3
+        self.discard_column = 2
 
         # list of meta data group names represented as strings
         self.meta_data_option_list=["+ Add", "None"]
