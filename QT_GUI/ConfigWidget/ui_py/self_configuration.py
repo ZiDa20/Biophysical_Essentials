@@ -21,7 +21,6 @@ from self_config_notebook_widget import *
 import traceback, sys
 from functools import partial
 
-
 class Config_Widget(QWidget,Ui_Config_Widget):
     
     def __init__(self, online, progress_bar, status_bar, parent = None,):
@@ -532,10 +531,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.threadpool = QThreadPool() # create the threadpool
             self.worker = Worker(self.start_experiment_patch) # create the worker
             self.worker.signals.finished.connect(self.thread_complete) # connect the worker to the thread_complete function
-            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)# connect the worker to the draw_live_plot function
+            self.worker.signals.progress.connect(self.draw_live_plots)# connect the worker to the draw_live_plot function
             self.threadpool.start(self.worker) # start the worker
         except Exception as e: 
             print(e)
+
+    def draw_live_plots(self,data_x = None):
+        self.online_analysis.draw_live_plot(data_x)
+
 
     def thread_complete(self):
         print("THREAD COMPLETE!")    

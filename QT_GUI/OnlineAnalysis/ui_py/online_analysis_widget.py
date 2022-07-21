@@ -4,6 +4,8 @@ from PySide6.QtWidgets import *  # type: ignore
 import logging
 import pandas as pd
 from Pandas_Table import *
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
 import pyqtgraph as pg
 
 from online_analysis_designer_object import Ui_Online_Analysis
@@ -184,18 +186,30 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         print(data_x)
         #print(data_x[0], print(data_x[1]))
         #self.drawing()
-        self.pyqt_graph.plot(data_x[0], data_x[1])
+        self.ax1.plot(data_x[0], data_x[1])
         #self.pyqt_graph.setData(data_x[0], data_x[1])
         print("try to give an updated view of the data")
         
         print("no error occured here but also not drawn")
-        
+        self.canvas.draw_idle()
 
     def drawing(self):
         """ redraws the graph into online analysis """
-        self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
-        self.pyqt_graph.setBackground("#232629")
-        self.verticalLayout_6.addWidget(self.pyqt_graph)
+        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        self.ax1 = self.canvas.figure.subplots()
+        self.ax1.spines['top'].set_visible(False)
+        self.ax1.spines['right'].set_visible(False)
+
+        #@todo can we get the y unit here ???
+        """      
+        if self.y_unit == "V":
+            self.ax1.set_ylabel('Voltage [mV]')
+            self.ax2.set_ylabel('Current [pA]')
+        else:
+            self.ax1.set_ylabel('Current [nA]')
+            self.ax2.set_ylabel('Voltage [mV]')
+        """
+        self.canvas.draw()
         print("initialized")
 
     def draw_scene(self, image):

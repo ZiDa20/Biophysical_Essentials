@@ -12,8 +12,6 @@ sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
 from DavesSuperPersonalCustomToolbar import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-from mpl_interactions import ioff, panhandler, zoom_factory
-
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 
@@ -89,8 +87,9 @@ class PlotWidgetManager(QRunnable):
     def tree_view_click_handler(self, item):
         """
         handle all incoming clicks in the treeview related to plotting
-        @param item:
+        @param item: treeviewitem
         @return:
+        :author: dz, 21.07.2022
         """
         print(f'Text of first column in item is {item.text(0)}')
 
@@ -107,8 +106,26 @@ class PlotWidgetManager(QRunnable):
             print(e)
             print("experiment or sweep was clicked which is not implemented yet")
 
+    def sweep_in_treeview_clicked(self,item):
+        if self.analysis_mode == 0:
+            self.sweep_clicked_load_from_dat_file(item)
+        else:
+            self.sweep_clicked_load_from_dat_database(item)
+
+    def series_in_treeview_clicked(self,item):
+        if self.analysis_mode == 0: # online analysis
+            self.series_clicked_load_from_dat_file(item)
+        else:
+            self.series_clicked_load_from_database(item)
+
     def sweep_clicked_load_from_dat_file(self,item):
-        """Whenever a sweep is clicked in online analysis, this handler will be executed to handle the clicked item"""
+        """
+        Whenever a sweep is clicked in online analysis, this handler will be executed to plot the selected sweep
+        @param item: treeviewitem
+        :author: dz, 21.07.2022
+        @return:
+
+        """
         self.time = None
 
         split_view = 1
@@ -119,7 +136,7 @@ class PlotWidgetManager(QRunnable):
         if split_view:
             # initialise the figure. here we share X and Y axis
             axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            pan_handler = panhandler(self.canvas.figure)
+
             self.ax1 = axes[0]
             self.ax2 = axes[1]
         else:
@@ -192,7 +209,7 @@ class PlotWidgetManager(QRunnable):
         if split_view:
             # initialise the figure. here we share X and Y axis
             axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            pan_handler = panhandler(self.canvas.figure)
+
             self.ax1 = axes[0]
             self.ax2 = axes[1]
         else:
@@ -240,13 +257,16 @@ class PlotWidgetManager(QRunnable):
         self.handle_plot_visualization()
 
     def sweep_clicked_load_from_dat_database(self,item):
-
-        print("sweep clicked")
-        print(item.text(0))
+        """
+        visualizes the sweep when clicked on it in the treeview
+        @param item: treeview item, contains text at pos 0 and data request information at pos 3,0
+        @return:
+        :author: dz, 21.07.2022
+        """
+        #print("sweep clicked")
+        #print(item.text(0))
         split_view = 1
-
         data_request_information = item.parent().data(3, 0)
-
         db = self.offline_manager.get_database()
         series_df = db.get_sweep_table_for_specific_series(data_request_information[0], data_request_information[1])
 
@@ -263,7 +283,7 @@ class PlotWidgetManager(QRunnable):
         if split_view:
             # initialise the figure. here we share X and Y axis
             axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            pan_handler = panhandler(self.canvas.figure)
+
             self.ax1 = axes[0]
             self.ax2 = axes[1]
         else:
@@ -312,6 +332,7 @@ class PlotWidgetManager(QRunnable):
 
         self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
         self.navbar.setOrientation(QtCore.Qt.Vertical)
+        #self.navbar.setStyleSheet('align:center; background:#fff5cc;')
         self.vertical_layout.addWidget(self.canvas)
         self.navbar.show()
 
@@ -342,7 +363,6 @@ class PlotWidgetManager(QRunnable):
         if split_view:
             # initialise the figure. here we share X and Y axis
             axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            pan_handler = panhandler(self.canvas.figure)
             self.ax1 = axes[0]
             self.ax2 = axes[1]
         else:
@@ -495,11 +515,10 @@ class PlotWidgetManager(QRunnable):
 
         return protocol_steps
 
-
     def plot_pgf_simple_protocol(self,pgf_table_df, data):
         """
         create a simple pgf trace signal
-        @param pgf_table_df:
+        @param pgf_table_df: df containign pgf information
         @param data:
         @return:
         @author: dz, 21.07.2022
@@ -542,8 +561,129 @@ class PlotWidgetManager(QRunnable):
 
         return protocol_steps
 
+    def get_recording_mode(self,meta_data):
+        meta_dict = self.get_dict(meta_data)
+        print(meta_dict)
+        byte_repr = meta_dict.get('RecordingMode')
+        print("found", byte_repr)
+        if byte_repr == b'\x03':
+            print("recording mode : Voltage Clamp")
+            return "Voltage Clamp"
+        else:
+            print("recording mode : Current Clamp")
+            return "Current Clamp"
 
+    def get_y_min_max_meta_data_values(self,meta_data_frame,sweep_name):
+        """
+        Return specific ymin and ymax for each sweep
+        :param meta_data_frame:
+        :param sweep_name:
+        :return:
+        """
+        pos = meta_data_frame['Parameter'].tolist().index('Ymin')
+        y_min = meta_data_frame[sweep_name].tolist()[pos]
 
+        pos = meta_data_frame['Parameter'].tolist().index('Ymax')
+        y_max = meta_data_frame[sweep_name].tolist()[pos]
+
+        return float(y_min), float(y_max)
+
+    def get_dict(self,meta_data):
+        """ checks type of meta_data and returns anyway the dictionary of the meta data array"""
+        if not isinstance(meta_data, dict):
+            return dict(meta_data)
+        else:
+           return meta_data
+
+    def get_y_min_max_meta_data_dict_values(self,meta_data_dict):
+
+        y_min = float(meta_data_dict.get('Ymin'))
+        y_max = float(meta_data_dict.get('Ymax'))
+
+        return y_min,y_max
+
+    def get_y_unit_from_meta_data_dict(self,meta_data_dict):
+        return meta_data_dict.get('YUnit')
+
+    def get_y_unit_from_meta_data(self,meta_data_frame):
+        """
+        YUnit is equal for all sweeps
+        :param meta_data:
+        :return:
+        """
+        ind = meta_data_frame['Parameter'].tolist().index('YUnit')
+        return meta_data_frame['sweep_1'].tolist()[ind]
+
+    def get_time_from_dict(selfself,dict):
+        x_start = float(dict.get('XStart'))
+        x_interval = float(dict.get('XInterval'))
+        number_of_datapoints = int(dict.get('DataPoints'))
+        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
+        return time
+
+    def get_time_from_meta_data(self,meta_data_frame):
+        """
+        handle database loading with a data frame
+        @param meta_data_frame:
+        @return:
+        """
+        x_start_pos = meta_data_frame['Parameter'].tolist().index('XStart')
+        x_interval_pos = meta_data_frame['Parameter'].tolist().index('XInterval')
+        number_of_points_pos = meta_data_frame['Parameter'].tolist().index('DataPoints')
+
+        x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
+        x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
+        number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
+        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
+        return time
+
+    def show_draggable_lines(self,row_number):
+
+        try:
+            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
+            left_val = round(coursor_tuple[0].XorY,2)
+            right_val = round(coursor_tuple[1].XorY,2)
+        except:
+            # default
+            left_val =  0.2*max(self.time)
+            right_val = 0.8*max(self.time)
+
+        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
+
+        self.coursor_bound_tuple_dict[str(row_number)] = (left_coursor,right_coursor)
+
+        self.left_coursor = left_coursor
+        self.right_coursor = right_coursor
+
+        self.canvas.draw_idle()
+
+        return left_val,right_val
+
+    def on_press(self,event):
+        self.left_coursor.clickonline(event)
+        self.right_coursor.clickonline(event)
+
+    def remove_dragable_lines(self,row):
+        print("row number")
+        print(row)
+
+        try:
+            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row))
+            self.ax1.lines.remove(coursor_tuple[0].line)
+            self.ax1.lines.remove(coursor_tuple[1].line)
+
+            self.coursor_bound_tuple_dict.pop(str(row))
+
+            self.canvas.draw_idle()
+        except Exception as e:
+            print("all good")
+            print(e)
+
+        #self.plot_widget.removeItem(self.left_coursor)
+        #self.plot_widget.removeItem(self.right_cursor)
+
+    """
     # deprecated dz 30.06.2022
     def series_clicked(self,item):
         self.plot_widget.clear()
@@ -612,147 +752,7 @@ class PlotWidgetManager(QRunnable):
             item.setCheckState(1,Qt.Unchecked)
             for c in range(0, children):
                 item.child(c).setCheckState(1, Qt.Unchecked)
-
-    def get_recording_mode(self,meta_data):
-        meta_dict = self.get_dict(meta_data)
-        print(meta_dict)
-        byte_repr = meta_dict.get('RecordingMode')
-        print("found", byte_repr)
-        if byte_repr == b'\x03':
-            print("recording mode : Voltage Clamp")
-            return "Voltage Clamp"
-        else:
-            print("recording mode : Current Clamp")
-            return "Current Clamp"
-
-    def get_y_min_max_meta_data_values(self,meta_data_frame,sweep_name):
-        """
-        Return specific ymin and ymax for each sweep
-        :param meta_data_frame:
-        :param sweep_name:
-        :return:
-        """
-        pos = meta_data_frame['Parameter'].tolist().index('Ymin')
-        y_min = meta_data_frame[sweep_name].tolist()[pos]
-
-        pos = meta_data_frame['Parameter'].tolist().index('Ymax')
-        y_max = meta_data_frame[sweep_name].tolist()[pos]
-
-        return float(y_min), float(y_max)
-
-    def get_dict(self,meta_data):
-        """ checks type of meta_data and returns anyway the dictionary of the meta data array"""
-        if not isinstance(meta_data, dict):
-            return dict(meta_data)
-        else:
-           return meta_data
-
-    def get_y_min_max_meta_data_dict_values(self,meta_data_dict):
-
-        y_min = float(meta_data_dict.get('Ymin'))
-        y_max = float(meta_data_dict.get('Ymax'))
-
-        return y_min,y_max
-
-    def get_y_unit_from_meta_data_dict(self,meta_data_dict):
-        return meta_data_dict.get('YUnit')
-
-
-    def get_y_unit_from_meta_data(self,meta_data_frame):
-        """
-        YUnit is equal for all sweeps
-        :param meta_data:
-        :return:
-        """
-        ind = meta_data_frame['Parameter'].tolist().index('YUnit')
-        return meta_data_frame['sweep_1'].tolist()[ind]
-
-    def get_time_from_dict(selfself,dict):
-        x_start = float(dict.get('XStart'))
-        x_interval = float(dict.get('XInterval'))
-        number_of_datapoints = int(dict.get('DataPoints'))
-        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
-        return time
-
-    def get_time_from_meta_data(self,meta_data_frame):
-        """
-        handle database loading with a data frame
-        @param meta_data_frame:
-        @return:
-        """
-        x_start_pos = meta_data_frame['Parameter'].tolist().index('XStart')
-        x_interval_pos = meta_data_frame['Parameter'].tolist().index('XInterval')
-        number_of_points_pos = meta_data_frame['Parameter'].tolist().index('DataPoints')
-
-        x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
-        x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
-        number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
-        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
-        return time
-
-
-
-    def sweep_in_treeview_clicked(self,item):
-        if self.analysis_mode == 0:
-            self.sweep_clicked_load_from_dat_file(item)
-        else:
-            self.sweep_clicked_load_from_dat_database(item)
-
-    def series_in_treeview_clicked(self,item):
-        if self.analysis_mode == 0: # online analysis
-            self.series_clicked_load_from_dat_file(item)
-        else:
-            self.series_clicked_load_from_database(item)
-
-    def show_draggable_lines(self,row_number):
-
-        try:
-            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
-            left_val = round(coursor_tuple[0].XorY,2)
-            right_val = round(coursor_tuple[1].XorY,2)
-        except:
-            # default
-            left_val =  0.2*max(self.time)
-            right_val = 0.8*max(self.time)
-
-        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
-
-        self.coursor_bound_tuple_dict[str(row_number)] = (left_coursor,right_coursor)
-
-        self.left_coursor = left_coursor
-        self.right_coursor = right_coursor
-
-        self.canvas.draw_idle()
-
-        return left_val,right_val
-
-    def on_press(self,event):
-        self.left_coursor.clickonline(event)
-        self.right_coursor.clickonline(event)
-
-
-
-    def remove_dragable_lines(self,row):
-        print("row number")
-        print(row)
-
-        try:
-            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row))
-            self.ax1.lines.remove(coursor_tuple[0].line)
-            self.ax1.lines.remove(coursor_tuple[1].line)
-
-            self.coursor_bound_tuple_dict.pop(str(row))
-
-            self.canvas.draw_idle()
-        except Exception as e:
-            print("all good")
-            print(e)
-
-        #self.plot_widget.removeItem(self.left_coursor)
-        #self.plot_widget.removeItem(self.right_cursor)
-
-
+    """
 # from QCore
 class CursorBoundSignal(QObject):
     cursor_bound_signal = Signal(tuple)
