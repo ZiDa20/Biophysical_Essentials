@@ -16,11 +16,11 @@ from time import sleep
 import pandas as pd
 import pyqtgraph as pg
 pg.setConfigOption('foreground', '#ff8117')
-from dvg_pyqtgraph_threadsafe import PlotCurve
 from self_config_notebook_widget import *
 import traceback, sys
 from functools import partial
-
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     
@@ -65,8 +65,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.submission_count = 2 # each submitte command will increase counts 
 
         ## setup pyqtgraph for experiment visualization
-        self.pyqt_graph = pg.PlotWidget(height = 100) # insert a plot widget
-        self.pyqt_graph.setBackground("#232629")
+        self.canvas_config = FigureCanvas()
+
 
         # Camera Section
         
@@ -461,10 +461,10 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.increment_count() # always increment the batch communication count 
 
         # Plotting
-        self.tscurve_1 = PlotCurve(
-            linked_curve=self.pyqt_graph.plot(pen=pg.mkPen('r')),
-        ) # use this package to make drawing from another thread Threadsafe
-        self.pyqt_window.addWidget(self.pyqt_graph) # add the graph to the window
+    
+        
+        
+        self.pyqt_window.addWidget(self.canvas_config) # add the graph to the window
 
         # Preprocessing
         series = self.preprocess_series_protocols(sequences) # get the listed series from batch.out response
@@ -532,11 +532,39 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.threadpool = QThreadPool() # create the threadpool
             self.worker = Worker(self.start_experiment_patch) # create the worker
             self.worker.signals.finished.connect(self.thread_complete) # connect the worker to the thread_complete function
-            self.worker.signals.progress.connect(self.online_analysis.draw_live_plot)# connect the worker to the draw_live_plot function
+            self.worker.signals.progress.connect(self.draw_live_plots)# connect the worker to the draw_live_plot function
             self.threadpool.start(self.worker) # start the worker
         except Exception as e: 
             print(e)
 
+    def draw_live_plots(self,plot_data = None):
+        print(plot_data)
+        self.online_analysis.draw_live_plot(plot_data)
+        self.draw_live_plot(plot_data)
+
+    def draw_live_plot(self,data_x = None):
+        """ this is necessary to draw the plot which is plotted to the self.configuration window
+        this will further projected to the online-anaysis """
+       
+        self.canvas_config.figure.clf()
+        self.ax1 = self.canvas_config.figure.subplots() 
+        self.ax1.spines['top'].set_visible(False)
+        self.ax1.spines['right'].set_visible(False)
+        self.ax1.plot([i *1000 for i in data_x[0]], data_x[1], c = "k")
+        self.ax1.set_tilte("Live Plot of Experiment")
+        self.ax1.set_xlabel("Time in ms")
+        self.canvas_config.draw_idle()
+
+         #@todo can we get the y unit here ???
+        """      
+        if self.y_unit == "V":
+            self.ax1.set_ylabel('Voltage [mV]')
+            self.ax2.set_ylabel('Current [pA]')
+        else:
+            self.ax1.set_ylabel('Current [nA]')
+            self.ax2.set_ylabel('Voltage [mV]')
+        """    
+    
     def thread_complete(self):
         print("THREAD COMPLETE!")    
 
@@ -584,32 +612,32 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             # Check which kind of parameter is queried
             if self.SeriesWidget.model().findItems(item):
                 """ check if item is in series list"""
-                logging.info(f"Series {item} will be executed")
+                self.logger.info(f"Series {item} will be executed")
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteSequence " + f'"{item}"' +"\n")
                 self.increment_count()
                 self.trial_setup(final_notebook_dataframe, item, progress_callback)
 
             elif "GetEpc" in item:
                 #check if item is a paramter check
-                logging.info(f"Parameter Command {item} will be executed")
+                self.logger.info(f"Parameter Command {item} will be executed")
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f'"{item}"' +"\n")
                 print("GetParameters if necessary")
             
             elif self.protocol_widget.model().findItems(item):
                 #Check if item is a protcol
-                logging.info(f"Protocol {item} will be executed")
+                self.logger.info(f"Protocol {item} will be executed")
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ExecuteProtocol " + f'"{item}"' +"\n")
                 self.increment_count()
                 analyzed = self.trial_setup(final_notebook_dataframe, item, progress_callback)
 
             elif self.general_commands_labels.model().findItems(item):
                 #check if item is a general command
-                logging.info(f"General Command {item} will be executed")
+                self.logger.info(f"General Command {item} will be executed")
                 self.basic_configuration_protcols(item)
 
             else:
                 #check if item is a general command
-                logging.info(f"Config Command change to: {item} will be executed")
+                self.logger.info(f"Config Command change to: {item} will be executed")
                 self.change_mode_protocols(item)
                 sleep(0.3)
 
@@ -649,7 +677,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         query_status = self.backend_manager.get_query_status() # get the status of the query
         query_status = query_status.replace(" ", "")# post processing
-        print(f"this is the query status: {query_status}")
+        
 
         if "Query_Idle" in query_status:
             # Check for different states
@@ -666,7 +694,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 return True
     
         elif any(text in query_status for text in ["Query_Acquiring","Query_Executing"]):
-            print("yes executing")
+            
             #Check if the query is still acquiring
             try:
                 dataframe = self.backend_manager.return_dataframe_from_notebook()
@@ -674,9 +702,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
                 # usually this should write also in the online analysis still not functional!
                 progress_callback.emit(([float(i) for i in final_notebook_dataframe.iloc[1:,:][4].values],[float(i) for i in final_notebook_dataframe.iloc[1:,:][7].values]))
-                self.tscurve_1.setData([float(i) for i in final_notebook_dataframe.iloc[1:,:][4].values],[float(i) for i in final_notebook_dataframe.iloc[1:,:][7].values])
-                self.tscurve_1.update()
-
+    
                 # here drawing should be provided to the online analysis class
                 self.trial_setup(final_notebook_dataframe,item, progress_callback)
 
@@ -836,14 +862,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             None
         """
         default_mode = self.get_darkmode()
-        if default_mode == 0:
-            print("light_mode")
-            self.pyqt_graph.setBackground("#f5f5f5")
-
-        else:
-            print("dark_mode")
-            self.pyqt_graph.setBackground("#232629")
-
 
 class Worker(QRunnable):
     '''

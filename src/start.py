@@ -239,7 +239,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def quit_application(self):
         """ Function to quit the app"""
-        self.local_database_handler.database.close()
         QCoreApplication.quit()
 
 

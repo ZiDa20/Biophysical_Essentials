@@ -5,7 +5,7 @@ from Offline_Analysis.Analysis_Functions.MeanCurrent import *
 from Offline_Analysis.Analysis_Functions.ActionPotentialFitting import *
 from Offline_Analysis.Analysis_Functions.RheobaseDetection import *
 from Offline_Analysis.Analysis_Functions.RheorampDetection import *
-
+from Offline_Analysis.Analysis_Functions.MeanVoltage import *
 
 class AnalysisFunctionRegistration():
     """
@@ -18,6 +18,7 @@ class AnalysisFunctionRegistration():
             "max_current": MaxCurrent,
             "min_current": MinCurrent,
             "mean_current": MeanCurrent,
+            "mean_voltage": MeanVoltage,
             "Action Potential Fitting" : ActionPotentialFitting,
             "AP_Amplitude": ActionPotentialFitting,
             'Threshold_Amplitude': ActionPotentialFitting,
