@@ -14,6 +14,7 @@ from treeview_manager import TreeViewManager
 from plot_widget_manager import PlotWidgetManager
 from dvg_pyqtgraph_threadsafe import PlotCurve
 from time import sleep
+from pathlib import Path
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self,parent = None):
@@ -43,13 +44,17 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.logger_connection()
         self.drawing()
 
+        self.database_handler = None
+
+    def update_database_handler(self,database_handler):
+        self.database_handler = database_handler
 
     def connections_clicked(self):
         """ connect the buttons to the corresponding functions """
         self.button_select_data_file.clicked.connect(self.open_single_dat_file)
         self.online_analysis.currentChanged.connect(self.online_analysis_tab_changed)
         self.pushButton_2.clicked.connect(self.video_show)
-
+        self.transfer_to_offline_analysis.clicked.connect(self.start_db_transfer)
 
     def logger_connection(self):
          # logger settings
@@ -60,6 +65,22 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.debug('Online Analysis Widget Debugger')
+
+
+    def start_db_transfer(self):
+
+        file_path = self.online_manager._dat_file_name
+        bundle = TreeViewManager().open_bundle_of_file(file_path)
+        pgf_data=TreeViewManager().read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)  # retrieve pgf data
+
+
+        file_name = Path(file_path).name
+        file_name = file_name.split(".")
+        file_name = file_name[0]
+
+        TreeViewManager().single_file_into_db([], bundle, file_name, self.database_handler, [0, -1, 0, 0],"", pgf_data)
+
+        print("Successfull import")
 
     @Slot()
     def online_analysis_tab_changed(self):

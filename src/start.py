@@ -75,6 +75,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler)
         self.ui.database.update_database_handler(self.local_database_handler)
+        self.ui.online.update_database_handler(self.local_database_handler)
 
         #self.ui.online.frontend_style = self.frontend_style
 
@@ -137,6 +138,7 @@ class MainWindow(QMainWindow, QtStyleTools):
     def initialize_database(self):
        self.ui.notebook.setCurrentIndex(4)
        self.ui.database.show_basic_tables(self.local_database_handler)
+
 
     def center(self):
         """Function to center the application at the start into the middle of the screen
