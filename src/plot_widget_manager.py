@@ -347,6 +347,9 @@ class PlotWidgetManager(QRunnable):
         db = self.offline_manager.get_database()
         series_df = db.get_sweep_table_for_specific_series(data_request_information[0],data_request_information[1])
 
+        print("requested series dataframe")
+        print(series_df)
+
         #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
 
         # get the meta data to correctly display y values of traces
@@ -406,7 +409,7 @@ class PlotWidgetManager(QRunnable):
 
             x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
-            self.ax1.axvline(x_pos, c = 'tab:gray')
+            #self.ax1.axvline(x_pos, c = 'tab:gray')
 
         self.handle_plot_visualization()
 

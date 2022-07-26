@@ -15,7 +15,7 @@ import logging
 import datetime
 import pandas as pd
 import re
-
+import csv
 
 
 class DuckDBDatabaseHandler():
@@ -583,8 +583,7 @@ class DuckDBDatabaseHandler():
         """
         data_table_name = self.get_data_from_database(self.database, q, (experiment_name, series_identifier))[0][0]
 
-        self.database.execute(f'SELECT * FROM {data_table_name}')
-        return self.database.fetchdf()
+        return self.database.execute(f'SELECT * FROM {data_table_name}').fetchdf()
 
     def get_experiment_name_for_given_sweep_table_name(self,sweep_table_name):
         """
@@ -924,12 +923,13 @@ class DuckDBDatabaseHandler():
         meta_data_df = pd.DataFrame.from_dict(data=child_node_ordered_dict, orient='index', columns=[sweep_number])
 
         if sweep_number == 1:
-
+            print("creating and inserting new data table")
             # create one new table with all imon signal traces of each sweep of one
             # specific series (e.g. block pulse or iv)
             self.create_and_insert_into_new_trace_table(imon_trace_signal_table_name, data_array_df, experiment_name,
                                                         series_identifier, "data_array")
 
+            print("creating and inserting new meta table")
             # create one new table with all imon trace meta data information of each imon trace
             # within one specific series (e.g. block pulse or iv)
             meta_data_df = pd.DataFrame(list(child_node_ordered_dict.items()), columns=('Parameter', 'sweep_1'))
@@ -937,12 +937,21 @@ class DuckDBDatabaseHandler():
                                                         series_identifier, "meta_data")
 
         else:
+            print("inserting into existing trace table")
             # insert data trace
-            self.insert_into_existing_trace_table(imon_trace_signal_table_name, sweep_number, data_array_df)
+            self.insert_into_existing_trace_table(imon_trace_signal_table_name, sweep_number, data_array_df,"data_array")
 
+            print("inserting into existing meta table")
             # insert meta data
-            self.insert_into_existing_trace_table(imon_trace_meta_data_table_name, sweep_number,
-                                                  child_node_ordered_dict)
+            try:
+                column_name = 'sweep_' + str(sweep_number)
+                meta_data_df = pd.DataFrame(list(child_node_ordered_dict.items()), columns=('Parameter', column_name))
+                # parameter column will be only written once in sweep = 1 above
+                meta_data_df = meta_data_df.drop(columns='Parameter')
+                self.insert_into_existing_trace_table(imon_trace_meta_data_table_name, sweep_number,
+                                                  meta_data_df,"meta_data")
+            except Exception as e:
+                print(e)
 
     def create_imon_signal_table_name(self, experiment_name, series_identifier):
         '''
@@ -962,7 +971,7 @@ class DuckDBDatabaseHandler():
         '''
         return 'imon_meta_data_' + experiment_name + '_' + series_identifier
 
-    def insert_into_existing_trace_table(self, table_name, sweep_number, data_frame):
+    def insert_into_existing_trace_table(self, table_name, sweep_number, data_frame, table_type):
         '''
         Inserts trace signals and meta data information into already existing tables in the database.
         :param table_name: name of the already existing table
@@ -972,24 +981,23 @@ class DuckDBDatabaseHandler():
         '''
 
         self.logger.info("Inserting sweep %s into existing table %s ", str(sweep_number), table_name)
-        self.database.execute(f'SELECT * FROM {table_name}')
-        res_df = self.database.fetchdf()
 
         try:
-            # dict requires .map function, array requires .insert function
-            # data will be 'appended' columnwise and NOT rowise
-            if type(data_frame) is dict:
-                res_df['sweep_' + str(sweep_number)] = res_df['Parameter'].map(data_frame)
+            if table_type =='data_array':
+                sweep_name = data_frame.columns.tolist()[0]
+                self.database.execute(f' alter table {table_name} add {sweep_name} float')
+                self.database.query(f'update {table_name} set {sweep_name} = (SELECT {sweep_name} FROM data_frame)')
             else:
-                res_df.insert(sweep_number - 1, 'sweep_' + str(sweep_number), data_frame)
+                old_df = self.database.execute(f'select * from {table_name}').df()
+                new_df = pd.concat([old_df, data_frame], axis = 1)
+                self.database.register('df_1', new_df)
+                self.database.execute(f'drop table {table_name}')
+                self.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM df_1')
 
-            self.database.register('df_1', res_df)
-            # erase the old table and replace it by creating a new one
-            self.database.execute(f'drop table {table_name}')
-            self.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM df_1')
-
+            print("succesfull insert")
         except Exception as e:
-            self.logger.info(f'Error::Could not update existing table %s because of error %s', table_name, e)
+            print("Catched error:")
+            print(e)
 
     def create_and_insert_into_new_trace_table(self, table_name, data_frame, experiment_name, series_identifier,
                                                table_type):
@@ -1004,12 +1012,18 @@ class DuckDBDatabaseHandler():
         :return:
         '''
 
-        self.database.register('df_1', data_frame)
 
         try:
             # create a new sweep table
-            self.database.execute(f'create table {table_name} as select * from df_1')
+            # self.database.execute(f'create table {table_name} as select * from df_1')
+            if table_type == 'data_array':
+                self.database.execute(f'create table {table_name}(sweep_1 float)')
+                self.database.query(f'insert into {table_name}(sweep_1) select sweep_1 from data_frame')
+            else:
+                self.database.register('df_1',data_frame)
+                self.database.execute(f'create table {table_name} as select * from df_1')
 
+            print("successfully inserted sweep 1")
             try:
                 # update the series table by inserting the newly created sweep table name
                 if table_type == "data_array":
@@ -1026,6 +1040,11 @@ class DuckDBDatabaseHandler():
                 self.logger.info("Update Series table failed with error %s", e)
 
         except Exception as e:
+            print(data_frame)
+            print(table_name)
+            print(experiment_name)
+            print(series_identifier)
+            print("Error::Couldn't create a new table with error %s", e)
             self.logger.info("Error::Couldn't create a new table with error %s", e)
 
     def get_single_sweep_meta_data_from_database(self, data_array):

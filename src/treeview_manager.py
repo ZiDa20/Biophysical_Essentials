@@ -400,6 +400,7 @@ class TreeViewManager():
                 data_array = bundle.data[data_access_array]
                 database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
                                                           data_array)
+                print("came back here")
                 data_access_array[2] += 1
 
             if "NoneType" in node_type:
