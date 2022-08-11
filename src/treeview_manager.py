@@ -135,6 +135,9 @@ class TreeViewManager():
         # get the experiments linked with this analysis number
         not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label)
 
+        print("Filling treeview")
+        print(not_discard_experiments_stored_in_db)
+
         # @todo not implemented yet - also add !
         discard_experiments_stored_in_db = []
 
@@ -161,6 +164,7 @@ class TreeViewManager():
 
             # list of tuples: [('Block Pulse', 'Series1'), ... ]
             series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment,discarded_state)
+            print(series_identifier_tuple)
 
             if series_identifier_tuple is None:
                 #@todo error handling
@@ -229,9 +233,13 @@ class TreeViewManager():
                     # insert the button
                     tree.setItemWidget(child, self.discard_column, discard_button)
 
+                    print("i was here 1")
+
                     # get the data as a dataframe, tuple[1] holds the exact identifier
                     sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,series_identifier)
                     column_names = sweep_table_data_frame.columns.values.tolist()
+
+                    print("i was here 2")
 
                     for sweep_number in range(0,len(sweep_table_data_frame.columns)):
                         sweep_child = QTreeWidgetItem(child)
@@ -300,7 +308,7 @@ class TreeViewManager():
             try:
                 increment = 100/max_value
                 progress_value = progress_value + increment
-                self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0],"", i[2])
+                self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
                 progress_callback.emit((progress_value,i))
             except Exception as e:
                 self.logger.error("The file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
@@ -337,7 +345,7 @@ class TreeViewManager():
             self.logger.error("Not able to open the database properly " + str(e))
 
     #progress_callback
-    def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , series_identifier, pgf_tuple_data_frame=None):
+    def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 
             if database is None:
                 database = self.database
@@ -371,6 +379,10 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
+                self.sweep_data_df = pd.DataFrame()
+                self.sweep_meta_data_df = pd.DataFrame()
+                self.series_identifier = None
+
                 group_name = None
                 try:
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
@@ -378,12 +390,35 @@ class TreeViewManager():
                 except:
                     group_name = "None"
                     
-
+                print("adding experiment")
+                print(experiment_name)
                 database.add_experiment_to_experiment_table(experiment_name, group_name)
 
+
             if "Series" in node_type:
+                #print(node_type) # node type is None for Series
+                print(self.series_identifier)
+                # make empty new df
+                try:
+                    if not self.sweep_data_df.empty:
+                        print("Non empty dataframe needs to be written to the database")
+                        print(self.sweep_data_df)
+                        print(self.sweep_meta_data_df)
+                        database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
+                        self.sweep_data_df = pd.DataFrame()
+                        self.sweep_meta_data_df = pd.DataFrame()
+                    else:
+                        print("data frame is empty as planned")
+                except Exception as e:
+                    print(e)
+                    print("empty df ")
+                    self.sweep_data_df = pd.DataFrame()
+                    self.sweep_meta_data_df = pd.DataFrame()
+
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
+
                 database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                           "pgf_table_" + experiment_name + "_" + node_type,
                                                           experiment_name, node_type)
@@ -394,12 +429,16 @@ class TreeViewManager():
                 # reset the sweep counter
                 data_access_array[2] = 0
                 # update series_identifier
-                series_identifier = node_type
+                self.series_identifier = node_type
+
 
             if "Sweep" in node_type :
-                data_array = bundle.data[data_access_array]
-                database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
-                                                          data_array)
+                print(self.series_identifier)
+                print(node_type)
+                self.write_sweep_data_into_df(bundle,data_access_array,metadata)
+
+                #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
+                #                                          data_array)
                 print("came back here")
                 data_access_array[2] += 1
 
@@ -408,11 +447,46 @@ class TreeViewManager():
                     "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
                 return
 
+
             for i in range(len(node.children)):
             #    progress_callback
-                self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array ,series_identifier, pgf_tuple_data_frame)
-        
+                self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
 
+
+            print("returning from here")
+            print(node_type)
+            print(node_label)
+            print(index)
+
+            if node_type == "Pulsed" and not self.sweep_data_df.empty:
+                print("finiahws with non empty dataframe")
+                database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
+                                                  self.sweep_meta_data_df)
+
+
+    def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
+        """
+
+        @param bundle: bund le of the .dat file
+        @param data_access_array:
+        @param metadata: all metadata from series and sweeps, sweeps specific meta data is at pos [sweepnumber]
+        @return:
+        """
+        data_array = bundle.data[data_access_array]
+
+        # new for the test
+        data_array_df = pd.DataFrame({'sweep_' + str(data_access_array[2] + 1): data_array})
+        self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
+        print(self.sweep_data_df.columns.tolist())
+
+
+        child_node = metadata[0]
+        child_node_ordered_dict = dict(child_node.get_fields())
+
+        meta_data_df = pd.DataFrame.from_dict(data=child_node_ordered_dict, orient='index',
+                                              columns=['sweep_' + str(data_access_array[2] + 1)])
+
+        self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
 
 
     def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None,tree_level=None):
@@ -529,8 +603,6 @@ class TreeViewManager():
             parent,tree = self.add_series_to_treeview(tree, discarded_tree, parent, series_name, node_label, node_list,
                                                       node_type, experiment_name, data_base_mode, database, pixmap,
                                                       sliced_pgf_tuple_data_frame)
-
-
 
         if "Sweep" in node_type and tree_level>2:
             parent = self.add_sweep_to_treeview(series_name, parent, node_type, data_base_mode, bundle, database,
@@ -704,6 +776,8 @@ class TreeViewManager():
             if data_base_mode:
                 data_array = bundle.data[[0, series_identifier - 1, sweep_number - 1, 0]]
                 series_identifier = parent.data(4, 0)
+
+
                 # insert the sweep
                 database.add_single_sweep_to_database(experiment_id, series_identifier, sweep_number, metadata,
                                                           data_array)

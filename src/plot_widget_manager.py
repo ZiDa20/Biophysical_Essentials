@@ -263,13 +263,13 @@ class PlotWidgetManager(QRunnable):
         @return:
         :author: dz, 21.07.2022
         """
-        #print("sweep clicked")
-        #print(item.text(0))
+        print("sweep clicked")
+        print(item.text(0))
         split_view = 1
         data_request_information = item.parent().data(3, 0)
         db = self.offline_manager.get_database()
         series_df = db.get_sweep_table_for_specific_series(data_request_information[0], data_request_information[1])
-
+        print(series_df)
         # get the meta data to correctly display y values of traces
         meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],
                                                                  data_request_information[1])

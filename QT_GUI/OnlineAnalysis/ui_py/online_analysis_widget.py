@@ -73,12 +73,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         bundle = TreeViewManager().open_bundle_of_file(file_path)
         pgf_data=TreeViewManager().read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)  # retrieve pgf data
 
-
         file_name = Path(file_path).name
         file_name = file_name.split(".")
         file_name = file_name[0]
 
-        TreeViewManager().single_file_into_db([], bundle, file_name, self.database_handler, [0, -1, 0, 0],"", pgf_data)
+        TreeViewManager().single_file_into_db([], bundle, file_name, self.database_handler, [0, -1, 0, 0], pgf_data)
 
         print("Successfull import")
 
