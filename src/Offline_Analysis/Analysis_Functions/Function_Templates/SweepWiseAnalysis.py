@@ -380,10 +380,11 @@ class SweepWiseAnalysisTemplate(object):
 			for coordinate_row in df_as_numpy_array:
 
 				mean_coordinate_value.append(np.mean(coordinate_row))
-				calc_std.append(np.std(coordinate_row))
+				calc_std.append(np.std(coordinate_row)/np.sqrt(np.size(coordinate_row)))
 
 			try:
-				ax.plot(y_data,mean_coordinate_value, 'k', label=group)
+				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=group)
+				#ax.plot(y_data,mean_coordinate_value, 'k', label=group)
 				# parent_widget.export_data_frame.insert(0, experiment_name, y_data)
 			except Exception as e:
 					print(e)
@@ -421,7 +422,11 @@ class SweepWiseAnalysisTemplate(object):
 		result_list = self.database.get_data_from_database(self.database.database, q,
 														  [analysis_id, analysis_function_id])
 
-		result_list = (list(zip(*result_list))[0])
+		try:
+			result_list = (list(zip(*result_list))[0])
+		except Exception as e:
+			print(e)
+			result_list = []
 		return result_list
 
 
