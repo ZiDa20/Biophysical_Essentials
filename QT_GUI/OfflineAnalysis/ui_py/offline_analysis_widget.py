@@ -681,8 +681,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 self.table_buttons[row_to_insert].clicked.connect(partial(self.add_coursor_bounds,row_to_insert,current_tab))
 
+
+
         current_tab.analysis_table_widget.analysis_table_widget.show()
 
+
+    def analysis_table_cell_changed(self,item):
+        print("a cell changed")
+        print(item.text())
 
     def remove_existing_dragable_lines(self,row_number,current_tab):
         number_of_rows = current_tab.analysis_table_widget.rowCount()
@@ -707,11 +713,26 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-      
-        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
+            row_number)
 
-        # 1) insert dragable coursor bounds into pyqt graph
-        left_val, right_val = self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
+        try:
+            print("read")
+            left_cb_val = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text()),2)
+            right_cb_val = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text()),2)
+
+            # 1) insert dragable coursor bounds into pyqt graph
+            left_val, right_val = self.current_tab_visualization[
+                self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
+                                                                                          (left_cb_val, right_cb_val))
+
+
+        except Exception as e:
+            print(e)
+            # 1) insert dragable coursor bounds into pyqt graph
+            left_val, right_val = self.current_tab_visualization[
+                self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
+
 
         #2) connect to the signal taht will be emitted when cursor bounds are moved by user
         self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(self.update_left_common_labels)

@@ -640,16 +640,32 @@ class PlotWidgetManager(QRunnable):
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
         return time
 
-    def show_draggable_lines(self,row_number):
+    def show_draggable_lines(self,row_number,positions = None):
+        """
+        showing existing courspr bounds
+        @param row_number:
+        @return:
+        """
 
-        try:
-            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
-            left_val = round(coursor_tuple[0].XorY,2)
-            right_val = round(coursor_tuple[1].XorY,2)
-        except:
-            # default
-            left_val =  0.2*max(self.time)
-            right_val = 0.8*max(self.time)
+        if positions is not None:
+            print(row_number)
+            print(self.coursor_bound_tuple_dict)
+
+            left_val = positions[0]
+            right_val = positions[1]
+
+        else:
+
+            try:
+                coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
+                left_val = round(coursor_tuple[0].XorY,2)
+                right_val = round(coursor_tuple[1].XorY,2)
+
+            except:
+                # default
+                print("not found")
+                left_val =  0.2*max(self.time)
+                right_val = 0.8*max(self.time)
 
         left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
         right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
@@ -670,7 +686,7 @@ class PlotWidgetManager(QRunnable):
     def remove_dragable_lines(self,row):
         print("row number")
         print(row)
-
+        print(self.coursor_bound_tuple_dict)
         try:
             coursor_tuple = self.coursor_bound_tuple_dict.get(str(row))
             self.ax1.lines.remove(coursor_tuple[0].line)
