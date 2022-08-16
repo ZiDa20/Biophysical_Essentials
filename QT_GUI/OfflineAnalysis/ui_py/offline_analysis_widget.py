@@ -435,6 +435,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """Handler for a click on the button confirm_series_selection in a pop up window"""
 
         series_to_analize = self.get_selected_checkboxes(checkboxes,series_names)
+        print("building analysis specific notebook")
+        print(series_to_analize)
+
         self.built_analysis_specific_notebook(series_to_analize)
         self.offline_analysis_widgets.setCurrentIndex(2)
         dialog.close()
@@ -573,6 +576,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # deprecated dz 29.06.2022
         #TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
+        print("creating new tab specific treeview")
         TreeViewManager(db).create_treeview_from_database(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,"",series_name)
 
 
@@ -585,7 +589,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             current_tab.turn_on_peak_detection.setVisible(True)
 
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
-                                                                  self.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible())
+                                                                  self.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible(),self.toolbar_widget_2)
 
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
@@ -593,9 +597,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.tabWidget.setCurrentIndex(0)
         current_tab.selected_tree_widget.expandToDepth(0)
 
+
+
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
 
-        self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
+        #self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
 
         self.current_tab_visualization.append(self.current_tab_plot_manager)
 

@@ -12,7 +12,6 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
-
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
@@ -23,7 +22,8 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_14.setContentsMargins(0, -1, 0, -1)
         self.offline_analysis_widgets = QStackedWidget(Offline_Analysis)
         self.offline_analysis_widgets.setObjectName(u"offline_analysis_widgets")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.offline_analysis_widgets.setEnabled(True)
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.offline_analysis_widgets.sizePolicy().hasHeightForWidth())
@@ -33,8 +33,11 @@ class Ui_Offline_Analysis(object):
         self.offline_analysis_widgets.setFont(font)
         self.start_page = QWidget()
         self.start_page.setObjectName(u"start_page")
-        sizePolicy.setHeightForWidth(self.start_page.sizePolicy().hasHeightForWidth())
-        self.start_page.setSizePolicy(sizePolicy)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.start_page.sizePolicy().hasHeightForWidth())
+        self.start_page.setSizePolicy(sizePolicy1)
         self.gridLayout_4 = QGridLayout(self.start_page)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.verticalSpacer_10 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -417,11 +420,8 @@ class Ui_Offline_Analysis(object):
 
         self.groupBox_4 = QGroupBox(self.blank_analysis)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
-        self.groupBox_4.setSizePolicy(sizePolicy1)
+        sizePolicy.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
+        self.groupBox_4.setSizePolicy(sizePolicy)
         self.groupBox_4.setMinimumSize(QSize(300, 0))
         self.groupBox_4.setMaximumSize(QSize(600, 16777215))
         self.gridLayout_5 = QGridLayout(self.groupBox_4)
@@ -557,15 +557,27 @@ class Ui_Offline_Analysis(object):
 
         self.PlotItem = QWidget(self.analysis_specific_notebook)
         self.PlotItem.setObjectName(u"PlotItem")
-        sizePolicy.setHeightForWidth(self.PlotItem.sizePolicy().hasHeightForWidth())
-        self.PlotItem.setSizePolicy(sizePolicy)
+        sizePolicy1.setHeightForWidth(self.PlotItem.sizePolicy().hasHeightForWidth())
+        self.PlotItem.setSizePolicy(sizePolicy1)
         self.PlotItem.setMinimumSize(QSize(800, 0))
         self.gridLayout_11 = QGridLayout(self.PlotItem)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
         self.WidgetAnalysis = QGridLayout()
         self.WidgetAnalysis.setObjectName(u"WidgetAnalysis")
 
-        self.gridLayout_11.addLayout(self.WidgetAnalysis, 0, 0, 1, 1)
+        self.gridLayout_11.addLayout(self.WidgetAnalysis, 1, 0, 1, 1)
+
+        self.toolbar_layout_2 = QGridLayout()
+        self.toolbar_layout_2.setObjectName(u"toolbar_layout_2")
+        self.toolbar_widget_2 = QWidget(self.PlotItem)
+        self.toolbar_widget_2.setObjectName(u"toolbar_widget_2")
+        self.toolbar_widget_2.setMinimumSize(QSize(50, 0))
+        self.toolbar_widget_2.setMaximumSize(QSize(50, 16777215))
+
+        self.toolbar_layout_2.addWidget(self.toolbar_widget_2, 0, 0, 1, 1)
+
+
+        self.gridLayout_11.addLayout(self.toolbar_layout_2, 1, 1, 1, 1)
 
 
         self.gridLayout.addWidget(self.PlotItem, 0, 1, 1, 1)
@@ -580,7 +592,7 @@ class Ui_Offline_Analysis(object):
 
         self.retranslateUi(Offline_Analysis)
 
-        self.offline_analysis_widgets.setCurrentIndex(1)
+        self.offline_analysis_widgets.setCurrentIndex(2)
         self.directory_tree_widget.setCurrentIndex(1)
 
 
@@ -627,4 +639,3 @@ class Ui_Offline_Analysis(object):
         self.series_selection.setText(QCoreApplication.translate("Offline_Analysis", u"Series Selection", None))
         self.new_analysis.setText(QCoreApplication.translate("Offline_Analysis", u"New Analysis", None))
     # retranslateUi
-
