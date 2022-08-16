@@ -8,9 +8,10 @@ class MeanCurrent(SweepWiseAnalysisTemplate):
         self.function_name = 'mean_current'
         self.plot_type_options = ["No Split", "Split by Meta Data"]
 
+
     @classmethod
     def specific_calculation(self):
-
+        self.cslow_normalization = 1
         max_val = np.mean(self.sliced_volt)
         return max_val
 

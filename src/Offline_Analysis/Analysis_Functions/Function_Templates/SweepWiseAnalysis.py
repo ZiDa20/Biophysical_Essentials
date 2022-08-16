@@ -18,6 +18,8 @@ class SweepWiseAnalysisTemplate(object):
 		self.database = None  # database
 		self.plot_type_options = ["No Split", "Split by Meta Data"]
 
+		self.cslow_normalization = 1
+
 		self.lower_bound = None
 		self.upper_bound = None
 		self.time = None
@@ -27,6 +29,8 @@ class SweepWiseAnalysisTemplate(object):
 
 		self.database = None
 		self.series_name = None
+
+
 
 	@property
 	def lower_bounds(self):
@@ -85,8 +89,10 @@ class SweepWiseAnalysisTemplate(object):
 		"""
 
 		# @todo get this from the configuration window
-		series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
 
+
+		series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
+		"""
 		try:
 			if series_specific_recording_mode == "Voltage Clamp":
 				cslow_normalization = 1
@@ -96,6 +102,7 @@ class SweepWiseAnalysisTemplate(object):
 			print("Error in Excecute_Single_Series_Analysis")
 			print(e)
 			cslow_normalization = 0
+		"""
 
 		data_table_names = []
 		# get the names of all data tables to be evaluated
@@ -136,9 +143,9 @@ class SweepWiseAnalysisTemplate(object):
 
 				res = self.specific_calculation()
 
-				#print("result")
-				#print(res)
-				if cslow_normalization:
+				print("result")
+				print(res)
+				if self.cslow_normalization:
 					cslow = self.database.get_cslow_value_for_sweep_table(data_table)
 					res = res / cslow
 					print("normalized")
@@ -378,10 +385,13 @@ class SweepWiseAnalysisTemplate(object):
 
 			# for each row a mean will be calculated: each row reflects one sweep .. eg. sweep 1
 			for coordinate_row in df_as_numpy_array:
-
-				mean_coordinate_value.append(np.mean(coordinate_row))
-				calc_std.append(np.std(coordinate_row)/np.sqrt(np.size(coordinate_row)))
-
+				print(coordinate_row)
+				try:
+					mean_coordinate_value.append(np.mean(coordinate_row))
+					calc_std.append(np.std(coordinate_row)/np.sqrt(np.size(coordinate_row)))
+				except Exception as e:
+					print(e)
+					print(coordinate_row)
 			try:
 				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=group)
 				#ax.plot(y_data,mean_coordinate_value, 'k', label=group)
