@@ -523,11 +523,12 @@ class DuckDBDatabaseHandler():
                 path = path.replace("\\","/") 
             self.database = duckdb.connect(path, read_only=False)
             self.logger.debug("opened connection to database %s", self.db_file_name)
-
+            print("succeeded")
         except Exception as e:
             self.database.close()
             self.open_connection()
             self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
+            print("failed")
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """
@@ -900,29 +901,100 @@ class DuckDBDatabaseHandler():
     def add_sweep_df_to_database(self,experiment_name, series_identifier,data_df,meta_data_df):
         try:
             print("adding full sweep df to the database")
-            print(data_df)
+            #print(data_df)
             print(experiment_name)
             print(series_identifier)
 
             imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
 
-            self.database.register('df_data', data_df)
-            self.database.execute(f'CREATE TABLE {imon_trace_signal_table_name} AS SELECT * FROM df_data')
+            # requires a little bit of different handling
 
-            q = """update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-            self.execute_sql_command(self.database, q, (imon_trace_signal_table_name, experiment_name, series_identifier))
+            column_names = data_df.columns.tolist()
+            part_1 = f'create table {imon_trace_signal_table_name} ('
+            query_str = ""
+            for c in range(0,len(column_names)):
+                if c == len(column_names)-1:
+                    part_1 = part_1 + column_names[c] + " " + "float"
+                    query_str = query_str + column_names[c]
+                else:
+                    part_1 = part_1 + column_names[c] + " " + "float,"
+                    query_str = query_str + column_names[c] + ","
+
+            part_1 = part_1 + ")"
+
+            print(part_1)
+            print(query_str)
+            try:
+                self.database.execute(part_1)
+                self.database.query(f'INSERT INTO {imon_trace_signal_table_name} SELECT {query_str} FROM data_df')
+
+            except Exception as e:
+                print(e)
+
+            """
+            try:
+                self.database.register('df_data', data_df)
+                print("registered succesfully")
+            except Exception as e:
+                print("register failed")
+
+            try:
+                self.database.execute(f'CREATE TABLE {imon_trace_signal_table_name} AS SELECT * FROM df_data')
+                print("created tablr succesfully")
+            except Exception as e:
+                print("create table failed")
+            
+            """
+
+            try:
+                q = """update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+                self.execute_sql_command(self.database, q, (imon_trace_signal_table_name, experiment_name, series_identifier))
+            except Exception as e:
+                print("update table failed")
 
             print("added data df successfully")
+
             imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
 
             column_names  = meta_data_df.columns.tolist()
-            print(column_names)
+            #print(column_names)
             meta_data_df = meta_data_df.reset_index()
             meta_data_df.columns = ['Parameter'] + column_names
             print(meta_data_df)
 
-            self.database.register('meta_data_df', meta_data_df)
-            self.database.execute(f'CREATE TABLE {imon_trace_meta_data_table_name} AS SELECT * FROM meta_data_df')
+            '''@todo (dz, 17.08.2022): this hardcoded bugfix allows the use of duck db pre dev 0.4.1.dev1603.
+            Max and I  encountered a bug with big data loading - this bug only solves when using duckdb > 0.4.0
+            in dev 0.4.1.dev1603 somehow tinyint-> blob is not implemented yet. 
+            therefore i have replaced all the meta data encoded as b'\x00' with their hexadecimal representation 
+            '''
+
+            affected_rows = [10,11,12,13,33]
+
+            for r in affected_rows:
+                print("val")
+                print(meta_data_df['sweep_1'].iloc[r])
+                print(type(meta_data_df['sweep_1'].iloc[r]))
+
+                replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
+                print(replace_val)
+                for c in column_names:
+                    meta_data_df[c].iloc[r]= replace_val
+
+            print(meta_data_df)
+
+            print("adding meta data --- ")
+
+            try:
+                self.database.register('meta_data_df', meta_data_df)
+            except Exception as e:
+                print("meta data register failed")
+
+            try:
+                self.database.execute(f'CREATE TABLE {imon_trace_meta_data_table_name} AS SELECT * FROM meta_data_df')
+            except Exception as e:
+                print(e)
+                print("meta data create table failed")
+
             print("added meta data df successfully")
 
             q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""

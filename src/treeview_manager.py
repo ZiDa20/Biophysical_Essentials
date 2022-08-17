@@ -161,7 +161,7 @@ class TreeViewManager():
 
             # list of tuples: [('Block Pulse', 'Series1'), ... ]
             series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment,discarded_state)
-            print(series_identifier_tuple)
+            #print(series_identifier_tuple)
 
             if series_identifier_tuple is None:
                 #@todo error handling
@@ -396,25 +396,25 @@ class TreeViewManager():
                 except:
                     group_name = "None"
                     
-                print("adding experiment")
-                print(experiment_name)
+                self.logger.info("adding experiment")
+                self.logger.info(experiment_name)
                 database.add_experiment_to_experiment_table(experiment_name, group_name)
 
 
             if "Series" in node_type:
                 #print(node_type) # node type is None for Series
-                print(self.series_identifier)
+                self.logger.info(self.series_identifier)
                 # make empty new df
                 try:
                     if not self.sweep_data_df.empty:
-                        print("Non empty dataframe needs to be written to the database")
-                        print(self.sweep_data_df)
-                        print(self.sweep_meta_data_df)
+                        self.logger.info("Non empty dataframe needs to be written to the database")
+                        self.logger.info(self.sweep_data_df)
+                        self.logger.info(self.sweep_meta_data_df)
                         database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
                         self.sweep_data_df = pd.DataFrame()
                         self.sweep_meta_data_df = pd.DataFrame()
                     else:
-                        print("data frame is empty as planned")
+                        self.logger.info("data frame is empty as planned")
                 except Exception as e:
                     print(e)
                     print("empty df ")
@@ -439,13 +439,12 @@ class TreeViewManager():
 
 
             if "Sweep" in node_type :
-                print(self.series_identifier)
-                print(node_type)
+                self.logger.info(self.series_identifier)
+                self.logger.info(node_type)
                 self.write_sweep_data_into_df(bundle,data_access_array,metadata)
 
                 #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
                 #                                          data_array)
-                print("came back here")
                 data_access_array[2] += 1
 
             if "NoneType" in node_type:
@@ -457,12 +456,6 @@ class TreeViewManager():
             for i in range(len(node.children)):
             #    progress_callback
                 self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
-
-
-            print("returning from here")
-            print(node_type)
-            print(node_label)
-            print(index)
 
             if node_type == "Pulsed" and not self.sweep_data_df.empty:
                 print("finiahws with non empty dataframe")
@@ -483,7 +476,7 @@ class TreeViewManager():
         # new for the test
         data_array_df = pd.DataFrame({'sweep_' + str(data_access_array[2] + 1): data_array})
         self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
-        print(self.sweep_data_df.columns.tolist())
+        self.logger.info(self.sweep_data_df.columns.tolist())
 
 
         child_node = metadata[0]

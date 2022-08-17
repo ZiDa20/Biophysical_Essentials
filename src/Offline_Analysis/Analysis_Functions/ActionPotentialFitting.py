@@ -264,7 +264,7 @@ class ActionPotentialFitting(object):
             fitting_parameters['t_AHP'] = t_ahp
             fitting_parameters['time_to_ahp'] = \
                 self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
-            fitting_parameters['delta_ap_threshold'] = abs(np.max(self.data)) - abs(v_threshold)
+            fitting_parameters['delta_ap_threshold'] = np.max(self.data) - v_threshold
             fitting_parameters['max_first_derivate'] = np.max(smoothed_first_derivative)
             # fitting_parameters['time_max_first_derivate'] = self.time[np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))]
             fitting_parameters['min_first_derivate'] = np.min(smoothed_first_derivative)
