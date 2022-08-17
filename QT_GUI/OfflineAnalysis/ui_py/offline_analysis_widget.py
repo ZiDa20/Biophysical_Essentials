@@ -42,20 +42,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.progressbar = progress
         self.statusbar = status
-        # start page of offline analysis
-        self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
 
-        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
-
-        # blank analysis menu
-        self.select_directory_button.clicked.connect(self.open_directory)
-        self.load_from_database.clicked.connect(self.load_treeview_from_database)
-        self.go_back_button.clicked.connect(self.go_to_main_page)
-
-        self.compare_series.clicked.connect(self.select_series_to_be_analized)
-        
         self.add_filter_button.setEnabled(False)
-        # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
+
+        # style object of class type Frontend_Style that will be int
+        # produced and set by start.py and shared between all subclasses
         self.frontend_style = None
         self.database_handler = None
 
@@ -78,6 +69,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # animation of the side dataframe
         self.series_selection.clicked.connect(self.animate_tree_view)
+        self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
+        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
+        self.compare_series.clicked.connect(self.select_series_to_be_analized)
+
+        # blank analysis menu
+        self.select_directory_button.clicked.connect(self.open_directory)
+        self.load_from_database.clicked.connect(self.load_treeview_from_database)
+        self.go_back_button.clicked.connect(self.go_to_main_page)
+        self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
 
 
     def animate_tree_view(self):
@@ -105,6 +105,26 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.SeriesItems.setMaximumSize(final_width, 1666666)
         self.SeriesItems.setMinimumSize(final_width, 780)
         
+
+    def load_and_assign_meta_data(self):
+        """
+        To play around with the data you may want to load or assign new meta data - here one can do this
+        @return: 
+        """
+
+        # @todo: multithreading ?
+        file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
+        with open(file_name, mode='r') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                if row:
+                    try:
+                        self.database_handler.add_meta_data_group_to_existing_experiment(row[0], row[1])
+                        print("assigned %s to recording %s ", row[0], row[1])
+                    except Exception as e:
+                        print("load_and_assign_meta_data: error when assigning meta_data_types")
+            csv_file.close()
+
 
 
     def update_database_handler_object(self,updated_object):
