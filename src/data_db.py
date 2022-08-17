@@ -318,8 +318,8 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         x = str(meta_data_dict.get('RecordingMode'))
-        print(x)
-        if x == 'b\'\\x03\'':
+
+        if int(x) == 3:
             return "Voltage Clamp"
         else:
             return "Current Clamp"
@@ -1248,7 +1248,11 @@ class DuckDBDatabaseHandler():
                     trace_rec_mode = str(data_list[data_list.index(d) + 1][2][0].get_fields()["RecordingMode"])
                     if rec_mode[0][0] is None:
                         q = f'update series set recording_mode = (?) where name = (?)'
-                        if trace_rec_mode == "b'\\x03'":
+
+                        print("found recording mode")
+                        print(trace_rec_mode)
+
+                        if trace_rec_mode == 3:
                             values = ("Voltage Clamp", series_type)
                             rec_mode[0] = ("Voltage Clamp",)
                         else:

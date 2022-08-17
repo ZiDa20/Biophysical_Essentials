@@ -569,7 +569,7 @@ class PlotWidgetManager(QRunnable):
         print(meta_dict)
         byte_repr = meta_dict.get('RecordingMode')
         print("found", byte_repr)
-        if byte_repr == b'\x03':
+        if byte_repr == 3:
             print("recording mode : Voltage Clamp")
             return "Voltage Clamp"
         else:
