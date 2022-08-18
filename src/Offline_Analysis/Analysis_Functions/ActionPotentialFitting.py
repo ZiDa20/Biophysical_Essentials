@@ -63,6 +63,8 @@ class ActionPotentialFitting(object):
 
         for data_table in data_table_names:
 
+            print("reading_table")
+            print(data_table)
             #
             if self.time is None:
                 self.time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
@@ -109,10 +111,11 @@ class ActionPotentialFitting(object):
                         col_count = len(result_data_frame.columns)
                         #print(col_count)
                         dataframe = pd.DataFrame.from_dict(res, orient='index', columns = [str(sweep_number)])
-                        print(dataframe)
+                        #print(dataframe)
                         result_data_frame = pd.concat([result_data_frame, dataframe],axis=1)
-                        print(result_data_frame)
+                        #print(result_data_frame)
 
+            print(result_data_frame)
             # write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
             result_data_frame['Fitting Parameters'] = result_data_frame.index
             #print(result_data_frame)
@@ -147,47 +150,26 @@ class ActionPotentialFitting(object):
         print("running action potential fitting")
 
         fitting_parameters = {}
-        # gets a single trace
-
-        manual_threshold = 0.010  # * 1000 # where
+        manual_threshold = 10  # in mV/ms
         smoothing_window_length = 19
-
-        # will return nan  if no AP peak with the manually specified threshold was detected
-        if np.max(self.data) < manual_threshold:
-            return None
-
-        np.set_printoptions(suppress=False)
-        first_derivative = []
-
-        # self.data = np.multiply(self.data,1000)
-        # self.data = np.round(self.data,2)
-
-        for i in range(len(self.time) - 1):
-            first_derivative.append(((self.data[i + 1] - self.data[i]) / (self.time[i + 1] - self.time[i])))
-
-        # dx = np.diff(self.time)
-        # dy = np.diff(self.data)
-        # first_derivative = dy/dx
-
+        data = np.array(self.data)*1000 # cast to mV
+        time = self.time
+        dx = np.diff(time)
+        dy = np.diff(data)
+        first_derivative = dy / dx
         first_derivative = np.array(first_derivative)
-        # first_derivative = first_derivative.astype(float)
-        first_derivative = np.round(first_derivative, 2)
 
         # if all values are 0 it will return
+        # whats the usecase ?
         if all(v == 0 for v in first_derivative):
-            # print(self.table_name)
-            # print(self._sweep)
+            print("returning None")
             return None
 
+        # very noisy .. therfore use a smoothing filter
         smoothed_first_derivative = first_derivative.copy()
 
         for i in range(len(first_derivative)):
-
             if i < (len(first_derivative) - smoothing_window_length - 1):
-
-                # print(first_derivative[i])
-                # print(first_derivative[i:i+smoothing_window_length])
-
                 smoothed_val = np.mean(first_derivative[i:i + smoothing_window_length])
             else:
                 smoothed_val = np.mean(first_derivative[i - smoothing_window_length:i])
@@ -197,79 +179,109 @@ class ActionPotentialFitting(object):
 
             else:
                 smoothed_first_derivative[i] = smoothed_val
-        # print("no error")
 
         smoothed_first_derivative = np.round(smoothed_first_derivative, 2)
 
-        """
-        f = open('ap_debug.csv', 'a')
+        ######## calc threshold #######
 
-        writer = csv.writer(f)
-        writer.writerow(self.time)
-        writer.writerow(self.data)
-        # writer.writerow(dx)
-        # writer.writerow(dy)
-        writer.writerow(first_derivative)
-        writer.writerow(smoothed_first_derivative)
-
-        """
         # returns a tuple of true values and therefore needs to be taken at pos 0
         threshold_pos_origin = np.where(smoothed_first_derivative >= manual_threshold)[0]
+        max_1st_derivate_pos = np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))[0][0]
 
+        print("max 1st derivate")
+        print(max_1st_derivate_pos)
         threshold_pos = None
 
         for pos in threshold_pos_origin:
-            if np.all(smoothed_first_derivative[pos:pos + 2 * smoothing_window_length] > manual_threshold) \
-                    or (np.max(self.data[pos:pos + 2 * smoothing_window_length]) == np.max(self.data)):
+            if np.all(smoothed_first_derivative[pos:max_1st_derivate_pos] > manual_threshold):
                 # np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
                 threshold_pos = pos
                 break
 
+        print("Threshold")
+        print(threshold_pos)
+
         # if still none means there was no real AP
         if threshold_pos is None:
+            print("No Action Potential detected in this sweep")
             return None
 
-        t_threshold = self.time[threshold_pos]
-        v_threshold = self.data[threshold_pos]
 
-        time_to_amplitude = self.time[np.argmax(self.data)]
 
-        amplitude_pos = np.argmax(self.data)
+        t_threshold = time[threshold_pos]
+        v_threshold = data[threshold_pos]
 
-        # delta_amplitude = amplitude - v_threshold
+        left_bound = np.argmax(time >= 25)
+        print(left_bound)
 
-        # get the point of hyperpolarisation which is the first extremum (minimum) after the AP peak
-        # therefore get the first zero crossing point after zero crossing point of the AP peak from the first derivate.
-        # using numpys where returns a tuple. I want to have the first point in this tuple -> [0][0]
-        # ahp_pos = np.where(smoothed_first_derivative[amplitude_pos:]>=0)[0] [0] +  amplitude_pos
+        v_mem = np.mean(data[0:left_bound - 1])
+        print(v_mem)
 
-        ahp_pos = np.argmax(smoothed_first_derivative[amplitude_pos:] >= 0)
+        ####### calc max amplitude ####
 
-        # double the window to make sure to not miss the minimum due to the smoothing before
+        max_amplitude = np.max(data)
+        max_amplitude_pos = np.argmax(data >= max_amplitude)
+        t_max_amplitude = time[max_amplitude_pos]
+
+        ###### calc afterhyperpolarization #####
+
+        ahp = np.min(data[max_amplitude_pos:15000])
+        ahp_pos = np.argmax(data[max_amplitude_pos:15000] <= ahp) + max_amplitude_pos
+        t_ahp = time[ahp_pos]
+
+        ######## first derivate to get repolarization speed ########
+
+        max_1st_derivative_amplitude = np.max(smoothed_first_derivative)
+        print(max_1st_derivative_amplitude)
+        pos_max_1st_derivative_amplitude = np.argmax(smoothed_first_derivative >= max_1st_derivative_amplitude)
+        t_max_1st_derivative_amplitude = time[pos_max_1st_derivative_amplitude]
+        data_max_1st = data[pos_max_1st_derivative_amplitude]
+
+        print("max repolarization speed")
+        print(max_1st_derivative_amplitude / t_max_1st_derivative_amplitude)
+
+        min_1st_derivative_amplitude = np.min(smoothed_first_derivative)
+        pos_min_1st_derivative_amplitude = np.argmax(smoothed_first_derivative <= min_1st_derivative_amplitude)
+        t_min_1st_derivative_amplitude = time[pos_min_1st_derivative_amplitude]
+        data_min_1st = data[pos_min_1st_derivative_amplitude]
+
+        ##### calc half width #########
+
         try:
-            ahp = np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)])
-        except Exception as e:
-            print(e)  # happens if ahp_pos is zero
+            half_width_amplitude = (max_amplitude - v_threshold) / 2
+            left_hw_pos = np.argmax(data >= half_width_amplitude)
+            right_hw_pos = np.argmax(data[max_amplitude_pos:15000] <= half_width_amplitude)+ max_amplitude_pos
 
+            time_1st_half_width = time[left_hw_pos]
+            time_2nd_half_width = time[right_hw_pos]
+
+            half_width = time_2nd_half_width - time_1st_half_width
+            print(half_width)
+        except:
+            print("Error in half width calculation")
+            half_width = np.NAN
             return None
-
-        t_ahp = self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
-        t_ahp += time_to_amplitude
 
         # only run analysis if there is an action potential, otherwise return nan
-        if np.max(self.data) > manual_threshold:
-            fitting_parameters['AP_Amplitude'] = np.max(self.data)
-            fitting_parameters['Threshold_Amplitude'] = self.data[threshold_pos]
-            fitting_parameters['AHP_Amplitude'] = np.amin(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)])
-            fitting_parameters['t_AHP'] = t_ahp
-            fitting_parameters['time_to_ahp'] = \
-                self.time[np.argwhere(self.data[amplitude_pos:(amplitude_pos + 2 * ahp_pos)] == ahp)][0][0]
-            fitting_parameters['delta_ap_threshold'] = np.max(self.data) - v_threshold
-            fitting_parameters['max_first_derivate'] = np.max(smoothed_first_derivative)
-            # fitting_parameters['time_max_first_derivate'] = self.time[np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))]
-            fitting_parameters['min_first_derivate'] = np.min(smoothed_first_derivative)
-
-        #print(fitting_parameters)
+        if np.max(data) > manual_threshold:
+            fitting_parameters['Vmem [mV]'] = v_mem
+            fitting_parameters['Threshold_Amplitude [mV]'] = v_threshold
+            fitting_parameters['t_Threshold [ms]'] = t_threshold
+            fitting_parameters['delta_t_threshold [ms]'] = t_threshold - 25
+            fitting_parameters['passive_repolarization [mV]'] = abs(v_mem) - abs(v_threshold)
+            fitting_parameters['AP_Amplitude [mV]'] = max_amplitude
+            fitting_parameters['t_AP_Amplitude [ms]'] = t_max_amplitude
+            fitting_parameters['delta_ap_threshold [mV]'] = max_amplitude - v_threshold
+            fitting_parameters['delta_t_ap_threshold [ms]'] = t_max_amplitude - t_threshold
+            fitting_parameters['AHP_Amplitude [mV]'] = ahp
+            fitting_parameters['t_AHP [ms]'] = t_ahp
+            fitting_parameters['t_threshold_ahp [ms]'] = t_ahp - t_threshold
+            fitting_parameters['max_first_derivate [mV/ms]'] = max_1st_derivative_amplitude
+            fitting_parameters['t_max_1st_derivative [ms]'] = t_max_1st_derivative_amplitude
+            fitting_parameters['min_first_derivate [mV/ms]'] = min_1st_derivative_amplitude
+            fitting_parameters['t_min_1st_derivative [ms]'] = t_min_1st_derivative_amplitude
+            fitting_parameters['dt t_min-t_max [ms]'] = t_min_1st_derivative_amplitude - t_max_1st_derivative_amplitude
+            fitting_parameters['AP_with [ms]'] = half_width
 
         return fitting_parameters
 
@@ -280,10 +292,10 @@ class ActionPotentialFitting(object):
     @classmethod
     def visualize_results(self, parent_widget, canvas, visualization_type):
 
-        ' check if this given analysis id is connected with a result, if not, the concerning Action Potential Fitting id needs to be read from the analysis function table'
+        #check if this given analysis id is connected with a result, if not, the concerning
+        # Action Potential Fitting id needs to be read from the analysis function table'
 
         q = f"select * from results where analysis_function_id = \'{parent_widget.analysis_function_id}\'"
-        #print(self.database.get_data_from_database(self.database.database, q))
 
         if not self.database.get_data_from_database(self.database.database, q):
             q = """select analysis_function_id from analysis_functions where analysis_id = (?) and function_name = (?)"""
@@ -298,52 +310,66 @@ class ActionPotentialFitting(object):
             result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
                                                                parent_widget.analysis_function_id)
 
-            # go through each result table, calculate the mean for each row, add to the correct meta_data_specific data frame
+
+        # go through each result table, calculate the mean for each row, add to the correct meta_data_specific data frame
+
+        print("Plotting")
+        print(parent_widget.analysis_name)
+        print("total number of Action Potential Result Tables")
+        print(len(result_table_list))
 
         meta_data_groups = []
         meta_data_specific_df = []
 
-        for table in result_table_list:
+        # make the boxplot
+        ax = canvas.figure.subplots()
 
+        for table in result_table_list:
 
             self.database.database.execute(f'select * from {table}')
             query_data_df = self.database.database.fetchdf()
             query_data_df.set_index('Fitting Parameters', inplace =True, drop = True)
-
 
             q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
                 f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
                 f'specific_result_table_name = \'{table}\'))'
 
             meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
+            print(meta_data_group)
 
             # override the upper left plot panel which would not show any result data. By setting to AP Amplitude it
             # will always display amplitude and the function itself does not need to be lte registered anymore
 
             if parent_widget.analysis_name == "Action Potential Fitting":
-                parent_widget.analysis_name = "AP_Amplitude"
+                parent_widget.analysis_name = "AP_Amplitude [mV]"
 
             # index has the same name as the function. Will not work if the names differ.
             try:
-                x_data = np.mean(query_data_df.loc[parent_widget.analysis_name].values)
+                x_data = np.nanmean(query_data_df.loc[parent_widget.analysis_name].values)
+                print(x_data)
+                print(query_data_df.loc[parent_widget.analysis_name].values)
+
+                if meta_data_group in meta_data_groups:
+                    specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
+                    specific_df.insert(0, str(table), x_data, True)
+                    meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
+                else:
+                    # add a new meta data group
+                    meta_data_groups.append(meta_data_group)
+                    meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
+
             except Exception as e:
-                break
+                print("Error occured when calculating numpy mean")
+                print(e)
+                print(table)
+                print(query_data_df)
+                #break
 
-            if meta_data_group in meta_data_groups:
-                specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-                specific_df.insert(0, str(table), x_data, True)
-                meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-            else:
-                # add a new meta data group
-                meta_data_groups.append(meta_data_group)
-                meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
-
-        #print(meta_data_specific_df[0])
-
-        # make the boxplot
-        ax = canvas.figure.subplots()
+        print("meta data specific df")
+        print(meta_data_specific_df)
 
         boxplot_matrix = []
+
         for meta_data in meta_data_specific_df:
             boxplot_matrix.append(meta_data.iloc[0].values)
 
@@ -366,31 +392,82 @@ class ActionPotentialFitting(object):
         ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
         ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
 
-        default_colors = ['k', 'b', 'r', 'g', 'c']
+        default_colors = ['k', 'b', 'g', 'c','r']
 
         for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
             patch.set_facecolor(color)
 
-        ax.legend(plot['boxes'], custom_labels, loc='upper left')
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+        # Put a legend below current axis
+        ax.legend(plot['boxes'], custom_labels, loc='center left', bbox_to_anchor=(1, 0.5)) #fancybox=True, shadow=True, ncol=5
+
+        print("filtered boxplot data")
+        print(filtered_box_plot_data)
+        print(len(filtered_box_plot_data))
+
+        for i in range(1,len(filtered_box_plot_data)+1):
+            y = filtered_box_plot_data[i-1]
+            # Add some random "jitter" to the x-axis
+            x = np.random.normal(i, 0.04, size=len(y))
+            ax.plot(x, y, 'r.', alpha=0.8, picker=True)
+
+        def ap_scatter_picker(event):
+            ind = event.ind
+            print('onpick3 scatter:', ind, x[ind], y[ind])
+
+        canvas.mpl_connect('pick_event', ap_scatter_picker)
+
 
         parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
         parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
         parent_widget.export_data_frame.columns = meta_data_groups
 
+
+
     @classmethod
     def run_late_register_feature(self):
-
-        #print("running late register")
-
-        #self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('time_to_ahp', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold', self.series_name, 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate', self.series_name,
+        """
+        late register to make plots for each of these parameters
+        @return:
+        """
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Vmem [mV]', self.series_name,
                                                                                  0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('max_first_derivate', self.series_name, 0, 0)
-
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude [mV]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_Threshold [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_t_threshold [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('passive_repolarization [mV]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude [mV]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AP_Amplitude [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold [mV]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_t_ap_threshold [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AHP_Amplitude [mV]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_threshold_ahp [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('max_first_derivate [mV/ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_max_1st_derivative [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate [mV/ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_min_1st_derivative [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('dt t_min-t_max [ms]', self.series_name,
+                                                                                 0, 0)
+        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_with [ms]', self.series_name,
+                                                                                 0, 0)
 
     @classmethod
     def specific_visualisation(self, queried_data, function_analysis_id):

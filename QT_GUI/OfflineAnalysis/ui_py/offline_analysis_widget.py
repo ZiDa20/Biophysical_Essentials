@@ -125,6 +125,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         print("load_and_assign_meta_data: error when assigning meta_data_types")
             csv_file.close()
 
+        self.load_treeview_from_database()
 
 
     def update_database_handler_object(self,updated_object):

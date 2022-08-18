@@ -360,12 +360,15 @@ class SweepWiseAnalysisTemplate(object):
 			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
 
 			if meta_data_group in meta_data_groups:
-				#new_df = pd.DataFrame(np.array(x_data))
-				#print(new_df)
-				specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-				specific_df.insert(0, str(result_table_list.index(table)), x_data, True)
-				meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-
+				try:
+					specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
+					specific_df.insert(0, str(result_table_list.index(table)), x_data, True)
+					meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
+				except Exception as e:
+					print("an error occured in split by meta data")
+					print(e)
+					print("the following table will not be added to results")
+					print(table)
 			else:
 				# add a new meta data group
 				meta_data_groups.append(meta_data_group)
@@ -376,6 +379,7 @@ class SweepWiseAnalysisTemplate(object):
 
 			print("finished meta data group calculation")
 		ax = canvas.figure.subplots()
+
 		for group in meta_data_groups:
 
 			# convert dataframe into numpy array = list of lists
@@ -383,7 +387,10 @@ class SweepWiseAnalysisTemplate(object):
 			mean_coordinate_value = []
 			calc_std = []
 
-			# for each row a mean will be calculated: each row reflects one sweep .. eg. sweep 1
+			# for each row a mean will be calculated: each row reflects one sweep .. eg.
+			# 			recording1 # recording2 # recording3
+			# sweep 1
+
 			for coordinate_row in df_as_numpy_array:
 				print(coordinate_row)
 				try:
@@ -392,13 +399,17 @@ class SweepWiseAnalysisTemplate(object):
 				except Exception as e:
 					print(e)
 					print(coordinate_row)
+
+			custom_label = group + ": n = " + str(np.size(df_as_numpy_array[0]))
 			try:
-				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=group)
+				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=custom_label)
+
 				#ax.plot(y_data,mean_coordinate_value, 'k', label=group)
 				# parent_widget.export_data_frame.insert(0, experiment_name, y_data)
 			except Exception as e:
 					print(e)
 					print(group)
+
 
 			ax.legend()
 			canvas.show()
