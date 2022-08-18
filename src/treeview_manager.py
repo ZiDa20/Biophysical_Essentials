@@ -45,6 +45,8 @@ class TreeViewManager():
         self.discard_column = 2
 
         # list of meta data group names represented as strings
+        self.selected_meta_data_list = None
+
         self.meta_data_option_list=["+ Add", "None"]
         self.meta_data_assignment_list = []
 
@@ -145,7 +147,7 @@ class TreeViewManager():
         """
 
         # get the experiments linked with this analysis number
-        not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label)
+        not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label,self.selected_meta_data_list)
 
         self.logger.info("Filling treeview")
         self.logger.info(not_discard_experiments_stored_in_db)

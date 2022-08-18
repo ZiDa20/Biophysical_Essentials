@@ -468,9 +468,18 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
+
+    def get_available_experiment_label(self):
+        """
+        return all available label in the database
+        @return: a tuple list
+        """
+        q = f'select distinct experiment_label from experiments'
+        res = self.get_data_from_database(self.database, q)
+        return res
+
     def get_meta_data_group_of_specific_experiment(self, experiment_name):
         """
-
         :param experiment_name:
         :return:
         :author dz, 28.06.2022
@@ -554,6 +563,14 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
 
+    def get_distinct_meta_data_groups_for_specific_experiment_label(self,label_list):
+        meta_data_groups = []
+        for label in label_list:
+             q = f'select distinct meta_data_group from experiments where experiment_label = \'{label}\''
+             tmp_lst = self.get_data_from_database(self.database, q)
+             meta_data_groups += tmp_lst
+        return meta_data_groups
+
     def get_meta_data_table_of_specific_series(self, experiment_name:str, series_identifier: str):
         """
         :param experiment_name:
@@ -632,7 +649,7 @@ class DuckDBDatabaseHandler():
             self.logger.info("insertion finished FAILED because of error %s", e)
             print("insertion finished FAILED because of error %s", e)
 
-    def get_experiment_names_by_experiment_label(self,experiment_label):
+    def get_experiment_names_by_experiment_label(self,experiment_label,meta_data_list):
         """
 
         :param experiment_label:
@@ -645,9 +662,15 @@ class DuckDBDatabaseHandler():
         #q = f'select experiment_label from experiments'
         #r1 = self.get_data_from_database(self.database, q)
 
-        q = f'select experiment_name from experiments'
-        r2 = self.get_data_from_database(self.database, q)
+        for i in meta_data_list:
+            if meta_data_list.index(i)==0:
+                q = f'select experiment_name from experiments where meta_data_group = \'' + i + '\''
+            else:
+                q+= 'or meta_data_group = \' ' + i + '\''
 
+        print(q)
+        r2 = self.get_data_from_database(self.database, q)
+        print(r2)
         #q = f'select experiment_name from experiments where experiment_label = \'{experiment_label}\' '
         #q = f"""select experiment_label from experiments where experiment_name = \' {201229_01} \' """
         #r = self.get_data_from_database(self.database,q)

@@ -328,7 +328,11 @@ class SweepWiseAnalysisTemplate(object):
 			except Exception as e:
 				print(e)
 				print(experiment_name)
-		ax.legend()
+
+		box = ax.get_position()
+		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+		# Put a legend below current axis
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		canvas.show()
 
 	@classmethod
@@ -410,9 +414,11 @@ class SweepWiseAnalysisTemplate(object):
 					print(e)
 					print(group)
 
-
-			ax.legend()
-			canvas.show()
+		box = ax.get_position()
+		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+		# Put a legend below current axis
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		canvas.show()
 
 	@classmethod
 	def fetch_x_and_y_data(self, table_name):

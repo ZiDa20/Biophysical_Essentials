@@ -24,6 +24,8 @@ from raw_analysis import AnalysisRaw
 from assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
+import os
+
 pg.setConfigOption('foreground','#448aff')
 import csv
 from filter_pop_up_handler import Filter_Settings
@@ -31,8 +33,8 @@ from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisR
 from PySide6.QtCore import QThreadPool
 from Worker import Worker
 from BlurWindow.blurWindow import GlobalBlur
-
-
+from load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
+from drag_and_drop_list_view import DragAndDropListView
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -172,11 +174,83 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
         # open a popup to allow experiment label selection by the user
+
+        self.dialog = Load_Data_From_Database_Popup_Handler()
+
+        available_labels = self.database_handler.get_available_experiment_label()
+
+        label_list = []
+        for i in available_labels:
+            if i[0] is None:
+                QListWidgetItem('nan', self.dialog.available_labels_list)
+            else:
+                QListWidgetItem(i[0], self.dialog.available_labels_list)
+
+
+        grid = QGridLayout()
+        self.list_view = DragAndDropListView(self,self.dialog.available_labels_list)
+        self.list_view.setAcceptDrops(True)
+        self.list_view.fileDropped.connect(self.experiment_label_dropped)
+        grid.addWidget(self.list_view)
+        self.dialog.selected_labels.setLayout(grid)
+
+        self.dialog.load_data.clicked.connect(partial(self.load_recordings))
+
+        """ 
+        grid =  QGridLayout()
+        self.list_view = QListWidget()
+        self.list_view.setAcceptDrops(True)
+        grid.addWidget(self.list_view)
+        self.dialog.selected_labels.setLayout(grid)
+      
+        self.list_view.model().rowsMoved.connect(self.experiment_label_dropped)
+        #self.list_view.fileDropped.connect(self.experiment_label_dropped)
+        
+        """
+        #dialog.label_selection_list.model().rowsMoved.connect(self.experiment_label_dropped)
+        #self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+
+        """
+        # assign later button will close the dialog without any additional assignments
+        dialog.assign_one_group_to_all.clicked.connect(partial(self.continue_open_directory, dialog))
+
+        # Create Template button will open a new popup to assign different meta data groups
+        dialog.assign_now_button.clicked.connect(partial(self.create_meta_data_template, dialog))
+
+        # Load Template button will open a filedialog to select a template
+        dialog.load_template_button.clicked.connect(partial(self.open_meta_data_template_file, dialog))
+
+        dialog.assign_one_group_to_all.setAccessibleName("big_square")
+        dialog.assign_now_button.setAccessibleName("big_square")
+        dialog.load_template_button.setAccessibleName("big_square")
+        dialog.select_from_database_button.setAccessibleName("big_square")
+
+        if not meta_data_groups_in_db:
+            dialog.select_from_database_button.setDisabled(True)
+        """
+        self.dialog.exec_()
+
+
+
+    def load_recordings(self):
+
+        self.dialog.close()
+        self.selected_meta_data_list = []
+        for n in range(0,self.dialog.meta_data_list.count()):
+            item = self.dialog.meta_data_list.item(n)
+            if item.checkState()==Qt.CheckState.Checked:
+                self.selected_meta_data_list.append(item.text())
+        print("loading recordings")
+        print( self.selected_meta_data_list)
+
         # from the popup get the label
         experiment_label = ""
         self.experiments_tree_view.clear()
         self.outfiltered_tree_view.clear()
         self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
+
+        self.blank_analysis_page_1_tree_manager.selected_meta_data_list =  self.selected_meta_data_list
+
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
                                                                      self.outfiltered_tree_view,experiment_label, None)
 
@@ -192,6 +266,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # show selected tree_view
         self.directory_tree_widget.setCurrentIndex(0)
+
+    @Slot()
+    def experiment_label_dropped(self,item_text):
+        print(item_text)
+        QListWidgetItem(item_text, self.list_view)
+
+        distinct_meta_data = self.database_handler.get_distinct_meta_data_groups_for_specific_experiment_label([item_text])
+        print(distinct_meta_data)
+
+        for i in distinct_meta_data:
+            QListWidgetItem(i[0],self.dialog.meta_data_list).setCheckState(Qt.CheckState.Checked)
+
+        print("added new item")
 
     @Slot()
     def open_directory(self):
@@ -598,7 +685,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # deprecated dz 29.06.2022
         #TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
         print("creating new tab specific treeview")
-        TreeViewManager(db).create_treeview_from_database(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,"",series_name)
+        tmp_treeview = TreeViewManager(db)
+        tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
+        tmp_treeview.create_treeview_from_database(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,"",series_name)
 
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
