@@ -131,7 +131,7 @@ class TreeViewManager():
 
         # discarded = False = means read all selected items
         self.fill_treeview_from_database(selected_tree,discarded_tree, experiment_label,False, specific_series_name)
-        #self.fill_treeview_from_database(discarded_tree,selected_tree, experiment_label, True, specific_series_name)
+        self.fill_treeview_from_database(discarded_tree,selected_tree, experiment_label, True, specific_series_name)
 
     def fill_treeview_from_database(self,tree,discarded_tree,experiment_label,discarded_state, specific_series_name):
         """
@@ -400,7 +400,10 @@ class TreeViewManager():
                     
                 self.logger.info("adding experiment")
                 self.logger.info(experiment_name)
-                database.add_experiment_to_experiment_table(experiment_name, group_name)
+
+                # @todo
+                experiment_label = 'default'
+                database.add_experiment_to_experiment_table(experiment_name, group_name, experiment_label)
 
 
             if "Series" in node_type:

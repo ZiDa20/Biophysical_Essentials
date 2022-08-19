@@ -488,7 +488,7 @@ class DuckDBDatabaseHandler():
         return self.get_data_from_database(self.database, q)[0][0]
 
 
-    def add_experiment_to_experiment_table(self, name, meta_data_group):
+    def add_experiment_to_experiment_table(self, name, meta_data_group,experiment_label):
         '''
         Adding a new experiment to the database table 'experiments'. Name-Duplicates (e.g. 211224_01) are NOT allowed-
         the experiment name of the already existing experiment will added to the current offline analysis mapping table.
@@ -502,10 +502,10 @@ class DuckDBDatabaseHandler():
         :return 0: experiment was not added because it already exists, 1 it was added sucessfully, -1 something went wrong
         '''
         self.logger.info("adding experiment %s to_experiment_table", name)
-        q = f'insert into experiments (experiment_name,meta_data_group) values (?,?)'
+        q = f'insert into experiments (experiment_name,experiment_label,meta_data_group) values (?,?,?)'
 
         try:
-            self.database = self.execute_sql_command(self.database, q, [name,meta_data_group])
+            self.database = self.execute_sql_command(self.database, q, [name,experiment_label,meta_data_group])
             self.logger.info("added %s successfully", name)
             return 1
         except Exception as e:
@@ -666,7 +666,7 @@ class DuckDBDatabaseHandler():
             if meta_data_list.index(i)==0:
                 q = f'select experiment_name from experiments where meta_data_group = \'' + i + '\''
             else:
-                q+= 'or meta_data_group = \' ' + i + '\''
+                q+= ' or meta_data_group = \'' + i + '\''
 
         print(q)
         r2 = self.get_data_from_database(self.database, q)
@@ -1177,6 +1177,25 @@ class DuckDBDatabaseHandler():
 
         self.database.execute(f'SELECT * FROM {pgf_table_name}')
         return self.database.fetchdf()
+
+    def get_data_from_recording_specific_pgf_table(self,table_name,data_name,segment_number):
+        q = f'select pgf_data_table_name from experiment_series where sweep_table_name = \'{table_name}\''
+        pgf_table_names = self.get_data_from_database(self.database, q)
+
+        pgf_table_name = pgf_table_names[0][0]
+
+        val = None
+        if data_name == 'holding':
+            q = f'SELECT holding_potential FROM {pgf_table_name}'
+            val = self.get_data_from_database(self.database, q)[segment_number][0]
+
+        if data_name == 'increment':
+            q = f'SELECT increment FROM {pgf_table_name}'
+            val = self.get_data_from_database(self.database, q)[segment_number][0]
+
+        # cast string and return as float value
+        return float(val)
+
 
     def get_data_from_pgf_table(self,series_name,data_name,segment_number):
         """
