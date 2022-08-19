@@ -318,12 +318,15 @@ class SweepWiseAnalysisTemplate(object):
         :author: dz, 11.07.2022
         """
 		ax = canvas.figure.subplots()
-		for table in result_table_list:
+		plot_data_frame = pd.DataFrame ()
 
-			x_data, y_data, experiment_name = self.fetch_x_and_y_data(table)
+		for table in result_table_list:
+			y_data,x_data, experiment_name = self.fetch_x_and_y_data(table)
+			new_df = pd.DataFrame(y_data, index=x_data,columns=[table])
+			plot_data_frame  = pd.concat([plot_data_frame,new_df], axis=1)
 
 			try:
-				ax.plot(y_data,x_data, 'k', label=experiment_name)
+				ax.plot(x_data,y_data, 'k', label=experiment_name)
 				#parent_widget.export_data_frame.insert(0, experiment_name, y_data)
 			except Exception as e:
 				print(e)
@@ -334,6 +337,11 @@ class SweepWiseAnalysisTemplate(object):
 		# Put a legend below current axis
 		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		canvas.show()
+
+		print(plot_data_frame)
+		parent_widget.export_data_frame = plot_data_frame
+		print("succesfully stored data")
+
 
 	@classmethod
 	def plot_mean_per_meta_data(self, parent_widget, canvas, result_table_list):
@@ -384,6 +392,8 @@ class SweepWiseAnalysisTemplate(object):
 			print("finished meta data group calculation")
 		ax = canvas.figure.subplots()
 
+		plot_data_frame = pd.DataFrame()
+
 		for group in meta_data_groups:
 
 			# convert dataframe into numpy array = list of lists
@@ -407,9 +417,8 @@ class SweepWiseAnalysisTemplate(object):
 			custom_label = group + ": n = " + str(np.size(df_as_numpy_array[0]))
 			try:
 				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=custom_label)
+				plot_data_frame = pd.concat([plot_data_frame,pd.DataFrame(mean_coordinate_value,index=y_data,columns=[group])],axis=1 )
 
-				#ax.plot(y_data,mean_coordinate_value, 'k', label=group)
-				# parent_widget.export_data_frame.insert(0, experiment_name, y_data)
 			except Exception as e:
 					print(e)
 					print(group)
@@ -419,6 +428,11 @@ class SweepWiseAnalysisTemplate(object):
 		# Put a legend below current axis
 		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		canvas.show()
+
+		print(plot_data_frame)
+		parent_widget.export_data_frame = plot_data_frame
+		print("succesfully stored data")
+
 
 	@classmethod
 	def fetch_x_and_y_data(self, table_name):
