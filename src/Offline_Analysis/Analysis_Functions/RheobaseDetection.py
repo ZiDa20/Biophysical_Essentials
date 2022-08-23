@@ -101,7 +101,7 @@ class RheobaseDetection(object):
                             #injected_current = holding_value + (sweep_number - 1) * increment_value
                             print("increment_value")
                             print(increment_value)
-                            injected_current =  (sweep_number - 1) * increment_value
+                            injected_current =  (sweep_number - 1) * increment_value * 1000
                             new_specific_result_table_name = self.create_new_specific_result_table_name(
                                 self.database.analysis_id, data_table)
 
@@ -116,7 +116,7 @@ class RheobaseDetection(object):
 
                     else:
                         # holding_value +
-                        injected_current = (sweep_number - 1) * increment_value
+                        injected_current = (sweep_number - 1) * increment_value * 1000
                         print("injected current with smaller - 2 sweeps")
                         print(injected_current)
                         new_specific_result_table_name = self.create_new_specific_result_table_name(
@@ -191,12 +191,24 @@ class RheobaseDetection(object):
         ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
         ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
 
-        default_colors = ['k', 'b', 'r', 'g', 'c']
+        ax.set_ylabel("Injected Current [pA]")
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        default_colors = ['k', 'b', 'g', 'c', 'r']
 
         for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
             patch.set_facecolor(color)
 
-        ax.legend(plot['boxes'], custom_labels, loc='upper left')
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        # Put a legend below current axis
+        ax.legend(plot['boxes'], custom_labels,loc='center left', bbox_to_anchor=(1, 0.5))
+
+        for i in range(1, len(filtered_box_plot_data) + 1):
+            y = filtered_box_plot_data[i - 1]
+            # Add some random "jitter" to the x-axis
+            x = np.random.normal(i, 0.04, size=len(y))
+            ax.plot(x, y, 'r.', alpha=0.8, picker=True)
 
         parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
         parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()

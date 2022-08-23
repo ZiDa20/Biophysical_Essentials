@@ -395,7 +395,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         dialog_grid = QGridLayout(dialog)
         #series_names_string_list = ["Block Pulse", "IV"]
-        
+        dialog_quit = QPushButton("Cancel", dialog)
+
         checkbox_list = []
         name_list = []
         for s in  series_names_string_list:
@@ -403,15 +404,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             c = QCheckBox()
             checkbox_list.append(c)
             l = QLabel(name)
-            dialog_grid.addWidget(c,series_names_string_list.index(s),0)
-            dialog_grid.addWidget(l,series_names_string_list.index(s),1)
+            dialog_grid.addWidget(c,series_names_string_list.index(s)+2,0)
+            dialog_grid.addWidget(l,series_names_string_list.index(s)+2,1)
             name_list.append(name)
 
         confirm_series_selection_button = QPushButton("Compare Series", dialog)
-        dialog_quit = QPushButton("Cancel", dialog)
         confirm_series_selection_button.clicked.connect(partial(self.compare_series_clicked,checkbox_list,name_list,dialog))
         dialog_quit.clicked.connect(partial(self.close_dialog,dialog))
-        dialog_grid.addWidget(confirm_series_selection_button,len(name_list),0)
+        dialog_grid.addWidget(confirm_series_selection_button,len(name_list)+2,0)
         dialog.setWindowTitle("Available Series To Be Analyzed")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
