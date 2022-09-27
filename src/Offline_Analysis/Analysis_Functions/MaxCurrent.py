@@ -22,3 +22,7 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
     @classmethod
     def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id):
         return super(MaxCurrent,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)
+
+    @classmethod
+    def live_data(self,sweep_table, database_handler):
+        return super(MaxCurrent,self).live_data(sweep_table,database_handler)

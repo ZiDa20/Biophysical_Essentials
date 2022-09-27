@@ -81,6 +81,26 @@ class SweepWiseAnalysisTemplate(object):
 		print("not implemented")
 
 	@classmethod
+	def calculate_results_for_live_plot(self,entire_sweep_table, database_handler):
+		"""for each sweep, find correct x and y value to be plotted as live result"""
+
+		series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
+		time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table)
+
+		for column in entire_sweep_table:
+			self.data = entire_sweep_table.get(column)
+
+				#if series_specific_recording_mode != "Voltage Clamp":
+					#y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+					#self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+
+				# slice trace according to coursor bounds
+				self.construct_trace()
+				self.slice_trace()
+
+				res = self.specific_calculation()
+
+	@classmethod
 	def calculate_results(self):
 		"""
 		iterate through each single sweep of all not discarded series in the database and save the calculated result

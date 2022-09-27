@@ -24,6 +24,7 @@ from raw_analysis import AnalysisRaw
 from assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
+from AnalysisFunctionRegistration import  AnalysisFunctionRegistration
 import os
 
 pg.setConfigOption('foreground','#448aff')
@@ -708,11 +709,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.selected_tree_widget.expandToDepth(0)
 
 
-
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
 
         self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
-
         self.current_tab_visualization.append(self.current_tab_plot_manager)
 
 
@@ -772,7 +771,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             
 
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-            current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(5)
+            current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(6)
             current_tab.analysis_table_widget.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
             self.table_buttons = [0] * len(self.selected_analysis_functions)
         else:
@@ -786,15 +785,54 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert,0,QTableWidgetItem(str(value)))
                 self.table_buttons[row_to_insert] = QPushButton("Add")
                 self.c = QPushButton("Configure")
+                self.live_result = QCheckBox()
+
                 current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,3,self.table_buttons[row_to_insert])
                 current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
+                current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5, self.live_result)
 
                 self.table_buttons[row_to_insert].clicked.connect(partial(self.add_coursor_bounds,row_to_insert,current_tab))
+                self.live_result.clicked.connect(partial(self.show_live_results_changed,row_to_insert,current_tab, self.live_result))
+                current_tab.analysis_table_widget.analysis_table_widget.show()
+
+    def show_live_results_changed(self, row_number, current_tab, checkbox_object: QCheckBox):
+
+        fct_name = current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 0).text()
+        # if checkbox enabled
+        if checkbox_object.isChecked():
+            print("show live result for function")
+            print(fct_name)
+
+            # identify the correct analysis function
+            analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
+            #analysis_class_object.init()
+            #print(analysis_class_object.function_name)
+
+            current_item_text = current_tab.selected_tree_widget.currentItem().text(0)
+            print(current_item_text)
+            print(current_tab.selected_tree_widget.currentItem().child(0).text(0))
+
+            # tuple(experiment_name, series_name)
+            experiment_series_tuple = current_tab.selected_tree_widget.currentItem().child(0).data(3,0)
+            print(experiment_series_tuple) # only works if parent = experiment
+
+            # if childname contains  'sweep' -> a series was selected
+            # if parent name contains sweep -> a sweep was selected
+
+            # get data as pandas data frame
+            sweep_table = self.database_handler.get_sweep_table_for_specific_series(experiment_series_tuple[0],
+                                                                                         experiment_series_tuple[1])
+
+            # run result calculation only for this data
+            x_y_tuple = analysis_class_object.live_data(sweep_table, self.database_handler)
+
+            # run result visualization
 
 
 
-        current_tab.analysis_table_widget.analysis_table_widget.show()
-
+        else:
+            print("turn off live result for function")
+            print(fct_name)
 
     def analysis_table_cell_changed(self,item):
         print("a cell changed")
