@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2Q
 from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
-
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
 
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
@@ -41,7 +41,6 @@ class PlotWidgetManager(QRunnable):
             print(e)
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
-
         self.vertical_layout = vertical_layout_widget
         self.toolbar_widget = toolbar_widget
 
@@ -83,6 +82,15 @@ class PlotWidgetManager(QRunnable):
         # all tuples of left and right bounds that will be plotted .. identified by its row number as a key
         self.coursor_bound_tuple_dict = {}
 
+        # slot for the analysis function table widget: might be assigned to allow live plots
+        # e.g. max_current | 1 | 10 | change | configure | checkbox
+        self.analysis_functions_table_widget = None
+
+        self.default_colors = ['b', 'g', 'c','r']
+
+    def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
+        self.analysis_functions_table_widget = analysis_functions_table_widget
+        print("table widget was set")
 
     def tree_view_click_handler(self, item):
         """
@@ -111,12 +119,63 @@ class PlotWidgetManager(QRunnable):
             self.sweep_clicked_load_from_dat_file(item)
         else:
             self.sweep_clicked_load_from_dat_database(item)
+            self.check_live_analysis_plot(item,"sweep")
 
     def series_in_treeview_clicked(self,item):
         if self.analysis_mode == 0: # online analysis
             self.series_clicked_load_from_dat_file(item)
         else:
             self.series_clicked_load_from_database(item)
+            self.check_live_analysis_plot(item,"series")
+
+    def check_live_analysis_plot(self,item, level):
+        """
+        calculate values to be plotted in the "live plot" feature during analysis
+        @param item:
+        @param table_widget:
+        @return:
+        @author: dz, 29.09.2022
+        """
+        print("checking live analysis")
+        if self.analysis_functions_table_widget is not None:
+            row_count = self.analysis_functions_table_widget.rowCount()
+            # iterate through the rows of the table,
+            print(row_count)
+            for row in range(0,row_count):
+                # check which checkboxes are selected
+                fct_name = self.analysis_functions_table_widget.item(row, 0).text()
+                print(fct_name)
+
+                if self.analysis_functions_table_widget.cellWidget(row, 5).isChecked():
+                    # calculate realted results and visualize
+
+                    lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
+                    upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
+
+                    analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
+
+                    db = self.offline_manager.get_database()
+                    if level == "series":
+                        experiment_series_tuple = item.data(3, 0)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,
+                                                                    experiment_series_tuple[0],
+                                                                    experiment_series_tuple[1], db)
+                    else:
+                        experiment_series_tuple = item.parent().data(3, 0)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,
+                                                                    experiment_series_tuple[0],
+                                                                    experiment_series_tuple[1], db, item.text(0))
+
+                    print(experiment_series_tuple)  # only works if parent = experiment
+
+                    self.plot_scaling_factor = 1e9
+                    for tuple in x_y_tuple:
+                        self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
+                else:
+                    print("nothing to check in row %i", row)
+        else:
+            print("analysis_functions_table_widget was None ")
+
 
     def sweep_clicked_load_from_dat_file(self,item):
         """
@@ -261,7 +320,7 @@ class PlotWidgetManager(QRunnable):
         visualizes the sweep when clicked on it in the treeview
         @param item: treeview item, contains text at pos 0 and data request information at pos 3,0
         @return:
-        :author: dz, 21.07.2022
+        :author: dz, modified 29.09.2022
         """
         print("sweep clicked")
         print(item.text(0))
@@ -311,6 +370,8 @@ class PlotWidgetManager(QRunnable):
         sweep_number = int(sweep_number[1])
 
         protocol_steps = self.plot_pgf_signal(pgf_table_df, data, sweep_number)
+
+        print("Protocol Steps")
         print(protocol_steps)
         for x in range(0, len(protocol_steps)):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
@@ -401,9 +462,10 @@ class PlotWidgetManager(QRunnable):
         # load the table
         pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],data_request_information[1])
 
-        print(pgf_table_df)
+        #print(pgf_table_df)
 
         protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
+        print("Protocol Steps")
         print(protocol_steps)
         for x in range(0,len(protocol_steps)):
 

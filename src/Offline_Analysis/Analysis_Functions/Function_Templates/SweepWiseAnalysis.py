@@ -81,24 +81,66 @@ class SweepWiseAnalysisTemplate(object):
 		print("not implemented")
 
 	@classmethod
-	def calculate_results_for_live_plot(self,entire_sweep_table, database_handler):
-		"""for each sweep, find correct x and y value to be plotted as live result"""
+	def live_data(self,lower_bound, upper_bound, experiment_name,series_identifier, database_handler, sweep_name = None):
+		"""for each sweep, find correct x and y value to be plotted as live result
+		@author: dz, 29.09.2022
+		"""
+		print("live ")
+		self.lower_bound = lower_bound
+		self.upper_bound = upper_bound
+		data_table_name = database_handler.get_sweep_table_name(experiment_name,series_identifier)
+		self.time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table_name)
+		entire_sweep_table = database_handler.get_entire_sweep_table(data_table_name)
 
-		series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
-		time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table)
+		# @Todo
+		#series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
+
+		print(entire_sweep_table)
+
+		if sweep_name:
+			print(sweep_name)
+			data = entire_sweep_table.get(sweep_name)
+			print(data)
+			return [self.live_data_for_single_sweep(data)]
+		else:
+			return self.live_data_for_entire_series(entire_sweep_table)
+
+	@classmethod
+	def live_data_for_entire_series(self, entire_sweep_table):
+		"""
+		calculates a list of tuples (x_value, y-value) to be plotted on top in the trace plot for each sweep within a series
+		@param entire_sweep_table:
+		@return:
+		@author: dz, 29.09.2022
+		"""
+		plot_data = []
 
 		for column in entire_sweep_table:
-			self.data = entire_sweep_table.get(column)
+			data = entire_sweep_table.get(column)
+			plot_data.append((self.live_data_for_single_sweep(data)))
 
-				#if series_specific_recording_mode != "Voltage Clamp":
-					#y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
-					#self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+		return(plot_data)
 
-				# slice trace according to coursor bounds
-				self.construct_trace()
-				self.slice_trace()
+	@classmethod
+	def live_data_for_single_sweep(self,data):
+		"""
+		takes a single sweep, slices according defined coursor bounds and calculates the related x-yvalue tuple
+		@param data:
+		@return:
+		@author: dz, 29.09.2022
+		"""
+		self.data = data
 
-				res = self.specific_calculation()
+		#@todo
+		# if series_specific_recording_mode != "Voltage Clamp":
+		# y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+		# self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+
+		# slice trace according to coursor bounds
+		self.construct_trace()
+		self.slice_trace()
+
+		return self.live_data_calculation()
 
 	@classmethod
 	def calculate_results(self):

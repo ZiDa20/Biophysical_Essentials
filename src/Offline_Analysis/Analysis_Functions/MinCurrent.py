@@ -16,6 +16,18 @@ class MinCurrent(SweepWiseAnalysisTemplate):
         return max_val
 
     @classmethod
+    def live_data_calculation(self):
+        """
+        the points that will be plotted during analysis function selection
+        @return:
+        """
+        self.cslow_normalization = 1
+        min_val = np.min(self.sliced_volt)
+        pos = np.where(self.sliced_volt == min_val)
+        x_val = self.time[pos][0] +self.lower_bound
+        return tuple((x_val, min_val))
+
+    @classmethod
     def calculate_results(self):
         return super(MinCurrent,self).calculate_results()
 

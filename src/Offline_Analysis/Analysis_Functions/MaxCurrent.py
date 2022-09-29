@@ -1,4 +1,4 @@
-
+import numpy as np
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 class MaxCurrent(SweepWiseAnalysisTemplate):
@@ -16,6 +16,18 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
         return max_val
 
     @classmethod
+    def live_data_calculation(self):
+        """
+        the points that will be plotted during analysis function selection
+        @return:
+        """
+        self.cslow_normalization = 1
+        max_val = np.max(self.sliced_volt)
+        pos = np.where(self.sliced_volt == max_val)
+        x_val = self.time[pos][0] + self.lower_bound
+        return tuple((x_val, max_val))
+
+    @classmethod
     def calculate_results(self):
         return super(MaxCurrent,self).calculate_results()
 
@@ -24,5 +36,5 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
         return super(MaxCurrent,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)
 
     @classmethod
-    def live_data(self,sweep_table, database_handler):
-        return super(MaxCurrent,self).live_data(sweep_table,database_handler)
+    def live_data(self,lower_bound,upper_bound,experiment_name,series_identifier, database_handler, sweep_name = None):
+        return super(MaxCurrent,self).live_data(lower_bound,upper_bound,experiment_name,series_identifier,database_handler, sweep_name)

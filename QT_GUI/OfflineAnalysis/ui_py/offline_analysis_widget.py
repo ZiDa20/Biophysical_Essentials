@@ -768,7 +768,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.pushButton_3.clicked.connect(self.add_filter_to_offline_analysis)
     
         if existing_row_numbers == 0:
-            
 
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
             current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(6)
@@ -783,6 +782,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 value = self.selected_analysis_functions[row]
                 print(str(value))
                 current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert,0,QTableWidgetItem(str(value)))
+
                 self.table_buttons[row_to_insert] = QPushButton("Add")
                 self.c = QPushButton("Configure")
                 self.live_result = QCheckBox()
@@ -795,6 +795,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.live_result.clicked.connect(partial(self.show_live_results_changed,row_to_insert,current_tab, self.live_result))
                 current_tab.analysis_table_widget.analysis_table_widget.show()
 
+        self.current_tab_plot_manager.set_analysis_functions_table_widget(current_tab.analysis_table_widget.analysis_table_widget)
+
     def show_live_results_changed(self, row_number, current_tab, checkbox_object: QCheckBox):
 
         fct_name = current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 0).text()
@@ -802,6 +804,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         if checkbox_object.isChecked():
             print("show live result for function")
             print(fct_name)
+            lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
+            upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
 
             # identify the correct analysis function
             analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
@@ -820,11 +824,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # if parent name contains sweep -> a sweep was selected
 
             # get data as pandas data frame
-            sweep_table = self.database_handler.get_sweep_table_for_specific_series(experiment_series_tuple[0],
-                                                                                         experiment_series_tuple[1])
+            #sweep_table = self.database_handler.get_sweep_table_for_specific_series(experiment_series_tuple[0],
+             #                                                                            experiment_series_tuple[1])
 
             # run result calculation only for this data
-            x_y_tuple = analysis_class_object.live_data(sweep_table, self.database_handler)
+            x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_series_tuple[0],
+                                                        experiment_series_tuple[1], self.database_handler)
 
             # run result visualization
 
