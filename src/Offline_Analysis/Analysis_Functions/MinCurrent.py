@@ -32,5 +32,5 @@ class MinCurrent(SweepWiseAnalysisTemplate):
         return super(MinCurrent,self).calculate_results()
 
     @classmethod
-    def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id):
-        return super(MinCurrent,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)
+    def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id, sweep_name = None):
+        return super(MinCurrent,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id, sweep_name)

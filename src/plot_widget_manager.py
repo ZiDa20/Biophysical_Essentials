@@ -170,7 +170,11 @@ class PlotWidgetManager(QRunnable):
 
                     self.plot_scaling_factor = 1e9
                     for tuple in x_y_tuple:
-                        self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
+                        if isinstance(tuple[1],list):
+                            y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
+                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row], linestyle='dashed')
+                        else:
+                            self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
                 else:
                     print("nothing to check in row %i", row)
         else:

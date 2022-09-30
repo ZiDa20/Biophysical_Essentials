@@ -16,7 +16,7 @@ import datetime
 import pandas as pd
 import re
 import csv
-
+import psycopg2
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
@@ -49,9 +49,10 @@ class DuckDBDatabaseHandler():
         # creates a new analysis database and writes the tables or connects to an existing database
         if self.create_analysis_database():
             self.create_database_tables()
-        
+            print("created database tables succsfully")
         # inserts new analysis id with default username admin
         # TODO implement roles admin, user, etc. ..
+        print("no tables created")
         self.analysis_id = self.insert_new_analysis("admin")
 
     """---------------------------------------------------"""
@@ -98,6 +99,13 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
+                """
+                conn = psycopg2.connect(host="ec2-3-73-36-35.eu-central-1.compute.amazonaws.com", database = "test_erp",
+                                        user = "postgres", password = "datascience")
+                self.database = conn.cursor()
+                self.database.execute("select * from hallo1000;")
+                print(self.database.fetchall())
+                """
                 path = cew + '/src/' + self.db_file_name
                 if sys.platform != "darwin":
                     path = path.replace("/","\\")
@@ -105,6 +113,7 @@ class DuckDBDatabaseHandler():
                     path = path.replace("\\","/")       
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
+
             else:
                 self.database = sqlite3.connect(cew + "\\src\\" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
@@ -255,9 +264,13 @@ class DuckDBDatabaseHandler():
         stored in the database'''
 
         q = """insert into offline_analysis (date_time, user_name) values (?,?) """
+        #q = f'insert into offline_analysis (date_time, user_name) values ({str(time_stamp)},{user_name})'
         time_stamp = datetime.datetime.now()
+
         self.database = self.execute_sql_command(self.database, q, (time_stamp, user_name))
         self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
+
+        #print("postqres succeded")
 
         q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """
         self.analysis_id = self.get_data_from_database(self.database, q, (time_stamp, user_name))[0][0]

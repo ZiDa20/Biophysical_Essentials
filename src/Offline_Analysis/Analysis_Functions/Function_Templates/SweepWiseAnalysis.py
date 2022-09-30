@@ -140,6 +140,7 @@ class SweepWiseAnalysisTemplate(object):
 		self.construct_trace()
 		self.slice_trace()
 
+
 		return self.live_data_calculation()
 
 	@classmethod
