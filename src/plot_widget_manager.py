@@ -166,7 +166,7 @@ class PlotWidgetManager(QRunnable):
                                                                     experiment_series_tuple[0],
                                                                     experiment_series_tuple[1], db, item.text(0))
 
-                    print(experiment_series_tuple)  # only works if parent = experiment
+                    print(x_y_tuple)  # only works if parent = experiment
 
                     self.plot_scaling_factor = 1e9
                     for tuple in x_y_tuple:
