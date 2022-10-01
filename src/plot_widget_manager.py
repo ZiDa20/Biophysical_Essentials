@@ -112,7 +112,8 @@ class PlotWidgetManager(QRunnable):
                  #self.series_clicked(item)
         except Exception as e:
             print(e)
-            print("experiment or sweep was clicked which is not implemented yet")
+            print("experiment was clicked")
+            self.series_in_treeview_clicked(item.child(0))
 
     def sweep_in_treeview_clicked(self,item):
         if self.analysis_mode == 0:

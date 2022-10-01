@@ -798,46 +798,42 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.current_tab_plot_manager.set_analysis_functions_table_widget(current_tab.analysis_table_widget.analysis_table_widget)
 
     def show_live_results_changed(self, row_number, current_tab, checkbox_object: QCheckBox):
-
-        fct_name = current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 0).text()
-        # if checkbox enabled
+        """
+        Function to handle activation of an analysis function specific checkbox in the analysis table. It checks if
+        cursor bounds were set correctly (if not error dialog is displayed). In the analysis function objects specified
+        points used for the related analysis will be added or removed within the trace plot.
+        @param row_number: row of the checkbox in the analysis function table
+        @param current_tab: current tab
+        @param checkbox_object: QCheckbox
+        @return:
+        @author: dz, 01.10.2022
+        """
         if checkbox_object.isChecked():
-            print("show live result for function")
-            print(fct_name)
-            lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
-            upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
+            # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
+            try:
+                lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
+                upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
+            except Exception as e:
+                dialog = QDialog()
+                #dialog.setWindowFlags(Qt.FramelessWindowHint)
+                dialog_grid = QGridLayout(dialog)
+                # series_names_string_list = ["Block Pulse", "IV"]
+                dialog_quit = QPushButton("Cancel", dialog)
+                dialog_message = QLabel(dialog)
+                dialog_message.setText("Please select cursor bounds first and activate live plot afterwords")
+                dialog_grid.addWidget(dialog_message)
+                dialog_grid.addWidget(dialog_quit)
+                dialog_quit.clicked.connect(partial(self.quit_error_dialog, dialog))
+                dialog.setWindowTitle("Error")
+                dialog.setWindowModality(Qt.ApplicationModal)
+                dialog.exec_()
+                checkbox_object.setCheckState(Qt.CheckState.Unchecked)
+        # artificial click will replot and add or delete the newly checked or unchecked analysis function
+        item = current_tab.selected_tree_widget.currentItem()
+        self.current_tab_plot_manager.tree_view_click_handler(item)
 
-            # identify the correct analysis function
-            analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
-            #analysis_class_object.init()
-            #print(analysis_class_object.function_name)
-
-            current_item_text = current_tab.selected_tree_widget.currentItem().text(0)
-            print(current_item_text)
-            print(current_tab.selected_tree_widget.currentItem().child(0).text(0))
-
-            # tuple(experiment_name, series_name)
-            experiment_series_tuple = current_tab.selected_tree_widget.currentItem().child(0).data(3,0)
-            print(experiment_series_tuple) # only works if parent = experiment
-
-            # if childname contains  'sweep' -> a series was selected
-            # if parent name contains sweep -> a sweep was selected
-
-            # get data as pandas data frame
-            #sweep_table = self.database_handler.get_sweep_table_for_specific_series(experiment_series_tuple[0],
-             #                                                                            experiment_series_tuple[1])
-
-            # run result calculation only for this data
-            x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_series_tuple[0],
-                                                        experiment_series_tuple[1], self.database_handler)
-
-            # run result visualization
-
-
-
-        else:
-            print("turn off live result for function")
-            print(fct_name)
+    def quit_error_dialog(self,dialog:QDialog):
+        dialog.close()
 
     def analysis_table_cell_changed(self,item):
         print("a cell changed")
