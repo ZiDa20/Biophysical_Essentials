@@ -375,10 +375,15 @@ class ActionPotentialFitting(object):
         t_max_amplitude = time[max_amplitude_pos]
 
         ###### calc afterhyperpolarization #####
+        dev_1_min = np.min(smoothed_first_derivative)
+        pos_dev_1_min = np.where(smoothed_first_derivative == dev_1_min)[0][0]
+        hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
+        hyperpol_pos = hyperpol_pos + pos_dev_1_min
 
-        ahp = np.min(data[max_amplitude_pos:15000])
-        ahp_pos = np.argmax(data[max_amplitude_pos:15000] <= ahp) + max_amplitude_pos
-        t_ahp = time[ahp_pos]
+
+        ahp = data[hyperpol_pos]
+        ahp_pos = hyperpol_pos
+        t_ahp = time[hyperpol_pos]
 
         ######## first derivate to get repolarization speed ########
 
@@ -399,7 +404,7 @@ class ActionPotentialFitting(object):
         ##### calc half width #########
 
         try:
-            half_width_amplitude = (max_amplitude - v_threshold) / 2
+            half_width_amplitude = v_threshold + ((max_amplitude - v_threshold) / 2)
             left_hw_pos = np.argmax(data >= half_width_amplitude)
             right_hw_pos = np.argmax(data[max_amplitude_pos:15000] <= half_width_amplitude)+ max_amplitude_pos
 
