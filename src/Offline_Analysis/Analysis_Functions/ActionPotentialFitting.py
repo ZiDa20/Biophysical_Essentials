@@ -31,6 +31,157 @@ class ActionPotentialFitting(object):
         print("not implemented")
 
     @classmethod
+    def live_data(self, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
+                  sweep_name=None):
+        """
+        Will plot 3 points: threshold, max und hyperpolarization, draw bandwith
+        @param lower_bound:
+        @param upper_bound:
+        @param experiment_name:
+        @param series_identifier:
+        @param database_handler:
+        @param sweep_name:
+        @return:
+        """
+
+        print("live plot of ap fitting")
+        data_table_name = database_handler.get_sweep_table_name(experiment_name, series_identifier)
+        time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table_name)
+        entire_sweep_table = database_handler.get_entire_sweep_table(data_table_name)
+
+        parameter_list = []
+
+        if sweep_name is not None:
+            data = entire_sweep_table.get(sweep_name)
+            parameter_list = self.live_data_single_trace(database_handler,data,data_table_name,sweep_name,time,
+                                                         parameter_list)
+        else:
+            for column in entire_sweep_table:
+                print("column is ", column )
+                data = entire_sweep_table.get(column)
+                parameter_list = self.live_data_single_trace(database_handler,data,data_table_name,column,time,
+                                                             parameter_list)
+
+        return parameter_list
+
+
+    @classmethod
+    def live_data_single_trace(self,database_handler,data,data_table_name,column,time, parameter_list):
+        y_min, y_max = database_handler.get_ymin_from_metadata_by_sweep_table_name(data_table_name, column)
+        data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+        manual_threshold = 10  # in mV/ms
+        smoothing_window_length = 19
+        data = data  * 1000# cast to mV
+        dx = np.diff(time)
+        dy = np.diff(data)
+        first_derivative = dy / dx
+        first_derivative = np.array(first_derivative)
+
+        if all(v == 0 for v in first_derivative):
+            print("returning None")
+            return parameter_list
+
+        # very noisy .. therfore use a smoothing filter
+        smoothed_first_derivative = first_derivative.copy()
+
+        for i in range(len(first_derivative)):
+            if i < (len(first_derivative) - smoothing_window_length - 1):
+                smoothed_val = np.mean(first_derivative[i:i + smoothing_window_length])
+            else:
+                smoothed_val = np.mean(first_derivative[i - smoothing_window_length:i])
+
+            if math.isnan(smoothed_val):
+                print("nan error")
+
+            else:
+                smoothed_first_derivative[i] = smoothed_val
+
+        smoothed_first_derivative = np.round(smoothed_first_derivative, 2)
+
+        ######## calc threshold #######
+
+        # returns a tuple of true values and therefore needs to be taken at pos 0
+        threshold_pos_origin = np.where(smoothed_first_derivative >= manual_threshold)[0]
+        max_1st_derivate_pos = np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))[0][0]
+
+        print("max 1st derivate")
+        print(max_1st_derivate_pos)
+        threshold_pos = None
+        for pos in threshold_pos_origin:
+            if np.all(smoothed_first_derivative[pos:max_1st_derivate_pos] > manual_threshold):
+                # np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
+                threshold_pos = pos
+                break
+        print("Threshold")
+        print(threshold_pos)
+
+        # if still none means there was no real AP
+        if threshold_pos is None:
+            print("No Action Potential detected in this sweep")
+            return parameter_list
+
+        t_threshold = time[threshold_pos]
+        v_threshold = data[threshold_pos]
+        parameter_list.append((t_threshold,v_threshold/1e9))
+        ####### calc max amplitude ####
+        max_amplitude = np.max(data)
+        max_amplitude_pos = np.argmax(data >= max_amplitude)
+        t_max_amplitude = time[max_amplitude_pos]
+        print(max_amplitude)
+        parameter_list.append((t_max_amplitude, max_amplitude/1e9))
+
+        ###### calc afterhyperpolarization #####
+
+        dev_1_min = np.min(smoothed_first_derivative)
+        pos_dev_1_min = np.where(smoothed_first_derivative == dev_1_min)[0][0]
+        hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
+        hyperpol_pos = hyperpol_pos + pos_dev_1_min
+
+        parameter_list.append((time[hyperpol_pos],data[hyperpol_pos]/1e9))
+
+        ######## first derivate to get repolarization speed ########
+
+        max_1st_derivative_amplitude = np.max(smoothed_first_derivative)
+        print(max_1st_derivative_amplitude)
+        pos_max_1st_derivative_amplitude = np.argmax(smoothed_first_derivative >= max_1st_derivative_amplitude)
+        t_max_1st_derivative_amplitude = time[pos_max_1st_derivative_amplitude]
+        data_max_1st = data[pos_max_1st_derivative_amplitude]
+
+        print("max repolarization speed")
+        print(max_1st_derivative_amplitude / t_max_1st_derivative_amplitude)
+
+        min_1st_derivative_amplitude = np.min(smoothed_first_derivative)
+        pos_min_1st_derivative_amplitude = np.argmax(smoothed_first_derivative <= min_1st_derivative_amplitude)
+        t_min_1st_derivative_amplitude = time[pos_min_1st_derivative_amplitude]
+        data_min_1st = data[pos_min_1st_derivative_amplitude]
+
+        ##### calc half width #########
+
+        try:
+            half_width_amplitude = v_threshold + ((max_amplitude - v_threshold) / 2)
+            left_hw_pos = np.argmax(data >= half_width_amplitude)
+            right_hw_pos = np.argmax(data[max_amplitude_pos:15000] <= half_width_amplitude) + max_amplitude_pos
+
+            time_1st_half_width = time[left_hw_pos]
+            time_2nd_half_width = time[right_hw_pos]
+
+            half_width = time_2nd_half_width - time_1st_half_width
+            print(half_width)
+        except:
+            print("Error in half width calculation")
+            half_width = np.NAN
+            return None
+
+        x = time[left_hw_pos:right_hw_pos]
+        y = []
+        for t in x:
+            y.append(half_width_amplitude/1e9)
+        parameter_list.append((x,y))
+        return parameter_list
+
+
+
+    @classmethod
     def calculate_results(self):
         """
         iterate through each single sweep of all not discarded series in the database and save the calculated result

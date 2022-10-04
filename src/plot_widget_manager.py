@@ -123,11 +123,13 @@ class PlotWidgetManager(QRunnable):
             self.check_live_analysis_plot(item,"sweep")
 
     def series_in_treeview_clicked(self,item):
+        print("Item was clicked ", item.text(0))
         if self.analysis_mode == 0: # online analysis
             self.series_clicked_load_from_dat_file(item)
         else:
             self.series_clicked_load_from_database(item)
             self.check_live_analysis_plot(item,"series")
+
 
     def check_live_analysis_plot(self,item, level):
         """
@@ -137,7 +139,7 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 29.09.2022
         """
-        print("checking live analysis")
+        print("checking live analysis for item ", item.text(0))
         if self.analysis_functions_table_widget is not None:
             row_count = self.analysis_functions_table_widget.rowCount()
             # iterate through the rows of the table,
@@ -146,15 +148,11 @@ class PlotWidgetManager(QRunnable):
                 # check which checkboxes are selected
                 fct_name = self.analysis_functions_table_widget.item(row, 0).text()
                 print(fct_name)
-
                 if self.analysis_functions_table_widget.cellWidget(row, 5).isChecked():
                     # calculate realted results and visualize
-
                     lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
                     upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
-
                     analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
-
                     db = self.offline_manager.get_database()
                     if level == "series":
                         experiment_series_tuple = item.data(3, 0)
@@ -168,14 +166,16 @@ class PlotWidgetManager(QRunnable):
                                                                     experiment_series_tuple[1], db, item.text(0))
 
                     print(x_y_tuple)  # only works if parent = experiment
-
                     self.plot_scaling_factor = 1e9
-                    for tuple in x_y_tuple:
-                        if isinstance(tuple[1],list):
-                            y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
-                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row], linestyle='dashed')
-                        else:
-                            self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
+                    if x_y_tuple is not None:
+                        for tuple in x_y_tuple:
+                            if isinstance(tuple[1],list):
+                                y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
+                                self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row], linestyle='dashed')
+                            else:
+                                self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
+                    else:
+                        print("Tuple was None: is live plot function for", fct_name, " already implemented ? ")
                 else:
                     print("nothing to check in row %i", row)
         else:
@@ -329,6 +329,7 @@ class PlotWidgetManager(QRunnable):
         """
         print("sweep clicked")
         print(item.text(0))
+        name = item.text(0)
         split_view = 1
         data_request_information = item.parent().data(3, 0)
         db = self.offline_manager.get_database()

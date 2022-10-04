@@ -814,6 +814,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
                 upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
             except Exception as e:
+                # @todo: make this a reusable function: show_error_dialog(message)
                 dialog = QDialog()
                 #dialog.setWindowFlags(Qt.FramelessWindowHint)
                 dialog_grid = QGridLayout(dialog)
@@ -830,7 +831,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 checkbox_object.setCheckState(Qt.CheckState.Unchecked)
         # artificial click will replot and add or delete the newly checked or unchecked analysis function
         item = current_tab.selected_tree_widget.currentItem()
-        self.current_tab_plot_manager.tree_view_click_handler(item)
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].analysis_functions_table_widget = current_tab.analysis_table_widget.analysis_table_widget
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].tree_view_click_handler(item)
 
     def quit_error_dialog(self,dialog:QDialog):
         dialog.close()
