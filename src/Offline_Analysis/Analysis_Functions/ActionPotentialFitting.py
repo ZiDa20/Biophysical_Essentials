@@ -358,7 +358,6 @@ class ActionPotentialFitting(object):
             return None
 
 
-
         t_threshold = time[threshold_pos]
         v_threshold = data[threshold_pos]
 

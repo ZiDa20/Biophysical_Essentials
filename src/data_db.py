@@ -576,9 +576,14 @@ class DuckDBDatabaseHandler():
             self.database = self.execute_sql_command(self.database, q, [meta_data_group, experiment_name])
             self.logger.info("Wrote meta data group %s for experiment %s into database", meta_data_group,
                              experiment_name)
+            print("Wrote meta data group %s for experiment %s into database", meta_data_group,
+                             experiment_name)
             return True
         except Exception as e:
             self.logger.info("FAILED to write meta data group %s for experiment %s into database with error: %s",
+                             meta_data_group,
+                             experiment_name, str(e))
+            print("FAILED to write meta data group %s for experiment %s into database with error: %s",
                              meta_data_group,
                              experiment_name, str(e))
             return False

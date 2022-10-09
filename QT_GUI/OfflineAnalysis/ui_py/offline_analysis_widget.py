@@ -5,6 +5,8 @@
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
+import time
+
 import pyqtgraph
 from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
@@ -127,9 +129,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     except Exception as e:
                         print("load_and_assign_meta_data: error when assigning meta_data_types")
             csv_file.close()
-
-        self.load_treeview_from_database()
-
 
     def update_database_handler_object(self,updated_object):
         self.database_handler = updated_object
@@ -310,55 +309,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-        if not (meta_data_option_list and meta_data_group_assignment_list):
-            meta_data_group_assignment_list = []
-            meta_data_option_list = []
-
         # close the dialog
         enter_meta_data_dialog.close()
 
-        # make sure to always clear the tree - needed when reloading a new directory
-        self.experiments_tree_view.clear()
-        self.outfiltered_tree_view.clear()
+        if not (meta_data_option_list and meta_data_group_assignment_list):
+            meta_data_group_assignment_list = []
+            meta_data_option_list = []
+        else:
+            for n in meta_data_group_assignment_list:
+                print(n)
+                self.database_handler.add_meta_data_group_to_existing_experiment(n[0], n[1])
 
-
-        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
+        tree_view_manager = self.offline_manager.read_data_from_experiment_directory(
             self.experiments_tree_view,
             self.outfiltered_tree_view, meta_data_option_list, meta_data_group_assignment_list)
 
-        
-        self.blank_analysis_page_1_tree_manager.frontend_style = self.frontend_style
-
-        self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(self.experiments_tree_view,
-                                                                                  meta_data_group_assignment_list)
-
-        self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
-
-        # display settings for the tree view in the blank analysis
-        self.experiments_tree_view.setColumnWidth(0, 100)
-        self.experiments_tree_view.setColumnWidth(1, 25)
-        self.experiments_tree_view.setColumnWidth(2, 100)
-        self.experiments_tree_view.setColumnWidth(3, 25)
-
-        # write the meta data to the tree
-
-
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
-
-        self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-        self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-
-        # show selected tree_view
-        self.directory_tree_widget.setCurrentIndex(0)
-        self.experiments_tree_view.expandToDepth(0)
-
-        self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0))
-        #print(self.experiments_tree_view.topLevelItem(0).child(0).text(0))
-        #self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0).child(0).setCheckState(1,Qt.Checked))
-
-        #self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
-
         self.add_filter_button.setEnabled(True)
+
+        # open the dialog to select experiments by there metadata
+        tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
 
 
     @Slot()
@@ -477,8 +446,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     option_list.append(row[1])
             csv_file.close()
 
-            #@todo : start a new tab here ?
-            self.continue_open_directory(dialog,option_list,meta_data_assignments)
+        print("results from the template file")
+        print(meta_data_assignments)
+        self.continue_open_directory(dialog,option_list,meta_data_assignments)
 
     def create_meta_data_template(self,old_dialog):
         '''

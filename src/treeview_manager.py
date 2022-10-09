@@ -84,6 +84,8 @@ class TreeViewManager():
         self.logger.addHandler(file_handler)
         self.logger.info('Treeview Manager Initialized')
 
+        self.data_read_finished = DataReadFinishedSignal()
+
     """ ############################## Chapter A Create treeview functions ######################################### """
 
     def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
@@ -348,7 +350,9 @@ class TreeViewManager():
             
             df = self.database.database.execute("SELECT * FROM experiments").fetchall() # get all the experiments as sanity
             if df:
-                self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
+                print("emitting signal for frontend to be ready for data read")
+                self.data_read_finished.finished_signal.emit()
+                #self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
         except Exception as e:
             self.logger.error("Not able to open the database properly " + str(e))
 
@@ -518,7 +522,7 @@ class TreeViewManager():
 
             if database_mode:
 
-                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0], "None")
+                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0], "None","default")
                 self.database.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
 
                 # no database interaction when the file is already in the database to safe time
@@ -847,7 +851,6 @@ class TreeViewManager():
             try:
                 pos = name_list.index(top_level_item.text(0))
                 top_level_combo_box.setCurrentText(text_list[pos])
-        
             except Exception as e:
                 top_level_combo_box.setCurrentText("None")
                 self.logger.error("Could not assign meta data group for " + top_level_item.text(0))
@@ -930,22 +933,21 @@ class TreeViewManager():
                 combo_box = self.insert_meta_data_items_into_combo_box(combo_box)
                 input_tree.setItemWidget(tmp_item,self.meta_data_group_column,combo_box)
 
-    def update_experiment_meta_data_in_database(self, input_tree):
+
+    def update_experiment_meta_data_in_database(self, tuple_list):
         """
-        Goes through the experiment names and writes them into the database.
-        Called before tab widget for series specific analysis will be created -> after click on series specific analysis
+        Write the tuple list into the database
         :param input_tree: tree which information will be written to the database
         :return:
         """
         self.logger.info('writing meta data from treeview into data base')
-
-        top_level_items_amount = input_tree.topLevelItemCount()
-        top_level_items_amount
-        for n in range(top_level_items_amount):
+        print("writing meta data from treeview into data base")
+        for n in tuple_list:
             print(n)
-            experiment_name  = input_tree.topLevelItem(n).text(0)
-            meta_data_group = input_tree.itemWidget(input_tree.topLevelItem(n),self.meta_data_group_column).currentText()
-
+            experiment_name  = n(0)
+            print(experiment_name)
+            meta_data_group = n(1)
+            print(meta_data_group)
             self.database.add_meta_data_group_to_existing_experiment(experiment_name,meta_data_group)
 
 
@@ -1324,3 +1326,8 @@ class TreeViewManager():
             else:
                 sub_signal.append(holding_potential)
         return sub_signal
+
+# from QCore
+class DataReadFinishedSignal(QObject):
+    # signal to be emitted after the data were written to the database successfully
+    finished_signal = Signal()

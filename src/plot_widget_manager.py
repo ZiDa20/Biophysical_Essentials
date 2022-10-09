@@ -79,6 +79,7 @@ class PlotWidgetManager(QRunnable):
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
 
+
         # all tuples of left and right bounds that will be plotted .. identified by its row number as a key
         self.coursor_bound_tuple_dict = {}
 
