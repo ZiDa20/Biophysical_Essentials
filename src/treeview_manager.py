@@ -934,20 +934,22 @@ class TreeViewManager():
                 input_tree.setItemWidget(tmp_item,self.meta_data_group_column,combo_box)
 
 
-    def update_experiment_meta_data_in_database(self, tuple_list):
+    def update_experiment_meta_data_in_database(self, input_tree):
         """
-        Write the tuple list into the database
+        Goes through the experiment names and writes them into the database.
+        Called before tab widget for series specific analysis will be created -> after click on series specific analysis
         :param input_tree: tree which information will be written to the database
         :return:
         """
         self.logger.info('writing meta data from treeview into data base')
-        print("writing meta data from treeview into data base")
-        for n in tuple_list:
+
+        top_level_items_amount = input_tree.topLevelItemCount()
+
+        for n in range(top_level_items_amount):
             print(n)
-            experiment_name  = n(0)
-            print(experiment_name)
-            meta_data_group = n(1)
-            print(meta_data_group)
+            experiment_name  = input_tree.topLevelItem(n).text(0)
+            meta_data_group = input_tree.itemWidget(input_tree.topLevelItem(n),self.meta_data_group_column).currentText()
+
             self.database.add_meta_data_group_to_existing_experiment(experiment_name,meta_data_group)
 
 

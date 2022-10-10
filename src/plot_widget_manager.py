@@ -242,7 +242,9 @@ class PlotWidgetManager(QRunnable):
         # plot pgf traces
         protocol_steps = self.plot_pgf_signal(item.parent().data(5, 0), self.data,sweep_number)
 
-        for x in range(0, len(protocol_steps)):
+
+        #@todo: fix this asap : len(protocol_steps)
+        for x in range(0, 3):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             self.ax1.axvline(x_pos, c='tab:gray')
 
@@ -380,7 +382,9 @@ class PlotWidgetManager(QRunnable):
 
         print("Protocol Steps")
         print(protocol_steps)
-        for x in range(0, len(protocol_steps)):
+
+        # @todo fix this asap replace 3 by len(protocol_steps)
+        for x in range(0, 3):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
             self.ax1.axvline(x_pos, c='tab:gray')
@@ -526,6 +530,11 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 21.07.2022
         """
+
+        if sweep_number_of_interest is not None:
+            # @todo: better bugfix ?
+            sweep_number_of_interest = sweep_number_of_interest - 1
+
         # is there one step interval or are there multiple ones ?
         increments = pgf_table_df['increment'].values.tolist()
         increments = np.array(increments, dtype=float)

@@ -186,7 +186,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             else:
                 QListWidgetItem(i[0], self.dialog.available_labels_list)
 
-
         grid = QGridLayout()
         self.list_view = DragAndDropListView(self,self.dialog.available_labels_list)
         self.list_view.setAcceptDrops(True)
@@ -196,38 +195,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.dialog.load_data.clicked.connect(partial(self.load_recordings))
 
-        """ 
-        grid =  QGridLayout()
-        self.list_view = QListWidget()
-        self.list_view.setAcceptDrops(True)
-        grid.addWidget(self.list_view)
-        self.dialog.selected_labels.setLayout(grid)
-      
-        self.list_view.model().rowsMoved.connect(self.experiment_label_dropped)
-        #self.list_view.fileDropped.connect(self.experiment_label_dropped)
-        
-        """
-        #dialog.label_selection_list.model().rowsMoved.connect(self.experiment_label_dropped)
-        #self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-
-        """
-        # assign later button will close the dialog without any additional assignments
-        dialog.assign_one_group_to_all.clicked.connect(partial(self.continue_open_directory, dialog))
-
-        # Create Template button will open a new popup to assign different meta data groups
-        dialog.assign_now_button.clicked.connect(partial(self.create_meta_data_template, dialog))
-
-        # Load Template button will open a filedialog to select a template
-        dialog.load_template_button.clicked.connect(partial(self.open_meta_data_template_file, dialog))
-
-        dialog.assign_one_group_to_all.setAccessibleName("big_square")
-        dialog.assign_now_button.setAccessibleName("big_square")
-        dialog.load_template_button.setAccessibleName("big_square")
-        dialog.select_from_database_button.setAccessibleName("big_square")
-
-        if not meta_data_groups_in_db:
-            dialog.select_from_database_button.setDisabled(True)
-        """
         self.dialog.exec_()
 
 
@@ -254,10 +221,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
                                                                      self.outfiltered_tree_view,experiment_label, None)
 
-        self.experiments_tree_view.setColumnWidth(0, 100)
-        self.experiments_tree_view.setColumnWidth(1, 25)
-        self.experiments_tree_view.setColumnWidth(2, 100)
-        self.experiments_tree_view.setColumnWidth(3, 25)
+        self.experiments_tree_view.setColumnWidth(0, 150)
+        self.experiments_tree_view.setColumnWidth(1, 140)
+        self.experiments_tree_view.setColumnWidth(2, 50)
+
+
 
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
 
@@ -288,7 +256,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
         # open the directory
         dir_path =QFileDialog.getExistingDirectory()
-        self.selected_directory.setText(dir_path)
+        #self.selected_directory.setText(dir_path)
 
         if dir_path:
             self.select_directory_button.setText("Change")
@@ -366,6 +334,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog_grid = QGridLayout(dialog)
         #series_names_string_list = ["Block Pulse", "IV"]
         dialog_quit = QPushButton("Cancel", dialog)
+        dialog_grid.addWidget(dialog_quit, 0, 0)
 
         checkbox_list = []
         name_list = []
