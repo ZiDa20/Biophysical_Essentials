@@ -87,6 +87,7 @@ class TreeViewManager():
 
         self.data_read_finished = DataReadFinishedSignal()
         self.tree_build_finished = DataReadFinishedSignal()
+        self.experiment_tree_finished = DataReadFinishedSignal()
 
     """ ############################## Chapter A Create treeview functions ######################################### """
 
@@ -174,7 +175,7 @@ class TreeViewManager():
             # since function is used by multiple calls we need to distingush
             # toDO add Qthread for the second function which fills the individual series trees
             if progress_callback:
-                self.tree_build_finished.finished_signal.connect(partial(self.call_progress, treeview_tuple, progress_callback))
+                self.call_progress(treeview_tuple, progress_callback)
             else:
                 self.fill_tree_gui(treeview_tuple)
 
@@ -182,12 +183,10 @@ class TreeViewManager():
             # build a speciliazed tuple when specific series name is none?
             treeview_tuple = (series_identifier_tuple, experiment, specific_series_name, tree, discarded_tree, True)
             if progress_callback:
-                self.tree_build_finished.finished_signal.connect(partial(self.call_progress, treeview_tuple , progress_callback))
+                self.call_progress(treeview_tuple, progress_callback)
             else:
                 self.fill_tree_gui(treeview_tuple)
 
-
-         
         
     def call_progress(self, experiment_tuple, progress_callback):
         """ should be called whenever the signal from the main thread is emitted
@@ -207,7 +206,6 @@ class TreeViewManager():
         # unpack the tuple 
         series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier = experiment_tuple
         top_level_item_amount = tree.topLevelItemCount()
-
         if len(series_identifier_list)>0:
         
                 # the parent will only added if there are valid series inside
@@ -254,6 +252,8 @@ class TreeViewManager():
 
         # emit the signal so that the qthread is informed about successfull tree build
         self.tree_build_finished.finished_signal.emit()
+        self.experiment_tree_finished.finished_signal.emit()
+
 
 
     def fill_treeview_from_database(self,experiment_label,discarded_state, specific_series_name, progress_callback = None):
@@ -270,23 +270,21 @@ class TreeViewManager():
         """
 
         # get the experiments linked with this analysis number
-        
+        wait_main = QWaitCondition()
         self.not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label,self.selected_meta_data_list)
         self.logger.info(self.not_discard_experiments_stored_in_db)
         for index,experiment in enumerate(self.not_discard_experiments_stored_in_db):
+            sleep(0.01)
             #self.database.create_mapping_between_experiments_and_analysis_id(experiment)
             series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment,discarded_state)
             experiment_tuple = (experiment,series_identifier_tuple, specific_series_name, discarded_state)
-            if index == 0:
-                self.tree_build_finished.finished_signal.emit() # signal from treeview build to emit the next treeview build
             if progress_callback:
+
                 self.load_from_database_treeview(experiment_tuple, progress_callback)
-                #self.tree_build_finished.finished_signal.connect(partial(self.callback_progress,progress_callback, experiment_tuple))
+                #self.experiment_tree_finished.finished_signal.connect(partial(self.load_from_database_treeview,experiment_tuple, progress_callback))
             else:
                 self.load_from_database_treeview((experiment,series_identifier_tuple, specific_series_name, discarded_state)) # since this function has
                 #two calls we need to split between threading and non threading functions 
-
-
    
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory 

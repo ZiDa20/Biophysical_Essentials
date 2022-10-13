@@ -224,17 +224,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.threadpool = QThreadPool()
         self.worker = Worker(self.load_recordings)
         self.worker.signals.finished.connect(self.finished_database_loading)
-        self.worker.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui)
+        self.worker.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui, Qt.BlockingQueuedConnection)
         self.threadpool.start(self.worker)
         self.dialog.close()
 
     def load_recordings(self, progress_callback):
         
-        # from the popup get the label
+        self.progress_callback = progress_callback
         self.database_handler.open_connection(read_only = True)
         experiment_label = ""
         self.blank_analysis_page_1_tree_manager.selected_meta_data_list =  self.selected_meta_data_list
-        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None, progress_callback)
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None, self.progress_callback)
         
         
     def finished_database_loading(self):
