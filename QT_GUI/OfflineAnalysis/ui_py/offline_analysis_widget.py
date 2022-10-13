@@ -224,7 +224,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.threadpool = QThreadPool()
         self.worker = Worker(self.load_recordings)
         self.worker.signals.finished.connect(self.finished_database_loading)
-        self.worker.signals.progress.connect(self.blank_analysis_page_1_tree_manager.load_from_database_treeview)
+        self.worker.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui)
         self.threadpool.start(self.worker)
         self.dialog.close()
 

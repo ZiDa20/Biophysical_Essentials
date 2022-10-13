@@ -138,15 +138,18 @@ class TreeViewManager():
         self.fill_treeview_from_database(experiment_label, True, specific_series_name, progress_callback)
 
 
-    def load_from_database_treeview(self, experiment_tuple):
-        """ should the callback function to fill three iteratively"""
+    def load_from_database_treeview(self,experiment_tuple, progress_callback = None):
+        """ should the callback function to fill three iteratively
+        @params experiment_tuple: tuple of experiment names consist of ...()
+        @params progress_callback: progress signal emit should be None as default
+        """
 
         # unpack the tuple
         experiment, series_identifier_tuple, specific_series_name, discarded_state = experiment_tuple
 
         # function is used to build discarded and experimental tree
         # Therefore we need to check which tree to fill which is indicated by the bool discarded state
-        if discarded_state:
+        if discarded_state: # check if we fill the discarded tree or the experiment tree
             tree = self.discarded_tree
             discarded_tree =self.experiment_tree
         
@@ -154,12 +157,9 @@ class TreeViewManager():
             tree = self.experiment_tree
             discarded_tree = self.discarded_tree
         
-
-        top_level_item_amount = tree.topLevelItemCount()
-
         if series_identifier_tuple is None:
                 #@todo error handling
-                print("error")
+                self.logger.error("There is no series identifier tuple specified")
 
         if specific_series_name is not None:
             # figure out whether the experiment contains no, one ore multiple series by this series name
@@ -169,77 +169,70 @@ class TreeViewManager():
                 if tuple[0]==specific_series_name:
                     series_identifier_list.append(tuple[1])
                     
-            
-            if len(series_identifier_list)>0:
+
+            treeview_tuple = (series_identifier_list, experiment, specific_series_name, tree, discarded_tree, False)
+            # since function is used by multiple calls we need to distingush
+            # toDO add Qthread for the second function which fills the individual series trees
+            if progress_callback:
+                self.tree_build_finished.finished_signal.connect(partial(self.call_progress, treeview_tuple, progress_callback))
+            else:
+                self.fill_tree_gui(treeview_tuple)
+
+        else: # toDO @DZ please add comment
+            # build a speciliazed tuple when specific series name is none?
+            treeview_tuple = (series_identifier_tuple, experiment, specific_series_name, tree, discarded_tree, True)
+            if progress_callback:
+                self.tree_build_finished.finished_signal.connect(partial(self.call_progress, treeview_tuple , progress_callback))
+            else:
+                self.fill_tree_gui(treeview_tuple)
+
+
+         
+        
+    def call_progress(self, experiment_tuple, progress_callback):
+        """ should be called whenever the signal from the main thread is emitted
+        and the tree is finally written.
+        @params experiment_tuple: tuple of experiment names
+        @params progress_callback: progress signal emit
+        """
+        self.logger.info("Progress is emitted successfully to the Main Thread")
+        progress_callback.emit(experiment_tuple)
+
+    def fill_tree_gui(self, experiment_tuple):
+        """ Redo Treeview Function
+        This function should only write the tree without any further functionality
+        We split the Thread from the Gui
+        @params experiment_tuple: tuple of experiment names
+        """
+        # unpack the tuple 
+        series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier = experiment_tuple
+        top_level_item_amount = tree.topLevelItemCount()
+
+        if len(series_identifier_list)>0:
         
                 # the parent will only added if there are valid series inside
-                if top_level_item_amount == 0:
-                    parent = QTreeWidgetItem(tree) # be carefull: this command immediately adds an item to the tree !
-                else:
-                    parent = QTreeWidgetItem(top_level_item_amount)
-
-
-                # lets see if this is working
-                parent.setText(0, experiment)
-                self.logger.info("Preparing parent")
-                self.logger.info(parent.text(0))
-                self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment)
-
-                for series_identifier in series_identifier_list:
-                    child = QTreeWidgetItem(parent)
-                    child.setText(0, specific_series_name)
-                    child.setData(3, 0, (experiment, series_identifier))
-
-                    discard_button = QPushButton()
-                    pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
-                    discard_button.setIcon(pixmap)
-
-                    discard_button.clicked.connect(
-                        partial(self.discard_button_clicked, child, tree, discarded_tree))
-
-                    tree.setItemWidget(child, self.discard_column, discard_button)
-
-                    sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,
-                                                                                            series_identifier)
-                    column_names = sweep_table_data_frame.columns.values.tolist()
-
-                    for sweep_number in range(0, len(sweep_table_data_frame.columns)):
-                        sweep_child = QTreeWidgetItem(child)
-                        sweep_child.setText(0, column_names[sweep_number])
-        
-        # for each experiment built a single tree and append to the main
-
-            # the experiment name will be mapped with the new analysis
-            # @todo if already existing it will not be inserted again will happen since create_treeview_from_database will be called multiple times
-            
-
-            # list of tuples: [('Block Pulse', 'Series1'), ... ]
-            
-            #print(series_identifier_tuple)
-
-        else:
-            #insert the experiment as parent
-
             if top_level_item_amount == 0:
-                parent = QTreeWidgetItem(tree)
+                parent = QTreeWidgetItem(tree) # be carefull: this command immediately adds an item to the tree !
             else:
                 parent = QTreeWidgetItem(top_level_item_amount)
 
+
+            # lets see if this is working
             parent.setText(0, experiment)
-            self.insert_parent_into_treeview_from_database(tree,discarded_tree,parent,experiment)
+            self.logger.info("Preparing parent")
+            self.logger.info(parent.text(0))
+            self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment)
 
-            # add all series of an existing experiment to the parent item
-            for tuple in series_identifier_tuple:
+            
+            for series_identifier in series_identifier_list:
 
-                series_name = tuple[0]
-                series_identifier = tuple[1]
-
+                if tuple_identifier:
+                    specific_series_name = series_identifier[0]
+                    series_identifier = series_identifier[1]
+            
                 child = QTreeWidgetItem(parent)
-                child.setText(0, series_name)
-                child.setData(3,0,(experiment, series_identifier))
-
-                #child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
-                #child.setCheckState(self.checkbox_column, Qt.Unchecked)
+                child.setText(0, specific_series_name)
+                child.setData(3, 0, (experiment, series_identifier))
 
                 discard_button = QPushButton()
                 pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
@@ -248,21 +241,21 @@ class TreeViewManager():
                 discard_button.clicked.connect(
                     partial(self.discard_button_clicked, child, tree, discarded_tree))
 
-                # insert the button
                 tree.setItemWidget(child, self.discard_column, discard_button)
 
-                # get the data as a dataframe, tuple[1] holds the exact identifier
-                sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,series_identifier)
+                sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,
+                                                                                        series_identifier)
                 column_names = sweep_table_data_frame.columns.values.tolist()
 
-                for sweep_number in range(0,len(sweep_table_data_frame.columns)):
+                for sweep_number in range(0, len(sweep_table_data_frame.columns)):
                     sweep_child = QTreeWidgetItem(child)
-                    sweep_child.setText(0,column_names[sweep_number] )
-      
-        # emit a signal to run the next loop iteration in the Qthread self.fill_treeview_from_database
+                    sweep_child.setText(0, column_names[sweep_number])
+
+
+        # emit the signal so that the qthread is informed about successfull tree build
         self.tree_build_finished.finished_signal.emit()
 
-    @Slot()
+
     def fill_treeview_from_database(self,experiment_label,discarded_state, specific_series_name, progress_callback = None):
         """
 
@@ -279,9 +272,6 @@ class TreeViewManager():
         # get the experiments linked with this analysis number
         
         self.not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label,self.selected_meta_data_list)
-        #waitCondition = QWaitCondition()
-        #mutex = QMutex()
-        
         self.logger.info(self.not_discard_experiments_stored_in_db)
         for index,experiment in enumerate(self.not_discard_experiments_stored_in_db):
             #self.database.create_mapping_between_experiments_and_analysis_id(experiment)
@@ -290,21 +280,14 @@ class TreeViewManager():
             if index == 0:
                 self.tree_build_finished.finished_signal.emit() # signal from treeview build to emit the next treeview build
             if progress_callback:
-                #mutex.lock() # should be maybe added with many datapoints
-                self.tree_build_finished.finished_signal.connect(partial(self.callback_progress,progress_callback, experiment_tuple))
-                #mutex.unlock()
+                self.load_from_database_treeview(experiment_tuple, progress_callback)
+                #self.tree_build_finished.finished_signal.connect(partial(self.callback_progress,progress_callback, experiment_tuple))
             else:
                 self.load_from_database_treeview((experiment,series_identifier_tuple, specific_series_name, discarded_state)) # since this function has
                 #two calls we need to split between threading and non threading functions 
 
 
-    def callback_progress(self, progress_callback, experiment_tuple):
-        """ Function should emit the signal to build the tree
-        @params: progress_callback: signal which is connected to the Qthread Progress
-        @params: experiment_tuple: tuple of the experiment, series_identifier_tuple, specific_series_name, discarded_state"""
-        progress_callback.emit(experiment_tuple)
-
-
+   
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory 
         adds the dat.files run through the heka reader to get the data file and pulse generator files
