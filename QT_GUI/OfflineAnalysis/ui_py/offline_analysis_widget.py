@@ -193,48 +193,63 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         grid.addWidget(self.list_view)
         self.dialog.selected_labels.setLayout(grid)
 
-        self.dialog.load_data.clicked.connect(partial(self.load_recordings))
+        self.dialog.load_data.clicked.connect(self.load_worker)
 
         self.dialog.exec_()
 
+    def load_worker(self):#
+        self.database_handler.database.close()
 
+        # clear the tree and make structure the tree
+        
 
-    def load_recordings(self):
+        self.experiments_tree_view.clear()
+        self.experiments_tree_view.setColumnWidth(0, 150)
+        self.experiments_tree_view.setColumnWidth(1, 140)
+        self.experiments_tree_view.setColumnWidth(2, 50)
+        self.outfiltered_tree_view.clear()
 
-        self.dialog.close()
+        print("started_this _thign")
         self.selected_meta_data_list = []
         for n in range(0,self.dialog.meta_data_list.count()):
             item = self.dialog.meta_data_list.item(n)
             if item.checkState()==Qt.CheckState.Checked:
                 self.selected_meta_data_list.append(item.text())
-        print("loading recordings")
-        print( self.selected_meta_data_list)
 
-        # from the popup get the label
-        experiment_label = ""
-        self.experiments_tree_view.clear()
-        self.outfiltered_tree_view.clear()
         self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
+        self.blank_analysis_page_1_tree_manager.experiment_tree = self.experiments_tree_view
+        self.blank_analysis_page_1_tree_manager.discarded_tree = self.outfiltered_tree_view
+        #create the threadpool
 
+        self.threadpool = QThreadPool()
+        self.worker = Worker(self.load_recordings)
+        self.worker.signals.finished.connect(self.finished_database_loading)
+        self.worker.signals.progress.connect(self.blank_analysis_page_1_tree_manager.load_from_database_treeview)
+        self.threadpool.start(self.worker)
+        self.dialog.close()
+
+    def load_recordings(self, progress_callback):
+        
+        # from the popup get the label
+        self.database_handler.open_connection(read_only = True)
+        experiment_label = ""
         self.blank_analysis_page_1_tree_manager.selected_meta_data_list =  self.selected_meta_data_list
-
-        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
-                                                                     self.outfiltered_tree_view,experiment_label, None)
-
-        self.experiments_tree_view.setColumnWidth(0, 150)
-        self.experiments_tree_view.setColumnWidth(1, 140)
-        self.experiments_tree_view.setColumnWidth(2, 50)
-
-
-
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None, progress_callback)
+        
+        
+    def finished_database_loading(self):
+        
+        self.database_handler.database.close()
+        self.database_handler.open_connection()
+        for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
+            self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
-
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-
-        # show selected tree_view
         self.directory_tree_widget.setCurrentIndex(0)
-
+        print("finished loading")
+        # show selected tree_view
+        
     @Slot()
     def experiment_label_dropped(self,item_text):
         print(item_text)
@@ -626,8 +641,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
         print("creating new tab specific treeview")
         tmp_treeview = TreeViewManager(db)
+        tmp_treeview.experiment_tree = current_tab.selected_tree_widget
+        tmp_treeview.discarded_tree = current_tab.discarded_tree_widget
+
         tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
-        tmp_treeview.create_treeview_from_database(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,"",series_name)
+        tmp_treeview.create_treeview_from_database("",series_name)
 
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
@@ -887,8 +905,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         # store analysis parameter in the database
-        self.database_handler.database.close()
-        self.threadpool = QThreadPool()
+       
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)

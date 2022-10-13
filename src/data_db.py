@@ -16,7 +16,7 @@ import datetime
 import pandas as pd
 import re
 import csv
-import psycopg2
+
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
@@ -49,10 +49,9 @@ class DuckDBDatabaseHandler():
         # creates a new analysis database and writes the tables or connects to an existing database
         if self.create_analysis_database():
             self.create_database_tables()
-            print("created database tables succsfully")
+        
         # inserts new analysis id with default username admin
         # TODO implement roles admin, user, etc. ..
-        print("no tables created")
         self.analysis_id = self.insert_new_analysis("admin")
 
     """---------------------------------------------------"""
@@ -99,13 +98,6 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                """
-                conn = psycopg2.connect(host="ec2-3-73-36-35.eu-central-1.compute.amazonaws.com", database = "test_erp",
-                                        user = "postgres", password = "datascience")
-                self.database = conn.cursor()
-                self.database.execute("select * from hallo1000;")
-                print(self.database.fetchall())
-                """
                 path = cew + '/src/' + self.db_file_name
                 if sys.platform != "darwin":
                     path = path.replace("/","\\")
@@ -113,7 +105,6 @@ class DuckDBDatabaseHandler():
                     path = path.replace("\\","/")       
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
-
             else:
                 self.database = sqlite3.connect(cew + "\\src\\" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
         except Exception as e:
@@ -264,13 +255,9 @@ class DuckDBDatabaseHandler():
         stored in the database'''
 
         q = """insert into offline_analysis (date_time, user_name) values (?,?) """
-        #q = f'insert into offline_analysis (date_time, user_name) values ({str(time_stamp)},{user_name})'
         time_stamp = datetime.datetime.now()
-
         self.database = self.execute_sql_command(self.database, q, (time_stamp, user_name))
         self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
-
-        #print("postqres succeded")
 
         q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """
         self.analysis_id = self.get_data_from_database(self.database, q, (time_stamp, user_name))[0][0]
@@ -453,21 +440,20 @@ class DuckDBDatabaseHandler():
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
 
-
-    def get_sweep_table_name(self,experiment_name:str, series_identifier:str):
-        """
-        get the name of a specific sweep table name
-        @param experiment_name:
-        @param series_identifier:
-        @return:
-        """
-
-        res = self.database.execute(f'select sweep_table_name from experiment_series where experiment_name = \'{experiment_name}\' and series_identifier = \'{series_identifier}\'').fetchdf()
-        return(res['sweep_table_name'].tolist()[0])
-
-    def get_entire_sweep_table(self, table_name:str):
+    def get_sweep_table_name(self, experiment_name, series_identifier):
         '''
-        Fetches all sweeps in a sweep table as numpy array.
+        returns the sweep table name for a given experiment and series name
+        :param experiment_name:
+        :param series_name:
+        :return:
+        '''
+        q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_identifier = (?)"""
+        res = self.database.execute(q, (experiment_name, series_identifier)).fetchdf()
+        return res["sweep_table_name"].tolist()[0]
+
+    def get_entire_sweep_table(self, table_name):
+        '''
+        Fetches all sweeps in a sweep table.
         :param table_name:
         :return: the table as dict {column: numpy_array(data ... )]}
         '''
@@ -544,7 +530,7 @@ class DuckDBDatabaseHandler():
                 self.logger.info("failed adding expseriment %s with error %s", name, e)
                 return -1
 
-    def open_connection(self):
+    def open_connection(self, read_only = False):
         """ Opens a connection to the database"""
         print("trials to open connection")
         try:
@@ -554,7 +540,7 @@ class DuckDBDatabaseHandler():
                 path = path.replace("/","\\")
             else:
                 path = path.replace("\\","/") 
-            self.database = duckdb.connect(path, read_only=False)
+            self.database = duckdb.connect(path, read_only=read_only)
             self.logger.debug("opened connection to database %s", self.db_file_name)
             print("succeeded")
         except Exception as e:
@@ -576,14 +562,9 @@ class DuckDBDatabaseHandler():
             self.database = self.execute_sql_command(self.database, q, [meta_data_group, experiment_name])
             self.logger.info("Wrote meta data group %s for experiment %s into database", meta_data_group,
                              experiment_name)
-            print("Wrote meta data group %s for experiment %s into database", meta_data_group,
-                             experiment_name)
             return True
         except Exception as e:
             self.logger.info("FAILED to write meta data group %s for experiment %s into database with error: %s",
-                             meta_data_group,
-                             experiment_name, str(e))
-            print("FAILED to write meta data group %s for experiment %s into database with error: %s",
                              meta_data_group,
                              experiment_name, str(e))
             return False
