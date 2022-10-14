@@ -76,20 +76,28 @@ class TreeViewManager():
         self._data_view_STATE = 0
 
         # introduce logger
+        
+
+    """ ############################## Chapter A Create treeview functions ######################################### """
+
+    def configure_logger(self):
+        """
+        Configure the Logger for the Treeview Manager"""
         self.logger=logging.getLogger()
         self.logger.setLevel(logging.ERROR)
         file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
-        print(file_handler)
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info('Treeview Manager Initialized')
 
+
+    def configure_default_signals(self):
+        """Configure the Default Signals which are used for Thread Safe communication"""
         self.data_read_finished = DataReadFinishedSignal()
         self.tree_build_finished = DataReadFinishedSignal()
         self.experiment_tree_finished = DataReadFinishedSignal()
 
-    """ ############################## Chapter A Create treeview functions ######################################### """
 
     def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
         '''
@@ -245,10 +253,11 @@ class TreeViewManager():
                                                                                         series_identifier)
                 column_names = sweep_table_data_frame.columns.values.tolist()
 
+                """ # do we need the sweeps really ?, shouldnt we just add a setting optins which allows for the tree depth?
                 for sweep_number in range(0, len(sweep_table_data_frame.columns)):
                     sweep_child = QTreeWidgetItem(child)
                     sweep_child.setText(0, column_names[sweep_number])
-
+                """
 
         # emit the signal so that the qthread is informed about successfull tree build
         self.tree_build_finished.finished_signal.emit()
