@@ -75,6 +75,9 @@ class TreeViewManager():
 
         self._data_view_STATE = 0
 
+        self.configure_logger()
+        self.configure_default_signals()
+
         # introduce logger
         
 
@@ -145,7 +148,7 @@ class TreeViewManager():
         # discarded = False = means read all selected items
         self.fill_treeview_from_database(experiment_label,False, specific_series_name, progress_callback)
         self.fill_treeview_from_database(experiment_label, True, specific_series_name, progress_callback)
-
+        self.database.database.close()
 
     def load_from_database_treeview(self,experiment_tuple, progress_callback = None):
         """ should the callback function to fill three iteratively
@@ -295,6 +298,7 @@ class TreeViewManager():
                 self.load_from_database_treeview((experiment,series_identifier_tuple, specific_series_name, discarded_state)) # since this function has
                 #two calls we need to split between threading and non threading functions 
    
+        
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory 
         adds the dat.files run through the heka reader to get the data file and pulse generator files
