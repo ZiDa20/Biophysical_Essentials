@@ -16,6 +16,7 @@ import datetime
 import pandas as pd
 import re
 import csv
+import psycopg2
 
 
 class DuckDBDatabaseHandler():
@@ -254,9 +255,9 @@ class DuckDBDatabaseHandler():
         defined manually. Instead, username (role) and date and time of the creation of this new analysis will be
         stored in the database'''
 
-        q = """insert into offline_analysis (date_time, user_name) values (?,?) """
         time_stamp = datetime.datetime.now()
-        self.database = self.execute_sql_command(self.database, q, (time_stamp, user_name))
+        q = f"insert into offline_analysis (date_time, user_name) values ('{time_stamp}','{user_name}')"
+        self.database = self.execute_sql_command(self.database, q)
         self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
 
         q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """

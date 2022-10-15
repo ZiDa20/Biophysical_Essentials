@@ -239,7 +239,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
     def finished_database_loading(self):
         
-        self.database_handler.database.close()
+        print("here we finish the database")
         self.database_handler.open_connection()
         for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
             self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)

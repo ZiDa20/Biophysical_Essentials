@@ -1,7 +1,5 @@
 import sys
 import os
-
-
 #Path import
 ################################################################################
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
@@ -51,7 +49,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.setAttribute(Qt.WA_TranslucentBackground)
             
 
-        self.desktop = QApplication.primaryScreen()
+        self.desktop = self.screen()
         self.screenRect = self.desktop.availableGeometry()
         
         # set the window geometry to the screen size
@@ -66,7 +64,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
-        self.local_database_handler.database.execute("SET external_threads=1")
+        #self.local_database_handler.database.execute("SET external_threads=1")
         self.local_database_handler.database.execute("SET log_query_path='duck_db_analysis_database.log'")
 
         if self.local_database_handler:
@@ -144,7 +142,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         """Function to center the application at the start into the middle of the screen
         """        
         qr = self.frameGeometry()
-        cp = QGuiApplication.primaryScreen().availableGeometry().center()
+        cp = self.screen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 

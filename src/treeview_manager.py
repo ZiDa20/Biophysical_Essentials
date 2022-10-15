@@ -148,7 +148,8 @@ class TreeViewManager():
         # discarded = False = means read all selected items
         self.fill_treeview_from_database(experiment_label,False, specific_series_name, progress_callback)
         self.fill_treeview_from_database(experiment_label, True, specific_series_name, progress_callback)
-        self.database.database.close()
+        if progress_callback:
+            self.database.database.close()
 
     def load_from_database_treeview(self,experiment_tuple, progress_callback = None):
         """ should the callback function to fill three iteratively
@@ -256,11 +257,11 @@ class TreeViewManager():
                                                                                         series_identifier)
                 column_names = sweep_table_data_frame.columns.values.tolist()
 
-                """ # do we need the sweeps really ?, shouldnt we just add a setting optins which allows for the tree depth?
-                for sweep_number in range(0, len(sweep_table_data_frame.columns)):
-                    sweep_child = QTreeWidgetItem(child)
-                    sweep_child.setText(0, column_names[sweep_number])
-                """
+                # do we need the sweeps really ?, shouldnt we just add a setting optins which allows for the tree depth?
+                #for sweep_number in range(0, len(sweep_table_data_frame.columns)):
+                #    sweep_child = QTreeWidgetItem(child)
+                #    sweep_child.setText(0, column_names[sweep_number])
+            
 
         # emit the signal so that the qthread is informed about successfull tree build
         self.tree_build_finished.finished_signal.emit()
