@@ -9,6 +9,7 @@ import csv
 import sys
 import os
 import logging
+from Worker import Worker
 
 import time
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
@@ -283,7 +284,6 @@ class TreeViewManager():
         """
 
         # get the experiments linked with this analysis number
-        wait_main = QWaitCondition()
         self.not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label,self.selected_meta_data_list)
         self.logger.info(self.not_discard_experiments_stored_in_db)
         for index,experiment in enumerate(self.not_discard_experiments_stored_in_db):
