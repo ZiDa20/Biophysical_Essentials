@@ -206,6 +206,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.experiments_tree_view.setColumnWidth(0, 150)
         self.experiments_tree_view.setColumnWidth(1, 140)
         self.experiments_tree_view.setColumnWidth(2, 50)
+
+        self.outfiltered_tree_view.setColumnWidth(0, 150)
+        self.outfiltered_tree_view.setColumnWidth(1, 140)
+        self.outfiltered_tree_view.setColumnWidth(2, 50)
+
         self.outfiltered_tree_view.clear()
 
         print("started_this _thign")
@@ -221,20 +226,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #create the threadpool
 
         self.threadpool = QThreadPool()
-        self.worker = Worker(partial(self.load_recordings, True))
-        self.worker = Worker(partial(self.load_recordings, False))
-        self.worker.signals.finished.connect(self.finished_database_loading)
-        self.worker.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui, Qt.BlockingQueuedConnection)
-        self.threadpool.start(self.worker)
+        self.worker_I = Worker(self.load_recordings)
+        self.worker_I.signals.finished.connect(self.finished_database_loading)
+        self.worker_I.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui, Qt.BlockingQueuedConnection)
+        self.threadpool.start(self.worker_I)
         self.dialog.close()
 
-    def load_recordings(self, discarded_state, progress_callback):
+    def load_recordings(self, progress_callback):
         
         self.progress_callback = progress_callback
         self.database_handler.open_connection(read_only = True)
         experiment_label = ""
         self.blank_analysis_page_1_tree_manager.selected_meta_data_list =  self.selected_meta_data_list
-        self.blank_analysis_page_1_tree_manager.fill_treeview_from_database(experiment_label,discarded_state, None, self.progress_callback)
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None, self.progress_callback)
         
         
     def finished_database_loading(self):

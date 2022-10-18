@@ -1116,6 +1116,7 @@ class DuckDBDatabaseHandler():
 
     def discard_specific_series(self, experiment_name, series_identifier):
         """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
+        print("initial tree is calling discard button function with params", experiment_name, series_identifier)
         self.change_experiment_series_discarded_state(experiment_name, series_identifier, 1)
 
     def reinsert_specific_series(self, experiment_name, series_identifier):

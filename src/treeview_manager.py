@@ -125,17 +125,27 @@ class TreeViewManager():
         # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
 
-    def insert_parent_into_treeview_from_database(self,selected_tree,discarded_tree, parent,experiment_name):
+    def insert_parent_into_treeview_from_database(self,selected_tree,discarded_tree, parent,experiment_name,discarded_state):
         # insert the created parent
         selected_tree.addTopLevelItem(parent)
 
-        # add discard button in the globaly specified discard column
-        discard_button = QPushButton()
-        pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
-        discard_button.setIcon(pixmap)
+        move_button = QPushButton()
 
-        discard_button.clicked.connect(partial(self.discard_button_clicked, parent, selected_tree, discarded_tree))
-        selected_tree.setItemWidget(parent, self.discard_column, discard_button)
+        # add discard button in the globaly specified discard column
+        if discarded_state:
+            pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
+            move_button.clicked.connect(
+                partial(self.reinsert_button_clicked, parent, discarded_tree, selected_tree))
+            print("added reinsert")
+
+        else:
+            pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+            move_button.clicked.connect(
+                partial(self.discard_button_clicked, parent, selected_tree, discarded_tree, ))
+            print("added red cross")
+
+        move_button.setIcon(pixmap)
+        selected_tree.setItemWidget(parent, self.discard_column, move_button)
 
         # add combo box for meta data group selection
         selected_tree = self.add_meta_data_combo_box_and_assign(experiment_name, selected_tree, parent)
@@ -145,10 +155,10 @@ class TreeViewManager():
     def create_treeview_from_database(self,experiment_label,specific_series_name=None, progress_callback = None):
         """ read through the database and fill the trees of selected and discarded items"""
 
-
         # discarded = False = means read all selected items
         self.fill_treeview_from_database(experiment_label,False, specific_series_name, progress_callback)
         self.fill_treeview_from_database(experiment_label, True, specific_series_name, progress_callback)
+
         if progress_callback:
             self.database.database.close()
 
@@ -163,13 +173,15 @@ class TreeViewManager():
 
         # function is used to build discarded and experimental tree
         # Therefore we need to check which tree to fill which is indicated by the bool discarded state
-        if discarded_state: # check if we fill the discarded tree or the experiment tree
+        if discarded_state is True: # check if we fill the discarded tree or the experiment tree
             tree = self.discarded_tree
             discarded_tree =self.experiment_tree
+            print("discarded = True")
         
         else:
             tree = self.experiment_tree
             discarded_tree = self.discarded_tree
+            print("discarded = False")
         
         if series_identifier_tuple is None:
                 #@todo error handling
@@ -184,17 +196,12 @@ class TreeViewManager():
                     series_identifier_list.append(tuple[1])
                     
 
-            treeview_tuple = (series_identifier_list, experiment, specific_series_name, tree, discarded_tree, False)
-            # since function is used by multiple calls we need to distingush
-            # toDO add Qthread for the second function which fills the individual series trees
-            if progress_callback:
-                self.call_progress(treeview_tuple, progress_callback)
-            else:
-                self.fill_tree_gui(treeview_tuple)
+            treeview_tuple = (series_identifier_list, experiment, specific_series_name, tree, discarded_tree,False, discarded_state)
+            self.fill_tree_gui(treeview_tuple)
 
         else: # toDO @DZ please add comment
             # build a speciliazed tuple when specific series name is none?
-            treeview_tuple = (series_identifier_tuple, experiment, specific_series_name, tree, discarded_tree, True)
+            treeview_tuple = (series_identifier_tuple, experiment, specific_series_name, tree, discarded_tree,True,discarded_state)
             if progress_callback:
                 self.call_progress(treeview_tuple, progress_callback)
             else:
@@ -216,53 +223,58 @@ class TreeViewManager():
         We split the Thread from the Gui
         @params experiment_tuple: tuple of experiment names
         """
-        # unpack the tuple 
-        series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier = experiment_tuple
+        # unpack the tuple
+        series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier,discarded_state = experiment_tuple
         top_level_item_amount = tree.topLevelItemCount()
-        if len(series_identifier_list)>0:
-        
-                # the parent will only added if there are valid series inside
+        if len(series_identifier_list) > 0:
+
+            # the parent will only added if there are valid series inside
             if top_level_item_amount == 0:
-                parent = QTreeWidgetItem(tree) # be carefull: this command immediately adds an item to the tree !
+                parent = QTreeWidgetItem(tree)  # be carefull: this command immediately adds an item to the tree !
             else:
                 parent = QTreeWidgetItem(top_level_item_amount)
-
 
             # lets see if this is working
             parent.setText(0, experiment)
             self.logger.info("Preparing parent")
             self.logger.info(parent.text(0))
-            self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment)
+            self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment,discarded_state)
 
-            
             for series_identifier in series_identifier_list:
 
                 if tuple_identifier:
                     specific_series_name = series_identifier[0]
                     series_identifier = series_identifier[1]
-            
+
                 child = QTreeWidgetItem(parent)
                 child.setText(0, specific_series_name)
                 child.setData(3, 0, (experiment, series_identifier))
 
-                discard_button = QPushButton()
-                pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
-                discard_button.setIcon(pixmap)
+                move_button = QPushButton()
 
-                discard_button.clicked.connect(
-                    partial(self.discard_button_clicked, child, tree, discarded_tree))
+                if discarded_state:
+                    pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
+                    move_button.clicked.connect(
+                        partial(self.reinsert_button_clicked, child, discarded_tree,tree ))
+                    print("added reinsert")
 
-                tree.setItemWidget(child, self.discard_column, discard_button)
+                else:
+                    pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+                    move_button.clicked.connect(
+                        partial(self.discard_button_clicked, child, tree, discarded_tree, ))
+                    print("added red cross")
+
+                move_button.setIcon(pixmap)
+                tree.setItemWidget(child, self.discard_column, move_button)
 
                 sweep_table_data_frame = self.database.get_sweep_table_for_specific_series(experiment,
-                                                                                        series_identifier)
+                                                                                           series_identifier)
                 column_names = sweep_table_data_frame.columns.values.tolist()
 
                 # do we need the sweeps really ?, shouldnt we just add a setting optins which allows for the tree depth?
-                #for sweep_number in range(0, len(sweep_table_data_frame.columns)):
+                # for sweep_number in range(0, len(sweep_table_data_frame.columns)):
                 #    sweep_child = QTreeWidgetItem(child)
                 #    sweep_child.setText(0, column_names[sweep_number])
-            
 
         # emit the signal so that the qthread is informed about successfull tree build
         self.tree_build_finished.finished_signal.emit()
@@ -292,7 +304,6 @@ class TreeViewManager():
             series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment,discarded_state)
             experiment_tuple = (experiment,series_identifier_tuple, specific_series_name, discarded_state)
             if progress_callback:
-
                 self.load_from_database_treeview(experiment_tuple, progress_callback)
                 #self.experiment_tree_finished.finished_signal.connect(partial(self.load_from_database_treeview,experiment_tuple, progress_callback))
             else:
@@ -1083,11 +1094,12 @@ class TreeViewManager():
         else:
             # @todo needs to be eddited for group in online_analysis
             self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
-
-
-
-            #database.move_experiment_to_discarded_experiments_table(item.text(0))
-
+            if function == "reinsert":
+                self.database.database.execute(
+                    f'update experiment_series set discarded = \'False\' where experiment_name = \'{item.text(0)}\';')
+            else:
+                self.database.database.execute(
+                    f'update experiment_series set discarded = \'True\' where experiment_name = \'{item.text(0)}\';')
 
     def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
         """move the item and its specific children """
