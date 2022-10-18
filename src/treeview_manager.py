@@ -135,13 +135,13 @@ class TreeViewManager():
             if discarded_state:
                 pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
                 move_button.clicked.connect(
-                    partial(self.reinsert_button_clicked, parent, discarded_tree, selected_tree))
+                    partial(self.reinsert_button_clicked, parent, discarded_tree, selected_tree,True))
                 print("added reinsert")
 
             else:
                 pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
                 move_button.clicked.connect(
-                    partial(self.discard_button_clicked, parent, selected_tree, discarded_tree, ))
+                    partial(self.discard_button_clicked, parent, selected_tree, discarded_tree,True ))
                 print("added red cross")
 
             move_button.setIcon(pixmap)
@@ -257,14 +257,14 @@ class TreeViewManager():
                 if discarded_state:
                     pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
                     move_button.clicked.connect(
-                        partial(self.reinsert_button_clicked, child, discarded_tree,tree ))
+                        partial(self.reinsert_button_clicked, child, discarded_tree,tree,discarded_state))
                     print("added reinsert")
                     print(child.text(0))
 
                 else:
                     pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
                     move_button.clicked.connect(
-                        partial(self.discard_button_clicked, child, tree, discarded_tree, ))
+                        partial(self.discard_button_clicked, child, tree, discarded_tree,discarded_state))
                     print("added red cross")
 
                 move_button.setIcon(pixmap)
@@ -1065,23 +1065,22 @@ class TreeViewManager():
                 self.uncheck_parents_childs(parent.child(c))
 
 
-    def reinsert_button_clicked(self, item, experiment_tree, discarded_tree):
+    def reinsert_button_clicked(self, item, experiment_tree, discarded_tree,specific_series=None):
         """ Function to reinsert a given item into the experiment tree via button clicked"""
         print("reinsert button clicked")
-        self.tree_button_clicked(item, discarded_tree, experiment_tree,"reinsert")
+        self.tree_button_clicked(item, discarded_tree, experiment_tree,"reinsert",specific_series)
 
-    def discard_button_clicked(self, item, experiment_tree, discarded_tree):
+    def discard_button_clicked(self, item, experiment_tree, discarded_tree, specific_series=None):
         """ Function to discard a given item into the discarded tree via button clicked"""
         print("discard button clicked")
-        self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard")
+        self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard",specific_series)
 
-    def tree_button_clicked(self, item, experiment_tree,discarded_tree,function):
+    def tree_button_clicked(self, item, experiment_tree,discarded_tree,function,specific_series):
         """function can be -reinsert- or -discard-"""
 
         print("tree button clicked")
-
         if item.parent():
-            self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function)
+            self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function,specific_series)
 
             # assuming that a series button was clicked
             experiment_name = item.data(3,0)[0]
@@ -1096,7 +1095,7 @@ class TreeViewManager():
                     self.database.discard_specific_series(experiment_name,series_identifier)
         else:
             # @todo needs to be eddited for group in online_analysis
-            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function)
+            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function,specific_series)
             if function == "reinsert":
                 self.database.database.execute(
                     f'update experiment_series set discarded = \'False\' where experiment_name = \'{item.text(0)}\';')
@@ -1104,18 +1103,22 @@ class TreeViewManager():
                 self.database.database.execute(
                     f'update experiment_series set discarded = \'True\' where experiment_name = \'{item.text(0)}\';')
 
-    def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
+    def move_experiment_from_treeview_a_to_b(self, item, tree_a, tree_b,function,specific_series):
         """move the item and its specific children """
+        print("moving complete experiment")
         item_identifier = item.text(0) # top level item
         child_amount = item.childCount()
         index_of_item_to_delete = tree_a.indexOfTopLevelItem(item)
         tli_amount = tree_b.topLevelItemCount() # number of top level items
 
         # 1) check if there is already a substructure of the experiment in tree b
+        # thats the case when eg. IV was already deleted and therefore experiment is already listed with 1 child  in discarded treeview
+        # then the remaining experiment childs get also deleted
         for i in range (tli_amount):
 
             # 1a) if a substructure was found, add the remaining children to tree b too and remove item from tree a
             tli = tree_b.topLevelItem(i)
+
             if tli.text(0)==item_identifier:
 
                 for c in range(child_amount):
@@ -1126,7 +1129,7 @@ class TreeViewManager():
                     p_t = c_p.text(0)
                     print(p_t)
                     ind = tree_a.indexOfTopLevelItem(c_p)
-                    self.move_series_from_treeview_a_to_b(child, tree_a, tree_b, function)
+                    self.move_series_from_treeview_a_to_b(child, tree_a, tree_b, function,specific_series)
                     tree_b.setItemWidget(child, self.discard_column,
                                          self.create_row_specific_widget(child, tree_a, tree_b,function))
 
@@ -1137,8 +1140,10 @@ class TreeViewManager():
         tree_a.takeTopLevelItem(index_of_item_to_delete)
 
         tree_b.addTopLevelItem(item)
+
         tree_b.setItemWidget(item, self.discard_column,
-                             self.create_row_specific_widget(item, tree_a, tree_b,function))
+                                 self.create_row_specific_widget(item, tree_a, tree_b, function))
+
         self.add_new_meta_data_combo_box(tree_b, item)
 
         for c in range(child_amount):
@@ -1149,7 +1154,7 @@ class TreeViewManager():
             self.add_new_meta_data_combo_box(tree_b, child)
 
 
-    def move_series_from_treeview_a_to_b(self, item, tree_a, tree_b,function):
+    def move_series_from_treeview_a_to_b(self, item, tree_a, tree_b,function,specific_series=None):
         """move a series from tree a to tree b, therefore it will be removed from tree a"""
         parent = item.parent()
         parent_index = tree_a.indexOfTopLevelItem(parent)
@@ -1174,41 +1179,41 @@ class TreeViewManager():
                 tree_b.topLevelItem(i).insertChild(child_amount, item)
                 tree_b.setItemWidget(item,self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b,function))
 
-                self.add_new_meta_data_combo_box(tree_b,item)
+                #self.add_new_meta_data_combo_box(tree_b,item)
                 return
 
         # 3) add a new topLevelItem if no matching parent was found before
+        print("no matching parent was found .. creating a new one", specific_series)
         new_parent = QTreeWidgetItem(discarded_tree_top_level_amount)
         new_parent.setText(0,parent_text)
-        new_parent.setFlags(new_parent.flags() | Qt.ItemIsUserCheckable)
-        new_parent.setCheckState(1, Qt.Unchecked)
+        #new_parent.setFlags(new_parent.flags() | Qt.ItemIsUserCheckable)
+        #new_parent.setCheckState(1, Qt.Unchecked)
         tree_b.addTopLevelItem(new_parent)
-        tree_b.setItemWidget(new_parent, self.discard_column,
-                             self.create_row_specific_widget(item, tree_a, tree_b,function))
+
+        if specific_series is None:
+            tree_b.setItemWidget(new_parent, self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b, function,specific_series))
 
         tree_b.topLevelItem(discarded_tree_top_level_amount).insertChild(0, item)
-        tree_b.setItemWidget(item, self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b,function))
+        tree_b.setItemWidget(item, self.discard_column, self.create_row_specific_widget(item, tree_a, tree_b, function, specific_series))
         self.add_new_meta_data_combo_box(tree_b, new_parent)
-
         #return tree_a,tree_b
 
-    def create_row_specific_widget(self,item,experiment_tree,discarded_tree,function):
+    def create_row_specific_widget(self,item,experiment_tree,discarded_tree,function,specific_series=None):
         """create a new pushbutton object from a given pixmap, connect it to the button clicked function, return the object"""
         button = QPushButton()
-        button.setStyleSheet("border:none")
-        button.setFixedSize(QSize(40, 30))
+        #button.setStyleSheet("border:none")
+        #button.setFixedSize(QSize(40, 30))
         if function == "reinsert":
             pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\discard_red_cross_II.png")
             # revert the flipped trees (flipping performed in reinsert button clicked)
-            button.clicked.connect(partial(self.discard_button_clicked, item, discarded_tree,experiment_tree))
+            button.clicked.connect(partial(self.discard_button_clicked, item, discarded_tree,experiment_tree,specific_series))
+
         else:
             pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
-            button.clicked.connect(partial(self.reinsert_button_clicked, item, experiment_tree, discarded_tree))
+            button.clicked.connect(partial(self.reinsert_button_clicked, item, experiment_tree, discarded_tree,specific_series))
+
         button.setIcon(pixmap)
-       
-
         return button
-
     """####################################### Chapter C Helper Functions ########################################  """
 
     def open_bundle_of_file(self,file_name):
