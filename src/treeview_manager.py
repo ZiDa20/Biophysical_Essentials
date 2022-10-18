@@ -259,6 +259,7 @@ class TreeViewManager():
                     move_button.clicked.connect(
                         partial(self.reinsert_button_clicked, child, discarded_tree,tree ))
                     print("added reinsert")
+                    print(child.text(0))
 
                 else:
                     pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
