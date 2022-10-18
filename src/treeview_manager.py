@@ -125,27 +125,27 @@ class TreeViewManager():
         # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
 
-    def insert_parent_into_treeview_from_database(self,selected_tree,discarded_tree, parent,experiment_name,discarded_state):
+    def insert_parent_into_treeview_from_database(self,selected_tree,discarded_tree, parent,experiment_name,discarded_state, specific_series_name):
         # insert the created parent
         selected_tree.addTopLevelItem(parent)
 
-        move_button = QPushButton()
+        if specific_series_name is None:
+            move_button = QPushButton()
+            # add discard button in the globaly specified discard column
+            if discarded_state:
+                pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
+                move_button.clicked.connect(
+                    partial(self.reinsert_button_clicked, parent, discarded_tree, selected_tree))
+                print("added reinsert")
 
-        # add discard button in the globaly specified discard column
-        if discarded_state:
-            pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\\reinsert.png")
-            move_button.clicked.connect(
-                partial(self.reinsert_button_clicked, parent, discarded_tree, selected_tree))
-            print("added reinsert")
+            else:
+                pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
+                move_button.clicked.connect(
+                    partial(self.discard_button_clicked, parent, selected_tree, discarded_tree, ))
+                print("added red cross")
 
-        else:
-            pixmap = QPixmap(os.getcwd()[:-3] + "\Gui_Icons\discard_red_cross_II.png")
-            move_button.clicked.connect(
-                partial(self.discard_button_clicked, parent, selected_tree, discarded_tree, ))
-            print("added red cross")
-
-        move_button.setIcon(pixmap)
-        selected_tree.setItemWidget(parent, self.discard_column, move_button)
+            move_button.setIcon(pixmap)
+            selected_tree.setItemWidget(parent, self.discard_column, move_button)
 
         # add combo box for meta data group selection
         selected_tree = self.add_meta_data_combo_box_and_assign(experiment_name, selected_tree, parent)
@@ -238,7 +238,9 @@ class TreeViewManager():
             parent.setText(0, experiment)
             self.logger.info("Preparing parent")
             self.logger.info(parent.text(0))
-            self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment,discarded_state)
+
+
+            self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment,discarded_state, specific_series_name)
 
             for series_identifier in series_identifier_list:
 
