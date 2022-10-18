@@ -15,7 +15,8 @@ import logging
 import datetime
 import pandas as pd
 import re
-
+import csv
+import psycopg2
 
 
 class DuckDBDatabaseHandler():
@@ -254,9 +255,9 @@ class DuckDBDatabaseHandler():
         defined manually. Instead, username (role) and date and time of the creation of this new analysis will be
         stored in the database'''
 
-        q = """insert into offline_analysis (date_time, user_name) values (?,?) """
         time_stamp = datetime.datetime.now()
-        self.database = self.execute_sql_command(self.database, q, (time_stamp, user_name))
+        q = f"insert into offline_analysis (date_time, user_name) values ('{time_stamp}','{user_name}')"
+        self.database = self.execute_sql_command(self.database, q)
         self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
 
         q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """
@@ -318,8 +319,8 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         x = str(meta_data_dict.get('RecordingMode'))
-        print(x)
-        if x == 'b\'\\x03\'':
+
+        if int(x) == 3:
             return "Voltage Clamp"
         else:
             return "Current Clamp"
@@ -440,6 +441,16 @@ class DuckDBDatabaseHandler():
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
 
+    def get_sweep_table_name(self, experiment_name, series_identifier):
+        '''
+        returns the sweep table name for a given experiment and series name
+        :param experiment_name:
+        :param series_name:
+        :return:
+        '''
+        q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_identifier = (?)"""
+        res = self.database.execute(q, (experiment_name, series_identifier)).fetchdf()
+        return res["sweep_table_name"].tolist()[0]
 
     def get_entire_sweep_table(self, table_name):
         '''
@@ -468,9 +479,18 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
+
+    def get_available_experiment_label(self):
+        """
+        return all available label in the database
+        @return: a tuple list
+        """
+        q = f'select distinct experiment_label from experiments'
+        res = self.get_data_from_database(self.database, q)
+        return res
+
     def get_meta_data_group_of_specific_experiment(self, experiment_name):
         """
-
         :param experiment_name:
         :return:
         :author dz, 28.06.2022
@@ -479,7 +499,7 @@ class DuckDBDatabaseHandler():
         return self.get_data_from_database(self.database, q)[0][0]
 
 
-    def add_experiment_to_experiment_table(self, name, meta_data_group):
+    def add_experiment_to_experiment_table(self, name, meta_data_group,experiment_label):
         '''
         Adding a new experiment to the database table 'experiments'. Name-Duplicates (e.g. 211224_01) are NOT allowed-
         the experiment name of the already existing experiment will added to the current offline analysis mapping table.
@@ -493,10 +513,10 @@ class DuckDBDatabaseHandler():
         :return 0: experiment was not added because it already exists, 1 it was added sucessfully, -1 something went wrong
         '''
         self.logger.info("adding experiment %s to_experiment_table", name)
-        q = f'insert into experiments (experiment_name,meta_data_group) values (?,?)'
+        q = f'insert into experiments (experiment_name,experiment_label,meta_data_group) values (?,?,?)'
 
         try:
-            self.database = self.execute_sql_command(self.database, q, [name,meta_data_group])
+            self.database = self.execute_sql_command(self.database, q, [name,experiment_label,meta_data_group])
             self.logger.info("added %s successfully", name)
             return 1
         except Exception as e:
@@ -506,10 +526,12 @@ class DuckDBDatabaseHandler():
                     name)
                 return 0
             else:
+                print("adding experiment failed")
+                print(e)
                 self.logger.info("failed adding expseriment %s with error %s", name, e)
                 return -1
 
-    def open_connection(self):
+    def open_connection(self, read_only = False):
         """ Opens a connection to the database"""
         print("trials to open connection")
         try:
@@ -519,13 +541,14 @@ class DuckDBDatabaseHandler():
                 path = path.replace("/","\\")
             else:
                 path = path.replace("\\","/") 
-            self.database = duckdb.connect(path, read_only=False)
+            self.database = duckdb.connect(path, read_only=read_only)
             self.logger.debug("opened connection to database %s", self.db_file_name)
-
+            print("succeeded")
         except Exception as e:
             self.database.close()
             self.open_connection()
             self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
+            print("failed")
 
     def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
         """
@@ -550,6 +573,14 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """    Functions to interact with table experiment_series    """
     """---------------------------------------------------"""
+
+    def get_distinct_meta_data_groups_for_specific_experiment_label(self,label_list):
+        meta_data_groups = []
+        for label in label_list:
+             q = f'select distinct meta_data_group from experiments where experiment_label = \'{label}\''
+             tmp_lst = self.get_data_from_database(self.database, q)
+             meta_data_groups += tmp_lst
+        return meta_data_groups
 
     def get_meta_data_table_of_specific_series(self, experiment_name:str, series_identifier: str):
         """
@@ -583,8 +614,7 @@ class DuckDBDatabaseHandler():
         """
         data_table_name = self.get_data_from_database(self.database, q, (experiment_name, series_identifier))[0][0]
 
-        self.database.execute(f'SELECT * FROM {data_table_name}')
-        return self.database.fetchdf()
+        return self.database.execute(f'SELECT * FROM {data_table_name}').fetchdf()
 
     def get_experiment_name_for_given_sweep_table_name(self,sweep_table_name):
         """
@@ -625,10 +655,12 @@ class DuckDBDatabaseHandler():
                                                      (experiment_name, series_name, series_identifier, 0))
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
+            print("insertion finished succesfully")
         except Exception as e:
             self.logger.info("insertion finished FAILED because of error %s", e)
+            print("insertion finished FAILED because of error %s", e)
 
-    def get_experiment_names_by_experiment_label(self,experiment_label):
+    def get_experiment_names_by_experiment_label(self,experiment_label,meta_data_list):
         """
 
         :param experiment_label:
@@ -641,9 +673,15 @@ class DuckDBDatabaseHandler():
         #q = f'select experiment_label from experiments'
         #r1 = self.get_data_from_database(self.database, q)
 
-        q = f'select experiment_name from experiments'
-        r2 = self.get_data_from_database(self.database, q)
+        for i in meta_data_list:
+            if meta_data_list.index(i)==0:
+                q = f'select experiment_name from experiments where meta_data_group = \'' + i + '\''
+            else:
+                q+= ' or meta_data_group = \'' + i + '\''
 
+        print(q)
+        r2 = self.get_data_from_database(self.database, q)
+        print(r2)
         #q = f'select experiment_name from experiments where experiment_label = \'{experiment_label}\' '
         #q = f"""select experiment_label from experiments where experiment_name = \' {201229_01} \' """
         #r = self.get_data_from_database(self.database,q)
@@ -894,55 +932,119 @@ class DuckDBDatabaseHandler():
 
         return output_string
 
-    def add_single_sweep_to_database(self, experiment_name, series_identifier, sweep_number, meta_data, data_array):
-        """
-         function to insert a new data array and related meta data information into the database
-         :param experiment_name:
-         :param series_identifier:
-         :param sweep_number:
-         :param meta_data:
-         :param data_array:
-         :return:
-        """
+    def add_sweep_df_to_database(self,experiment_name, series_identifier,data_df,meta_data_df):
+        try:
+            print("adding full sweep df to the database")
+            #print(data_df)
+            print(experiment_name)
+            print(series_identifier)
 
-        self.logger.info("Adding sweep %s of series %s of experiment %s into database", str(sweep_number),
-                         series_identifier, experiment_name)
+            imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
 
-        # create table names
-        imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
-        imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
+            # requires a little bit of different handling
 
-        # @TODO extend for leakage currents also
-        # @TODO add sweep meta data information anyhow. For now only meta data information of the imon trace will be stored.
+            column_names = data_df.columns.tolist()
+            part_1 = f'create table {imon_trace_signal_table_name} ('
+            query_str = ""
+            for c in range(0,len(column_names)):
+                if c == len(column_names)-1:
+                    part_1 = part_1 + column_names[c] + " " + "float"
+                    query_str = query_str + column_names[c]
+                else:
+                    part_1 = part_1 + column_names[c] + " " + "float,"
+                    query_str = query_str + column_names[c] + ","
 
-        data_array_df = pd.DataFrame({'sweep_' + str(sweep_number): data_array})
+            part_1 = part_1 + ")"
 
-        # get the meta data from the imon trace
-        child_node = meta_data[0]
-        child_node_ordered_dict = dict(child_node.get_fields())
+            print(part_1)
+            print(query_str)
+            try:
+                self.database.execute(part_1)
+                self.database.query(f'INSERT INTO {imon_trace_signal_table_name} SELECT {query_str} FROM data_df')
 
-        meta_data_df = pd.DataFrame.from_dict(data=child_node_ordered_dict, orient='index', columns=[sweep_number])
+            except Exception as e:
+                print(e)
 
-        if sweep_number == 1:
+            """
+            try:
+                self.database.register('df_data', data_df)
+                print("registered succesfully")
+            except Exception as e:
+                print("register failed")
 
-            # create one new table with all imon signal traces of each sweep of one
-            # specific series (e.g. block pulse or iv)
-            self.create_and_insert_into_new_trace_table(imon_trace_signal_table_name, data_array_df, experiment_name,
-                                                        series_identifier, "data_array")
+            try:
+                self.database.execute(f'CREATE TABLE {imon_trace_signal_table_name} AS SELECT * FROM df_data')
+                print("created tablr succesfully")
+            except Exception as e:
+                print("create table failed")
+            
+            """
 
-            # create one new table with all imon trace meta data information of each imon trace
-            # within one specific series (e.g. block pulse or iv)
-            meta_data_df = pd.DataFrame(list(child_node_ordered_dict.items()), columns=('Parameter', 'sweep_1'))
-            self.create_and_insert_into_new_trace_table(imon_trace_meta_data_table_name, meta_data_df, experiment_name,
-                                                        series_identifier, "meta_data")
+            try:
+                q = """update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+                self.execute_sql_command(self.database, q, (imon_trace_signal_table_name, experiment_name, series_identifier))
+            except Exception as e:
+                print("update table failed")
 
-        else:
-            # insert data trace
-            self.insert_into_existing_trace_table(imon_trace_signal_table_name, sweep_number, data_array_df)
+            print("added data df successfully")
 
-            # insert meta data
-            self.insert_into_existing_trace_table(imon_trace_meta_data_table_name, sweep_number,
-                                                  child_node_ordered_dict)
+            imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
+
+            column_names  = meta_data_df.columns.tolist()
+            #print(column_names)
+            meta_data_df = meta_data_df.reset_index()
+            meta_data_df.columns = ['Parameter'] + column_names
+            print(meta_data_df)
+
+            '''@todo (dz, 17.08.2022): this hardcoded bugfix allows the use of duck db pre dev 0.4.1.dev1603.
+            Max and I  encountered a bug with big data loading - this bug only solves when using duckdb > 0.4.0
+            in dev 0.4.1.dev1603 somehow tinyint-> blob is not implemented yet. 
+            therefore i have replaced all the meta data encoded as b'\x00' with their hexadecimal representation 
+            '''
+
+            affected_rows = [10,11,12,13,33]
+
+            for r in affected_rows:
+                print("val")
+                print(meta_data_df['sweep_1'].iloc[r])
+                print(type(meta_data_df['sweep_1'].iloc[r]))
+
+                replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
+                print(replace_val)
+                for c in column_names:
+                    meta_data_df[c].iloc[r]= replace_val
+
+            print(meta_data_df)
+
+            print("adding meta data --- ")
+
+            try:
+                self.database.register('meta_data_df', meta_data_df)
+            except Exception as e:
+                print("meta data register failed")
+
+            try:
+                self.database.execute(f'CREATE TABLE {imon_trace_meta_data_table_name} AS SELECT * FROM meta_data_df')
+            except Exception as e:
+                print(e)
+                print("meta data create table failed")
+
+            print("added meta data df successfully")
+
+            q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+            self.execute_sql_command(self.database, q,
+                                     (imon_trace_meta_data_table_name, experiment_name, series_identifier))
+
+
+            self.logger.info("Successfully created both df tables of series %s in experiment %s", series_identifier, experiment_name)
+
+
+
+        except Exception as e:
+            print("add_sweep_df_to_database failed")
+            print(e)
+
+
 
     def create_imon_signal_table_name(self, experiment_name, series_identifier):
         '''
@@ -962,71 +1064,7 @@ class DuckDBDatabaseHandler():
         '''
         return 'imon_meta_data_' + experiment_name + '_' + series_identifier
 
-    def insert_into_existing_trace_table(self, table_name, sweep_number, data_frame):
-        '''
-        Inserts trace signals and meta data information into already existing tables in the database.
-        :param table_name: name of the already existing table
-        :param sweep_number: number of the sweep within the series
-        :param data_frame: pandas data frame object that will be stored in the database
-        :return:
-        '''
 
-        self.logger.info("Inserting sweep %s into existing table %s ", str(sweep_number), table_name)
-        self.database.execute(f'SELECT * FROM {table_name}')
-        res_df = self.database.fetchdf()
-
-        try:
-            # dict requires .map function, array requires .insert function
-            # data will be 'appended' columnwise and NOT rowise
-            if type(data_frame) is dict:
-                res_df['sweep_' + str(sweep_number)] = res_df['Parameter'].map(data_frame)
-            else:
-                res_df.insert(sweep_number - 1, 'sweep_' + str(sweep_number), data_frame)
-
-            self.database.register('df_1', res_df)
-            # erase the old table and replace it by creating a new one
-            self.database.execute(f'drop table {table_name}')
-            self.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM df_1')
-
-        except Exception as e:
-            self.logger.info(f'Error::Could not update existing table %s because of error %s', table_name, e)
-
-    def create_and_insert_into_new_trace_table(self, table_name, data_frame, experiment_name, series_identifier,
-                                               table_type):
-        '''
-        Creates new tables for meta data and signal traces and stores already he first sweep information.
-        Additionally the  name of the newly created table will be registered in the experiment_series table for further access.
-        :param table_name: name of the table that will be created - follows specific identifier rules
-        :param data_frame: pandas data frame to be stored in the new table
-        :param experiment_name: name of the experiment in the database where this data belong to
-        :param series_identifier: name of the series identifier whithin the given experiment
-        :param table_type: string token to differenciate between signal data and meta data information
-        :return:
-        '''
-
-        self.database.register('df_1', data_frame)
-
-        try:
-            # create a new sweep table
-            self.database.execute(f'create table {table_name} as select * from df_1')
-
-            try:
-                # update the series table by inserting the newly created sweep table name
-                if table_type == "data_array":
-                    q = """update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-
-                else:
-                    q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-
-                self.execute_sql_command(self.database, q, (table_name, experiment_name, series_identifier))
-
-                self.logger.info("Successfully created %s table %s of series %s in experiment %s",table_type, table_name, series_identifier, experiment_name)
-
-            except Exception as e:
-                self.logger.info("Update Series table failed with error %s", e)
-
-        except Exception as e:
-            self.logger.info("Error::Couldn't create a new table with error %s", e)
 
     def get_single_sweep_meta_data_from_database(self, data_array):
         '''
@@ -1078,6 +1116,7 @@ class DuckDBDatabaseHandler():
 
     def discard_specific_series(self, experiment_name, series_identifier):
         """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
+        print("initial tree is calling discard button function with params", experiment_name, series_identifier)
         self.change_experiment_series_discarded_state(experiment_name, series_identifier, 1)
 
     def reinsert_specific_series(self, experiment_name, series_identifier):
@@ -1150,6 +1189,25 @@ class DuckDBDatabaseHandler():
 
         self.database.execute(f'SELECT * FROM {pgf_table_name}')
         return self.database.fetchdf()
+
+    def get_data_from_recording_specific_pgf_table(self,table_name,data_name,segment_number):
+        q = f'select pgf_data_table_name from experiment_series where sweep_table_name = \'{table_name}\''
+        pgf_table_names = self.get_data_from_database(self.database, q)
+
+        pgf_table_name = pgf_table_names[0][0]
+
+        val = None
+        if data_name == 'holding':
+            q = f'SELECT holding_potential FROM {pgf_table_name}'
+            val = self.get_data_from_database(self.database, q)[segment_number][0]
+
+        if data_name == 'increment':
+            q = f'SELECT increment FROM {pgf_table_name}'
+            val = self.get_data_from_database(self.database, q)[segment_number][0]
+
+        # cast string and return as float value
+        return float(val)
+
 
     def get_data_from_pgf_table(self,series_name,data_name,segment_number):
         """
@@ -1244,7 +1302,11 @@ class DuckDBDatabaseHandler():
                     trace_rec_mode = str(data_list[data_list.index(d) + 1][2][0].get_fields()["RecordingMode"])
                     if rec_mode[0][0] is None:
                         q = f'update series set recording_mode = (?) where name = (?)'
-                        if trace_rec_mode == "b'\\x03'":
+
+                        print("found recording mode")
+                        print(trace_rec_mode)
+
+                        if trace_rec_mode == 3:
                             values = ("Voltage Clamp", series_type)
                             rec_mode[0] = ("Voltage Clamp",)
                         else:
@@ -1261,6 +1323,148 @@ class DuckDBDatabaseHandler():
 
                     self.database = self.execute_sql_command(self.database, sql_command, values)
 
+
+
+        """ @deprecated dz 27.07.2022
+        def add_single_sweep_to_database(self, experiment_name, series_identifier, sweep_number, meta_data, data_array):
+        
+         function to insert a new data array and related meta data information into the database
+         :param experiment_name:
+         :param series_identifier:
+         :param sweep_number:
+         :param meta_data:
+         :param data_array:
+         :return:
+    
+
+        self.logger.info("Adding sweep %s of series %s of experiment %s into database", str(sweep_number),
+                         series_identifier, experiment_name)
+
+        # create table names
+        imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
+        imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
+
+        # @TODO extend for leakage currents also
+        # @TODO add sweep meta data information anyhow. For now only meta data information of the imon trace will be stored.
+
+        data_array_df = pd.DataFrame({'sweep_' + str(sweep_number): data_array})
+
+        # get the meta data from the imon trace
+        child_node = meta_data[0]
+        child_node_ordered_dict = dict(child_node.get_fields())
+
+        meta_data_df = pd.DataFrame.from_dict(data=child_node_ordered_dict, orient='index', columns=[sweep_number])
+
+        if sweep_number == 1:
+            print("creating and inserting new data table")
+            # create one new table with all imon signal traces of each sweep of one
+            # specific series (e.g. block pulse or iv)
+            self.create_and_insert_into_new_trace_table(imon_trace_signal_table_name, data_array_df, experiment_name,
+                                                        series_identifier, "data_array")
+
+            print("creating and inserting new meta table")
+            # create one new table with all imon trace meta data information of each imon trace
+            # within one specific series (e.g. block pulse or iv)
+            meta_data_df = pd.DataFrame(list(child_node_ordered_dict.items()), columns=('Parameter', 'sweep_1'))
+            self.create_and_insert_into_new_trace_table(imon_trace_meta_data_table_name, meta_data_df, experiment_name,
+                                                        series_identifier, "meta_data")
+
+        else:
+            print("inserting into existing trace table")
+            # insert data trace
+            self.insert_into_existing_trace_table(imon_trace_signal_table_name, sweep_number, data_array_df,"data_array")
+
+            print("inserting into existing meta table")
+            # insert meta data
+            try:
+                column_name = 'sweep_' + str(sweep_number)
+                meta_data_df = pd.DataFrame(list(child_node_ordered_dict.items()), columns=('Parameter', column_name))
+                # parameter column will be only written once in sweep = 1 above
+                meta_data_df = meta_data_df.drop(columns='Parameter')
+                self.insert_into_existing_trace_table(imon_trace_meta_data_table_name, sweep_number,
+                                                  meta_data_df,"meta_data")
+            except Exception as e:
+                print(e)
+        
+        
+            def insert_into_existing_trace_table(self, table_name, sweep_number, data_frame, table_type):
+        '''
+        Inserts trace signals and meta data information into already existing tables in the database.
+        :param table_name: name of the already existing table
+        :param sweep_number: number of the sweep within the series
+        :param data_frame: pandas data frame object that will be stored in the database
+        :return:
+        '''
+
+        self.logger.info("Inserting sweep %s into existing table %s ", str(sweep_number), table_name)
+
+        try:
+            if table_type =='data_array':
+                sweep_name = data_frame.columns.tolist()[0]
+                self.database.execute(f' alter table {table_name} add {sweep_name} float')
+                self.database.execute(f'insert into {table_name} ({sweep_name}) select {sweep_name} from data_frame')
+
+                #self.database.query(f'update {table_name} set {sweep_name} = data_frame')
+            else:
+                old_df = self.database.execute(f'select * from {table_name}').df()
+                new_df = pd.concat([old_df, data_frame], axis = 1)
+                self.database.register('df_1', new_df)
+                self.database.execute(f'drop table {table_name}')
+                self.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM df_1')
+
+            print("succesfull insert")
+        except Exception as e:
+            print("Catched error:")
+            print(e)
+
+    def create_and_insert_into_new_trace_table(self, table_name, data_frame, experiment_name, series_identifier,
+                                               table_type):
+        '''
+        Creates new tables for meta data and signal traces and stores already he first sweep information.
+        Additionally the  name of the newly created table will be registered in the experiment_series table for further access.
+        :param table_name: name of the table that will be created - follows specific identifier rules
+        :param data_frame: pandas data frame to be stored in the new table
+        :param experiment_name: name of the experiment in the database where this data belong to
+        :param series_identifier: name of the series identifier whithin the given experiment
+        :param table_type: string token to differenciate between signal data and meta data information
+        :return:
+        '''
+
+
+        try:
+            # create a new sweep table
+            # self.database.execute(f'create table {table_name} as select * from df_1')
+            if table_type == 'data_array':
+                self.database.execute(f'create table {table_name}(sweep_1 float)')
+                self.database.query(f'insert into {table_name}(sweep_1) select sweep_1 from data_frame')
+            else:
+                self.database.register('df_1',data_frame)
+                self.database.execute(f'create table {table_name} as select * from df_1')
+
+            print("successfully inserted sweep 1")
+            try:
+                # update the series table by inserting the newly created sweep table name
+                if table_type == "data_array":
+                    q = """"""update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""""""
+
+                else:
+
+                self.execute_sql_command(self.database, q, (table_name, experiment_name, series_identifier))
+
+                self.logger.info("Successfully created %s table %s of series %s in experiment %s",table_type, table_name, series_identifier, experiment_name)
+
+            except Exception as e:
+                self.logger.info("Update Series table failed with error %s", e)
+
+        except Exception as e:
+            print(data_frame)
+            print(table_name)
+            print(experiment_name)
+            print(series_identifier)
+            print("Error::Couldn't create a new table with error %s", e)
+            self.logger.info("Error::Couldn't create a new table with error %s", e)
+        
+        """
 
 
     '''

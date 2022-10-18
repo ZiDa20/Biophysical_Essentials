@@ -10,6 +10,7 @@ class MeanVoltage(SweepWiseAnalysisTemplate):
 
     @classmethod
     def specific_calculation(self):
+        self.cslow_normalization = 0
         max_val = np.mean(self.sliced_volt)
         return max_val
 

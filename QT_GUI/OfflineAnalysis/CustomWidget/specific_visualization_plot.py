@@ -13,16 +13,17 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from groupbox_resizing_class import *
 
+
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
         if not result_plot_visualizer.objectName():
             result_plot_visualizer.setObjectName(u"result_plot_visualizer")
-        result_plot_visualizer.resize(558, 415)
+        result_plot_visualizer.resize(677, 422)
         self.gridLayout = QGridLayout(result_plot_visualizer)
         self.gridLayout.setObjectName(u"gridLayout")
         self.specific_plot_box = QGroupBox(result_plot_visualizer)
         self.specific_plot_box.setObjectName(u"specific_plot_box")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.specific_plot_box.sizePolicy().hasHeightForWidth())
@@ -30,23 +31,23 @@ class Ui_result_plot_visualizer(object):
         self.specific_plot_box.setMaximumSize(QSize(16777215, 400))
         self.gridLayout_2 = QGridLayout(self.specific_plot_box)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.verticalSpacer_5 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_5 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_5, 5, 0, 1, 1)
 
-        self.horizontalSpacer = QSpacerItem(150, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(150, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.gridLayout_2.addItem(self.horizontalSpacer, 1, 1, 1, 1)
 
-        self.horizontalSpacer_2 = QSpacerItem(150, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(150, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.gridLayout_2.addItem(self.horizontalSpacer_2, 1, 2, 1, 1)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_3 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_3, 3, 0, 1, 1)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_4 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_4, 4, 0, 1, 1)
 
@@ -55,13 +56,13 @@ class Ui_result_plot_visualizer(object):
 
         self.gridLayout_2.addLayout(self.plot_layout, 2, 1, 5, 4)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_2 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout_2.addItem(self.verticalSpacer_2, 2, 0, 1, 1)
 
         self.Control_button = QGroupBox(self.specific_plot_box)
         self.Control_button.setObjectName(u"Control_button")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.Control_button.sizePolicy().hasHeightForWidth())
@@ -104,7 +105,7 @@ class Ui_result_plot_visualizer(object):
 
         self.verticalLayout.addWidget(self.split_data_combo_box)
 
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
         self.verticalLayout.addItem(self.horizontalSpacer_6)
 
@@ -113,7 +114,7 @@ class Ui_result_plot_visualizer(object):
 
         self.verticalLayout.addWidget(self.label)
 
-        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
         self.verticalLayout.addItem(self.horizontalSpacer_4)
 
@@ -136,7 +137,7 @@ class Ui_result_plot_visualizer(object):
 
         self.verticalLayout.addWidget(self.export_data_button)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
         self.verticalLayout.addItem(self.horizontalSpacer_5)
 
@@ -180,6 +181,7 @@ class Ui_result_plot_visualizer(object):
         self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"     Save Data", None))
         self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"    Save Plot", None))
     # retranslateUi
+
 
 
 class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):

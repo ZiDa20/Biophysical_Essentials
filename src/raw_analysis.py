@@ -39,7 +39,7 @@ class AnalysisRaw():
 
     def get_elements(self,recording_mode):
         if recording_mode == "Voltage Clamp":
-            return ["max_current","min_current","mean_current"] #,"area_current","time-to-maximum","time-to-minimum"]
+            return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["mean_voltage",  "Action Potential Fitting",
                     "Rheobase-Detection", "RheoRamp-Detection", "Input Resistance"] # "Cluster",

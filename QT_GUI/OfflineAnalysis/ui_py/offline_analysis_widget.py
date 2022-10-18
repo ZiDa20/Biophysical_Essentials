@@ -5,6 +5,8 @@
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
+import time
+
 import pyqtgraph
 from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
@@ -24,15 +26,17 @@ from raw_analysis import AnalysisRaw
 from assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
-pg.setConfigOption('foreground','#448aff')
+from AnalysisFunctionRegistration import  AnalysisFunctionRegistration
+import os
+
 import csv
 from filter_pop_up_handler import Filter_Settings
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 from PySide6.QtCore import QThreadPool
 from Worker import Worker
 from BlurWindow.blurWindow import GlobalBlur
-
-
+from load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
+from drag_and_drop_list_view import DragAndDropListView
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -42,20 +46,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.progressbar = progress
         self.statusbar = status
-        # start page of offline analysis
-        self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
 
-        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
-
-        # blank analysis menu
-        self.select_directory_button.clicked.connect(self.open_directory)
-        self.load_from_database.clicked.connect(self.load_treeview_from_database)
-        self.go_back_button.clicked.connect(self.go_to_main_page)
-
-        self.compare_series.clicked.connect(self.select_series_to_be_analized)
-        
         self.add_filter_button.setEnabled(False)
-        # style object of class type Frontend_Style that will be introduced and set by start.py and shared between all subclasses
+
+        # style object of class type Frontend_Style that will be int
+        # produced and set by start.py and shared between all subclasses
         self.frontend_style = None
         self.database_handler = None
 
@@ -78,6 +73,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # animation of the side dataframe
         self.series_selection.clicked.connect(self.animate_tree_view)
+        self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
+        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
+        self.compare_series.clicked.connect(self.select_series_to_be_analized)
+
+        # blank analysis menu
+        self.select_directory_button.clicked.connect(self.open_directory)
+        self.load_from_database.clicked.connect(self.load_treeview_from_database)
+        self.go_back_button.clicked.connect(self.go_to_main_page)
+        self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
 
 
     def animate_tree_view(self):
@@ -106,6 +110,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.SeriesItems.setMinimumSize(final_width, 780)
         
 
+    def load_and_assign_meta_data(self):
+        """
+        To play around with the data you may want to load or assign new meta data - here one can do this
+        @return: 
+        """
+
+        # @todo: multithreading ?
+        file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
+        with open(file_name, mode='r') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                if row:
+                    try:
+                        self.database_handler.add_meta_data_group_to_existing_experiment(row[0], row[1])
+                        print("assigned %s to recording %s ", row[0], row[1])
+                    except Exception as e:
+                        print("load_and_assign_meta_data: error when assigning meta_data_types")
+            csv_file.close()
 
     def update_database_handler_object(self,updated_object):
         self.database_handler = updated_object
@@ -151,26 +173,99 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
         # open a popup to allow experiment label selection by the user
-        # from the popup get the label
-        experiment_label = ""
+
+        self.dialog = Load_Data_From_Database_Popup_Handler()
+
+        available_labels = self.database_handler.get_available_experiment_label()
+
+        label_list = []
+        for i in available_labels:
+            if i[0] is None:
+                QListWidgetItem('nan', self.dialog.available_labels_list)
+            else:
+                QListWidgetItem(i[0], self.dialog.available_labels_list)
+
+        grid = QGridLayout()
+        self.list_view = DragAndDropListView(self,self.dialog.available_labels_list)
+        self.list_view.setAcceptDrops(True)
+        self.list_view.fileDropped.connect(self.experiment_label_dropped)
+        grid.addWidget(self.list_view)
+        self.dialog.selected_labels.setLayout(grid)
+
+        self.dialog.load_data.clicked.connect(self.load_worker)
+
+        self.dialog.exec_()
+
+    def load_worker(self):#
+        self.database_handler.database.close()
+
+        # clear the tree and make structure the tree
+        
+
         self.experiments_tree_view.clear()
+        self.experiments_tree_view.setColumnWidth(0, 150)
+        self.experiments_tree_view.setColumnWidth(1, 140)
+        self.experiments_tree_view.setColumnWidth(2, 50)
+
+        self.outfiltered_tree_view.setColumnWidth(0, 150)
+        self.outfiltered_tree_view.setColumnWidth(1, 140)
+        self.outfiltered_tree_view.setColumnWidth(2, 50)
+
         self.outfiltered_tree_view.clear()
+
+        print("started_this _thign")
+        self.selected_meta_data_list = []
+        for n in range(0,self.dialog.meta_data_list.count()):
+            item = self.dialog.meta_data_list.item(n)
+            if item.checkState()==Qt.CheckState.Checked:
+                self.selected_meta_data_list.append(item.text())
+
         self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
-        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(self.experiments_tree_view,
-                                                                     self.outfiltered_tree_view,experiment_label, None)
+        self.blank_analysis_page_1_tree_manager.experiment_tree = self.experiments_tree_view
+        self.blank_analysis_page_1_tree_manager.discarded_tree = self.outfiltered_tree_view
+        #create the threadpool
 
-        self.experiments_tree_view.setColumnWidth(0, 100)
-        self.experiments_tree_view.setColumnWidth(1, 25)
-        self.experiments_tree_view.setColumnWidth(2, 100)
-        self.experiments_tree_view.setColumnWidth(3, 25)
+        self.threadpool = QThreadPool()
+        self.worker_I = Worker(self.load_recordings)
+        self.worker_I.signals.finished.connect(self.finished_database_loading)
+        self.worker_I.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui, Qt.BlockingQueuedConnection)
+        self.threadpool.start(self.worker_I)
+        self.dialog.close()
 
+    def load_recordings(self, progress_callback):
+        
+        self.progress_callback = progress_callback
+        self.database_handler.open_connection(read_only = True)
+        experiment_label = ""
+        self.blank_analysis_page_1_tree_manager.selected_meta_data_list =  self.selected_meta_data_list
+        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None, self.progress_callback)
+        
+        
+    def finished_database_loading(self):
+        
+        print("here we finish the database")
+        self.database_handler.open_connection()
+        for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
+            self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
-
         self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-
-        # show selected tree_view
         self.directory_tree_widget.setCurrentIndex(0)
+        print("finished loading")
+        # show selected tree_view
+        
+    @Slot()
+    def experiment_label_dropped(self,item_text):
+        print(item_text)
+        QListWidgetItem(item_text, self.list_view)
+
+        distinct_meta_data = self.database_handler.get_distinct_meta_data_groups_for_specific_experiment_label([item_text])
+        print(distinct_meta_data)
+
+        for i in distinct_meta_data:
+            QListWidgetItem(i[0],self.dialog.meta_data_list).setCheckState(Qt.CheckState.Checked)
+
+        print("added new item")
 
     @Slot()
     def open_directory(self):
@@ -180,7 +275,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
         # open the directory
         dir_path =QFileDialog.getExistingDirectory()
-        self.selected_directory.setText(dir_path)
+        #self.selected_directory.setText(dir_path)
 
         if dir_path:
             self.select_directory_button.setText("Change")
@@ -201,55 +296,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-        if not (meta_data_option_list and meta_data_group_assignment_list):
-            meta_data_group_assignment_list = []
-            meta_data_option_list = []
-
         # close the dialog
         enter_meta_data_dialog.close()
 
-        # make sure to always clear the tree - needed when reloading a new directory
-        self.experiments_tree_view.clear()
-        self.outfiltered_tree_view.clear()
+        if not (meta_data_option_list and meta_data_group_assignment_list):
+            meta_data_group_assignment_list = []
+            meta_data_option_list = []
+        else:
+            for n in meta_data_group_assignment_list:
+                print(n)
+                self.database_handler.add_meta_data_group_to_existing_experiment(n[0], n[1])
 
-
-        self.blank_analysis_page_1_tree_manager = self.offline_manager.read_data_from_experiment_directory(
+        tree_view_manager = self.offline_manager.read_data_from_experiment_directory(
             self.experiments_tree_view,
             self.outfiltered_tree_view, meta_data_option_list, meta_data_group_assignment_list)
 
-        
-        self.blank_analysis_page_1_tree_manager.frontend_style = self.frontend_style
-
-        self.blank_analysis_page_1_tree_manager.assign_meta_data_groups_from_list(self.experiments_tree_view,
-                                                                                  meta_data_group_assignment_list)
-
-        self.blank_analysis_page_1_tree_manager.update_experiment_meta_data_in_database(self.experiments_tree_view)
-
-        # display settings for the tree view in the blank analysis
-        self.experiments_tree_view.setColumnWidth(0, 100)
-        self.experiments_tree_view.setColumnWidth(1, 25)
-        self.experiments_tree_view.setColumnWidth(2, 100)
-        self.experiments_tree_view.setColumnWidth(3, 25)
-
-        # write the meta data to the tree
-
-
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.experiments_tree_view,1,False)
-
-        self.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-        self.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-
-        # show selected tree_view
-        self.directory_tree_widget.setCurrentIndex(0)
-        self.experiments_tree_view.expandToDepth(0)
-
-        self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0))
-        #print(self.experiments_tree_view.topLevelItem(0).child(0).text(0))
-        #self.experiments_tree_view.setCurrentItem(self.experiments_tree_view.topLevelItem(0).child(0).setCheckState(1,Qt.Checked))
-
-        #self.blank_analysis_plot_manager.tree_view_click_handler(self.experiments_tree_view.topLevelItem(0).child(0))
-
         self.add_filter_button.setEnabled(True)
+
+        # open the dialog to select experiments by there metadata
+        tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
 
 
     @Slot()
@@ -287,7 +352,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         dialog_grid = QGridLayout(dialog)
         #series_names_string_list = ["Block Pulse", "IV"]
-        
+        dialog_quit = QPushButton("Cancel", dialog)
+        dialog_grid.addWidget(dialog_quit, 0, 0)
+
         checkbox_list = []
         name_list = []
         for s in  series_names_string_list:
@@ -295,15 +362,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             c = QCheckBox()
             checkbox_list.append(c)
             l = QLabel(name)
-            dialog_grid.addWidget(c,series_names_string_list.index(s),0)
-            dialog_grid.addWidget(l,series_names_string_list.index(s),1)
+            dialog_grid.addWidget(c,series_names_string_list.index(s)+2,0)
+            dialog_grid.addWidget(l,series_names_string_list.index(s)+2,1)
             name_list.append(name)
 
         confirm_series_selection_button = QPushButton("Compare Series", dialog)
-        dialog_quit = QPushButton("Cancel", dialog)
         confirm_series_selection_button.clicked.connect(partial(self.compare_series_clicked,checkbox_list,name_list,dialog))
         dialog_quit.clicked.connect(partial(self.close_dialog,dialog))
-        dialog_grid.addWidget(confirm_series_selection_button,len(name_list),0)
+        dialog_grid.addWidget(confirm_series_selection_button,len(name_list)+2,0)
         dialog.setWindowTitle("Available Series To Be Analyzed")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
@@ -368,8 +434,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     option_list.append(row[1])
             csv_file.close()
 
-            #@todo : start a new tab here ?
-            self.continue_open_directory(dialog,option_list,meta_data_assignments)
+        print("results from the template file")
+        print(meta_data_assignments)
+        self.continue_open_directory(dialog,option_list,meta_data_assignments)
 
     def create_meta_data_template(self,old_dialog):
         '''
@@ -435,6 +502,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """Handler for a click on the button confirm_series_selection in a pop up window"""
 
         series_to_analize = self.get_selected_checkboxes(checkboxes,series_names)
+        print("building analysis specific notebook")
+        print(series_to_analize)
+
         self.built_analysis_specific_notebook(series_to_analize)
         self.offline_analysis_widgets.setCurrentIndex(2)
         dialog.close()
@@ -573,7 +643,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # deprecated dz 29.06.2022
         #TreeViewManager(db).get_series_specific_treeviews(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,dat_files,directory,series_name)
-        TreeViewManager(db).create_treeview_from_database(current_tab.selected_tree_widget,current_tab.discarded_tree_widget,"",series_name)
+        print("creating new tab specific treeview")
+        tmp_treeview = TreeViewManager(db)
+        tmp_treeview.experiment_tree = current_tab.selected_tree_widget
+        tmp_treeview.discarded_tree = current_tab.discarded_tree_widget
+
+        tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
+        tmp_treeview.create_treeview_from_database("",series_name)
 
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
@@ -585,7 +661,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             current_tab.turn_on_peak_detection.setVisible(True)
 
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
-                                                                  self.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible())
+                                                                  self.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible(),self.toolbar_widget_2)
 
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
@@ -593,10 +669,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.tabWidget.setCurrentIndex(0)
         current_tab.selected_tree_widget.expandToDepth(0)
 
+
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
 
         self.current_tab_plot_manager.tree_view_click_handler(current_tab.selected_tree_widget.topLevelItem(0).child(0))
-
         self.current_tab_visualization.append(self.current_tab_plot_manager)
 
 
@@ -653,10 +729,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.pushButton_3.clicked.connect(self.add_filter_to_offline_analysis)
     
         if existing_row_numbers == 0:
-            
 
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-            current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(5)
+            current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(6)
             current_tab.analysis_table_widget.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
             self.table_buttons = [0] * len(self.selected_analysis_functions)
         else:
@@ -668,15 +743,64 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 value = self.selected_analysis_functions[row]
                 print(str(value))
                 current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert,0,QTableWidgetItem(str(value)))
+
                 self.table_buttons[row_to_insert] = QPushButton("Add")
                 self.c = QPushButton("Configure")
+                self.live_result = QCheckBox()
+
                 current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,3,self.table_buttons[row_to_insert])
                 current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
+                current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5, self.live_result)
 
                 self.table_buttons[row_to_insert].clicked.connect(partial(self.add_coursor_bounds,row_to_insert,current_tab))
+                self.live_result.clicked.connect(partial(self.show_live_results_changed,row_to_insert,current_tab, self.live_result))
+                current_tab.analysis_table_widget.analysis_table_widget.show()
 
-        current_tab.analysis_table_widget.analysis_table_widget.show()
+        self.current_tab_plot_manager.set_analysis_functions_table_widget(current_tab.analysis_table_widget.analysis_table_widget)
 
+    def show_live_results_changed(self, row_number, current_tab, checkbox_object: QCheckBox):
+        """
+        Function to handle activation of an analysis function specific checkbox in the analysis table. It checks if
+        cursor bounds were set correctly (if not error dialog is displayed). In the analysis function objects specified
+        points used for the related analysis will be added or removed within the trace plot.
+        @param row_number: row of the checkbox in the analysis function table
+        @param current_tab: current tab
+        @param checkbox_object: QCheckbox
+        @return:
+        @author: dz, 01.10.2022
+        """
+        if checkbox_object.isChecked():
+            # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
+            try:
+                lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
+                upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
+            except Exception as e:
+                # @todo: make this a reusable function: show_error_dialog(message)
+                dialog = QDialog()
+                #dialog.setWindowFlags(Qt.FramelessWindowHint)
+                dialog_grid = QGridLayout(dialog)
+                # series_names_string_list = ["Block Pulse", "IV"]
+                dialog_quit = QPushButton("Cancel", dialog)
+                dialog_message = QLabel(dialog)
+                dialog_message.setText("Please select cursor bounds first and activate live plot afterwords")
+                dialog_grid.addWidget(dialog_message)
+                dialog_grid.addWidget(dialog_quit)
+                dialog_quit.clicked.connect(partial(self.quit_error_dialog, dialog))
+                dialog.setWindowTitle("Error")
+                dialog.setWindowModality(Qt.ApplicationModal)
+                dialog.exec_()
+                checkbox_object.setCheckState(Qt.CheckState.Unchecked)
+        # artificial click will replot and add or delete the newly checked or unchecked analysis function
+        item = current_tab.selected_tree_widget.currentItem()
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].analysis_functions_table_widget = current_tab.analysis_table_widget.analysis_table_widget
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].tree_view_click_handler(item)
+
+    def quit_error_dialog(self,dialog:QDialog):
+        dialog.close()
+
+    def analysis_table_cell_changed(self,item):
+        print("a cell changed")
+        print(item.text())
 
     def remove_existing_dragable_lines(self,row_number,current_tab):
         number_of_rows = current_tab.analysis_table_widget.rowCount()
@@ -701,11 +825,26 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-      
-        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
+        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
+            row_number)
 
-        # 1) insert dragable coursor bounds into pyqt graph
-        left_val, right_val = self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
+        try:
+            print("read")
+            left_cb_val = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text()),2)
+            right_cb_val = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text()),2)
+
+            # 1) insert dragable coursor bounds into pyqt graph
+            left_val, right_val = self.current_tab_visualization[
+                self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
+                                                                                          (left_cb_val, right_cb_val))
+
+
+        except Exception as e:
+            print(e)
+            # 1) insert dragable coursor bounds into pyqt graph
+            left_val, right_val = self.current_tab_visualization[
+                self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
+
 
         #2) connect to the signal taht will be emitted when cursor bounds are moved by user
         self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(self.update_left_common_labels)
@@ -770,8 +909,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         # store analysis parameter in the database
-        self.database_handler.database.close()
-        self.threadpool = QThreadPool()
+       
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)

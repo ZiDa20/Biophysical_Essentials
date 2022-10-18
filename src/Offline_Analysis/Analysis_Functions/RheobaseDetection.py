@@ -41,20 +41,23 @@ class RheobaseDetection(object):
         data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
 
         # set to None, will be set once and should be equal for all data tables
-        holding_value = None
-        increment_value = None
         self.time = None
 
         for data_table in data_table_names:
-
+            holding_value = None
+            increment_value = None
             #print("processing new data table")
 
             if self.time is None:
                 self.time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
             if holding_value is None:
-                increment_value = self.database.get_data_from_pgf_table(self.series_name, "increment", 1)
-                holding_value = self.database.get_data_from_pgf_table(self.series_name, "holding", 0)
+
+                print(f'requesting holding value for table {data_table}')
+
+                increment_value = self.database.get_data_from_recording_specific_pgf_table(data_table, "increment", 1)
+
+                holding_value = self.database.get_data_from_recording_specific_pgf_table(data_table, "holding", 0)
 
             # get the data frame and make sure to sort sweep numbers correctly
             entire_sweep_table = self.database.get_entire_sweep_table_as_df(data_table)
@@ -95,10 +98,15 @@ class RheobaseDetection(object):
                         if (np.max(s1) > ap_detection_threshold) and (np.max(s2) > ap_detection_threshold):
                             # get the holding value and the incrementation steps from the pgf data for this series
                             # sweeps , holding, increment
-                            injected_current = holding_value + (sweep_number - 1) * increment_value
+                            #injected_current = holding_value + (sweep_number - 1) * increment_value
+                            print("increment_value")
+                            print(increment_value)
+                            injected_current =  (sweep_number - 1) * increment_value * 1000
                             new_specific_result_table_name = self.create_new_specific_result_table_name(
                                 self.database.analysis_id, data_table)
 
+                            print("injected current with greater 2 sweeps")
+                            print(injected_current)
                             result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
 
                             self.database.update_results_table_with_new_specific_result_table_name(
@@ -107,7 +115,10 @@ class RheobaseDetection(object):
                             break
 
                     else:
-                        injected_current = holding_value + (sweep_number - 1) * increment_value
+                        # holding_value +
+                        injected_current = (sweep_number - 1) * increment_value * 1000
+                        print("injected current with smaller - 2 sweeps")
+                        print(injected_current)
                         new_specific_result_table_name = self.create_new_specific_result_table_name(
                             self.database.analysis_id, data_table)
 
@@ -180,12 +191,24 @@ class RheobaseDetection(object):
         ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
         ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
 
-        default_colors = ['k', 'b', 'r', 'g', 'c']
+        ax.set_ylabel("Injected Current [pA]")
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        default_colors = ['k', 'b', 'g', 'c', 'r']
 
         for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
             patch.set_facecolor(color)
 
-        ax.legend(plot['boxes'], custom_labels, loc='upper left')
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        # Put a legend below current axis
+        ax.legend(plot['boxes'], custom_labels,loc='center left', bbox_to_anchor=(1, 0.5))
+
+        for i in range(1, len(filtered_box_plot_data) + 1):
+            y = filtered_box_plot_data[i - 1]
+            # Add some random "jitter" to the x-axis
+            x = np.random.normal(i, 0.04, size=len(y))
+            ax.plot(x, y, 'r.', alpha=0.8, picker=True)
 
         parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
         parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()

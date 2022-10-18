@@ -143,11 +143,13 @@ class OfflineManager():
             data_list_final = list(self.chunks(data_list, threads-1))
             for i,t in enumerate(data_list_final):
                 bundle_worker = self.run_bundle_function_in_thread(t)
-               
 
-        bundle_worker.signals.finished.connect(partial(self.run_database_threading,self.bundle_liste, tree, discarded_tree))
-        
-        return self.tree_view_manager # return the treeview manager object
+        bundle_worker.signals.finished.connect(
+            partial(self.run_database_threading, self.bundle_liste, tree, discarded_tree))
+
+        return self.tree_view_manager
+
+        #return bundle_worker # self.tree_view_manager # return the treeview manager object
 
 
     def run_bundle_function_in_thread(self,bundle_liste):
@@ -174,6 +176,7 @@ class OfflineManager():
         worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
          # signal to update progress bar
         self.threadpool.start(worker) # start the thread
+
 
     def show_bundle_result(self, result):
         for i in result:

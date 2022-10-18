@@ -18,6 +18,8 @@ class SweepWiseAnalysisTemplate(object):
 		self.database = None  # database
 		self.plot_type_options = ["No Split", "Split by Meta Data"]
 
+		self.cslow_normalization = 1
+
 		self.lower_bound = None
 		self.upper_bound = None
 		self.time = None
@@ -27,6 +29,8 @@ class SweepWiseAnalysisTemplate(object):
 
 		self.database = None
 		self.series_name = None
+
+
 
 	@property
 	def lower_bounds(self):
@@ -77,6 +81,69 @@ class SweepWiseAnalysisTemplate(object):
 		print("not implemented")
 
 	@classmethod
+	def live_data(self,lower_bound, upper_bound, experiment_name,series_identifier, database_handler, sweep_name = None):
+		"""for each sweep, find correct x and y value to be plotted as live result
+		@author: dz, 29.09.2022
+		"""
+		print("live ")
+		self.lower_bound = lower_bound
+		self.upper_bound = upper_bound
+		data_table_name = database_handler.get_sweep_table_name(experiment_name,series_identifier)
+		self.time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table_name)
+		entire_sweep_table = database_handler.get_entire_sweep_table(data_table_name)
+
+		# @Todo
+		#series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
+
+		print(entire_sweep_table)
+
+		if sweep_name:
+			print(sweep_name)
+			data = entire_sweep_table.get(sweep_name)
+			print(data)
+			return [self.live_data_for_single_sweep(data)]
+		else:
+			return self.live_data_for_entire_series(entire_sweep_table)
+
+	@classmethod
+	def live_data_for_entire_series(self, entire_sweep_table):
+		"""
+		calculates a list of tuples (x_value, y-value) to be plotted on top in the trace plot for each sweep within a series
+		@param entire_sweep_table:
+		@return:
+		@author: dz, 29.09.2022
+		"""
+		plot_data = []
+
+		for column in entire_sweep_table:
+			data = entire_sweep_table.get(column)
+			plot_data.append((self.live_data_for_single_sweep(data)))
+
+		return(plot_data)
+
+	@classmethod
+	def live_data_for_single_sweep(self,data):
+		"""
+		takes a single sweep, slices according defined coursor bounds and calculates the related x-yvalue tuple
+		@param data:
+		@return:
+		@author: dz, 29.09.2022
+		"""
+		self.data = data
+
+		#@todo
+		# if series_specific_recording_mode != "Voltage Clamp":
+		# y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+		# self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+
+		# slice trace according to coursor bounds
+		self.construct_trace()
+		self.slice_trace()
+
+
+		return self.live_data_calculation()
+
+	@classmethod
 	def calculate_results(self):
 		"""
 		iterate through each single sweep of all not discarded series in the database and save the calculated result
@@ -85,8 +152,10 @@ class SweepWiseAnalysisTemplate(object):
 		"""
 
 		# @todo get this from the configuration window
-		series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
 
+
+		series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
+		"""
 		try:
 			if series_specific_recording_mode == "Voltage Clamp":
 				cslow_normalization = 1
@@ -96,6 +165,7 @@ class SweepWiseAnalysisTemplate(object):
 			print("Error in Excecute_Single_Series_Analysis")
 			print(e)
 			cslow_normalization = 0
+		"""
 
 		data_table_names = []
 		# get the names of all data tables to be evaluated
@@ -136,9 +206,9 @@ class SweepWiseAnalysisTemplate(object):
 
 				res = self.specific_calculation()
 
-				#print("result")
-				#print(res)
-				if cslow_normalization:
+				print("result")
+				print(res)
+				if self.cslow_normalization:
 					cslow = self.database.get_cslow_value_for_sweep_table(data_table)
 					res = res / cslow
 					print("normalized")
@@ -311,18 +381,30 @@ class SweepWiseAnalysisTemplate(object):
         :author: dz, 11.07.2022
         """
 		ax = canvas.figure.subplots()
-		for table in result_table_list:
+		plot_data_frame = pd.DataFrame ()
 
-			x_data, y_data, experiment_name = self.fetch_x_and_y_data(table)
+		for table in result_table_list:
+			y_data,x_data, experiment_name = self.fetch_x_and_y_data(table)
+			new_df = pd.DataFrame(y_data, index=x_data,columns=[table])
+			plot_data_frame  = pd.concat([plot_data_frame,new_df], axis=1)
 
 			try:
-				ax.plot(y_data,x_data, 'k', label=experiment_name)
+				ax.plot(x_data,y_data, 'k', label=experiment_name)
 				#parent_widget.export_data_frame.insert(0, experiment_name, y_data)
 			except Exception as e:
 				print(e)
 				print(experiment_name)
-		ax.legend()
+
+		box = ax.get_position()
+		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+		# Put a legend below current axis
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		canvas.show()
+
+		print(plot_data_frame)
+		parent_widget.export_data_frame = plot_data_frame
+		print("succesfully stored data")
+
 
 	@classmethod
 	def plot_mean_per_meta_data(self, parent_widget, canvas, result_table_list):
@@ -353,12 +435,15 @@ class SweepWiseAnalysisTemplate(object):
 			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
 
 			if meta_data_group in meta_data_groups:
-				#new_df = pd.DataFrame(np.array(x_data))
-				#print(new_df)
-				specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-				specific_df.insert(0, str(result_table_list.index(table)), x_data, True)
-				meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-
+				try:
+					specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
+					specific_df.insert(0, str(result_table_list.index(table)), x_data, True)
+					meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
+				except Exception as e:
+					print("an error occured in split by meta data")
+					print(e)
+					print("the following table will not be added to results")
+					print(table)
 			else:
 				# add a new meta data group
 				meta_data_groups.append(meta_data_group)
@@ -369,6 +454,9 @@ class SweepWiseAnalysisTemplate(object):
 
 			print("finished meta data group calculation")
 		ax = canvas.figure.subplots()
+
+		plot_data_frame = pd.DataFrame()
+
 		for group in meta_data_groups:
 
 			# convert dataframe into numpy array = list of lists
@@ -376,21 +464,38 @@ class SweepWiseAnalysisTemplate(object):
 			mean_coordinate_value = []
 			calc_std = []
 
-			# for each row a mean will be calculated: each row reflects one sweep .. eg. sweep 1
+			# for each row a mean will be calculated: each row reflects one sweep .. eg.
+			# 			recording1 # recording2 # recording3
+			# sweep 1
+
 			for coordinate_row in df_as_numpy_array:
+				print(coordinate_row)
+				try:
+					mean_coordinate_value.append(np.mean(coordinate_row))
+					calc_std.append(np.std(coordinate_row)/np.sqrt(np.size(coordinate_row)))
+				except Exception as e:
+					print(e)
+					print(coordinate_row)
 
-				mean_coordinate_value.append(np.mean(coordinate_row))
-				calc_std.append(np.std(coordinate_row))
-
+			custom_label = group + ": n = " + str(np.size(df_as_numpy_array[0]))
 			try:
-				ax.plot(y_data,mean_coordinate_value, 'k', label=group)
-				# parent_widget.export_data_frame.insert(0, experiment_name, y_data)
+				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=custom_label)
+				plot_data_frame = pd.concat([plot_data_frame,pd.DataFrame(mean_coordinate_value,index=y_data,columns=[group])],axis=1 )
+
 			except Exception as e:
 					print(e)
 					print(group)
 
-			ax.legend()
-			canvas.show()
+		box = ax.get_position()
+		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+		# Put a legend below current axis
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		canvas.show()
+
+		print(plot_data_frame)
+		parent_widget.export_data_frame = plot_data_frame
+		print("succesfully stored data")
+
 
 	@classmethod
 	def fetch_x_and_y_data(self, table_name):
@@ -421,7 +526,11 @@ class SweepWiseAnalysisTemplate(object):
 		result_list = self.database.get_data_from_database(self.database.database, q,
 														  [analysis_id, analysis_function_id])
 
-		result_list = (list(zip(*result_list))[0])
+		try:
+			result_list = (list(zip(*result_list))[0])
+		except Exception as e:
+			print(e)
+			result_list = []
 		return result_list
 
 
