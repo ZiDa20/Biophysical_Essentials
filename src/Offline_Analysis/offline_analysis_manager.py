@@ -46,6 +46,7 @@ class OfflineManager():
 
         self.tree_view_manager = None
         self.bundle_liste = []
+        self.abf_bundle_liste = []
 
 
     @property
@@ -145,11 +146,10 @@ class OfflineManager():
                 bundle_worker = self.run_bundle_function_in_thread(t)
 
         bundle_worker.signals.finished.connect(
-            partial(self.run_database_threading, self.bundle_liste, tree, discarded_tree))
+            partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste, tree, discarded_tree))
 
         return self.tree_view_manager
 
-        #return bundle_worker # self.tree_view_manager # return the treeview manager object
 
 
     def run_bundle_function_in_thread(self,bundle_liste):
@@ -166,11 +166,11 @@ class OfflineManager():
         return bundle_worker
         
 
-    def run_database_threading(self, bundle_liste, tree, discarded_tree):
-        
+    def run_database_threading(self, bundle_liste, abf_list, tree, discarded_tree):
+        """"""
         self.threadpool.clear()
         self.database.database.close()
-        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste)
+        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste, abf_list)
         #worker.signals.progress.connect(self.progress_fn)
         #worker.signals.result.connect(self.set_database)
         worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
@@ -179,13 +179,12 @@ class OfflineManager():
 
 
     def show_bundle_result(self, result):
-        for i in result:
+        """ result from the bundeling of the dat and abf files"""
+        bundle_result, abf_result = result
+        for i in bundle_result:
             self.bundle_liste.append(i)
-
-    """
-    def set_database(self, result):
-        print(result)
-    """
+        for i in abf_result:
+            self.abf_bundle_liste.append(i)
 
     def chunks(self, lst, n):
         """Yield successive n-sized chunks from lst."""
@@ -265,7 +264,22 @@ class OfflineManager():
         @param dat_path:
         @author dz, 13.07.2022
         """
+        abf_file_bundle = {} # list to bundle abf files
+
         if isinstance(dat_path, str):
             self.data_list = os.listdir(dat_path)
-            self.data = [i for i in self.data_list if ".dat" in i]
-            return self.data
+            self.dat_list = [i for i in self.data_list if i.split(".")[-1] in ["dat"]]
+            self.abf_list = [i for i in self.data_list if i.split(".")[-1] in ["abf"]]
+            # get the list of list for abf files
+            for i in self.abf_list:
+                if "abf" in i:
+                    experiment_name = i.split("_")[:2]
+                    experiment_name = "_".join(experiment_name)
+                    if experiment_name in abf_file_bundle.keys():
+                        abf_file_bundle[experiment_name].append(i)
+                    else:
+                        abf_file_bundle[experiment_name] = []
+                        abf_file_bundle[experiment_name].append(i)
+
+        self.data = list(abf_file_bundle.values()) + self.dat_list
+        return self.data

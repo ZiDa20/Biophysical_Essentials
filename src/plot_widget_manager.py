@@ -1,3 +1,4 @@
+from re import T
 from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
@@ -410,11 +411,13 @@ class PlotWidgetManager(QRunnable):
 
         series_name = item.text(0)
 
+
         # The data table will be pulled from the database from table 'experiment_series'.
         # the correct table name is identified by the tuple (experiment_name, series_identifier)
         # stored in the series item at position 3
 
         data_request_information = item.data(3, 0)
+
 
         db = self.offline_manager.get_database()
         series_df = db.get_sweep_table_for_specific_series(data_request_information[0],data_request_information[1])
@@ -427,7 +430,6 @@ class PlotWidgetManager(QRunnable):
         # get the meta data to correctly display y values of traces
         meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],data_request_information[1])
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
-
         self.time = self.get_time_from_meta_data(meta_data_df)
 
         column_names = series_df.columns.values.tolist()
