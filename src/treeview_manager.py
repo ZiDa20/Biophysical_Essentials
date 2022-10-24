@@ -344,7 +344,7 @@ class TreeViewManager():
                     bundle = self.open_bundle_of_file(file) # open heka reader
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
-                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame)) 
+                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
 
                 
                 if isinstance(i,list):
@@ -358,7 +358,7 @@ class TreeViewManager():
                         print("commandn epoch here")
                         experiment_name = abf_file.get_experiment_name()
                         series_name = abf_file.get_series_name()
-                        abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name))
+                        abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
                     
             except Exception as e:
                 # @todo error handling
@@ -513,6 +513,7 @@ class TreeViewManager():
                     self.sweep_meta_data_df = pd.DataFrame()
 
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+            
 
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
 

@@ -161,7 +161,7 @@ class OfflineManager():
         author MZ, 13.07.2022
         """
         bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
-        bundle_worker.signals.result.connect(self.show_bundle_result,Qt.DirectConnection)
+        bundle_worker.signals.result.connect(self.show_bundle_result, Qt.DirectConnection)
         self.threadpool.start(bundle_worker)
         return bundle_worker
         
