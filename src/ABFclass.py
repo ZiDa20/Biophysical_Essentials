@@ -6,6 +6,14 @@ import logging
 #####################################################################################
 #ABFReader class which should Read an ABF file and return a dictionary containing the data
 #####################################################################################
+import pyabf
+import numpy as np
+import pandas as pd
+import logging
+
+#####################################################################################
+#ABFReader class which should Read an ABF file and return a dictionary containing the data
+#####################################################################################
 
 class AbfReader():
     """ Class to load ABF files from path, path string should be inserted to open 
@@ -77,13 +85,14 @@ class AbfReader():
                           "sweepUnitsX",
                           "adcNames",
                           "adcUnits",
-                          "Cslow",
+                          "CSlow",
                           "YUnit",
                           "XStart",
                           "XInterval",
                           "DataPoints",
                           "Ymin",
-                          "Ymax"]
+                          "Ymax", 
+                          "RecordingMode"]
         
         meta_data_sweep["Parameters"] = metadata_index
 
@@ -101,6 +110,9 @@ class AbfReader():
             columns += 1
         data_sweep.index = time
         data_sweep.columns = columns_list
+        print(data_sweep)
+        data_sweep = data_sweep/1e12
+        print(data_sweep)
         meta_data_sweep.columns = ["Parameter"] + columns_list
         meta_data_sweep = meta_data_sweep.set_index("Parameter")
     
@@ -124,16 +136,19 @@ class AbfReader():
         metadata_list.append(abf_file.adcNames[0])
         metadata_list.append(abf_file.adcUnits[0])
         metadata_list.append(1)
-        metadata_list.append(abf_file.dacUnits[0][1])
+        metadata_list.append(abf_file.adcUnits[0][1])
         metadata_list.append(0)
         metadata_list.append(abf_file.dataSecPerPoint) # data rate
-        metadata_list.append(abf_file.sweepPointCount ) #
+        metadata_list.append(abf_file.sweepPointCount) #
         metadata_list.append(np.min(abf_file.sweepY))
         metadata_list.append(np.max(abf_file.sweepY))
+
+        metadata_list.append("3" if abf_file.adcUnits[0] == "pA" else "0")
 
         return metadata_list
             
     def build_command_epoch_table(self):
+
         """ retrieve the command epoch table for the analysis
         Epochs Table ramp is indicated as 2, step protocol as 1"""
         epochs_list = [] # epoch lists
@@ -148,21 +163,56 @@ class AbfReader():
         ]
        
 
+        first, last = self.get_first_and_last_sweep()
+
+
         
         # append the list with the levels and fill the dataframe
         epochs_list.append([self.abf.protocol for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
         epochs_list.append([self.abf.sweepCount for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
         epochs_list.append(self.abf._epochPerDacSection.nEpochType)
         epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.fEpochInitLevel])
-        epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.lEpochInitDuration])
-        epochs_list.append(self.abf._epochPerDacSection.fEpochLevelInc)
+        epochs_list.append([i/10000 for i in self.abf._epochPerDacSection.lEpochInitDuration])
+        epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.fEpochLevelInc])
         epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.fEpochInitLevel])
-
         
+
+
+
         #epochs_list.append(self.abf._epochPerDacSection.nEpochType)
         self.epochs_dataframe = pd.DataFrame(epochs_list, index = columns_list)  
+      
+        
+       
+        self.epochs_dataframe.insert(loc = 0,
+                                    column="col1",
+                                    value = first 
+                        )
+        self.epochs_dataframe.insert(loc = len(self.epochs_dataframe.columns),
+                                    column="col2",
+                                    value = last 
+                        )
+      
         self.epochs_dataframe = self.epochs_dataframe.transpose()
+        
             
+
+    def get_first_and_last_sweep(self):
+        """ Get the first and last sweep of the abf file"""
+
+        series = self.abf.protocol
+        sweep_number = self.abf.sweepCount
+        first_potential = self.abf.sweepEpochs.levels[0]
+        last_potential = self.abf.sweepEpochs.levels[-1]
+        first_time = (self.abf.sweepEpochs.p2s[0] - self.abf.sweepEpochs.p1s[0])/10000
+        last_time = (self.abf.sweepEpochs.p2s[-1] - self.abf.sweepEpochs.p1s[-1])/10000
+    
+        first_command = [series, sweep_number,0,first_potential, first_time, 0, first_potential]
+        last_command = [series, sweep_number, 0, last_potential, last_time, 0, last_potential]
+        return first_command, last_command
+
+
+
 
     def make_membrane_test(self):
         """ Dysfunctional for most recording, should record the membrane properties

@@ -319,7 +319,7 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         x = str(meta_data_dict.get('RecordingMode'))
-
+        print("recording mode: for this shit!!!!!!!!!!!!!!!!! " + x)
         if int(x) == 3:
             return "Voltage Clamp"
         else:
