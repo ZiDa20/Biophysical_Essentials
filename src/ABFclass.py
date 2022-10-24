@@ -78,7 +78,12 @@ class AbfReader():
                           "adcNames",
                           "adcUnits",
                           "Cslow",
-                          "YUnit"]
+                          "YUnit",
+                          "XStart",
+                          "XInterval",
+                          "DataPoints",
+                          "Ymin",
+                          "Ymax"]
         
         meta_data_sweep["Parameters"] = metadata_index
 
@@ -120,6 +125,11 @@ class AbfReader():
         metadata_list.append(abf_file.adcUnits[0])
         metadata_list.append(1)
         metadata_list.append(abf_file.dacUnits[0][1])
+        metadata_list.append(0)
+        metadata_list.append(abf_file.dataSecPerPoint) # data rate
+        metadata_list.append(abf_file.sweepPointCount ) #
+        metadata_list.append(np.min(abf_file.sweepY))
+        metadata_list.append(np.max(abf_file.sweepY))
 
         return metadata_list
             
