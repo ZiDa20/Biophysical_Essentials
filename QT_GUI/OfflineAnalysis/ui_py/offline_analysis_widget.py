@@ -575,6 +575,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             plot.setData(4, Qt.UserRole, self.hierachy_stacked)
             plot.setData(5, Qt.UserRole, 1)
             plot.setData(6, Qt.UserRole, self.parent_count)
+
+            tables.setData(4, Qt.UserRole, self.hierachy_stacked)
+            tables.setData(5, Qt.UserRole, 1)
+            tables.setData(6, Qt.UserRole, self.parent_count)
+
             #parent.setData(0, Qt.UserRole, new_tab_widget)
             self.hierachy_stacked_list.append(self.hierachy_stacked)
             self.plot_widgets= []
@@ -608,13 +613,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             stacked_widget.insertWidget(stacked_index, new_widget)
             stacked_widget.setCurrentIndex(stacked_index)
             self.analysis_stacked.setCurrentIndex(parent_stacked)
-            
+            print("clicked user role")
         else:
-            parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
-            stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
-            self.analysis_stacked.setCurrentIndex(parent_stacked)
-            self.hierachy_stacked_list[parent_stacked].setCurrentIndex(stacked_widget_index)
-            
+            print("clicked none user")
+            print(self.SeriesItems.currentItem().text(0))
+            if self.SeriesItems.currentItem().text(0)=="Plot":
+                parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
+                stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
+                self.analysis_stacked.setCurrentIndex(parent_stacked)
+                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(stacked_widget_index)
+            if self.SeriesItems.currentItem().text(0) == "Tables":
+                print("implementing table view here")
+                # create a table view within a tab widget: each tab is one plot/one specific analysis
+            if self.SeriesItems.currentItem().text(0) == "Statistics":
+                print("Implementation for Statistics Missing yet")
     @Slot()
     def go_to_offline_analysis_page_2(self):
         self.offline_analysis_widgets.setCurrentIndex(1)
@@ -635,8 +647,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # current_tab.headline.setText(series_name + " Specific Analysis Functions")
 
         db = self.offline_manager.get_database()
-        directory = self.offline_manager._directory_path
-        dat_files = self.offline_manager.package_list(directory)
+        db = self.offline_manager.get_database()
+        #directory = self.offline_manager._directory_path
+        #dat_files = self.offline_manager.package_list(directory)
 
         # clear needed fpr promoted widget - otherwise trees will be appended instead of replaced
         self.clear_promoted_tab_items(current_tab)
@@ -650,7 +663,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
         tmp_treeview.create_treeview_from_database("",series_name)
-
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
         self.current_tab_plot_manager = None
