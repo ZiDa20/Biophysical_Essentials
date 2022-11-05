@@ -22,3 +22,6 @@ venv/
 "duck_db_analysis_database.db" 
 "src/duck_db_analysis_database.db" 
 *.png
+/.vscode/
+*-workspace
+*key
