@@ -18,8 +18,6 @@ from offline_analysis_widget import Offline_Analysis
 from settings_dialog import SettingsWindow
 from database_viewer_widget import Database_Viewer
 
-import Figures_rc
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
