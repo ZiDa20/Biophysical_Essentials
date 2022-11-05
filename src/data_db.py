@@ -16,7 +16,6 @@ import datetime
 import pandas as pd
 import re
 import csv
-import psycopg2
 
 
 class DuckDBDatabaseHandler():

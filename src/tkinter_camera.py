@@ -1,4 +1,4 @@
-from pypylon import pylon
+#from pypylon import pylon
 from PySide6.QtCore import QThread
 
 #Switched to pyqt
@@ -16,8 +16,9 @@ class BayerCamera():
     def init_camera(self):
         # initialize the camera
         try:
-            self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
-            self.camera.Open()
+            #self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+            #self.camera.Open()
+            print("hello")
             return True
         except:
             print("returndd none")

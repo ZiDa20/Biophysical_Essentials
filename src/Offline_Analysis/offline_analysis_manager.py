@@ -47,6 +47,7 @@ class OfflineManager():
         self.tree_view_manager = None
         self.bundle_liste = []
         self.abf_bundle_liste = []
+        self.dat_list = None
 
 
     @property

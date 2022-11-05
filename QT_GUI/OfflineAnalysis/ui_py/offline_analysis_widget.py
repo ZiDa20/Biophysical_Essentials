@@ -14,13 +14,13 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from data_db import *
-from treeview_manager import *
+from data_db import DuckDBDatabaseHandler
+from treeview_manager import TreeViewManager
 import pyqtgraph as pg
 import numpy as np
 from offline_analysis_designer_object import Ui_Offline_Analysis
 from functools import partial
-from specififc_analysis_tab import *
+from specififc_analysis_tab import SpecificAnalysisTab
 from plot_widget_manager import PlotWidgetManager
 from raw_analysis import AnalysisRaw
 from assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
@@ -37,6 +37,7 @@ from Worker import Worker
 from BlurWindow.blurWindow import GlobalBlur
 from load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from drag_and_drop_list_view import DragAndDropListView
+from PostSql_Handler import PostSqlHandler
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -48,6 +49,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.statusbar = status
 
         self.add_filter_button.setEnabled(False)
+
+        self.connect_database = QPushButton("Connect to Database")
+        
+        self.gridLayout.addWidget(self.connect_database, 0, 0, 1, 1)
 
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -585,7 +590,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.onItemClicked)
-
+        self.connect_database.clicked.connect(partial(PostSqlHandler, self.database_handler))
         #set the analysis notebook as index
         self.offline_analysis_widgets.setCurrentIndex(3)
         self.tree_widget_index_count = index +1
@@ -635,9 +640,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # current_tab.headline.setText(series_name + " Specific Analysis Functions")
 
         db = self.offline_manager.get_database()
-        directory = self.offline_manager._directory_path
-        dat_files = self.offline_manager.package_list(directory)
-
+        #directory = self.offline_manager._directory_path
         # clear needed fpr promoted widget - otherwise trees will be appended instead of replaced
         self.clear_promoted_tab_items(current_tab)
 
