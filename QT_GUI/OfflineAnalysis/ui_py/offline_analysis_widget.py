@@ -53,6 +53,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.connect_database = QPushButton("Connect to Database")
         
         self.gridLayout.addWidget(self.connect_database, 0, 0, 1, 1)
+        self.threadpool = QThreadPool()
 
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -230,7 +231,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_page_1_tree_manager.discarded_tree = self.outfiltered_tree_view
         #create the threadpool
 
-        self.threadpool = QThreadPool()
+        
         self.worker_I = Worker(self.load_recordings)
         self.worker_I.signals.finished.connect(self.finished_database_loading)
         self.worker_I.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui, Qt.BlockingQueuedConnection)
@@ -590,16 +591,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.onItemClicked)
-        self.connect_database.clicked.connect(partial(PostSqlHandler, self.database_handler))
+        self.connect_database.clicked.connect(self.start_worker)
         #set the analysis notebook as index
         self.offline_analysis_widgets.setCurrentIndex(3)
         self.tree_widget_index_count = index +1
+
+    def start_worker(self):
+    
+        self.worker = Worker(partial(PostSqlHandler, self.database_handler))
+        #self.worker.signals.finished.connect(self.finished_result_thread)
+        self.worker.signals.progress.connect(self.progress_bar_update_analysis)
+        self.threadpool.start(self.worker)
         
     def onItemClicked(self, it, col):
         """should be commented properly
         toDO MZ"""
        
-
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
             
             # retrieve the parent on click
