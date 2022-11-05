@@ -227,3 +227,9 @@ border-radius: 10px;
 background-color:White;
 align:center;
 }}
+
+QTableView {{
+  background-color: green;
+  border: 1px solid #fff5cc;
+  border-radius: 5px;
+}}

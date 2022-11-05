@@ -130,19 +130,32 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
    
         # create the table from dict
         pandas_frame = pd.DataFrame(table_dict)
+
+        if pandas_frame.shape[0] > 500:
+            view_frame = pandas_frame.head(100)
+        
+        else:
+            view_frame = pandas_frame
+
+        # create a table widget
         if self.data_base_content:
             for i in reversed(range(self.table_layout.count())):
                 self.table_layout.itemAt(i).widget().deleteLater()
 
         # set the TableView and the Model
         self.data_base_content = QTableView()
+        self.data_base_content.setObjectName("data_base_content")
+        self.data_base_content.setMinimumHeight(300)
         self.data_base_content.horizontalHeader().setSectionsClickable(True)
-        self.data_base_content_model = PandasTable(pandas_frame)
+
+
+        self.viewing_model = PandasTable(pandas_frame)
+        self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
-        self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) # stretch it
+        #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
+        self.data_base_content.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.table_layout.addWidget(self.data_base_content)
         self.data_base_content.setGeometry(20, 20, 691, 581)
-
         # show and retrieve the selected columns
         self.data_base_content.show()
         self.data_base_content.clicked.connect(self.retrieve_column)
@@ -173,9 +186,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         index = self.data_base_content.currentIndex().column()
         data = []
-
-        for row in range(self.data_base_content.model().rowCount(index)):
-            it = self.data_base_content.model().index(row, index).data()
+        for row in range(self.viewing_model.rowCount(index)):
+            it = self.viewing_model.index(row, index).data()
             data.append(it if it is not None else "")
         try:
             float_table = np.asarray([float(x) for x in data])

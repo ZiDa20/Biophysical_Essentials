@@ -82,22 +82,10 @@ class Ui_Database_Viewer(object):
         self.groupBox_3.setMinimumSize(QSize(500, 0))
         self.gridLayout_12 = QGridLayout(self.groupBox_3)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
-        self.scrollArea_2 = QScrollArea(self.groupBox_3)
-        self.scrollArea_2.setObjectName(u"scrollArea_2")
-        self.scrollArea_2.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_3 = QWidget()
-        self.scrollAreaWidgetContents_3.setObjectName(u"scrollAreaWidgetContents_3")
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 974, 495))
-        self.gridLayout = QGridLayout(self.scrollAreaWidgetContents_3)
-        self.gridLayout.setObjectName(u"gridLayout")
         self.table_layout = QGridLayout()
         self.table_layout.setObjectName(u"table_layout")
 
-        self.gridLayout.addLayout(self.table_layout, 0, 0, 1, 1)
-
-        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_3)
-
-        self.gridLayout_12.addWidget(self.scrollArea_2, 0, 0, 1, 1)
+        self.gridLayout_12.addLayout(self.table_layout, 1, 0, 1, 1)
 
 
         self.gridLayout_5.addWidget(self.groupBox_3, 1, 0, 1, 1)
