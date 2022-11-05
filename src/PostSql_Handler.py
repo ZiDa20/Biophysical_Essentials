@@ -1,7 +1,5 @@
-import psycopg2
 from data_db import DuckDBDatabaseHandler
 from sqlalchemy import create_engine
-from Worker import Worker
 
 #Class to handle the connection to the database which is currently located at the Amazon RDS Server EC2
 # This should be replaced by an big data server which allows for online saving

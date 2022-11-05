@@ -1,8 +1,4 @@
-import pandas as pd
-
-import raw_analysis as ra
 from online_analysis_manager import *
-from data_db import DuckDBDatabaseHandler
 from treeview_manager import *
 from PySide6.QtCore import *  # type: ignore
 from Worker import Worker
@@ -11,8 +7,6 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis/Analysis_Functions")#/Function_Templates")
 from AnalysisFunctionRegistration import *
-from itertools import zip_longest
-#from src.Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''

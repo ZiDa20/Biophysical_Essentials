@@ -1,7 +1,3 @@
-from shutil import copyfile
-import heka_reader
-import re
-import numpy as np
 import os.path
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore

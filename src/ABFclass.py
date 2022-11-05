@@ -6,14 +6,6 @@ import logging
 #####################################################################################
 #ABFReader class which should Read an ABF file and return a dictionary containing the data
 #####################################################################################
-import pyabf
-import numpy as np
-import pandas as pd
-import logging
-
-#####################################################################################
-#ABFReader class which should Read an ABF file and return a dictionary containing the data
-#####################################################################################
 
 class AbfReader():
     """ Class to load ABF files from path, path string should be inserted to open 
@@ -164,9 +156,6 @@ class AbfReader():
        
 
         first, last = self.get_first_and_last_sweep()
-
-
-        
         # append the list with the levels and fill the dataframe
         epochs_list.append([self.abf.protocol for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
         epochs_list.append([self.abf.sweepCount for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])

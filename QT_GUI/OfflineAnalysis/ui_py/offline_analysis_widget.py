@@ -5,39 +5,29 @@
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
-import time
-
-import pyqtgraph
-from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from data_db import DuckDBDatabaseHandler
 from treeview_manager import TreeViewManager
-import pyqtgraph as pg
-import numpy as np
 from offline_analysis_designer_object import Ui_Offline_Analysis
 from functools import partial
 from specififc_analysis_tab import SpecificAnalysisTab
 from plot_widget_manager import PlotWidgetManager
 from raw_analysis import AnalysisRaw
 from assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
-from AnalysisFunctionRegistration import  AnalysisFunctionRegistration
-import os
-
 import csv
 from filter_pop_up_handler import Filter_Settings
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 from PySide6.QtCore import QThreadPool
 from Worker import Worker
-from BlurWindow.blurWindow import GlobalBlur
 from load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from drag_and_drop_list_view import DragAndDropListView
 from PostSql_Handler import PostSqlHandler
+
+
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -50,7 +40,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.add_filter_button.setEnabled(False)
 
-        self.connect_database = QPushButton("Connect to Database")
+        self.connect_database = QPushButton()
+        self.connect_database.setIcon(QIcon('../Gui_Icons/sql.png'))
+        self.connect_database.setIconSize(QSize(48, 48))
+        self.connect_database.setMaximumWidth(50)
+        self.connect_database.setMaximumHeight(50)
+        self.connect_database.setToolTip("Connect to PostGreSQL Database")
+        self.connect_database.setStyleSheet("background-color: rgba(255, 255, 255,0);")
+
         
         self.gridLayout.addWidget(self.connect_database, 0, 0, 1, 1)
         self.threadpool = QThreadPool()

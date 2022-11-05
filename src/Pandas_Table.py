@@ -1,6 +1,3 @@
-import sys
-
-import pandas as pd
 from PySide6.QtCore import QAbstractTableModel, Qt
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableView
 

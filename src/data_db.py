@@ -5,17 +5,15 @@ import datetime
 import re
 import sys
 
-import numpy
-
 import raw_analysis as ra
 import heka_reader
 import numpy as np
 import io
 import logging
 import datetime
-import pandas as pd
+
 import re
-import csv
+
 
 
 class DuckDBDatabaseHandler():

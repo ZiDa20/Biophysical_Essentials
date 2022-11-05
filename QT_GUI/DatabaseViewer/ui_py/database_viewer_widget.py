@@ -3,10 +3,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 import duckdb
 import os
-
-from matplotlib.pyplot import table
 from data_base_designer_object import Ui_Database_Viewer
-import pyqtgraph as pg
 import pandas as pd
 from Pandas_Table import PandasTable
 import numpy as np
@@ -106,7 +103,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.database_table.addItem(tables)
         
         self.database_table.itemClicked.connect(self.pull_table_from_database)
-        #print("finished")
 
     @Slot(str)
     def pull_table_from_database(self):

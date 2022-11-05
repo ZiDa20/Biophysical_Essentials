@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 from PySide6.QtCore import *  # type: ignore
 

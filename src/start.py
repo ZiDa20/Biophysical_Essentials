@@ -24,7 +24,6 @@ from settings_dialog import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 from BlurWindow.blurWindow import GlobalBlur
-import duckdb
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -41,8 +40,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-
-        print(sys.platform)
 
         if sys.platform != "darwin":
             self.setAttribute(Qt.WA_TranslucentBackground)
@@ -101,16 +98,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         for i, button in enumerate(self.home_buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
 
-
         self.ui.statistics.clicked.connect(self.initialize_database)
-
-        #self.configuration_elements = Config_Widget()
-
-        #self.ui.statistics_2.setProperty("class", "big_button")
-        #print(self.ui.config.Load_meta_data_experiment_12)
-
         # connect to the metadata file path 
-        #self.ui.hamburger_button.clicked.connect(self.animate_menu)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
         #testing
@@ -127,7 +116,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 
         # set the animation 
-
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(100)
 
@@ -152,8 +140,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): is a mouse Press Event
         """        
         self.oldPos = event.globalPosition().toPoint()
-        print(self.oldPos)
-
+    
 
     def mouseMoveEvent(self, event: QMouseEvent):
         """Function to get the mouse moving events
@@ -269,7 +256,6 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
             with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
-                print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None; \n"
@@ -281,7 +267,6 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "\n"
                                                         "\n")
                                                  
-            print(self.frontend_style.get_sideframe_dark())
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
            
             
@@ -324,7 +309,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def get_darkmode(self):
         "returns the darkmode state"
-        print(f"this is the current mode: {self.default_mode}")
         return self.default_mode
 
 

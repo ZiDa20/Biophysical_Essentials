@@ -1,5 +1,5 @@
-#from pypylon import pylon
-from PySide6.QtCore import QThread
+from pypylon import pylon
+
 
 #Switched to pyqt
 
@@ -10,14 +10,13 @@ class BayerCamera():
         """ establish the connection to the camera"""
         self.camera = None
         self.cancel = None
-        #self.online_analysis = online_analysis
-
+    
 
     def init_camera(self):
         # initialize the camera
         try:
-            #self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
-            #self.camera.Open()
+            self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+            self.camera.Open()
             print("hello")
             return True
         except:
@@ -35,8 +34,7 @@ class BayerCamera():
         if self.grabResult.GrabSucceeded():
             self.img = self.grabResult.Array
             return self.img
-            
-
+        
         else:
             return None
 

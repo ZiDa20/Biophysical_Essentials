@@ -1,4 +1,6 @@
-from gc import callbacks
+import sys
+import os
+sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
@@ -6,13 +8,8 @@ import re
 import heka_reader
 from functools import partial
 import csv
-import sys
-import os
-import logging
-from Worker import Worker
 
-import time
-sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+import logging
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from time import sleep
 from data_db import *
