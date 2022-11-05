@@ -228,8 +228,21 @@ background-color:White;
 align:center;
 }}
 
+QListWidget[objectName="database_table"] {{
+  background-color: rgba(4,7,26, 180);
+  border-radius: 5px;
+}}
+
 QTableView {{
-  background-color: green;
-  border: 1px solid #fff5cc;
+  background-color: transparent;
+}}
+
+QTableView QHeaderView::section{{
+  background-color: transparent;
+  border-color: white;
+}}
+
+QGroupBox[objectName="groupBox_3"]{{
+  background-color: transparent;
   border-radius: 5px;
 }}

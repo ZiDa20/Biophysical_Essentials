@@ -1,5 +1,5 @@
 QPushButton {{
-    border-color: #fff5cc;
+    border-color: rgba(255,255,255);
     color: #fff5cc;
     text-transform: none;
     height: 30px;
@@ -19,6 +19,10 @@ QPushButton {{
                                         stop: 0 #dadbde, stop: 1 #f6f7fa);
     color: skyblue;
     text-transform: scale(1.5);
+  }}
+
+  QPushButton::pressed:hover{{
+    background-color: "#54545a";
   }}
   
   QPushButton:hover{{
@@ -224,8 +228,26 @@ QPushButton {{
     border-radius: 10px 10px 0px 0px;
   }}
   
-  
   QMdiArea {{
     qproperty-background: transparent;
   }}
+
+  QListWidget[objectName="database_table"] {{
+    background-color: rgba(4,7,26, 180);
+    border-radius: 5px;
+  }}
   
+  QTableView {{
+    background-color: transparent;
+    border-radius: 5px;
+  }}
+
+  QTableView QHeaderView::section{{
+    background-color: transparent;
+    border-color: white;
+  }}
+
+  QGroupBox[objectName="groupBox_3"]{{
+    background-color: rgba(4,7,26, 180);
+    border-radius: 5px;
+  }}

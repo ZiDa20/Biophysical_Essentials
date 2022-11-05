@@ -6,11 +6,12 @@ import os
 
 from matplotlib.pyplot import table
 from data_base_designer_object import Ui_Database_Viewer
-from data_db import DuckDBDatabaseHandler
 import pyqtgraph as pg
 import pandas as pd
 from Pandas_Table import PandasTable
 import numpy as np
+from matplotlib.backends.backend_qtagg import FigureCanvas
+from matplotlib.figure import Figure
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -28,6 +29,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.query_execute.clicked.connect(self.query_data)
         self.data_base_content = None
         self.plot = None
+
+        self.canvas = None
         
         
 
@@ -61,7 +64,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         q = """SHOW TABLES"""
         tables_names = self.database.execute(q).fetchall() 
 
-        self.table_dictionary = {"imon_signal" : [], "pgf_tables":[], "imon_meta": [], "experiment": [], "analysis_table":[]}
+        self.table_dictionary = {"Result Table": [],"Raw signal" : [], "Generator Tables":[], "Meta Table": [], "Experiment": [], "Analysis Table":[]}
         
         # for each table, create a button in a dropdown list
         # connect the button to a function plotting the table
@@ -70,15 +73,17 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             table_name = tables_names[l][0]
 
             if "imon_signal" in table_name:
-                self.table_dictionary["imon_signal"].append(table_name)
+                self.table_dictionary["Raw signal"].append(table_name)
             if "imon_meta" in table_name:
-                self.table_dictionary["imon_meta"].append(table_name)
+                self.table_dictionary["Meta Table"].append(table_name)
             if "experiment" in table_name:
-                self.table_dictionary["experiment"].append(table_name)
-            if "analysis" in table_name:
-                self.table_dictionary["analysis_table"].append(table_name)
+                self.table_dictionary["Experiment"].append(table_name)
+            if "analysis" in table_name and "result" not in table_name:
+                self.table_dictionary["Analysis Table"].append(table_name)
             if "pgf" in table_name:
-                self.table_dictionary["pgf_tables"].append(table_name)
+                self.table_dictionary["Generator Tables"].append(table_name)
+            if "results" in table_name:
+                self.table_dictionary["Result Table"].append(table_name)
 
         # clean the list first to remove unwanted overlap after multiple calls
         for i in reversed(range(self.button_database_series.count())):
@@ -149,6 +154,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.data_base_content.horizontalHeader().setSectionsClickable(True)
 
 
+        # create two models one for the table show and a second for the data visualizations
         self.viewing_model = PandasTable(pandas_frame)
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
@@ -209,8 +215,23 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         
         
         # this should show the sliced array
+        if self.canvas:
+            self.canvas.deleteLater()
+    
+
         sliced_array = floating_numbers[::10]
-        self.plot = pg.plot(sliced_array)
-        self.plot.disableAutoRange()
-        self.gridLayout_10.addWidget(self.plot)
+        self.canvas = FigureCanvas(Figure(figsize=(5,3)))
+        fig = self.canvas.figure
+        ax = fig.add_subplot(111)
+        fig.patch.set_facecolor('#04071a')
+        fig.tight_layout()
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Unit [A]|[V]")
+        ax.patch.set_facecolor('#04071a')
+        ax.plot(sliced_array, color = "white")
+        ax.spines['bottom'].set_color('white') 
+        ax.spines['left'].set_color('white')
+        ax.yaxis.label.set_color('white')
+        ax.xaxis.label.set_color('white')
+        self.gridLayout_10.addWidget(self.canvas)
 
