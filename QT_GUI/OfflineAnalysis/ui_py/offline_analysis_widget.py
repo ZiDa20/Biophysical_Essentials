@@ -505,33 +505,33 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("building analysis specific notebook")
         print(series_to_analize)
 
-        self.built_analysis_specific_notebook(series_to_analize)
+        self.built_analysis_specific_tree(series_to_analize)
         self.offline_analysis_widgets.setCurrentIndex(2)
         dialog.close()
 
-    def built_analysis_specific_notebook(self,series_names_list):
+    def built_analysis_specific_tree(self,series_names_list):
+        """
+        Function to built series name (e.g. IV, 5xRheo) specific tree. Each series get's a parent item for 3 childs:
+        1) Plot - Result Visualization).
+        2) Tables - Numerical Data shown in the result visualization)
+        3) Statistics - Statistical Test Performed on the results
+        @param series_names_list:
+        @return:
+        """
 
         # add selection to database
         self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
-        
+        # make new tree parent elements and realted childs for ech specific series
         for index, s in enumerate(series_names_list):
 
-            # create a new tab from default tab for each series
-            """
-            new_tab_widget=SpecificAnalysisTab()
-            new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
-            new_tab_widget.setObjectName(s)
-            
-            self.tabWidget.insertTab(series_names_list.index(s),new_tab_widget,s)
-            self.tab_list.append(new_tab_widget)
-            self.plot_widgets= []
-            """
-            # add the tab
             index += self.tree_widget_index_count
+
+            # Custom designer widget: contains treeview, plot, analysis function table ...
             new_tab_widget=SpecificAnalysisTab()
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions,s))
             new_tab_widget.setObjectName(s)
+
             self.tab_list.append(new_tab_widget)
             self.tab_changed(index,s)
             self.new_analysis.clicked.connect(self.go_to_offline_analysis_page_2)
@@ -568,7 +568,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             parent.setData(5, Qt.UserRole, 0)
             parent.setData(6, Qt.UserRole, s) # specific series name
             parent.setData(7, Qt.UserRole, index) # save the index 
-           
 
             # set the data for each of the child items
             # remove and use for loop
@@ -586,7 +585,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.parent_count += 1
             # add this selection to table
             #  series in the database
-            self
 
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.onItemClicked)
@@ -617,14 +615,44 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             print("clicked none user")
             print(self.SeriesItems.currentItem().text(0))
+            parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
             if self.SeriesItems.currentItem().text(0)=="Plot":
-                parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
+                print(parent_stacked)
                 stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
+                print(stacked_widget_index)
                 self.analysis_stacked.setCurrentIndex(parent_stacked)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(stacked_widget_index)
+
             if self.SeriesItems.currentItem().text(0) == "Tables":
                 print("implementing table view here")
-                # create a table view within a tab widget: each tab is one plot/one specific analysis
+                print(parent_stacked)
+                stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
+                print(stacked_widget_index)
+                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(stacked_widget_index)
+                result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
+                # create a table view within a tab widget: each tab will become one plot/one specific analysis
+
+                self.table_tab_widget = QTabWidget()
+
+                # works only if results are organized row wise
+                print("column count =",  result_plot_widget.OfflineResultGrid.columnCount())
+                if result_plot_widget.OfflineResultGrid.columnCount() == 1:
+                    print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
+
+                    for r in range(0,result_plot_widget.OfflineResultGrid.rowCount()):
+
+                       qwidget_item =  result_plot_widget.OfflineResultGrid.itemAtPosition(r,0)
+                       custom_plot_widget = qwidget_item.widget()
+                       print(custom_plot_widget.__class__.__name__)
+                       self.table_tab_widget.insertTab(1, QWidget(self.table_tab_widget), custom_plot_widget.analysis_name)
+
+                else:
+                    print("More than one column of analysis results is not implemented yet")
+
+                self.hierachy_stacked_list[parent_stacked].insertWidget(2,self.table_tab_widget)
+                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
+
+
             if self.SeriesItems.currentItem().text(0) == "Statistics":
                 print("Implementation for Statistics Missing yet")
     @Slot()
