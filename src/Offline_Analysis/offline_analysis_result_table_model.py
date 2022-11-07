@@ -29,11 +29,11 @@ class OfflineAnalysisResultTableModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         column = index.column()
         row = index.row()
-        print(row)
-        print(column)
-        print("return val = ",np.array(self.input_data_frame)[row][0])
+        #print(row)
+        #print(column)
+        #print("return val = ",np.array(self.input_data_frame)[row][0])
         if role == Qt.DisplayRole:
-            return str(np.array(self.input_data_frame)[row][0])
+            return str(np.array(self.input_data_frame)[row][column])
         elif role == Qt.BackgroundRole:
             return QColor(Qt.black)
         elif role == Qt.TextAlignmentRole:
