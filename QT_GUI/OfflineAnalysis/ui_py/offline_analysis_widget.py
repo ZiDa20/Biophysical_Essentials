@@ -37,6 +37,9 @@ from Worker import Worker
 from BlurWindow.blurWindow import GlobalBlur
 from load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from drag_and_drop_list_view import DragAndDropListView
+
+from offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -145,11 +148,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # maybe also give a filter function to browse by date or username
 
         # for now, analysis is static number ->
-        self.Offline_Analysis_Notebook.setCurrentIndex(1)
+        #self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
         # static offline analysis number
-        self.result_visualizer.show_results_for_current_analysis(12)
+        self.result_visualizer.show_results_for_current_analysis(111)
 
+        self.offline_analysis_widgets.setCurrentIndex(3)
+
+        print("displaying to analysis results: ", str(111))
 
 
     @Slot()
@@ -632,7 +638,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
                 # create a table view within a tab widget: each tab will become one plot/one specific analysis
 
-                self.table_tab_widget = QTabWidget()
+                table_tab_widget = QTabWidget()
 
                 # works only if results are organized row wise
                 print("column count =",  result_plot_widget.OfflineResultGrid.columnCount())
@@ -644,12 +650,35 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                        qwidget_item =  result_plot_widget.OfflineResultGrid.itemAtPosition(r,0)
                        custom_plot_widget = qwidget_item.widget()
                        print(custom_plot_widget.__class__.__name__)
-                       self.table_tab_widget.insertTab(1, QWidget(self.table_tab_widget), custom_plot_widget.analysis_name)
 
+                        # @todo make this +1 more appropriate
+                       self.hierachy_stacked_list[parent_stacked].setCurrentIndex(stacked_widget_index+1)
+                       # should be empty
+                       result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
+                       # create the table to be inserted
+
+
+                       data = custom_plot_widget.export_data_frame
+                       print(data)
+                       if data.empty:
+                           print("Data to be displayed in the table are None. Fill the table first !")
+                       else:
+                           print("creating the table")
+                           self.model = OfflineAnalysisResultTableModel(data)
+                           # Creating a QTableView
+                           self.table_view = QTableView()
+                           self.table_view.setModel(self.model)
+                           print("setting the model")
+                           horizontal_header = self.table_view.horizontalHeader()
+                           horizontal_header.setSectionResizeMode(
+                               QHeaderView.ResizeToContents
+                           )
+                           table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
+                           #table_tab_widget.insertTab(1, QWidget(table_tab_widget), custom_plot_widget.analysis_name)
                 else:
                     print("More than one column of analysis results is not implemented yet")
 
-                self.hierachy_stacked_list[parent_stacked].insertWidget(2,self.table_tab_widget)
+                self.hierachy_stacked_list[parent_stacked].insertWidget(2,table_tab_widget)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
 
