@@ -567,7 +567,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             configurator.setData(4, Qt.UserRole, self.hierachy_stacked)  # save the child notebook
             configurator.setData(5, Qt.UserRole, 1)
             configurator.setData(6, Qt.UserRole, self.parent_count)  # specific series name
-
+            configurator.setData(7, Qt.UserRole, index)
             self.hierachy_stacked_list.append(self.hierachy_stacked)
             self.plot_widgets = []
             self.parent_count += 1
@@ -1020,19 +1020,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.analysis_stacked.setCurrentIndex(self.SeriesItems.currentItem().data(7, Qt.UserRole))
         print(self.SeriesItems.currentItem().data(6, Qt.UserRole))
 
-        self.add_new_analysis_tree_children(offline_tab)
+        self.add_new_analysis_tree_children()
         # add the results at position 1 of the stacked widget ( position 0  is the analysis config )
-        self.hierachy_stacked_list[self.SeriesItems.currentItem().child(0).data(6, Qt.UserRole)].insertWidget(1,offline_tab)
-        self.hierachy_stacked_list[self.SeriesItems.currentItem().child(0).data(6, Qt.UserRole)].setCurrentIndex(1)
+        if self.SeriesItems.currentItem().child(0):
+            print("parent node was selected")
+            parent_stacked_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        else:
+            print("child node was selected")
+            parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
 
+        self.hierachy_stacked_list[parent_stacked_index].insertWidget(1,offline_tab)
+        self.hierachy_stacked_list[parent_stacked_index].setCurrentIndex(1)
 
-    def add_new_analysis_tree_children(self, offline_tab):
+    def add_new_analysis_tree_children(self):
         """
         add tree items to the analysis
             - plot for the result grpahics
             - table for the data from the result plots
             - statistics ..
-            - advanced 
+            - advanced
         @param offline_tab:
         @return:
         """
