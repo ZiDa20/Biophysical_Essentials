@@ -19,7 +19,7 @@ pg.setConfigOption('foreground', '#ff8117')
 from self_config_notebook_widget import *
 import traceback, sys
 from functools import partial
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     

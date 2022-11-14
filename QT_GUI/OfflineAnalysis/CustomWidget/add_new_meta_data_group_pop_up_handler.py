@@ -2,7 +2,6 @@
 from PySide6.QtWidgets import *  # type: ignore
 
 from add_new_meta_data_group_pop_up import Ui_Dialog
-from BlurWindow.blurWindow import GlobalBlur
 
 
 class Add_New_Meta_Data_Group_Pop_Up_Handler(QDialog, Ui_Dialog):

@@ -23,7 +23,10 @@ from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
-from BlurWindow.blurWindow import GlobalBlur
+
+if sys.platform != "darwin":
+    from BlurWindow.blurWindow import GlobalBlur
+
 
 class MainWindow(QMainWindow, QtStyleTools):
 
