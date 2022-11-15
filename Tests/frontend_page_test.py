@@ -7,6 +7,14 @@ import unittest
 import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/src")
+sys.path.append(os.getcwd() + "/src")
+sys.path.append(os.getcwd() + "/QT_GUI/ConfigWidget/ui_py")
+sys.path.append(os.getcwd() + "/QT_GUI/MainWindow/ui_py")
+sys.path.append(os.getcwd() + "/QT_GUI/DatabaseViewer/ui_py")
+sys.path.append(os.getcwd() + "/QT_GUI/OfflineAnalysis/ui_py")
+sys.path.append(os.getcwd() + "/QT_GUI/OnlineAnalysis/ui_py")
+sys.path.append(os.getcwd() + "/QT_GUI/Settings/ui_py")
+sys.path.append(os.getcwd() + "/QT_GUI/OfflineAnalysis/CustomWidget")
 
 
 from start import *

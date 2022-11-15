@@ -28,11 +28,21 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.plot = None
 
         self.canvas = None
+        self.export_table.clicked.connect(self.export_table_to_csv)
         
         
 
     def update_database_handler(self,database_handler):
         self.database_handler = database_handler
+
+    def export_table_to_csv(self):
+        """Table will be exported as csv file"""
+        if self.data_base_content is not None:
+            response = QFileDialog.getSaveFileName(self, "Save File", "", "CSV(*.csv)")
+            print(response)
+            self.pandas_frame.to_csv(response[0])
+        else:
+            print("No Table to export")
 
     @Slot()
     def open_database(self):
@@ -82,21 +92,21 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             if "results" in table_name:
                 self.table_dictionary["Result Table"].append(table_name)
 
-        # clean the list first to remove unwanted overlap after multiple calls
-        for i in reversed(range(self.button_database_series.count())):
-            self.button_database_series.itemAt(i).widget().deleteLater()
 
         # create a button for each table
+
+        self.retrieve_tables("Experiment")
+        self.select_table.clear()
         for key, value in self.table_dictionary.items():
-            button = QPushButton(key)
-            self.button_database_series.addWidget(button)
-            button.clicked.connect(self.retrieve_tables)
+            self.select_table.addItem(key)
+        self.select_table.currentTextChanged.connect(self.retrieve_tables)
 
 
-    def retrieve_tables(self):
+    def retrieve_tables(self, value):
         """ When button clicked then we should retrieve the associated tables to structure the 
         Tables better"""
-        text = self.sender().text()
+        text = value
+        print(value)
         retrieved_tables = sorted(self.table_dictionary.get(text))
         self.database_table.clear()
         for tables in retrieved_tables:
@@ -130,13 +140,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         '''
    
         # create the table from dict
-        pandas_frame = pd.DataFrame(table_dict)
+        self.pandas_frame = pd.DataFrame(table_dict)
 
-        if pandas_frame.shape[0] > 500:
-            view_frame = pandas_frame.head(100)
+        if self.pandas_frame.shape[0] > 500:
+            view_frame = self.pandas_frame.head(100)
         
         else:
-            view_frame = pandas_frame
+            view_frame = self.pandas_frame
 
         # create a table widget
         if self.data_base_content:
@@ -151,7 +161,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
 
         # create two models one for the table show and a second for the data visualizations
-        self.viewing_model = PandasTable(pandas_frame)
+        self.viewing_model = PandasTable(self.pandas_frame)
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
         #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 

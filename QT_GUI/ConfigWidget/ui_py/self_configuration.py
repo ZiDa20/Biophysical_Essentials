@@ -10,7 +10,7 @@ from PIL import ImageQt ,Image
 from backend_manager import *
 import os.path
 import logging
-from dragable_label import *
+#from dragable_label import Dr
 from tkinter_camera import *
 from time import sleep
 import pandas as pd

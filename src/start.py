@@ -246,11 +246,12 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def write_button_text(self):
         """ Add names to the buttons"""
-        self.ui.self_configuration.setText("  Configuration")
-        self.ui.online_analysis.setText(" Online Analysis")
-        self.ui.offline_analysis.setText(" Offline Analysis")
-        self.ui.statistics.setText("Database View")
-        self.ui.settings_button.setText("Settings")
+        pass
+        #self.ui.self_configuration.setText("  Configuration")
+        #self.ui.online_analysis.setText(" Online Analysis")
+        #self.ui.offline_analysis.setText(" Offline Analysis")
+        #self.ui.statistics.setText("Database View")
+        #self.ui.settings_button.setText("Settings")
 
     def change_to_lightmode(self):
         # @toDO should be added to the designer class 

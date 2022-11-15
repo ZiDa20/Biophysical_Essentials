@@ -1,167 +1,338 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'online_analysis_notebook.ui'
+## Form generated from reading UI file 'online_analysis_notebook_ribbon.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.1
+## Created by: Qt User Interface Compiler version 6.1.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsView, QGridLayout,
-    QGroupBox, QHeaderView, QLabel, QLayout,
-    QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
-    QTableWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget)
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
 
-#from Custom_Widgets.Widgets import QCustomSlideMenu
 from groupbox_resizing_class import GroupBoxSize
+#from Custom_Widgets.Widgets import QCustomSlideMenu
+
 
 class Ui_Online_Analysis(object):
     def setupUi(self, Online_Analysis):
         if not Online_Analysis.objectName():
             Online_Analysis.setObjectName(u"Online_Analysis")
-        Online_Analysis.resize(1434, 900)
+        Online_Analysis.resize(1388, 845)
         self.gridLayout_5 = QGridLayout(Online_Analysis)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.gridLayout_5.setContentsMargins(-1, 0, -1, -1)
         self.frame = QFrame(Online_Analysis)
         self.frame.setObjectName(u"frame")
+        self.frame.setMaximumSize(QSize(16777215, 120))
+        self.frame.setStyleSheet(u"QPushButton{\n"
+"background-repeat:None;\n"
+"background-color: transparent;\n"
+"background-position:None;\n"
+"border:None;\n"
+"border-radius: 5px;\n"
+"background-position:center;\n"
+"}")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
         self.gridLayout_3 = QGridLayout(self.frame)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.label_8 = QLabel(self.frame)
-        self.label_8.setObjectName(u"label_8")
+        self.gridLayout_3.setContentsMargins(-1, 0, -1, 0)
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.gridLayout_22 = QGridLayout()
+        self.gridLayout_22.setObjectName(u"gridLayout_22")
+        self.label_2 = QLabel(self.frame)
+        self.label_2.setObjectName(u"label_2")
         font = QFont()
-        font.setPointSize(16)
-        self.label_8.setFont(font)
+        font.setPointSize(10)
+        self.label_2.setFont(font)
 
-        self.gridLayout_3.addWidget(self.label_8, 0, 0, 1, 1)
+        self.gridLayout_22.addWidget(self.label_2, 0, 0, 1, 1, Qt.AlignHCenter|Qt.AlignVCenter)
+
+        self.label_3 = QLabel(self.frame)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setPixmap(QPixmap(u"../../../Logo/new_logo_final.png"))
+        self.label_3.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_22.addWidget(self.label_3, 1, 0, 1, 1)
 
 
-        self.gridLayout_5.addWidget(self.frame, 1, 0, 1, 1)
+        self.horizontalLayout.addLayout(self.gridLayout_22)
 
-        self.online_analysis = QTabWidget(Online_Analysis)
-        self.online_analysis.setObjectName(u"online_analysis")
-        self.online_analysis_window = QWidget()
-        self.online_analysis_window.setObjectName(u"online_analysis_window")
-        self.gridLayout_19 = QGridLayout(self.online_analysis_window)
-        self.gridLayout_19.setObjectName(u"gridLayout_19")
-        self.gridLayout_11 = QGridLayout()
+        self.DataGroup = QGroupBox(self.frame)
+        self.DataGroup.setObjectName(u"DataGroup")
+        self.gridLayout_11 = QGridLayout(self.DataGroup)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
-        self.show_pgf_file = QPushButton(self.online_analysis_window)
-        self.show_pgf_file.setObjectName(u"show_pgf_file")
-        self.show_pgf_file.setStyleSheet(u"")
-
-        self.gridLayout_11.addWidget(self.show_pgf_file, 0, 1, 1, 1)
-
-        self.classifier_stream = QPushButton(self.online_analysis_window)
-        self.classifier_stream.setObjectName(u"classifier_stream")
-        self.classifier_stream.setStyleSheet(u"")
-
-        self.gridLayout_11.addWidget(self.classifier_stream, 0, 3, 1, 1)
-
-        self.button_select_data_file = QPushButton(self.online_analysis_window)
+        self.gridLayout_11.setContentsMargins(1, 3, 1, 3)
+        self.DataOptions = QGridLayout()
+        self.DataOptions.setObjectName(u"DataOptions")
+        self.button_select_data_file = QPushButton(self.DataGroup)
         self.button_select_data_file.setObjectName(u"button_select_data_file")
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.button_select_data_file.sizePolicy().hasHeightForWidth())
         self.button_select_data_file.setSizePolicy(sizePolicy)
-        self.button_select_data_file.setMinimumSize(QSize(150, 0))
+        self.button_select_data_file.setMinimumSize(QSize(40, 40))
+        self.button_select_data_file.setMaximumSize(QSize(40, 40))
+        font1 = QFont()
+        font1.setPointSize(6)
+        self.button_select_data_file.setFont(font1)
+        self.button_select_data_file.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/open_file.png);\n"
+"")
 
-        self.gridLayout_11.addWidget(self.button_select_data_file, 0, 0, 1, 1)
+        self.DataOptions.addWidget(self.button_select_data_file, 0, 0, 1, 1)
 
-        self.transfer_to_offline_analysis = QPushButton(self.online_analysis_window)
-        self.transfer_to_offline_analysis.setObjectName(u"transfer_to_offline_analysis")
-        sizePolicy.setHeightForWidth(self.transfer_to_offline_analysis.sizePolicy().hasHeightForWidth())
-        self.transfer_to_offline_analysis.setSizePolicy(sizePolicy)
-        self.transfer_to_offline_analysis.setMinimumSize(QSize(50, 30))
-        self.transfer_to_offline_analysis.setStyleSheet(u"")
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_11.addWidget(self.transfer_to_offline_analysis, 0, 4, 1, 1)
+        self.DataOptions.addItem(self.verticalSpacer, 1, 0, 1, 1)
 
-        self.save_plot_online = QPushButton(self.online_analysis_window)
+
+        self.gridLayout_11.addLayout(self.DataOptions, 0, 0, 1, 1)
+
+
+        self.horizontalLayout.addWidget(self.DataGroup)
+
+        self.PlotGroup = QGroupBox(self.frame)
+        self.PlotGroup.setObjectName(u"PlotGroup")
+        self.gridLayout_12 = QGridLayout(self.PlotGroup)
+        self.gridLayout_12.setObjectName(u"gridLayout_12")
+        self.gridLayout_12.setContentsMargins(1, 3, 1, 3)
+        self.PlotOptions = QGridLayout()
+        self.PlotOptions.setObjectName(u"PlotOptions")
+        self.plot_home = QPushButton(self.PlotGroup)
+        self.plot_home.setObjectName(u"plot_home")
+        self.plot_home.setMinimumSize(QSize(20, 20))
+        self.plot_home.setMaximumSize(QSize(20, 20))
+        self.plot_home.setFont(font1)
+        self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
+
+        self.PlotOptions.addWidget(self.plot_home, 3, 2, 1, 1)
+
+        self.plot_move = QPushButton(self.PlotGroup)
+        self.plot_move.setObjectName(u"plot_move")
+        self.plot_move.setMinimumSize(QSize(20, 20))
+        self.plot_move.setMaximumSize(QSize(20, 20))
+        self.plot_move.setFont(font1)
+        self.plot_move.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/move.png);")
+
+        self.PlotOptions.addWidget(self.plot_move, 1, 2, 1, 1)
+
+        self.save_plot_online = QPushButton(self.PlotGroup)
         self.save_plot_online.setObjectName(u"save_plot_online")
-        self.save_plot_online.setStyleSheet(u"")
+        self.save_plot_online.setMinimumSize(QSize(20, 20))
+        self.save_plot_online.setMaximumSize(QSize(20, 20))
+        self.save_plot_online.setFont(font1)
+        self.save_plot_online.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
 
-        self.gridLayout_11.addWidget(self.save_plot_online, 0, 2, 1, 1)
+        self.PlotOptions.addWidget(self.save_plot_online, 1, 0, 1, 1)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.plot_zoom = QPushButton(self.PlotGroup)
+        self.plot_zoom.setObjectName(u"plot_zoom")
+        self.plot_zoom.setMinimumSize(QSize(20, 20))
+        self.plot_zoom.setMaximumSize(QSize(20, 20))
+        self.plot_zoom.setFont(font1)
+        self.plot_zoom.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom.png);")
 
-        self.gridLayout_11.addItem(self.horizontalSpacer_2, 0, 5, 1, 1)
+        self.PlotOptions.addWidget(self.plot_zoom, 0, 2, 1, 1)
 
+        self.show_pgf_file = QPushButton(self.PlotGroup)
+        self.show_pgf_file.setObjectName(u"show_pgf_file")
+        self.show_pgf_file.setMinimumSize(QSize(20, 20))
+        self.show_pgf_file.setMaximumSize(QSize(20, 20))
+        self.show_pgf_file.setFont(font1)
+        self.show_pgf_file.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/pgf.png);")
 
-        self.gridLayout_19.addLayout(self.gridLayout_11, 0, 2, 1, 1)
+        self.PlotOptions.addWidget(self.show_pgf_file, 0, 0, 1, 1)
 
-        self.groupBox_4 = QGroupBox(self.online_analysis_window)
-        self.groupBox_4.setObjectName(u"groupBox_4")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.PlotOptions.addItem(self.verticalSpacer_7, 4, 0, 1, 1)
+
+        self.plot_zoom_out = QPushButton(self.PlotGroup)
+        self.plot_zoom_out.setObjectName(u"plot_zoom_out")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
-        self.groupBox_4.setSizePolicy(sizePolicy1)
-        self.groupBox_4.setMinimumSize(QSize(300, 0))
-        self.groupBox_4.setMaximumSize(QSize(448, 16777215))
-        self.gridLayout_18 = QGridLayout(self.groupBox_4)
-        self.gridLayout_18.setObjectName(u"gridLayout_18")
-        self.gridLayout_18.setSizeConstraint(QLayout.SetMinimumSize)
-        self.gridLayout_18.setContentsMargins(0, -1, -1, -1)
-        self.tree_layouting_change = QGridLayout()
-        self.tree_layouting_change.setObjectName(u"tree_layouting_change")
-        self.tree_tab_widget = QTabWidget(self.groupBox_4)
-        self.tree_tab_widget.setObjectName(u"tree_tab_widget")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.tree_tab_widget.sizePolicy().hasHeightForWidth())
-        self.tree_tab_widget.setSizePolicy(sizePolicy2)
-        self.tree_tab_widget.setMinimumSize(QSize(300, 600))
-        self.tree_tab_widget.setStyleSheet(u"")
-        self.selected_tree_view = QWidget()
-        self.selected_tree_view.setObjectName(u"selected_tree_view")
-        self.verticalLayout_2 = QVBoxLayout(self.selected_tree_view)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.treeWidget = QTreeWidget(self.selected_tree_view)
-        self.treeWidget.setObjectName(u"treeWidget")
+        sizePolicy1.setHeightForWidth(self.plot_zoom_out.sizePolicy().hasHeightForWidth())
+        self.plot_zoom_out.setSizePolicy(sizePolicy1)
+        self.plot_zoom_out.setMinimumSize(QSize(20, 20))
+        self.plot_zoom_out.setMaximumSize(QSize(20, 20))
+        self.plot_zoom_out.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom-out.png);")
 
-        self.verticalLayout_2.addWidget(self.treeWidget)
+        self.PlotOptions.addWidget(self.plot_zoom_out, 3, 0, 1, 1)
 
-        self.tree_tab_widget.addTab(self.selected_tree_view, "")
-        self.discarded_tree_view = QWidget()
-        self.discarded_tree_view.setObjectName(u"discarded_tree_view")
-        self.gridLayout_4 = QGridLayout(self.discarded_tree_view)
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.treeWidget_2 = QTreeWidget(self.discarded_tree_view)
-        self.treeWidget_2.setObjectName(u"treeWidget_2")
-        sizePolicy1.setHeightForWidth(self.treeWidget_2.sizePolicy().hasHeightForWidth())
-        self.treeWidget_2.setSizePolicy(sizePolicy1)
-        self.treeWidget_2.setMinimumSize(QSize(300, 0))
-        self.treeWidget_2.setStyleSheet(u"")
+        self.horizontalSpacer_3 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
-        self.gridLayout_4.addWidget(self.treeWidget_2, 0, 0, 1, 1)
-
-        self.tree_tab_widget.addTab(self.discarded_tree_view, "")
-
-        self.tree_layouting_change.addWidget(self.tree_tab_widget, 0, 0, 1, 1)
+        self.PlotOptions.addItem(self.horizontalSpacer_3, 0, 1, 1, 1)
 
 
-        self.gridLayout_18.addLayout(self.tree_layouting_change, 0, 0, 1, 1)
+        self.gridLayout_12.addLayout(self.PlotOptions, 0, 0, 1, 1)
 
 
-        self.gridLayout_19.addWidget(self.groupBox_4, 2, 0, 1, 1)
+        self.horizontalLayout.addWidget(self.PlotGroup)
+
+        self.line = QFrame(self.frame)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.VLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line)
+
+        self.ClassifierGroup = QGroupBox(self.frame)
+        self.ClassifierGroup.setObjectName(u"ClassifierGroup")
+        self.gridLayout_13 = QGridLayout(self.ClassifierGroup)
+        self.gridLayout_13.setObjectName(u"gridLayout_13")
+        self.gridLayout_13.setContentsMargins(1, 3, 1, 3)
+        self.ClassificationOptions = QGridLayout()
+        self.ClassificationOptions.setObjectName(u"ClassificationOptions")
+        self.classifier_stream = QPushButton(self.ClassifierGroup)
+        self.classifier_stream.setObjectName(u"classifier_stream")
+        self.classifier_stream.setMinimumSize(QSize(40, 40))
+        self.classifier_stream.setMaximumSize(QSize(40, 40))
+        self.classifier_stream.setFont(font1)
+        self.classifier_stream.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/machine_learning.png);")
+
+        self.ClassificationOptions.addWidget(self.classifier_stream, 0, 0, 1, 1)
+
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.ClassificationOptions.addItem(self.verticalSpacer_4, 1, 0, 1, 1)
+
+
+        self.gridLayout_13.addLayout(self.ClassificationOptions, 0, 0, 1, 1)
+
+
+        self.horizontalLayout.addWidget(self.ClassifierGroup)
+
+        self.line_2 = QFrame(self.frame)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.VLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout.addWidget(self.line_2)
+
+        self.LabbookGroup = QGroupBox(self.frame)
+        self.LabbookGroup.setObjectName(u"LabbookGroup")
+        self.gridLayout_14 = QGridLayout(self.LabbookGroup)
+        self.gridLayout_14.setObjectName(u"gridLayout_14")
+        self.gridLayout_14.setContentsMargins(1, 3, 1, 3)
+        self.LabbookOptions = QGridLayout()
+        self.LabbookOptions.setObjectName(u"LabbookOptions")
+        self.save_labbook_button = QPushButton(self.LabbookGroup)
+        self.save_labbook_button.setObjectName(u"save_labbook_button")
+        sizePolicy1.setHeightForWidth(self.save_labbook_button.sizePolicy().hasHeightForWidth())
+        self.save_labbook_button.setSizePolicy(sizePolicy1)
+        self.save_labbook_button.setMinimumSize(QSize(20, 20))
+        self.save_labbook_button.setMaximumSize(QSize(20, 20))
+        self.save_labbook_button.setFont(font1)
+        self.save_labbook_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/export_csv.png);")
+
+        self.LabbookOptions.addWidget(self.save_labbook_button, 0, 2, 1, 1)
+
+        self.pushButton_2 = QPushButton(self.LabbookGroup)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+        sizePolicy1.setHeightForWidth(self.pushButton_2.sizePolicy().hasHeightForWidth())
+        self.pushButton_2.setSizePolicy(sizePolicy1)
+        self.pushButton_2.setMinimumSize(QSize(20, 20))
+        self.pushButton_2.setMaximumSize(QSize(20, 20))
+        self.pushButton_2.setFont(font1)
+        self.pushButton_2.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_gif.png);")
+
+        self.LabbookOptions.addWidget(self.pushButton_2, 2, 2, 1, 1)
+
+        self.add_metadata_button = QPushButton(self.LabbookGroup)
+        self.add_metadata_button.setObjectName(u"add_metadata_button")
+        sizePolicy1.setHeightForWidth(self.add_metadata_button.sizePolicy().hasHeightForWidth())
+        self.add_metadata_button.setSizePolicy(sizePolicy1)
+        self.add_metadata_button.setMinimumSize(QSize(20, 20))
+        self.add_metadata_button.setMaximumSize(QSize(20, 20))
+        self.add_metadata_button.setFont(font1)
+        self.add_metadata_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/add_meta.png);")
+
+        self.LabbookOptions.addWidget(self.add_metadata_button, 0, 0, 1, 1)
+
+        self.verticalSpacer_11 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.LabbookOptions.addItem(self.verticalSpacer_11, 3, 0, 1, 1)
+
+        self.pushButton = QPushButton(self.LabbookGroup)
+        self.pushButton.setObjectName(u"pushButton")
+        sizePolicy1.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
+        self.pushButton.setSizePolicy(sizePolicy1)
+        self.pushButton.setMinimumSize(QSize(20, 20))
+        self.pushButton.setMaximumSize(QSize(20, 20))
+        self.pushButton.setFont(font1)
+        self.pushButton.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
+
+        self.LabbookOptions.addWidget(self.pushButton, 2, 0, 1, 1)
+
+        self.horizontalSpacer_4 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+
+        self.LabbookOptions.addItem(self.horizontalSpacer_4, 0, 1, 1, 1)
+
+
+        self.gridLayout_14.addLayout(self.LabbookOptions, 0, 0, 1, 1)
+
+
+        self.horizontalLayout.addWidget(self.LabbookGroup)
+
+        self.TransferGroup = QGroupBox(self.frame)
+        self.TransferGroup.setObjectName(u"TransferGroup")
+        self.gridLayout_21 = QGridLayout(self.TransferGroup)
+        self.gridLayout_21.setObjectName(u"gridLayout_21")
+        self.gridLayout_21.setContentsMargins(1, 3, 1, 3)
+        self.gridLayout_15 = QGridLayout()
+        self.gridLayout_15.setObjectName(u"gridLayout_15")
+        self.transfer_to_offline_analysis = QPushButton(self.TransferGroup)
+        self.transfer_to_offline_analysis.setObjectName(u"transfer_to_offline_analysis")
+        sizePolicy1.setHeightForWidth(self.transfer_to_offline_analysis.sizePolicy().hasHeightForWidth())
+        self.transfer_to_offline_analysis.setSizePolicy(sizePolicy1)
+        self.transfer_to_offline_analysis.setMinimumSize(QSize(40, 40))
+        self.transfer_to_offline_analysis.setMaximumSize(QSize(40, 40))
+        self.transfer_to_offline_analysis.setFont(font1)
+        self.transfer_to_offline_analysis.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/sql.png);\n"
+"")
+
+        self.gridLayout_15.addWidget(self.transfer_to_offline_analysis, 0, 0, 1, 1, Qt.AlignLeft|Qt.AlignTop)
+
+
+        self.gridLayout_21.addLayout(self.gridLayout_15, 0, 0, 1, 1)
+
+
+        self.horizontalLayout.addWidget(self.TransferGroup)
+
+        self.horizontalSpacer_2 = QSpacerItem(500, 20, QSizePolicy.Preferred, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
+
+
+        self.gridLayout_3.addLayout(self.horizontalLayout, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addWidget(self.frame, 0, 0, 1, 1)
+
+        self.online_analysis = QTabWidget(Online_Analysis)
+        self.online_analysis.setTabPosition(QTabWidget.South)
+        self.online_analysis.setObjectName(u"online_analysis")
+        self.online_analysis_window = QWidget()
+        self.online_analysis_window.setObjectName(u"online_analysis_window")
+        self.gridLayout_19 = QGridLayout(self.online_analysis_window)
+        self.gridLayout_19.setObjectName(u"gridLayout_19")
+        self.verticalSpacer_3 = QSpacerItem(5, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_19.addItem(self.verticalSpacer_3, 1, 1, 1, 1)
 
         self.groupBox_2 = GroupBoxSize(self.online_analysis_window)
         self.groupBox_2.setObjectName(u"groupBox_2")
-        sizePolicy1.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
-        self.groupBox_2.setSizePolicy(sizePolicy1)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
+        self.groupBox_2.setSizePolicy(sizePolicy2)
         self.groupBox_2.setMinimumSize(QSize(0, 0))
         self.groupBox_2.setMaximumSize(QSize(1500, 16777215))
         self.gridLayout_8 = QGridLayout(self.groupBox_2)
@@ -193,13 +364,13 @@ class Ui_Online_Analysis(object):
 
         self.label = QLabel(self.recorded_series_plot_tab)
         self.label.setObjectName(u"label")
-        sizePolicy1.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy1)
-        font1 = QFont()
-        font1.setPointSize(20)
-        font1.setBold(True)
-        font1.setUnderline(True)
-        self.label.setFont(font1)
+        sizePolicy2.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy2)
+        font2 = QFont()
+        font2.setPointSize(20)
+        font2.setBold(True)
+        font2.setUnderline(True)
+        self.label.setFont(font2)
         self.label.setAlignment(Qt.AlignJustify|Qt.AlignVCenter)
 
         self.tree_plot_widget_layout.addWidget(self.label)
@@ -229,11 +400,61 @@ class Ui_Online_Analysis(object):
         self.gridLayout_8.addWidget(self.online_analysis_tabs, 0, 1, 2, 1)
 
 
-        self.gridLayout_19.addWidget(self.groupBox_2, 2, 2, 1, 1)
+        self.gridLayout_19.addWidget(self.groupBox_2, 1, 2, 1, 1)
 
-        self.verticalSpacer_3 = QSpacerItem(5, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.groupBox_4 = QGroupBox(self.online_analysis_window)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        sizePolicy2.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
+        self.groupBox_4.setSizePolicy(sizePolicy2)
+        self.groupBox_4.setMinimumSize(QSize(300, 0))
+        self.groupBox_4.setMaximumSize(QSize(448, 16777215))
+        self.gridLayout_18 = QGridLayout(self.groupBox_4)
+        self.gridLayout_18.setObjectName(u"gridLayout_18")
+        self.gridLayout_18.setSizeConstraint(QLayout.SetMinimumSize)
+        self.gridLayout_18.setContentsMargins(0, -1, -1, -1)
+        self.tree_layouting_change = QGridLayout()
+        self.tree_layouting_change.setObjectName(u"tree_layouting_change")
+        self.tree_tab_widget = QTabWidget(self.groupBox_4)
+        self.tree_tab_widget.setObjectName(u"tree_tab_widget")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.tree_tab_widget.sizePolicy().hasHeightForWidth())
+        self.tree_tab_widget.setSizePolicy(sizePolicy3)
+        self.tree_tab_widget.setMinimumSize(QSize(300, 600))
+        self.tree_tab_widget.setStyleSheet(u"")
+        self.selected_tree_view = QWidget()
+        self.selected_tree_view.setObjectName(u"selected_tree_view")
+        self.verticalLayout_2 = QVBoxLayout(self.selected_tree_view)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.treeWidget = QTreeWidget(self.selected_tree_view)
+        self.treeWidget.setObjectName(u"treeWidget")
 
-        self.gridLayout_19.addItem(self.verticalSpacer_3, 2, 1, 1, 1)
+        self.verticalLayout_2.addWidget(self.treeWidget)
+
+        self.tree_tab_widget.addTab(self.selected_tree_view, "")
+        self.discarded_tree_view = QWidget()
+        self.discarded_tree_view.setObjectName(u"discarded_tree_view")
+        self.gridLayout_4 = QGridLayout(self.discarded_tree_view)
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.treeWidget_2 = QTreeWidget(self.discarded_tree_view)
+        self.treeWidget_2.setObjectName(u"treeWidget_2")
+        sizePolicy2.setHeightForWidth(self.treeWidget_2.sizePolicy().hasHeightForWidth())
+        self.treeWidget_2.setSizePolicy(sizePolicy2)
+        self.treeWidget_2.setMinimumSize(QSize(300, 0))
+        self.treeWidget_2.setStyleSheet(u"")
+
+        self.gridLayout_4.addWidget(self.treeWidget_2, 0, 0, 1, 1)
+
+        self.tree_tab_widget.addTab(self.discarded_tree_view, "")
+
+        self.tree_layouting_change.addWidget(self.tree_tab_widget, 0, 0, 1, 1)
+
+
+        self.gridLayout_18.addLayout(self.tree_layouting_change, 0, 0, 1, 1)
+
+
+        self.gridLayout_19.addWidget(self.groupBox_4, 1, 0, 1, 1)
 
         self.online_analysis.addTab(self.online_analysis_window, "")
         self.labbook_window = QWidget()
@@ -242,8 +463,8 @@ class Ui_Online_Analysis(object):
         self.gridLayout_20.setObjectName(u"gridLayout_20")
         self.groupBox_5 = QGroupBox(self.labbook_window)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        sizePolicy1.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
-        self.groupBox_5.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
+        self.groupBox_5.setSizePolicy(sizePolicy2)
         self.groupBox_5.setMinimumSize(QSize(300, 0))
         self.groupBox_5.setMaximumSize(QSize(448, 16777215))
         self.gridLayout_17 = QGridLayout(self.groupBox_5)
@@ -259,39 +480,6 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_10 = QGridLayout()
         self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.save_labbook_button = QPushButton(self.labbook_window)
-        self.save_labbook_button.setObjectName(u"save_labbook_button")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.save_labbook_button.sizePolicy().hasHeightForWidth())
-        self.save_labbook_button.setSizePolicy(sizePolicy3)
-        self.save_labbook_button.setMinimumSize(QSize(150, 0))
-
-        self.gridLayout_10.addWidget(self.save_labbook_button, 0, 1, 1, 1)
-
-        self.pushButton = QPushButton(self.labbook_window)
-        self.pushButton.setObjectName(u"pushButton")
-        sizePolicy3.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
-        self.pushButton.setSizePolicy(sizePolicy3)
-
-        self.gridLayout_10.addWidget(self.pushButton, 0, 2, 1, 1)
-
-        self.pushButton_2 = QPushButton(self.labbook_window)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-        sizePolicy3.setHeightForWidth(self.pushButton_2.sizePolicy().hasHeightForWidth())
-        self.pushButton_2.setSizePolicy(sizePolicy3)
-
-        self.gridLayout_10.addWidget(self.pushButton_2, 0, 3, 1, 1)
-
-        self.add_metadata_button = QPushButton(self.labbook_window)
-        self.add_metadata_button.setObjectName(u"add_metadata_button")
-        sizePolicy3.setHeightForWidth(self.add_metadata_button.sizePolicy().hasHeightForWidth())
-        self.add_metadata_button.setSizePolicy(sizePolicy3)
-        self.add_metadata_button.setMinimumSize(QSize(150, 0))
-
-        self.gridLayout_10.addWidget(self.add_metadata_button, 0, 0, 1, 1)
-
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.gridLayout_10.addItem(self.horizontalSpacer, 0, 4, 1, 1)
@@ -303,8 +491,8 @@ class Ui_Online_Analysis(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.groupBox = GroupBoxSize(self.labbook_window)
         self.groupBox.setObjectName(u"groupBox")
-        sizePolicy2.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
-        self.groupBox.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
+        self.groupBox.setSizePolicy(sizePolicy3)
         self.gridLayout_7 = QGridLayout(self.groupBox)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.tableWidget = QTableWidget(self.groupBox)
@@ -329,25 +517,22 @@ class Ui_Online_Analysis(object):
 
         self.label_9 = QLabel(self.groupBox)
         self.label_9.setObjectName(u"label_9")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
-        sizePolicy5.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
-        self.label_9.setSizePolicy(sizePolicy5)
+        sizePolicy1.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
+        self.label_9.setSizePolicy(sizePolicy1)
 
         self.gridLayout_9.addWidget(self.label_9, 0, 0, 1, 1)
 
         self.label_13 = QLabel(self.groupBox)
         self.label_13.setObjectName(u"label_13")
-        sizePolicy5.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
-        self.label_13.setSizePolicy(sizePolicy5)
+        sizePolicy1.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
+        self.label_13.setSizePolicy(sizePolicy1)
 
         self.gridLayout_9.addWidget(self.label_13, 0, 1, 1, 1)
 
         self.image_experiment = QGraphicsView(self.groupBox)
         self.image_experiment.setObjectName(u"image_experiment")
-        sizePolicy2.setHeightForWidth(self.image_experiment.sizePolicy().hasHeightForWidth())
-        self.image_experiment.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.image_experiment.sizePolicy().hasHeightForWidth())
+        self.image_experiment.setSizePolicy(sizePolicy3)
         self.image_experiment.setMinimumSize(QSize(250, 0))
         self.image_experiment.setMaximumSize(QSize(16777215, 300))
         self.image_experiment.setLayoutDirection(Qt.LeftToRight)
@@ -369,9 +554,9 @@ class Ui_Online_Analysis(object):
 
         self.label_12 = QLabel(self.labbook_window)
         self.label_12.setObjectName(u"label_12")
-        font2 = QFont()
-        font2.setPointSize(15)
-        self.label_12.setFont(font2)
+        font3 = QFont()
+        font3.setPointSize(15)
+        self.label_12.setFont(font3)
 
         self.gridLayout_20.addWidget(self.label_12, 0, 0, 1, 1)
 
@@ -382,18 +567,14 @@ class Ui_Online_Analysis(object):
 
         self.online_analysis.addTab(self.labbook_window, "")
 
-        self.gridLayout_5.addWidget(self.online_analysis, 2, 0, 1, 1)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.gridLayout_5.addItem(self.horizontalSpacer_3, 0, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.online_analysis, 1, 0, 1, 1)
 
 
         self.retranslateUi(Online_Analysis)
 
         self.online_analysis.setCurrentIndex(0)
-        self.tree_tab_widget.setCurrentIndex(0)
         self.online_analysis_tabs.setCurrentIndex(0)
+        self.tree_tab_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Online_Analysis)
@@ -401,12 +582,31 @@ class Ui_Online_Analysis(object):
 
     def retranslateUi(self, Online_Analysis):
         Online_Analysis.setWindowTitle(QCoreApplication.translate("Online_Analysis", u"Form", None))
-        self.label_8.setText(QCoreApplication.translate("Online_Analysis", u"Online Analysis ", None))
-        self.show_pgf_file.setText(QCoreApplication.translate("Online_Analysis", u"Show PGF File", None))
-        self.classifier_stream.setText(QCoreApplication.translate("Online_Analysis", u"Classifier Stream", None))
-        self.button_select_data_file.setText(QCoreApplication.translate("Online_Analysis", u"Open .Dat File", None))
-        self.transfer_to_offline_analysis.setText(QCoreApplication.translate("Online_Analysis", u"Transfer to offline Analysis", None))
-        self.save_plot_online.setText(QCoreApplication.translate("Online_Analysis", u"Save Plot", None))
+        self.label_2.setText(QCoreApplication.translate("Online_Analysis", u"Online Analysis:", None))
+        self.label_3.setText("")
+        self.DataGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Data Options", None))
+        self.button_select_data_file.setText("")
+        self.PlotGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Plot Options", None))
+        self.plot_home.setText("")
+        self.plot_move.setText("")
+        self.save_plot_online.setText("")
+        self.plot_zoom.setText("")
+        self.show_pgf_file.setText("")
+        self.plot_zoom_out.setText("")
+        self.ClassifierGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Classifier Options", None))
+        self.classifier_stream.setText("")
+        self.LabbookGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Labbook Options", None))
+        self.save_labbook_button.setText("")
+        self.pushButton_2.setText("")
+        self.add_metadata_button.setText("")
+        self.pushButton.setText("")
+        self.TransferGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Transfer Options", None))
+        self.transfer_to_offline_analysis.setText("")
+        self.groupBox_2.setTitle(QCoreApplication.translate("Online_Analysis", u"Visualization of the Traces", None))
+        self.label.setText(QCoreApplication.translate("Online_Analysis", u"Load a File to Plot Data", None))
+        self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.recorded_series_plot_tab), QCoreApplication.translate("Online_Analysis", u"Plot Window", None))
+        self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.live_recording_tab), QCoreApplication.translate("Online_Analysis", u"Live Recording", None))
+        self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.fast_online_analysis), QCoreApplication.translate("Online_Analysis", u"Fast Analysis", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("Online_Analysis", u"Experiment Hierachy", None))
 #if QT_CONFIG(accessibility)
         self.tree_tab_widget.setAccessibleName(QCoreApplication.translate("Online_Analysis", u"tab_widgets", None))
@@ -421,22 +621,12 @@ class Ui_Online_Analysis(object):
         ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Online_Analysis", u"Show", None));
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Online_Analysis", u"Object", None));
         self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.discarded_tree_view), QCoreApplication.translate("Online_Analysis", u"Discarded", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("Online_Analysis", u"Visualization of the Traces", None))
-        self.label.setText(QCoreApplication.translate("Online_Analysis", u"Load a File to Plot Data", None))
-        self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.recorded_series_plot_tab), QCoreApplication.translate("Online_Analysis", u"Plot Window", None))
-        self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.live_recording_tab), QCoreApplication.translate("Online_Analysis", u"Live Recording", None))
-        self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.fast_online_analysis), QCoreApplication.translate("Online_Analysis", u"Fast Analysis", None))
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.online_analysis_window), QCoreApplication.translate("Online_Analysis", u"Online Analysis", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("Online_Analysis", u"TreeView Experiment", None))
-        self.save_labbook_button.setText(QCoreApplication.translate("Online_Analysis", u"Save Labbook", None))
-        self.pushButton.setText(QCoreApplication.translate("Online_Analysis", u"Save Image", None))
-        self.pushButton_2.setText(QCoreApplication.translate("Online_Analysis", u"Save Gif", None))
-        self.add_metadata_button.setText(QCoreApplication.translate("Online_Analysis", u"Add Metadata to Labbook", None))
         self.groupBox.setTitle(QCoreApplication.translate("Online_Analysis", u"Labbbook Table", None))
         self.label_9.setText(QCoreApplication.translate("Online_Analysis", u"Experiment Image", None))
         self.label_13.setText(QCoreApplication.translate("Online_Analysis", u"Experiment Temporal GIF", None))
         self.label_12.setText(QCoreApplication.translate("Online_Analysis", u"Experiment Report", None))
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window), QCoreApplication.translate("Online_Analysis", u"Labbook", None))
     # retranslateUi
-
 

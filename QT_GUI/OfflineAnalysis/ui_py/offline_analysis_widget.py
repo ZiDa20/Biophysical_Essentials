@@ -253,7 +253,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.treebuild.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
         self.treebuild.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.treebuild.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-        self.directory_tree_widget.setCurrentIndex(0)
+        self.treebuild.directory_tree_widget.setCurrentIndex(0)
         print("finished loading")
         # show selected tree_view
         
