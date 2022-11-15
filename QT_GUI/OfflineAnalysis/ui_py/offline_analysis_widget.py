@@ -40,6 +40,7 @@ from drag_and_drop_list_view import DragAndDropListView
 
 from offline_analysis_result_table_model import OfflineAnalysisResultTableModel
 
+from PySide6.QtTest import QTest
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -70,7 +71,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.hierachy_stacked_list = []
         self.tab_list = []
         self.series_list = []
+
         self.SeriesItems.clear()
+
         self.parent_count = 0
         self.current_tab_visualization = []
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
@@ -574,15 +577,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
         # connect the treewidgetsitems
-        self.SeriesItems.itemClicked.connect(self.onItemClicked)
+        self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)
 
         # set the analysis notebook as index
         self.offline_analysis_widgets.setCurrentIndex(3)
         self.tree_widget_index_count = index + 1
 
-    def onItemClicked(self, it, col):
-        """should be commented properly
-        toDO MZ"""
+        self.SeriesItems.expandToDepth(2)
+        self.SeriesItems.setCurrentItem(self.SeriesItems.topLevelItem(0).child(0))
+        self.offline_analysis_result_tree_item_clicked()
+
+    def offline_analysis_result_tree_item_clicked(self):
+        """
+        Whenever an item within the result tree view is clicked, this function is called
+        @return:
+        @author:DZ
+        """
 
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
 
@@ -604,7 +614,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
 
             if self.SeriesItems.currentItem().text(0) == "Simple Analysis Configuration":
-                stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
+
+                stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
+                config_widget = self.SeriesItems.currentItem().parent().data(2, Qt.UserRole)
+
+                # insert the windget
+                stacked_widget.insertWidget(0, config_widget)
+                stacked_widget.setCurrentIndex(0)
+
                 self.analysis_stacked.setCurrentIndex(parent_stacked)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
 
@@ -660,7 +677,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
             if self.SeriesItems.currentItem().text(0) == "Statistics":
-
+                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
                 # two modes: manual mode
 
                 # statistic analysis wizard
@@ -1008,29 +1025,33 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
 
     def finished_result_thread(self):
+        """
+
+        @return:
+        """
         # switch to the visualization tab
         print("here we are!")
         # self.Offline_Analysis_Notebook.setCurrentIndex(1)
         # plot the calculated results
         self.database_handler.open_connection()
         print(self.SeriesItems.currentItem().data(0, Qt.DisplayRole))
-        offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
-                                                                                    self.SeriesItems.currentItem().data(
-                                                                                        6, Qt.UserRole))
-        self.analysis_stacked.setCurrentIndex(self.SeriesItems.currentItem().data(7, Qt.UserRole))
-        print(self.SeriesItems.currentItem().data(6, Qt.UserRole))
+        print("Series Name = ", self.SeriesItems.currentItem().data(6, Qt.UserRole))
 
         self.add_new_analysis_tree_children()
-        # add the results at position 1 of the stacked widget ( position 0  is the analysis config )
-        if self.SeriesItems.currentItem().child(0):
-            print("parent node was selected")
-            parent_stacked_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-        else:
-            print("child node was selected")
-            parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
 
-        self.hierachy_stacked_list[parent_stacked_index].insertWidget(1,offline_tab)
-        self.hierachy_stacked_list[parent_stacked_index].setCurrentIndex(1)
+        if self.SeriesItems.currentItem().child(0):
+            parent_item = self.SeriesItems.currentItem()
+        else:
+            parent_item = self.SeriesItems.currentItem().parent()
+
+        offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
+                                                                                   parent_item.data(6, Qt.UserRole))
+
+        # add the results at position 1 of the stacked widget ( position 0  is the analysis config )
+        self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
+        # simulate click on  "Plot" children
+        self.SeriesItems.setCurrentItem(parent_item.child(1))
+        self.offline_analysis_result_tree_item_clicked()
 
     def add_new_analysis_tree_children(self):
         """
