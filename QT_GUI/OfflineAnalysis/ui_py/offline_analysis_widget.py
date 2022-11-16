@@ -583,6 +583,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(3)
         self.tree_widget_index_count = index + 1
 
+        """to make the initial visualization of the tree more beautiful, all childs are expanded and the first item in the tree is clicked"""
         self.SeriesItems.expandToDepth(2)
         self.SeriesItems.setCurrentItem(self.SeriesItems.topLevelItem(0).child(0))
         self.offline_analysis_result_tree_item_clicked()
@@ -611,7 +612,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             print("clicked none user")
             print(self.SeriesItems.currentItem().text(0))
-            parent_stacked = self.SeriesItems.currentItem().data(6, Qt.UserRole)
+
+            if self.SeriesItems.currentItem().child(0):
+                parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+            else:
+                parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
 
             if self.SeriesItems.currentItem().text(0) == "Simple Analysis Configuration":
 
@@ -627,24 +632,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             if self.SeriesItems.currentItem().text(0) == "Plot":
                 print(parent_stacked)
-                stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
-                print(stacked_widget_index)
+                #stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
+                #print(stacked_widget_index)
                 self.analysis_stacked.setCurrentIndex(parent_stacked)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
 
             if self.SeriesItems.currentItem().text(0) == "Tables":
-                # print("implementing table view here")
-                # print(parent_stacked)
-                stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
-                # print(stacked_widget_index)
 
+                self.analysis_stacked.setCurrentIndex(parent_stacked)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+
                 result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
                 # create a table view within a tab widget: each tab will become one plot/one specific analysis
 
                 table_tab_widget = QTabWidget()
 
-                # works only if results are organized row wise
+                # works only    if results are organized row wise
                 print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
                 if result_plot_widget.OfflineResultGrid.columnCount() == 1:
                     print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
@@ -654,7 +657,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
                         custom_plot_widget = qwidget_item.widget()
                         data = custom_plot_widget.export_data_frame
-                        print(data)
+                        #print(data)
+
+
+                        if custom_plot_widget.plot_type_combo_box.currentText() == "No Split":
+                            new_column_names = []
+                            print(data.columns.values.tolist())
+
+                            for column_name in data.columns.values.tolist():
+                                res = column_name.split("_")
+                                print(res)
+                                new_column_names.append(res[6]+"_"+res[7])
+
+                            data.columns = new_column_names
+
+
                         if data.empty:
                             print("Data to be displayed in the table are None. Fill the table first !")
                         else:
@@ -1026,19 +1043,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def finished_result_thread(self):
         """
-
+        Once all the reuslt have been calculated, an offline tab is created.
+        This tab visualizes all calculated results.
+        Therefore, a new plot child is inserted to the related series name analysis.
+        Furthermore, a table, a statistics and an advanced analysis child are added for further processing steps
         @return:
         """
-        # switch to the visualization tab
-        print("here we are!")
-        # self.Offline_Analysis_Notebook.setCurrentIndex(1)
-        # plot the calculated results
         self.database_handler.open_connection()
-        print(self.SeriesItems.currentItem().data(0, Qt.DisplayRole))
-        print("Series Name = ", self.SeriesItems.currentItem().data(6, Qt.UserRole))
-
         self.add_new_analysis_tree_children()
-
         if self.SeriesItems.currentItem().child(0):
             parent_item = self.SeriesItems.currentItem()
         else:
@@ -1047,9 +1059,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
                                                                                    parent_item.data(6, Qt.UserRole))
 
-        # add the results at position 1 of the stacked widget ( position 0  is the analysis config )
+        """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
-        # simulate click on  "Plot" children
+
+        """simulate click on  "Plot" children """
         self.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_analysis_result_tree_item_clicked()
 
@@ -1108,6 +1121,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # overwrite the old stacked widget with the new extended stacked widget
         self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
+
+
     def write_function_grid_values_into_database(self, current_tab):
         """
         When the Start Single Series Analysis Button will be pressed, data from the function selection table in the
