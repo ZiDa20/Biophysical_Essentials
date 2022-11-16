@@ -593,106 +593,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Whenever an item within the result tree view is clicked, this function is called
         @return:
         @author:DZ
+        @todo restructure this and move it maybe into a new class with the related functions ?
         """
 
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
-
-            # retrieve the parent on click
-
-            parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-            stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
-            stacked_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
-            new_widget = self.SeriesItems.currentItem().data(2, Qt.UserRole)
-
-            # insert the windget
-            stacked_widget.insertWidget(stacked_index, new_widget)
-            stacked_widget.setCurrentIndex(stacked_index)
-            self.analysis_stacked.setCurrentIndex(parent_stacked)
-            print("clicked user role")
+            self.result_analysis_parent_clicked()
         else:
-            print("clicked none user")
-            print(self.SeriesItems.currentItem().text(0))
-
+            """identifiy the parent"""
             if self.SeriesItems.currentItem().child(0):
                 parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
             else:
                 parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
 
             if self.SeriesItems.currentItem().text(0) == "Simple Analysis Configuration":
-
-                stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
-                config_widget = self.SeriesItems.currentItem().parent().data(2, Qt.UserRole)
-
-                # insert the windget
-                stacked_widget.insertWidget(0, config_widget)
-                stacked_widget.setCurrentIndex(0)
-
-                self.analysis_stacked.setCurrentIndex(parent_stacked)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
+                self.simple_analysis_configuration_clicked(parent_stacked)
 
             if self.SeriesItems.currentItem().text(0) == "Plot":
-                print(parent_stacked)
-                #stacked_widget_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
-                #print(stacked_widget_index)
                 self.analysis_stacked.setCurrentIndex(parent_stacked)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
 
             if self.SeriesItems.currentItem().text(0) == "Tables":
-
-                self.analysis_stacked.setCurrentIndex(parent_stacked)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
-
-                result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
-                # create a table view within a tab widget: each tab will become one plot/one specific analysis
-
-                table_tab_widget = QTabWidget()
-
-                # works only    if results are organized row wise
-                print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
-                if result_plot_widget.OfflineResultGrid.columnCount() == 1:
-                    print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
-
-                    for r in range(0, result_plot_widget.OfflineResultGrid.rowCount()):
-
-                        qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
-                        custom_plot_widget = qwidget_item.widget()
-                        data = custom_plot_widget.export_data_frame
-                        #print(data)
-
-
-                        if custom_plot_widget.plot_type_combo_box.currentText() == "No Split":
-                            new_column_names = []
-                            print(data.columns.values.tolist())
-
-                            try:
-                                for column_name in data.columns.values.tolist():
-                                    res = column_name.split("_")
-                                    new_column_names.append(res[6]+"_"+res[7])
-                                data.columns = new_column_names
-
-                            except Exception:
-                                print("all ok .. nothing to split here")
-
-                        if data.empty:
-                            print("Data to be displayed in the table are None. Fill the table first !")
-                        else:
-                            print("creating the table")
-                            self.model = OfflineAnalysisResultTableModel(data)
-                            # Creating a QTableView
-                            self.table_view = QTableView()
-                            self.table_view.setModel(self.model)
-                            print("setting the model")
-                            horizontal_header = self.table_view.horizontalHeader()
-                            horizontal_header.setSectionResizeMode(
-                                QHeaderView.ResizeToContents
-                            )
-                            table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
-                            # table_tab_widget.insertTab(1, QWidget(table_tab_widget), custom_plot_widget.analysis_name)
-                else:
-                    print("More than one column of analysis results is not implemented yet")
-
-                self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
+                self.view_table_clicked(parent_stacked)
 
             if self.SeriesItems.currentItem().text(0) == "Statistics":
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
@@ -702,6 +623,98 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 # check the distribution
 
                 print("Implementation for Statistics Missing yet")
+
+    def result_analysis_parent_clicked(self):
+        """
+        When the parent is clicked, insert the configure widget stored at the parents position 2
+        @return:
+        """
+        parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
+        stacked_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
+        new_widget = self.SeriesItems.currentItem().data(2, Qt.UserRole)
+
+        # insert the windget
+        stacked_widget.insertWidget(stacked_index, new_widget)
+        stacked_widget.setCurrentIndex(stacked_index)
+        self.analysis_stacked.setCurrentIndex(parent_stacked)
+        print("clicked user role")
+
+    def simple_analysis_configuration_clicked(self,parent_stacked:int):
+        """
+        load its parent configuration widget and display it
+        @param parent_stacked:
+        @return:
+        """
+        stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
+        config_widget = self.SeriesItems.currentItem().parent().data(2, Qt.UserRole)
+
+        # insert the windget
+        stacked_widget.insertWidget(0, config_widget)
+        stacked_widget.setCurrentIndex(0)
+
+        self.analysis_stacked.setCurrentIndex(parent_stacked)
+        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
+
+    def view_table_clicked(self, parent_stacked:int):
+        """
+        specific function to display result tables that are stored within the related plot widget
+        @param parent_stacked: position of the stacked widget
+        @return:
+        """
+        self.analysis_stacked.setCurrentIndex(parent_stacked)
+        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+
+        result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
+
+        """create a table view within a tab widget: each tab will become one plot/one specific analysis """
+
+        table_tab_widget = QTabWidget()
+
+        # works only    if results are organized row wise
+        print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
+        if result_plot_widget.OfflineResultGrid.columnCount() == 1:
+            print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
+
+            for r in range(0, result_plot_widget.OfflineResultGrid.rowCount()):
+
+                qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
+                custom_plot_widget = qwidget_item.widget()
+                data = custom_plot_widget.export_data_frame
+                # print(data)
+
+                if custom_plot_widget.plot_type_combo_box.currentText() == "No Split":
+                    new_column_names = []
+                    print(data.columns.values.tolist())
+
+                    try:
+                        for column_name in data.columns.values.tolist():
+                            res = column_name.split("_")
+                            new_column_names.append(res[6] + "_" + res[7])
+                        data.columns = new_column_names
+
+                    except Exception:
+                        print("all ok .. nothing to split here")
+
+                if data.empty:
+                    print("Data to be displayed in the table are None. Fill the table first !")
+                else:
+                    print("creating the table")
+                    self.model = OfflineAnalysisResultTableModel(data)
+                    # Creating a QTableView
+                    self.table_view = QTableView()
+                    self.table_view.setModel(self.model)
+                    print("setting the model")
+                    horizontal_header = self.table_view.horizontalHeader()
+                    horizontal_header.setSectionResizeMode(
+                        QHeaderView.ResizeToContents
+                    )
+                    table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
+        else:
+            print("More than one column of analysis results is not implemented yet")
+
+        self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
+        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
     @Slot()
     def go_to_offline_analysis_page_2(self):
