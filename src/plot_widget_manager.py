@@ -1,3 +1,4 @@
+from re import T
 from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
@@ -9,7 +10,6 @@ from scipy.signal import find_peaks
 
 from draggable_lines import DraggableLines
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
-from DavesSuperPersonalCustomToolbar import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
@@ -248,10 +248,7 @@ class PlotWidgetManager(QRunnable):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
-        self.navbar.setOrientation(QtCore.Qt.Vertical)
         self.vertical_layout.addWidget(self.canvas)
-        #self.navbar.show()
         self.handle_plot_visualization()
 
     def series_clicked_load_from_dat_file(self,item):
@@ -317,10 +314,7 @@ class PlotWidgetManager(QRunnable):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
-        self.navbar.setOrientation(QtCore.Qt.Vertical)
         self.vertical_layout.addWidget(self.canvas)
-        self.navbar.show()
         self.handle_plot_visualization()
 
     def sweep_clicked_load_from_dat_database(self,item):
@@ -402,19 +396,18 @@ class PlotWidgetManager(QRunnable):
         print("%s series was clicked", item.text(0))
         split_view = True
 
-        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
-        self.navbar.setOrientation(QtCore.Qt.Vertical)
         #self.navbar.setStyleSheet('align:center; background:#fff5cc;')
         self.vertical_layout.addWidget(self.canvas)
-        self.navbar.show()
 
         series_name = item.text(0)
+
 
         # The data table will be pulled from the database from table 'experiment_series'.
         # the correct table name is identified by the tuple (experiment_name, series_identifier)
         # stored in the series item at position 3
 
         data_request_information = item.data(3, 0)
+
 
         db = self.offline_manager.get_database()
         series_df = db.get_sweep_table_for_specific_series(data_request_information[0],data_request_information[1])
@@ -427,7 +420,6 @@ class PlotWidgetManager(QRunnable):
         # get the meta data to correctly display y values of traces
         meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],data_request_information[1])
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
-
         self.time = self.get_time_from_meta_data(meta_data_df)
 
         column_names = series_df.columns.values.tolist()
@@ -709,13 +701,19 @@ class PlotWidgetManager(QRunnable):
         @return:
         """
         x_start_pos = meta_data_frame['Parameter'].tolist().index('XStart')
+
         x_interval_pos = meta_data_frame['Parameter'].tolist().index('XInterval')
+
         number_of_points_pos = meta_data_frame['Parameter'].tolist().index('DataPoints')
+
 
         x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
         x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
         number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
+        print("Xinterval = %d", x_start)
+        print("Xinterval = %d", x_interval)
+        print("Xinterval = %d", number_of_datapoints)
         return time
 
     def show_draggable_lines(self,row_number,positions = None):
@@ -742,8 +740,8 @@ class PlotWidgetManager(QRunnable):
             except:
                 # default
                 print("not found")
-                left_val =  0.2*max(self.time)
-                right_val = 0.8*max(self.time)
+                left_val =  0.2*max(self.time) +  5* row_number
+                right_val = 0.8*max(self.time) +  5 * row_number
 
         left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
         right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)

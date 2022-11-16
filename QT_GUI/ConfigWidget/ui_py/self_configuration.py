@@ -10,7 +10,7 @@ from PIL import ImageQt ,Image
 from backend_manager import *
 import os.path
 import logging
-from dragable_label import *
+#from dragable_label import Dr
 from tkinter_camera import *
 from time import sleep
 import pandas as pd
@@ -19,8 +19,7 @@ pg.setConfigOption('foreground', '#ff8117')
 from self_config_notebook_widget import *
 import traceback, sys
 from functools import partial
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     

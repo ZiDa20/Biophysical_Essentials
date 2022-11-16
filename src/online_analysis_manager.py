@@ -1,8 +1,5 @@
 from tkinter import filedialog
-from shutil import copyfile
-
 import heka_reader
-import tkinter.ttk as ttk
 import numpy as np
 class OnlineAnalysisManager:
     def __init__(self):
@@ -72,7 +69,6 @@ class OnlineAnalysisManager:
             if self.dat_file_name =="": # implemented for testing purporses
                 self.selected_file = filedialog.askopenfilename()
             else:
-                print("Already stated the file for testing purposes")
                 self.selected_file = self.dat_file_name
             self.path_elements = self.selected_file.split("/")
             self._dat_file_name = self.path_elements[len(self.path_elements) - 1]
@@ -107,8 +103,7 @@ class OnlineAnalysisManager:
                 current_tuple = self.node_list[node_number]
                 self.parent = self.get_parent(self.manual_stack,current_tuple[0])
                 self.prepared_values=[]
-                #print(self.parent)
-
+            
                 if self.parent:
 
                     # only put information to the traces yet
@@ -263,13 +258,9 @@ class OnlineAnalysisManager:
         # ToDO --> implement the pgf so that the metadata of the pgf can be returned for each Series !!
         root = bundle.pgf  ### here return to pul if you want everything to work again as before
         node = root
-        #print("Node content:")
         for i in index:
             node = node[i]
-            #print(node)
         node_type = node.__class__.__name__
-        #print("Node type:")
-        #print(node_type)
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
         if node_list:
@@ -293,27 +284,17 @@ class OnlineAnalysisManager:
             pass
         try:
             node_label = node.EntryName
-            #print(node_label)
         except AttributeError:
             node_label = ''
-        #print("Notated node type:")
-        #print(node_type)
         metadata = []
-        # for  i in range(len(node.children)):
         try:
             metadata.append(node)
         except Exception as e:
             metadata.append(node)
-        # print(node_type)
-        # print(node_label)
-        # print(metadata)
         node_list.append([node_type, node_label, metadata])
-        #print("children")
-        #print(len(node.children))
+
         for i in range(len(node.children)):
-            #print("entered children " + str(i))
             self.update_pgf_structure(index + [i], bundle, dat_file_structure, node_list)
-        # print(node_list)  # print out the new pgf node list
         return node_list
 
     def update_pgf_structure(self, index, bundle, dat_file_structure, node_list):

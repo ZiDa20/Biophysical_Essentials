@@ -103,6 +103,8 @@ class OfflineAnalysisResultVisualizer():
             widget_x_pos = list_of_analysis.index(analysis) // 1#1  # 2 widgets per row
             widgte_y_pos = list_of_analysis.index(analysis) % 1# 1 # 2 widgets per row
 
+            print("x pos widget = ", widget_x_pos)
+            print("y pos widget = ", widgte_y_pos)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
 
         # after all plots have been added

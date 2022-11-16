@@ -5,18 +5,15 @@ import datetime
 import re
 import sys
 
-import numpy
-
 import raw_analysis as ra
 import heka_reader
 import numpy as np
 import io
 import logging
 import datetime
-import pandas as pd
+
 import re
-import csv
-import psycopg2
+
 
 
 class DuckDBDatabaseHandler():
@@ -319,7 +316,7 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         x = str(meta_data_dict.get('RecordingMode'))
-
+        print("recording mode: for this shit!!!!!!!!!!!!!!!!! " + x)
         if int(x) == 3:
             return "Voltage Clamp"
         else:
@@ -932,13 +929,10 @@ class DuckDBDatabaseHandler():
 
         return output_string
 
-    def add_sweep_df_to_database(self,experiment_name, series_identifier,data_df,meta_data_df):
+    def add_sweep_df_to_database(self,experiment_name, series_identifier,data_df,meta_data_df, dat = True):
         try:
-            print("adding full sweep df to the database")
+            
             #print(data_df)
-            print(experiment_name)
-            print(series_identifier)
-
             imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
 
             # requires a little bit of different handling
@@ -994,6 +988,7 @@ class DuckDBDatabaseHandler():
             #print(column_names)
             meta_data_df = meta_data_df.reset_index()
             meta_data_df.columns = ['Parameter'] + column_names
+            print("till here everything is fine and good")
             print(meta_data_df)
 
             '''@todo (dz, 17.08.2022): this hardcoded bugfix allows the use of duck db pre dev 0.4.1.dev1603.
@@ -1002,17 +997,18 @@ class DuckDBDatabaseHandler():
             therefore i have replaced all the meta data encoded as b'\x00' with their hexadecimal representation 
             '''
 
-            affected_rows = [10,11,12,13,33]
+            if dat:
+                affected_rows = [10,11,12,13,33]
 
-            for r in affected_rows:
-                print("val")
-                print(meta_data_df['sweep_1'].iloc[r])
-                print(type(meta_data_df['sweep_1'].iloc[r]))
+                for r in affected_rows:
+                    print("val")
+                    print(meta_data_df['sweep_1'].iloc[r])
+                    print(type(meta_data_df['sweep_1'].iloc[r]))
 
-                replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
-                print(replace_val)
-                for c in column_names:
-                    meta_data_df[c].iloc[r]= replace_val
+                    replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
+                    print(replace_val)
+                    for c in column_names:
+                        meta_data_df[c].iloc[r]= replace_val
 
             print(meta_data_df)
 
@@ -1144,6 +1140,8 @@ class DuckDBDatabaseHandler():
     def create_series_specific_pgf_table (self, data_frame, pgf_table_name,experiment_name, series_identifier):
         """ adds new pgf table to the database        """
         self.database.register('df_1', data_frame)
+        print("hello here we go into pgf files ")
+        print(data_frame.info())
 
         try:
             # create a new sweep table
@@ -1159,10 +1157,12 @@ class DuckDBDatabaseHandler():
                                  series_identifier, experiment_name)
 
             except Exception as e:
-                self.logger.info("Update Series table failed with error %s", e)
+                print(e)
+                self.logger.error("Update Series table failed with error %s", e)
 
         except Exception as e:
-            self.logger.info("Error::Couldn't create a new table with error %s", e)
+            print(e)
+            self.logger.error("Error::Couldn't create a new table with error %s", e)
 
     def get_entire_pgf_table_by_experiment_name_and_series_identifier(self,experiment_name, series_identifier):
         """

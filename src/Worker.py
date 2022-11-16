@@ -1,8 +1,6 @@
 from PySide6.QtCore import *
+from WorkerSignals import WorkerSignals
 
-from WorkerSignals import *
-from data_db import DuckDBDatabaseHandler
-from time import sleep
 
 
 class Worker(QRunnable):

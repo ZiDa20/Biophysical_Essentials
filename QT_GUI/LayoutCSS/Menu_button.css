@@ -44,6 +44,19 @@ QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
 
 }}
 
+QStackedWidget[objectName="offline_analysis_widgets"] {{
+  background-color: rgba(4,7,26, 180);
+  border-radius: 5px
+
+}}
+
+QStackedWidget[objectName="offline_analysis_widgets"] > QWidget {{
+  background-color: rgba(4,7,26, 180);
+  border-radius: 5px
+
+}}
+
+
 QTabWidget[accessibleName="tab_widgets"] QTabBar {{
   background-color: #fff5cc;
   color:{QTMATERIAL_SECONDARYCOLOR};
@@ -58,7 +71,7 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
   color:grey;
 }}
 
-QTreeView {{
+QTreeWidget {{
   background-color:  {QTMATERIAL_SECONDARYCOLOR}
 }}
 
@@ -140,6 +153,25 @@ QWidget[objectName="online_analysis_window"]{{
   background-color: rgba(4,7,26, 180)
 }}
 
+
+QTabWidget[objectName="directory_tree_widget"] {{
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+
+}}
+
+
+QTabWidget[objectName="directory_tree_widget"] QTabBar{{
+  border-radius: 5px;
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[objectName="directory_tree_widget"] QTabBar::tab::selected{{
+  color: black;
+  background-color:#fff5cc;
+  border-radius: 5px
+}}
+
+
 QWidget[objectName="labbook_window"]{{
   background-color: rgba(4,7,26, 180);
 }}
@@ -175,25 +207,12 @@ QWidget[objectName="data_base"]{{
 }}
 
 
-QTabWidget[objectName="Offline_Analysis_Notebook"] QStackedWidget > QWidget {{
+QWidget[objectName="Offline_Analysis_Notebook"]  {{
   background-color: rgba(4,7,26, 180) ;
   border-radius: 5px
 }}
 
-QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar {{
-  border-radius: 5px;
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-}}
 
-QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::selected {{
-  color: black;
-  background-color:#fff5cc;
-  border-radius: 5px
-}}
-
-QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::!selected {{
-  color:grey;
-}}
 
 QWidget[objectName="side_left_menu"]  QPushButton{{
   color: #fff5cc;
@@ -226,4 +245,23 @@ border:0px;
 border-radius: 10px;
 background-color:White;
 align:center;
+}}
+
+QListWidget[objectName="database_table"] {{
+  background-color: rgba(4,7,26, 180);
+  border-radius: 5px;
+}}
+
+QTableView {{
+  background-color: transparent;
+}}
+
+QTableView QHeaderView::section{{
+  background-color: transparent;
+  border-color: white;
+}}
+
+QGroupBox[objectName="groupBox_3"]{{
+  background-color: transparent;
+  border-radius: 5px;
 }}

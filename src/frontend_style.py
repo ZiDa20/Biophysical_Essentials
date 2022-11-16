@@ -52,9 +52,6 @@ class Frontend_Style():
                           "QComboBox{selection-color: #151E3D; selection-background-color: #151E3D; background= #151E3D; " \
                           "color=#151E3D;}" \
 
-
-
-
     def get_dark_style(self):
         return self.dark_style
 

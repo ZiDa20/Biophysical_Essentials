@@ -1,4 +1,6 @@
-from gc import callbacks
+import sys
+import os
+sys.path.append(os.getcwd()[:-3] + "QT_GUI")
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
@@ -6,17 +8,13 @@ import re
 import heka_reader
 from functools import partial
 import csv
-import sys
-import os
-import logging
-from Worker import Worker
 
-import time
-sys.path.append(os.getcwd()[:-3] + "QT_GUI")
+import logging
 from add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from time import sleep
 from data_db import *
 import pandas as pd
+from ABFclass import AbfReader
 
 
 class TreeViewManager():
@@ -197,11 +195,13 @@ class TreeViewManager():
                     
 
             treeview_tuple = (series_identifier_list, experiment, specific_series_name, tree, discarded_tree,False, discarded_state)
+            print(treeview_tuple)
             self.fill_tree_gui(treeview_tuple)
 
         else: # toDO @DZ please add comment
             # build a speciliazed tuple when specific series name is none?
             treeview_tuple = (series_identifier_tuple, experiment, specific_series_name, tree, discarded_tree,True,discarded_state)
+            print(treeview_tuple)
             if progress_callback:
                 self.call_progress(treeview_tuple, progress_callback)
             else:
@@ -243,6 +243,7 @@ class TreeViewManager():
             self.insert_parent_into_treeview_from_database(tree, discarded_tree, parent, experiment,discarded_state, specific_series_name)
 
             for series_identifier in series_identifier_list:
+                print(experiment, series_identifier)
 
                 if tuple_identifier:
                     specific_series_name = series_identifier[0]
@@ -251,6 +252,7 @@ class TreeViewManager():
                 child = QTreeWidgetItem(parent)
                 child.setText(0, specific_series_name)
                 child.setData(3, 0, (experiment, series_identifier))
+                print(child.data(3, 0))
 
                 move_button = QPushButton()
 
@@ -328,24 +330,44 @@ class TreeViewManager():
           
         """
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+        abf_list = []
         
         for i in dat_files:
 
+            abf_file_data = []
             try:
-                file = directory_path + "/" + i # the full path to the file
-                bundle = self.open_bundle_of_file(file) # open heka reader
-                pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
-                splitted_name = i.split(".") # retrieve the name
-                bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame)) 
+                if ".dat" in i:
+                    file = directory_path + "/" + i # the full path to the file
+                    bundle = self.open_bundle_of_file(file) # open heka reader
+                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
+                    splitted_name = i.split(".") # retrieve the name
+                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
 
+                
+                if isinstance(i,list):
+                    for abf in i:
+                        file_2 = directory_path + "/" + abf
+                        abf_file = AbfReader(file_2)
+                        data_file = abf_file.get_data_table()
+                        meta_data = abf_file.get_metadata_table()
+                        print("METADATA HERE")
+                        pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+                        print("commandn epoch here")
+                        experiment_name = abf_file.get_experiment_name()
+                        series_name = abf_file.get_series_name()
+                        abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
+                    
             except Exception as e:
                 # @todo error handling
                 self.logger.error("Bundle file could not be read: " + str(i[0]) + " the error occured: " + str(e))
-            
-        return bundle_list
+
+            if isinstance(i,list):
+                abf_list.append((abf_file_data, experiment_name))
+        
+        return bundle_list, abf_list
        
 
-    def write_directory_into_database(self,database, dat_files,progress_callback):
+    def write_directory_into_database(self,database, dat_files, abf_files, progress_callback):
         """ writes the bundle files as well as the pgf files and meta data files into the
         database in a separate Threads. This is done to avoid blocking the GUI.
         Tedious task with long running time, since only one connection can be opened at a time
@@ -360,15 +382,11 @@ class TreeViewManager():
            """
 
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
-
         ################################################################################################################
         #Progress Bar setup
         max_value = len(dat_files)
         progress_value = 0
-        try:
-            database.open_connection()
-        except Exception as e:
-            self.logger.error("Could not open connection to database: " + str(e))
+        database.open_connection()
         ################################################################################################################
         for i in dat_files:
             # loop through the dat files and read them in
@@ -378,13 +396,19 @@ class TreeViewManager():
                 self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
                 progress_callback.emit((progress_value,i))
             except Exception as e:
-                self.logger.error("The file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
+                self.logger.error("The DAT file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
                 database.database.close() # we close the database connection and emit an error message
         
-        # trial to see if the database opens correctly
 
-        self.database.database.execute("Select experiment_name from experiments").fetchnumpy()
-  
+        for i in abf_files:
+            try:
+                progress_value = progress_value + increment
+                self.single_abf_file_into_db(i, database)
+            except Exception as e:
+                self.logger.error("The ABF file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
+                database.database.close() # we close the database connection and emit an error message
+
+        # trial to see if the database opens correctly
         self.database.database.close()
         return "database closed"
 
@@ -482,15 +506,15 @@ class TreeViewManager():
                     else:
                         self.logger.info("data frame is empty as planned")
                 except Exception as e:
-                    print(e)
-                    print("empty df ")
                     self.sweep_data_df = pd.DataFrame()
                     self.sweep_meta_data_df = pd.DataFrame()
 
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+            
 
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
 
+                print(sliced_pgf_tuple_data_frame)
                 database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                           "pgf_table_" + experiment_name + "_" + node_type,
                                                           experiment_name, node_type)
@@ -527,6 +551,19 @@ class TreeViewManager():
                 print("finiahws with non empty dataframe")
                 database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
                                                   self.sweep_meta_data_df)
+
+
+    def single_abf_file_into_db(self,abf_bundle,database):
+        # here should be changed the defalt by experimental label!
+        database.add_experiment_to_experiment_table(abf_bundle[1], "None", "default")
+        series_count = 1
+        for sweep in abf_bundle[0]:
+            database.add_single_series_to_database(abf_bundle[1], sweep[3], "Series" + str(series_count))
+            database.add_sweep_df_to_database(abf_bundle[1], "Series" + str(series_count), sweep[0], sweep[1], False)
+
+            pgf_table_name = "pgf_table_" + abf_bundle[1] + "_" + "Series" + str(series_count)
+            database.create_series_specific_pgf_table(sweep[2].set_index("series_name").reset_index(), pgf_table_name, abf_bundle[1], "Series" + str(series_count))
+            series_count += 1
 
 
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):

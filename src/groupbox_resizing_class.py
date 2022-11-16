@@ -32,7 +32,7 @@ class GroupBoxSize(QGroupBox):
         qp.setBrush(Qt.red)
         qp.drawPolygon(self._triangle)
 
-
+    """"
     def minimumSizeHint(self):
         try:
             #self.adjustSize()
@@ -41,7 +41,7 @@ class GroupBoxSize(QGroupBox):
         
         except Exception as e:
             return super().minimumSizeHint()
-
+    """
     def adjustSize(self):
         del self._sizeHint
         super().adjustSize()

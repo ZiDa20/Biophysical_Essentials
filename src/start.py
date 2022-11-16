@@ -23,9 +23,10 @@ from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
-from BlurWindow.blurWindow import GlobalBlur
-import duckdb
-print(duckdb.__version__)
+
+if sys.platform != "darwin":
+    from BlurWindow.blurWindow import GlobalBlur
+
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -42,8 +43,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True # Check if the program is launched to avoid resize event
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
-
-        print(sys.platform)
 
         if sys.platform != "darwin":
             self.setAttribute(Qt.WA_TranslucentBackground)
@@ -102,16 +101,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         for i, button in enumerate(self.home_buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
 
-
         self.ui.statistics.clicked.connect(self.initialize_database)
-
-        #self.configuration_elements = Config_Widget()
-
-        #self.ui.statistics_2.setProperty("class", "big_button")
-        #print(self.ui.config.Load_meta_data_experiment_12)
-
         # connect to the metadata file path 
-        #self.ui.hamburger_button.clicked.connect(self.animate_menu)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
 
         #testing
@@ -128,7 +119,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 
         # set the animation 
-
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(100)
 
@@ -153,10 +143,9 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): is a mouse Press Event
         """        
         self.oldPos = event.globalPosition().toPoint()
-        print(self.oldPos)
+    
 
-
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event: QMouseEvent):
         """Function to get the mouse moving events
 
         Args:
@@ -173,7 +162,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             window_size = self.geometry()
             self.maximize(window_size)
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event: QMouseEvent):
         """Function to detect the mouse release event
 
         Args:
@@ -182,7 +171,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if sys.platform != "darwin":   
             GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, even: QResizeEvent):
         """resizing of MainWindow
 
         Args:
@@ -203,31 +192,35 @@ class MainWindow(QMainWindow, QtStyleTools):
         for further analysis
         """        
         file_path = self.ui.config.get_file_path()
-        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) # set the name of the .Dat file
-        self.ui.online.open_single_dat_file(str(file_path)) # open the .Dat file in the UI window
-
+        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) 
+        self.ui.online.open_single_dat_file(str(file_path)) 
 
     def minimize(self):
         """ Function to minimize the window"""
         self.showMinimized()
 
-    def maximize(self, window_size):
-        """Function to maximize of to retrive the original window state"""
+    def maximize(self, window_size: QRect):
+        """Function to maximize of to retrive the original window state,
+        
+        args:
+            window_size (QRect): the size of the window
+        """
         if window_size:
             self.first_geometry = window_size
 
         if self.geometry() == self.screenRect:
-            #self.setGeometry(QRect(320, 45, 1280, 950))
             self.animate_resizing(size = True)
             
         else:
             self.animate_resizing()
-            #self.first_geometry = self.geometry()
-            #self.setGeometry(self.screenRect) # maximize the window
+
 
 
     def animate_resizing(self, size = None):
-        """Function to animate the resizing of the window"""  
+        """Function to animate the resizing of the window
+        args:
+            size (bool): if true the window is maximized, if false the window is minimized
+        """  
         if size is None:      
             self.animation.setStartValue(self.geometry())
             self.animation.setEndValue(self.screenRect)
@@ -241,7 +234,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         """ Function to quit the app"""
         QCoreApplication.quit()
 
-
     def erase_button_text(self):
         """ Set the Menu button text to noting"""
         self.ui.self_configuration.setText("")
@@ -254,11 +246,12 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def write_button_text(self):
         """ Add names to the buttons"""
-        self.ui.self_configuration.setText("  Configuration")
-        self.ui.online_analysis.setText(" Online Analysis")
-        self.ui.offline_analysis.setText(" Offline Analysis")
-        self.ui.statistics.setText("Database View")
-        self.ui.settings_button.setText("Settings")
+        pass
+        #self.ui.self_configuration.setText("  Configuration")
+        #self.ui.online_analysis.setText(" Online Analysis")
+        #self.ui.offline_analysis.setText(" Offline Analysis")
+        #self.ui.statistics.setText("Database View")
+        #self.ui.settings_button.setText("Settings")
 
     def change_to_lightmode(self):
         # @toDO should be added to the designer class 
@@ -267,7 +260,6 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
             with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
-                print(file)
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None; \n"
@@ -279,7 +271,6 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "\n"
                                                         "\n")
                                                  
-            print(self.frontend_style.get_sideframe_dark())
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
            
             
@@ -312,7 +303,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
         #self.offline_analizer.setupUi(self)
 
-    def set_darkmode(self, default_mode):
+    def set_darkmode(self, default_mode: bool):
         """Is important for setting the dark mode and white mode
 
         Args:
@@ -322,14 +313,11 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def get_darkmode(self):
         "returns the darkmode state"
-        print(f"this is the current mode: {self.default_mode}")
         return self.default_mode
 
 
 if __name__ == "__main__":
     """Main function to start the application"""
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     
     apply_stylesheet(app, theme='hello.xml')
