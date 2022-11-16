@@ -664,13 +664,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                             new_column_names = []
                             print(data.columns.values.tolist())
 
-                            for column_name in data.columns.values.tolist():
-                                res = column_name.split("_")
-                                print(res)
-                                new_column_names.append(res[6]+"_"+res[7])
+                            try:
+                                for column_name in data.columns.values.tolist():
+                                    res = column_name.split("_")
+                                    new_column_names.append(res[6]+"_"+res[7])
+                                data.columns = new_column_names
 
-                            data.columns = new_column_names
-
+                            except Exception:
+                                print("all ok .. nothing to split here")
 
                         if data.empty:
                             print("Data to be displayed in the table are None. Fill the table first !")
