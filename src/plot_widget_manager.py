@@ -740,8 +740,8 @@ class PlotWidgetManager(QRunnable):
             except:
                 # default
                 print("not found")
-                left_val =  0.2*max(self.time)
-                right_val = 0.8*max(self.time)
+                left_val =  0.2*max(self.time) +  5* row_number
+                right_val = 0.8*max(self.time) +  5 * row_number
 
         left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
         right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
