@@ -25,6 +25,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_plot_manager = None
         self.online_manager = OnlineAnalysisManager()
         self.online_analysis.setCurrentIndex(0)
+        self.online_analysis.setTabPosition(QTabWidget.East)
         
         # check if video matrix is there, image is there and initialize the video calls
         self.video_mat = None
