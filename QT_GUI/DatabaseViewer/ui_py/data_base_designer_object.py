@@ -25,6 +25,7 @@ class Ui_Database_Viewer(object):
         Database_Viewer.setSizePolicy(sizePolicy)
         self.gridLayout_2 = QGridLayout(Database_Viewer)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_2.setContentsMargins(1, 0, 1, 3)
         self.data_base_stacked_widget = QStackedWidget(Database_Viewer)
         self.data_base_stacked_widget.setObjectName(u"data_base_stacked_widget")
         self.data_base = QWidget()
@@ -47,7 +48,7 @@ class Ui_Database_Viewer(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 278, 612))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 278, 627))
         self.gridLayout_6 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.database_table = QListWidget(self.scrollAreaWidgetContents)
@@ -174,6 +175,14 @@ class Ui_Database_Viewer(object):
         self.gridLayout_13.setContentsMargins(1, 3, 1, 3)
         self.DataOptions = QGridLayout()
         self.DataOptions.setObjectName(u"DataOptions")
+        self.export_table = QPushButton(self.DataGroup)
+        self.export_table.setObjectName(u"export_table")
+        self.export_table.setMinimumSize(QSize(30, 30))
+        self.export_table.setMaximumSize(QSize(30, 30))
+        self.export_table.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/export_csv.png);")
+
+        self.DataOptions.addWidget(self.export_table, 0, 2, 1, 1)
+
         self.select_columns = QPushButton(self.DataGroup)
         self.select_columns.setObjectName(u"select_columns")
         self.select_columns.setMinimumSize(QSize(30, 30))
@@ -182,14 +191,6 @@ class Ui_Database_Viewer(object):
 
         self.DataOptions.addWidget(self.select_columns, 2, 0, 1, 1)
 
-        self.export_table = QPushButton(self.DataGroup)
-        self.export_table.setObjectName(u"export_table")
-        self.export_table.setMinimumSize(QSize(30, 30))
-        self.export_table.setMaximumSize(QSize(30, 30))
-        self.export_table.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/export_csv.png);")
-
-        self.DataOptions.addWidget(self.export_table, 1, 0, 1, 1)
-
         self.open_db = QPushButton(self.DataGroup)
         self.open_db.setObjectName(u"open_db")
         self.open_db.setMinimumSize(QSize(30, 30))
@@ -197,6 +198,10 @@ class Ui_Database_Viewer(object):
         self.open_db.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/open.png);")
 
         self.DataOptions.addWidget(self.open_db, 0, 0, 1, 1)
+
+        self.horizontalSpacer_6 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+
+        self.DataOptions.addItem(self.horizontalSpacer_6, 0, 1, 1, 1)
 
 
         self.gridLayout_13.addLayout(self.DataOptions, 0, 0, 1, 1)
@@ -211,30 +216,12 @@ class Ui_Database_Viewer(object):
         self.gridLayout_14.setContentsMargins(1, 3, 1, 3)
         self.PlotOptions = QGridLayout()
         self.PlotOptions.setObjectName(u"PlotOptions")
-        self.plot_home = QPushButton(self.PlotGroup)
-        self.plot_home.setObjectName(u"plot_home")
-        self.plot_home.setMinimumSize(QSize(20, 20))
-        self.plot_home.setMaximumSize(QSize(20, 20))
-        font2 = QFont()
-        font2.setPointSize(6)
-        self.plot_home.setFont(font2)
-        self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
-
-        self.PlotOptions.addWidget(self.plot_home, 3, 2, 1, 1)
-
-        self.plot_move = QPushButton(self.PlotGroup)
-        self.plot_move.setObjectName(u"plot_move")
-        self.plot_move.setMinimumSize(QSize(20, 20))
-        self.plot_move.setMaximumSize(QSize(20, 20))
-        self.plot_move.setFont(font2)
-        self.plot_move.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/move.png);")
-
-        self.PlotOptions.addWidget(self.plot_move, 1, 2, 1, 1)
-
         self.save_plot_online = QPushButton(self.PlotGroup)
         self.save_plot_online.setObjectName(u"save_plot_online")
-        self.save_plot_online.setMinimumSize(QSize(20, 20))
-        self.save_plot_online.setMaximumSize(QSize(20, 20))
+        self.save_plot_online.setMinimumSize(QSize(30, 30))
+        self.save_plot_online.setMaximumSize(QSize(30, 30))
+        font2 = QFont()
+        font2.setPointSize(6)
         self.save_plot_online.setFont(font2)
         self.save_plot_online.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
 
@@ -242,42 +229,34 @@ class Ui_Database_Viewer(object):
 
         self.plot_zoom = QPushButton(self.PlotGroup)
         self.plot_zoom.setObjectName(u"plot_zoom")
-        self.plot_zoom.setMinimumSize(QSize(20, 20))
-        self.plot_zoom.setMaximumSize(QSize(20, 20))
+        self.plot_zoom.setMinimumSize(QSize(30, 30))
+        self.plot_zoom.setMaximumSize(QSize(30, 30))
         self.plot_zoom.setFont(font2)
         self.plot_zoom.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom.png);")
 
         self.PlotOptions.addWidget(self.plot_zoom, 0, 2, 1, 1)
 
-        self.show_pgf_file = QPushButton(self.PlotGroup)
-        self.show_pgf_file.setObjectName(u"show_pgf_file")
-        self.show_pgf_file.setMinimumSize(QSize(20, 20))
-        self.show_pgf_file.setMaximumSize(QSize(20, 20))
-        self.show_pgf_file.setFont(font2)
-        self.show_pgf_file.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/pgf.png);")
-
-        self.PlotOptions.addWidget(self.show_pgf_file, 0, 0, 1, 1)
-
-        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.PlotOptions.addItem(self.verticalSpacer_7, 4, 0, 1, 1)
-
-        self.plot_zoom_out = QPushButton(self.PlotGroup)
-        self.plot_zoom_out.setObjectName(u"plot_zoom_out")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.plot_zoom_out.sizePolicy().hasHeightForWidth())
-        self.plot_zoom_out.setSizePolicy(sizePolicy2)
-        self.plot_zoom_out.setMinimumSize(QSize(20, 20))
-        self.plot_zoom_out.setMaximumSize(QSize(20, 20))
-        self.plot_zoom_out.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom-out.png);")
-
-        self.PlotOptions.addWidget(self.plot_zoom_out, 3, 0, 1, 1)
-
         self.horizontalSpacer_4 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
         self.PlotOptions.addItem(self.horizontalSpacer_4, 0, 1, 1, 1)
+
+        self.plot_move = QPushButton(self.PlotGroup)
+        self.plot_move.setObjectName(u"plot_move")
+        self.plot_move.setMinimumSize(QSize(30, 30))
+        self.plot_move.setMaximumSize(QSize(30, 30))
+        self.plot_move.setFont(font2)
+        self.plot_move.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/move.png);")
+
+        self.PlotOptions.addWidget(self.plot_move, 1, 2, 1, 1)
+
+        self.plot_home = QPushButton(self.PlotGroup)
+        self.plot_home.setObjectName(u"plot_home")
+        self.plot_home.setMinimumSize(QSize(30, 30))
+        self.plot_home.setMaximumSize(QSize(30, 30))
+        self.plot_home.setFont(font2)
+        self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
+
+        self.PlotOptions.addWidget(self.plot_home, 0, 0, 1, 1)
 
 
         self.gridLayout_14.addLayout(self.PlotOptions, 0, 0, 1, 1)
@@ -319,6 +298,48 @@ class Ui_Database_Viewer(object):
         self.gridLayout_15.setObjectName(u"gridLayout_15")
         self.gridLayout_16 = QGridLayout()
         self.gridLayout_16.setObjectName(u"gridLayout_16")
+        self.gridLayout_9 = QGridLayout()
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.complex_query = QPushButton(self.groupBox)
+        self.complex_query.setObjectName(u"complex_query")
+        self.complex_query.setMinimumSize(QSize(30, 30))
+        self.complex_query.setMaximumSize(QSize(30, 30))
+        self.complex_query.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/open_edit.png);")
+
+        self.gridLayout_9.addWidget(self.complex_query, 0, 3, 1, 1)
+
+        self.label_5 = QLabel(self.groupBox)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout_9.addWidget(self.label_5, 0, 2, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_9.addItem(self.horizontalSpacer, 0, 4, 1, 1)
+
+        self.query_execute = QPushButton(self.groupBox)
+        self.query_execute.setObjectName(u"query_execute")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.query_execute.sizePolicy().hasHeightForWidth())
+        self.query_execute.setSizePolicy(sizePolicy2)
+        self.query_execute.setMinimumSize(QSize(30, 30))
+        self.query_execute.setMaximumSize(QSize(30, 30))
+        self.query_execute.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/execute.png);")
+
+        self.gridLayout_9.addWidget(self.query_execute, 0, 1, 1, 1)
+
+        self.label_6 = QLabel(self.groupBox)
+        self.label_6.setObjectName(u"label_6")
+
+        self.gridLayout_9.addWidget(self.label_6, 0, 0, 1, 1)
+
+
+        self.gridLayout_16.addLayout(self.gridLayout_9, 1, 0, 1, 1)
+
+        self.gridLayout_18 = QGridLayout()
+        self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.query_line_edit = QLineEdit(self.groupBox)
         self.query_line_edit.setObjectName(u"query_line_edit")
         sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -329,17 +350,15 @@ class Ui_Database_Viewer(object):
         self.query_line_edit.setMinimumSize(QSize(250, 30))
         self.query_line_edit.setMaximumSize(QSize(16777215, 16777215))
 
-        self.gridLayout_16.addWidget(self.query_line_edit, 0, 0, 1, 1)
+        self.gridLayout_18.addWidget(self.query_line_edit, 0, 1, 1, 1)
 
-        self.query_execute = QPushButton(self.groupBox)
-        self.query_execute.setObjectName(u"query_execute")
-        sizePolicy2.setHeightForWidth(self.query_execute.sizePolicy().hasHeightForWidth())
-        self.query_execute.setSizePolicy(sizePolicy2)
-        self.query_execute.setMinimumSize(QSize(30, 30))
-        self.query_execute.setMaximumSize(QSize(30, 30))
-        self.query_execute.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/execute.png);")
+        self.label_4 = QLabel(self.groupBox)
+        self.label_4.setObjectName(u"label_4")
 
-        self.gridLayout_16.addWidget(self.query_execute, 1, 0, 1, 1)
+        self.gridLayout_18.addWidget(self.label_4, 0, 0, 1, 1)
+
+
+        self.gridLayout_16.addLayout(self.gridLayout_18, 0, 0, 1, 1)
 
 
         self.gridLayout_15.addLayout(self.gridLayout_16, 0, 0, 1, 1)
@@ -374,19 +393,21 @@ class Ui_Database_Viewer(object):
         self.label_2.setText(QCoreApplication.translate("Database_Viewer", u"DataBase Viewer:", None))
         self.label_3.setText("")
         self.DataGroup.setTitle(QCoreApplication.translate("Database_Viewer", u"Data Options", None))
-        self.select_columns.setText("")
         self.export_table.setText("")
+        self.select_columns.setText("")
         self.open_db.setText("")
         self.PlotGroup.setTitle(QCoreApplication.translate("Database_Viewer", u"Plot Options", None))
-        self.plot_home.setText("")
-        self.plot_move.setText("")
         self.save_plot_online.setText("")
         self.plot_zoom.setText("")
-        self.show_pgf_file.setText("")
-        self.plot_zoom_out.setText("")
+        self.plot_move.setText("")
+        self.plot_home.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("Database_Viewer", u"Table Selection", None))
         self.label.setText(QCoreApplication.translate("Database_Viewer", u"Select Table of Interest:", None))
         self.groupBox.setTitle(QCoreApplication.translate("Database_Viewer", u"Query", None))
+        self.complex_query.setText("")
+        self.label_5.setText(QCoreApplication.translate("Database_Viewer", u"Complex Query:", None))
         self.query_execute.setText("")
+        self.label_6.setText(QCoreApplication.translate("Database_Viewer", u"Execute", None))
+        self.label_4.setText(QCoreApplication.translate("Database_Viewer", u"Small Query:", None))
     # retranslateUi
 

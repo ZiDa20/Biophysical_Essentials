@@ -7,16 +7,6 @@ import unittest
 import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/src")
-sys.path.append(os.getcwd() + "/src")
-sys.path.append(os.getcwd() + "/QT_GUI/ConfigWidget/ui_py")
-sys.path.append(os.getcwd() + "/QT_GUI/MainWindow/ui_py")
-sys.path.append(os.getcwd() + "/QT_GUI/DatabaseViewer/ui_py")
-sys.path.append(os.getcwd() + "/QT_GUI/OfflineAnalysis/ui_py")
-sys.path.append(os.getcwd() + "/QT_GUI/OnlineAnalysis/ui_py")
-sys.path.append(os.getcwd() + "/QT_GUI/Settings/ui_py")
-sys.path.append(os.getcwd() + "/QT_GUI/OfflineAnalysis/CustomWidget")
-
-
 from start import *
 from matplotlib.figure import Figure
 from PySide6.QtCore import *  # type: ignore
@@ -104,12 +94,11 @@ class TestFrontPage(unittest.TestCase):
         self.assertEqual(self.ui.ui.online.online_analysis.count(), 2, "Wrong number of Tabs in online analysis")
         self.ui.local_database_handler.database.close()
 
-    
     def test_darkmode_switch(self):
         """ Check if the mode opens the darkmode"""
         QTest.mouseClick(self.ui.ui.darkmode_button, Qt.LeftButton)
         self.assertEqual(self.ui.default_mode, 0, "Switch to lightmode not working")
-        self.assertEqual(self.ui.ui.side_left_menu.palette().color(self.ui.ui.side_left_menu.backgroundRole()).name(), "#232629", "wrong color")
+        self.assertEqual(self.ui.ui.side_left_menu.palette().color(self.ui.ui.side_left_menu.backgroundRole()).name(), "#04071a", "wrong color")
         QTest.mouseClick(self.ui.ui.darkmode_button, Qt.LeftButton)
         self.assertEqual(self.ui.ui.side_left_menu.palette().color(self.ui.ui.side_left_menu.backgroundRole()).name(), "#232629", "wrong color")
         print(self.ui.ui.side_left_menu.palette().color(QPalette.Base).name())

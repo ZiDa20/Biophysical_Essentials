@@ -103,19 +103,10 @@ class Ui_Online_Analysis(object):
         self.gridLayout_12.setContentsMargins(1, 3, 1, 3)
         self.PlotOptions = QGridLayout()
         self.PlotOptions.setObjectName(u"PlotOptions")
-        self.plot_home = QPushButton(self.PlotGroup)
-        self.plot_home.setObjectName(u"plot_home")
-        self.plot_home.setMinimumSize(QSize(20, 20))
-        self.plot_home.setMaximumSize(QSize(20, 20))
-        self.plot_home.setFont(font1)
-        self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
-
-        self.PlotOptions.addWidget(self.plot_home, 3, 2, 1, 1)
-
         self.plot_move = QPushButton(self.PlotGroup)
         self.plot_move.setObjectName(u"plot_move")
-        self.plot_move.setMinimumSize(QSize(20, 20))
-        self.plot_move.setMaximumSize(QSize(20, 20))
+        self.plot_move.setMinimumSize(QSize(25, 25))
+        self.plot_move.setMaximumSize(QSize(25, 25))
         self.plot_move.setFont(font1)
         self.plot_move.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/move.png);")
 
@@ -123,8 +114,8 @@ class Ui_Online_Analysis(object):
 
         self.save_plot_online = QPushButton(self.PlotGroup)
         self.save_plot_online.setObjectName(u"save_plot_online")
-        self.save_plot_online.setMinimumSize(QSize(20, 20))
-        self.save_plot_online.setMaximumSize(QSize(20, 20))
+        self.save_plot_online.setMinimumSize(QSize(25, 25))
+        self.save_plot_online.setMaximumSize(QSize(25, 25))
         self.save_plot_online.setFont(font1)
         self.save_plot_online.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
 
@@ -132,8 +123,8 @@ class Ui_Online_Analysis(object):
 
         self.plot_zoom = QPushButton(self.PlotGroup)
         self.plot_zoom.setObjectName(u"plot_zoom")
-        self.plot_zoom.setMinimumSize(QSize(20, 20))
-        self.plot_zoom.setMaximumSize(QSize(20, 20))
+        self.plot_zoom.setMinimumSize(QSize(25, 25))
+        self.plot_zoom.setMaximumSize(QSize(25, 25))
         self.plot_zoom.setFont(font1)
         self.plot_zoom.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom.png);")
 
@@ -141,29 +132,21 @@ class Ui_Online_Analysis(object):
 
         self.show_pgf_file = QPushButton(self.PlotGroup)
         self.show_pgf_file.setObjectName(u"show_pgf_file")
-        self.show_pgf_file.setMinimumSize(QSize(20, 20))
-        self.show_pgf_file.setMaximumSize(QSize(20, 20))
+        self.show_pgf_file.setMinimumSize(QSize(25, 25))
+        self.show_pgf_file.setMaximumSize(QSize(25, 25))
         self.show_pgf_file.setFont(font1)
         self.show_pgf_file.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/pgf.png);")
 
         self.PlotOptions.addWidget(self.show_pgf_file, 0, 0, 1, 1)
 
-        self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.plot_home = QPushButton(self.PlotGroup)
+        self.plot_home.setObjectName(u"plot_home")
+        self.plot_home.setMinimumSize(QSize(25, 25))
+        self.plot_home.setMaximumSize(QSize(25, 25))
+        self.plot_home.setFont(font1)
+        self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
 
-        self.PlotOptions.addItem(self.verticalSpacer_7, 4, 0, 1, 1)
-
-        self.plot_zoom_out = QPushButton(self.PlotGroup)
-        self.plot_zoom_out.setObjectName(u"plot_zoom_out")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.plot_zoom_out.sizePolicy().hasHeightForWidth())
-        self.plot_zoom_out.setSizePolicy(sizePolicy1)
-        self.plot_zoom_out.setMinimumSize(QSize(20, 20))
-        self.plot_zoom_out.setMaximumSize(QSize(20, 20))
-        self.plot_zoom_out.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom-out.png);")
-
-        self.PlotOptions.addWidget(self.plot_zoom_out, 3, 0, 1, 1)
+        self.PlotOptions.addWidget(self.plot_home, 2, 0, 1, 1)
 
         self.horizontalSpacer_3 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
@@ -224,10 +207,13 @@ class Ui_Online_Analysis(object):
         self.LabbookOptions.setObjectName(u"LabbookOptions")
         self.save_labbook_button = QPushButton(self.LabbookGroup)
         self.save_labbook_button.setObjectName(u"save_labbook_button")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.save_labbook_button.sizePolicy().hasHeightForWidth())
         self.save_labbook_button.setSizePolicy(sizePolicy1)
-        self.save_labbook_button.setMinimumSize(QSize(20, 20))
-        self.save_labbook_button.setMaximumSize(QSize(20, 20))
+        self.save_labbook_button.setMinimumSize(QSize(25, 25))
+        self.save_labbook_button.setMaximumSize(QSize(25, 25))
         self.save_labbook_button.setFont(font1)
         self.save_labbook_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/export_csv.png);")
 
@@ -248,31 +234,27 @@ class Ui_Online_Analysis(object):
         self.add_metadata_button.setObjectName(u"add_metadata_button")
         sizePolicy1.setHeightForWidth(self.add_metadata_button.sizePolicy().hasHeightForWidth())
         self.add_metadata_button.setSizePolicy(sizePolicy1)
-        self.add_metadata_button.setMinimumSize(QSize(20, 20))
-        self.add_metadata_button.setMaximumSize(QSize(20, 20))
+        self.add_metadata_button.setMinimumSize(QSize(25, 25))
+        self.add_metadata_button.setMaximumSize(QSize(25, 25))
         self.add_metadata_button.setFont(font1)
         self.add_metadata_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/add_meta.png);")
 
         self.LabbookOptions.addWidget(self.add_metadata_button, 0, 0, 1, 1)
 
-        self.verticalSpacer_11 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.horizontalSpacer_4 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
-        self.LabbookOptions.addItem(self.verticalSpacer_11, 3, 0, 1, 1)
+        self.LabbookOptions.addItem(self.horizontalSpacer_4, 0, 1, 1, 1)
 
         self.pushButton = QPushButton(self.LabbookGroup)
         self.pushButton.setObjectName(u"pushButton")
         sizePolicy1.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
         self.pushButton.setSizePolicy(sizePolicy1)
-        self.pushButton.setMinimumSize(QSize(20, 20))
-        self.pushButton.setMaximumSize(QSize(20, 20))
+        self.pushButton.setMinimumSize(QSize(25, 25))
+        self.pushButton.setMaximumSize(QSize(25, 25))
         self.pushButton.setFont(font1)
         self.pushButton.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
 
         self.LabbookOptions.addWidget(self.pushButton, 2, 0, 1, 1)
-
-        self.horizontalSpacer_4 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-
-        self.LabbookOptions.addItem(self.horizontalSpacer_4, 0, 1, 1, 1)
 
 
         self.gridLayout_14.addLayout(self.LabbookOptions, 0, 0, 1, 1)
@@ -291,13 +273,13 @@ class Ui_Online_Analysis(object):
         self.transfer_to_offline_analysis.setObjectName(u"transfer_to_offline_analysis")
         sizePolicy1.setHeightForWidth(self.transfer_to_offline_analysis.sizePolicy().hasHeightForWidth())
         self.transfer_to_offline_analysis.setSizePolicy(sizePolicy1)
-        self.transfer_to_offline_analysis.setMinimumSize(QSize(40, 40))
-        self.transfer_to_offline_analysis.setMaximumSize(QSize(40, 40))
+        self.transfer_to_offline_analysis.setMinimumSize(QSize(60, 60))
+        self.transfer_to_offline_analysis.setMaximumSize(QSize(60, 60))
         self.transfer_to_offline_analysis.setFont(font1)
         self.transfer_to_offline_analysis.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/sql.png);\n"
 "")
 
-        self.gridLayout_15.addWidget(self.transfer_to_offline_analysis, 0, 0, 1, 1, Qt.AlignLeft|Qt.AlignTop)
+        self.gridLayout_15.addWidget(self.transfer_to_offline_analysis, 0, 0, 1, 1, Qt.AlignHCenter|Qt.AlignVCenter)
 
 
         self.gridLayout_21.addLayout(self.gridLayout_15, 0, 0, 1, 1)
@@ -316,7 +298,6 @@ class Ui_Online_Analysis(object):
         self.gridLayout_5.addWidget(self.frame, 0, 0, 1, 1)
 
         self.online_analysis = QTabWidget(Online_Analysis)
-        self.online_analysis.setTabPosition(QTabWidget.South)
         self.online_analysis.setObjectName(u"online_analysis")
         self.online_analysis_window = QWidget()
         self.online_analysis_window.setObjectName(u"online_analysis_window")
@@ -343,18 +324,6 @@ class Ui_Online_Analysis(object):
         self.recorded_series_plot_tab.setObjectName(u"recorded_series_plot_tab")
         self.gridLayout_2 = QGridLayout(self.recorded_series_plot_tab)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.toolbar_layout = QGridLayout()
-        self.toolbar_layout.setObjectName(u"toolbar_layout")
-        self.toolbar_widget = QWidget(self.recorded_series_plot_tab)
-        self.toolbar_widget.setObjectName(u"toolbar_widget")
-        self.toolbar_widget.setMinimumSize(QSize(50, 0))
-        self.toolbar_widget.setMaximumSize(QSize(50, 16777215))
-
-        self.toolbar_layout.addWidget(self.toolbar_widget, 0, 0, 1, 1)
-
-
-        self.gridLayout_2.addLayout(self.toolbar_layout, 0, 2, 3, 1)
-
         self.tree_plot_widget_layout = QVBoxLayout()
         self.tree_plot_widget_layout.setObjectName(u"tree_plot_widget_layout")
         #self.succesfull_import = QCustomSlideMenu(self.recorded_series_plot_tab)
@@ -376,7 +345,7 @@ class Ui_Online_Analysis(object):
         self.tree_plot_widget_layout.addWidget(self.label)
 
 
-        self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 0, 1, 3, 1)
+        self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 0, 1, 2, 1)
 
         self.online_analysis_tabs.addTab(self.recorded_series_plot_tab, "")
         self.live_recording_tab = QWidget()
@@ -587,12 +556,11 @@ class Ui_Online_Analysis(object):
         self.DataGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Data Options", None))
         self.button_select_data_file.setText("")
         self.PlotGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Plot Options", None))
-        self.plot_home.setText("")
         self.plot_move.setText("")
         self.save_plot_online.setText("")
         self.plot_zoom.setText("")
         self.show_pgf_file.setText("")
-        self.plot_zoom_out.setText("")
+        self.plot_home.setText("")
         self.ClassifierGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Classifier Options", None))
         self.classifier_stream.setText("")
         self.LabbookGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Labbook Options", None))

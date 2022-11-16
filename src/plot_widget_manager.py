@@ -10,7 +10,6 @@ from scipy.signal import find_peaks
 
 from draggable_lines import DraggableLines
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
-from DavesSuperPersonalCustomToolbar import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
@@ -249,10 +248,7 @@ class PlotWidgetManager(QRunnable):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
-        self.navbar.setOrientation(QtCore.Qt.Vertical)
         self.vertical_layout.addWidget(self.canvas)
-        #self.navbar.show()
         self.handle_plot_visualization()
 
     def series_clicked_load_from_dat_file(self,item):
@@ -318,10 +314,7 @@ class PlotWidgetManager(QRunnable):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
-        self.navbar.setOrientation(QtCore.Qt.Vertical)
         self.vertical_layout.addWidget(self.canvas)
-        self.navbar.show()
         self.handle_plot_visualization()
 
     def sweep_clicked_load_from_dat_database(self,item):
@@ -403,11 +396,8 @@ class PlotWidgetManager(QRunnable):
         print("%s series was clicked", item.text(0))
         split_view = True
 
-        self.navbar = DavesSuperPersonalCustomToolbar(self.canvas, parent=self.toolbar_widget)  # self.navbar_widget)
-        self.navbar.setOrientation(QtCore.Qt.Vertical)
         #self.navbar.setStyleSheet('align:center; background:#fff5cc;')
         self.vertical_layout.addWidget(self.canvas)
-        self.navbar.show()
 
         series_name = item.text(0)
 

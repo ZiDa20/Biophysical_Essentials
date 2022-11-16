@@ -22,6 +22,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.setupUi(self)
 
         # initialize the OnlineAnalysis Manager
+        self.online_analysis_plot_manager = None
         self.online_manager = OnlineAnalysisManager()
         self.online_analysis.setCurrentIndex(0)
         
@@ -37,6 +38,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         ##########
         self.canvas_live_plot = FigureCanvas(Figure(figsize=(5, 3)))
+        self.online_analysis_tabs.currentChanged.connect(self.tab_switched)
         
         self.verticalLayout_6.addWidget(self.canvas_live_plot)
         # Connect the buttons, connect the logger
@@ -45,6 +47,28 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.drawing()
 
         self.database_handler = None
+
+
+    def tab_switched(self,i):
+        """ switch the tab of the online analysis """
+        if i == 0:
+            if self.online_analysis_plot_manager:
+                navigation = NavigationToolbar(self.online_analysis_plot_manager.canvas, self)
+                self.plot_move.clicked.connect(navigation.pan)
+                self.plot_zoom.clicked.connect(navigation.zoom)
+                self.plot_home.clicked.connect(navigation.home)
+                
+            else:
+                print("No Canvas yet")
+        else:
+            if i == 1:
+                navigation = NavigationToolbar(self.canvas_live_plot, self)
+                self.plot_move.clicked.connect(navigation.pan)
+                self.plot_zoom.clicked.connect(navigation.zoom)
+                self.plot_home.clicked.connect(navigation.home)
+            else:
+                print("Canvas not established yet!")
+
 
     def update_database_handler(self,database_handler):
         self.database_handler = database_handler
@@ -135,8 +159,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # print first series into a plot widget
         self.online_analysis_plot_manager = PlotWidgetManager(self.tree_plot_widget_layout, self.online_manager,
-                                                             self.treeWidget, 0, False,self.toolbar_widget)
+                                                             self.treeWidget, 0, False)
 
+        navigation = NavigationToolbar(self.online_analysis_plot_manager.canvas, self)
+        self.plot_move.clicked.connect(navigation.pan)
+        self.plot_zoom.clicked.connect(navigation.zoom)
+        self.plot_home.clicked.connect(navigation.home)
         self.treeWidget.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
         self.treeWidget_2.itemClicked.connect(self.online_analysis_plot_manager.tree_view_click_handler)
 

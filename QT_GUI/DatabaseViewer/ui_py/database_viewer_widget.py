@@ -7,9 +7,10 @@ from data_base_designer_object import Ui_Database_Viewer
 import pandas as pd
 from Pandas_Table import PandasTable
 import numpy as np
-from matplotlib.backends.backend_qtagg import FigureCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-
+from ui_execute_query import ExecuteDialog
+from functools import partial
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -21,17 +22,17 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.data_base_stacked_widget.setCurrentIndex(0)
 
         #self.connect_to_database.clicked.connect(self.show_basic_tables)
-
+        self.execute_dialog = ExecuteDialog()
+        self.execute_dialog.pushButton.clicked.connect(partial(self.query_data,True))
+        self.execute_dialog.pushButton_2.clicked.connect(self.execute_dialog.close)
+        self.complex_query.clicked.connect(self.execute_dialog.show)
         self.database_handler = None
         self.query_execute.clicked.connect(self.query_data)
         self.data_base_content = None
         self.plot = None
-
         self.canvas = None
         self.export_table.clicked.connect(self.export_table_to_csv)
         
-        
-
     def update_database_handler(self,database_handler):
         self.database_handler = database_handler
 
@@ -52,8 +53,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.db_file_name = "duck_db_analysis_database.db"
         try:
             self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=True)
-            #self.instruction_label.setText(f'You are connected to database {self.db_file_name}')
-            #self.data_base_stacked_widget.setCurrentIndex(1)
             self.show_basic_tables(True)
         except Exception as e:
             print(e)
@@ -94,36 +93,47 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
 
         # create a button for each table
-
-        self.retrieve_tables("Experiment")
+        self.retrieve_tables("Analysis Table", True)
         self.select_table.clear()
         for key, value in self.table_dictionary.items():
             self.select_table.addItem(key)
         self.select_table.currentTextChanged.connect(self.retrieve_tables)
 
 
-    def retrieve_tables(self, value):
+    def retrieve_tables(self, manual_table, manual = None):
         """ When button clicked then we should retrieve the associated tables to structure the 
-        Tables better"""
-        text = value
-        print(value)
-        retrieved_tables = sorted(self.table_dictionary.get(text))
+        Tables better
+        Args:
+            manual_table type: str Name of the table to be retrieved
+            manual type: bool if true then we are in manual mode
+        """
+        retrieved_tables = sorted(self.table_dictionary.get(manual_table))
         self.database_table.clear()
+
+        # add each item to the listview
         for tables in retrieved_tables:
             self.database_table.addItem(tables)
-        
-        self.database_table.itemClicked.connect(self.pull_table_from_database)
+        if manual:
+            self.pull_table_from_database(None,"offline_analysis")
+            self.database_table.itemClicked.connect(self.pull_table_from_database)
+        else:
+            self.database_table.itemClicked.connect(self.pull_table_from_database)
 
     @Slot(str)
-    def pull_table_from_database(self):
+    def pull_table_from_database(self,event = None,  text_query = None):
         '''
+        Pull the table from the database and plot it
+        Args:
+            event: event that triggered the function
+            text_query: if not None then we are in manual mode, else click event sender will be registered
+        '''
+        if text_query: # check if default manual mode with Offline Analysis table or not
+            table_name = text_query
+        else:
+            table_name = self.sender().currentItem().text()
+            print(table_name)
 
-        :param table_name:
-        :return:
-        '''
-        table_name = self.sender().currentItem().text()
         q = f'SELECT * from {table_name}'
-
         try:
             # returns a dict, keys = column names, values = array = single rows
             table_dict = self.database.execute(q).fetchnumpy()
@@ -135,8 +145,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
     def create_table_from_dict(self,table_dict):
         '''
         Create a QTABLE Widget from a given input dict
-        :param table_dict: dict with table names as keys and row values as values
-        :return:
+        Args:
+            table_dict: dict with keys = column names, values = array = single rows for the table
+
         '''
    
         # create the table from dict
@@ -164,26 +175,32 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.viewing_model = PandasTable(self.pandas_frame)
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
+        
         #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
         self.data_base_content.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.table_layout.addWidget(self.data_base_content)
         self.data_base_content.setGeometry(20, 20, 691, 581)
+
         # show and retrieve the selected columns
         self.data_base_content.show()
         self.data_base_content.clicked.connect(self.retrieve_column)
 
 
     @Slot()
-    def query_data(self):
-        '''handle input in the query field'''
-
-        query = self.query_line_edit.text()
+    def query_data(self, multi_line = None):
+        '''
+        Query the database with the given query
+        Args:
+            multi_line: if not None than multi-line string will be generated from QDialog else single execution'''
+        if multi_line:
+            query = self.execute_dialog.textEdit.toPlainText()
+        else:
+            query = self.query_line_edit.text()
         try:
             result_dict = self.database.execute(query).fetchnumpy()
-            #@todo handle situation when this is no dict...  e.g. a single result ?
             self.create_table_from_dict(result_dict)
         except Exception as e:
-            #@todo open console and feed back the catched exception
+            #@TODO: add a dialog box to show the error if tables are not found
             print("Error: %s", e)
 
     
@@ -227,6 +244,24 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         sliced_array = floating_numbers[::10]
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
+        self.navigation = NavigationToolbar(self.canvas, self)
+
+        #add the buttons for the plot navigation
+        self.plot_zoom.clicked.connect(self.navigation.zoom)
+        self.plot_home.clicked.connect(self.navigation.home)
+        self.plot_move.clicked.connect(self.navigation.pan)
+        self.save_plot_online.clicked.connect(self.save_image)
+        self.draw_figure(sliced_array)
+        # draw the figure
+        
+
+    def draw_figure(self, sliced_array):
+        """Draws the figure in the canvas
+        
+        args:
+            fig type: matplotlib.figure.Figure
+        returns:
+            None"""
         fig = self.canvas.figure
         ax = fig.add_subplot(111)
         fig.patch.set_facecolor('#04071a')
@@ -241,3 +276,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         ax.xaxis.label.set_color('white')
         self.gridLayout_10.addWidget(self.canvas)
 
+    def save_image(self):
+        """Saves the current plot as png file"""
+        if self.canvas:
+            response = QFileDialog.getSaveFileName(self, "Save Image", "", "PNG(*.png)")
+            self.canvas.figure.savefig(response[0])
+        else:
+            print("No plot to save")
