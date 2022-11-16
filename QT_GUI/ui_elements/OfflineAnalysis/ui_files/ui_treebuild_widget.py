@@ -44,6 +44,27 @@ class Ui_Form(object):
         self.directory_tree_widget.setObjectName(u"directory_tree_widget")
         sizePolicy.setHeightForWidth(self.directory_tree_widget.sizePolicy().hasHeightForWidth())
         self.directory_tree_widget.setSizePolicy(sizePolicy)
+        self.directory_tree_widget.setStyleSheet(u"QPushButton{\n"
+"background-repeat:None;\n"
+"background-color: transparent;\n"
+"background-position:None;\n"
+"border:None;\n"
+"border-radius: 5px;\n"
+"background-position:left;\n"
+"width: 50;\n"
+"height:50\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"	background-color: \"#54545a\";\n"
+"}\n"
+"\n"
+"QPushButton::pressed{\n"
+"  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,\n"
+"                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
+"  color: skyblue;\n"
+"  text-transform: scale(1.5);\n"
+"}")
         self.selected_tree_view = QWidget()
         self.selected_tree_view.setObjectName(u"selected_tree_view")
         self.gridLayout_8 = QGridLayout(self.selected_tree_view)

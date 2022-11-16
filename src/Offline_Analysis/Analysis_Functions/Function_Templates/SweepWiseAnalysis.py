@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from statistics import mean
+import seaborn as sns
 
 class SweepWiseAnalysisTemplate(object):
 	"""
@@ -29,8 +31,6 @@ class SweepWiseAnalysisTemplate(object):
 
 		self.database = None
 		self.series_name = None
-
-
 
 	@property
 	def lower_bounds(self):
@@ -373,32 +373,46 @@ class SweepWiseAnalysisTemplate(object):
 	@classmethod
 	def simple_plot(self, parent_widget, canvas, result_table_list):
 		"""
-        Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
-        :param analysis_specific_plot_widget:
-        :param result_list:
-        :param number_of_series:
-        :return:
-        :author: dz, 11.07.2022
-        """
+		Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
+		:param analysis_specific_plot_widget:
+		:param result_list:
+		:param number_of_series:
+		:return:
+		:author: dz, 11.07.2022
+		"""
 		ax = canvas.figure.subplots()
-		plot_data_frame = pd.DataFrame ()
-
+		plot_data_frame = pd.DataFrame()
+		meaned_dict = {"mean":[], "experiment_name":[]}
 		for table in result_table_list:
-			y_data,x_data, experiment_name = self.fetch_x_and_y_data(table)
+			y_data, x_data, experiment_name, increment, sweep_table = self.fetch_x_and_y_data(table)
 			new_df = pd.DataFrame(y_data, index=x_data,columns=[table])
-			plot_data_frame  = pd.concat([plot_data_frame,new_df], axis=1)
+			#plot_data_frame  = pd.concat([plot_data_frame,new_df], axis=1
+			if increment > 0:
+				plot_data_frame  = pd.concat([plot_data_frame, new_df], axis = 1)
+				try:
+					ax.plot(x_data,y_data, 'k', label=experiment_name)
+					#parent_widget.export_data_frame.insert(0, experiment_name, y_data)
+				except Exception as e:
+					print(e)
+					print(experiment_name)
+		
+			else:
+				print("increment is zero implicating no function")
+				meaned_dict["mean"].extend(new_df[table].tolist())
+				meaned_dict["experiment_name"].extend([experiment_name]*len(new_df[table].tolist()))
 
-			try:
-				ax.plot(x_data,y_data, 'k', label=experiment_name)
-				#parent_widget.export_data_frame.insert(0, experiment_name, y_data)
-			except Exception as e:
-				print(e)
-				print(experiment_name)
+		if meaned_dict["mean"]:
+			g =sns.boxplot(x = meaned_dict["experiment_name"],y = meaned_dict["mean"], ax = ax)
+			sns.swarmplot(x = meaned_dict["experiment_name"],y = meaned_dict["mean"], ax = ax)
+			#ax.plot(meaned_dict["experiment_name"],meaned_dict["mean"])
+			ax.set_xticklabels(g.get_xticklabels(),rotation=45)
+		
 
 		box = ax.get_position()
 		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 		# Put a legend below current axis
 		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		canvas.figure.tight_layout()
 		canvas.show()
 
 		print(plot_data_frame)
@@ -420,16 +434,11 @@ class SweepWiseAnalysisTemplate(object):
 
 			# get the meta data group for each result table:
 			# 1) from the specific result table load the sweep_table name
-			q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result from {table}'
-			query_data = self.database.get_data_from_database(self.database.database, q)
+			y_data, x_data, sweep_table_names, increment, sweep_table_names = self.fetch_x_and_y_data(table)
 
 			# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
 			# therefore make lists of each tuple "column"
-			x_data = (list(zip(*query_data))[3])
-			y_data = (list(zip(*query_data))[2])
-			sweep_table_names =  (list(zip(*query_data))[0])
-
-
+	
 			# 2) get experiment_name from experiment_series table and join with experiments table to get meta_data_group
 			q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from experiment_series where Sweep_Table_Name = \'{sweep_table_names[0]}\')'
 			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
@@ -503,19 +512,23 @@ class SweepWiseAnalysisTemplate(object):
 		#@todo move this function to the database class ?
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
 
+		table_name_increment = "pgf_table_" + "_".join(table_name.split("_")[-3:])
+		print(table_name_increment)
 		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result from {table_name}'
+		q_increment =f'select Increment from {table_name_increment}'
 		query_data = self.database.get_data_from_database(self.database.database, q)
-
+		query_increment = mean([float(t) for i in self.database.get_data_from_database(self.database.database, q_increment) for t in i])
+		
 		# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
 		# therefore make lists of each tuple "column"
 		x_data = (list(zip(*query_data))[3])
 		y_data = (list(zip(*query_data))[2])
-		sweep_enumeration = (list(zip(*query_data))[1])
+		sweep_tables = (list(zip(*query_data))[0])
 
 		q = """select experiment_name from experiment_series where sweep_table_name = (?)"""
 		experiment_name = self.database.get_data_from_database(self.database.database, q,
 														  [query_data[0][0]]) [0][0]
-		return x_data, y_data, experiment_name
+		return x_data, y_data, experiment_name, query_increment, sweep_tables
 
 	@classmethod
 	def get_list_of_result_tables(self, analysis_id, analysis_function_id):
@@ -534,8 +547,6 @@ class SweepWiseAnalysisTemplate(object):
 		return result_list
 
 
-
-
 	def plot_meta_data_wise(self, canvas, result_list, number_of_series, meta_data_groups):
 		"""
         rearrange the plot to color each trace according to it's meta data group.
@@ -546,6 +557,7 @@ class SweepWiseAnalysisTemplate(object):
         :param meta_data_groups:
         :return:
         """
+		print("metadata construction")
 		number_of_sweeps = int(len(result_list) / number_of_series)
 		meta_data_types = list(dict.fromkeys(meta_data_groups))
 

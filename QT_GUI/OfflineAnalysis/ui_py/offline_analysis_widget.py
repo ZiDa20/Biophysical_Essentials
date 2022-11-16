@@ -27,6 +27,7 @@ from load_data_from_database_popup_handler import Load_Data_From_Database_Popup_
 from drag_and_drop_list_view import DragAndDropListView
 from PostSql_Handler import PostSqlHandler
 from offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
@@ -41,17 +42,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.add_filter_button.setEnabled(False)
 
-        self.connect_database = QPushButton()
-        self.connect_database.setIcon(QIcon('../Gui_Icons/sql.png'))
-        self.connect_database.setIconSize(QSize(48, 48))
-        self.connect_database.setMaximumWidth(50)
-        self.connect_database.setMaximumHeight(50)
-        self.connect_database.setToolTip("Connect to PostGreSQL Database")
-        self.connect_database.setStyleSheet("background-color: rgba(255, 255, 255,0);")
-
         
-        self.gridLayout.addWidget(self.connect_database, 0, 0, 1, 1)
         self.threadpool = QThreadPool()
+        self.final_series = []
 
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -86,8 +79,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
-        self.go_back_button.clicked.connect(self.go_to_main_page)
+        self.go_back_button.clicked.connect(self.go_backwards)
+        self.fo_forward_button.clicked.connect(self.go_forwards)
         self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
+        self.start_analysis.clicked.connect(self.start_analysis_offline)
+        self.navigation_list = []
+
+
+        
 
     def animate_tree_view(self):
         """Resize the Widget """
@@ -251,9 +250,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.open_connection()
         for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
             self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.treebuild.experiments_tree_view,1,False,self.toolbar_widget, self.toolbar_layout)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.treebuild.experiments_tree_view,1,False)
+        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
         self.treebuild.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.treebuild.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
+        self.plot_home.clicked.connect(navigation.home)
+        self.plot_move.clicked.connect(navigation.pan)
+        self.plot_zoom.clicked.connect(navigation.zoom)
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         print("finished loading")
         # show selected tree_view
@@ -358,6 +361,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog_grid.addWidget(dialog_quit, 0, 0)
 
         checkbox_list = []
+        
         name_list = []
         for s in series_names_string_list:
             name = s[0]
@@ -369,6 +373,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             name_list.append(name)
 
         confirm_series_selection_button = QPushButton("Compare Series", dialog)
+        print(checkbox_list)
         confirm_series_selection_button.clicked.connect(
             partial(self.compare_series_clicked, checkbox_list, name_list, dialog))
         dialog_quit.clicked.connect(partial(self.close_dialog, dialog))
@@ -376,6 +381,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.setWindowTitle("Available Series To Be Analyzed")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
+
 
     def close_dialog(self, dialog):
         """ closes the dialog """
@@ -504,13 +510,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def compare_series_clicked(self, checkboxes, series_names, dialog):
         """Handler for a click on the button confirm_series_selection in a pop up window"""
 
-        series_to_analize = self.get_selected_checkboxes(checkboxes, series_names)
-        print("building analysis specific notebook")
-        print(series_to_analize)
-
-        self.built_analysis_specific_tree(series_to_analize)
-        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.series_to_analyze = self.get_selected_checkboxes(checkboxes, series_names)
+        for i in self.series_to_analyze:
+            self.selected_series_combo.addItem(i)
+        self.final_series.extend(self.series_to_analyze)
         dialog.close()
+
+    def start_analysis_offline(self):
+        """Starts the analysis of the selected series"""
+        print(self.final_series)
+        self.built_analysis_specific_tree(self.final_series)
+        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.final_series = []
+        self.selected_series_combo.clear()
 
     def built_analysis_specific_tree(self, series_names_list):
         """
@@ -536,8 +548,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             self.tab_list.append(new_tab_widget)
             self.tab_changed(index, s)
-            self.new_analysis.clicked.connect(self.go_to_offline_analysis_page_2)
-
             # fill the treetabwidgetitems
             parent = QTreeWidgetItem()
             self.SeriesItems.addTopLevelItem(parent)
@@ -575,9 +585,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)
-        self.connect_database.clicked.connect(self.start_worker)
+        self.postgresql_upload.clicked.connect(self.start_worker)        
         #set the analysis notebook as index
         self.offline_analysis_widgets.setCurrentIndex(3)
+        self.SeriesItems.expandToDepth(2)
         self.tree_widget_index_count = index +1
 
     def start_worker(self):
@@ -597,7 +608,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
-            self.result_analysis_parent_clicked()
+            #self.result_analysis_parent_clicked()
+            self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
+            self.offline_analysis_result_tree_item_clicked()
         else:
             """identifiy the parent"""
             if self.SeriesItems.currentItem().child(0):
@@ -624,21 +637,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 print("Implementation for Statistics Missing yet")
 
-    def result_analysis_parent_clicked(self):
-        """
-        When the parent is clicked, insert the configure widget stored at the parents position 2
-        @return:
-        """
-        parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-        stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
-        stacked_index = self.SeriesItems.currentItem().data(5, Qt.UserRole)
-        new_widget = self.SeriesItems.currentItem().data(2, Qt.UserRole)
+            self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
+            self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
+            self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
 
-        # insert the windget
-        stacked_widget.insertWidget(stacked_index, new_widget)
-        stacked_widget.setCurrentIndex(stacked_index)
-        self.analysis_stacked.setCurrentIndex(parent_stacked)
-        print("clicked user role")
+
 
     def simple_analysis_configuration_clicked(self,parent_stacked:int):
         """
@@ -647,7 +650,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @return:
         """
         stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
-        config_widget = self.SeriesItems.currentItem().parent().data(2, Qt.UserRole)
+        config_widget = self.SeriesItems.currentItem().parent().child(0).data(2, Qt.UserRole)
 
         # insert the windget
         stacked_widget.insertWidget(0, config_widget)
@@ -717,9 +720,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
     @Slot()
-    def go_to_offline_analysis_page_2(self):
-        self.offline_analysis_widgets.setCurrentIndex(1)
+    def go_backwards(self):
 
+        index = self.offline_analysis_widgets.currentIndex()
+        if index > 0:
+            self.offline_analysis_widgets.setCurrentIndex(index - 1)
+            self.fo_forward_button.setEnabled(True)
+            if index == 1:
+                self.go_back_button.setEnabled(False)
+
+
+    def go_forwards(self):
+        index = self.offline_analysis_widgets.currentIndex()
+        if index < self.offline_analysis_widgets.count():
+            self.offline_analysis_widgets.setCurrentIndex(index + 1)
+            self.go_back_button.setEnabled(True)
+            if index == 2:
+                self.fo_forward_button.setEnabled(True)
+
+            
     @Slot()
     def tab_changed(self, index, series_name):
         """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
@@ -759,11 +778,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager,
                                                                   self.treebuild.experiments_tree_view, 1, current_tab.turn_on_peak_detection.isVisible(),self.toolbar_widget_2)
 
+
+        # add the moving of the plot per tab
+        
+        navigation = NavigationToolbar(self.current_tab_plot_manager.canvas, self)
+        self.navigation_list.append(navigation)
         current_tab.discarded_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
         current_tab.selected_tree_widget.itemClicked.connect(self.current_tab_plot_manager.tree_view_click_handler)
 
         # current_tab.tabWidget.setCurrentIndex(0)
-        current_tab.selected_tree_widget.expandToDepth(0)
+        current_tab.selected_tree_widget.expandToDepth(1)
 
         current_tab.selected_tree_widget.setCurrentItem(current_tab.selected_tree_widget.topLevelItem(0))
 
