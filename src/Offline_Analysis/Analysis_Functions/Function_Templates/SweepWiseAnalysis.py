@@ -429,9 +429,8 @@ class SweepWiseAnalysisTemplate(object):
 			y_data = (list(zip(*query_data))[2])
 			sweep_table_names =  (list(zip(*query_data))[0])
 
-
 			# 2) get experiment_name from experiment_series table and join with experiments table to get meta_data_group
-			q = f'select experiment_meta_data from global_meta_data where experiment_name = (select experiment_name from experiment_series where Sweep_Table_Name = \'{sweep_table_names[0]}\')'
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from experiment_series where Sweep_Table_Name = \'{sweep_table_names[0]}\')'
 			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
 
 			if meta_data_group in meta_data_groups:

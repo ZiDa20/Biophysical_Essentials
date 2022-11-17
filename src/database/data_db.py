@@ -135,7 +135,11 @@ class DuckDBDatabaseHandler():
                                         analysis_id integer,
                                         experiment_name text,
                                         experiment_label text,
-                                        experiment_meta_data text,
+                                        species text,
+                                        genotype text,
+                                        sex text,
+                                        condition text,
+                                        individuum_id text,
                                         primary key (analysis_id, experiment_name)
                                         );"""
 
@@ -509,12 +513,12 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table global_meta_data    """
     """---------------------------------------------------"""
 
-    def add_experiment_to_global_meta_data(self, id, experiment_name, experiment_label, meta_data):
-        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, experiment_meta_data) values ' \
-            f'({id},\'{experiment_name}\',\'{experiment_label}\',\'{meta_data}\' )'
+    def add_experiment_to_global_meta_data(self, id, meta_data):
+        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, species, genotype, sex, condition, individuum_id) values ' \
+            f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' )'
         try:
             self.database = self.execute_sql_command(self.database, q)
-            self.logger.info(experiment_name, "added succesfully to global_meta_data")
+            self.logger.info(meta_data[0], "added succesfully to global_meta_data")
             return 1
         except Exception as e:
             if "Constraint Error" in str(e):
@@ -538,8 +542,27 @@ class DuckDBDatabaseHandler():
         :return:
         :author dz, 28.06.2022
         """
-        q = f'select experiment_meta_data from global_meta_data where experiment_name = \'{experiment_name}\''
+        q = f'select condition from global_meta_data where experiment_name = \'{experiment_name}\''
         return self.get_data_from_database(self.database, q)[0][0]
+
+    def add_meta_data_group_to_existing_experiment(self, meta_data_list: list):
+        """
+        Insert meta data group into an exsiting experiment
+        :param meta_data_list: [0]: experiment_name, [1]: experiment_label, [2] = species, [3] =
+        :return:
+        """
+
+        q = f'update global_meta_data set experiment_label = \'{meta_data_list[1]}\',' \
+            f'species = \'{meta_data_list[2]}\', genotype = = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\','\
+            f'condition = \'{meta_data_list[5]}\',individuum_id = \'{meta_data_list[6]}\' where experiment_name = \'{meta_data_list[0]}\''
+        try:
+            self.database = self.execute_sql_command(self.database, q)
+            self.logger.info(f'Wrote meta data for experiment \'{meta_data_list[0]}\' into database"')
+            return True
+        except Exception as e:
+            self.logger.info(f'FAILED to write meta data for experiment \'{meta_data_list[0]}\' into database with error {str(e)}')
+            return False
+
 
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
@@ -578,25 +601,7 @@ class DuckDBDatabaseHandler():
                 return -1
 
 
-    def add_meta_data_group_to_existing_experiment(self, experiment_name: str, meta_data_group: str):
-        """
-        Insert meta data group into an exsiting experiment
-        :param experiment_name: name of the experiment
-        :param meta_data_group: name of the meta data group
-        :return:
-        """
 
-        q = """update experiments set meta_data_group = (?) where experiment_name = (?)"""
-        try:
-            self.database = self.execute_sql_command(self.database, q, [meta_data_group, experiment_name])
-            self.logger.info("Wrote meta data group %s for experiment %s into database", meta_data_group,
-                             experiment_name)
-            return True
-        except Exception as e:
-            self.logger.info("FAILED to write meta data group %s for experiment %s into database with error: %s",
-                             meta_data_group,
-                             experiment_name, str(e))
-            return False
 
     """---------------------------------------------------"""
     """    Functions to interact with table experiment_series    """
@@ -605,7 +610,7 @@ class DuckDBDatabaseHandler():
     def get_distinct_meta_data_groups_for_specific_experiment_label(self,label_list):
         meta_data_groups = []
         for label in label_list:
-             q = f'select distinct experiment_meta_data from global_meta_data where experiment_label = \'{label}\''
+             q = f'select distinct condition from global_meta_data where experiment_label = \'{label}\''
              tmp_lst = self.get_data_from_database(self.database, q)
              meta_data_groups += tmp_lst
         return meta_data_groups
@@ -696,10 +701,11 @@ class DuckDBDatabaseHandler():
         """
 
         for i in meta_data_list:
+            print("meta data list = ", meta_data_list)
             if meta_data_list.index(i)==0:
-                q = f'select experiment_name from global_meta_data where experiment_meta_data = \'' + i + '\''
+                q = f'select experiment_name from global_meta_data where condition = \'' + i + '\''
             else:
-                q+= ' or meta_data_group = \'' + i + '\''
+                q+= ' or condition = \'' + i + '\''
 
         print(q)
         r2 = self.get_data_from_database(self.database, q)

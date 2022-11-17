@@ -474,21 +474,24 @@ class TreeViewManager():
                 self.sweep_meta_data_df = pd.DataFrame()
                 self.series_identifier = None
 
-                group_name = None
-                try:
-                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
-                    group_name = self.meta_data_assignment_list[pos][1]
-                except:
-                    group_name = "None"
-                    
                 self.logger.info("adding experiment")
                 self.logger.info(experiment_name)
-
-                # @todo
-                experiment_label = 'default'
                 database.add_experiment_to_experiment_table(experiment_name)
-                # add this meta data as the default data indicated with a -1
-                database.add_experiment_to_global_meta_data(-1,experiment_name,experiment_label,group_name)
+
+                group_name = None
+                try:
+                    print("adding experiment", experiment_name)
+                    print(self.meta_data_assignment_list)
+                    print(self.meta_data_assigned_experiment_names)
+                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
+                    meta_data = self.meta_data_assignment_list[pos]
+                except:
+                    '''experiment_label = 'default, all other parameters are none '''
+                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None"]
+
+
+                ''' add meta data as the default data indicated with a -1'''
+                database.add_experiment_to_global_meta_data(-1, meta_data)
 
             if "Series" in node_type:
                 #print(node_type) # node type is None for Series
@@ -1044,7 +1047,7 @@ class TreeViewManager():
             experiment_name  = input_tree.topLevelItem(n).text(0)
             meta_data_group = input_tree.itemWidget(input_tree.topLevelItem(n),self.meta_data_group_column).currentText()
 
-            self.database.add_meta_data_group_to_existing_experiment(experiment_name,meta_data_group)
+            self.database.add_meta_data_group_to_existing_experiment(meta_data_group)
 
 
     def cancel_button_clicked(self,dialog):

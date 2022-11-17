@@ -310,7 +310,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             for n in meta_data_group_assignment_list:
                 print(n)
-                self.database_handler.add_meta_data_group_to_existing_experiment(n[0], n[1])
+                self.database_handler.add_meta_data_group_to_existing_experiment(n)
 
         tree_view_manager = self.offline_manager.read_data_from_experiment_directory(
             self.treebuild.experiments_tree_view,
@@ -430,16 +430,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         meta_data_assignments = []
         option_list = []
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
-        with open(file_name, mode='r') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            for row in csv_reader:
-                if row:
-                    meta_data_assignments.append((row[0], row[1]))
-                    option_list.append(row[1])
-            csv_file.close()
+
+        with open(file_name, newline='') as f:
+            reader = csv.reader(f)
+            meta_data_assignments = list(reader)
 
         print("results from the template file")
         print(meta_data_assignments)
+        option_list.append("dummy")
         self.continue_open_directory(dialog, option_list, meta_data_assignments)
 
     def create_meta_data_template(self, old_dialog):
