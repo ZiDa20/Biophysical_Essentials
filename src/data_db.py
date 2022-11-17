@@ -128,6 +128,14 @@ class DuckDBDatabaseHandler():
                                         UNIQUE (experiment_name, analysis_id) 
                                         ); """
 
+        sql_create_global_meta_data_table = """CREATE TABLE global_meta_data(
+                                        analysis_id integer,
+                                        experiment_name text,
+                                        experiment_label text,
+                                        experiment_meta_data text,
+                                        primary key (analysis_id, experiment_name)
+                                        );"""
+
         sql_create_offline_analysis_table = """ CREATE TABLE offline_analysis(
                                                 analysis_id integer PRIMARY KEY DEFAULT(nextval ('unique_offline_analysis_sequence')),
                                                 date_time TIMESTAMP,
@@ -135,8 +143,6 @@ class DuckDBDatabaseHandler():
 
         sql_create_experiments_table = """CREATE TABLE experiments(
                                                experiment_name text PRIMARY KEY,
-                                               experiment_label text,
-                                               meta_data_group text,
                                                labbook_table_name text,
                                                image_directory text
                                            );"""
@@ -196,6 +202,8 @@ class DuckDBDatabaseHandler():
             self.database = self.execute_sql_command(self.database, sql_create_results_table)
             self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
             self.database = self.execute_sql_command(self.database, sql_create_mapping_table)
+            self.database = self.execute_sql_command(self.database, sql_create_global_meta_data_table)
+
             self.logger.info("create_table created all tables successfully")
         except Exception as e:
             self.logger.info("create_tables function failed with error %s", e)
@@ -472,17 +480,30 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             print(table_name)
             return None
+    """---------------------------------------------------"""
+    """    Functions to interact with table global_meta_data    """
+    """---------------------------------------------------"""
 
-    """---------------------------------------------------"""
-    """    Functions to interact with table experiments    """
-    """---------------------------------------------------"""
+    def add_experiment_to_global_meta_data(self, id, experiment_name, experiment_label, meta_data):
+        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, experiment_meta_data) values ' \
+            f'({id},\'{experiment_name}\',\'{experiment_label}\',\'{meta_data}\' )'
+        try:
+            self.database = self.execute_sql_command(self.database, q)
+            self.logger.info(experiment_name, "added succesfully to global_meta_data")
+            return 1
+        except Exception as e:
+            if "Constraint Error" in str(e):
+                self.logger.info(
+                    "Experiment with name %s was already in global meta data")
+            else:
+                print("adding experiment to global meta data failed")
 
     def get_available_experiment_label(self):
         """
         return all available label in the database
         @return: a tuple list
         """
-        q = f'select distinct experiment_label from experiments'
+        q = f'select distinct experiment_label from global_meta_data'
         res = self.get_data_from_database(self.database, q)
         return res
 
@@ -492,11 +513,14 @@ class DuckDBDatabaseHandler():
         :return:
         :author dz, 28.06.2022
         """
-        q = f'select meta_data_group from experiments where experiment_name = \'{experiment_name}\''
+        q = f'select experiment_meta_data from global_meta_data where experiment_name = \'{experiment_name}\''
         return self.get_data_from_database(self.database, q)[0][0]
 
+    """---------------------------------------------------"""
+    """    Functions to interact with table experiments    """
+    """---------------------------------------------------"""
 
-    def add_experiment_to_experiment_table(self, name, meta_data_group,experiment_label):
+    def add_experiment_to_experiment_table(self, experiment_name):
         '''
         Adding a new experiment to the database table 'experiments'. Name-Duplicates (e.g. 211224_01) are NOT allowed-
         the experiment name of the already existing experiment will added to the current offline analysis mapping table.
@@ -509,23 +533,23 @@ class DuckDBDatabaseHandler():
         :param mapping_id:
         :return 0: experiment was not added because it already exists, 1 it was added sucessfully, -1 something went wrong
         '''
-        self.logger.info("adding experiment %s to_experiment_table", name)
-        q = f'insert into experiments (experiment_name,experiment_label,meta_data_group) values (?,?,?)'
+        self.logger.info("adding experiment %s to_experiment_table", experiment_name)
+        q = f'insert into experiments (experiment_name) values (\'{experiment_name}\')'
 
         try:
-            self.database = self.execute_sql_command(self.database, q, [name,experiment_label,meta_data_group])
-            self.logger.info("added %s successfully", name)
+            self.database = self.execute_sql_command(self.database, q)
+            self.logger.info(f'added experiment {experiment_name} succesfully to experiment table)')
             return 1
         except Exception as e:
             if "Constraint Error" in str(e):
                 self.logger.info(
                     "Experiment with name %s was already registered in the database and was ot overwritten The experiment will be added to the mapping table.",
-                    name)
+                    experiment_name)
                 return 0
             else:
                 print("adding experiment failed")
                 print(e)
-                self.logger.info("failed adding expseriment %s with error %s", name, e)
+                self.logger.info("failed adding expseriment %s with error %s", experiment_name, e)
                 return -1
 
     def open_connection(self, read_only = False):
@@ -574,7 +598,7 @@ class DuckDBDatabaseHandler():
     def get_distinct_meta_data_groups_for_specific_experiment_label(self,label_list):
         meta_data_groups = []
         for label in label_list:
-             q = f'select distinct meta_data_group from experiments where experiment_label = \'{label}\''
+             q = f'select distinct experiment_meta_data from global_meta_data where experiment_label = \'{label}\''
              tmp_lst = self.get_data_from_database(self.database, q)
              meta_data_groups += tmp_lst
         return meta_data_groups
@@ -659,20 +683,14 @@ class DuckDBDatabaseHandler():
 
     def get_experiment_names_by_experiment_label(self,experiment_label,meta_data_list):
         """
-
         :param experiment_label:
         :return:
         :author: dz, 27.06.2022
         """
 
-        experiment_label = 'demo'
-
-        #q = f'select experiment_label from experiments'
-        #r1 = self.get_data_from_database(self.database, q)
-
         for i in meta_data_list:
             if meta_data_list.index(i)==0:
-                q = f'select experiment_name from experiments where meta_data_group = \'' + i + '\''
+                q = f'select experiment_name from global_meta_data where experiment_meta_data = \'' + i + '\''
             else:
                 q+= ' or meta_data_group = \'' + i + '\''
 

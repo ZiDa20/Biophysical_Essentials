@@ -488,8 +488,9 @@ class TreeViewManager():
 
                 # @todo
                 experiment_label = 'default'
-                database.add_experiment_to_experiment_table(experiment_name, group_name, experiment_label)
-
+                database.add_experiment_to_experiment_table(experiment_name)
+                # add this meta data as the default data indicated with a -1
+                database.add_experiment_to_global_meta_data(-1,experiment_name,experiment_label,group_name)
 
             if "Series" in node_type:
                 #print(node_type) # node type is None for Series
@@ -553,9 +554,10 @@ class TreeViewManager():
                                                   self.sweep_meta_data_df)
 
 
-    def single_abf_file_into_db(self,abf_bundle,database):
+    def single_abf_file_into_db(self,abf_bundle,database:DuckDBDatabaseHandler):
         # here should be changed the defalt by experimental label!
-        database.add_experiment_to_experiment_table(abf_bundle[1], "None", "default")
+        database.add_experiment_to_experiment_table(abf_bundle[1])
+        database.add_experiment_to_global_meta_data(-1 ,abf_bundle[1], "None", "default")
         series_count = 1
         for sweep in abf_bundle[0]:
             database.add_single_series_to_database(abf_bundle[1], sweep[3], "Series" + str(series_count))
