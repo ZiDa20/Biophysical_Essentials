@@ -1,4 +1,4 @@
-from data_db import DuckDBDatabaseHandler
+from src.database.data_db import DuckDBDatabaseHandler
 from sqlalchemy import create_engine
 
 #Class to handle the connection to the database which is currently located at the Amazon RDS Server EC2

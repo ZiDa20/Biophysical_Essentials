@@ -22,14 +22,13 @@ from self_configuration import *
 from offline_analysis_widget import Offline_Analysis
 from settings_dialog import *
 from frontend_style import Frontend_Style
-from data_db import DuckDBDatabaseHandler
+from src.database.data_db import DuckDBDatabaseHandler
 
 if sys.platform != "darwin":
     from BlurWindow.blurWindow import GlobalBlur
 
 
 class MainWindow(QMainWindow, QtStyleTools):
-
 
     def __init__(self, parent = None):
         """Initialize the MainWindow class for starting the Application
@@ -64,7 +63,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
         #self.local_database_handler.database.execute("SET external_threads=1")
-        self.local_database_handler.database.execute("SET log_query_path='duck_db_analysis_database.log'")
+        self.local_database_handler.database.execute("SET log_query_path='database/duck_db_analysis_database.log'")
 
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")

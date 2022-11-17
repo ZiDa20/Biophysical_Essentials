@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-from data_db import DuckDBDatabaseHandler
+from src.database.data_db import DuckDBDatabaseHandler
 from specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
 from PySide6.QtWidgets import *
