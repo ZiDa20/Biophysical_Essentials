@@ -619,7 +619,7 @@ class TreeViewManager():
 
             if database_mode:
 
-                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0], "None","default")
+                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0])
                 self.database.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
 
                 # no database interaction when the file is already in the database to safe time
@@ -1264,29 +1264,6 @@ class TreeViewManager():
         splitted_string = re.match(r"([a-z]+)([0-9]+)",string,re.I)
         res = splitted_string.groups()
         return int(res[1])
-
-
-    def write_tuple_list_to_csv_file(self):
-
-        dir_path = QFileDialog.getSaveFileName()
-
-        # open the file in the write mode
-        if not ".csv" in dir_path[0]:
-            f = open(str(dir_path[0])+".csv", 'w')
-        else:
-            f = open(str(dir_path[0]), 'w')
-
-        # create the csv writer
-        writer = csv.writer(f)
-
-        tuple_list = self.get_meta_data_group_assignments()
-
-        # write single rows, elements seperated by comma, line break by whitespace
-        for tuple in tuple_list:
-            writer.writerow([tuple[0],tuple[1]])
-
-        # close the file
-        f.close()
 
 
     def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, holding_potential = None, series_name = None, sweep_number =None):

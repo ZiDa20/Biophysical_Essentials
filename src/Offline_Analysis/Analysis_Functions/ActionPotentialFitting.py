@@ -485,7 +485,7 @@ class ActionPotentialFitting(object):
             query_data_df = self.database.database.fetchdf()
             query_data_df.set_index('Fitting Parameters', inplace =True, drop = True)
 
-            q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
+            q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
                 f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
                 f'specific_result_table_name = \'{table}\'))'
 
