@@ -339,6 +339,12 @@ class DuckDBDatabaseHandler():
         """
         print(str(series_name))
         print(self.analysis_id)
+
+        if isinstance(series_name,tuple):
+            series_name = series_name[0]
+
+        print(str(series_name))
+
         q = """select experiment_name from experiment_series where series_name=(?) intersect
         (select experiment_name from experiment_analysis_mapping where analysis_id = (?))"""
         experiment_names_list = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
@@ -563,7 +569,20 @@ class DuckDBDatabaseHandler():
             self.logger.info(f'FAILED to write meta data for experiment \'{meta_data_list[0]}\' into database with error {str(e)}')
             return False
 
+    def get_meta_data_of_multiple_experiments(self):
+        """
+        @todo DZ add description .. implemented during load finished analysis
+        @return:
+        """
+        q = f'select experiment_name from global_meta_data intersect (select experiment_name from experiment_analysis_mapping where analysis_id = {self.analysis_id})'
+        experiment_names = self.get_data_from_database(self.database, q)
 
+        meta_data = []
+        for name in experiment_names:
+            q= f'select condition from global_meta_data where experiment_name = \'{name[0]}\''
+            meta_data.append(self.database.execute(q).fetchall()[0][0])
+
+        return meta_data
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
@@ -863,6 +882,12 @@ class DuckDBDatabaseHandler():
                 self.database = self.execute_sql_command(self.database, q, values)
 
         # from database: check if coursor bounds are empty (only when less then 2 duplicates available)
+
+    def get_analysis_series_names_for_specific_analysis_id(self):
+
+        q= f'select analysis_series_name from analysis_series where analysis_id = {self.analysis_id}'
+        return self.database.execute(q).fetchall()
+
 
     def calculate_single_series_results_and_write_to_database(self, series_type):
         q = f'select s.sweep_id, s.data_array from  sweeps s inner join experiments e on  s.experiment_name = e.experiment_name AND e.series_name = \"{series_type}\";'  # [sweep_id, sweep_data_trace]

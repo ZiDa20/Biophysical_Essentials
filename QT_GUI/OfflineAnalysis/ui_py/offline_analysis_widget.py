@@ -154,11 +154,30 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
         # static offline analysis number
-        self.result_visualizer.show_results_for_current_analysis(111)
+        self.database_handler.analysis_id = 9
+        series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
+        print(series_names_list)
 
-        self.offline_analysis_widgets.setCurrentIndex(3)
+        for i in range(0,len(series_names_list)):
+            series_names_list[i] = series_names_list[i][0]
+        #    self.result_visualizer.show_results_for_current_analysis(9,name)
 
-        print("displaying to analysis results: ", str(111))
+        self.built_analysis_specific_tree(series_names_list)
+        print("displaying to analysis results: ", str(9))
+
+        print(self.SeriesItems.topLevelItemCount())
+
+
+        # @todo write the analyis function grid properly and then choose to display plots only when start analysis button is enabled
+        for parent_pos in range(0,self.SeriesItems.topLevelItemCount()):
+
+            self.SeriesItems.setCurrentItem(self.SeriesItems.topLevelItem(parent_pos).child(0))
+            self.offline_analysis_result_tree_item_clicked()
+            self.finished_result_thread()
+
+        self.offline_analysis_widgets.setCurrentIndex(2)
+
+
 
     @Slot()
     def start_blank_analysis(self):
@@ -225,6 +244,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             item = self.dialog.meta_data_list.item(n)
             if item.checkState() == Qt.CheckState.Checked:
                 self.selected_meta_data_list.append(item.text())
+                print(item.text())
 
         self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
         self.blank_analysis_page_1_tree_manager.experiment_tree = self.treebuild.experiments_tree_view
@@ -805,8 +825,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         tmp_treeview = TreeViewManager(db)
         tmp_treeview.experiment_tree = current_tab.selected_tree_widget
         tmp_treeview.discarded_tree = current_tab.discarded_tree_widget
+        try:
+            tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
+        except Exception:
+            # get the meta data list from the table
+            tmp_treeview.selected_meta_data_list =  self.database_handler.get_meta_data_of_multiple_experiments()
 
-        tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
         tmp_treeview.create_treeview_from_database("", series_name)
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
@@ -1109,13 +1133,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.database_handler.open_connection()
         self.add_new_analysis_tree_children()
+
         if self.SeriesItems.currentItem().child(0):
             parent_item = self.SeriesItems.currentItem()
         else:
             parent_item = self.SeriesItems.currentItem().parent()
 
+        print(parent_item.text(0))
+
         offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
                                                                                    parent_item.data(6, Qt.UserRole))
+
+
 
         """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
