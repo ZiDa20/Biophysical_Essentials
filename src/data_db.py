@@ -534,7 +534,7 @@ class DuckDBDatabaseHandler():
         print("trials to open connection")
         try:
             cew = os.getcwd()
-            path = cew + self.db_file_name
+            path = cew + "/"+self.db_file_name
             if sys.platform != "darwin": # check
                 path = path.replace("/","\\")
             else:

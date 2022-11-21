@@ -200,9 +200,6 @@ class AbfReader():
         last_command = [series, sweep_number, 0, last_potential, last_time, 0, last_potential]
         return first_command, last_command
 
-
-
-
     def make_membrane_test(self):
         """ Dysfunctional for most recording, should record the membrane properties
         But not working for most of the recordings"""
