@@ -83,8 +83,8 @@ class DuckDBDatabaseHandler():
             sqlite3.register_converter("array", self.convert_array)
 
        
-        cew = os.path.dirname(os.getcwd())
-        dir_list = os.listdir(cew+ "/src/")
+        cew = os.getcwd()
+        dir_list = os.listdir(cew)
         return_val = 0
         if self.db_file_name in dir_list:
             self.logger.info("Established connection to existing database: %s ", self.db_file_name)
@@ -96,7 +96,8 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                path = cew + '/src/' + self.db_file_name
+                path = cew + "/" + self.db_file_name
+                print(path)
                 if sys.platform != "darwin":
                     path = path.replace("/","\\")
                 else:
@@ -532,8 +533,8 @@ class DuckDBDatabaseHandler():
         """ Opens a connection to the database"""
         print("trials to open connection")
         try:
-            cew = os.path.dirname(os.getcwd())
-            path = cew + '/src/' + self.db_file_name
+            cew = os.getcwd()
+            path = cew + self.db_file_name
             if sys.platform != "darwin": # check
                 path = path.replace("/","\\")
             else:

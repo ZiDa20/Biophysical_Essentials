@@ -1,26 +1,14 @@
 import sys
 import os
-#Path import
-################################################################################
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/MainWindow/ui_py")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/DatabaseViewer/ui_py")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/ui_py")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OnlineAnalysis/ui_py")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/Settings/ui_py")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-##################################################################################
-#Importing the QT libraries
-#from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6 import *
-from main_window import Ui_MainWindow
+from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
 import logging
 from qt_material import QtStyleTools
-from self_configuration import *
-from offline_analysis_widget import Offline_Analysis
-from settings_dialog import *
+from QT_GUI.ConfigWidget.ui_py.self_configuration import *
+from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
+from QT_GUI.Settings.ui_py.settings_dialog import *
 from frontend_style import Frontend_Style
 from data_db import DuckDBDatabaseHandler
 
@@ -45,6 +33,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.center() # center
 
         if sys.platform != "darwin":
+            print("darwin platform initialized")
             self.setAttribute(Qt.WA_TranslucentBackground)
             
 
@@ -109,7 +98,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
 
         # connect settings button
-        self.write_button_text()
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
@@ -214,8 +202,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.animate_resizing()
 
-
-
     def animate_resizing(self, size = None):
         """Function to animate the resizing of the window
         args:
@@ -233,25 +219,6 @@ class MainWindow(QMainWindow, QtStyleTools):
     def quit_application(self):
         """ Function to quit the app"""
         QCoreApplication.quit()
-
-    def erase_button_text(self):
-        """ Set the Menu button text to noting"""
-        self.ui.self_configuration.setText("")
-        self.ui.online_analysis.setText("")
-        self.ui.offline_analysis.setText("")
-        self.ui.statistics.setText("")
-        self.ui.darkmode_button.setText("")
-        self.ui.konsole_button.setText("")
-        self.ui.settings_button.setText("")
-
-    def write_button_text(self):
-        """ Add names to the buttons"""
-        pass
-        #self.ui.self_configuration.setText("  Configuration")
-        #self.ui.online_analysis.setText(" Online Analysis")
-        #self.ui.offline_analysis.setText(" Offline Analysis")
-        #self.ui.statistics.setText("Database View")
-        #self.ui.settings_button.setText("Settings")
 
     def change_to_lightmode(self):
         # @toDO should be added to the designer class 
@@ -325,7 +292,8 @@ if __name__ == "__main__":
     stylesheet_loaded = "Menu_button.css"
     if sys.platform == "darwin":
         stylesheet_loaded = "Menu_button_mac.css"
-    with open(os.path.dirname(os.getcwd()) + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
+    print(os.getcwd() + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}")
+    with open(os.getcwd() + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()

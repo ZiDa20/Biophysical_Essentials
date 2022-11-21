@@ -2,14 +2,14 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
 from data_db import DuckDBDatabaseHandler
-from specific_visualization_plot import ResultPlotVisualizer
+from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import ResultPlotVisualizer
 from functools import partial
 from PySide6.QtWidgets import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
-from tab_offline_result import OfflineResultTab
+from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
 
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
