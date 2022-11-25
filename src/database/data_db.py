@@ -11,6 +11,7 @@ import numpy as np
 import io
 import logging
 import datetime
+#from global_meta_data_table import GlobalMetaDataTable
 
 import re
 
@@ -24,6 +25,9 @@ class DuckDBDatabaseHandler():
         #
         self.database = None
         self.analysis_id = None
+
+        # set up the classes for the main tables
+        #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
 
         # logger settings
         self.logger = logging.getLogger()
@@ -583,6 +587,14 @@ class DuckDBDatabaseHandler():
             meta_data.append(self.database.execute(q).fetchall()[0][0])
 
         return meta_data
+
+    def get_analysis_id_specific_global_meta_data_table_part(self):
+
+        q = f'select * from global_meta_data where experiment_name in (select experiment_name from ' \
+            f'experiment_analysis_mapping where analysis_id = {self.analysis_id})'
+
+        return self.database.execute(q).fetchdf()
+
     """---------------------------------------------------"""
     """    Functions to interact with table experiments    """
     """---------------------------------------------------"""
@@ -807,6 +819,11 @@ class DuckDBDatabaseHandler():
         r = self.get_data_from_database(self.database, q, (analysis_function_id, series_name, self.analysis_id))
 
         return r
+
+    def get_analysis_functions_for_specific_series(self,series_name):
+        print(series_name)
+        q = f'select function_name from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
+        return self.database.execute(q).fetchall()
 
     """----------------------------------------------------------"""
     """    Functions to interact with table sweeps   """
