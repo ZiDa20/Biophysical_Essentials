@@ -8,14 +8,28 @@ class DragAndDropListView(QListWidget):
 
     fileDropped = Signal(str)
 
-    def __init__(self, type, initial_list, parent=None):
+    def __init__(self, type_var, initial_list, parent=None):
         super(DragAndDropListView, self).__init__(parent)
         self.setAcceptDrops(True)
         self.setIconSize(QSize(72, 72))
-        self.initial_list = initial_list
 
+        if type(initial_list) is QListWidget:
+            print("Widget")
+            self.initial_list = initial_list
+        else:
+            self.initial_list = initial_list[0]
+            self.secondary_list = initial_list[1]
+        
 
     def dragEnterEvent(self, event):
+        try:
+            print("multiple list widgets")
+
+            print(self.initial_list.currentIndex().data())
+            print(self.secondary_list.currentIndex().data())
+        except Exception as e:
+            print(e)
+
         if not event.mimeData().hasText():
             print(self.initial_list.currentIndex().data())
             event.mimeData().setText(self.initial_list.currentIndex().data())

@@ -746,7 +746,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 3, self.data_dist)
                     statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
 
-                    self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(self.select_statistics_meta_data)
+                    self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
 
                     #current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5,
                     #                                                                      self.live_result)
@@ -757,7 +757,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
                     statistics_table_widget.statistics_table_widget.show()
 
-    def select_statistics_meta_data(self):
+    def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
 
         # honig
         dialog = StatisticsMetaData_Handler()
@@ -783,20 +783,100 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 col_cnt = col_cnt+1
                 print(col_cnt)
 
+        print("first box title = ", dialog.groupBox.title())
 
-        # get the gloabl meta data table part for the experiments listed with this analysis
+        grid = QGridLayout()
+        self.statistics_list_view = DragAndDropListView(self, dialog.sex_list)  # dialog.sex_list)
+        vs_button = QPushButton("vs")
+        add_button = QPushButton("Add")
+        clear_button = QPushButton("Clear Last Row")
+        finish_button = QPushButton("Finish")
 
-        # from the global meta data table get all columns that have more than 1 different value,
-        #
+        self.statistics_list_view.setAcceptDrops(True)
+        self.statistics_list_view.fileDropped.connect(self.meta_data_label_dropped)
 
+        grid.addWidget(self.statistics_list_view)
+        grid.addWidget(vs_button)
+        grid.addWidget(add_button)
+        grid.addWidget(clear_button)
+        grid.addWidget(finish_button)
 
-        # compare from a dict:
-        # label:
-        #
+        dialog.groupBox_4.setLayout(grid)
 
+        dialog.sex_list.pressed.connect(partial(self.test,dialog.sex_list,self.statistics_list_view))
+        dialog.condition_list.pressed.connect(partial(self.test,dialog.condition_list,self.statistics_list_view))
 
+        vs_button.clicked.connect(self.add_vs)
+        add_button.clicked.connect(self.add_new_statistics_meta_data_row)
+        clear_button.clicked.connect(self.clear_last_row)
+        finish_button.clicked.connect(partial(self.finish_statistics_meta_data_popup,dialog,statistics_table_widget,row_to_insert))
 
         dialog.exec()
+
+    def finish_statistics_meta_data_popup(self, dialog:StatisticsMetaData_Handler, statistics_table_widget:StatisticsTablePromoted, row_to_insert:int):
+        meta_data_selection = []
+        for n in range(0, self.statistics_list_view.count()):
+            meta_data_selection.append(self.statistics_list_view.item(n))
+
+        dialog.close()
+
+        list_and_button_widget = QWidget()
+
+        statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_list_view)
+        # remove the button
+
+
+
+    def clear_last_row(self):
+        if self.statistics_list_view.count() > 0:
+            self.statistics_list_view.takeItem(self.statistics_list_view.count()-1)
+
+    def add_vs(self):
+        existing_text = None
+        last_item = None
+        # select only the last row !!!
+        last_row = 0
+        for n in range(0, self.statistics_list_view.count()):
+            last_item = self.statistics_list_view.item(n)
+            existing_text = last_item.text()
+            last_row = n
+            print(last_row)
+
+        if existing_text is None:
+            # @todo add dialog
+            print("error dialog: please drag and drop meta data first")
+        else:
+            self.statistics_list_view.takeItem(last_row)
+            #self.statistics_list_view.removeItemWidget(last_item)
+            self.statistics_list_view.insertItem(last_row, existing_text + " vs. " )
+
+    def avoid_drop(self):
+        print("avoiding")
+
+    def add_new_statistics_meta_data_row(self):
+        QListWidgetItem("",self.statistics_list_view)
+
+    def test(self, widget, statistics_list_view,event):
+        statistics_list_view.initial_list = widget
+        print("success")
+    @Slot()
+    def meta_data_label_dropped(self, item_text):
+        print("new label dropped = ", item_text)
+        existing_text = None
+        last_item = None
+        last_row = 0
+        for n in range(0, self.statistics_list_view.count()):
+            last_item = self.statistics_list_view.item(n)
+            existing_text = last_item.text()
+            last_row = n
+            print(last_row)
+
+        if existing_text is None:
+            QListWidgetItem(item_text, self.statistics_list_view)
+        else:
+            print("Last Row dropped = ", last_row)
+            self.statistics_list_view.takeItem(last_row)
+            QListWidgetItem(existing_text + "_" + item_text, self.statistics_list_view)
 
     def open_statistics_meta_data_selection(self):
         print("not implemented yet")
