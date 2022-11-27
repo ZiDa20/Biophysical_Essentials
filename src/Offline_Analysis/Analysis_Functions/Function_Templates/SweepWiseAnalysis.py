@@ -306,7 +306,7 @@ class SweepWiseAnalysisTemplate(object):
 			print("querried data look like this")
 			print(query_data_df)
 
-			q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
 				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
 				f'specific_result_table_name = \'{table}\'))'
 

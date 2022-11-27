@@ -557,6 +557,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         data_frame = meta_data_popup.meta_data_template_layout.itemAtPosition(0,0).widget().model()._data
             #data(0,0).toString()
         print(data_frame)
+        file_name = self.offline_manager._directory_path + "/automatic_template.csv"
+        print(file_name)
+        data_frame.to_csv(file_name)
         """
         self.continue_open_directory(meta_data_popup, tmp_tree_manager.meta_data_option_list,
                                      tmp_tree_manager.get_meta_data_group_assignments())
@@ -756,6 +759,42 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     #self.live_result.clicked.connect(
                     #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
                     statistics_table_widget.statistics_table_widget.show()
+
+                start_statistics = QPushButton("Run Statistic Test")
+                statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
+
+                start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
+
+    def calculate_statistics(self,statistics_table:QTableWidget):
+        print("calculating statistic")
+        for row in range(0,statistics_table.rowCount()):
+
+            # get the test to be performed from the combo box (position 4)
+            test_type = statistics_table.cellWidget(row,4).currentText()
+            print(statistics_table.item(row, 1).text())
+            if test_type == "t_Test":
+
+                # get the number of comparissons (m1 vs m2)
+                meta_data_comparissons = []
+
+                for comparison in range(0,statistics_table.cellWidget(row,2).count()):
+
+                    meta_data_comparissons.append(comparison)
+
+
+
+
+                    # read the related results
+
+                # add to the new "t-test child" if it does not exist yet
+
+                # add to the database
+
+            else:
+                print("not implemented yet")
+
+
+
 
     def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
 

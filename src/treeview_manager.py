@@ -486,6 +486,7 @@ class TreeViewManager():
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                     meta_data = self.meta_data_assignment_list[pos]
                 except:
+                    print("adding ", experiment_name, " without meta data")
                     '''experiment_label = 'default, all other parameters are none '''
                     meta_data = [experiment_name, "default", "None", "None", "None", "None", "None"]
 

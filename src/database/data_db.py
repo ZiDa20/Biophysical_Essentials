@@ -561,7 +561,7 @@ class DuckDBDatabaseHandler():
         :param meta_data_list: [0]: experiment_name, [1]: experiment_label, [2] = species, [3] =
         :return:
         """
-
+        print(meta_data_list)
         q = f'update global_meta_data set experiment_label = \'{meta_data_list[1]}\',' \
             f'species = \'{meta_data_list[2]}\', genotype = = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\','\
             f'condition = \'{meta_data_list[5]}\',individuum_id = \'{meta_data_list[6]}\' where experiment_name = \'{meta_data_list[0]}\''
