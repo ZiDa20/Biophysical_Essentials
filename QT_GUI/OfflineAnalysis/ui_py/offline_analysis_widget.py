@@ -155,7 +155,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
         # static offline analysis number
-        self.database_handler.analysis_id = 4
+        self.database_handler.analysis_id = 8
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
@@ -164,7 +164,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
 
         self.built_analysis_specific_tree(series_names_list)
-        print("displaying to analysis results: ", str(4))
+        print("displaying to analysis results: ", str(self.database_handler.analysis_id))
 
         print(self.SeriesItems.topLevelItemCount())
 
@@ -780,9 +780,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 for comparison in range(0,statistics_table.cellWidget(row,2).count()):
 
                     meta_data_comparissons.append(comparison)
-
-
-
 
                     # read the related results
 
