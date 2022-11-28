@@ -306,7 +306,7 @@ class SweepWiseAnalysisTemplate(object):
 			print("querried data look like this")
 			print(query_data_df)
 
-			q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
 				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
 				f'specific_result_table_name = \'{table}\'))'
 
@@ -438,9 +438,8 @@ class SweepWiseAnalysisTemplate(object):
 
 			# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
 			# therefore make lists of each tuple "column"
-	
 			# 2) get experiment_name from experiment_series table and join with experiments table to get meta_data_group
-			q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from experiment_series where Sweep_Table_Name = \'{sweep_table_names[0]}\')'
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from experiment_series where Sweep_Table_Name = \'{sweep_table_names[0]}\')'
 			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
 
 			if meta_data_group in meta_data_groups:

@@ -5,11 +5,13 @@
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
+import numpy as np
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from Offline_Analysis.offline_analysis_manager import OfflineManager
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from treeview_manager import TreeViewManager
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from functools import partial
@@ -30,6 +32,9 @@ from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysis
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
 from Pandas_Table import PandasTable
+import pandas as pd
+from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
+from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -165,11 +170,30 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
         # static offline analysis number
-        self.result_visualizer.show_results_for_current_analysis(111)
+        self.database_handler.analysis_id = 8
+        series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
+        print(series_names_list)
 
-        self.offline_analysis_widgets.setCurrentIndex(3)
+        for i in range(0,len(series_names_list)):
+            series_names_list[i] = series_names_list[i][0]
+        #    self.result_visualizer.show_results_for_current_analysis(9,name)
 
-        print("displaying to analysis results: ", str(111))
+        self.built_analysis_specific_tree(series_names_list)
+        print("displaying to analysis results: ", str(self.database_handler.analysis_id))
+
+        print(self.SeriesItems.topLevelItemCount())
+
+
+        # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
+        for parent_pos in range(0,self.SeriesItems.topLevelItemCount()):
+
+            self.SeriesItems.setCurrentItem(self.SeriesItems.topLevelItem(parent_pos).child(0))
+            self.offline_analysis_result_tree_item_clicked()
+            self.finished_result_thread()
+
+        self.offline_analysis_widgets.setCurrentIndex(2)
+
+
 
     @Slot()
     def start_blank_analysis(self):
@@ -184,18 +208,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     @Slot()
     def load_treeview_from_database(self):
         """
-
         :return:
-
         :author: dz, 01.07.2022
         """
 
         # open a popup to allow experiment label selection by the user
 
         self.dialog = Load_Data_From_Database_Popup_Handler()
-
+        #self.database_handler.open_connection()
         available_labels = self.database_handler.get_available_experiment_label()
 
+        print(available_labels)
         label_list = []
         for i in available_labels:
             if i[0] is None:
@@ -236,6 +259,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             item = self.dialog.meta_data_list.item(n)
             if item.checkState() == Qt.CheckState.Checked:
                 self.selected_meta_data_list.append(item.text())
+                print(item.text())
 
         self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
         self.blank_analysis_page_1_tree_manager.experiment_tree = self.treebuild.experiments_tree_view
@@ -328,7 +352,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             for n in meta_data_group_assignment_list:
                 print(n)
-                self.database_handler.add_meta_data_group_to_existing_experiment(n[0], n[1])
+                self.database_handler.add_meta_data_group_to_existing_experiment(n)
+                #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
 
         tree_view_manager = self.offline_manager.read_data_from_experiment_directory(
             self.treebuild.experiments_tree_view,
@@ -451,17 +476,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         meta_data_assignments = []
         option_list = []
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
-        with open(file_name, mode='r') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            for row in csv_reader:
-                if row:
-                    meta_data_assignments.append((row[0], row[1]))
-                    option_list.append(row[1])
-            csv_file.close()
 
-        print("results from the template file")
-        print(meta_data_assignments)
-        self.continue_open_directory(dialog, option_list, meta_data_assignments)
+        with open(file_name, newline='') as f:
+            reader = csv.reader(f)
+            meta_data_assignments = list(reader)
+
+        if len(meta_data_assignments[0]) <= 6:
+            CustomErrorDialog().show_dialog("The template needs at least 7 columns which were not found in the specified template.")
+
+        else:
+            print("results from the template file")
+            print(meta_data_assignments)
+            option_list.append("dummy")
+            self.continue_open_directory(dialog, option_list, meta_data_assignments)
 
     def create_meta_data_template(self, old_dialog):
         '''
@@ -477,6 +504,45 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style.set_pop_up_dialog_style_sheet(meta_data_popup)
 
         directory = self.offline_manager._directory_path
+
+        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Condition",
+                        "Individuum_id"]
+
+        template_data_frame = pd.DataFrame(columns=column_names)
+
+        print(self.offline_manager.package_list(directory))
+
+        for dat_file in self.offline_manager.package_list(directory):
+            splitted_name = dat_file.split(".")
+            print(dat_file)
+            self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
+            self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
+            template_data_frame = template_data_frame.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
+                                        "Genotype":"None","Sex":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+
+        '''make a table with editable data '''
+
+        # set the TableView and the Model
+        template_table_view = QTableView()
+        template_table_view.setObjectName("meta_data_tenplate")
+        template_table_view.setMinimumHeight(300)
+        template_table_view.horizontalHeader().setSectionsClickable(True)
+
+        # create two models one for the table show and a second for the data visualizations
+        content_model = PandasTable(template_data_frame)
+        print(template_data_frame)
+        template_table_view.setModel(content_model)
+
+        # self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        template_table_view.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
+        meta_data_popup.meta_data_template_layout.addWidget(template_table_view)
+        template_table_view.setGeometry(20, 20, 691, 581)
+
+        # show and retrieve the selected columns
+        template_table_view.show()
+        #self.data_base_content.clicked.connect(self.retrieve_column)
+
+        """
         tmp_tree_manager = TreeViewManager(self.database_handler)
         tmp_tree_manager.meta_data_group_column = 1
         tmp_tree_manager.checkbox_column = 3
@@ -489,36 +555,44 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         meta_data_popup.meta_data_tree_widget.setColumnWidth(0, 250)
         meta_data_popup.meta_data_tree_widget.setColumnWidth(1, 25)
-
+        
+        
         # meta_data_popup.save_to_template_button
+        
+
         meta_data_popup.close_and_continue_button.clicked.connect(partial(self.continue_open_directory, meta_data_popup,
                                                                           tmp_tree_manager.meta_data_option_list,
                                                                           tmp_tree_manager.get_meta_data_group_assignments()))
-
+        """
         meta_data_popup.save_to_template_button.clicked.connect(partial(self.save_meta_data_to_template_and_continue,
-                                                                        meta_data_popup, tmp_tree_manager))
+                                                                        meta_data_popup))
+
         meta_data_popup.exec_()
 
-    def save_meta_data_to_template_and_continue(self, meta_data_popup, tmp_tree_manager):
+    def save_meta_data_to_template_and_continue(self, meta_data_popup):
         '''
         Save the template first and than continue directory opening.
         :param meta_data_popup:
         :param tmp_tree_manager:
         :return:
         '''
-        tmp_tree_manager.write_tuple_list_to_csv_file()
+        data_frame = meta_data_popup.meta_data_template_layout.itemAtPosition(0,0).widget().model()._data
+            #data(0,0).toString()
+        print(data_frame)
+        file_name = self.offline_manager._directory_path + "/automatic_template.csv"
+        print(file_name)
+        data_frame.to_csv(file_name)
+        """
         self.continue_open_directory(meta_data_popup, tmp_tree_manager.meta_data_option_list,
                                      tmp_tree_manager.get_meta_data_group_assignments())
-
+        """
     def get_selected_checkboxes(self, checkboxes, labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
-
         # empty list to be filled
         checked_labels = []
         for c in checkboxes:
             if c.isChecked():
                 checked_labels.append(labels[checkboxes.index(c)])
-
         # return filled list, can be empty too
         return checked_labels
 
@@ -548,7 +622,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @param series_names_list:
         @return:
         """
-
         # add selection to database
         self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
@@ -644,13 +717,235 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.view_table_clicked(parent_stacked)
 
             if self.SeriesItems.currentItem().text(0) == "Statistics":
+
+
+
+                # uic the designer object
+                # create in the py file an additional class named StatisticalTableWidget
+                statistics_table_widget = StatisticsTablePromoted()
+
+                self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
+                #statistics_table_widget.statistics_table_widget.setColumnCount(6)
+                #statistics_table_widget.statistics_table_widget.setRowCount(2)
+                #statistics_table_widget.statistics_table_widget.show()
+                statistics_table_widget.statistics_table_widget.horizontalHeader().setSectionResizeMode(
+                    QHeaderView.Stretch)
+                statistics_table_widget.statistics_table_widget.verticalHeader().setSectionResizeMode(
+                    QHeaderView.Stretch)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-                # two modes: manual mode
 
-                # statistic analysis wizard
-                # check the distribution
+                series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")
+                analysis_functions = self.database_handler.get_analysis_functions_for_specific_series(series_name[0])
 
-                print("Implementation for Statistics Missing yet")
+
+                # -------------------
+                existing_row_numbers = statistics_table_widget.statistics_table_widget.rowCount()
+
+
+                if existing_row_numbers == 0:
+
+                    # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+                    statistics_table_widget.statistics_table_widget.setColumnCount(6)
+                    statistics_table_widget.statistics_table_widget.setRowCount(
+                        len(analysis_functions))
+                    self.statistics_table_buttons = [0] * len(analysis_functions)
+                #else:
+                #    current_tab.analysis_table_widget.analysis_table_widget.setRowCount(
+                #        existing_row_numbers + len(self.selected_analysis_functions))
+                #    self.table_buttons = self.table_buttons + [0] * len(self.selected_analysis_functions)
+
+                self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
+
+                for i in analysis_functions:
+                    # prepare a row for each analysis
+                    analysis_function = i[0]
+                    print(analysis_function)
+                    row_to_insert = analysis_functions.index(i) + existing_row_numbers
+
+                    self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Choose")
+                    self.select_checkbox = QCheckBox()
+                    self.data_dist  = QComboBox()
+                    self.data_dist.addItems(["Normal Distribution", "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution" ])
+                    self.data_dist.setCurrentIndex(0)
+                    self.stat_test = QComboBox()
+                    self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
+                    self.stat_test.setCurrentIndex(0)
+                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 0,self.select_checkbox)
+                    statistics_table_widget.statistics_table_widget.setItem(row_to_insert, 1,
+                                                                            QTableWidgetItem(str(analysis_function)))
+                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_add_meta_data_buttons[row_to_insert])
+
+                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 3, self.data_dist)
+                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
+
+                    self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
+
+                    #current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5,
+                    #                                                                      self.live_result)
+
+                    #self.statistics_table_buttons[row_to_insert].clicked.connect(
+                    #    partial(self.open_statistics_meta_data_selection,row_to_insert))
+                    #self.live_result.clicked.connect(
+                    #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
+                    statistics_table_widget.statistics_table_widget.show()
+
+                start_statistics = QPushButton("Run Statistic Test")
+                statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
+
+                start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
+
+    def calculate_statistics(self,statistics_table:QTableWidget):
+        print("calculating statistic")
+        for row in range(0,statistics_table.rowCount()):
+
+            # get the test to be performed from the combo box (position 4)
+            test_type = statistics_table.cellWidget(row,4).currentText()
+            print(statistics_table.item(row, 1).text())
+            if test_type == "t_Test":
+
+                # get the number of comparissons (m1 vs m2)
+                meta_data_comparissons = []
+
+                for comparison in range(0,statistics_table.cellWidget(row,2).count()):
+
+                    meta_data_comparissons.append(comparison)
+
+                    # read the related results
+
+                # add to the new "t-test child" if it does not exist yet
+
+                # add to the database
+
+            else:
+                print("not implemented yet")
+
+
+
+
+    def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
+
+        # honig
+        dialog = StatisticsMetaData_Handler()
+
+        global_meta_data_table = self.database_handler.get_analysis_id_specific_global_meta_data_table_part()
+        already_existing_list_widgets = [dialog.sex_list,dialog.condition_list, dialog.individuum_list]
+
+        # n column names: the first two column names are hard coded and well known. Therefore start with the third element
+        # Index(['analysis_id', 'experiment_name', 'experiment_label', 'species', 'genotype', 'sex', 'condition', 'individuum_id']
+        col_cnt = 0
+        for i in range(2,len(global_meta_data_table.columns)):
+
+            unique_labels = np.unique(global_meta_data_table[global_meta_data_table.columns[i]].tolist())
+            print(global_meta_data_table.columns[i], " - ", unique_labels)
+
+            if len(unique_labels)>1:
+                list_widget = already_existing_list_widgets[col_cnt]
+                print(type(list_widget))
+                for n in unique_labels:
+                    new_list_item = QListWidgetItem(list_widget)
+                    new_list_item.setText(n)
+
+                col_cnt = col_cnt+1
+                print(col_cnt)
+
+        print("first box title = ", dialog.groupBox.title())
+
+        grid = QGridLayout()
+        self.statistics_list_view = DragAndDropListView(self, dialog.sex_list)  # dialog.sex_list)
+        vs_button = QPushButton("vs")
+        add_button = QPushButton("Add")
+        clear_button = QPushButton("Clear Last Row")
+        finish_button = QPushButton("Finish")
+
+        self.statistics_list_view.setAcceptDrops(True)
+        self.statistics_list_view.fileDropped.connect(self.meta_data_label_dropped)
+
+        grid.addWidget(self.statistics_list_view)
+        grid.addWidget(vs_button)
+        grid.addWidget(add_button)
+        grid.addWidget(clear_button)
+        grid.addWidget(finish_button)
+
+        dialog.groupBox_4.setLayout(grid)
+
+        dialog.sex_list.pressed.connect(partial(self.test,dialog.sex_list,self.statistics_list_view))
+        dialog.condition_list.pressed.connect(partial(self.test,dialog.condition_list,self.statistics_list_view))
+
+        vs_button.clicked.connect(self.add_vs)
+        add_button.clicked.connect(self.add_new_statistics_meta_data_row)
+        clear_button.clicked.connect(self.clear_last_row)
+        finish_button.clicked.connect(partial(self.finish_statistics_meta_data_popup,dialog,statistics_table_widget,row_to_insert))
+
+        dialog.exec()
+
+    def finish_statistics_meta_data_popup(self, dialog:StatisticsMetaData_Handler, statistics_table_widget:StatisticsTablePromoted, row_to_insert:int):
+        meta_data_selection = []
+        for n in range(0, self.statistics_list_view.count()):
+            meta_data_selection.append(self.statistics_list_view.item(n))
+
+        dialog.close()
+
+        list_and_button_widget = QWidget()
+
+        statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_list_view)
+        # remove the button
+
+
+
+    def clear_last_row(self):
+        if self.statistics_list_view.count() > 0:
+            self.statistics_list_view.takeItem(self.statistics_list_view.count()-1)
+
+    def add_vs(self):
+        existing_text = None
+        last_item = None
+        # select only the last row !!!
+        last_row = 0
+        for n in range(0, self.statistics_list_view.count()):
+            last_item = self.statistics_list_view.item(n)
+            existing_text = last_item.text()
+            last_row = n
+            print(last_row)
+
+        if existing_text is None:
+            # @todo add dialog
+            print("error dialog: please drag and drop meta data first")
+        else:
+            self.statistics_list_view.takeItem(last_row)
+            #self.statistics_list_view.removeItemWidget(last_item)
+            self.statistics_list_view.insertItem(last_row, existing_text + " vs. " )
+
+    def avoid_drop(self):
+        print("avoiding")
+
+    def add_new_statistics_meta_data_row(self):
+        QListWidgetItem("",self.statistics_list_view)
+
+    def test(self, widget, statistics_list_view,event):
+        statistics_list_view.initial_list = widget
+        print("success")
+    @Slot()
+    def meta_data_label_dropped(self, item_text):
+        print("new label dropped = ", item_text)
+        existing_text = None
+        last_item = None
+        last_row = 0
+        for n in range(0, self.statistics_list_view.count()):
+            last_item = self.statistics_list_view.item(n)
+            existing_text = last_item.text()
+            last_row = n
+            print(last_row)
+
+        if existing_text is None:
+            QListWidgetItem(item_text, self.statistics_list_view)
+        else:
+            print("Last Row dropped = ", last_row)
+            self.statistics_list_view.takeItem(last_row)
+            QListWidgetItem(existing_text + "_" + item_text, self.statistics_list_view)
+
+    def open_statistics_meta_data_selection(self):
+        print("not implemented yet")
+
 
             self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
             self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
@@ -778,8 +1073,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         tmp_treeview = TreeViewManager(db)
         tmp_treeview.experiment_tree = current_tab.selected_tree_widget
         tmp_treeview.discarded_tree = current_tab.discarded_tree_widget
+        try:
+            tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
+        except Exception:
+            # get the meta data list from the table
+            tmp_treeview.selected_meta_data_list =  self.database_handler.get_meta_data_of_multiple_experiments()
 
-        tmp_treeview.selected_meta_data_list = self.selected_meta_data_list
         tmp_treeview.create_treeview_from_database("", series_name)
 
         # create a specific plot manager - this plot manager needs to be global to be visible all the time
@@ -917,21 +1216,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
                 upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
             except Exception as e:
-                # @todo: make this a reusable function: show_error_dialog(message)
-                dialog = QDialog()
-                # dialog.setWindowFlags(Qt.FramelessWindowHint)
-                dialog_grid = QGridLayout(dialog)
-                # series_names_string_list = ["Block Pulse", "IV"]
-                dialog_quit = QPushButton("Cancel", dialog)
-                dialog_message = QLabel(dialog)
-                dialog_message.setText("Please select cursor bounds first and activate live plot afterwords")
-                dialog_grid.addWidget(dialog_message)
-                dialog_grid.addWidget(dialog_quit)
-                dialog_quit.clicked.connect(partial(self.quit_error_dialog, dialog))
-                dialog.setWindowTitle("Error")
-                dialog.setWindowModality(Qt.ApplicationModal)
-                dialog.exec_()
+                dialog_message = "Please select cursor bounds first and activate live plot afterwords"
+                CustomErrorDialog().show_dialog(dialog_message)
                 checkbox_object.setCheckState(Qt.CheckState.Unchecked)
+
         # artificial click will replot and add or delete the newly checked or unchecked analysis function
         item = current_tab.selected_tree_widget.currentItem()
         self.current_tab_visualization[self.SeriesItems.currentItem().data(7,
@@ -939,8 +1227,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].tree_view_click_handler(
             item)
 
-    def quit_error_dialog(self, dialog: QDialog):
-        dialog.close()
+    #def quit_error_dialog(self, dialog: QDialog):
+    #    dialog.close()
 
     def analysis_table_cell_changed(self, item):
         print("a cell changed")
@@ -1098,13 +1386,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.database_handler.open_connection()
         self.add_new_analysis_tree_children()
+
         if self.SeriesItems.currentItem().child(0):
             parent_item = self.SeriesItems.currentItem()
         else:
             parent_item = self.SeriesItems.currentItem().parent()
 
+        print(parent_item.text(0))
+
         offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
                                                                                    parent_item.data(6, Qt.UserRole))
+
+
 
         """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)

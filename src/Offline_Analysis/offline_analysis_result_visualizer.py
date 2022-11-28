@@ -1,8 +1,7 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-from data_db import DuckDBDatabaseHandler
 from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import ResultPlotVisualizer
+from src.database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -43,14 +42,18 @@ class OfflineAnalysisResultVisualizer():
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
-        #print(list_of_series)
+
+        print(list_of_series)
 
         for series in list_of_series:
             print(series)
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             if series[0] == series_name:
+                print(analysis_id)
+                print(series_name)
                 offline_tab = self.analysis_function_specific_visualization(series[0],analysis_id)
+                print(offline_tab)
                 return offline_tab
             else:
                 print("no analysis function selected")
@@ -135,6 +138,9 @@ class OfflineAnalysisResultVisualizer():
         canvas = self.handle_plot_widget_settings(parent_widget, class_object().plot_type_options)
 
         if plot_type is None:
+            #if class_object.database is None:
+            #    print("I am setting the database")
+            class_object.database = self.database_handler
             class_object.visualize_results(parent_widget, canvas, class_object().plot_type_options[0])
         else:
             class_object.visualize_results(parent_widget, canvas, plot_type)

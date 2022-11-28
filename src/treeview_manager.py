@@ -3,7 +3,6 @@ import os
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
-import re
 import heka_reader
 from functools import partial
 import csv
@@ -11,7 +10,7 @@ import csv
 import logging
 from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from time import sleep
-from data_db import *
+from src.database.data_db import *
 import pandas as pd
 from ABFclass import AbfReader
 
@@ -475,20 +474,25 @@ class TreeViewManager():
                 self.sweep_meta_data_df = pd.DataFrame()
                 self.series_identifier = None
 
-                group_name = None
-                try:
-                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
-                    group_name = self.meta_data_assignment_list[pos][1]
-                except:
-                    group_name = "None"
-                    
                 self.logger.info("adding experiment")
                 self.logger.info(experiment_name)
+                database.add_experiment_to_experiment_table(experiment_name)
 
-                # @todo
-                experiment_label = 'default'
-                database.add_experiment_to_experiment_table(experiment_name, group_name, experiment_label)
+                group_name = None
+                try:
+                    print("adding experiment", experiment_name)
+                    print(self.meta_data_assignment_list)
+                    print(self.meta_data_assigned_experiment_names)
+                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
+                    meta_data = self.meta_data_assignment_list[pos]
+                except:
+                    print("adding ", experiment_name, " without meta data")
+                    '''experiment_label = 'default, all other parameters are none '''
+                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None"]
 
+
+                ''' add meta data as the default data indicated with a -1'''
+                database.add_experiment_to_global_meta_data(-1, meta_data)
 
             if "Series" in node_type:
                 #print(node_type) # node type is None for Series
@@ -552,9 +556,10 @@ class TreeViewManager():
                                                   self.sweep_meta_data_df)
 
 
-    def single_abf_file_into_db(self,abf_bundle,database):
+    def single_abf_file_into_db(self,abf_bundle,database:DuckDBDatabaseHandler):
         # here should be changed the defalt by experimental label!
-        database.add_experiment_to_experiment_table(abf_bundle[1], "None", "default")
+        database.add_experiment_to_experiment_table(abf_bundle[1])
+        database.add_experiment_to_global_meta_data(-1 ,abf_bundle[1], "None", "default")
         series_count = 1
         for sweep in abf_bundle[0]:
             database.add_single_series_to_database(abf_bundle[1], sweep[3], "Series" + str(series_count))
@@ -615,7 +620,7 @@ class TreeViewManager():
 
             if database_mode:
 
-                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0], "None","default")
+                insertion_state = self.database.add_experiment_to_experiment_table(splitted_name[0])
                 self.database.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
 
                 # no database interaction when the file is already in the database to safe time
@@ -1043,7 +1048,7 @@ class TreeViewManager():
             experiment_name  = input_tree.topLevelItem(n).text(0)
             meta_data_group = input_tree.itemWidget(input_tree.topLevelItem(n),self.meta_data_group_column).currentText()
 
-            self.database.add_meta_data_group_to_existing_experiment(experiment_name,meta_data_group)
+            self.database.add_meta_data_group_to_existing_experiment(meta_data_group)
 
 
     def cancel_button_clicked(self,dialog):
@@ -1260,29 +1265,6 @@ class TreeViewManager():
         splitted_string = re.match(r"([a-z]+)([0-9]+)",string,re.I)
         res = splitted_string.groups()
         return int(res[1])
-
-
-    def write_tuple_list_to_csv_file(self):
-
-        dir_path = QFileDialog.getSaveFileName()
-
-        # open the file in the write mode
-        if not ".csv" in dir_path[0]:
-            f = open(str(dir_path[0])+".csv", 'w')
-        else:
-            f = open(str(dir_path[0]), 'w')
-
-        # create the csv writer
-        writer = csv.writer(f)
-
-        tuple_list = self.get_meta_data_group_assignments()
-
-        # write single rows, elements seperated by comma, line break by whitespace
-        for tuple in tuple_list:
-            writer.writerow([tuple[0],tuple[1]])
-
-        # close the file
-        f.close()
 
 
     def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, holding_potential = None, series_name = None, sweep_number =None):

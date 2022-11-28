@@ -24,3 +24,4 @@ venv/
 .vscode/
 *-workspace
 *key
+.src/database/*.db
