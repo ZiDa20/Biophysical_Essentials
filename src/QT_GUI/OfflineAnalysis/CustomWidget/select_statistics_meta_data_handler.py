@@ -1,7 +1,7 @@
 
 from PySide6.QtWidgets import *  # type: ignore
 
-from select_statistics_meta_data_dialog import StatisticsMetaData_Dialog
+from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_dialog import StatisticsMetaData_Dialog
 
 
 class StatisticsMetaData_Handler(QDialog, StatisticsMetaData_Dialog):

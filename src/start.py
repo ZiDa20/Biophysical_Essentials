@@ -10,7 +10,7 @@ from QT_GUI.ConfigWidget.ui_py.self_configuration import *
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
 from QT_GUI.Settings.ui_py.settings_dialog import *
 from frontend_style import Frontend_Style
-from src.database.data_db import DuckDBDatabaseHandler
+from database.data_db import DuckDBDatabaseHandler
 
 if sys.platform != "darwin":
     from BlurWindow.blurWindow import GlobalBlur

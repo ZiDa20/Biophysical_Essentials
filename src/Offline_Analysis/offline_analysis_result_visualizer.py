@@ -1,7 +1,7 @@
 import sys
 import os
 from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import ResultPlotVisualizer
-from src.database.data_db import DuckDBDatabaseHandler
+from database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)

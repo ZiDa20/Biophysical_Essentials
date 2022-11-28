@@ -513,6 +513,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print(self.offline_manager.package_list(directory))
 
         for dat_file in self.offline_manager.package_list(directory):
+            
             splitted_name = dat_file.split(".")
             print(dat_file)
             self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
@@ -789,6 +790,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
                     statistics_table_widget.statistics_table_widget.show()
 
+                self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
+                self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
+                self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
                 start_statistics = QPushButton("Run Statistic Test")
                 statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
 
@@ -945,14 +949,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def open_statistics_meta_data_selection(self):
         print("not implemented yet")
-
-
-            self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
-            self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
-            self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
-
-
-
+        
     def simple_analysis_configuration_clicked(self,parent_stacked:int):
         """
         load its parent configuration widget and display it

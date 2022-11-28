@@ -11,7 +11,7 @@
             "type": "python",
             "request": "launch",
             "program": "start.py",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/src",
             "console": "integratedTerminal"
         }
     ]

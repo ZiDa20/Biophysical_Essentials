@@ -10,7 +10,7 @@ import csv
 import logging
 from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from time import sleep
-from src.database.data_db import *
+from database.data_db import *
 import pandas as pd
 from ABFclass import AbfReader
 
@@ -84,7 +84,7 @@ class TreeViewManager():
         """
         Configure the Logger for the Treeview Manager"""
         self.logger=logging.getLogger()
-        self.logger.setLevel(logging.ERROR)
+        self.logger.setLevel(logging.INFO)
         file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
@@ -485,7 +485,8 @@ class TreeViewManager():
                     print(self.meta_data_assigned_experiment_names)
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                     meta_data = self.meta_data_assignment_list[pos]
-                except:
+                except Exception as e:
+                    print(f"Fehler: {e}")
                     print("adding ", experiment_name, " without meta data")
                     '''experiment_label = 'default, all other parameters are none '''
                     meta_data = [experiment_name, "default", "None", "None", "None", "None", "None"]
