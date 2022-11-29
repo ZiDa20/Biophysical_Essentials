@@ -36,6 +36,9 @@ import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
+from Offline_Analysis.tree_model_class import TreeModel
+from Offline_Analysis.tree_item_class import TreeItem
+
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -246,15 +249,48 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for n in range(0, self.list_view.count()):
             self.selected_meta_data_list.append(self.list_view.item(n).text())
 
-
         print("loading experiment_labels", self.selected_meta_data_list)
 
         q = (f'select * from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\'')
+        parent_name_table = self.database_handler.database.execute(q).fetchdf()
+        parent_name_table["Parent"] = "TopLevel"
+        parent_name_table["Type"] = "Experiment"
 
-        analysis_experiment_table = self.database_handler.database.execute(q).fetchdf()
+        q = (f'select * from experiment_series where experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
+        sweep_name_table = self.database_handler.database.execute(q).fetchdf()
+        #sweep_name_table.rename(columns={'experiment_name':'parent'}))
+        #sweep_name_table["Type"] = "Sweep"
 
-        print(analysis_experiment_table)
+        print(parent_name_table)
         # create a table with all the related recordings
+        print(sweep_name_table)
+
+        demo_table = pd.DataFrame({"item_name":["220315_01", "220315_02","BlockPulse","IV"],
+                                    "parent":[None,None,"220315_01","220315_02"],
+                                    "type":["Experiment", "Experiment", "Series", "Series"],
+                                    "level":[0,0,1,1],
+                                    "identifier":[None,None,"Series1","Series2"]})
+
+        print(demo_table)
+        view = QTreeView()
+        model = TreeModel(demo_table)
+        view.setModel(model)
+        self.gridLayout_14.addWidget(view)
+        view.clicked.connect(partial(self.handle_tree_view_click,model))
+        view.setColumnHidden(3, True)
+        view.setColumnHidden(4, True)
+
+
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager,
+                                                             self.treebuild.experiments_tree_view, 1, False)
+
+    def handle_tree_view_click(self,model, index):
+        print("click found")
+        tree_item_list = model.get_data_row(index, Qt.DisplayRole)
+        print(tree_item_list)
+
+        if tree_item_list[4] == "Series":
+            self.blank_analysis_plot_manager.table_view_series_clicked_load_from_database(tree_item_list[5],tree_item_list[3])
 
 
     def load_worker_deprecated(self):

@@ -42,6 +42,7 @@ class PlotWidgetManager(QRunnable):
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
         self.vertical_layout = vertical_layout_widget
+
         self.toolbar_widget = toolbar_widget
 
         """
@@ -250,6 +251,72 @@ class PlotWidgetManager(QRunnable):
 
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
+
+    def series_clicked_load_from_dat_file(self, item):
+        """
+        plots trace data and pgf data after a series was clicked in the online analysis
+        @param item:
+        @return:
+        :author: dz, 21.07.2022
+        """
+        print("online analysis %s series was clicked", item.text(0))
+        children = item.childCount()
+        split_view = 1
+
+        # reset the time array -> will be created new from the first sweep
+        self.time = None
+        self.y_unit = None
+
+        fig = self.canvas.figure
+        fig.clf()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+        # plot data traces for this series
+        for c in range(0, children):
+
+            child = item.child(c)
+            # child.setCheckState(1, Qt.Checked)
+            data_request_information = child.data(3, 0)
+            self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
+            meta_data_dict = child.data(5, 0)
+
+            if self.time is None:
+                self.time = self.get_time_from_dict(meta_data_dict)
+                # recording_mode = self.get_recording_mode(meta_data_array)
+
+                self.y_unit = self.get_y_unit_from_meta_data_dict(meta_data_dict)
+
+                print(self.y_unit)
+
+            if self.y_unit == "V":
+                y_min, y_max = self.get_y_min_max_meta_data_dict_values(meta_data_dict)
+                self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+                self.plot_scaling_factor = 1000
+            else:
+                # data scaling to nA
+                self.plot_scaling_factor = 1e9
+
+            self.ax1.plot(self.time, self.data * self.plot_scaling_factor, c='k')
+
+        # plot pgf traces
+
+        protocol_steps = self.plot_pgf_signal(item.data(5, 0), self.data)
+        for x in range(0, len(protocol_steps)):
+            x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
+            self.ax1.axvline(x_pos, c='tab:gray')
+
+        self.vertical_layout.addWidget(self.canvas)
+        self.handle_plot_visualization()
+
 
     def series_clicked_load_from_dat_file(self,item):
         """
@@ -477,6 +544,88 @@ class PlotWidgetManager(QRunnable):
             #self.ax1.axvline(x_pos, c = 'tab:gray')
 
         self.handle_plot_visualization()
+
+
+
+    def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
+
+        """new function"""
+
+        print("plotting started")
+        print(experiment_name)
+        print(series_identifier)
+
+        split_view = 1
+
+        db = self.offline_manager.get_database()
+        series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+
+        print("requested series dataframe")
+        print(series_df)
+
+        #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
+
+        # get the meta data to correctly display y values of traces
+        meta_data_df = db.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
+        self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
+        self.time = self.get_time_from_meta_data(meta_data_df)
+
+        column_names = series_df.columns.values.tolist()
+
+        fig = self.canvas.figure
+        fig.clf()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+
+
+        # plot for each sweep
+        for name in column_names:
+            data = series_df[name].values.tolist()
+            data = np.array(data)
+
+            if self.y_unit == "V":
+                y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
+                data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+                # data scaling to mV
+                self.plot_scaling_factor = 1000
+            else:
+                # data scaling to nA
+                self.plot_scaling_factor = 1e9
+
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
+
+            if self.detection_mode:
+                peaks, _ = find_peaks(data, height = 0.00,distance=200)
+                print('peaks')
+                print(peaks)
+                self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
+
+
+        # finally also the pgf file needs to be added to the plot
+        # load the table
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+
+        #print(pgf_table_df)
+
+        protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
+        print("Protocol Steps")
+        print(protocol_steps)
+        for x in range(0,len(protocol_steps)):
+
+            x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
+            print(x_pos)
+            #self.ax1.axvline(x_pos, c = 'tab:gray')
+
+        self.handle_plot_visualization()
+        self.vertical_layout.addWidget(self.canvas)
 
     def handle_plot_visualization(self):
         """
