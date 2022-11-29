@@ -14,7 +14,6 @@ from database.data_db import *
 import pandas as pd
 from ABFclass import AbfReader
 
-
 class TreeViewManager():
     """ Main class to handle interactions with treeviews. In general two  usages are defined right now:
     1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
@@ -216,6 +215,17 @@ class TreeViewManager():
         progress_callback.emit(experiment_tuple)
 
     def fill_tree_gui(self, experiment_tuple):
+        series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier, discarded_state = experiment_tuple
+        top_level_item_amount = tree.topLevelItemCount()
+        if len(series_identifier_list) > 0:
+
+            # the parent will only added if there are valid series inside
+            if top_level_item_amount == 0:
+                parent = QTreeWidgetItem(tree)  # be carefull: this command immediately adds an item to the tree !
+            else:
+                parent = QTreeWidgetItem(top_level_item_amount)
+
+    def fill_tree_gui_deprecated(self, experiment_tuple):
         """ Redo Treeview Function
         This function should only write the tree without any further functionality
         We split the Thread from the Gui
@@ -287,8 +297,6 @@ class TreeViewManager():
 
     def fill_treeview_from_database(self,experiment_label,discarded_state, specific_series_name, progress_callback = None):
         """
-
-    
         @param experiment_label: string of the experiment
         @param discarded_state: False or True - per default, all are False
         @param specific_series_name: can be None if the entire experiment should be displayed and has a specific series
@@ -306,6 +314,8 @@ class TreeViewManager():
             #self.database.create_mapping_between_experiments_and_analysis_id(experiment)
             series_identifier_tuple = self.database.get_series_names_of_specific_experiment(experiment,discarded_state)
             experiment_tuple = (experiment,series_identifier_tuple, specific_series_name, discarded_state)
+
+
             if progress_callback:
                 self.load_from_database_treeview(experiment_tuple, progress_callback)
                 #self.experiment_tree_finished.finished_signal.connect(partial(self.load_from_database_treeview,experiment_tuple, progress_callback))

@@ -237,9 +237,35 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.dialog.exec_()
 
-    def load_worker(self):  #
+    def load_worker(self):
+        print("hallluuuuu ?")
+        #self.database_handler.database.close()
+
+        self.selected_meta_data_list = []
+
+        for n in range(0, self.list_view.count()):
+            self.selected_meta_data_list.append(self.list_view.item(n).text())
+
+
+        print("loading experiment_labels", self.selected_meta_data_list)
+
+        q = (f'select * from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\'')
+
+        analysis_experiment_table = self.database_handler.database.execute(q).fetchdf()
+
+        print(analysis_experiment_table)
+        # create a table with all the related recordings
+
+
+    def load_worker_deprecated(self):
+        """
+        data of interest are selected according to their experiment label/tag
+        @return:
+        """
         self.database_handler.database.close()
 
+
+        # bring the treeview into grid_layout 14
         # clear the tree and make structure the tree
 
         self.treebuild.experiments_tree_view.clear()
