@@ -272,18 +272,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                     "identifier":[None,None,"Series1","Series2"]})
 
         print(demo_table)
-        view = QTreeView()
+        view = self.treebuild.selected_tree_view
         model = TreeModel(demo_table)
         view.setModel(model)
-        self.gridLayout_14.addWidget(view)
         view.clicked.connect(partial(self.handle_tree_view_click,model))
         view.setColumnHidden(3, True)
         view.setColumnHidden(4, True)
-
+        view.setColumnHidden(5, True)
 
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager,
-                                                             self.treebuild.experiments_tree_view, 1, False)
+                                                             None, 1, False)
 
+
+        self.dialog.close()
     def handle_tree_view_click(self,model, index):
         print("click found")
         tree_item_list = model.get_data_row(index, Qt.DisplayRole)
