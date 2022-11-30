@@ -97,7 +97,7 @@ class TreeViewManager():
         self.tree_build_finished = DataReadFinishedSignal()
         self.experiment_tree_finished = DataReadFinishedSignal()
 
-
+    """ @deprecated dz 30.11.2022
     def get_series_specific_treeviews(self, selected_tree, discarded_tree, dat_files, directory_path, series_name):
         '''
         Function to fill selected and discarded tree view with tree representations of experiments containing only one
@@ -119,7 +119,9 @@ class TreeViewManager():
 
         # no database interaction needed when treeview will be created - therefore database mode == 0
         self.create_treeview_from_directory(selected_tree,discarded_tree,dat_files,directory_path,0,series_name)
+    """
 
+    """ @deprecated dz 30.11.2022
     def insert_parent_into_treeview_from_database(self,selected_tree,discarded_tree, parent,experiment_name,discarded_state, specific_series_name):
         # insert the created parent
         selected_tree.addTopLevelItem(parent)
@@ -146,9 +148,12 @@ class TreeViewManager():
         selected_tree = self.add_meta_data_combo_box_and_assign(experiment_name, selected_tree, parent)
         # add correct meta data group
         # tree = self.add__meta_data_combo_box_and_assign_correctly(tree, parent)
+    
+    """
 
+    """ @deprecated dz 30.11.2022
     def create_treeview_from_database(self,experiment_label,specific_series_name=None, progress_callback = None):
-        """ read through the database and fill the trees of selected and discarded items"""
+        #read through the database and fill the trees of selected and discarded items
 
         # discarded = False = means read all selected items
         self.fill_treeview_from_database(experiment_label,False, specific_series_name, progress_callback)
@@ -156,12 +161,11 @@ class TreeViewManager():
 
         if progress_callback:
             self.database.database.close()
+    
+    """
 
+    """ @deprecated dz 30.11.2022
     def load_from_database_treeview(self,experiment_tuple, progress_callback = None):
-        """ should the callback function to fill three iteratively
-        @params experiment_tuple: tuple of experiment names consist of ...()
-        @params progress_callback: progress signal emit should be None as default
-        """
 
         # unpack the tuple
         experiment, series_identifier_tuple, specific_series_name, discarded_state = experiment_tuple
@@ -204,16 +208,14 @@ class TreeViewManager():
             else:
                 self.fill_tree_gui(treeview_tuple)
 
-        
+    """
+    """ @deprecated dz 30.11.2022
     def call_progress(self, experiment_tuple, progress_callback):
-        """ should be called whenever the signal from the main thread is emitted
-        and the tree is finally written.
-        @params experiment_tuple: tuple of experiment names
-        @params progress_callback: progress signal emit
-        """
         self.logger.info("Progress is emitted successfully to the Main Thread")
         progress_callback.emit(experiment_tuple)
+    """
 
+    """
     def fill_tree_gui(self, experiment_tuple):
         series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier, discarded_state = experiment_tuple
         top_level_item_amount = tree.topLevelItemCount()
@@ -224,13 +226,11 @@ class TreeViewManager():
                 parent = QTreeWidgetItem(tree)  # be carefull: this command immediately adds an item to the tree !
             else:
                 parent = QTreeWidgetItem(top_level_item_amount)
+    
+    """
 
+    """
     def fill_tree_gui_deprecated(self, experiment_tuple):
-        """ Redo Treeview Function
-        This function should only write the tree without any further functionality
-        We split the Thread from the Gui
-        @params experiment_tuple: tuple of experiment names
-        """
         # unpack the tuple
         series_identifier_list, experiment, specific_series_name, tree, discarded_tree, tuple_identifier,discarded_state = experiment_tuple
         top_level_item_amount = tree.topLevelItemCount()
@@ -293,7 +293,7 @@ class TreeViewManager():
         self.tree_build_finished.finished_signal.emit()
         self.experiment_tree_finished.finished_signal.emit()
 
-
+    """
 
     def fill_treeview_from_database(self,experiment_label,discarded_state, specific_series_name, progress_callback = None):
         """

@@ -24,6 +24,7 @@ class TreeModel(QAbstractItemModel):
 
         self.rootItem = TreeItem(header)
         self.setupModelData(data_df, self.rootItem)
+        self.parent_dict = None
 
     def columnCount(self, parent):
         if parent.isValid():
@@ -51,7 +52,10 @@ class TreeModel(QAbstractItemModel):
 
         item = index.internalPointer()
 
-        return item.itemData
+        if item.data(index.column()) == "x":
+            return item.data(index.column())
+        else:
+            return item.itemData
 
     def flags(self, index):
         if not index.isValid():
@@ -146,3 +150,5 @@ class TreeModel(QAbstractItemModel):
                     new_parent = TreeItem(list_for_one_item, parent)
                     parent_dict.update({str(item[0]): new_parent})
                     parent.appendChild(new_parent)
+
+        self.parent_dict = parent_dict

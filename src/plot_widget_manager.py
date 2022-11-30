@@ -94,13 +94,29 @@ class PlotWidgetManager(QRunnable):
         self.analysis_functions_table_widget = analysis_functions_table_widget
         print("table widget was set")
 
+    def handle_tree_view_click(self, model, index):
+        print("click found")
+        tree_item_list = model.get_data_row(index, Qt.DisplayRole)
+        print(tree_item_list)
+        print(type(tree_item_list))
+
+        if type(tree_item_list) == str:
+            if tree_item_list == "x":
+                print("discard")
+            if tree_item_list == "<-":
+                print("reinsert")
+        else:
+            if tree_item_list[4] == "Series":
+                self.table_view_series_clicked_load_from_database(tree_item_list[5], tree_item_list[3])
+
+    """ @deprecated dz 30.11.2022
     def tree_view_click_handler(self, item):
-        """
-        handle all incoming clicks in the treeview related to plotting
-        @param item: treeviewitem
-        @return:
-        :author: dz, 21.07.2022
-        """
+        
+        #handle all incoming clicks in the treeview related to plotting
+        #@param item: treeviewitem
+        #@return:
+        #:author: dz, 21.07.2022
+        
         print(f'Text of first column in item is {item.text(0)}')
 
         try:
@@ -116,7 +132,7 @@ class PlotWidgetManager(QRunnable):
             print(e)
             print("experiment was clicked")
             self.series_in_treeview_clicked(item.child(0))
-
+    """
     def sweep_in_treeview_clicked(self,item):
         if self.analysis_mode == 0:
             self.sweep_clicked_load_from_dat_file(item)
@@ -924,79 +940,6 @@ class PlotWidgetManager(QRunnable):
             print("all good")
             print(e)
 
-        #self.plot_widget.removeItem(self.left_coursor)
-        #self.plot_widget.removeItem(self.right_cursor)
-
-    """
-    # deprecated dz 30.06.2022
-    def series_clicked(self,item):
-        self.plot_widget.clear()
-        print("series clicked")
-        children = item.childCount()
-        series_name = item.text(0)
-        # reset the time array -> will be created new from the first sweep
-        self.time = None
-        if not item.checkState(1):
-            # go through the tree and uncheck all
-
-            if self.analysis_mode == 0:
-                db = None
-            else:
-                db = self.offline_manager.get_database()
-
-            # tree view manager can handle none db object
-            TreeViewManager(db).uncheck_entire_tree(self.tree_view)
-            item.setCheckState(1, Qt.Checked)
-
-            for c in range(0,children):
-
-                child = item.child(c)
-                child.setCheckState(1, Qt.Checked)
-                data_request_information = child.data(3,0)
-
-                if self.analysis_mode == 0:
-                    data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-                    meta_data_array = child.data(5,0)
-                else:
-                    # get data as numpy array
-                    data = db.get_single_sweep_data_from_database(data_request_information)
-
-                    # get meta data as dict {'key':['value'], .. .}
-                    meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
-                    debug  = 0
-
-
-                # only calc the time once for all sweeps
-                if self.time is None:
-                    self.time = self.get_time_from_meta_data(meta_data_array)
-                    recording_mode = self.get_recording_mode(meta_data_array)
-                    '''
-                    if self.analysis_mode:
-                        self.offline_manager.write_ms_spaced_time_array_to_analysis_series_table(self.time,series_name)
-                        self.offline_manager.write_recording_mode_to_analysis_series_table(recording_mode,series_name)
-                    '''
-                    self.y_unit = self.get_y_unit_from_meta_data(meta_data_array)
-
-                if self.y_unit == "V":
-                    y_min,y_max=self.get_y_min_max_meta_data_values(meta_data_array)
-                    data = np.interp(data, (data.min(), data.max()), (y_min,y_max))
-
-                self.plot_widget.plot(self.time, data)
-                self.plot_widget.plotItem.setMouseEnabled(x=True, y=True)
-                #y_axis_item = pg.AxisItem(orientation='left',units = self.y_unit)
-                #y_axis_item.enableAutoSIPrefix(True)
-                #self.plot_widget.addItem(y_axis_item)
-                self.plot_widget.setLabel(axis='left', text=self.y_unit)
-                self.plot_widget.setLabel(axis='bottom', text='Time (ms)')
-
-
-
-
-        else:
-            item.setCheckState(1,Qt.Unchecked)
-            for c in range(0, children):
-                item.child(c).setCheckState(1, Qt.Unchecked)
-    """
 # from QCore
 class CursorBoundSignal(QObject):
     cursor_bound_signal = Signal(tuple)
