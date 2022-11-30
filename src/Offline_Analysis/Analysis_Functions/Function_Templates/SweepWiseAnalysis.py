@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-from statistics import mean
 import seaborn as sns
+import matplotlib.pyplot as plt
+from statistics import mean
 
 class SweepWiseAnalysisTemplate(object):
 	"""
@@ -274,249 +275,22 @@ class SweepWiseAnalysisTemplate(object):
 		print("not implemented for sweep wise")
 
 	@classmethod
-	def visualize_results(self, parent_widget, canvas, visualization_type):
+	def visualize_results(self, parent_widget):
 
 		result_table_names = self.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
-
-		if visualization_type == "No Split":
-			print("no split visualization")
-			self.simple_plot(parent_widget, canvas, result_table_names)
-
-		if visualization_type == "Split by Meta Data":
-			print("metadata mean visualization")
-			self.plot_mean_per_meta_data(parent_widget, canvas, result_table_names)
-			#print("not implemented")
-
-		if visualization_type =="Boxplot":
-			print("boxplot visualization")
-			self.make_boxplot(parent_widget, canvas, result_table_names)
-
+		return result_table_names
 
 	@classmethod
-	def make_boxplot(self,parent_widget, canvas, result_table_list):
-
-		meta_data_groups = []
-		meta_data_specific_df = []
-
-		for table in result_table_list:
-
-			self.database.database.execute(f'select * from {table}')
-			query_data_df = self.database.database.fetchdf()
-
-			print("querried data look like this")
-			print(query_data_df)
-
-			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-				f'specific_result_table_name = \'{table}\'))'
-
-			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
-
-			# index has the same name as the function. Will not work if the names differ.
-			try:
-				x_data = 1000* query_data_df['Result'].values.tolist()[0]
-			except Exception as e:
-				break
-
-			print("xdata  data look like this")
-			print(x_data)
-
-			if meta_data_group in meta_data_groups:
-				specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-				specific_df.insert(0, str(table), x_data, True)
-				meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-			else:
-				# add a new meta data group
-				meta_data_groups.append(meta_data_group)
-				meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
-
-		# print(meta_data_specific_df[0])
-
-		# make the boxplot
-		ax = canvas.figure.subplots()
-
-		boxplot_matrix = []
-		for meta_data in meta_data_specific_df:
-			boxplot_matrix.append(meta_data.iloc[0].values)
-
-		# no nan handling required since sweeps without an AP are not stored in the dataframe
-		filtered_box_plot_data = boxplot_matrix
-
-		# print(filtered_box_plot_data)
-
-		# make custom labels containing the correct meta data group and the number of evaluated cells
-		custom_labels = []
-
-		for i in range(0, len(meta_data_groups)):
-			custom_labels.append(meta_data_groups[i] + ": " + str(len(filtered_box_plot_data[i])))
-
-		plot = ax.boxplot(filtered_box_plot_data,  # notch=True,  # notch shape
-						  vert=True,  # vertical box alignment
-						  patch_artist=True)
-
-		# ax.violinplot(filtered_box_plot_data)
-		ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
-		ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
-
-		default_colors = ['k', 'b', 'r', 'g', 'c']
-
-		for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
-			patch.set_facecolor(color)
-
-		ax.legend(plot['boxes'], custom_labels, loc='upper left')
-
-		parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
-		parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
-		parent_widget.export_data_frame.columns = meta_data_groups
-
-
-	@classmethod
-	def simple_plot(self, parent_widget, canvas, result_table_list):
-		"""
-		Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
-		:param analysis_specific_plot_widget:
-		:param result_list:
-		:param number_of_series:
-		:return:
-		:author: dz, 11.07.2022
-		"""
-		ax = canvas.figure.subplots()
-		plot_data_frame = pd.DataFrame()
-		meaned_dict = {"mean":[], "experiment_name":[]}
-		for table in result_table_list:
-			y_data, x_data, experiment_name, increment, sweep_table = self.fetch_x_and_y_data(table)
-			new_df = pd.DataFrame(y_data, index=x_data,columns=[table])
-			#plot_data_frame  = pd.concat([plot_data_frame,new_df], axis=1
-			if increment > 0:
-				plot_data_frame  = pd.concat([plot_data_frame, new_df], axis = 1)
-				try:
-					ax.plot(x_data,y_data, 'k', label=experiment_name)
-					#parent_widget.export_data_frame.insert(0, experiment_name, y_data)
-				except Exception as e:
-					print(e)
-					print(experiment_name)
-		
-			else:
-				print("increment is zero implicating no function")
-				meaned_dict["mean"].extend(new_df[table].tolist())
-				meaned_dict["experiment_name"].extend([experiment_name]*len(new_df[table].tolist()))
-
-		if meaned_dict["mean"]:
-			g =sns.boxplot(x = meaned_dict["experiment_name"],y = meaned_dict["mean"], ax = ax)
-			sns.swarmplot(x = meaned_dict["experiment_name"],y = meaned_dict["mean"], ax = ax)
-			#ax.plot(meaned_dict["experiment_name"],meaned_dict["mean"])
-			ax.set_xticklabels(g.get_xticklabels(),rotation=45)
-		
-
-		box = ax.get_position()
-		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-		# Put a legend below current axis
-		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-		canvas.figure.tight_layout()
-		canvas.show()
-
-		print(plot_data_frame)
-		parent_widget.export_data_frame = plot_data_frame
-		print("succesfully stored data")
-
-
-	@classmethod
-	def plot_mean_per_meta_data(self, parent_widget, canvas, result_table_list):
-		"""
-		before a mean can be plotted, it needs to be calculated first for each single meta data group
-		"""
-
-		meta_data_groups = []
-		meta_data_specific_df = []
-		y_data = []
-
-		for table in result_table_list:
-
-			# get the meta data group for each result table:
-			# 1) from the specific result table load the sweep_table name
-			y_data, x_data, sweep_table_names, increment, sweep_table_names = self.fetch_x_and_y_data(table)
-
-			# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
-			# therefore make lists of each tuple "column"
-			# 2) get experiment_name from experiment_series table and join with experiments table to get meta_data_group
-			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from experiment_series where Sweep_Table_Name = \'{sweep_table_names[0]}\')'
-			meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
-
-			if meta_data_group in meta_data_groups:
-				try:
-					specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-					specific_df.insert(0, str(result_table_list.index(table)), x_data, True)
-					meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-				except Exception as e:
-					print("an error occured in split by meta data")
-					print(e)
-					print("the following table will not be added to results")
-					print(table)
-			else:
-				# add a new meta data group
-				meta_data_groups.append(meta_data_group)
-				# start a new dataframe
-				new_df = pd.DataFrame()
-				new_df.insert(0,str(result_table_list.index(table)),x_data,True)
-				meta_data_specific_df.append(pd.DataFrame(np.array(x_data)))
-
-			print("finished meta data group calculation")
-		ax = canvas.figure.subplots()
-
-		plot_data_frame = pd.DataFrame()
-
-		for group in meta_data_groups:
-
-			# convert dataframe into numpy array = list of lists
-			df_as_numpy_array = meta_data_specific_df[meta_data_groups.index(group)].to_numpy()
-			mean_coordinate_value = []
-			calc_std = []
-
-			# for each row a mean will be calculated: each row reflects one sweep .. eg.
-			# 			recording1 # recording2 # recording3
-			# sweep 1
-
-			for coordinate_row in df_as_numpy_array:
-				print(coordinate_row)
-				try:
-					mean_coordinate_value.append(np.mean(coordinate_row))
-					calc_std.append(np.std(coordinate_row)/np.sqrt(np.size(coordinate_row)))
-				except Exception as e:
-					print(e)
-					print(coordinate_row)
-
-			custom_label = group + ": n = " + str(np.size(df_as_numpy_array[0]))
-			try:
-				ax.errorbar(y_data,mean_coordinate_value, calc_std, mfc = 'k', label=custom_label)
-				plot_data_frame = pd.concat([plot_data_frame,pd.DataFrame(mean_coordinate_value,index=y_data,columns=[group])],axis=1 )
-
-			except Exception as e:
-					print(e)
-					print(group)
-
-		box = ax.get_position()
-		ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-		# Put a legend below current axis
-		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-		canvas.show()
-
-		print(plot_data_frame)
-		parent_widget.export_data_frame = plot_data_frame
-		print("succesfully stored data")
-
-
-	@classmethod
-	def fetch_x_and_y_data(self, table_name):
+	def fetch_x_and_y_data(self, table_name,database):
 
 		#@todo move this function to the database class ?
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
 
 		table_name_increment = "pgf_table_" + "_".join(table_name.split("_")[-3:])
-		print(table_name_increment)
 		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result from {table_name}'
 		q_increment =f'select Increment from {table_name_increment}'
-		query_data = self.database.get_data_from_database(self.database.database, q)
-		query_increment = mean([float(t) for i in self.database.get_data_from_database(self.database.database, q_increment) for t in i])
+		query_data = database.get_data_from_database(database.database, q)
+		query_increment = mean([float(t) for i in database.get_data_from_database(database.database, q_increment) for t in i])
 		
 		# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
 		# therefore make lists of each tuple "column"
@@ -525,7 +299,7 @@ class SweepWiseAnalysisTemplate(object):
 		sweep_tables = (list(zip(*query_data))[0])
 
 		q = """select experiment_name from experiment_series where sweep_table_name = (?)"""
-		experiment_name = self.database.get_data_from_database(self.database.database, q,
+		experiment_name = database.get_data_from_database(database.database, q,
 														  [query_data[0][0]]) [0][0]
 		return x_data, y_data, experiment_name, query_increment, sweep_tables
 
@@ -561,7 +335,6 @@ class SweepWiseAnalysisTemplate(object):
 		meta_data_types = list(dict.fromkeys(meta_data_groups))
 
 		x_data, y_data, series_names = self.fetch_x_and_y_data(result_list, number_of_sweeps)
-
 		# analysis_specific_plot_widget.addLegend()
 
 		ax = canvas.figure.subplots()
@@ -575,8 +348,209 @@ class SweepWiseAnalysisTemplate(object):
 				if m == meta_data_group:
 					pos = meta_data_types.index(m)
 					ax.plot(x_data[a], y_data[a], self.default_colors[pos], label=series_names[a])
-
+					
 			ax.legend()
+
+	@classmethod
+	def boxplot_calc(self, result_table_list, database):
+		"""
+
+		"""
+		meta_data_groups = []
+		meta_data_types = []
+		x_list = []
+
+		for table in result_table_list:
+
+			database.database.execute(f'select * from {table}')
+			query_data_df = database.database.fetchdf()
+
+			print("querried data look like this")
+			print(query_data_df)
+
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+				f'specific_result_table_name = \'{table}\'))'
+
+			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+			print(meta_data_group)
+			# index has the same name as the function. Will not work if the names differ.
+			#TODO scaling 
+			try:
+				x_data = 1000* query_data_df['Result'].values.tolist()[0]
+			except Exception as e:
+				print(e)
+				break
+
+			print("xdata  data look like this")
+			print(x_data)
+
+			if meta_data_group in meta_data_groups:
+				meta_data_types.append(meta_data_group)
+				x_list.append(x_data)
+			else:
+				# add a new meta data group
+				meta_data_groups.append(meta_data_group)
+				meta_data_types.append(meta_data_group)
+				x_list.append(x_data)
+		
+		boxplot_df = pd.DataFrame()
+		boxplot_df["values"] = x_list
+		boxplot_df["meta_data"] = meta_data_types
+
+		return boxplot_df
+		# no nan handling required since sweeps without an AP are not stored in the dataframe
+
+
+	@classmethod
+	# Here we should also denote if we have an increment for this we would need the location of the 
+	def simple_plot_calc(self, result_table_list, database):
+		"""
+		
+		"""
+		plot_data = {"Unit": [],"values":[], "name":[], "meta_data":[], "index":[]}
+		increment_list = []
+		for table in result_table_list:
+    			
+			try:
+				q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+				f'specific_result_table_name = \'{table}\'))'
+				y_data, x_data, experiment_name, increment, sweep_table = self.fetch_x_and_y_data(table, database)
+				meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+				plot_data["values"].extend(y_data)
+				plot_data["Unit"].extend(x_data)
+				plot_data["name"].extend(len(x_data) * [experiment_name])
+				plot_data["meta_data"].extend(len(x_data) * [meta_data_group])
+				plot_data["index"].extend(range(len(x_data)))
+				increment_list.append(increment)
+				
+			except Exception as e:
+				print(e)
+				break
+		print(len(set(plot_data["Unit"])))
+
+		if (len(set(plot_data["Unit"])) == 1) or  (mean(increment_list)==0):
+			increment = True
+		else:
+			increment = None
+
+		plot_dataframe = pd.DataFrame(plot_data)
+		return plot_dataframe, increment
+
+	@classmethod
+	def rheobase_calc(self, result_table_list, database):
+    		
+		meta_data_groups = []
+		first_ap = []
+		experiment_names = []
+
+		for table in result_table_list:
+			if "_max" not in table:
+				database.database.execute(f'select * from {table}')
+				experiment_name = "_".join(table.split("_")[-3:-1])
+				query_data_df = database.database.fetchdf()
+
+				q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+					f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+					f'specific_result_table_name = \'{table}\'))'
+
+				first_ap.extend(query_data_df["1st AP"])
+				meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+				if meta_data_group:
+					meta_data_groups.extend([meta_data_group])
+				else:
+					meta_data_groups.extend(["None"])
+				experiment_names.extend([experiment_name])
+
+		plot_dataframe = pd.DataFrame()
+		plot_dataframe["AP"] = first_ap
+		plot_dataframe["Meta_data"] = meta_data_groups
+		plot_dataframe["experiment_name"] = experiment_name
+		return plot_dataframe
+
+	@classmethod
+	def sweep_rheobase_calc(self, result_table_list, database):
+		"""Get the max voltage per sweep and make data ready for plotting
+
+		Args:
+			result_table_list (list): list of result table for series
+			database (database_handler): datadb Class which should handle the database
+
+		Returns:
+			plot_dataframe	pd.DataFrame: Dataframe containing the data for plotting
+		"""
+		meta_data_groups = []
+		max_voltage = []
+		current = []
+		experiment_names = []
+
+		for table in result_table_list:
+			if "_max" in table:
+				database.database.execute(f'select * from {table}')
+				experiment_name = "_".join(table.split("_")[-3:-1])
+				query_data_df = database.database.fetchdf()
+
+				q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+					f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+					f'specific_result_table_name = \'{table}\'))'
+
+				max_voltage.extend(query_data_df["max_voltage"])
+				current.extend(query_data_df["current"])
+				meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+				meta_data_groups.extend(query_data_df.shape[0]*[meta_data_group])
+				experiment_names.extend(query_data_df.shape[0]*[experiment_name])
+
+		plot_dataframe = pd.DataFrame()
+		plot_dataframe["voltage"] = max_voltage
+		plot_dataframe["current"] = current
+		plot_dataframe["Meta_data"] = meta_data_groups
+		plot_dataframe["experiment_name"] = experiment_name
+		return plot_dataframe
+
+	@classmethod
+	def rheoramp_calc(self, result_table_list, database):
+		meta_data_groups = []
+		result_df = pd.DataFrame()
+		count = []
+		rheo = []
+		meta_data = []
+		experiment_names = []
+
+		for table in result_table_list:
+			print(table)
+			experiment_name = "_".join(table.split("_")[-3:-1])
+			database.database.execute(f'select * from {table}')
+			query_data_df = database.database.fetchdf()
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+					f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+					f'specific_result_table_name = \'{table}\'))'
+
+			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+
+			rheobase = 1
+			for column in query_data_df:
+
+				data = query_data_df.get(column)
+				data = data.dropna(how='all')
+				data = data.values.tolist()
+				number = len(data)
+				if number == 0:
+					count.append(0)
+				else: 
+					count.append(number)
+				rheo.append("Rheo_"+str(rheobase) + "x")
+				rheobase += 1
+				meta_data.append(meta_data_group)
+				experiment_names.append(experiment_name)
+		
+
+		plot_dataframe = pd.DataFrame()
+		plot_dataframe["Number AP"] = count
+		plot_dataframe["Rheoramp"] = rheo
+		plot_dataframe["Meta_data"] = meta_data
+		plot_dataframe["experiment_name"] = experiment_names
+		return plot_dataframe
 
 
 

@@ -52,8 +52,8 @@ class TimeToMin(SweepWiseAnalysisTemplate):
         return super(TimeToMin,self).calculate_results()
 
     @classmethod
-    def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id):
-        return super(TimeToMin,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)
+    def visualize_results(self,custom_plot_widget, canvas, visualization):
+        return super(TimeToMin,self).visualize_results(custom_plot_widget)
 
     @classmethod
     def live_data(self, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,

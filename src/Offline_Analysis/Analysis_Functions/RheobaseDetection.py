@@ -14,7 +14,7 @@ class RheobaseDetection(object):
         self.analysis_function_id = None
         self.series_name = None
         self.database = None
-        self.plot_type_options = ["Boxplot"]
+        self.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
         self.lower_bound = None
         self.upper_bound = None
 
@@ -34,20 +34,20 @@ class RheobaseDetection(object):
 
         #print("Running Rheobase Detection")
         ap_detection_threshold = 0.01
-
+        
         series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
 
         # get the names of all data tables to be evaluated
         data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
-
+        self.get_max_values_per_sweep_table(data_table_names)
         # set to None, will be set once and should be equal for all data tables
         self.time = None
 
         for data_table in data_table_names:
             holding_value = None
-            increment_value = None
+            
             #print("processing new data table")
-
+            # here we should select which increment should be used 
             if self.time is None:
                 self.time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
@@ -70,8 +70,9 @@ class RheobaseDetection(object):
 
             # analyse by column
             for column in entire_sweep_table:
-
+                print(column)
                 self.data = entire_sweep_table.get(column)
+            
 
                 if series_specific_recording_mode != "Voltage Clamp":
                     y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
@@ -79,6 +80,8 @@ class RheobaseDetection(object):
 
                 sweep_number = column.split("_")
                 sweep_number = int(sweep_number[1])
+
+        
 
                 if np.max(self.data) > ap_detection_threshold:
 
@@ -129,90 +132,58 @@ class RheobaseDetection(object):
                         self.database.analysis_id, self.analysis_function_id, data_table, new_specific_result_table_name, result_data_frame)
                         break
 
+    @classmethod
+    def get_max_values_per_sweep_table(self, data_table_names):
+        """
+        Args:
+            data_table_names (list): list of Rheobase tables per experiment
+        """
+        
+        for data_table in data_table_names:
+            increment = 0
+            current_list = []
+            mean_voltage_list = []
+            series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
+            holding_value = None
+
+            if holding_value is None:
+                    print(f'requesting holding value for table {data_table}')
+                    increment_value = self.database.get_data_from_recording_specific_pgf_table(data_table, "increment", 1)
+            entire_sweep_table = self.database.get_entire_sweep_table_as_df(data_table)
+            number_of_sweeps = len(entire_sweep_table.columns)
+            column_names = list(entire_sweep_table.columns)
+            nat_sorted_columns = list(natsorted(column_names, key=lambda y: y.lower()))
+            entire_sweep_table = entire_sweep_table[nat_sorted_columns]
+
+            for column in entire_sweep_table:
+                    print(column)
+                    self.data = entire_sweep_table.get(column)
+                    if series_specific_recording_mode != "Voltage Clamp":
+                        y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+                        self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+                    
+                    mean_voltage_list.append(np.max(self.data))
+                    current_list.append(increment)
+                    increment += increment_value*1000
+            
+            meaned_rheobase = pd.DataFrame()
+            meaned_rheobase["current"] = current_list
+            meaned_rheobase["max_voltage"] = mean_voltage_list
+            mean_table_name = self.create_new_specific_result_table_name(
+                            self.database.analysis_id, data_table) + "_max"
+            self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
+                                                                                    self.analysis_function_id,
+                                                                                    data_table, 
+                                                                                    mean_table_name,
+                                                                                    meaned_rheobase)
 
     @classmethod
-    def visualize_results(self, parent_widget, canvas, visualization_type):
+    def visualize_results(self, parent_widget,canvas, visualization):
 
         result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
                                                            parent_widget.analysis_function_id)
 
-        # go through each result table, calculate the mean for each row, add to the correct meta_data_specific data frame
-
-        meta_data_groups = []
-        meta_data_specific_df = []
-
-        for table in result_table_list:
-            self.database.database.execute(f'select * from {table}')
-            query_data_df = self.database.database.fetchdf()
-
-
-            q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                f'specific_result_table_name = \'{table}\'))'
-
-            meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
-
-            x_data = np.mean(query_data_df['1st AP'].values)
-            #print(x_data)
-            if meta_data_group in meta_data_groups:
-                specific_df = meta_data_specific_df[meta_data_groups.index(meta_data_group)]
-                specific_df.insert(0, str(table), x_data, True)
-                meta_data_specific_df[meta_data_groups.index(meta_data_group)] = specific_df
-            else:
-                # add a new meta data group
-                meta_data_groups.append(meta_data_group)
-                meta_data_specific_df.append(pd.DataFrame({str(table): [x_data]}))
-
-            # print(meta_data_specific_df[0])
-
-            # make the boxplot
-        ax = canvas.figure.subplots()
-
-        boxplot_matrix = []
-        for meta_data in meta_data_specific_df:
-            boxplot_matrix.append(meta_data.iloc[0].values)
-
-        # no nan handling required since sweeps without an AP are not stored in the dataframe
-        filtered_box_plot_data = boxplot_matrix
-
-        #print(filtered_box_plot_data)
-
-        # make custom labels containing the correct meta data group and the number of evaluated cells
-        custom_labels = []
-
-        for i in range(0, len(meta_data_groups)):
-            custom_labels.append(meta_data_groups[i] + ": " + str(len(filtered_box_plot_data[i])))
-
-        plot = ax.boxplot(filtered_box_plot_data,  # notch=True,  # notch shape
-                          vert=True,  # vertical box alignment
-                          patch_artist=True)
-
-        # ax.violinplot(filtered_box_plot_data)
-        ax.set_xticks(np.arange(1, len(meta_data_groups) + 1), labels=meta_data_groups)
-        ax.set_xlim(0.25, len(meta_data_groups) + 0.75)
-
-        ax.set_ylabel("Injected Current [pA]")
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        default_colors = ['k', 'b', 'g', 'c', 'r']
-
-        for patch, color in zip(plot['boxes'], default_colors[0:len(plot['boxes'])]):
-            patch.set_facecolor(color)
-
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-        # Put a legend below current axis
-        ax.legend(plot['boxes'], custom_labels,loc='center left', bbox_to_anchor=(1, 0.5))
-
-        for i in range(1, len(filtered_box_plot_data) + 1):
-            y = filtered_box_plot_data[i - 1]
-            # Add some random "jitter" to the x-axis
-            x = np.random.normal(i, 0.04, size=len(y))
-            ax.plot(x, y, 'r.', alpha=0.8, picker=True)
-
-        parent_widget.export_data_frame = pd.DataFrame(filtered_box_plot_data)
-        parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
-        parent_widget.export_data_frame.columns = meta_data_groups
+        return result_table_list
 
     @classmethod
     def get_list_of_result_tables(self, analysis_id, analysis_function_id):

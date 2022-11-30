@@ -6,7 +6,7 @@ class MeanVoltage(SweepWiseAnalysisTemplate):
     def __init__(self):
         SweepWiseAnalysisTemplate.__init__(self)
         self.function_name = 'mean_voltage'
-        self.plot_type_options = ["Boxplot"]
+        self.plot_type_options = ["Boxplot", "Violinplot"]
 
     @classmethod
     def specific_calculation(self):
@@ -19,5 +19,5 @@ class MeanVoltage(SweepWiseAnalysisTemplate):
         return super(MeanVoltage,self).calculate_results()
 
     @classmethod
-    def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id):
-        return super(MeanVoltage,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)
+    def visualize_results(self,custom_plot_widget,canvas, visualization):
+        return super(MeanVoltage,self).visualize_results(custom_plot_widget)

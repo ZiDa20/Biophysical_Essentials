@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
+from Offline_Analysis.OfflinePlot import OfflinePlots
 
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
@@ -29,6 +30,7 @@ class OfflineAnalysisResultVisualizer():
         self.result_directory = ""
         self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
+        self.canvas = None
 
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
@@ -122,28 +124,28 @@ class OfflineAnalysisResultVisualizer():
         @param plot_type:
         @author dz, 13.07.2022
         """
-        analysis_id = parent_widget.analysis_id
-        analysis_function_id =  parent_widget.analysis_function_id
-
-        print("calling result list for")
-        print(analysis_id)
-        print(analysis_function_id)
-
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
-
-        print(parent_widget.analysis_name)
-        print(class_object().function_name)
-
-        canvas = self.handle_plot_widget_settings(parent_widget, class_object().plot_type_options)
+        self.canvas = self.handle_plot_widget_settings(parent_widget, class_object().plot_type_options)
 
         if plot_type is None:
             #if class_object.database is None:
             #    print("I am setting the database")
             class_object.database = self.database_handler
-            class_object.visualize_results(parent_widget, canvas, class_object().plot_type_options[0])
+            result_table_names = class_object.visualize_results(parent_widget, self.canvas, class_object().plot_type_options[0])
+            if result_table_names:
+                plot_type = class_object().plot_type_options[0]
+            else:
+                plot_type = None
         else:
-            class_object.visualize_results(parent_widget, canvas, plot_type)
+            result_table_names = class_object.visualize_results(parent_widget, self.canvas, plot_type)
+            if result_table_names:
+                plot_type = plot_type
+            else:
+                plot_type = None
+
+        OfflinePlots(parent_widget, plot_type, self.canvas, result_table_names, self.database_handler)
+    
 
 
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
@@ -158,11 +160,13 @@ class OfflineAnalysisResultVisualizer():
             # print("overriding existing plot widget")
 
             # remove the old plot if there is one already existing
-            parent_widget.plot_layout.takeAt(0)
+            for i in reversed(range(parent_widget.plot_layout.count())):
+                parent_widget.plot_layout.itemAt(i).widget().deleteLater()
+            #parent_widget.plot_layout.takeAt(0)
 
             # create a new plot and insert it into the already exsiting plot layout
-            canvas = FigureCanvas(Figure(figsize=(5, 3)))
-            parent_widget.plot_layout.addWidget(canvas)
+            self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            parent_widget.plot_layout.addWidget(self.canvas)
 
             # add options only once
             try:
@@ -174,7 +178,7 @@ class OfflineAnalysisResultVisualizer():
             except Exception as e:
                 print(str(e))
 
-            return canvas
+            return self.canvas
 
         except Exception as e:
             print(str(e))
@@ -215,4 +219,3 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
         self.single_analysis_visualization(parent_widget,new_text)
-

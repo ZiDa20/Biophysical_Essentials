@@ -579,7 +579,7 @@ class ActionPotentialFitting(object):
         parent_widget.export_data_frame = parent_widget.export_data_frame.transpose()
         parent_widget.export_data_frame.columns = meta_data_groups
 
-
+        return None
 
     @classmethod
     def run_late_register_feature(self):

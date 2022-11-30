@@ -14,7 +14,7 @@ class RheorampDetection(object):
         self.series_name = None
         self.analysis_function_id = None
         self.database = None  # database
-        self.plot_type_options = ["Boxplot"]
+        self.plot_type_options = ["Rheoramp-Single","Rheoramp-AUC"]
 
     @classmethod
     def calculate_results(self):
@@ -109,67 +109,8 @@ class RheorampDetection(object):
         result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
                                                           parent_widget.analysis_function_id)
 
-        meta_data_groups = []
-        result_df = pd.DataFrame()
+        return result_table_list
 
-        for table in result_table_list:
-
-            self.database.database.execute(f'select * from {table}')
-
-            query_data_df = self.database.database.fetchdf()
-
-            #print(table)
-            #print(query_data_df)
-
-
-            # in this case, each sweep column holds a list of tuples
-
-            q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                f'specific_result_table_name = \'{table}\'))'
-
-            meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
-
-            for column in query_data_df:
-
-                result_list = []
-
-                data = query_data_df.get(column)
-                data = data.dropna(how='all')
-                data = data.values.tolist()
-                #print(data)
-                float_list = []
-                for d in data:
-                    float_list.append(tuple(float(s) for s in d.strip("()").split(",")))
-
-                #print(float_list)
-
-                x_data = 0
-
-                try: # could fail if there are no tuples e.g. when no AP was detecteed only nans
-                    x_coordinates, y_coordinates = map(list, zip(*float_list))
-
-                    #print(x_coordinates)
-
-                    x_data = len(x_coordinates) # number of tuples
-
-                except Exception as e:
-                    print("Error")
-                    print(e)
-
-                tmp_df = pd.DataFrame([["sweep"+column,x_data,meta_data_group]], columns=["sweep_number","count", "meta_data_name"])
-
-                result_df = pd.concat([result_df, tmp_df])
-
-            print(result_df)
-
-        ax = canvas.figure.subplots()
-
-        # create a grouped boxplot
-
-        print(result_df)
-
-        sns.boxplot(data = result_df, x='sweep_number', y='count', hue = 'meta_data_name', ax = ax )
 
     @classmethod
     def get_list_of_result_tables(self, analysis_id, analysis_function_id):
