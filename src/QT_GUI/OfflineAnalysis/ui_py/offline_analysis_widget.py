@@ -67,6 +67,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
+        self.blank_analysis_plot_manager = None
         self.analysis_stacked = QStackedWidget()
         self.WidgetAnalysis.addWidget(self.analysis_stacked)
         self.hierachy_stacked_list = []
@@ -276,10 +277,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         discarded_view.setColumnHidden(4, True)
         discarded_view.setColumnHidden(5, True)
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1, False)
-
-        selected_view.clicked.connect(partial(self.handle_tree_view_click,model, self.blank_analysis_plot_manager))
-        discarded_view.clicked.connect(partial(self.handle_tree_view_click, model, self.blank_analysis_plot_manager))
+        if self.blank_analysis_plot_manager is None:
+                self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1, False)
+                selected_view.clicked.connect(partial(self.handle_tree_view_click,model, self.blank_analysis_plot_manager))
+                discarded_view.clicked.connect(partial(self.handle_tree_view_click, model, self.blank_analysis_plot_manager))
 
         self.dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
@@ -322,9 +323,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         data_pos = model.item_dict
         # ["experiment", "series", "remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
         tree_item_list = model.get_data_row(index, Qt.DisplayRole)
-        print("click", tree_item_list)
+        #print("click", tree_item_list)
 
         if tree_item_list[0] == "x":
+            print("x clicked")
             if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
                 # set the related series to discarded
                 self.database_handler.database.execute(f'update experiment_series set discarded = True where '
@@ -339,8 +341,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.update_treeviews()
                 return
 
-        elif tree_item_list[0] == "<-":
-            "I am reinserting"
+        if tree_item_list[0] == "<-":
+            print("<- clicked")
             if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
                 # set the related series to discarded
                 self.database_handler.database.execute(f'update experiment_series set discarded = False where '
@@ -348,15 +350,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                        f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\'')
                 self.update_treeviews()
                 return
+
             if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
+                print("x clicked")
                 # set all series of the related series to discarded
                 self.database_handler.database.execute(f'update experiment_series set discarded = False where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["experiment"]]}\' ')
+                                                           f'experiment_name = \'{tree_item_list[1][data_pos["experiment"]]}\' ')
                 self.update_treeviews()
                 return
-        elif tree_item_list[1][data_pos["hidden2_type"]] == "Series":
+
+        if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
+            print("series clicked")
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
+
 
     """ deprecated dz
     def load_worker_deprecated(self):

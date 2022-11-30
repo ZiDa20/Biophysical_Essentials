@@ -21,17 +21,9 @@ class TreeModel(QAbstractItemModel):
         print(self.item_dict)
 
         self.column_count = len(header)
-        self.selected_parent_dict = None
-        self.discarded_parent_dict = None
+        self.parent_dict = None
         self.discarded = discarded
-
-        if discarded:
-            self.parent_dict = self.discarded_parent_dict
-        else:
-            self.parent_dict = self.selected_parent_dict
-
         self.rootItem = TreeItem(header)
-
         self.setupModelData(data_df, self.rootItem)
 
 
@@ -158,7 +150,4 @@ class TreeModel(QAbstractItemModel):
                     parent_dict.update({str(item[0]): new_parent})
                     parent.appendChild(new_parent)
 
-        if self.discarded:
-            self.discarded_parent_dict = parent_dict
-        else:
-            self.selected_parent_dict = parent_dict
+        self.parent_dict = parent_dict
