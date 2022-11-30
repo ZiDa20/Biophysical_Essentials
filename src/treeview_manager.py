@@ -294,9 +294,9 @@ class TreeViewManager():
         self.experiment_tree_finished.finished_signal.emit()
 
     """
-
+    """@deprecated DZ 30.11.2022
     def fill_treeview_from_database(self,experiment_label,discarded_state, specific_series_name, progress_callback = None):
-        """
+        
         @param experiment_label: string of the experiment
         @param discarded_state: False or True - per default, all are False
         @param specific_series_name: can be None if the entire experiment should be displayed and has a specific series
@@ -304,7 +304,7 @@ class TreeViewManager():
         @progress_callback: should be signal which is connected via Qthreading, if qthread is active
         @return: nothing: fills the given tree objects which requires no additional return
         @author: dz, 16.08.2022
-        """
+        
 
         # get the experiments linked with this analysis number
         self.not_discard_experiments_stored_in_db = self.database.get_experiment_names_by_experiment_label(experiment_label,self.selected_meta_data_list)
@@ -322,7 +322,8 @@ class TreeViewManager():
             else:
                 self.load_from_database_treeview((experiment,series_identifier_tuple, specific_series_name, discarded_state)) # since this function has
                 #two calls we need to split between threading and non threading functions 
-   
+    
+    """
         
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory 
@@ -373,7 +374,7 @@ class TreeViewManager():
                 abf_list.append((abf_file_data, experiment_name))
         
         return bundle_list, abf_list
-       
+
 
     def write_directory_into_database(self,database, dat_files, abf_files, progress_callback):
         """ writes the bundle files as well as the pgf files and meta data files into the
@@ -420,8 +421,10 @@ class TreeViewManager():
         self.database.database.close()
         return "database closed"
 
-    def update_treeview(self,selected_tree,discarded_tree):
-        """ updates the treeview with the selected and discarded experiments following
+
+
+    def update_treeview(self):
+        """  updates the treeview with the selected and discarded experiments following
         database writing
         toDO: put this also in a thread to avoid sluggish tree loading when lots of data are loaded
         
@@ -430,7 +433,8 @@ class TreeViewManager():
            discarded_tree type: QTreeWidget - the tree that is updated with the discarded experiments
            
         returns:
-           None"""
+           None
+        """
         self.database.open_connection()
         self.logger.info("Database writing thread successfully finished") #
         #self.database.open_connection() # open the connection to the database in main thread
@@ -606,6 +610,7 @@ class TreeViewManager():
         self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
 
 
+    """ deprecated DZ 30.11.2022 
     def create_treeview_from_directory(self, tree, discarded_tree ,dat_files,directory_path,database_mode,series_name=None,tree_level=None):
         '''
         creates a treeview from multiple .dat files in a directory,
@@ -652,7 +657,7 @@ class TreeViewManager():
 
         return tree, discarded_tree
 
-
+    """
     def create_treeview_from_single_dat_file(self, index, bundle, parent, node_list, tree, discarded_tree,
                                              experiment_name, database,data_base_mode,pgf_tuple_data_frame=None, series_name=None, tree_level= None):
         """

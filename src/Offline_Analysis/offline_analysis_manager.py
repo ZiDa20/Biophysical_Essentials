@@ -165,7 +165,7 @@ class OfflineManager():
         worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste, abf_list)
         #worker.signals.progress.connect(self.progress_fn)
         #worker.signals.result.connect(self.set_database)
-        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
+        worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
          # signal to update progress bar
         self.threadpool.start(worker) # start the thread
 

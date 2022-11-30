@@ -94,20 +94,6 @@ class PlotWidgetManager(QRunnable):
         self.analysis_functions_table_widget = analysis_functions_table_widget
         print("table widget was set")
 
-    def handle_tree_view_click(self, model, index):
-        print("click found")
-        tree_item_list = model.get_data_row(index, Qt.DisplayRole)
-        print(tree_item_list)
-        print(type(tree_item_list))
-
-        if type(tree_item_list) == str:
-            if tree_item_list == "x":
-                print("discard")
-            if tree_item_list == "<-":
-                print("reinsert")
-        else:
-            if tree_item_list[4] == "Series":
-                self.table_view_series_clicked_load_from_database(tree_item_list[5], tree_item_list[3])
 
     """ @deprecated dz 30.11.2022
     def tree_view_click_handler(self, item):

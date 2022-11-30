@@ -4,7 +4,7 @@ import numpy as np
 
 
 class TreeModel(QAbstractItemModel):
-    def __init__(self, data_df, parent=None):
+    def __init__(self, data_df, discarded = None, parent=None):
         super(TreeModel, self).__init__(parent)
 
         # data frame with columns comes in
@@ -21,10 +21,19 @@ class TreeModel(QAbstractItemModel):
         print(self.item_dict)
 
         self.column_count = len(header)
+        self.selected_parent_dict = None
+        self.discarded_parent_dict = None
+        self.discarded = discarded
+
+        if discarded:
+            self.parent_dict = self.discarded_parent_dict
+        else:
+            self.parent_dict = self.selected_parent_dict
 
         self.rootItem = TreeItem(header)
+
         self.setupModelData(data_df, self.rootItem)
-        self.parent_dict = None
+
 
     def columnCount(self, parent):
         if parent.isValid():
@@ -52,10 +61,7 @@ class TreeModel(QAbstractItemModel):
 
         item = index.internalPointer()
 
-        if item.data(index.column()) == "x":
-            return item.data(index.column())
-        else:
-            return item.itemData
+        return (item.itemData[index.column()], item.itemData)
 
     def flags(self, index):
         if not index.isValid():
@@ -109,11 +115,9 @@ class TreeModel(QAbstractItemModel):
     def setupModelData(self, data_df, parent):
         # [item_name, parent, type, level, identifier]
         parents = [parent]
-        print(parents)
-
         parent_dict = {"root":parents[-1]}
-
-
+        print("incoming df ")
+        print(data_df)
         for i in np.unique(data_df["level"]):
             print("level = ", i)
 
@@ -127,7 +131,10 @@ class TreeModel(QAbstractItemModel):
 
                 list_for_one_item[i]=item[0]
 
-                list_for_one_item[self.item_dict["remove"]] = "x"
+                if self.discarded:
+                    list_for_one_item[self.item_dict["remove"]] = "<-"
+                else:
+                    list_for_one_item[self.item_dict["remove"]] = "x"
 
                 list_for_one_item[self.item_dict["hidden2_type"]]= item[2]
 
@@ -151,4 +158,7 @@ class TreeModel(QAbstractItemModel):
                     parent_dict.update({str(item[0]): new_parent})
                     parent.appendChild(new_parent)
 
-        self.parent_dict = parent_dict
+        if self.discarded:
+            self.discarded_parent_dict = parent_dict
+        else:
+            self.selected_parent_dict = parent_dict
