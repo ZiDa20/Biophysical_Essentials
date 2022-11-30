@@ -19,12 +19,14 @@ from QT_GUI.Settings.ui_py.settings_dialog import SettingsWindow
 from QT_GUI.DatabaseViewer.ui_py.database_viewer_widget import Database_Viewer
 
 import Figures_rc
+from frontend_style import Frontend_Style
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1418, 950)
+        
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

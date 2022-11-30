@@ -45,7 +45,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.progressbar = progress
         self.statusbar = status
-
         self.add_filter_button.setEnabled(False)
 
         

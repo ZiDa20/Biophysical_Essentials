@@ -6,8 +6,9 @@ class Frontend_Style():
 
         # style 0 = white mode
         # style 1 = dark mode
+        self.canvas = []
+        self.ax = []
         self.current_style = 1
-
         self.sideframe_light_style = u"QWidget{background-color: \"#FFFFFF\";}\n" \
                                 "QPushButton{padding: 10px 10px;"\
                                 "	        border: none;" \
@@ -74,3 +75,27 @@ class Frontend_Style():
             dialog.setStyleSheet(self.light_style)
         else:
             dialog.setStyleSheet(self.dark_style)
+            
+    def change_canvas_bright(self):
+        if len(self.ax) > 0:
+            for ax in self.ax:
+                ax.spines['bottom'].set_color('black')
+                ax.spines['left'].set_color('black') 
+                ax.xaxis.label.set_color('black')
+                ax.yaxis.label.set_color('black')
+                ax.tick_params(axis='x', colors='black')
+                ax.tick_params(axis='y', colors='black')
+                #canvas.draw_idle()
+            
+    
+    def change_canvas_dark(self):  
+        if len(self.ax) > 0:
+            for ax in self.ax:
+                ax.spines['bottom'].set_color('white')
+                ax.spines['left'].set_color('white') 
+                ax.xaxis.label.set_color('white')
+                ax.yaxis.label.set_color('white')
+                ax.tick_params(axis='x', colors='white') 
+                ax.tick_params(axis='y', colors='white')
+                #canvas.draw_idle()
+        

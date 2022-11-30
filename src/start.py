@@ -44,9 +44,11 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # introduce style sheet to be used by start .py
         self.frontend_style = Frontend_Style()
+        
         # distribute this style object to all other classes to be used
         # whenever the style will be changed, all classes share the same style object and adapt it's appearance
         self.ui.offline.frontend_style = self.frontend_style
+        self.ui.offline.result_visualizer.frontend_style = self.frontend_style
 
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
@@ -103,8 +105,6 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if sys.platform != "darwin":
             GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
-
-
         # set the animation 
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(100)
@@ -225,7 +225,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None; \n"
@@ -238,12 +238,13 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                         "\n")
                                                  
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
+            self.frontend_style.change_canvas_bright()
            
             
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
             self.apply_stylesheet(self, "hello.xml")
-            with open(os.path.dirname(os.getcwd()) + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
+            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
                                                     "background-repeat:None;\n"
@@ -255,7 +256,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     "\n"
                                                         "\n")
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
- 
+            self.frontend_style.change_canvas_dark()
             
 
         self.ui.config.set_darkmode(self.default_mode)

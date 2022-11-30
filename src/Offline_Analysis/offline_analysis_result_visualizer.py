@@ -25,6 +25,7 @@ class OfflineAnalysisResultVisualizer():
 
     def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
 
+        self.frontend_style = None
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
         self.result_directory = ""
@@ -144,9 +145,8 @@ class OfflineAnalysisResultVisualizer():
             else:
                 plot_type = None
 
-        OfflinePlots(parent_widget, plot_type, self.canvas, result_table_names, self.database_handler)
+        OfflinePlots(parent_widget, plot_type, self.canvas, result_table_names, self.database_handler, self.frontend_style)
     
-
 
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
         """
