@@ -96,9 +96,121 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         self.navigation_list = []
 
-        self.show_sweeps_radio.toggled.connect(partial(self.show_sweeps_toggled))
+        self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
+        self.show_colum.clicked.connect(self.add_meta_data_to_tree_view)
 
-        #self.show_sweeps_radio.toggle.connect(lambda: self.check_display_sweeps(self.show_sweeps_radio.isChecked()))
+    def add_meta_data_to_tree_view(self):
+        # open a selection popup
+        discarded_state  = False
+        q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
+        global_meta_data_table = self.database_handler.database.execute(q).fetchdf()
+
+        print(global_meta_data_table)
+
+        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+
+        # needs to be an ordered dict:
+        meta_data_list = ["condition", "sex"]
+        new_level = 0
+        parent = ["root"]
+        q = f'select experiment_name from global_meta_data where '
+
+        for meta_data in meta_data_list:
+            distinct_meta_data = global_meta_data_table[meta_data].unique().tolist()
+            print(meta_data, " : ",  distinct_meta_data)
+            q1 = q + meta_data + "="
+            new_parent = []
+            for d in distinct_meta_data:
+                for p in parent:
+                    new_parent.append(p+ "_" + d)
+                    new_item_df = pd.DataFrame({"item_name":[d], "parent":[p], "type":[meta_data], "level":[new_level],
+                                                "identifier":[p+ "_" + d]})
+
+                    df  =pd.concat([df, new_item_df])
+
+            new_level = new_level +1
+            parent = new_parent
+
+        print("sub result")
+        print(df)
+
+        combinations_to_request = df[df["level"]==new_level-1]["identifier"].values.tolist()
+        base = f'select experiment_name from global_meta_data where '
+        print(combinations_to_request)
+        for combination in combinations_to_request:
+            print(combination)
+            request_details = combination.split("_")
+            # get rid of the "root"
+            request_details.pop(0)
+            if len(request_details)!=len(meta_data_list):
+                print("this case is not implemented so far")
+            else:
+                q = base
+                for detail in range(0,len(request_details)):
+                    if detail == 0:
+                        q = q + " " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
+                    else:
+                        q = q + " and " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
+
+
+
+            # print("loading experiment_labels", self.selected_meta_data_list)
+            q2 = (
+                f'select experiment_name from experiment_series where discarded = {discarded_state} ' 
+                f'intersect (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id} '
+                f'intersect ( ' + q + ' ))'
+            )
+            print(q2)
+            parent_name_table = self.database_handler.database.execute(q2).fetchdf()
+            print(parent_name_table)
+
+            if not parent_name_table.empty:
+                tmp_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                tmp_df["item_name"] = parent_name_table["experiment_name"].values.tolist()
+                tmp_df["parent"] = combination
+                tmp_df["type"] = "Experiment"
+                tmp_df["level"] = new_level
+                tmp_df["identifier"] = parent_name_table["experiment_name"].values.tolist()
+                df = pd.concat([df, tmp_df])
+
+        print("finished")
+        print(df)
+
+        self.selected_model = TreeModel(df)
+        self.treebuild.selected_tree_view.setModel(self.selected_model)
+
+        if self.selected_model.header:
+            for i in range(0, len(self.selected_model.header)):
+                if i < len(self.selected_model.header) - 3:
+                    self.treebuild.selected_tree_view.setColumnHidden(i, False)
+                else:
+                    self.treebuild.selected_tree_view.setColumnHidden(i, True)
+
+
+        self.discarded_model = TreeModel(df, "discarded")
+        self.treebuild.discarded_tree_view.setModel(self.discarded_model)
+
+        for i in range(0, len(self.discarded_model.header)):
+            if i < len(self.discarded_model.header) - 3:
+                self.treebuild.discarded_tree_view.setColumnHidden(i, False)
+            else:
+                self.treebuild.discarded_tree_view.setColumnHidden(i, True)
+
+        if self.blank_analysis_plot_manager is None:
+            self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1,
+                                                                 False)
+            self.treebuild.selected_tree_view.clicked.connect(
+                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
+            self.treebuild.discarded_tree_view.clicked.connect(
+                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
+        else:
+            # make sure to disconnect from previous connections otherwise they will be called too
+            self.treebuild.selected_tree_view.clicked.disconnect()
+            self.treebuild.discarded_tree_view.clicked.disconnect()
+            self.treebuild.selected_tree_view.clicked.connect(
+                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
+            self.treebuild.discarded_tree_view.clicked.connect(
+                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
 
     def show_sweeps_toggled(self,signal):
         try:
@@ -337,7 +449,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         parent_name_table = self.database_handler.database.execute(q).fetchdf()
 
         df["item_name"] = parent_name_table["experiment_name"].values.tolist()
-        df["parent"] = None
+        df["parent"] = "root"
         df["type"] = "Experiment"
         df["level"] = 0
         df["identifier"] = parent_name_table["experiment_name"].values.tolist()

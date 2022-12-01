@@ -12,14 +12,18 @@ class TreeModel(QAbstractItemModel):
 
         self.header = []
         display_columns = data_df["type"].unique().tolist()
+        print(display_columns)
+        """
         if "Experiment" in display_columns:
             self.header.append("experiment")
         if "Series" in display_columns:
             self.header.append("series")
         if "Sweep" in display_columns:
             self.header.append("sweep")
+        """
 
-        self.header = self.header + ["remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
+        #self.header = self.header + ["remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
+        self.header = display_columns + ["remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
 
         # This can change in size according to unique types within input dataframe
         self.item_dict = {}
@@ -32,6 +36,8 @@ class TreeModel(QAbstractItemModel):
         self.parent_dict = None
         self.discarded = discarded
         self.rootItem = TreeItem(self.header)
+        root_parent = [self.rootItem][-1]
+        self.parent_dict = {"root":root_parent}
         self.setupModelData(data_df, self.rootItem)
 
 
@@ -122,8 +128,7 @@ class TreeModel(QAbstractItemModel):
 
     def setupModelData(self, data_df, parent):
         # [item_name, parent, type, level, identifier]
-        parents = [parent]
-        parent_dict = {"root":parents[-1]}
+
         print("incoming df ")
         print(data_df)
         for i in np.unique(data_df["level"]):
@@ -151,18 +156,26 @@ class TreeModel(QAbstractItemModel):
                 if item[2]=="Series":
                     list_for_one_item[self.item_dict["hidden1_identifier"]] = item[4]
 
+                parent = self.parent_dict.get(str(item[1]))
+                new_parent = TreeItem(list_for_one_item, parent)
+                if item[2]=="Series" or item[2]=="Sweep":
+                    parent_name = str(item[1]) + "_" + str(item[4])
+                    self.parent_dict.update({parent_name: new_parent})
+                    print("appending parent: ", parent_name)
+                else:
+                    self.parent_dict.update({str(item[4]): new_parent})
+                    print("appending parent",str(item[4]) )
+                parent.appendChild(new_parent)
+                """
                 if item[2]=="Experiment":
-                    root = parent_dict.get("root")
+                    root = self.parent_dict.get("root")
                     new_parent = TreeItem(list_for_one_item, root)
-                    parent_dict.update({str(item[0]): new_parent})
+                    self.parent_dict.update({str(item[4]): new_parent})
                     root.appendChild(new_parent)
 
                 else:
-                    parent = parent_dict.get(str(item[1]))
-                    new_parent = TreeItem(list_for_one_item, parent)
-                    parent_name = str(item[1])+"_"+str(item[4])
-                    parent_dict.update({parent_name: new_parent})
-                    parent.appendChild(new_parent)
+                """
 
 
-        self.parent_dict = parent_dict
+
+        #self.parent_dict = parent_dict
