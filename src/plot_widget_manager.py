@@ -135,7 +135,7 @@ class PlotWidgetManager(QRunnable):
             self.check_live_analysis_plot(item,"series")
 
 
-    def check_live_analysis_plot(self,item, level):
+    def check_live_analysis_plot(self,item_text,experiment_name,identifier, level):
         """
         calculate values to be plotted in the "live plot" feature during analysis
         @param item:
@@ -143,7 +143,9 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 29.09.2022
         """
-        print("checking live analysis for item ", item.text(0))
+        print("checking live analysis for item ", item_text)
+        print(experiment_name)
+        print(identifier)
         if self.analysis_functions_table_widget is not None:
             row_count = self.analysis_functions_table_widget.rowCount()
             # iterate through the rows of the table,
@@ -159,15 +161,9 @@ class PlotWidgetManager(QRunnable):
                     analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
                     db = self.offline_manager.get_database()
                     if level == "series":
-                        experiment_series_tuple = item.data(3, 0)
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,
-                                                                    experiment_series_tuple[0],
-                                                                    experiment_series_tuple[1], db)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier, db)
                     else:
-                        experiment_series_tuple = item.parent().data(3, 0)
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,
-                                                                    experiment_series_tuple[0],
-                                                                    experiment_series_tuple[1], db, item.text(0))
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,db, item_text)
 
                     print(x_y_tuple)  # only works if parent = experiment
                     self.plot_scaling_factor = 1e9
@@ -386,7 +382,7 @@ class PlotWidgetManager(QRunnable):
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
-    def sweep_clicked_load_from_dat_database(self,item):
+    def table_view_sweep_clicked_load_from_database(self, experiment_name, series_identifier, sweep_name):
         """
         visualizes the sweep when clicked on it in the treeview
         @param item: treeview item, contains text at pos 0 and data request information at pos 3,0
@@ -394,16 +390,16 @@ class PlotWidgetManager(QRunnable):
         :author: dz, modified 29.09.2022
         """
         print("sweep clicked")
-        print(item.text(0))
-        name = item.text(0)
+        print(experiment_name)
+        print(series_identifier)
+        print(sweep_name)
         split_view = 1
-        data_request_information = item.parent().data(3, 0)
         db = self.offline_manager.get_database()
-        series_df = db.get_sweep_table_for_specific_series(data_request_information[0], data_request_information[1])
+        series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
         print(series_df)
         # get the meta data to correctly display y values of traces
-        meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],
-                                                                 data_request_information[1])
+        meta_data_df = db.get_meta_data_table_of_specific_series(experiment_name,
+                                                                 series_identifier)
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
 
         self.time = self.get_time_from_meta_data(meta_data_df)
@@ -421,11 +417,16 @@ class PlotWidgetManager(QRunnable):
             self.ax1 = self.canvas.figure.subplots()
             self.ax2 = self.ax1.twinx()
 
-        data = series_df[item.text(0)].values.tolist()
+
+        print("error here")
+        print(series_df)
+        print(sweep_name)
+
+        data = series_df[sweep_name].values.tolist()
         data = np.array(data)
 
         if self.y_unit == "V":
-            y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, name)
+            y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, sweep_name)
             data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
             # data scaling to mV
             self.plot_scaling_factor = 1000
@@ -435,10 +436,10 @@ class PlotWidgetManager(QRunnable):
 
         self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k')
 
-        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],
-                                                                                        data_request_information[1])
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
+                                                                                        series_identifier)
 
-        sweep_number = item.text(0).split("_")
+        sweep_number = sweep_name.split("_")
         sweep_number = int(sweep_number[1])
 
         protocol_steps = self.plot_pgf_signal(pgf_table_df, data, sweep_number)
@@ -454,14 +455,15 @@ class PlotWidgetManager(QRunnable):
 
         self.handle_plot_visualization()
 
+    """ @deprecated DZ 01.12.2022
     def series_clicked_load_from_database(self,item):
-        """
+        
         When a series was clicked, data arrays all of its sweeps signal traces will be plotted.
         The data therefore will be loaded live from the database.
         :param item:
         :return:
         :author: dz, 29.06.2022
-        """
+        
         print("%s series was clicked", item.text(0))
         split_view = True
 
@@ -546,7 +548,7 @@ class PlotWidgetManager(QRunnable):
             #self.ax1.axvline(x_pos, c = 'tab:gray')
 
         self.handle_plot_visualization()
-
+    """
 
 
     def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):

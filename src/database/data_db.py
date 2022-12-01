@@ -492,8 +492,10 @@ class DuckDBDatabaseHandler():
         :param series_name:
         :return:
         '''
-        q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_identifier = (?)"""
-        res = self.database.execute(q, (experiment_name, series_identifier)).fetchdf()
+        q = f'select sweep_table_name from experiment_series where experiment_name = \'{experiment_name}\' AND series_identifier = \'{series_identifier}\''
+        print("hello", q)
+        res = self.database.execute(q).fetchdf()
+
         return res["sweep_table_name"].tolist()[0]
 
     def get_entire_sweep_table(self, table_name):
