@@ -295,6 +295,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)
         self.plot_zoom.clicked.connect(navigation.zoom)
+        self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         print("finished loading")
         # show selected tree_view
@@ -789,13 +790,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
                     statistics_table_widget.statistics_table_widget.show()
 
-                self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
-                self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
-                self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
+                
                 start_statistics = QPushButton("Run Statistic Test")
                 statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
 
                 start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
+            self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
+            self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
+            self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
 
     def calculate_statistics(self,statistics_table:QTableWidget):
         print("calculating statistic")

@@ -29,7 +29,6 @@ class PlotWidgetManager(QRunnable):
         mode 0: values will be read directly from the .dat file
         mode 1: values will be read from the database provided from the offline manager object
         """
-        pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
         self.detection_mode = detection
 
@@ -41,9 +40,10 @@ class PlotWidgetManager(QRunnable):
             print(e)
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
+        self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         self.vertical_layout = vertical_layout_widget
         self.toolbar_widget = toolbar_widget
-
+       
         """
         print("toolbar")
         try:
@@ -198,16 +198,7 @@ class PlotWidgetManager(QRunnable):
         fig = self.canvas.figure
         fig.clf()
 
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
+        
         data_request_information = item.data(3, 0)
         self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
 
@@ -232,7 +223,7 @@ class PlotWidgetManager(QRunnable):
                 self.plot_scaling_factor = 1e9
 
 
-        self.ax1.plot(self.time, self.data * self.plot_scaling_factor, c='k')
+        self.ax1.plot(self.time, self.data * self.plot_scaling_factor, c='yellow', alpha = 0.5)
 
         print("plotting sweep")
         print(item.text(0))
@@ -488,6 +479,25 @@ class PlotWidgetManager(QRunnable):
         self.ax1.spines['right'].set_visible(False)
         self.ax2.spines['top'].set_visible(False)
         self.ax2.spines['right'].set_visible(False)
+        self.ax1.patch.set_alpha(0)
+        self.ax2.patch.set_alpha(0)
+        
+        self.ax1.spines['bottom'].set_color('white')
+        self.ax1.spines['left'].set_color('white') 
+        self.ax1.xaxis.label.set_color('white')
+        self.ax1.yaxis.label.set_color('white')
+        self.ax1.tick_params(axis='x', colors='white') 
+        self.ax1.tick_params(axis='y', colors='white')
+        
+        self.ax2.spines['bottom'].set_color('white')
+        self.ax2.spines['left'].set_color('white') 
+        self.ax2.xaxis.label.set_color('white')
+        self.ax2.yaxis.label.set_color('white')
+        self.ax2.tick_params(axis='x', colors='white') 
+        self.ax2.tick_params(axis='y', colors='white')
+        
+        self.canvas.figure.patch.set_alpha(0)
+        self.canvas.figure.tight_layout()
         self.ax2.set_xlabel('Time [ms]')
         if self.y_unit == "V":
             self.ax1.set_ylabel('Voltage [mV]')
@@ -583,7 +593,7 @@ class PlotWidgetManager(QRunnable):
                 else:
                     self.ax2.plot(self.time, pgf_signal, c='r')
             else:
-                self.ax2.plot(self.time, pgf_signal, c='k')
+                self.ax2.plot(self.time, pgf_signal, c='yellow', alpha = 0.5)
             print("finished sweep %s", sweep_number)
 
         return protocol_steps
@@ -630,7 +640,7 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        self.ax2.plot(self.time, pgf_signal, c = 'k')
+        self.ax2.plot(self.time, pgf_signal, c = 'yellow', alpha = 0.5)
 
         return protocol_steps
 
@@ -775,8 +785,6 @@ class PlotWidgetManager(QRunnable):
             print("all good")
             print(e)
 
-        #self.plot_widget.removeItem(self.left_coursor)
-        #self.plot_widget.removeItem(self.right_cursor)
 
     """
     # deprecated dz 30.06.2022

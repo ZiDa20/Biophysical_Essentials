@@ -19,7 +19,7 @@ class SweepWiseAnalysisTemplate(object):
 		self.voltage = None
 
 		self.database = None  # database
-		self.plot_type_options = ["No Split", "Split by Meta Data"]
+		self.plot_type_options : list = ["No Split", "Split by Meta Data"]
 
 		self.cslow_normalization = 1
 
@@ -34,18 +34,20 @@ class SweepWiseAnalysisTemplate(object):
 		self.series_name = None
 
 	@property
-	def lower_bounds(self):
-		""" get the lower and upper bounds """
+	def lower_bounds(self) -> float:
+		""" get the lower and upper bounds 
+  		
+    	"""
 		print("The lower bound: ")
 		return self._lower_bounds
 
 	@property
-	def upper_bounds(self):
+	def upper_bounds(self) -> float:
 		print("The upper bound: ")
 		return self._upper_bounds
 
 	@lower_bounds.setter
-	def lower_bounds(self, lower_bound):
+	def lower_bounds(self, lower_bound: float):
 		""" set the lower and upper bound """
 		if type(lower_bound) in [int, float]:
 			self._lower_bounds = lower_bound
@@ -53,7 +55,7 @@ class SweepWiseAnalysisTemplate(object):
 			raise TypeError("Wrong Input please specificy floats")
 
 	@upper_bounds.setter
-	def upper_bounds(self, upper_bound):
+	def upper_bounds(self, upper_bound:float):
 		""" set the lower and upper bound """
 		if type(upper_bound) in [int, float]:
 			self._upper_bounds = upper_bound
@@ -107,7 +109,7 @@ class SweepWiseAnalysisTemplate(object):
 			return self.live_data_for_entire_series(entire_sweep_table)
 
 	@classmethod
-	def live_data_for_entire_series(self, entire_sweep_table):
+	def live_data_for_entire_series(self, entire_sweep_table) -> list:
 		"""
 		calculates a list of tuples (x_value, y-value) to be plotted on top in the trace plot for each sweep within a series
 		@param entire_sweep_table:
@@ -123,7 +125,7 @@ class SweepWiseAnalysisTemplate(object):
 		return(plot_data)
 
 	@classmethod
-	def live_data_for_single_sweep(self,data):
+	def live_data_for_single_sweep(self, data):
 		"""
 		takes a single sweep, slices according defined coursor bounds and calculates the related x-yvalue tuple
 		@param data:
@@ -255,7 +257,7 @@ class SweepWiseAnalysisTemplate(object):
 			print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
 	@classmethod
-	def create_new_specific_result_table_name(cls, analysis_function_id, data_table_name):
+	def create_new_specific_result_table_name(cls, analysis_function_id:int, data_table_name:str) -> str:
 		"""
 		creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
 		:param offline_analysis_id:
@@ -275,13 +277,20 @@ class SweepWiseAnalysisTemplate(object):
 		print("not implemented for sweep wise")
 
 	@classmethod
-	def visualize_results(self, parent_widget):
+	def visualize_results(self, parent_widget) -> list:
+		"""Function to retrieve the list result tables for the function analysis id
 
+		Args:
+			parent_widget (OfflineResultVisualizer): Widget to put the Analysis in 
+
+		Returns:
+			list: list of funciton id related tables
+		"""
 		result_table_names = self.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
 		return result_table_names
 
 	@classmethod
-	def fetch_x_and_y_data(self, table_name,database):
+	def fetch_x_and_y_data(self, table_name: str,database) -> tuple:
 
 		#@todo move this function to the database class ?
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
@@ -304,10 +313,10 @@ class SweepWiseAnalysisTemplate(object):
 		return x_data, y_data, experiment_name, query_increment, sweep_tables
 
 	@classmethod
-	def get_list_of_result_tables(self, analysis_id, analysis_function_id):
-		"""
-
-		"""
+	def get_list_of_result_tables(self, analysis_id, analysis_function_id)-> list:
+		"""	
+  		
+    	"""
 		q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
 		result_list = self.database.get_data_from_database(self.database.database, q,
 														  [analysis_id, analysis_function_id])
@@ -320,7 +329,7 @@ class SweepWiseAnalysisTemplate(object):
 		return result_list
 
 
-	def plot_meta_data_wise(self, canvas, result_list, number_of_series, meta_data_groups):
+	def plot_meta_data_wise(self, canvas, result_list:list, number_of_series:int, meta_data_groups:list):
 		"""
         rearrange the plot to color each trace according to it's meta data group.
 
@@ -352,9 +361,15 @@ class SweepWiseAnalysisTemplate(object):
 			ax.legend()
 
 	@classmethod
-	def boxplot_calc(self, result_table_list, database):
-		"""
+	def boxplot_calc(self, result_table_list:list, database):
+		"""Creates the Data for the boxplot --> long table from the Result Tables
+  
+		Args:
+			result_table_list (list): List of Result Table for the Analysis Id
+			database (_type_): DataBase Handler
 
+		Returns:
+			pd.DataFrame: Contains long table with values,metadata, experiment name 
 		"""
 		meta_data_groups = []
 		meta_data_types = []
@@ -404,12 +419,20 @@ class SweepWiseAnalysisTemplate(object):
 
 	@classmethod
 	# Here we should also denote if we have an increment for this we would need the location of the 
-	def simple_plot_calc(self, result_table_list, database):
-		"""
-		
+	def simple_plot_calc(self, result_table_list: list, database) -> tuple:
+		"""Calculates the data for the experiment aggregated data used in lineplots
+
+		Args:
+			result_table_list (list): List of Result Tables 
+			database (_type_): DataBase Handler
+
+		Returns:
+			tuple: The plot_dataframe with as long table with experiment name, 
+			values and indeces
 		"""
 		plot_data = {"Unit": [],"values":[], "name":[], "meta_data":[], "index":[]}
 		increment_list = []
+  
 		for table in result_table_list:
     			
 			try:
@@ -439,8 +462,16 @@ class SweepWiseAnalysisTemplate(object):
 		return plot_dataframe, increment
 
 	@classmethod
-	def rheobase_calc(self, result_table_list, database):
-    		
+	def rheobase_calc(self, result_table_list:list, database):
+		"""Specific calculation for Rheobase Data constructed by the Rheobase Function
+
+		Args:
+			result_table_list (list): Result Table List from Rheobase ID
+			database (duckDb): Database Handler
+
+		Returns:
+			pd.DataFrame: long table pd.DataFrame with Data for boxplot and lineplot plotting
+		"""
 		meta_data_groups = []
 		first_ap = []
 		experiment_names = []
@@ -471,7 +502,7 @@ class SweepWiseAnalysisTemplate(object):
 
 	@classmethod
 	def sweep_rheobase_calc(self, result_table_list, database):
-		"""Get the max voltage per sweep and make data ready for plotting
+		"""Get the max voltage per sweep for the Rheobase from the Result_Max tables
 
 		Args:
 			result_table_list (list): list of result table for series
@@ -509,9 +540,16 @@ class SweepWiseAnalysisTemplate(object):
 		return plot_dataframe
 
 	@classmethod
-	def rheoramp_calc(self, result_table_list, database):
-		meta_data_groups = []
-		result_df = pd.DataFrame()
+	def rheoramp_calc(self, result_table_list:list, database):
+		"""Calculates the #APs per Sweep 
+
+		Args:
+			result_table_list (list): Result Table List Rheoramp
+			database (duckDB): Database Handler
+
+		Returns:
+			_type_: DataFrame with the #APs per sweep and experiment logn table
+		"""
 		count = []
 		rheo = []
 		meta_data = []
@@ -551,6 +589,37 @@ class SweepWiseAnalysisTemplate(object):
 		plot_dataframe["Meta_data"] = meta_data
 		plot_dataframe["experiment_name"] = experiment_names
 		return plot_dataframe
+		
+	@classmethod
+	def ap_calc(self, result_table_list:list, database):
+		"""
+		Creates the AP propertie table frmo the AP fitting result table
+		Args:
+			result_table_list (list): Result Tables from AP fitting
+			database (duckDB): database handler
+		"""
+  
+		meta_data_groups = []
+		dataframe = pd.DataFrame()
+		experiment_names = []
+		for table in result_table_list:
+			experiment_name = "_".join(table.split("_")[-3:-1])
+			database.database.execute(f'select * from {table}')
+			query_data_df = database.database.fetchdf()
+			query_data_df.set_index('Fitting Parameters', inplace =True, drop = True)
 
+			# here we can may switch to a join might be faster than iterating database queries
+			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+				f'specific_result_table_name = \'{table}\'))'
+			experiment_names.extend(query_data_df.shape[1]*[experiment_name])
+			dataframe = pd.concat([dataframe, query_data_df], axis = 1)
+			# should still be added
+			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+			meta_data_groups.extend(query_data_df.shape[1]*[experiment_name])	
 
+		dataframe = dataframe.transpose()
+		dataframe["Meta_data"] = meta_data_groups
+		dataframe["experiment_name"] = experiment_names
+		return dataframe
 

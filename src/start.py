@@ -33,7 +33,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if sys.platform != "darwin":
             print("darwin platform initialized")
-            self.setAttribute(Qt.WA_TranslucentBackground)
+            #self.setAttribute(Qt.WA_TranslucentBackground)
             
 
         self.desktop = self.screen()

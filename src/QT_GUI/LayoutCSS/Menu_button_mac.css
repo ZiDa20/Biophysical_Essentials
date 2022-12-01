@@ -1,5 +1,5 @@
 QPushButton {{
-  border-color: rgba(255,255,255);
+  border-color: #fff5cc;
   color: #fff5cc;
   text-transform: none;
   height: 30px;
@@ -7,11 +7,9 @@ QPushButton {{
 
 }}
 
-QLineEdit {{
-  border: 0px;
-  height: 30px;
-  background-color:rgba(4,7,26, 180);
-  border-radius: 10px
+QGroupBox{{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};
 }}
 
 QPushButton::pressed{{
@@ -21,29 +19,24 @@ QPushButton::pressed{{
   text-transform: scale(1.5);
 }}
 
-QPushButton::pressed:hover{{
-  background-color: "#54545a";
+QPushButton:hover{{
+	background-color: "#54545a";
 }}
 
-QPushButton:hover{{
-    background-color: "#54545a";
+FigureCanvas{{
+  background-color: transparent;
 }}
 
 ListView{{
   background-color: rgba(4,7,26, 180) ;
-  border: 1px solid #fff5cc;
 }}
 
 QScrollArea > QWidget > QWidget {{
-  background-color: transparent;
-}}
-
-QScrollArea > QWidget  {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
-QFrame {{
-  border: 0px;
+QScrollArea  {{
+  border-radius:10px;
 }}
 
 
@@ -59,6 +52,18 @@ QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
 
 }}
 
+QStackedWidget[objectName="offline_analysis_widgets"] {{
+  background-color: rgba(4,7,26, 0);
+  border-radius: 5px
+
+}}
+
+QStackedWidget[objectName="offline_analysis_widgets"] > QWidget {{
+  background-color: rgba(4,7,26, 0);
+  border-radius: 5px
+}}
+
+
 QTabWidget[accessibleName="tab_widgets"] QTabBar {{
   background-color: #fff5cc;
   color:{QTMATERIAL_SECONDARYCOLOR};
@@ -73,7 +78,7 @@ QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
   color:grey;
 }}
 
-QTreeView {{
+QTreeWidget {{
   background-color:  {QTMATERIAL_SECONDARYCOLOR}
 }}
 
@@ -83,15 +88,9 @@ QGroupBox[objectName="button_box_1"]{{
   border: 1px #fff5cc;
 }}
 
-QGroupBox {{
-  border: 0px;
-  background-color: {QTMATERIAL_SECONDARYCOLOR};;
-}}
-
-
 
 QStackedWidget{{
-  background-color: rgba(4,7,26,0);
+  background-color: rgba(4,7,26,100);
 }}
 
 QWidget[objectName="centralwidget"]{{
@@ -161,6 +160,25 @@ QWidget[objectName="online_analysis_window"]{{
   background-color: rgba(4,7,26, 180)
 }}
 
+
+QTabWidget[objectName="directory_tree_widget"] {{
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+
+}}
+
+
+QTabWidget[objectName="directory_tree_widget"] QTabBar{{
+  border-radius: 5px;
+  background-color:{QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QTabWidget[objectName="directory_tree_widget"] QTabBar::tab::selected{{
+  color: black;
+  background-color:#fff5cc;
+  border-radius: 5px
+}}
+
+
 QWidget[objectName="labbook_window"]{{
   background-color: rgba(4,7,26, 180);
 }}
@@ -196,25 +214,12 @@ QWidget[objectName="data_base"]{{
 }}
 
 
-QTabWidget[objectName="Offline_Analysis_Notebook"] QStackedWidget > QWidget {{
+QWidget[objectName="Offline_Analysis_Notebook"]  {{
   background-color: rgba(4,7,26, 180) ;
   border-radius: 5px
 }}
 
-QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar {{
-  border-radius: 5px;
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-}}
 
-QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::selected {{
-  color: black;
-  background-color:#fff5cc;
-  border-radius: 5px
-}}
-
-QTabWidget[objectName="Offline_Analysis_Notebook"] QTabBar::tab::!selected {{
-  color:grey;
-}}
 
 QWidget[objectName="side_left_menu"]  QPushButton{{
   color: #fff5cc;
@@ -228,8 +233,26 @@ QWidget[objectName="side_left_menu"]  QPushButton:pressed{{
   border-radius: 10px 10px 0px 0px;
 }}
 
+
 QMdiArea {{
   qproperty-background: transparent;
+  border: 1px solid #fff5cc;
+}}
+
+QTabWidget {{
+  background-color:transparent;
+
+}}
+
+QWidget[objectName = "toolbar_widget"] {{
+background:transparent;
+}}
+
+QWidget[objectName = "toolbar_widget"] QWidget {{
+border:0px;
+border-radius: 10px;
+background-color:White;
+align:center;
 }}
 
 QListWidget[objectName="database_table"] {{
@@ -239,7 +262,6 @@ QListWidget[objectName="database_table"] {{
 
 QTableView {{
   background-color: transparent;
-  border-radius: 5px;
 }}
 
 QTableView QHeaderView::section{{
@@ -248,29 +270,10 @@ QTableView QHeaderView::section{{
 }}
 
 QGroupBox[objectName="groupBox_3"]{{
-  background-color: rgba(4,7,26, 180);
+  background-color: transparent;
   border-radius: 5px;
 }}
 
-QWidget[objectName = "toolbar_widget"] {{
-  background:transparent;
-  }}
-  
-QWidget[objectName = "toolbar_widget"] QWidget {{
-border:0px;
-border-radius: 10px;
-background-color:White;
-align:center;
-}}
-    
-QStackedWidget[objectName="offline_analysis_widgets"] {{
-  background-color: rgba(4,7,26, 180);
-  border-radius: 5px
-
-}}
-
-QStackedWidget[objectName="offline_analysis_widgets"] > QWidget {{
-  background-color: rgba(4,7,26, 180);
-  border-radius: 5px
-
+QMainWindow{{
+  border-radius: 5px;
 }}
