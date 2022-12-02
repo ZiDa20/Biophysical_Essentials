@@ -82,7 +82,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
                 self.table_dictionary["Raw signal"].append(table_name)
             if "imon_meta" in table_name:
                 self.table_dictionary["Meta Table"].append(table_name)
-            if "experiment" in table_name:
+            if ("experiment" in table_name) or ("global" in table_name):
                 self.table_dictionary["Experiment"].append(table_name)
             if "analysis" in table_name and "result" not in table_name:
                 self.table_dictionary["Analysis Table"].append(table_name)

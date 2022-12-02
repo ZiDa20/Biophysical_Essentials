@@ -102,9 +102,7 @@ class AbfReader():
             columns += 1
         data_sweep.index = time
         data_sweep.columns = columns_list
-        print(data_sweep)
         data_sweep = data_sweep/1e12
-        print(data_sweep)
         meta_data_sweep.columns = ["Parameter"] + columns_list
         meta_data_sweep = meta_data_sweep.set_index("Parameter")
     

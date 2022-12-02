@@ -119,6 +119,7 @@ class OfflineManager():
             self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
+        print(data_list)
 
         # create a threadpool
         self.threadpool = QThreadPool()
@@ -265,6 +266,7 @@ class OfflineManager():
             # get the list of list for abf files
             for i in self.abf_list:
                 if "abf" in i:
+                    print("abf")
                     experiment_name = i.split("_")[:2]
                     experiment_name = "_".join(experiment_name)
                     if experiment_name in abf_file_bundle.keys():

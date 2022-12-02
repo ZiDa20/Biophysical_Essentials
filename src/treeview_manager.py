@@ -84,7 +84,7 @@ class TreeViewManager():
         """
         Configure the Logger for the Treeview Manager"""
         self.logger=logging.getLogger()
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.ERROR)
         file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
@@ -351,9 +351,10 @@ class TreeViewManager():
                         print("METADATA HERE")
                         pgf_tuple_data_frame = abf_file.get_command_epoch_table()
                         print("commandn epoch here")
-                        experiment_name = abf_file.get_experiment_name()
+                        experiment_name = [abf_file.get_experiment_name(), "default", "None", "None", "None", "None", "None"]
                         series_name = abf_file.get_series_name()
                         abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
+                        print("file appended abf to list")
                     
             except Exception as e:
                 # @todo error handling
@@ -378,7 +379,7 @@ class TreeViewManager():
         returns:
             database type: database object - the database to write the data into
            """
-
+        print("entering the writing process")
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
         ################################################################################################################
         #Progress Bar setup
@@ -399,10 +400,14 @@ class TreeViewManager():
         
 
         for i in abf_files:
+            print("running abf file and this i ")
             try:
-                progress_value = progress_value + increment
+                #increment = 100/max_value
+                #progress_value = progress_value + increment
                 self.single_abf_file_into_db(i, database)
+                #progress_callback.emit((progress_value,i))
             except Exception as e:
+                print(e)
                 self.logger.error("The ABF file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
                 database.database.close() # we close the database connection and emit an error message
 
@@ -480,9 +485,9 @@ class TreeViewManager():
 
                 group_name = None
                 try:
-                    print("adding experiment", experiment_name)
-                    print(self.meta_data_assignment_list)
-                    print(self.meta_data_assigned_experiment_names)
+                    #print("adding experiment", experiment_name)
+                    #print(self.meta_data_assignment_list)
+                    #print(self.meta_data_assigned_experiment_names)
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                     meta_data = self.meta_data_assignment_list[pos]
                 except Exception as e:
@@ -557,17 +562,18 @@ class TreeViewManager():
                                                   self.sweep_meta_data_df)
 
 
-    def single_abf_file_into_db(self,abf_bundle,database:DuckDBDatabaseHandler):
+    def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
-        database.add_experiment_to_experiment_table(abf_bundle[1])
-        database.add_experiment_to_global_meta_data(-1 ,abf_bundle[1], "None", "default")
+        database.add_experiment_to_experiment_table(abf_bundle[1][0])
+        database.add_experiment_to_global_meta_data(-1 ,abf_bundle[1])
         series_count = 1
+        print("we try to enter the abf file funciton in treeview manager")
         for sweep in abf_bundle[0]:
-            database.add_single_series_to_database(abf_bundle[1], sweep[3], "Series" + str(series_count))
-            database.add_sweep_df_to_database(abf_bundle[1], "Series" + str(series_count), sweep[0], sweep[1], False)
+            database.add_single_series_to_database(abf_bundle[1][0], sweep[3], "Series" + str(series_count))
+            database.add_sweep_df_to_database(abf_bundle[1][0], "Series" + str(series_count), sweep[0], sweep[1], False)
 
-            pgf_table_name = "pgf_table_" + abf_bundle[1] + "_" + "Series" + str(series_count)
-            database.create_series_specific_pgf_table(sweep[2].set_index("series_name").reset_index(), pgf_table_name, abf_bundle[1], "Series" + str(series_count))
+            pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
+            database.create_series_specific_pgf_table(sweep[2].set_index("series_name").reset_index(), pgf_table_name, abf_bundle[1][0], "Series" + str(series_count))
             series_count += 1
 
 
