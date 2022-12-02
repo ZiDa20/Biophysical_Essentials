@@ -97,20 +97,67 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.navigation_list = []
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.show_colum.clicked.connect(self.add_meta_data_to_tree_view)
+        self.show_colum.clicked.connect(self.select_tree_view_meta_data)
 
-    def add_meta_data_to_tree_view(self):
-        # open a selection popup
-        discarded_state  = False
+    def select_tree_view_meta_data(self):
+        """
+        Allows the user to add new meta data parents into the treeview
+        @return:
+        """
+
+        # get available meta data label for specific experiments linked with this specific analysis
         q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
         global_meta_data_table = self.database_handler.database.execute(q).fetchdf()
+        meta_data_list = global_meta_data_table.columns.values.tolist()
+        meta_data_list = meta_data_list[2:len(meta_data_list)]
 
-        print(global_meta_data_table)
+        # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
+        dialog = QDialog()
+        dialog.setWindowFlags(Qt.FramelessWindowHint)
+        dialog_grid = QGridLayout(dialog)
+        #dialog_info_text = QLabel("Choose your prefered meta-data label(s)")
+        #dialog_grid.addWidget(dialog_info_text, 0, 0)
+
+        # Prepare a checkbox and a label for each meta data column
+        checkbox_list = []
+        name_list = []
+        for s in meta_data_list:
+            c = QCheckBox()
+            checkbox_list.append(c)
+            l = QLabel(s)
+            dialog_grid.addWidget(c, meta_data_list.index(s), 0)
+            dialog_grid.addWidget(l, meta_data_list.index(s), 1)
+            name_list.append(s)
+
+        select_meta_data_button = QPushButton("Select", dialog)
+        print(checkbox_list)
+        select_meta_data_button.clicked.connect(
+            partial(self.add_meta_data_to_tree_view,checkbox_list,name_list, dialog,global_meta_data_table))
+        dialog_quit = QPushButton("Cancel", dialog)
+        dialog_quit.clicked.connect(partial(self.close_dialog, dialog))
+        dialog_grid.addWidget(dialog_quit, len(name_list) + 2, 0)
+        dialog_grid.addWidget(select_meta_data_button, len(name_list) + 2, 1)
+        dialog.setWindowTitle("Available Meta Data Label")
+        dialog.setWindowModality(Qt.ApplicationModal)
+        dialog.exec_()
+
+    def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog, global_meta_data_table):
+        """
+
+        @param checkbox_list:
+        @param name_list:
+        @param dialog:
+        @param global_meta_data_table:
+        @return:
+        """
+        meta_data_list = self.get_selected_checkboxes(checkbox_list,name_list)
+        dialog.close()
+
+        discarded_state  = False
 
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-
         # needs to be an ordered dict:
-        meta_data_list = ["condition", "sex"]
+
         new_level = 0
         parent = ["root"]
         q = f'select experiment_name from global_meta_data where '
@@ -144,6 +191,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             request_details.pop(0)
             if len(request_details)!=len(meta_data_list):
                 print("this case is not implemented so far")
+                print("request_details =", len(request_details))
+                print("meta data  =", len(meta_data_list))
             else:
                 q = base
                 for detail in range(0,len(request_details)):
