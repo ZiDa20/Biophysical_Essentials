@@ -30,6 +30,7 @@ class PlotWidgetManager(QRunnable):
         mode 0: values will be read directly from the .dat file
         mode 1: values will be read from the database provided from the offline manager object
         """
+        pg.setConfigOption('foreground', 'k')
         self.plot_widget = pg.PlotWidget()
         self.detection_mode = detection
 
@@ -43,8 +44,9 @@ class PlotWidgetManager(QRunnable):
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
         self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         self.vertical_layout = vertical_layout_widget
+
         self.toolbar_widget = toolbar_widget
-       
+
         """
         print("toolbar")
         try:
@@ -94,13 +96,15 @@ class PlotWidgetManager(QRunnable):
         self.analysis_functions_table_widget = analysis_functions_table_widget
         print("table widget was set")
 
+
+    """ @deprecated dz 30.11.2022
     def tree_view_click_handler(self, item):
-        """
-        handle all incoming clicks in the treeview related to plotting
-        @param item: treeviewitem
-        @return:
-        :author: dz, 21.07.2022
-        """
+        
+        #handle all incoming clicks in the treeview related to plotting
+        #@param item: treeviewitem
+        #@return:
+        #:author: dz, 21.07.2022
+        
         print(f'Text of first column in item is {item.text(0)}')
 
         try:
@@ -116,7 +120,7 @@ class PlotWidgetManager(QRunnable):
             print(e)
             print("experiment was clicked")
             self.series_in_treeview_clicked(item.child(0))
-
+    """
     def sweep_in_treeview_clicked(self,item):
         if self.analysis_mode == 0:
             self.sweep_clicked_load_from_dat_file(item)
@@ -133,7 +137,7 @@ class PlotWidgetManager(QRunnable):
             self.check_live_analysis_plot(item,"series")
 
 
-    def check_live_analysis_plot(self,item, level):
+    def check_live_analysis_plot(self,item_text,experiment_name,identifier, level):
         """
         calculate values to be plotted in the "live plot" feature during analysis
         @param item:
@@ -141,7 +145,9 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 29.09.2022
         """
-        print("checking live analysis for item ", item.text(0))
+        print("checking live analysis for item ", item_text)
+        print(experiment_name)
+        print(identifier)
         if self.analysis_functions_table_widget is not None:
             row_count = self.analysis_functions_table_widget.rowCount()
             # iterate through the rows of the table,
@@ -157,15 +163,9 @@ class PlotWidgetManager(QRunnable):
                     analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
                     db = self.offline_manager.get_database()
                     if level == "series":
-                        experiment_series_tuple = item.data(3, 0)
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,
-                                                                    experiment_series_tuple[0],
-                                                                    experiment_series_tuple[1], db)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier, db)
                     else:
-                        experiment_series_tuple = item.parent().data(3, 0)
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,
-                                                                    experiment_series_tuple[0],
-                                                                    experiment_series_tuple[1], db, item.text(0))
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,db, item_text)
 
                     print(x_y_tuple)  # only works if parent = experiment
                     self.plot_scaling_factor = 1e9
@@ -199,7 +199,7 @@ class PlotWidgetManager(QRunnable):
         fig = self.canvas.figure
         fig.clf()
 
-        
+
         data_request_information = item.data(3, 0)
         self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
 
@@ -294,10 +294,77 @@ class PlotWidgetManager(QRunnable):
                 self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
                 self.plot_scaling_factor = 1000
             else:
+                # data scaling to nA
+                self.plot_scaling_factor = 1e9
+
+            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='k')
+
+        # plot pgf traces
+
+        protocol_steps = self.plot_pgf_signal(item.data(5, 0), self.data)
+        for x in range(0, len(protocol_steps)):
+            x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
+            self.ax1.axvline(x_pos, c='tab:gray')
+
+        self.vertical_layout.addWidget(self.canvas)
+        self.handle_plot_visualization()
+
+
+    def series_clicked_load_from_dat_file(self,item):
+        """
+        plots trace data and pgf data after a series was clicked in the online analysis
+        @param item:
+        @return:
+        :author: dz, 21.07.2022
+        """
+        print("online analysis %s series was clicked", item.text(0))
+        children = item.childCount()
+        split_view = 1
+
+        # reset the time array -> will be created new from the first sweep
+        self.time = None
+        self.y_unit = None
+
+
+        fig = self.canvas.figure
+        fig.clf()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+        # plot data traces for this series
+        for c in range(0, children):
+
+            child = item.child(c)
+            #child.setCheckState(1, Qt.Checked)
+            data_request_information = child.data(3, 0)
+            self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
+            meta_data_dict = child.data(5, 0)
+
+            if self.time is None:
+                self.time = self.get_time_from_dict(meta_data_dict)
+                #recording_mode = self.get_recording_mode(meta_data_array)
+
+                self.y_unit = self.get_y_unit_from_meta_data_dict(meta_data_dict)
+
+                print(self.y_unit)
+
+            if self.y_unit == "V":
+                y_min, y_max = self.get_y_min_max_meta_data_dict_values(meta_data_dict)
+                self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+                self.plot_scaling_factor = 1000
+            else:
                     # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='yellow', alpha = 0.5)
+            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='k')
 
         # plot pgf traces
 
@@ -309,7 +376,7 @@ class PlotWidgetManager(QRunnable):
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
-    def sweep_clicked_load_from_dat_database(self,item):
+    def table_view_sweep_clicked_load_from_database(self, experiment_name, series_identifier, sweep_name):
         """
         visualizes the sweep when clicked on it in the treeview
         @param item: treeview item, contains text at pos 0 and data request information at pos 3,0
@@ -317,16 +384,16 @@ class PlotWidgetManager(QRunnable):
         :author: dz, modified 29.09.2022
         """
         print("sweep clicked")
-        print(item.text(0))
-        name = item.text(0)
+        print(experiment_name)
+        print(series_identifier)
+        print(sweep_name)
         split_view = 1
-        data_request_information = item.parent().data(3, 0)
         db = self.offline_manager.get_database()
-        series_df = db.get_sweep_table_for_specific_series(data_request_information[0], data_request_information[1])
+        series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
         print(series_df)
         # get the meta data to correctly display y values of traces
-        meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],
-                                                                 data_request_information[1])
+        meta_data_df = db.get_meta_data_table_of_specific_series(experiment_name,
+                                                                 series_identifier)
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
 
         self.time = self.get_time_from_meta_data(meta_data_df)
@@ -344,11 +411,16 @@ class PlotWidgetManager(QRunnable):
             self.ax1 = self.canvas.figure.subplots()
             self.ax2 = self.ax1.twinx()
 
-        data = series_df[item.text(0)].values.tolist()
+
+        print("error here")
+        print(series_df)
+        print(sweep_name)
+
+        data = series_df[sweep_name].values.tolist()
         data = np.array(data)
 
         if self.y_unit == "V":
-            y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, name)
+            y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, sweep_name)
             data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
             # data scaling to mV
             self.plot_scaling_factor = 1000
@@ -358,10 +430,10 @@ class PlotWidgetManager(QRunnable):
 
         self.ax1.plot(self.time, data * self.plot_scaling_factor, 'yellow', alpha=0.5)
 
-        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],
-                                                                                        data_request_information[1])
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
+                                                                                        series_identifier)
 
-        sweep_number = item.text(0).split("_")
+        sweep_number = sweep_name.split("_")
         sweep_number = int(sweep_number[1])
 
         protocol_steps = self.plot_pgf_signal(pgf_table_df, data, sweep_number)
@@ -377,14 +449,15 @@ class PlotWidgetManager(QRunnable):
 
         self.handle_plot_visualization()
 
+    """ @deprecated DZ 01.12.2022
     def series_clicked_load_from_database(self,item):
-        """
+        
         When a series was clicked, data arrays all of its sweeps signal traces will be plotted.
         The data therefore will be loaded live from the database.
         :param item:
         :return:
         :author: dz, 29.06.2022
-        """
+        
         print("%s series was clicked", item.text(0))
         split_view = True
 
@@ -444,7 +517,7 @@ class PlotWidgetManager(QRunnable):
                 # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'yellow', alpha = 0.05, label=name)
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
 
             if self.detection_mode:
                 peaks, _ = find_peaks(data, height = 0.00,distance=200)
@@ -469,6 +542,88 @@ class PlotWidgetManager(QRunnable):
             #self.ax1.axvline(x_pos, c = 'tab:gray')
 
         self.handle_plot_visualization()
+    """
+
+
+    def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
+
+        """new function"""
+
+        print("plotting started")
+        print(experiment_name)
+        print(series_identifier)
+
+        split_view = 1
+
+        db = self.offline_manager.get_database()
+        series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+
+        print("requested series dataframe")
+        print(series_df)
+
+        #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
+
+        # get the meta data to correctly display y values of traces
+        meta_data_df = db.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
+        self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
+        self.time = self.get_time_from_meta_data(meta_data_df)
+
+        column_names = series_df.columns.values.tolist()
+
+        fig = self.canvas.figure
+        fig.clf()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+
+
+        # plot for each sweep
+        for name in column_names:
+            data = series_df[name].values.tolist()
+            data = np.array(data)
+
+            if self.y_unit == "V":
+                y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
+                data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+                # data scaling to mV
+                self.plot_scaling_factor = 1000
+            else:
+                # data scaling to nA
+                self.plot_scaling_factor = 1e9
+
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
+
+            if self.detection_mode:
+                peaks, _ = find_peaks(data, height = 0.00,distance=200)
+                print('peaks')
+                print(peaks)
+                self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
+
+
+        # finally also the pgf file needs to be added to the plot
+        # load the table
+        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+
+        #print(pgf_table_df)
+
+        protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
+        print("Protocol Steps")
+        print(protocol_steps)
+        for x in range(0,len(protocol_steps)):
+
+            x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
+            print(x_pos)
+            #self.ax1.axvline(x_pos, c = 'tab:gray')
+
+        self.handle_plot_visualization()
+        self.vertical_layout.addWidget(self.canvas)
 
     def handle_plot_visualization(self):
         """
@@ -482,26 +637,26 @@ class PlotWidgetManager(QRunnable):
         self.ax2.spines['right'].set_visible(False)
         self.ax1.patch.set_alpha(0)
         self.ax2.patch.set_alpha(0)
-        
+
         self.ax1.spines['bottom'].set_color('white')
-        self.ax1.spines['left'].set_color('white') 
+        self.ax1.spines['left'].set_color('white')
         self.ax1.xaxis.label.set_color('white')
         self.ax1.yaxis.label.set_color('white')
-        self.ax1.tick_params(axis='x', colors='white') 
+        self.ax1.tick_params(axis='x', colors='white')
         self.ax1.tick_params(axis='y', colors='white')
-        
+
         self.ax2.spines['bottom'].set_color('white')
-        self.ax2.spines['left'].set_color('white') 
+        self.ax2.spines['left'].set_color('white')
         self.ax2.xaxis.label.set_color('white')
         self.ax2.yaxis.label.set_color('white')
-        self.ax2.tick_params(axis='x', colors='white') 
+        self.ax2.tick_params(axis='x', colors='white')
         self.ax2.tick_params(axis='y', colors='white')
 
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax1.autoscale()
         self.ax2.autoscale()
         self.canvas.figure.tight_layout()
-        
+
         self.canvas.figure.patch.set_alpha(0)
         self.canvas.figure.tight_layout()
         self.ax2.set_xlabel('Time [ms]')
@@ -599,7 +754,7 @@ class PlotWidgetManager(QRunnable):
                 else:
                     self.ax2.plot(self.time, pgf_signal, c='r')
             else:
-                self.ax2.plot(self.time, pgf_signal, c='yellow', alpha = 0.5)
+                self.ax2.plot(self.time, pgf_signal, c='k')
             print("finished sweep %s", sweep_number)
 
         return protocol_steps
@@ -646,7 +801,7 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        self.ax2.plot(self.time, pgf_signal, c = 'yellow', alpha = 0.5)
+        self.ax2.plot(self.time, pgf_signal, c = 'k')
 
         return protocol_steps
 
@@ -792,76 +947,7 @@ class PlotWidgetManager(QRunnable):
             print(e)
 
 
-    """
-    # deprecated dz 30.06.2022
-    def series_clicked(self,item):
-        self.plot_widget.clear()
-        print("series clicked")
-        children = item.childCount()
-        series_name = item.text(0)
-        # reset the time array -> will be created new from the first sweep
-        self.time = None
-        if not item.checkState(1):
-            # go through the tree and uncheck all
 
-            if self.analysis_mode == 0:
-                db = None
-            else:
-                db = self.offline_manager.get_database()
-
-            # tree view manager can handle none db object
-            TreeViewManager(db).uncheck_entire_tree(self.tree_view)
-            item.setCheckState(1, Qt.Checked)
-
-            for c in range(0,children):
-
-                child = item.child(c)
-                child.setCheckState(1, Qt.Checked)
-                data_request_information = child.data(3,0)
-
-                if self.analysis_mode == 0:
-                    data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-                    meta_data_array = child.data(5,0)
-                else:
-                    # get data as numpy array
-                    data = db.get_single_sweep_data_from_database(data_request_information)
-
-                    # get meta data as dict {'key':['value'], .. .}
-                    meta_data_array = db.get_single_sweep_meta_data_from_database(data_request_information)
-                    debug  = 0
-
-
-                # only calc the time once for all sweeps
-                if self.time is None:
-                    self.time = self.get_time_from_meta_data(meta_data_array)
-                    recording_mode = self.get_recording_mode(meta_data_array)
-                    '''
-                    if self.analysis_mode:
-                        self.offline_manager.write_ms_spaced_time_array_to_analysis_series_table(self.time,series_name)
-                        self.offline_manager.write_recording_mode_to_analysis_series_table(recording_mode,series_name)
-                    '''
-                    self.y_unit = self.get_y_unit_from_meta_data(meta_data_array)
-
-                if self.y_unit == "V":
-                    y_min,y_max=self.get_y_min_max_meta_data_values(meta_data_array)
-                    data = np.interp(data, (data.min(), data.max()), (y_min,y_max))
-
-                self.plot_widget.plot(self.time, data)
-                self.plot_widget.plotItem.setMouseEnabled(x=True, y=True)
-                #y_axis_item = pg.AxisItem(orientation='left',units = self.y_unit)
-                #y_axis_item.enableAutoSIPrefix(True)
-                #self.plot_widget.addItem(y_axis_item)
-                self.plot_widget.setLabel(axis='left', text=self.y_unit)
-                self.plot_widget.setLabel(axis='bottom', text='Time (ms)')
-
-
-
-
-        else:
-            item.setCheckState(1,Qt.Unchecked)
-            for c in range(0, children):
-                item.child(c).setCheckState(1, Qt.Unchecked)
-    """
 # from QCore
 class CursorBoundSignal(QObject):
     cursor_bound_signal = Signal(tuple)

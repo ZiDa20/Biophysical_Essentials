@@ -492,8 +492,10 @@ class DuckDBDatabaseHandler():
         :param series_name:
         :return:
         '''
-        q = """select sweep_table_name from experiment_series where experiment_name = (?) AND series_identifier = (?)"""
-        res = self.database.execute(q, (experiment_name, series_identifier)).fetchdf()
+        q = f'select sweep_table_name from experiment_series where experiment_name = \'{experiment_name}\' AND series_identifier = \'{series_identifier}\''
+        print("hello", q)
+        res = self.database.execute(q).fetchdf()
+
         return res["sweep_table_name"].tolist()[0]
 
     def get_entire_sweep_table(self, table_name):
@@ -1201,10 +1203,16 @@ class DuckDBDatabaseHandler():
         :return:
         """
 
-        q = f'select distinct exp.series_name from experiment_series exp inner join experiment_analysis_mapping map ' \
-            f'on exp.experiment_name = map.experiment_name where map.analysis_id = \'{self.analysis_id}\' and exp.discarded = 0'
+        print("distinct_result = ", self.database.execute('select distinct series_name from experiment_series where discarded = False').fetchdf())
+        print(self.analysis_id)
+        q1 = f'select distinct series_name from experiment_series where discarded = False and experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.analysis_id})'
 
-        return self.get_data_from_database(self.database, q)
+        q = f'select distinct exp.series_name from experiment_series exp inner join experiment_analysis_mapping map ' \
+            f'on exp.experiment_name = map.experiment_name where map.analysis_id = \'{self.analysis_id}\' and exp.discarded = False'
+
+
+
+        return self.get_data_from_database(self.database, q1)
 
     '''-------------------------------------------------------'''
     '''     create series specific pgf trace table            '''
