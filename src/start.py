@@ -33,7 +33,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if sys.platform != "darwin":
             print("darwin platform initialized")
-            #self.setAttribute(Qt.WA_TranslucentBackground)
+            self.setAttribute(Qt.WA_TranslucentBackground)
             
 
         self.desktop = self.screen()
@@ -104,7 +104,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.maximize_button.clicked.connect(self.quit_application)
 
         if sys.platform != "darwin":
-            GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
+            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
         # set the animation 
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(100)

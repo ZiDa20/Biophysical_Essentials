@@ -92,7 +92,12 @@ QWidget[objectName="centralwidget"]{{
 }}
 
 QMainWindow{{
-  background-color: rgba(4,7,26,85);
+  background-color: rgba(4,7,26,0);
+  border-radius: 10px 10px 0px 0px;
+}}
+
+QCentralWidget{{
+  background-color: rgba(4,7,26,0);
   border-radius: 10px 10px 0px 0px;
 }}
 

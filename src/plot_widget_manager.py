@@ -7,6 +7,7 @@ from treeview_manager import *
 import pyqtgraph as pg
 import numpy as np
 from scipy.signal import find_peaks
+import matplotlib.pyplot as plt
 
 from draggable_lines import DraggableLines
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
@@ -87,7 +88,7 @@ class PlotWidgetManager(QRunnable):
         # e.g. max_current | 1 | 10 | change | configure | checkbox
         self.analysis_functions_table_widget = None
 
-        self.default_colors = ['b', 'g', 'c','r']
+        self.default_colors = ['white', 'g', 'c','r']
 
     def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
         self.analysis_functions_table_widget = analysis_functions_table_widget
@@ -296,7 +297,7 @@ class PlotWidgetManager(QRunnable):
                     # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='k')
+            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='yellow', alpha = 0.5)
 
         # plot pgf traces
 
@@ -355,7 +356,7 @@ class PlotWidgetManager(QRunnable):
             # data scaling to nA
             self.plot_scaling_factor = 1e9
 
-        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k')
+        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'yellow', alpha=0.5)
 
         pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],
                                                                                         data_request_information[1])
@@ -443,7 +444,7 @@ class PlotWidgetManager(QRunnable):
                 # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'yellow', alpha = 0.05, label=name)
 
             if self.detection_mode:
                 peaks, _ = find_peaks(data, height = 0.00,distance=200)
@@ -495,6 +496,11 @@ class PlotWidgetManager(QRunnable):
         self.ax2.yaxis.label.set_color('white')
         self.ax2.tick_params(axis='x', colors='white') 
         self.ax2.tick_params(axis='y', colors='white')
+
+        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
+        self.ax1.autoscale()
+        self.ax2.autoscale()
+        self.canvas.figure.tight_layout()
         
         self.canvas.figure.patch.set_alpha(0)
         self.canvas.figure.tight_layout()

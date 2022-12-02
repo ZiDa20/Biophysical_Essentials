@@ -59,7 +59,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_manager = OfflineManager(progress, status)
         self.offline_analysis_widgets.setCurrentIndex(0)
 
-        self.result_visualizer = OfflineAnalysisResultVisualizer(self.SeriesItems, self.database_handler)
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.SeriesItems, self.database_handler, self)
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
@@ -91,7 +91,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         self.navigation_list = []
 
-
+    
     def animate_tree_view(self):
         """Resize the Widget """
         rect = self.SeriesItems.frameGeometry()  # get the width of the menu

@@ -23,7 +23,7 @@ class OfflineAnalysisResultVisualizer():
     @author dz, 13.07.2022
     """
 
-    def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
+    def __init__(self, visualization_tab_widget, database: DuckDBDatabaseHandler, offline_analysis_widget):
 
         self.frontend_style = None
         self.visualization_tab_widget = visualization_tab_widget
@@ -32,6 +32,7 @@ class OfflineAnalysisResultVisualizer():
         self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
                     "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
         self.canvas = None
+        self.offline_analysis_widget = offline_analysis_widget
 
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
@@ -145,7 +146,7 @@ class OfflineAnalysisResultVisualizer():
             else:
                 plot_type = None
 
-        OfflinePlots(parent_widget, plot_type, self.canvas, result_table_names, self.database_handler, self.frontend_style)
+        OfflinePlots(parent_widget, plot_type, self.canvas, result_table_names, self.database_handler, self.frontend_style, self.visualization_tab_widget, self.offline_analysis_widget)
     
 
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
@@ -166,7 +167,15 @@ class OfflineAnalysisResultVisualizer():
 
             # create a new plot and insert it into the already exsiting plot layout
             self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
-            parent_widget.plot_layout.addWidget(self.canvas)
+            self.scroll_area = QScrollArea()
+            self.scroll_layout = QGridLayout()
+
+
+            self.scroll_layout.addWidget(self.canvas)
+            self.scroll_area.setWidgetResizable(True)
+            self.scroll_area.setWidget(self.canvas)
+            parent_widget.plot_layout.addWidget(self.scroll_area)
+        
 
             # add options only once
             try:
@@ -182,6 +191,7 @@ class OfflineAnalysisResultVisualizer():
 
         except Exception as e:
             print(str(e))
+
 
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
         """

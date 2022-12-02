@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from statistics import mean
+from sklearn.preprocessing import StandardScaler
 
 class SweepWiseAnalysisTemplate(object):
 	"""
@@ -621,5 +622,9 @@ class SweepWiseAnalysisTemplate(object):
 		dataframe = dataframe.transpose()
 		dataframe["Meta_data"] = meta_data_groups
 		dataframe["experiment_name"] = experiment_names
-		return dataframe
+
+		z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
+		z_score_df = pd.DataFrame(z_score, columns = dataframe.iloc[:,0:-2].columns, index = dataframe.experiment_name)
+
+		return dataframe, z_score_df
 
