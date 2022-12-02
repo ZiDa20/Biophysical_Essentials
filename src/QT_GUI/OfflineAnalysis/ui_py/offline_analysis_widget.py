@@ -37,7 +37,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Statis
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 import copy
 from Offline_Analysis.tree_model_class import TreeModel
-from Offline_Analysis.tree_item_class import TreeItem
+
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -142,6 +142,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.exec_()
 
     def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog, global_meta_data_table):
+        print("not implemented yet")
+        dialog.close()
+
+    def add_meta_data_to_tree_view_coming_soon(self, checkbox_list, name_list, dialog, global_meta_data_table):
         """
 
         @param checkbox_list:
@@ -245,9 +249,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             else:
                 self.treebuild.discarded_tree_view.setColumnHidden(i, True)
 
-        if self.blank_analysis_plot_manager is None:
-            self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1,
-                                                                 False)
             self.treebuild.selected_tree_view.clicked.connect(
                 partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
             self.treebuild.discarded_tree_view.clicked.connect(
@@ -262,9 +263,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
 
     def show_sweeps_toggled(self,signal):
+        print("toggle" , self.offline_analysis_widgets.currentIndex())
         try:
-            self.update_treeviews()
+            if self.offline_analysis_widgets.currentIndex()==1:
+                self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+            if self.offline_analysis_widgets.currentIndex() ==2:
+                print("not implemented yet")
         except Exception as e:
+           print(e)
            dialog = QDialog()
            dialog_grid = QGridLayout(dialog)
            dialog_error = QLabel("Dear looser ! Please load your data first",dialog)
@@ -393,9 +399,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         :author: dz, 01.07.2022
         """
-
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1,
+                                                             False)
         # open a popup to allow experiment label selection by the user
-
         self.dialog = Load_Data_From_Database_Popup_Handler()
         #self.database_handler.open_connection()
         available_labels = self.database_handler.get_available_experiment_label()
@@ -415,129 +421,32 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         grid.addWidget(self.list_view)
         self.dialog.selected_labels.setLayout(grid)
 
-        self.dialog.load_data.clicked.connect(self.update_treeviews)
 
+
+        self.dialog.load_data.clicked.connect(self.load_page_1_tree_view)
         self.dialog.exec_()
 
-    def update_treeviews(self):
+    def load_page_1_tree_view(self):
+        """
 
-        # create two global tables that can be reused for further visualizations
-        show_sweeps = False
-        if self.show_sweeps_radio.isChecked():
-            show_sweeps = True
+        @return:
+        """
+        self.selected_meta_data_list = []
+        for n in range(0, self.list_view.count()):
+            self.selected_meta_data_list.append(self.list_view.item(n).text())
 
-        self.selected_table_view_table  = self.create_data_frame_for_tree_model(False,show_sweeps)
-        self.discarded_table_view_table = self.create_data_frame_for_tree_model(True, show_sweeps)
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
+        self.blank_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+        self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
 
-        label = None
-        for type in self.selected_table_view_table["type"].unique():
-            cnt = len(self.selected_table_view_table[self.selected_table_view_table["type"]==type])
-            if label:
-                label = label + ", " +type + " : " + str(cnt)
-            else:
-                label = type + " : " + str(cnt)
-
-        self.treebuild.descriptive_meta_data_label.setText(label)
-
-        print("new table \n ", self.selected_table_view_table)
-
-        for row in self.selected_table_view_table[self.selected_table_view_table["type"]=="Experiment"].values.tolist():
-            self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
-
-
-        self.selected_model = TreeModel(self.selected_table_view_table)
-        self.treebuild.selected_tree_view.setModel(self.selected_model)
-
-        if self.selected_model.header:
-            for i in range(0,len(self.selected_model.header)):
-                if i<len(self.selected_model.header)-3:
-                    self.treebuild.selected_tree_view.setColumnHidden(i, False)
-                else:
-                    self.treebuild.selected_tree_view.setColumnHidden(i, True)
-
-        self.discarded_model = TreeModel(self.discarded_table_view_table, "discarded")
-        self.treebuild.discarded_tree_view.setModel(self.discarded_model)
-
-        for i in range(0, len(self.discarded_model.header)):
-            if i < len(self.discarded_model.header) - 3:
-                self.treebuild.discarded_tree_view.setColumnHidden(i, False)
-            else:
-                self.treebuild.discarded_tree_view.setColumnHidden(i, True)
-
-        if self.blank_analysis_plot_manager is None:
-            self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1, False)
-            self.treebuild.selected_tree_view.clicked.connect(partial(self.handle_tree_view_click,self.selected_model, self.blank_analysis_plot_manager))
-            self.treebuild.discarded_tree_view.clicked.connect(partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
-        else:
-            # make sure to disconnect from previous connections otherwise they will be called too
-            self.treebuild.selected_tree_view.clicked.disconnect()
-            self.treebuild.discarded_tree_view.clicked.disconnect()
-            self.treebuild.selected_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
-            self.treebuild.discarded_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
+        self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
 
         self.dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
-    def create_data_frame_for_tree_model(self, discarded_state:bool, show_sweeps:bool):
-        """
-        @param discarded_state: True or False, indicating whether discarded (True) or non discard elements should be loaded
-        @return: df, filled filled with experiment and series data
-        """
-
-        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        self.selected_meta_data_list = []
-
-        for n in range(0, self.list_view.count()):
-            self.selected_meta_data_list.append(self.list_view.item(n).text())
-
-        #print("loading experiment_labels", self.selected_meta_data_list)
-        q = (f'select distinct experiment_name from experiment_series where discarded = {discarded_state} intersect (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-        parent_name_table = self.database_handler.database.execute(q).fetchdf()
-
-        df["item_name"] = parent_name_table["experiment_name"].values.tolist()
-        df["parent"] = "root"
-        df["type"] = "Experiment"
-        df["level"] = 0
-        df["identifier"] = parent_name_table["experiment_name"].values.tolist()
-
-        q = (f'select * from experiment_series where discarded  = {discarded_state}  and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-        series_table = self.database_handler.database.execute(q).fetchdf()
-        print(series_table)
-        series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        series_df["item_name"] = series_table["series_name"].values.tolist()
-        series_df["parent"] = series_table["experiment_name"].values.tolist()
-        series_df["type"] = "Series"
-        series_df["level"] = 1
-        series_df["identifier"] = series_table["series_identifier"].values.tolist()
-
-        if show_sweeps:
-            all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-            for sweep_table_name in series_table["sweep_table_name"].values.tolist():
-                sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-                sweep_table = self.database_handler.database.execute(f'select * from {sweep_table_name}').fetchdf()
-                sweep_df["item_name"]=sweep_table.columns
-
-                identifier = series_table[series_table["sweep_table_name"] == sweep_table_name]["series_identifier"].values.tolist()
-                experiment_name = series_table[series_table["sweep_table_name"] == sweep_table_name][
-                    "experiment_name"].values.tolist()
-
-                parent =  experiment_name[0]+ "_" + identifier[0]
 
 
-                sweep_df["parent"] =  [parent] *len(sweep_table.columns)
-                sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
-                sweep_df["level"] = [2]*len(sweep_table.columns)
-                sweep_df["identifier"] =sweep_table.columns
-
-                print(sweep_df)
-                all_sweeps_df = pd.concat([all_sweeps_df,sweep_df])
-
-            return pd.concat([df, series_df, all_sweeps_df])
-        else:
-            return pd.concat([df, series_df])
 
     def handle_tree_view_click(self, model, plot_widget_manager, index):
 
@@ -560,7 +469,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
                 # set all series of the related series to discarded
                 self.database_handler.database.execute(f'update experiment_series set discarded = True where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["experiment"]]}\' ')
+                                                       f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
                 self.update_treeviews()
                 return
 
@@ -578,7 +487,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 print("x clicked")
                 # set all series of the related series to discarded
                 self.database_handler.database.execute(f'update experiment_series set discarded = False where '
-                                                           f'experiment_name = \'{tree_item_list[1][data_pos["experiment"]]}\' ')
+                                                           f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
                 self.update_treeviews()
                 return
 
@@ -587,7 +496,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
-            plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["series"]],tree_item_list[1][data_pos["hidden3_parent"]],
+            plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["Series"]],tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]],"series" )
 
 
@@ -599,10 +508,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             print(parent_data)
             print(parent_data[data_pos["hidden3_parent"]])
             print(parent_data[data_pos["hidden1_identifier"]])
-            print(tree_item_list[1][data_pos["sweep"]])
+            print(data_pos)
+            print(tree_item_list[1][data_pos["Sweep"]])
             plot_widget_manager.table_view_sweep_clicked_load_from_database(parent_data[data_pos["hidden3_parent"]],
                                                                             parent_data[data_pos["hidden1_identifier"]],
-                                                                            tree_item_list[1][data_pos["sweep"]])
+                                                                            tree_item_list[1][data_pos["Sweep"]])
 
 
     """ deprecated dz
@@ -665,7 +575,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.open_connection()
         for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
             self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.treebuild.experiments_tree_view,1,False)
+        #self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.treebuild.experiments_tree_view,1,False)
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
         self.treebuild.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
         self.treebuild.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
@@ -1013,7 +923,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions, s))
 
             """will be filled with the related data for the treeview table"""
-            new_tab_widget.table_view_data_table = pd.DataFrame()
 
             new_tab_widget.setObjectName(s)
 
@@ -1432,36 +1341,28 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def tab_changed(self, index, series_name):
         """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
         changed. Index is the tab number correlating with a global list of tab objects self.tab_list
-        @author dz, 20.07.2021"""
+        @author dz, 20.07.2021, updated 02.12.2022"""
 
         print(series_name)
         current_tab = self.tab_list[index]
         series_name = series_name
 
-        view = current_tab.widget.selected_tree_view
-
-        """if the table is still empty fill it (happens for the first call)"""
-        if current_tab.table_view_data_table.empty:
-            current_tab.table_view_data_table = copy.deepcopy(self.selected_table_view_table)
-
-            series_names = current_tab.table_view_data_table[current_tab.table_view_data_table["type"]=="Series"]["item_name"].tolist()
-            series_names = list(set(series_names))
-            print(series_names)
-            series_names.remove(series_name)
-            print(series_names)
-            current_tab.table_view_data_table = current_tab.table_view_data_table[current_tab.table_view_data_table.item_name.isin(series_names)==False]
-
-        model = TreeModel(current_tab.table_view_data_table)
-        view.setModel(model)
-
-        view.setColumnHidden(3, True)
-        view.setColumnHidden(4, True)
-        view.setColumnHidden(5, True)
-
         current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager, None, 1, False)
-        view.clicked.connect(partial(self.handle_tree_view_click, model, current_tab_plot_manager))
-
         self.current_tab_visualization.append(current_tab_plot_manager)
+
+        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
+        current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+
+        current_tab_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
+
+        # make a deepcopy to be able to slize the copied item without changing its parent
+        current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
+            self.blank_analysis_tree_view_manager.selected_tree_view_data_table)
+        current_tab_tree_view_manager.discarded_tree_view_data_table = copy.deepcopy(
+            self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
+
+        # slice out all series names that are not related to the specific chosen one
+        current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
 
     @Slot()
     def select_analysis_functions(self, series_name):

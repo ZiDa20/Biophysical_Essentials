@@ -1,5 +1,5 @@
 from PySide6.QtCore import *  # type: ignore
-from tree_item_class import TreeItem
+from Offline_Analysis.tree_item_class import TreeItem
 import numpy as np
 
 
@@ -11,6 +11,8 @@ class TreeModel(QAbstractItemModel):
         # column names will always hold item_name, parent, type, level, identifier
 
         self.header = []
+        #if not data_df.empty:
+        print("data_df", data_df)
         display_columns = data_df["type"].unique().tolist()
         print(display_columns)
         """
