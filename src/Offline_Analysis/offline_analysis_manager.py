@@ -90,7 +90,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list, meta_data_assignment_list=None):
+    def read_data_from_experiment_directory(self,tree_view_manager,meta_data_option_list, meta_data_assignment_list=None):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
@@ -103,7 +103,7 @@ class OfflineManager():
         """
 
         # create a new tree view manager class object and connect it to the database
-        self.tree_view_manager = TreeViewManager(self.database)
+        self.tree_view_manager = tree_view_manager
 
         # meta_data_option_list can be an empty list: in this case, the treeeview manager will provide default elements
         # if not empty, this list contains all options in the dropdown menu of each combo box
@@ -137,8 +137,7 @@ class OfflineManager():
             for i,t in enumerate(data_list_final):
                 bundle_worker = self.run_bundle_function_in_thread(t)
 
-        bundle_worker.signals.finished.connect(
-            partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste, tree, discarded_tree))
+        bundle_worker.signals.finished.connect(partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste))
 
         return self.tree_view_manager
 
@@ -158,15 +157,15 @@ class OfflineManager():
         return bundle_worker
         
 
-    def run_database_threading(self, bundle_liste, abf_list, tree, discarded_tree):
+    def run_database_threading(self, bundle_liste, abf_list):
         """"""
         self.threadpool.clear()
         self.database.database.close()
         worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste, abf_list)
-        #worker.signals.progress.connect(self.progress_fn)
+        worker.signals.progress.connect(self.progress_fn)
         #worker.signals.result.connect(self.set_database)
         worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
-         # signal to update progress bar
+        # signal to update progress bar
         self.threadpool.start(worker) # start the thread
 
 

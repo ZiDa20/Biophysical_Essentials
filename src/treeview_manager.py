@@ -426,6 +426,32 @@ class TreeViewManager():
             self.update_treeviews(plot_widget_manager)
         return
 
+    def update_treeview(self):
+        """ updates the treeview with the selected and discarded experiments following
+        database writing
+        toDO: put this also in a thread to avoid sluggish tree loading when lots of data are loaded
+
+        args:
+           selected_tree type: QTreeWidget - the treeview to be updated with the selected experiments
+           discarded_tree type: QTreeWidget - the tree that is updated with the discarded experiments
+
+        returns:
+           None"""
+        self.database_handler.open_connection()
+        self.logger.info("Database writing thread successfully finished")  #
+        # self.database.open_connection() # open the connection to the database in main thread
+
+        try:
+
+            df = self.database_handler.database.execute(
+                "SELECT * FROM experiments").fetchall()  # get all the experiments as sanity
+            if df:
+                print("emitting signal for frontend to be ready for data read")
+                self.data_read_finished.finished_signal.emit()
+                # self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
+        except Exception as e:
+            self.logger.error("Not able to open the database properly " + str(e))
+
     #progress_callback
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 

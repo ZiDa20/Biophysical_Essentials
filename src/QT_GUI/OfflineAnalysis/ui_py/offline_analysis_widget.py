@@ -445,121 +445,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
-
-
-
-    def handle_tree_view_click(self, model, plot_widget_manager, index):
-
-        print("click click click")
-        data_pos = model.item_dict
-
-        # ["experiment", "series", "remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
-        tree_item_list = model.get_data_row(index, Qt.DisplayRole)
-        print("click", tree_item_list)
-        print(data_pos)
-        if tree_item_list[0] == "x":
-            print("x clicked")
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
-                # set the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = True where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' '
-                                                       f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\'')
-                self.update_treeviews()
-                return
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
-                # set all series of the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = True where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
-                self.update_treeviews()
-                return
-
-        if tree_item_list[0] == "<-":
-            print("<- clicked")
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
-                # set the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = False where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' '
-                                                       f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\'')
-                self.update_treeviews()
-                return
-
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
-                print("x clicked")
-                # set all series of the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = False where '
-                                                           f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
-                self.update_treeviews()
-                return
-
-        if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
-            print("series clicked")
-            plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
-                                                              tree_item_list[1][data_pos["hidden1_identifier"]])
-
-            plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["Series"]],tree_item_list[1][data_pos["hidden3_parent"]],
-                                                              tree_item_list[1][data_pos["hidden1_identifier"]],"series" )
-
-
-        if tree_item_list[1][data_pos["hidden2_type"]] == "Sweep":
-            print("sweep clicked")
-            print(tree_item_list)
-
-            parent_data = model.get_parent_data(index)
-            print(parent_data)
-            print(parent_data[data_pos["hidden3_parent"]])
-            print(parent_data[data_pos["hidden1_identifier"]])
-            print(data_pos)
-            print(tree_item_list[1][data_pos["Sweep"]])
-            plot_widget_manager.table_view_sweep_clicked_load_from_database(parent_data[data_pos["hidden3_parent"]],
-                                                                            parent_data[data_pos["hidden1_identifier"]],
-                                                                            tree_item_list[1][data_pos["Sweep"]])
-
-
-    """ deprecated dz
-    def load_worker_deprecated(self):
-        
-        #data of interest are selected according to their experiment label/tag
-        #@return:
-        
-        self.database_handler.database.close()
-
-
-        # bring the treeview into grid_layout 14
-        # clear the tree and make structure the tree
-
-        self.treebuild.experiments_tree_view.clear()
-        self.treebuild.experiments_tree_view.setColumnWidth(0, 150)
-        self.treebuild.experiments_tree_view.setColumnWidth(1, 140)
-        self.treebuild.experiments_tree_view.setColumnWidth(2, 50)
-
-        self.treebuild.outfiltered_tree_view.setColumnWidth(0, 150)
-        self.treebuild.outfiltered_tree_view.setColumnWidth(1, 140)
-        self.treebuild.outfiltered_tree_view.setColumnWidth(2, 50)
-
-        self.treebuild.outfiltered_tree_view.clear()
-
-        print("started_this _thign")
-        self.selected_meta_data_list = []
-        for n in range(0, self.dialog.meta_data_list.count()):
-            item = self.dialog.meta_data_list.item(n)
-            if item.checkState() == Qt.CheckState.Checked:
-                self.selected_meta_data_list.append(item.text())
-                print(item.text())
-
-        self.blank_analysis_page_1_tree_manager = TreeViewManager(self.database_handler)
-        self.blank_analysis_page_1_tree_manager.experiment_tree = self.treebuild.experiments_tree_view
-        self.blank_analysis_page_1_tree_manager.discarded_tree = self.treebuild.outfiltered_tree_view
-        #create the threadpool
-
-        
-        self.worker_I = Worker(self.load_recordings)
-        self.worker_I.signals.finished.connect(self.finished_database_loading)
-        self.worker_I.signals.progress.connect(self.blank_analysis_page_1_tree_manager.fill_tree_gui,
-                                               Qt.BlockingQueuedConnection)
-        self.threadpool.start(self.worker_I)
-        self.dialog.close()
-    
-    """
     def load_recordings(self, progress_callback):
 
         self.progress_callback = progress_callback
@@ -641,14 +526,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.database_handler.add_meta_data_group_to_existing_experiment(n)
                 #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
 
-        tree_view_manager = self.offline_manager.read_data_from_experiment_directory(
-            None,
-            None, meta_data_option_list, meta_data_group_assignment_list)
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
+
+        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_option_list, meta_data_group_assignment_list)
 
 
-        self.add_filter_button.setEnabled(True)
+        #self.add_filter_button.setEnabled(True)
 
-        tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
+        self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
+
 
     @Slot()
     def select_series_to_be_analized(self):
