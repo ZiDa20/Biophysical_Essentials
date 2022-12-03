@@ -116,32 +116,27 @@ class TreeViewManager():
         """
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
-        
         for i in dat_files:
-
             abf_file_data = []
             try:
                 if ".dat" in i:
+                    print(i)
                     file = directory_path + "/" + i # the full path to the file
                     bundle = self.open_bundle_of_file(file) # open heka reader
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
 
-                
-                if isinstance(i,list):
+                if isinstance(i,list): # check if single_dat file or ABF file packagge
                     for abf in i:
                         file_2 = directory_path + "/" + abf
                         abf_file = AbfReader(file_2)
                         data_file = abf_file.get_data_table()
                         meta_data = abf_file.get_metadata_table()
-                        print("METADATA HERE")
                         pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                        print("commandn epoch here")
                         experiment_name = [abf_file.get_experiment_name(), "default", "None", "None", "None", "None", "None"]
                         series_name = abf_file.get_series_name()
                         abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
-                        print("file appended abf to list")
                     
             except Exception as e:
                 # @todo error handling
@@ -149,7 +144,7 @@ class TreeViewManager():
 
             if isinstance(i,list):
                 abf_list.append((abf_file_data, experiment_name))
-        
+        print(bundle_list)
         return bundle_list, abf_list
 
     def write_directory_into_database(self,database, dat_files, abf_files, progress_callback):
@@ -164,9 +159,11 @@ class TreeViewManager():
 
         returns:
             database type: database object - the database to write the data into
-           """
+        """
         print("entering the writing process")
+        print(self.meta_data_assignment_list)
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
+        print(self.meta_data_assigned_experiment_names)
         ################################################################################################################
         #Progress Bar setup
         max_value = len(dat_files)
@@ -178,6 +175,7 @@ class TreeViewManager():
             try:
                 increment = 100/max_value
                 progress_value = progress_value + increment
+                print(i)
                 self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
                 progress_callback.emit((progress_value,i))
             except Exception as e:
@@ -338,6 +336,7 @@ class TreeViewManager():
         self.tree_build_widget.discarded_tree_view.setColumnHidden(4, True)
         self.tree_build_widget.discarded_tree_view.setColumnHidden(5, True)
 
+       
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
             self.tree_build_widget.discarded_tree_view.clicked.disconnect()
@@ -515,6 +514,7 @@ class TreeViewManager():
 
 
                 ''' add meta data as the default data indicated with a -1'''
+                print(meta_data)
                 database.add_experiment_to_global_meta_data(-1, meta_data)
 
             if "Series" in node_type:
@@ -617,10 +617,6 @@ class TreeViewManager():
                                               columns=['sweep_' + str(data_access_array[2] + 1)])
 
         self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
-
-
-
-
 
 
     def cancel_button_clicked(self,dialog):

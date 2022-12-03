@@ -28,14 +28,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self._not_launched = True # Check if the program is launched to avoid resize event
-        self.setWindowFlags(Qt.FramelessWindowHint)
+        #self.setWindowFlags(Qt.FramelessWindowHint)
         self.center() # center
 
         if sys.platform != "darwin":
-            print("darwin platform initialized")
+            print("Non Darwin Platform initialized")
             self.setAttribute(Qt.WA_TranslucentBackground)
             
-
         self.desktop = self.screen()
         self.screenRect = self.desktop.availableGeometry()
         
@@ -244,7 +243,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
             self.apply_stylesheet(self, "hello.xml")
-            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button.css") as file:
+            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
                                                     "background-repeat:None;\n"

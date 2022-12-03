@@ -230,7 +230,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         except Exception as e:
             print(e)
 
-
     def draw_live_plot(self,data_x = None):
         """ this is necessary to draw the plot which is plotted to the self.configuration window
         this will further projected to the online-anaysis """

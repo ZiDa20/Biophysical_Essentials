@@ -231,6 +231,7 @@ class DuckDBDatabaseHandler():
             database.commit()
             return database
         except Exception as e:
+            print(e)
             self.logger.error("Error in Execute SQL Command: %s", e)
             raise Exception(e)
             
@@ -565,13 +566,14 @@ class DuckDBDatabaseHandler():
         """
         print(meta_data_list)
         q = f'update global_meta_data set experiment_label = \'{meta_data_list[1]}\',' \
-            f'species = \'{meta_data_list[2]}\', genotype = = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\','\
+            f'species = \'{meta_data_list[2]}\', genotype =  \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\','\
             f'condition = \'{meta_data_list[5]}\',individuum_id = \'{meta_data_list[6]}\' where experiment_name = \'{meta_data_list[0]}\''
         try:
             self.database = self.execute_sql_command(self.database, q)
             self.logger.info(f'Wrote meta data for experiment \'{meta_data_list[0]}\' into database"')
             return True
         except Exception as e:
+            print(e)
             self.logger.info(f'FAILED to write meta data for experiment \'{meta_data_list[0]}\' into database with error {str(e)}')
             return False
 

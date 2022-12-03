@@ -400,6 +400,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1,
                                                              False)
+        
+        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
+        self.plot_home.clicked.connect(navigation.home)
+        self.plot_move.clicked.connect(navigation.pan)
+        self.plot_zoom.clicked.connect(navigation.zoom)
+        self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
         self.dialog = Load_Data_From_Database_Popup_Handler()
         #self.database_handler.open_connection()
@@ -445,6 +451,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(1)
 
     def load_recordings(self, progress_callback):
+        """_summary_
+
+        Args:
+            progress_callback (_type_): _description_
+        """
 
         self.progress_callback = progress_callback
         self.database_handler.open_connection(read_only=True)
@@ -454,20 +465,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                               self.progress_callback)
 
     def finished_database_loading(self):
+        """The finish signal which is emitted after after treeview filling and database reading
+        """
 
         print("here we finish the database")
         self.database_handler.open_connection()
         for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
             self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
-        #self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout,self.offline_manager,self.treebuild.experiments_tree_view,1,False)
-        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
-        self.treebuild.experiments_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-        self.treebuild.outfiltered_tree_view.itemClicked.connect(self.blank_analysis_plot_manager.tree_view_click_handler)
-        self.plot_home.clicked.connect(navigation.home)
-        self.plot_move.clicked.connect(navigation.pan)
-        self.plot_zoom.clicked.connect(navigation.zoom)
-        self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
-        self.treebuild.directory_tree_widget.setCurrentIndex(0)
         print("finished loading")
         # show selected tree_view
 
@@ -516,16 +520,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # close the dialog
         enter_meta_data_dialog.close()
-
-        if not (meta_data_option_list and meta_data_group_assignment_list):
-            meta_data_group_assignment_list = []
-            meta_data_option_list = []
-        else:
-            for n in meta_data_group_assignment_list:
-                print(n)
-                self.database_handler.add_meta_data_group_to_existing_experiment(n)
-                #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
-
+        self.offline_manager.database_handler = self.database_handler
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
 
         self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_option_list, meta_data_group_assignment_list)
@@ -644,6 +639,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             dialog.select_from_database_button.setDisabled(True)
 
         dialog.exec_()
+            
 
     def open_meta_data_template_file(self, dialog):
         meta_data_assignments = []
@@ -885,6 +881,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             if self.SeriesItems.currentItem().text(0) == "Simple Analysis Configuration":
                 self.simple_analysis_configuration_clicked(parent_stacked)
+                self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
+                self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
+                self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
 
             if self.SeriesItems.currentItem().text(0) == "Plot":
                 self.analysis_stacked.setCurrentIndex(parent_stacked)
@@ -966,13 +965,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
                     statistics_table_widget.statistics_table_widget.show()
 
-                self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
-                self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
-                self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
+                
                 start_statistics = QPushButton("Run Statistic Test")
                 statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
 
                 start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
+            
 
     def calculate_statistics(self,statistics_table:QTableWidget):
         print("calculating statistic")
@@ -998,8 +996,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             else:
                 print("not implemented yet")
-
-
 
 
     def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
@@ -1232,9 +1228,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab = self.tab_list[index]
         series_name = series_name
 
-        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager, None, 1, False)
-        self.current_tab_visualization.append(current_tab_plot_manager)
-
+        self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager, None, 1, False)
+        self.navigation = NavigationToolbar(self.current_tab_plot_manager.canvas, self)
+        self.navigation_list.append(self.navigation)
+        self.current_tab_visualization.append(self.current_tab_plot_manager)
         current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
         current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
 
@@ -1247,7 +1244,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
 
         # slice out all series names that are not related to the specific chosen one
-        current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
+        current_tab_tree_view_manager.create_series_specific_tree(series_name,self.current_tab_plot_manager)
+        
+        
+        
+        
 
     @Slot()
     def select_analysis_functions(self, series_name):
