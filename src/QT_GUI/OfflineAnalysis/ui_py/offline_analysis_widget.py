@@ -1300,7 +1300,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.analysis_table_widget.analysis_table_widget.verticalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
         existing_row_numbers = current_tab.analysis_table_widget.analysis_table_widget.rowCount()
-        current_tab.pushButton_3.clicked.connect(self.add_filter_to_offline_analysis)
+        #current_tab.pushButton_3.clicked.connect(self.add_filter_to_offline_analysis)
 
         if existing_row_numbers == 0:
 
