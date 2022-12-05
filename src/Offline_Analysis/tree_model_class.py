@@ -141,10 +141,10 @@ class TreeModel(QAbstractItemModel):
 
             for item in items_to_add:
                 # create a list representing the row that will be written into the tree
-                print(item)
+                print("single item to add", item)
                 list_for_one_item = [""] * self.column_count
-
-                list_for_one_item[i]=item[0]
+                type = item[2]
+                list_for_one_item[self.item_dict[type]]=item[0]
 
                 if self.discarded:
                     list_for_one_item[self.item_dict["remove"]] = "<-"

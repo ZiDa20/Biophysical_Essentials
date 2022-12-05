@@ -144,22 +144,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("not implemented yet")
         dialog.close()
 
-    def add_meta_data_to_tree_view_coming_soon(self, checkbox_list, name_list, dialog, global_meta_data_table):
-        """
+        self.add_meta_data_to_tree_view_coming_soon(checkbox_list, name_list, global_meta_data_table)
 
+    def add_meta_data_to_tree_view_coming_soon(self, checkbox_list, name_list, global_meta_data_table):
+        """
         @param checkbox_list:
         @param name_list:
         @param dialog:
         @param global_meta_data_table:
         @return:
         """
+        # get the list of column names within the global meta data table checked by the user
         meta_data_list = self.get_selected_checkboxes(checkbox_list,name_list)
-        dialog.close()
+        #dialog.close()
 
-        discarded_state  = False
+        discarded_state = False
 
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        # needs to be an ordered dict:
+
+
+        # built a dict with the final label combinations as key and the related column order as value
+        meta_data_dict = {}
 
         new_level = 0
         parent = ["root"]
@@ -173,11 +178,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             for d in distinct_meta_data:
                 for p in parent:
                     new_parent.append(p+ "_" + d)
-                    new_item_df = pd.DataFrame({"item_name":[d], "parent":[p], "type":[meta_data], "level":[new_level],
-                                                "identifier":[p+ "_" + d]})
+                    new_item_df = pd.DataFrame({"item_name":[d], "parent":[p], "type":"Label",#[meta_data],
+                                                "level":[new_level], "identifier":[p+ "_" + d]})
 
                     df  =pd.concat([df, new_item_df])
-
             new_level = new_level +1
             parent = new_parent
 
@@ -186,7 +190,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         combinations_to_request = df[df["level"]==new_level-1]["identifier"].values.tolist()
         base = f'select experiment_name from global_meta_data where '
-        print(combinations_to_request)
+        #print(combinations_to_request)
         for combination in combinations_to_request:
             print(combination)
             request_details = combination.split("_")
@@ -203,8 +207,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         q = q + " " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
                     else:
                         q = q + " and " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
-
-
 
             # print("loading experiment_labels", self.selected_meta_data_list)
             q2 = (
