@@ -35,7 +35,10 @@ from Pandas_Table import PandasTable
 import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
+from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview import SelectMetaDataForTreeviewDialog
+
 import copy
+
 from Offline_Analysis.tree_model_class import TreeModel
 
 
@@ -111,157 +114,48 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         meta_data_list = meta_data_list[2:len(meta_data_list)]
 
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
-        dialog = QDialog()
-        dialog.setWindowFlags(Qt.FramelessWindowHint)
-        dialog_grid = QGridLayout(dialog)
-        #dialog_info_text = QLabel("Choose your prefered meta-data label(s)")
-        #dialog_grid.addWidget(dialog_info_text, 0, 0)
+        dialog = SelectMetaDataForTreeviewDialog()
 
-        # Prepare a checkbox and a label for each meta data column
+        # Prepare a checkbox and a label for each meta data column in the experiments view
         checkbox_list = []
         name_list = []
         for s in meta_data_list:
             c = QCheckBox()
             checkbox_list.append(c)
-            l = QLabel(s)
-            dialog_grid.addWidget(c, meta_data_list.index(s), 0)
-            dialog_grid.addWidget(l, meta_data_list.index(s), 1)
+            l1 = QLabel(s)
+            l2 = QLabel(', '.join(map(str,np.unique(global_meta_data_table[s].values))))
+
+            dialog.experiment_grid.addWidget(c, meta_data_list.index(s), 0)
+            dialog.experiment_grid.addWidget(l1, meta_data_list.index(s), 1)
+            dialog.experiment_grid.addWidget(l2, meta_data_list.index(s), 2)
+
             name_list.append(s)
 
-        select_meta_data_button = QPushButton("Select", dialog)
+        c = QCheckBox()
+        l = QLabel("condition")
+        dialog.series_grid.addWidget(c, 0, 0)
+        dialog.series_grid.addWidget(l, 0, 1)
+
+        c = QCheckBox()
+        l = QLabel("condition")
+        dialog.sweep_grid.addWidget(c, 0, 0)
+        dialog.sweep_grid.addWidget(l, 0, 1)
+
         print(checkbox_list)
-        select_meta_data_button.clicked.connect(
-            partial(self.add_meta_data_to_tree_view,checkbox_list,name_list, dialog,global_meta_data_table))
-        dialog_quit = QPushButton("Cancel", dialog)
-        dialog_quit.clicked.connect(partial(self.close_dialog, dialog))
-        dialog_grid.addWidget(dialog_quit, len(name_list) + 2, 0)
-        dialog_grid.addWidget(select_meta_data_button, len(name_list) + 2, 1)
+
+        dialog.finish_button.clicked.connect(
+            partial(self.add_meta_data_to_tree_view,checkbox_list,name_list, dialog))
+
+        dialog.cancel_button.clicked.connect(partial(self.close_dialog, dialog))
+
         dialog.setWindowTitle("Available Meta Data Label")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
-    def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog, global_meta_data_table):
-        print("not implemented yet")
+    def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog):
+        meta_data_list = self.get_selected_checkboxes(checkbox_list, name_list)
         dialog.close()
-
-        self.add_meta_data_to_tree_view_coming_soon(checkbox_list, name_list, global_meta_data_table)
-
-    def add_meta_data_to_tree_view_coming_soon(self, checkbox_list, name_list, global_meta_data_table):
-        """
-        @param checkbox_list:
-        @param name_list:
-        @param dialog:
-        @param global_meta_data_table:
-        @return:
-        """
-        # get the list of column names within the global meta data table checked by the user
-        meta_data_list = self.get_selected_checkboxes(checkbox_list,name_list)
-        #dialog.close()
-
-        discarded_state = False
-
-        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-
-
-        # built a dict with the final label combinations as key and the related column order as value
-        meta_data_dict = {}
-
-        new_level = 0
-        parent = ["root"]
-        q = f'select experiment_name from global_meta_data where '
-
-        for meta_data in meta_data_list:
-            distinct_meta_data = global_meta_data_table[meta_data].unique().tolist()
-            print(meta_data, " : ",  distinct_meta_data)
-            q1 = q + meta_data + "="
-            new_parent = []
-            for d in distinct_meta_data:
-                for p in parent:
-                    new_parent.append(p+ "_" + d)
-                    new_item_df = pd.DataFrame({"item_name":[d], "parent":[p], "type":"Label",#[meta_data],
-                                                "level":[new_level], "identifier":[p+ "_" + d]})
-
-                    df  =pd.concat([df, new_item_df])
-            new_level = new_level +1
-            parent = new_parent
-
-        print("sub result")
-        print(df)
-
-        combinations_to_request = df[df["level"]==new_level-1]["identifier"].values.tolist()
-        base = f'select experiment_name from global_meta_data where '
-        #print(combinations_to_request)
-        for combination in combinations_to_request:
-            print(combination)
-            request_details = combination.split("_")
-            # get rid of the "root"
-            request_details.pop(0)
-            if len(request_details)!=len(meta_data_list):
-                print("this case is not implemented so far")
-                print("request_details =", len(request_details))
-                print("meta data  =", len(meta_data_list))
-            else:
-                q = base
-                for detail in range(0,len(request_details)):
-                    if detail == 0:
-                        q = q + " " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
-                    else:
-                        q = q + " and " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
-
-            # print("loading experiment_labels", self.selected_meta_data_list)
-            q2 = (
-                f'select experiment_name from experiment_series where discarded = {discarded_state} ' 
-                f'intersect (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id} '
-                f'intersect ( ' + q + ' ))'
-            )
-            print(q2)
-            parent_name_table = self.database_handler.database.execute(q2).fetchdf()
-            print(parent_name_table)
-
-            if not parent_name_table.empty:
-                tmp_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-                tmp_df["item_name"] = parent_name_table["experiment_name"].values.tolist()
-                tmp_df["parent"] = combination
-                tmp_df["type"] = "Experiment"
-                tmp_df["level"] = new_level
-                tmp_df["identifier"] = parent_name_table["experiment_name"].values.tolist()
-                df = pd.concat([df, tmp_df])
-
-        print("finished")
-        print(df)
-
-        self.selected_model = TreeModel(df)
-        self.treebuild.selected_tree_view.setModel(self.selected_model)
-
-        if self.selected_model.header:
-            for i in range(0, len(self.selected_model.header)):
-                if i < len(self.selected_model.header) - 3:
-                    self.treebuild.selected_tree_view.setColumnHidden(i, False)
-                else:
-                    self.treebuild.selected_tree_view.setColumnHidden(i, True)
-
-
-        self.discarded_model = TreeModel(df, "discarded")
-        self.treebuild.discarded_tree_view.setModel(self.discarded_model)
-
-        for i in range(0, len(self.discarded_model.header)):
-            if i < len(self.discarded_model.header) - 3:
-                self.treebuild.discarded_tree_view.setColumnHidden(i, False)
-            else:
-                self.treebuild.discarded_tree_view.setColumnHidden(i, True)
-
-            self.treebuild.selected_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
-            self.treebuild.discarded_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
-        else:
-            # make sure to disconnect from previous connections otherwise they will be called too
-            self.treebuild.selected_tree_view.clicked.disconnect()
-            self.treebuild.discarded_tree_view.clicked.disconnect()
-            self.treebuild.selected_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
-            self.treebuild.discarded_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
+        self.blank_analysis_tree_view_manager.add_meta_data_to_tree_view_coming_soon(meta_data_list)
 
     def show_sweeps_toggled(self,signal):
         print("toggle" , self.offline_analysis_widgets.currentIndex())
@@ -381,8 +275,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.finished_result_thread()
 
         self.offline_analysis_widgets.setCurrentIndex(2)
-
-
 
     @Slot()
     def start_blank_analysis(self):

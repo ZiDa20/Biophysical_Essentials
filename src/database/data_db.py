@@ -150,7 +150,8 @@ class DuckDBDatabaseHandler():
         sql_create_offline_analysis_table = """ CREATE TABLE offline_analysis(
                                                 analysis_id integer PRIMARY KEY DEFAULT(nextval ('unique_offline_analysis_sequence')),
                                                 date_time TIMESTAMP,
-                                                user_name TEXT); """
+                                                user_name TEXT,
+                                                selected_meta_data text); """
 
         sql_create_experiments_table = """CREATE TABLE experiments(
                                                experiment_name text PRIMARY KEY,

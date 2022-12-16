@@ -1,5 +1,7 @@
 import sys
 import os
+
+import numpy as np
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
@@ -262,24 +264,42 @@ class TreeViewManager():
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
 
-    def create_data_frame_for_tree_model(self, discarded_state: bool, show_sweeps: bool, series_name = None):
-        """
-        @param discarded_state: True or False, indicating whether discarded (True) or non discard elements should be loaded
-        @return: df, filled filled with experiment and series data
-        """
+    def create_parent_data_frame_for_tree_model(self,discarded_state):
+
+        # check whether the user selected meta data. to be displayed in the treeview.
+        # This information is stored in the table, which name is stored in the selected_meta_data column
+        # in the offline_analysis table.
+        check_result = self.check_for_selected_meta_data()
+        print("chech result", check_result)
+
+        q = (f'select distinct experiment_name from experiment_series where '
+             f'discarded = {discarded_state} intersect (select experiment_name from global_meta_data where '
+             f'experiment_label = \'{self.selected_meta_data_list[0]}\')')
 
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-
-        # print("loading experiment_labels", self.selected_meta_data_list)
-        q = (
-            f'select distinct experiment_name from experiment_series where discarded = {discarded_state} intersect (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
         parent_name_table = self.database_handler.database.execute(q).fetchdf()
 
         df["item_name"] = parent_name_table["experiment_name"].values.tolist()
         df["parent"] = "root"
         df["type"] = "Experiment"
         df["level"] = 0
+
         df["identifier"] = parent_name_table["experiment_name"].values.tolist()
+
+        ##if check_result[0]:
+        ##    meta_data_df = self.add_meta_data_to_tree_view_coming_soon(check_result[1])
+        ##    return pd.concat([df, meta_data_df])
+        return df
+
+
+    def create_data_frame_for_tree_model(self, discarded_state: bool, show_sweeps: bool, series_name = None):
+        """
+        @param discarded_state: True or False, indicating whether discarded (True) or non discard elements should be loaded
+        @return: df, filled with experiment and series data
+        """
+
+        # create a dataframe of parents (assigned to meta data groups if selected)
+        experiment_df = self.create_parent_data_frame_for_tree_model(discarded_state)
 
         if series_name:
             q = (f'select * from experiment_series where discarded = {discarded_state}  and series_name = \'{series_name }\' and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
@@ -315,10 +335,10 @@ class TreeViewManager():
                 print(sweep_df)
                 all_sweeps_df = pd.concat([all_sweeps_df, sweep_df])
 
-            return pd.concat([df, series_df, all_sweeps_df])
+            return pd.concat([experiment_df, series_df, all_sweeps_df])
         else:
-            print("result = ",  pd.concat([df, series_df]))
-            return pd.concat([df, series_df])
+            print("result = ",  pd.concat([experiment_df, series_df]))
+            return pd.concat([experiment_df, series_df])
 
     def create_series_specific_tree(self, series_name, plot_widget_manager : PlotWidgetManager):
         self.selected_tree_view_data_table = self.create_data_frame_for_tree_model( False, self.show_sweeps_radio.isChecked(), series_name)
@@ -457,7 +477,108 @@ class TreeViewManager():
         except Exception as e:
             self.logger.error("Not able to open the database properly " + str(e))
 
-    #progress_callback
+    def check_for_selected_meta_data(self):
+        """
+        check the database for anyone selected meta data to be displayed within the treeview
+        """
+        q = f'select selected_meta_data from offline_analysis where analysis_id = {self.database_handler.analysis_id}'
+        table_name = self.database_handler.database.execute(q).fetchdf().values.tolist()
+        table_name = table_name[0][0]
+        print("found selected meta data", table_name)
+
+        if table_name != np.nan:
+            return table_name
+        return None
+
+
+    def add_meta_data_to_tree_view_coming_soon(self, meta_data_list):
+        """
+        given a list of meta data ( == column names in global_meta_data) a dataframe with hierarchical meta data labels
+        is created to be displayed in the treeview
+        """
+        q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
+        global_meta_data_table = self.database_handler.database.execute(q).fetchdf()
+        discarded_state = False
+        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+        db_entry = []
+
+
+        new_level = 0
+        parent = ["root"]
+        q = f'select experiment_name from global_meta_data where '
+
+        # go through the meta data which are columns of the global meta data table
+        for meta_data in meta_data_list:
+            distinct_meta_data = global_meta_data_table[meta_data].unique().tolist()
+            print(meta_data, " : ",  distinct_meta_data)
+            db_entry.append(("global_meta_data", meta_data, distinct_meta_data))
+            q1 = q + meta_data + "="
+            new_parent = []
+            for d in distinct_meta_data:
+                for p in parent:
+                    new_parent.append(p+ "_" + d)
+                    new_item_df = pd.DataFrame({"item_name":[d], "parent":[p], "type":"Label",#[meta_data],
+                                                "level":[new_level], "identifier":[p+ "_" + d]})
+
+                    df  =pd.concat([df, new_item_df])
+            new_level = new_level +1
+            parent = new_parent
+
+        print("sub result")
+        print(df)
+
+        # write the selection of meta data to the database
+        print(db_entry)
+        table_name = "meta_data_"+str(self.database_handler.analysis_id)
+        meta_data_table = pd.DataFrame(db_entry, columns=["table_name", "column_name", "values"])
+        self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_table')
+        q = f'update offline_analysis set selected_meta_data = \'{table_name}\' where analysis_id = {self.database_handler.analysis_id}'
+        self.database_handler.database.execute(q)
+
+        """
+        combinations_to_request = df[df["level"]==new_level-1]["identifier"].values.tolist()
+        base = f'select experiment_name from global_meta_data where '
+        #print(combinations_to_request)
+        for combination in combinations_to_request:
+            print(combination)
+            request_details = combination.split("_")
+            # get rid of the "root"
+            request_details.pop(0)
+            if len(request_details)!=len(meta_data_list):
+                print("this case is not implemented so far")
+                print("request_details =", len(request_details))
+                print("meta data  =", len(meta_data_list))
+            else:
+                q = base
+                for detail in range(0,len(request_details)):
+                    if detail == 0:
+                        q = q + " " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
+                    else:
+                        q = q + " and " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
+
+            # print("loading experiment_labels", self.selected_meta_data_list)
+            q2 = (
+                f'select experiment_name from experiment_series where discarded = {discarded_state} ' 
+                f'intersect (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id} '
+                f'intersect ( ' + q + ' ))'
+            )
+            print(q2)
+            
+            parent_name_table = self.database_handler.database.execute(q2).fetchdf()
+            print(parent_name_table)
+
+            if not parent_name_table.empty:
+                tmp_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                tmp_df["item_name"] = parent_name_table["experiment_name"].values.tolist()
+                tmp_df["parent"] = combination
+                tmp_df["type"] = "Experiment"
+                tmp_df["level"] = new_level
+                tmp_df["identifier"] = parent_name_table["experiment_name"].values.tolist()
+                df = pd.concat([df, tmp_df])
+        """
+        print("finished")
+        print(df)
+        return df
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 
             if database is None:
