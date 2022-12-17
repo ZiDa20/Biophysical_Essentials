@@ -167,7 +167,9 @@ class DuckDBDatabaseHandler():
                                               primary key (experiment_name,series_identifier),
                                               sweep_table_name text,
                                               meta_data_table_name text,
-                                              pgf_data_table_name text
+                                              pgf_data_table_name text,
+                                              series_meta_data text,
+                                              sweep_meta_data text
                                               ); """
 
         sql_create_series_table = """CREATE TABLE analysis_series(
@@ -717,9 +719,9 @@ class DuckDBDatabaseHandler():
             "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
             series_name, series_identifier, experiment_name)
         try:
-            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded) values (?,?,?,?) """
+            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data, sweep_meta_data) values (?,?,?,?,?,?) """
             self.database = self.execute_sql_command(self.database, q,
-                                                     (experiment_name, series_name, series_identifier, 0))
+                                                     (experiment_name, series_name, series_identifier, 0,"None", "None"))
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
             print("insertion finished succesfully")

@@ -35,7 +35,7 @@ from Pandas_Table import PandasTable
 import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
-from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview import SelectMetaDataForTreeviewDialog
+from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 
 import copy
 
@@ -102,49 +102,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.show_colum.clicked.connect(self.select_tree_view_meta_data)
 
     def select_tree_view_meta_data(self):
-        """
-        Allows the user to add new meta data parents into the treeview
-        @return:
-        """
-
-        # get available meta data label for specific experiments linked with this specific analysis
-        q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
-        global_meta_data_table = self.database_handler.database.execute(q).fetchdf()
-        meta_data_list = global_meta_data_table.columns.values.tolist()
-        meta_data_list = meta_data_list[2:len(meta_data_list)]
 
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
-        dialog = SelectMetaDataForTreeviewDialog()
+        dialog = SelectMetaDataForTreeviewDialog(self.database_handler)
 
-        # Prepare a checkbox and a label for each meta data column in the experiments view
-        checkbox_list = []
-        name_list = []
-        for s in meta_data_list:
-            c = QCheckBox()
-            checkbox_list.append(c)
-            l1 = QLabel(s)
-            l2 = QLabel(', '.join(map(str,np.unique(global_meta_data_table[s].values))))
-
-            dialog.experiment_grid.addWidget(c, meta_data_list.index(s), 0)
-            dialog.experiment_grid.addWidget(l1, meta_data_list.index(s), 1)
-            dialog.experiment_grid.addWidget(l2, meta_data_list.index(s), 2)
-
-            name_list.append(s)
-
-        c = QCheckBox()
-        l = QLabel("condition")
-        dialog.series_grid.addWidget(c, 0, 0)
-        dialog.series_grid.addWidget(l, 0, 1)
-
-        c = QCheckBox()
-        l = QLabel("condition")
-        dialog.sweep_grid.addWidget(c, 0, 0)
-        dialog.sweep_grid.addWidget(l, 0, 1)
-
-        print(checkbox_list)
-
-        dialog.finish_button.clicked.connect(
-            partial(self.add_meta_data_to_tree_view,checkbox_list,name_list, dialog))
+        #dialog.finish_button.clicked.connect(
+        #    partial(self.add_meta_data_to_tree_view,checkbox_list, name_list, dialog))
 
         dialog.cancel_button.clicked.connect(partial(self.close_dialog, dialog))
 
@@ -153,6 +116,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.exec_()
 
     def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog):
+
         meta_data_list = self.get_selected_checkboxes(checkbox_list, name_list)
         dialog.close()
         self.blank_analysis_tree_view_manager.add_meta_data_to_tree_view_coming_soon(meta_data_list)

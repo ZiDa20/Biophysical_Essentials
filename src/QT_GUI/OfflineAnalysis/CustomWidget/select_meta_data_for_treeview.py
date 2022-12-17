@@ -129,8 +129,3 @@ class Ui_Dialog(object):
 
 
 
-class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setupUi(self)
