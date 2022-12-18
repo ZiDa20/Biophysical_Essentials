@@ -104,7 +104,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def select_tree_view_meta_data(self):
 
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
-        dialog = SelectMetaDataForTreeviewDialog(self.database_handler)
+        dialog = SelectMetaDataForTreeviewDialog(self.database_handler, self.blank_analysis_tree_view_manager, self.blank_analysis_plot_manager)
 
         #dialog.finish_button.clicked.connect(
         #    partial(self.add_meta_data_to_tree_view,checkbox_list, name_list, dialog))
@@ -115,11 +115,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
-    def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog):
-
-        meta_data_list = self.get_selected_checkboxes(checkbox_list, name_list)
-        dialog.close()
-        self.blank_analysis_tree_view_manager.add_meta_data_to_tree_view_coming_soon(meta_data_list)
 
     def show_sweeps_toggled(self,signal):
         print("toggle" , self.offline_analysis_widgets.currentIndex())
