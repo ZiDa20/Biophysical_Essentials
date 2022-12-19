@@ -5,8 +5,11 @@ import seaborn as sns
 import pandas as pd
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 from scipy.stats import zscore
+import logging
+
 
 class OfflinePlots():
+    logger = logging.getLogger(__name__)
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
     Basis Analysis Functions
     """
@@ -21,7 +24,12 @@ class OfflinePlots():
             database_handler (duckdb): DataBase Handler
             frontend (Frontend_Style): Frontend_Style Class that handles dark-light mode
         """
-        self.analysis_function = analysis_function
+        
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler = logging.FileHandler("offline_plots.log")
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
         self.SeriesItems = SeriesItem
         self.frontend = frontend
         self.canvas = canvas
@@ -30,22 +38,44 @@ class OfflinePlots():
         self.frontend.ax.append(self.ax)
         self.frontend.canvas = self.canvas
         self.offline_analysis_widget = offline_analysis_widget
-        self.style_plot()
-
-        self.plot_dictionary = {"Boxplot": self.make_boxplot,
-                                "No Split": self.simple_plot, 
-                                "Split by Meta Data": self.plot_mean_per_meta_data,
-                                "Rheobase Plot": self.rheobase_plot,
-                                "Sweep Plot": self.single_rheobase_plot,
-                                "Rheoramp-AUC": self.rheoramp_plot,
-                                "Rheoramp-Single": self.rheoramp_single_plot,
-                                "Action Potential Fitting": self.ap_fitting_plot
-                                }
-
         self.database_handler = database_handler
+        self.style_plot()
+        self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
+
+        
+        
+    def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
+        """Retrieves the appropriate Analysis Function
+
+        Args:
+            parent_widget (_type_): The Parent Widget to draw in
+            result_table_list (_type_): The tables that will be visualized
+            analysis_function (_type_): The analysis function choosen
+        """
+        self.logger.info("Retrieving analysis function")
+        # code goes here
+        
+        try:
+            self.plot_dictionary = {"Boxplot": self.make_boxplot,
+                                    "No Split": self.simple_plot, 
+                                    "Split by Meta Data": self.plot_mean_per_meta_data,
+                                    "Rheobase Plot": self.rheobase_plot,
+                                    "Sweep Plot": self.single_rheobase_plot,
+                                    "Rheoramp-AUC": self.rheoramp_plot,
+                                    "Rheoramp-Single": self.rheoramp_single_plot,
+                                    "Action Potential Fitting": self.ap_fitting_plot
+                                    }
+
+        
         
         # retrieve the appropiate plot from the combobox
-        self.plot_dictionary.get(self.analysis_function)(parent_widget, result_table_list)
+            self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list)
+            self.logger.info("Analysis function retrieved successfully")
+        
+        except Exception as e:
+            self.logger.error("An error occurred while trying to retrieve the analysis function: %s", e)
+        
+        
         
     def style_plot(self):
         """Plot Styling Class
@@ -207,6 +237,7 @@ class OfflinePlots():
             parent_widget (_type_): _description_
             result_table_list (list): List of queried result tables
         """
+        print(result_table_list)
         plot_dataframe, z_score = SweepWiseAnalysisTemplate.ap_calc(result_table_list, self.database_handler)
         parent_widget.specific_plot_box.setMinimumHeight(500)
         self.canvas.setMinimumSize(self.canvas.size())

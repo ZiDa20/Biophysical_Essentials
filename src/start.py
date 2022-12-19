@@ -1,6 +1,7 @@
 import sys
 import os
-from PySide6 import *
+from PySide6.QtWidgets import QMainWindow, QGraphicsBlurEffect
+from PySide6.QtCore import Qt
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -11,7 +12,6 @@ from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysi
 from QT_GUI.Settings.ui_py.settings_dialog import *
 from frontend_style import Frontend_Style
 from database.data_db import DuckDBDatabaseHandler
-
 if sys.platform != "darwin":
     from BlurWindow.blurWindow import GlobalBlur
 
@@ -27,21 +27,32 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self._not_launched = True # Check if the program is launched to avoid resize event
-        #self.setWindowFlags(Qt.FramelessWindowHint)
-        self.center() # center
+        # Check if the program is launched to avoid resize event
+        self._not_launched = True 
+        self.center() #place the MainWindow in the center
+        self.setWindowTitle("Biophysical Essentials")
+        
+        # Create a blur effect
+        # Should be tested on Windows 
+        blur_effect = QGraphicsBlurEffect()
+        blur_effect.setBlurRadius(80)
 
+        # Set the blur effect on the window
+        self.setGraphicsEffect(blur_effect)
+        # Check the current OS
         if sys.platform != "darwin":
             print("Non Darwin Platform initialized")
             self.setAttribute(Qt.WA_TranslucentBackground)
-            
-        self.desktop = self.screen()
-        self.screenRect = self.desktop.availableGeometry()
+            self.setWindowFlag(Qt.FramelessWindowHint)
+            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
         
         # set the window geometry to the screen size
+        self.desktop = self.screen()
+        self.screenRect = self.desktop.availableGeometry()
         self.setCentralWidget(self.ui.centralwidget)
-
-        # introduce style sheet to be used by start .py
+        # Logger for the Main function called start
+        self.logger=logging.getLogger() 
+        self.establish_logger()
         self.frontend_style = Frontend_Style()
         
         # distribute this style object to all other classes to be used
@@ -52,9 +63,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
+        
         #self.local_database_handler.database.execute("SET external_threads=1")
-        self.local_database_handler.database.execute("SET log_query_path='database/duck_db_analysis_database.log'")
-
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         
@@ -63,56 +73,41 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.database.update_database_handler(self.local_database_handler)
         self.ui.online.update_database_handler(self.local_database_handler)
 
-        #self.ui.online.frontend_style = self.frontend_style
+        #darkmode implementation
+        self.default_mode = 1
+        self.button_connections()
+      
+    def button_connections(self):
+        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
+        self.home_buttons = (self.ui.configuration_home_2, self.ui.online_analysis_home_2, self.ui.offline_analysis_home_2, self.ui.database_viewer_home_2)
+        for i, button in enumerate(self.buttons):
+            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
-        # Logger for the Main function called start
-        self.logger=logging.getLogger() 
+        for i, button in enumerate(self.home_buttons):
+            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
+
+        self.ui.statistics.clicked.connect(self.initialize_database)
+        self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
+        self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
+        self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
+        self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
+        self.ui.maximize_button.clicked.connect(self.quit_application)
         
+    def establish_logger(self):
+        """Connect and establish the Logging during StartUp Process
+        """
         file_handler = logging.FileHandler('../Logs/start.log')
         formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s') #Check formatting
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.info('A trial message if the logger is working')
         self.logger.setLevel(logging.ERROR)
-        #logging.getLogger('matplotlib.font_manager').disabled = True
-
-        #darkmode implementation
-        self.default_mode = 1
-
-        #make button
-        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
-        self.home_buttons = (self.ui.configuration_home_2, self.ui.online_analysis_home_2, self.ui.offline_analysis_home_2, self.ui.database_viewer_home_2)
-
-        for i, button in enumerate(self.buttons):
-            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
-
-
-        for i, button in enumerate(self.home_buttons):
-            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
-
-        self.ui.statistics.clicked.connect(self.initialize_database)
-        # connect to the metadata file path 
-        self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
-
-        #testing
-        self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
-
-        # connect settings button
-        self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
-        self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
-        self.ui.maximize_button.clicked.connect(self.quit_application)
-
-        if sys.platform != "darwin":
-            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
-        # set the animation 
-        self.animation = QPropertyAnimation(self, b"geometry")
-        self.animation.setDuration(100)
-
 
     def initialize_database(self):
-       self.ui.notebook.setCurrentIndex(4)
-       self.ui.database.show_basic_tables(self.local_database_handler)
-
+        """Initialization of the DataBase using the duckdbhandler
+        """
+        self.ui.notebook.setCurrentIndex(4)
+        self.ui.database.show_basic_tables(self.local_database_handler)
 
     def center(self):
         """Function to center the application at the start into the middle of the screen
@@ -164,15 +159,14 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): Retrieve resizing events of the main window
         """        
 
-        #check this flag to avoid overriding of acrylic effect at start since resize is triggered
+        #check if program is launched to avoid resizing
         if self._not_launched:
             self._not_launched = False
             return
         # during resize change to aero effect to avoid lag
         if sys.platform != "darwin":
             GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
-       
-        
+    
     def transfer_file_to_online(self):
         """Function to transfer the Patchmaster generated .Dat file to the online Analysis
         for further analysis
@@ -205,6 +199,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         args:
             size (bool): if true the window is maximized, if false the window is minimized
         """  
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(50)
         if size is None:      
             self.animation.setStartValue(self.geometry())
             self.animation.setEndValue(self.screenRect)
@@ -285,13 +281,12 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
-    
     apply_stylesheet(app, theme='hello.xml')
     stylesheet = app.styleSheet()
     stylesheet_loaded = "Menu_button.css"
     if sys.platform == "darwin":
         stylesheet_loaded = "Menu_button_mac.css"
-    print(os.getcwd() + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}")
+        
     with open(os.getcwd() + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()

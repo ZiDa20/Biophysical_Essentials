@@ -44,7 +44,6 @@ class OfflineManager():
         self.dummy_meta_data_list = None
         self.options_list_dummy = None
 
-
     @property
     def directory_path(self):
         return self._directory_path
@@ -152,7 +151,6 @@ class OfflineManager():
         
         return self.tree_view_manager
 
-
     def run_bundle_function_in_thread(self,bundle_liste):
         """
         Runs the bundle function in a thread
@@ -164,9 +162,7 @@ class OfflineManager():
         self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
         self.bundle_worker.signals.result.connect(self.show_bundle_result, Qt.DirectConnection)
         self.threadpool.start(self.bundle_worker)
-        
-        
-
+              
     def run_database_threading(self, bundle_liste, abf_list):
         """_summary_
 
@@ -182,7 +178,6 @@ class OfflineManager():
         worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
         # signal to update progress bar
         self.threadpool.start(worker) # start the thread
-
 
     def show_bundle_result(self, result):
         """ result from the bundeling of the dat and abf files"""
