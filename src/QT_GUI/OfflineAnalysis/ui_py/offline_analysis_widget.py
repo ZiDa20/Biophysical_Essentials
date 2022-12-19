@@ -1100,6 +1100,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def test(self, widget, statistics_list_view,event):
         statistics_list_view.initial_list = widget
         print("success")
+        
     @Slot()
     def meta_data_label_dropped(self, item_text):
         print("new label dropped = ", item_text)
@@ -1618,7 +1619,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.open_connection()
 
         ### to be continued here
-        print(row_count)
         for r in range(0, row_count):
             analysis_function = current_tab.analysis_table_widget.analysis_table_widget.item(r, 0).text()
             # print("analysis function ", analysis_function)

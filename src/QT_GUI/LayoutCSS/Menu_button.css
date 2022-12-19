@@ -7,6 +7,16 @@ QPushButton {{
 
 }}
 
+QPushButton[objectName ="darkmode_button"] {{
+  background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);
+  background-repeat: None;
+  color: #d2691e;
+  padding: 5px 10px;
+  background-position: left;
+  border: none;
+  border-radius: 5px;
+}}
+
 QPushButton::pressed{{
   background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                       stop: 0 #dadbde, stop: 1 #f6f7fa);

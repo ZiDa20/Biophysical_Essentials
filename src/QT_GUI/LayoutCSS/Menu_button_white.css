@@ -7,6 +7,16 @@ QPushButton {{
 
 }}
 
+QPushButton[objectName ="darkmode_button"] {{
+  background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);
+  background-repeat: None;
+  color: #d2691e;
+  padding: 5px 10px;
+  background-position: left;
+  border: none;
+  border-radius: 5px;
+}}
+
 QWidget[objectName="frame"] QGroupBox{{
   background-color: rgb(48, 25, 52);
   border: 1px solid {QTMATERIAL_SECONDARYCOLOR};

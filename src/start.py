@@ -215,23 +215,16 @@ class MainWindow(QMainWindow, QtStyleTools):
         QCoreApplication.quit()
 
     def change_to_lightmode(self):
-        # @toDO should be added to the designer class 
+        """DarkMode LightMode Switch
+        """
 
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
+            
+            # open the extension from the css file
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-
-            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/darkmode_button.png);background-repeat: None; \n"
-                                                    "color: #d2691e;\n"
-                                                    "padding: 5px 10px;\n"
-                                                    "background-position: left;\n"
-                                                    "border: none;\n"
-                                                    "border-radius: 5px;\n"
-                                                    "\n"
-                                                        "\n")
-                                                 
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
             self.frontend_style.change_canvas_bright()
            
@@ -241,22 +234,12 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.apply_stylesheet(self, "hello.xml")
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-            self.ui.darkmode_button.setStyleSheet("background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);background-repeat: None; \n"
-                                                    "background-repeat:None;\n"
-                                                    "color: #d2691e;\n"
-                                                    "padding: 5px 10px;\n"
-                                                    "background-position: left;\n"
-                                                    "border: none;\n"
-                                                    "border-radius: 5px;\n"
-                                                    "\n"
-                                                        "\n")
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
             self.frontend_style.change_canvas_dark()
             
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
-
         #  make sure to have all popups  in the same changed theme color
         self.frontend_style.current_style=self.default_mode
 

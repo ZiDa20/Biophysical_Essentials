@@ -1,6 +1,8 @@
+import os 
+
+
 class Frontend_Style():
     """class that will provide all the frontend styles to be used in common by all frontend classes with the same instance"""
-
 
     def __init__(self):
 
@@ -11,6 +13,7 @@ class Frontend_Style():
         self.current_style = 1
         self.sideframe_light_style = u"QWidget{background-color: \"#FFFFFF\";}\n" \
                                 "QPushButton{padding: 10px 10px;"\
+                                "	        padding-left: 20px;" \
                                 "	        border: none;" \
                                 "	        border-radius: 20px 20px 0px 0x;" \
                                 "	        background-color: \"#FFFFFF\";"\
@@ -30,6 +33,7 @@ class Frontend_Style():
                                   
         self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; }\n" \
                            "QPushButton{ padding: 10px 10px; " \
+                           "	        padding-left: 20px;" \
                            "             border None ;" \
                            "             border-radius:5px;" \
                            "             color:#2986cc; " \
@@ -75,8 +79,11 @@ class Frontend_Style():
             dialog.setStyleSheet(self.light_style)
         else:
             dialog.setStyleSheet(self.dark_style)
-            
+                    
     def change_canvas_bright(self):
+        """Changes the Appearance of the Plots generate in the OfflineAnalysis
+        in the OfflinePlot Class 
+        """
         if len(self.ax) > 0:
             for ax in self.ax:
                 ax.spines['bottom'].set_color('black')
@@ -85,17 +92,19 @@ class Frontend_Style():
                 ax.yaxis.label.set_color('black')
                 ax.tick_params(axis='x', colors='black')
                 ax.tick_params(axis='y', colors='black')
-                #canvas.draw_idle()
-            
-    
+               
+        
     def change_canvas_dark(self):  
+        """Changes the Appearance of the Plots generate in the OfflineAnalysis
+        in the OfflinePlot Class 
+        """
         if len(self.ax) > 0:
-            for ax in self.ax:
+            for ax in self.ax: # loops thorough each individual plot in the axis
                 ax.spines['bottom'].set_color('white')
                 ax.spines['left'].set_color('white') 
                 ax.xaxis.label.set_color('white')
                 ax.yaxis.label.set_color('white')
                 ax.tick_params(axis='x', colors='white') 
                 ax.tick_params(axis='y', colors='white')
-                #canvas.draw_idle()
+        
         

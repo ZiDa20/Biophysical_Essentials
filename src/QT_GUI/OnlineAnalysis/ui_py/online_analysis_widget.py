@@ -6,7 +6,6 @@ import pandas as pd
 from Pandas_Table import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-
 from QT_GUI.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
 from online_analysis_manager import OnlineAnalysisManager
 from treeview_manager import TreeViewManager
@@ -79,6 +78,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.transfer_to_offline_analysis.clicked.connect(self.start_db_transfer)
 
     def logger_connection(self):
+        """Set the logging connections
+        """
          # logger settings
         self.logger=logging.getLogger() # introduce the logger
         self.logger.setLevel(logging.ERROR)
@@ -90,7 +91,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
 
     def start_db_transfer(self):
-
+        """_summary_
+        """
         file_path = self.online_manager._dat_file_name
         bundle = TreeViewManager().open_bundle_of_file(file_path)
         pgf_data=TreeViewManager().read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None)  # retrieve pgf data
@@ -183,6 +185,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.start_video.start(250) 
             
     def run_video(self):
+        """Should play the recorded video/gif in the labbook
+        """
         self.video_call += 1 
         item = self.video_mat[self.video_call]
         self.online_video.clear()   # clear the scene
@@ -195,6 +199,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         
     def get_columns_data_to_table(self):
         #toDO add the documentation here
+        """Should put the labbook with selecte metadata into the 
+        Retrievable Labbook
+        """
         count = self.treeWidget.topLevelItemCount()
         list_rows = []
         final_pandas = pd.DataFrame()

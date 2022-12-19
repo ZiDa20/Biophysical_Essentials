@@ -160,7 +160,7 @@ class OfflineManager():
         author MZ, 13.07.2022
         """
         self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
-        self.bundle_worker.signals.result.connect(self.show_bundle_result, Qt.DirectConnection)
+        self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
         self.threadpool.start(self.bundle_worker)
               
     def run_database_threading(self, bundle_liste, abf_list):
@@ -179,8 +179,13 @@ class OfflineManager():
         # signal to update progress bar
         self.threadpool.start(worker) # start the thread
 
-    def show_bundle_result(self, result):
-        """ result from the bundeling of the dat and abf files"""
+    def bundle_to_instance_list(self, result):
+        """Should append the created bundled list for abf and dat files
+        to the instance list which can be accessed
+
+        Args:
+            result (event, callback): The bundled results from the indivdiual Qthreads
+        """
         bundle_result, abf_result = result
         for i in bundle_result:
             self.bundle_liste.append(i)
@@ -188,15 +193,24 @@ class OfflineManager():
             self.abf_bundle_liste.append(i)
 
     def chunks(self, lst, n):
-        """Yield successive n-sized chunks from lst."""
+        """Should create a chunked list used for the Qthreads
+
+        Args:
+            lst (list): The list that should be chunked
+            n (int): Pieces that should the list be chunked to
+
+        Yields:
+            list: The chunked list of list as a generator
+        """
         for i in range(0, len(lst), int(n)):
             yield lst[i:i + int(n)]
 
     def progress_fn(self,data):
-        """ check the progress of the worker thread which contains the readed dat files
-        args:
-            data(int): progress of the worker thread
-            
+        """Checks the progress in the Thread and shows off 
+        percentage in the ProgressBar
+
+        Args:
+            data (callback, tuple[float, str]): Tuple of current Experiment Name and Progress
         """
         self.progressbar.setValue(data[0])
         self.statusbar.showMessage(f"Writing data to database: {data[1]}")
