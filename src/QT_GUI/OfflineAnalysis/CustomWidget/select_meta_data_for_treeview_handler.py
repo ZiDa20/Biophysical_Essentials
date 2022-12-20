@@ -79,7 +79,6 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         update the selection grid
         """
         concatenated_label = []
-
         for i in range(self.selection_grid.count()):
             self.selection_grid.itemAt(i).widget().deleteLater()
 

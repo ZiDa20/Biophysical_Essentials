@@ -2,7 +2,6 @@ from PySide6.QtCore import *  # type: ignore
 from Offline_Analysis.tree_item_class import TreeItem
 import numpy as np
 
-
 class TreeModel(QAbstractItemModel):
     def __init__(self, data_df, discarded = None, parent=None):
         super(TreeModel, self).__init__(parent)
@@ -160,24 +159,14 @@ class TreeModel(QAbstractItemModel):
 
                 parent = self.parent_dict.get(str(item[1]))
                 new_parent = TreeItem(list_for_one_item, parent)
+                self.parent_dict.update({str(item[4]): new_parent})
+                print("appending parent", str(item[4]))
+
+                """
                 if item[2]=="Series" or item[2]=="Sweep":
                     parent_name = str(item[1]) + "_" + str(item[4])
                     self.parent_dict.update({parent_name: new_parent})
                     print("appending parent: ", parent_name)
                 else:
-                    self.parent_dict.update({str(item[4]): new_parent})
-                    print("appending parent",str(item[4]) )
+                """
                 parent.appendChild(new_parent)
-                """
-                if item[2]=="Experiment":
-                    root = self.parent_dict.get("root")
-                    new_parent = TreeItem(list_for_one_item, root)
-                    self.parent_dict.update({str(item[4]): new_parent})
-                    root.appendChild(new_parent)
-
-                else:
-                """
-
-
-
-        #self.parent_dict = parent_dict

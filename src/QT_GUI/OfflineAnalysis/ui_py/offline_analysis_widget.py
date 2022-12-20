@@ -124,7 +124,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if self.offline_analysis_widgets.currentIndex() ==2:
                 print("not implemented yet")
         except Exception as e:
-           print(e)
+           print("sweep error", e)
            dialog = QDialog()
            dialog_grid = QGridLayout(dialog)
            dialog_error = QLabel("Dear looser ! Please load your data first",dialog)

@@ -389,6 +389,10 @@ class PlotWidgetManager(QRunnable):
         print(sweep_name)
         split_view = 1
         db = self.offline_manager.get_database()
+        experiment_name = experiment_name.split("::")
+        experiment_name = experiment_name[len(experiment_name)-1]
+        series_identifier = series_identifier.split("::")
+        series_identifier = series_identifier[len(series_identifier)-1]
         series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
         print(series_df)
         # get the meta data to correctly display y values of traces
@@ -550,9 +554,14 @@ class PlotWidgetManager(QRunnable):
         """new function"""
 
         print("plotting started")
-        print(experiment_name)
-        print(series_identifier)
 
+        experiment_name = experiment_name.split("::")
+        experiment_name = experiment_name[len(experiment_name)-1]
+        print(experiment_name)
+
+        series_identifier = series_identifier.split("::")
+        series_identifier = series_identifier[len(series_identifier)-1]
+        print(series_identifier)
         split_view = 1
 
         db = self.offline_manager.get_database()
