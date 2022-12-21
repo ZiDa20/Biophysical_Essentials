@@ -53,22 +53,26 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
             if n == "Series":
                 grid = self.series_grid
                 column = "series_meta_data"
+                table = "experiment_series"
             else:
                 grid = self.sweep_grid
-                column = "sweep_meta_data"
+                column = "meta_data"
+                table = "sweep_meta_data"
+
+            available_groups = self.database_handler.database.execute(
+                f'select distinct {column} from {table} ' \
+                f'where experiment_name in (select experiment_name ' \
+                f'from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})').fetchdf()
 
             grid.addWidget(c, 0, 0)
             grid.addWidget(l, 0, 1)
-            available_groups = self.database_handler.database.execute(
-                f'select distinct {column} from experiment_series ' \
-                f'where experiment_name in (select experiment_name ' \
-                f'from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})').fetchdf()
+
 
             available_groups = list(np.unique(available_groups[column].values))
             l2 = QLabel(', '.join(map(str, available_groups)))
             grid.addWidget(l2, 0, 2)
             print(available_groups)
-            name_list.append(tuple(["experiment_series", column, available_groups]))
+            name_list.append(tuple([table, column, available_groups]))
             c.stateChanged.connect(partial(self.checkbox_state_changed, checkbox_list, name_list))
 
         self.finish_button.clicked.connect(partial(self.finish_dialog,checkbox_list,name_list))

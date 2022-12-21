@@ -168,8 +168,7 @@ class DuckDBDatabaseHandler():
                                               sweep_table_name text,
                                               meta_data_table_name text,
                                               pgf_data_table_name text,
-                                              series_meta_data text,
-                                              sweep_meta_data text
+                                              series_meta_data text 
                                               ); """
 
         sql_create_series_table = """CREATE TABLE analysis_series(
@@ -203,15 +202,19 @@ class DuckDBDatabaseHandler():
                                             specific_result_table_name text
                                             ); """
 
-        #sweep_number integer,
-        #result_value  DOUBLE
-
+        sql_create_sweep_meta_data_table ="""CREATE TABLE sweep_meta_data(
+                                                sweep_name text,
+                                                series_identifier text,
+                                                experiment_name text,
+                                                meta_data text,
+                                                primary key (sweep_name,series_identifier, experiment_name)
+                                                ); """
         try:
             self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
             self.database = self.execute_sql_command(self.database, sql_create_filter_table)
             self.database = self.execute_sql_command(self.database, sql_create_series_table)
             self.database = self.execute_sql_command(self.database, sql_create_experiments_table)
-            # self.database = self.execute_sql_command(self.database, sql_create_sweeps_table)
+            self.database = self.execute_sql_command(self.database, sql_create_sweep_meta_data_table)
             self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
             self.database = self.execute_sql_command(self.database, sql_create_results_table)
             self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
@@ -719,9 +722,9 @@ class DuckDBDatabaseHandler():
             "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
             series_name, series_identifier, experiment_name)
         try:
-            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data, sweep_meta_data) values (?,?,?,?,?,?) """
+            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data) values (?,?,?,?,?) """
             self.database = self.execute_sql_command(self.database, q,
-                                                     (experiment_name, series_name, series_identifier, 0,"None", "None"))
+                                                     (experiment_name, series_name, series_identifier, 0,"None"))
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
             print("insertion finished succesfully")

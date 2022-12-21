@@ -95,13 +95,11 @@ class TreeViewManager():
         self.logger.addHandler(file_handler)
         self.logger.info('Treeview Manager Initialized')
 
-
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
         self.data_read_finished = DataReadFinishedSignal()
         self.tree_build_finished = DataReadFinishedSignal()
         self.experiment_tree_finished = DataReadFinishedSignal()
-
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory 
@@ -276,7 +274,7 @@ class TreeViewManager():
         table_name = table_name["selected_meta_data"].values.tolist()[0]
 
         if table_name is not np.nan:
-            return self.create_parents_with_meta_data_parents(table_name, discarded_state)
+            return self.create_treeview_with_meta_data_parents(table_name, discarded_state)
         else:
             experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
             series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
@@ -308,8 +306,6 @@ class TreeViewManager():
 
                 return pd.concat([experiment_df, series_df, all_sweeps_df])
             return pd.concat([experiment_df, series_df])
-
-
 
     def create_series_without_meta_data(self,series_name,discarded_state,experiment_df):
         if series_name:
@@ -511,11 +507,12 @@ class TreeViewManager():
 
         return df
 
-    def create_parents_with_meta_data_parents(self,table_name, discarded_state):
+    def create_treeview_with_meta_data_parents(self,table_name, discarded_state):
         """
         create a pandas dataframe with meta data labels as parents for experiments
         """
         q= f'select * from {table_name}'
+
         meta_data_table = self.database_handler.database.execute(q).fetchdf()
         unique_table = list(np.unique(meta_data_table["table"].values.tolist()))
 
@@ -525,10 +522,15 @@ class TreeViewManager():
         q_2 = f'select experiment_name from global_meta_data where ' \
               f'experiment_label = \'{self.selected_meta_data_list[0]}\''
 
+        q_3 = f'select experiment_name from sweep_meta_data where '
+
         if unique_table == ["global_meta_data"]:
             q = q_1 + ' intersect (' + q_2 + ' and '
         if unique_table == ["experiment_series"]:
             q = q_2 + ' intersect (' + q_1 + ' and '
+        if unique_table == ["sweep_meta_data"]:
+            q = '( ' + q_1 + ' intersect (' + q_2 + ')) intersect (' + q_3
+
         if ("global_meta_data" in unique_table) and ("experiment_series" in unique_table):
             q = q_2 + ' and '
 
@@ -604,14 +606,22 @@ class TreeViewManager():
                 # create series
                 for index,row in parent_name_table.iterrows():
 
-                    if "experiment_series" in unique_table:
-                        query = query.split("experiment_series")
-                        query = f'select * from experiment_series ' + query[1] + f' and experiment_name = \'{row["experiment_name"]}\''
-                        print("series query ", query)
+                    if "sweep_meta_data" not in unique_table:
+                        if "experiment_series" in unique_table:
+                            query = query.split("experiment_series")
+                            query = f'select * from experiment_series ' + query[1] + f' and experiment_name = \'{row["experiment_name"]}\''
+                            print("series query ", query)
+                        else:
+                            query = query.split("intersect")
+                            query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name in ' + query[1] + ')'
+                            print(query)
                     else:
-                        query = query.split("intersect")
-                        query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name in ' + query[1] + ')'
-                        print(query)
+                        query = query.split("sweep_meta_data")
+                        query = query[1]
+                        query = f'select * from experiment_series where discarded = {discarded_state} ' \
+                            f' and series_identifier in (select series_identifier from sweep_meta_data ' + query + ')'
+                        print("sweep query", query)
+
                     series_table = self.database_handler.database.execute(query).fetchdf()
                     series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
                     series_df["item_name"] = series_table["series_name"].values.tolist()
@@ -793,7 +803,6 @@ class TreeViewManager():
                     self.sweep_meta_data_df = pd.DataFrame()
 
                 sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
-            
 
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
 
