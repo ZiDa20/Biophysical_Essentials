@@ -759,7 +759,7 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
-git
+
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
                 self.series_identifier = None
@@ -772,9 +772,9 @@ git
 
                 group_name = None
                 try:
-                    #print("adding experiment", experiment_name)
-                    #print(self.meta_data_assignment_list)
-                    #print(self.meta_data_assigned_experiment_names)
+                    print("adding experiment", experiment_name)
+                    print(self.meta_data_assignment_list)
+                    print(self.meta_data_assigned_experiment_names)
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                     meta_data = self.meta_data_assignment_list[pos]
                 except Exception as e:

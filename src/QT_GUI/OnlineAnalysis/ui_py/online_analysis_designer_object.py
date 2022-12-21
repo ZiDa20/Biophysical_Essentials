@@ -341,6 +341,7 @@ class Ui_Online_Analysis(object):
 
         self.tree_plot_widget_layout.addWidget(self.label)
 
+
         self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 0, 1, 2, 1)
 
         self.online_analysis_tabs.addTab(self.recorded_series_plot_tab, "")
@@ -375,11 +376,7 @@ class Ui_Online_Analysis(object):
         self.gridLayout_8.addLayout(self.gridLayout_4, 0, 0, 2, 1)
 
 
-        self.gridLayout_19.addWidget(self.groupBox_2, 1, 1, 1, 1)
-
-        self.verticalSpacer_3 = QSpacerItem(5, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_19.addItem(self.verticalSpacer_3, 1, 0, 1, 1)
+        self.gridLayout_19.addWidget(self.groupBox_2, 1, 0, 1, 1)
 
         self.online_analysis.addTab(self.online_analysis_window, "")
         self.labbook_window = QWidget()
@@ -541,4 +538,3 @@ class Ui_Online_Analysis(object):
         self.label_12.setText(QCoreApplication.translate("Online_Analysis", u"Experiment Report", None))
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.labbook_window), QCoreApplication.translate("Online_Analysis", u"Labbook", None))
     # retranslateUi
-
