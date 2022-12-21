@@ -759,11 +759,14 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
+git
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
                 self.series_identifier = None
 
                 self.logger.info("adding experiment")
+                print("adding experiment")
+                print(experiment_name)
                 self.logger.info(experiment_name)
                 database.add_experiment_to_experiment_table(experiment_name)
 

@@ -116,38 +116,39 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         also be plotted in an additionally created plot widget"""
 
         # open selection and retake users file selection
-        print(file_name)
+
         if file_name is False:
             file_name = QFileDialog.getOpenFileName(self, 'OpenFile',"","*.dat")[0]
+            treeview_name =  file_name.split("/")
+            treeview_name = treeview_name[len(treeview_name)-1].split(".")[0]
+        else:
+            treeview_name = file_name
 
-        #self.label_selected_directory.setText(file_name) can be added for the label but was removed nnow MZ
+        print("treeview_name", treeview_name)
 
         # save the path in the manager class
         self.online_manager._dat_file_name = file_name
 
         # create treeview of this .dat file
-        bundle = TreeViewManager().open_bundle_of_file(file_name)
+        online_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.online_treeview)
+        bundle = online_analysis_tree_view_manager.open_bundle_of_file(file_name)
+        pgf_data_frame = online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
+                                                                                                  None, None)
 
-        # make sure to write into an empty tree (otherwise it will only be appended)
-        self.treeWidget.clear()
-        self.treeWidget_2.clear()
+        # single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
+        online_analysis_tree_view_manager.single_file_into_db([], bundle, treeview_name, self.database_handler, [0, -1, 0, 0], pgf_data_frame)
 
-        # for a better appearance an initial default widget will be shown to the user
-        # this default widget needs to be removed first
-        try:
-            self.tree_layouting_change.removeWidget(self.tree_default_empty_widget)
-            self.tree_default_empty_widget.deleteLater()
-        except:
-            print("no default widget found")
+        print("file stored succesfully in database")
+
+        self.show_sweeps_radio = QRadioButton()
+        online_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+        online_analysis_tree_view_manager.selected_meta_data_list = ["default"]
+        online_analysis_plot_manager = PlotWidgetManager(self.tree_plot_widget_layout, self.database_handler, None, False)
+        online_analysis_tree_view_manager.update_treeviews(online_analysis_plot_manager)
 
         # create two treeviews and write into self.treewidget and self.treewidget_2
-        pgf_data_frame = TreeViewManager().read_series_specific_pgf_trace_into_df([],bundle,[],None,None,None)
-        TreeViewManager().create_treeview_from_single_dat_file([], bundle, "", [],self.treeWidget, self.treeWidget_2,"SingleExperiment",[],0,pgf_data_frame)
 
-        self.get_columns_data_to_table()
-        self.tree_layouting_change.addWidget(self.tree_tab_widget)
-        self.tree_tab_widget.setMaximumSize(QSize(330, 700))
-       
+        """
 
          # initially show online analysis
         self.tree_tab_widget.setCurrentIndex(0)
@@ -173,7 +174,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_plot_manager.tree_view_click_handler(self.treeWidget.topLevelItem(0).child(0))
 
         self.get_columns_data_to_table()
-
+        """
     def video_show(self):
         """ show the video in the graphics view 
         Generate the Qtimer for the function"""

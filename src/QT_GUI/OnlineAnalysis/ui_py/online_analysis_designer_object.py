@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'online_analysis_notebook_ribbon.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.1
+## Created by: Qt User Interface Compiler version 6.3.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -14,6 +14,7 @@ from PySide6.QtWidgets import *  # type: ignore
 
 from groupbox_resizing_class import GroupBoxSize
 #from Custom_Widgets.Widgets import QCustomSlideMenu
+from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget import TreeBuild
 
 
 class Ui_Online_Analysis(object):
@@ -303,10 +304,6 @@ class Ui_Online_Analysis(object):
         self.online_analysis_window.setObjectName(u"online_analysis_window")
         self.gridLayout_19 = QGridLayout(self.online_analysis_window)
         self.gridLayout_19.setObjectName(u"gridLayout_19")
-        self.verticalSpacer_3 = QSpacerItem(5, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_19.addItem(self.verticalSpacer_3, 1, 1, 1, 1)
-
         self.groupBox_2 = GroupBoxSize(self.online_analysis_window)
         self.groupBox_2.setObjectName(u"groupBox_2")
         sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -344,7 +341,6 @@ class Ui_Online_Analysis(object):
 
         self.tree_plot_widget_layout.addWidget(self.label)
 
-
         self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 0, 1, 2, 1)
 
         self.online_analysis_tabs.addTab(self.recorded_series_plot_tab, "")
@@ -368,62 +364,22 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_8.addWidget(self.online_analysis_tabs, 0, 1, 2, 1)
 
-
-        self.gridLayout_19.addWidget(self.groupBox_2, 1, 2, 1, 1)
-
-        self.groupBox_4 = QGroupBox(self.online_analysis_window)
-        self.groupBox_4.setObjectName(u"groupBox_4")
-        sizePolicy2.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
-        self.groupBox_4.setSizePolicy(sizePolicy2)
-        self.groupBox_4.setMinimumSize(QSize(300, 0))
-        self.groupBox_4.setMaximumSize(QSize(448, 16777215))
-        self.gridLayout_18 = QGridLayout(self.groupBox_4)
-        self.gridLayout_18.setObjectName(u"gridLayout_18")
-        self.gridLayout_18.setSizeConstraint(QLayout.SetMinimumSize)
-        self.gridLayout_18.setContentsMargins(0, -1, -1, -1)
-        self.tree_layouting_change = QGridLayout()
-        self.tree_layouting_change.setObjectName(u"tree_layouting_change")
-        self.tree_tab_widget = QTabWidget(self.groupBox_4)
-        self.tree_tab_widget.setObjectName(u"tree_tab_widget")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.tree_tab_widget.sizePolicy().hasHeightForWidth())
-        self.tree_tab_widget.setSizePolicy(sizePolicy3)
-        self.tree_tab_widget.setMinimumSize(QSize(300, 600))
-        self.tree_tab_widget.setStyleSheet(u"")
-        self.selected_tree_view = QWidget()
-        self.selected_tree_view.setObjectName(u"selected_tree_view")
-        self.verticalLayout_2 = QVBoxLayout(self.selected_tree_view)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.treeWidget = QTreeWidget(self.selected_tree_view)
-        self.treeWidget.setObjectName(u"treeWidget")
-
-        self.verticalLayout_2.addWidget(self.treeWidget)
-
-        self.tree_tab_widget.addTab(self.selected_tree_view, "")
-        self.discarded_tree_view = QWidget()
-        self.discarded_tree_view.setObjectName(u"discarded_tree_view")
-        self.gridLayout_4 = QGridLayout(self.discarded_tree_view)
+        self.gridLayout_4 = QGridLayout()
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.treeWidget_2 = QTreeWidget(self.discarded_tree_view)
-        self.treeWidget_2.setObjectName(u"treeWidget_2")
-        sizePolicy2.setHeightForWidth(self.treeWidget_2.sizePolicy().hasHeightForWidth())
-        self.treeWidget_2.setSizePolicy(sizePolicy2)
-        self.treeWidget_2.setMinimumSize(QSize(300, 0))
-        self.treeWidget_2.setStyleSheet(u"")
+        self.online_treeview = TreeBuild(self.groupBox_2)
+        self.online_treeview.setObjectName(u"online_treeview")
 
-        self.gridLayout_4.addWidget(self.treeWidget_2, 0, 0, 1, 1)
-
-        self.tree_tab_widget.addTab(self.discarded_tree_view, "")
-
-        self.tree_layouting_change.addWidget(self.tree_tab_widget, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.online_treeview, 0, 0, 1, 1)
 
 
-        self.gridLayout_18.addLayout(self.tree_layouting_change, 0, 0, 1, 1)
+        self.gridLayout_8.addLayout(self.gridLayout_4, 0, 0, 2, 1)
 
 
-        self.gridLayout_19.addWidget(self.groupBox_4, 1, 0, 1, 1)
+        self.gridLayout_19.addWidget(self.groupBox_2, 1, 1, 1, 1)
+
+        self.verticalSpacer_3 = QSpacerItem(5, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_19.addItem(self.verticalSpacer_3, 1, 0, 1, 1)
 
         self.online_analysis.addTab(self.online_analysis_window, "")
         self.labbook_window = QWidget()
@@ -460,6 +416,9 @@ class Ui_Online_Analysis(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.groupBox = GroupBoxSize(self.labbook_window)
         self.groupBox.setObjectName(u"groupBox")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy3)
         self.gridLayout_7 = QGridLayout(self.groupBox)
@@ -543,7 +502,6 @@ class Ui_Online_Analysis(object):
 
         self.online_analysis.setCurrentIndex(0)
         self.online_analysis_tabs.setCurrentIndex(0)
-        self.tree_tab_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Online_Analysis)
@@ -575,20 +533,6 @@ class Ui_Online_Analysis(object):
         self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.recorded_series_plot_tab), QCoreApplication.translate("Online_Analysis", u"Plot Window", None))
         self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.live_recording_tab), QCoreApplication.translate("Online_Analysis", u"Live Recording", None))
         self.online_analysis_tabs.setTabText(self.online_analysis_tabs.indexOf(self.fast_online_analysis), QCoreApplication.translate("Online_Analysis", u"Fast Analysis", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("Online_Analysis", u"Experiment Hierachy", None))
-#if QT_CONFIG(accessibility)
-        self.tree_tab_widget.setAccessibleName(QCoreApplication.translate("Online_Analysis", u"tab_widgets", None))
-#endif // QT_CONFIG(accessibility)
-        ___qtreewidgetitem = self.treeWidget.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Online_Analysis", u"Remove", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Online_Analysis", u"Show", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Online_Analysis", u"Object", None));
-        self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Online_Analysis", u"Selected", None))
-        ___qtreewidgetitem1 = self.treeWidget_2.headerItem()
-        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Online_Analysis", u"Reinsert", None));
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Online_Analysis", u"Show", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Online_Analysis", u"Object", None));
-        self.tree_tab_widget.setTabText(self.tree_tab_widget.indexOf(self.discarded_tree_view), QCoreApplication.translate("Online_Analysis", u"Discarded", None))
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.online_analysis_window), QCoreApplication.translate("Online_Analysis", u"Online Analysis", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("Online_Analysis", u"TreeView Experiment", None))
         self.groupBox.setTitle(QCoreApplication.translate("Online_Analysis", u"Labbbook Table", None))

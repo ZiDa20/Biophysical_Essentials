@@ -251,8 +251,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         :author: dz, 01.07.2022
         """
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1,
-                                                             False)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
         # open a popup to allow experiment label selection by the user
         self.dialog = Load_Data_From_Database_Popup_Handler()
         #self.database_handler.open_connection()
@@ -1085,7 +1084,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab = self.tab_list[index]
         series_name = series_name
 
-        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager, None, 1, False)
+        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False)
         self.current_tab_visualization.append(current_tab_plot_manager)
 
         current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)

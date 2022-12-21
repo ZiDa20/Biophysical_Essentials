@@ -20,7 +20,7 @@ from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import  An
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
-    def __init__(self,vertical_layout_widget,manager_object,tree_view,mode,detection,toolbar_widget = None, toolbar_layout = None):
+    def __init__(self,vertical_layout_widget,database,tree_view,detection,toolbar_widget = None, toolbar_layout = None):
         """
         INIT:
         :param vertical_layout_widget: layout to be filled with the plotwidget created by this class
@@ -47,32 +47,11 @@ class PlotWidgetManager(QRunnable):
 
         self.toolbar_widget = toolbar_widget
 
-        """
-        print("toolbar")
-        try:
-            print("toolbar horizontal space")
-        except Exception as e:
-            print(e)
-
-       
-        self.navbar.clear()
-
-        # Adds Buttons
-        a = self.navbar.addAction(self.navbar._icon("home.png"), "Home", self.navbar.home)
-        # a.setToolTip('returns axes to original position')
-        a = self.navbar.addAction(self.navbar._icon("move.png"), "Pan", self.navbar.pan)
-
-        # Fixed with, otherwise navigation bar resize arbitrary
-        self.navbar.setFixedWidth(40)
-        
-        """
         self.tree_view = tree_view
-        self.analysis_mode = mode
 
-        if self.analysis_mode == 0:
-            self.online_manager = manager_object
-        else:
-            self.offline_manager = manager_object
+        self.database_handler = database
+
+
 
         self.time = None
 
@@ -122,17 +101,10 @@ class PlotWidgetManager(QRunnable):
             self.series_in_treeview_clicked(item.child(0))
     """
     def sweep_in_treeview_clicked(self,item):
-        if self.analysis_mode == 0:
-            self.sweep_clicked_load_from_dat_file(item)
-        else:
             self.sweep_clicked_load_from_dat_database(item)
             self.check_live_analysis_plot(item,"sweep")
 
     def series_in_treeview_clicked(self,item):
-        print("Item was clicked ", item.text(0))
-        if self.analysis_mode == 0: # online analysis
-            self.series_clicked_load_from_dat_file(item)
-        else:
             self.series_clicked_load_from_database(item)
             self.check_live_analysis_plot(item,"series")
 
@@ -161,11 +133,11 @@ class PlotWidgetManager(QRunnable):
                     lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
                     upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
                     analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
-                    db = self.offline_manager.get_database()
+
                     if level == "series":
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier, db)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier, self.database_handler)
                     else:
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,db, item_text)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
 
                     print(x_y_tuple)  # only works if parent = experiment
                     self.plot_scaling_factor = 1e9
@@ -388,15 +360,15 @@ class PlotWidgetManager(QRunnable):
         print(series_identifier)
         print(sweep_name)
         split_view = 1
-        db = self.offline_manager.get_database()
+
         experiment_name = experiment_name.split("::")
         experiment_name = experiment_name[len(experiment_name)-1]
         series_identifier = series_identifier.split("::")
         series_identifier = series_identifier[len(series_identifier)-1]
-        series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+        series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
         print(series_df)
         # get the meta data to correctly display y values of traces
-        meta_data_df = db.get_meta_data_table_of_specific_series(experiment_name,
+        meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name,
                                                                  series_identifier)
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
 
@@ -434,7 +406,7 @@ class PlotWidgetManager(QRunnable):
 
         self.ax1.plot(self.time, data * self.plot_scaling_factor, 'yellow', alpha=0.5)
 
-        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
+        pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
                                                                                         series_identifier)
 
         sweep_number = sweep_name.split("_")
@@ -564,8 +536,8 @@ class PlotWidgetManager(QRunnable):
         print(series_identifier)
         split_view = 1
 
-        db = self.offline_manager.get_database()
-        series_df = db.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+
+        series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
 
         print("requested series dataframe")
         print(series_df)
@@ -573,7 +545,7 @@ class PlotWidgetManager(QRunnable):
         #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
 
         # get the meta data to correctly display y values of traces
-        meta_data_df = db.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
+        meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
         self.time = self.get_time_from_meta_data(meta_data_df)
 
@@ -618,7 +590,7 @@ class PlotWidgetManager(QRunnable):
 
         # finally also the pgf file needs to be added to the plot
         # load the table
-        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
 
         #print(pgf_table_df)
 
