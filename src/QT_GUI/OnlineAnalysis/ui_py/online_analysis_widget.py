@@ -47,6 +47,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.drawing()
 
         self.database_handler = None
+        self.online_analysis_plot_manager = None
+        self.online_analysis_tree_view_manager = None
 
     def tab_switched(self, i):
         """ switch the tab of the online analysis """
@@ -99,18 +101,40 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # check for the experiment_name to be changed by user input into the gui and therefore update the db
         if not db_experiment_data_frame["experiment_name"].equals(gui_experiment_data_frame["experiment_name"]):
-            print("user made changes")
             old_experiment_name = db_experiment_data_frame["experiment_name"].values[0]
-            print(old_experiment_name)
             new_experiment_name = gui_experiment_data_frame["experiment_name"].values[0]
-            print(new_experiment_name)
-            for table in ["global_meta_data", "experiments", "experiment_series"]:
+
+            for table in ["global_meta_data", "experiments"]:
                 q = f'update {table} set experiment_name = \'{new_experiment_name}\' where experiment_name = \'{old_experiment_name}\''
-                print(q)
+                self.database_handler.database.execute(q)
+
+            q =  f'select * from experiment_series where experiment_name = \'{old_experiment_name}\''
+            experiment_series_df = self.database_handler.database.execute(q).fetchdf()
+
+            for index,row in experiment_series_df.iterrows():
+                new_sweep_table_name = "imon_signal_"+new_experiment_name+"_"+row["series_identifier"]
+                new_meta_data_table_name = "imon_meta_data_"+new_experiment_name+"_"+row["series_identifier"]
+                new_pgf_data_table_name = "pgf_table_"+new_experiment_name+"_"+row["series_identifier"]
+
+                q = f'alter table {row["sweep_table_name"]} rename to {new_sweep_table_name}'
+                self.database_handler.database.execute(q)
+
+                q = f'alter table {row["meta_data_table_name"]} rename to {new_meta_data_table_name}'
+                self.database_handler.database.execute(q)
+
+                q = f'alter table {row["pgf_data_table_name"]} rename to {new_pgf_data_table_name}'
+                self.database_handler.database.execute(q)
+
+                q = f'update experiment_series set sweep_table_name = \'{new_sweep_table_name}\',' \
+                    f' meta_data_table_name = \'{new_meta_data_table_name}\',' \
+                    f' pgf_data_table_name = \'{new_pgf_data_table_name}\', experiment_name = \'{new_experiment_name}\'' \
+                    f' where series_identifier = \'{row["series_identifier"]}\' and ' \
+                    f'experiment_name = \'{old_experiment_name}\' '
+
                 self.database_handler.database.execute(q)
 
             # update treeviews
-            #self.start_db_transfer()
+            self.start_db_transfer()
 
         # check for duplicates and ask the user to change the name
         for index,row in gui_experiment_data_frame.iterrows():
@@ -174,8 +198,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             print(df)
             template_table_view.setModel(content_model)
 
-            #template_table_view.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
             template_table_view.show()
+
+            # transfer_into_db_button will be displayed and will call self.transfer_file_and_meta_data_into_db when
+            # clicked
+
 
     @Slot()
     def online_analysis_tab_changed(self):
@@ -196,6 +223,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """
 
         # open selection and retake users file selection
+
 
         self.online_analysis.setCurrentIndex(0)
         self.online_analysis_tabs.setCurrentIndex(0)
@@ -280,7 +308,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         load the new file into the database and create a treeview from it
         """
         # create treeview of this .dat file
-        self.online_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.online_treeview)
+        if self.online_analysis_tree_view_manager is None:
+            self.online_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.online_treeview)
+
+        # connect with a new plot manager to handle item clicks within the treeview
+        if self.online_analysis_plot_manager is None:
+            self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
+                                                                  False)
         bundle = self.online_analysis_tree_view_manager.open_bundle_of_file(file_name)
         pgf_data_frame = self.online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
                                                                                                   None, None)
@@ -301,9 +335,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # only display the one file with experiment_label online analysis.
         self.online_analysis_tree_view_manager.selected_meta_data_list = ["ONLINE_ANALYSIS"]
 
-        # connect with a new plot manager to handle item clicks within the treeview
-        self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
-                                                         False)
+
 
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
         print("finished.3")
