@@ -1095,6 +1095,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.selected_tree_view_data_table)
+
         current_tab_tree_view_manager.discarded_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
 

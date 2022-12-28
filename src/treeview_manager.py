@@ -326,6 +326,9 @@ class TreeViewManager():
         return series_table,  series_df
 
     def create_series_specific_tree(self, series_name, plot_widget_manager : PlotWidgetManager):
+        """
+         create a treeview containing only series of the specific series identified by series name
+        """
         self.selected_tree_view_data_table = self.create_data_frame_for_tree_model( False, self.show_sweeps_radio.isChecked(), series_name)
         self.discarded_tree_view_data_table = self.create_data_frame_for_tree_model( True, self.show_sweeps_radio.isChecked(), series_name)
 
@@ -1035,6 +1038,7 @@ class TreeViewManager():
 
         return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage"])
 
+    """
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
         '''
@@ -1118,7 +1122,7 @@ class TreeViewManager():
                 self.read_series_specific_pgf_trace(index + [i], bundle, pgf_tuple_list, sampling_frequency, number_of_sweeps, holding_potential)
 
         return pgf_tuple_list
-
+    """
 
     def append_samples(self,duration,sampling_frequency,voltage,holding_potential,sub_signal):
         '''

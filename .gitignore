@@ -25,3 +25,9 @@ venv/
 *-workspace
 *key
 .src/database/*.db
+*.vsidx
+*.wsuo
+*.bin
+*.json
+*.sqlite
+*.vs

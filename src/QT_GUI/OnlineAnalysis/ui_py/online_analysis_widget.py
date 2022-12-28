@@ -3,7 +3,6 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 import logging
 import pandas as pd
-from Pandas_Table import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
@@ -87,10 +86,10 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # logger settings
         self.logger = logging.getLogger()  # introduce the logger
         self.logger.setLevel(logging.ERROR)
-        file_handler = logging.FileHandler('../Logs/online_analysis.log')
-        formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
+        #file_handler = logging.FileHandler('../Logs/online_analysis.log')
+        #formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
+        #file_handler.setFormatter(formatter)
+        #self.logger.addHandler(file_handler)
         self.logger.debug('Online Analysis Widget Debugger')
 
 
@@ -223,13 +222,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """
 
         # open selection and retake users file selection
-
-
         self.online_analysis.setCurrentIndex(0)
         self.online_analysis_tabs.setCurrentIndex(0)
 
         if file_name is False:
-            file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]
+            #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]
+            file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.abf")[0]
             treeview_name = file_name.split("/")
             treeview_name = treeview_name[len(treeview_name) - 1].split(".")[0]
         else:
