@@ -28,9 +28,6 @@ class OfflineAnalysisResultVisualizer():
         self.frontend_style = None
         self.visualization_tab_widget = visualization_tab_widget
         self.database_handler = database
-        self.result_directory = ""
-        self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
-                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
         self.canvas = None
         self.offline_analysis_widget = offline_analysis_widget
 
@@ -46,21 +43,15 @@ class OfflineAnalysisResultVisualizer():
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
-
-        print(list_of_series)
-
         for series in list_of_series:
-            print(series)
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             if series[0] == series_name:
-                print(analysis_id)
-                print(series_name)
                 offline_tab = self.analysis_function_specific_visualization(series[0],analysis_id)
-                print(offline_tab)
                 return offline_tab
             else:
-                print("no analysis function selected")
+                print("The logger should be added here to show that the series is not available in the database")
+
 
 
     def analysis_function_specific_visualization(self,series,analysis_id):
@@ -125,22 +116,22 @@ class OfflineAnalysisResultVisualizer():
         @param parent_widget:
         @param plot_type:
         @author dz, 13.07.2022
-        """
+        @reworked MZ        """
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
-        self.canvas = self.handle_plot_widget_settings(parent_widget, class_object().plot_type_options)
+        self.canvas = self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
 
         if plot_type is None:
             #if class_object.database is None:
             #    print("I am setting the database")
             class_object.database = self.database_handler
-            result_table_names = class_object.visualize_results(parent_widget, self.canvas, class_object().plot_type_options[0])
+            result_table_names = class_object.visualize_results(parent_widget)
             if result_table_names:
-                plot_type = class_object().plot_type_options[0]
+                plot_type = class_object.plot_type_options[0]
             else:
                 plot_type = None
         else:
-            result_table_names = class_object.visualize_results(parent_widget, self.canvas, plot_type)
+            result_table_names = class_object.visualize_results(parent_widget)
             if result_table_names:
                 plot_type = plot_type
             else:

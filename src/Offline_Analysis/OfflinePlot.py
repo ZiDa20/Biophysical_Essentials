@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
+from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 from scipy.stats import zscore
 import logging
-
 
 class OfflinePlots():
     logger = logging.getLogger(__name__)
@@ -42,8 +42,6 @@ class OfflinePlots():
         self.style_plot()
         self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
 
-        
-        
     def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
         """Retrieves the appropriate Analysis Function
 
@@ -74,9 +72,7 @@ class OfflinePlots():
         
         except Exception as e:
             self.logger.error("An error occurred while trying to retrieve the analysis function: %s", e)
-        
-        
-        
+          
     def style_plot(self):
         """Plot Styling Class
         """
@@ -95,22 +91,20 @@ class OfflinePlots():
             parent_widget (_type_): _description_
             result_table_list (list): Result Table List of the specific Analysis Function
         """
-        boxplot_df = SweepWiseAnalysisTemplate.boxplot_calc(result_table_list, self.database_handler)
+        boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
         sns.boxplot(data = boxplot_df, x="meta_data", y = "values",  ax = self.ax, width = 0.5)
         sns.swarmplot(data = boxplot_df, x="meta_data", y = "values",  ax = self.ax, color = "black", size = 10)
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = pd.DataFrame(boxplot_df)
         parent_widget.export_data_frame = parent_widget.export_data_frame
         #parent_widget.export_data_frame.columns = meta_data_groups
-        
-    
     def simple_plot(self, parent_widget, result_table_list:list):
         """
         Plot all data without incorporating meta data groups
         :param parent_widget: the widget to which the plot is added
         :param result_table_list: the list of result tables for the specific analysis
         """
-        plot_dataframe, increment = SweepWiseAnalysisTemplate.simple_plot_calc(result_table_list, self.database_handler)
+        plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
 
         if increment:
             g = sns.boxplot(data = plot_dataframe, x = "name", y = "values", ax = self.ax)
@@ -128,14 +122,13 @@ class OfflinePlots():
         parent_widget.export_data_frame = pivoted_table
         print("succesfully stored data")
 
-
     def plot_mean_per_meta_data(self, parent_widget, result_table_list: list):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
         :param parent_widget: the widget to which the plot is added
         :param result_table_list: the list of result tables for the specific analysis
         """
-        plot_dataframe, increment = SweepWiseAnalysisTemplate.simple_plot_calc(result_table_list, self.database_handler)
+        plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
 
         if increment:
             grouped_dataframe = plot_dataframe.groupby(["meta_data", "name", "index"]).mean("values").reset_index()
@@ -169,7 +162,7 @@ class OfflinePlots():
             parent_widget (ResultVisualizer): _description_
             result_table_list (list): Result Table list of the generate by the Analysis Function
         """
-        plot_dataframe = SweepWiseAnalysisTemplate.rheobase_calc(result_table_list, self.database_handler)
+        plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
         g = sns.boxplot(data = plot_dataframe, x = "Meta_data", y = "AP", ax = self.ax)
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax.autoscale()
@@ -183,7 +176,7 @@ class OfflinePlots():
             parent_widget (_type_): Class Widget to Plot in 
             result_table_list (_type_): List of Rheobase Result Tables
         """
-        plot_dataframe = SweepWiseAnalysisTemplate.sweep_rheobase_calc(result_table_list, self.database_handler)
+        plot_dataframe = SpecificAnalysisFunctions.sweep_rheobase_calc(result_table_list, self.database_handler)
         g = sns.lineplot(data = plot_dataframe, x = "current", y = "voltage", hue = "Meta_data", ax = self.ax, errorbar=("se", 2))
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax.autoscale()
@@ -197,7 +190,7 @@ class OfflinePlots():
             parent_widget (_type_): _description_
             result_table_list (list): Result Table list for Rheoramp Analysis
         """
-        plot_dataframe = SweepWiseAnalysisTemplate.rheoramp_calc(result_table_list, self.database_handler)
+        plot_dataframe = SpecificAnalysisFunctions.rheoramp_calc(result_table_list, self.database_handler)
         
         g = sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "Meta_data", ax = self.ax, errorbar=("se", 2))
         sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "Meta_data", ax = self.ax)
@@ -214,7 +207,7 @@ class OfflinePlots():
             result_table_list (list): Rheoramp result tables where _max is for single analysis
             
         """
-        plot_dataframe = SweepWiseAnalysisTemplate.rheoramp_calc(result_table_list, self.database_handler)
+        plot_dataframe = SpecificAnalysisFunctions.rheoramp_calc(result_table_list, self.database_handler)
         g = sns.lineplot(data = plot_dataframe,
                         x = "Rheoramp", 
                         y = "Number AP", 
@@ -238,7 +231,7 @@ class OfflinePlots():
             result_table_list (list): List of queried result tables
         """
         print(result_table_list)
-        plot_dataframe, z_score = SweepWiseAnalysisTemplate.ap_calc(result_table_list, self.database_handler)
+        plot_dataframe, z_score = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
         parent_widget.specific_plot_box.setMinimumHeight(500)
         self.canvas.setMinimumSize(self.canvas.size())
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
@@ -246,9 +239,8 @@ class OfflinePlots():
         #parent_widget.specific_plot_box.
         sns.heatmap(data = z_score.T, ax = self.ax)
         self.canvas.figure.tight_layout()
+        parent_widget.export_data_frame = plot_dataframe
         #self.ax.autoscale()
-
-
     def on_click(self, event, annot):
         """Event Detection in the Matplotlib Plot
         

@@ -7,28 +7,27 @@ from math import nan, isnan
 import  seaborn as sns
 
 class RheorampDetection(object):
-
+    function_name = "RheoRamp-Detection"
+    plot_type_options = ["Rheoramp-Single","Rheoramp-AUC"]
     def __init__(self):
-
-        self.function_name = "RheoRamp-Detection"
         self.series_name = None
         self.analysis_function_id = None
         self.database = None  # database
-        self.plot_type_options = ["Rheoramp-Single","Rheoramp-AUC"]
+
 
     @classmethod
-    def calculate_results(self):
+    def calculate_results(cls):
 
             print("running rheoramp calculation")
 
-            series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(
-                self.series_name)
+            series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(
+                cls.series_name)
 
             # run a peak detection for each sweep.
             # store x and y position of each sweep in the db
 
             # get the names of all data tables to be evaluated
-            data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
+            data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
 
             # set time to non - will be set by the first data frame
             # should assure that the time and bound setting will be only exeuted once since it is the same all the time
@@ -38,9 +37,9 @@ class RheorampDetection(object):
             for data_table in data_table_names:
 
                 if time is None:
-                     time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+                     time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
-                entire_sweep_table = self.database.get_entire_sweep_table_as_df(data_table)
+                entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
 
                 number_of_sweeps = len(entire_sweep_table.columns)
                 column_names = list(entire_sweep_table.columns)
@@ -54,7 +53,7 @@ class RheorampDetection(object):
                     data = entire_sweep_table.get(column)
 
                     if series_specific_recording_mode != "Voltage Clamp":
-                        y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+                        y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                         data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
                     # run the peak detection
@@ -66,7 +65,7 @@ class RheorampDetection(object):
                     sweep_number = column.split("_")
                     sweep_number = int(sweep_number[1])
 
-                    tmp_df = pd.DataFrame({str(sweep_number):self.merge_lists_to_list_of_tuples(peak_x,peak_y)})
+                    tmp_df = pd.DataFrame({str(sweep_number):cls.merge_lists_to_list_of_tuples(peak_x,peak_y)})
 
                     result_data_frame = pd.concat([result_data_frame,tmp_df],axis = 1)
 
@@ -74,10 +73,10 @@ class RheorampDetection(object):
 
                 #print(result_data_frame)
 
-                new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id,
+                new_specific_result_table_name = cls.create_new_specific_result_table_name(self.analysis_function_id,
                                                                                             data_table)
 
-                self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
+                cls.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
                                                                                        self.analysis_function_id,
                                                                                        data_table,
                                                                                        new_specific_result_table_name,
@@ -102,7 +101,7 @@ class RheorampDetection(object):
         return "results_analysis_function_" + str(analysis_function_id) + "_" + data_table_name
 
     @classmethod
-    def visualize_results(self, parent_widget, canvas, visualization_type):
+    def visualize_results(self, parent_widget):
 
         print("rheoramp visualization")
 

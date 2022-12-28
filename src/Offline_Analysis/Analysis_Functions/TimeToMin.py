@@ -2,13 +2,11 @@ import numpy as np
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 class TimeToMin(SweepWiseAnalysisTemplate):
-
+    plot_type_options = ["No Split", "Split by Meta Data"]
+    function_name = 'time_to_min'
     def __init__(self):
         SweepWiseAnalysisTemplate.__init__(self)
-        self.function_name = 'time_to_min'
-        self.plot_type_options = ["No Split", "Split by Meta Data"]
-
-
+    
     @classmethod
     def specific_calculation(self):
         self.cslow_normalization = 0
@@ -52,7 +50,7 @@ class TimeToMin(SweepWiseAnalysisTemplate):
         return super(TimeToMin,self).calculate_results()
 
     @classmethod
-    def visualize_results(self,custom_plot_widget, canvas, visualization):
+    def visualize_results(self,custom_plot_widget):
         return super(TimeToMin,self).visualize_results(custom_plot_widget)
 
     @classmethod

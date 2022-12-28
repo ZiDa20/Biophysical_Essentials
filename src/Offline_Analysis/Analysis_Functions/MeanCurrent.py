@@ -2,13 +2,12 @@
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 class MeanCurrent(SweepWiseAnalysisTemplate):
+    function_name = 'mean_current'
+    plot_type_options = ["No Split", "Split by Meta Data"]
 
     def __init__(self):
         SweepWiseAnalysisTemplate.__init__(self)
-        self.function_name = 'mean_current'
-        self.plot_type_options = ["No Split", "Split by Meta Data"]
-
-
+        
     @classmethod
     def specific_calculation(self):
         self.cslow_normalization = 1

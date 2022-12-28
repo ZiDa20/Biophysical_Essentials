@@ -3,27 +3,26 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis im
 
 class TimeToMax(SweepWiseAnalysisTemplate):
 
+    plot_type_options = ["No Split", "Split by Meta Data"]
+    function_name = 'time_to_max'
     def __init__(self):
         SweepWiseAnalysisTemplate.__init__(self)
-        self.function_name = 'time_to_max'
-        self.plot_type_options = ["No Split", "Split by Meta Data"]
 
 
     @classmethod
-    def specific_calculation(self):
-        self.cslow_normalization = 0
-        index = np.where(self.sliced_volt == np.max(self.sliced_volt))[0]
+    def specific_calculation(cls):
+        cls.cslow_normalization = 0
+        index = np.where(cls.sliced_volt == np.max(cls.sliced_volt))[0]
         if len(index)>1:
             index = index[0]
         # the index is the position in the sliced trace: so when the
         # time is not sliced - but one only needs the relative time between zero and this index
         # and time is a linear interpolation
-        max_time = self.time[index]
+        max_time = cls.time[index]
         print("max_time:")
         print(index)
         print(type(max_time))
         if  isinstance(max_time, np.ndarray):
-            print("array")
             max_time = max_time[0]
 
         print(max_time)
@@ -31,32 +30,32 @@ class TimeToMax(SweepWiseAnalysisTemplate):
         return max_time
 
     @classmethod
-    def live_data_calculation(self):
+    def live_data_calculation(cls):
         """
         when live plot: draw a horizontal line from the start of a cursor bound to the minimum
         additionally illustrate this point (x,y value) with a marker
         @return:
         """
-        y_max = np.max(self.sliced_volt)
-        index = np.where(self.sliced_volt == y_max)[0][0]
-        left_bound_pos = np.argwhere(np.array(self.time) > self.lower_bound)[0][0]
+        y_max = np.max(cls.sliced_volt)
+        index = np.where(cls.sliced_volt == y_max)[0][0]
+        left_bound_pos = np.argwhere(np.array(cls.time) > cls.lower_bound)[0][0]
         #print(left_bound_pos)
-        x_val = self.time[left_bound_pos:left_bound_pos+ index]
+        x_val = cls.time[left_bound_pos:left_bound_pos+ index]
         y_val = []
         for i in x_val:
             y_val.append(y_max)
         return tuple((x_val, y_val))
 
     @classmethod
-    def calculate_results(self):
-        return super(TimeToMax,self).calculate_results()
+    def calculate_results(cls):
+        return super(TimeToMax,cls).calculate_results()
 
     @classmethod
-    def visualize_results(self,custom_plot_widget, canvas, visualization):
-        return super(TimeToMax,self).visualize_results(custom_plot_widget)
+    def visualize_results(cls,custom_plot_widget):
+        return super(TimeToMax,cls).visualize_results(custom_plot_widget)
 
     @classmethod
-    def live_data(self, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
+    def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
                   sweep_name=None):
-        return super(TimeToMax, self).live_data(lower_bound, upper_bound, experiment_name, series_identifier,
+        return super(TimeToMax, cls).live_data(lower_bound, upper_bound, experiment_name, series_identifier,
                                                 database_handler, sweep_name)

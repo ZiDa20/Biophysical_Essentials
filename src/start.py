@@ -1,7 +1,7 @@
 import sys
 import os
 from PySide6.QtWidgets import QMainWindow, QGraphicsBlurEffect
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPoint, QRect
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -33,12 +33,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.setWindowTitle("Biophysical Essentials")
         
         # Create a blur effect
-        # Should be tested on Windows 
-        blur_effect = QGraphicsBlurEffect()
-        blur_effect.setBlurRadius(80)
-
+     
         # Set the blur effect on the window
-        self.setGraphicsEffect(blur_effect)
+       
         # Check the current OS
         if sys.platform != "darwin":
             print("Non Darwin Platform initialized")
@@ -135,7 +132,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if (event.pos().y()) < 60:
             if sys.platform != "darwin":
                GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
-            delta = QPoint (event.globalPosition().toPoint() - self.oldPos)
+            delta = QPoint(event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPosition().toPoint()
 

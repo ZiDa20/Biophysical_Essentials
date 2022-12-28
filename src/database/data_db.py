@@ -237,7 +237,6 @@ class DuckDBDatabaseHandler():
             
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
-            #tmp = database.cursor()
             if values:
                 database.execute(sql_command, values)
             else:

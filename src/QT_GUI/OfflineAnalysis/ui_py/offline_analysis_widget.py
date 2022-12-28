@@ -37,6 +37,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Statis
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 import copy
 from Offline_Analysis.tree_model_class import TreeModel
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
@@ -1263,7 +1264,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(series_name)
 
         # 3) request recording mode specific analysis functions
-        analysis_function_names = AnalysisRaw().get_elements(recording_mode)
+        analysis_function_names = AnalysisFunctionRegistration.get_elements(recording_mode)
 
         # 4) create dialog checkboxes
         checkbox_list = []

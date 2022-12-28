@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 from statistics import mean
 from sklearn.preprocessing import StandardScaler
 
@@ -10,9 +9,10 @@ class SweepWiseAnalysisTemplate(object):
 	Parent class to handle all analysis general processing to analyze each single sweep of a series:
 
 	"""
+	database = None
 	def __init__(self):
-
-		# really needed ?
+		"""Initialize the template class for sweep wise analysis
+		"""
 		self.function_name = None
 		self.analysis_function_id = None
 
@@ -30,10 +30,8 @@ class SweepWiseAnalysisTemplate(object):
 		self.data = None
 
 		self.sliced_volt = None
-
-		self.database = None
 		self.series_name = None
-
+		
 	@property
 	def lower_bounds(self) -> float:
 		""" get the lower and upper bounds 
@@ -64,20 +62,20 @@ class SweepWiseAnalysisTemplate(object):
 			raise TypeError("Wrong Input please specificy floats")
 
 	@classmethod
-	def construct_trace(self):
+	def construct_trace(cls):
 		""" construct the trace """
 		try:
-			self.trace = np.vstack((self.time, self.data)).T
+			cls.trace = np.vstack((cls.time, cls.data)).T
 		except:
 			raise ValueError("Please use the same dimension, only 1-dimensional arrays should be used")
 
 	@classmethod
-	def slice_trace(self):
+	def slice_trace(cls):
 		""" slice the trace based on the incoming upper and lower bounds """
-		if all([self.lower_bound, self.upper_bound]):
-			self.sliced_trace = self.trace[
-				((self.trace[:, 0] > self.lower_bound) & (self.trace[:, 0] < self.upper_bound))]
-			self.sliced_volt = self.sliced_trace[:, 1]
+		if all([cls.lower_bound, cls.upper_bound]):
+			cls.sliced_trace = cls.trace[
+				((cls.trace[:, 0] > cls.lower_bound) & (cls.trace[:, 0] < cls.upper_bound))]
+			cls.sliced_volt = cls.sliced_trace[:, 1]
 		else:
 			raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
 
@@ -85,15 +83,14 @@ class SweepWiseAnalysisTemplate(object):
 		print("not implemented")
 
 	@classmethod
-	def live_data(self,lower_bound, upper_bound, experiment_name,series_identifier, database_handler, sweep_name = None):
+	def live_data(cls,lower_bound, upper_bound, experiment_name,series_identifier, database_handler, sweep_name = None):
 		"""for each sweep, find correct x and y value to be plotted as live result
 		@author: dz, 29.09.2022
 		"""
-		print("live ")
-		self.lower_bound = lower_bound
-		self.upper_bound = upper_bound
+		cls.lower_bound = lower_bound
+		cls.upper_bound = upper_bound
 		data_table_name = database_handler.get_sweep_table_name(experiment_name,series_identifier)
-		self.time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table_name)
+		cls.time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table_name)
 		entire_sweep_table = database_handler.get_entire_sweep_table(data_table_name)
 
 		# @Todo
@@ -105,12 +102,12 @@ class SweepWiseAnalysisTemplate(object):
 			print(sweep_name)
 			data = entire_sweep_table.get(sweep_name)
 			print(data)
-			return [self.live_data_for_single_sweep(data)]
+			return [cls.live_data_for_single_sweep(data)]
 		else:
-			return self.live_data_for_entire_series(entire_sweep_table)
+			return cls.live_data_for_entire_series(entire_sweep_table)
 
 	@classmethod
-	def live_data_for_entire_series(self, entire_sweep_table) -> list:
+	def live_data_for_entire_series(cls, entire_sweep_table) -> list:
 		"""
 		calculates a list of tuples (x_value, y-value) to be plotted on top in the trace plot for each sweep within a series
 		@param entire_sweep_table:
@@ -121,34 +118,33 @@ class SweepWiseAnalysisTemplate(object):
 
 		for column in entire_sweep_table:
 			data = entire_sweep_table.get(column)
-			plot_data.append((self.live_data_for_single_sweep(data)))
+			plot_data.append((cls.live_data_for_single_sweep(data)))
 
 		return(plot_data)
 
 	@classmethod
-	def live_data_for_single_sweep(self, data):
+	def live_data_for_single_sweep(cls, data):
 		"""
 		takes a single sweep, slices according defined coursor bounds and calculates the related x-yvalue tuple
 		@param data:
 		@return:
 		@author: dz, 29.09.2022
 		"""
-		self.data = data
-
+		cls.data = data
 		#@todo
 		# if series_specific_recording_mode != "Voltage Clamp":
 		# y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 		# self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
 		# slice trace according to coursor bounds
-		self.construct_trace()
-		self.slice_trace()
+		cls.construct_trace()
+		cls.slice_trace()
 
 
-		return self.live_data_calculation()
+		return cls.live_data_calculation()
 
 	@classmethod
-	def calculate_results(self):
+	def calculate_results(cls):
 		"""
 		iterate through each single sweep of all not discarded series in the database and save the calculated result
 		to a new database table.
@@ -157,39 +153,25 @@ class SweepWiseAnalysisTemplate(object):
 
 		# @todo get this from the configuration window
 
-
-		series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
-		"""
-		try:
-			if series_specific_recording_mode == "Voltage Clamp":
-				cslow_normalization = 1
-			else:
-				cslow_normalization = 0
-		except Exception as e:
-			print("Error in Excecute_Single_Series_Analysis")
-			print(e)
-			cslow_normalization = 0
-		"""
-
+		print("here we calculate the specific results")
+		series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(cls.series_name)
 		data_table_names = []
 		# get the names of all data tables to be evaluated
-		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
+		data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
 		# set time to non - will be set by the first data frame
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
-		self.time = None
-		self.upper_bounds = None
-		self.lower_bounds = None
+		cls.time = None
+		cls.upper_bounds = None
+		cls.lower_bounds = None
 
 		for data_table in data_table_names:
-
-			#
-			if self.time is None:
-				self.time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+			if cls.time is None:
+				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 			# calculate the time
 			# set the lower bound
 			# set the upper bound
 
-			entire_sweep_table = self.database.get_entire_sweep_table(data_table)
+			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
 
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
@@ -198,22 +180,22 @@ class SweepWiseAnalysisTemplate(object):
 
 			for column in entire_sweep_table:
 
-				self.data = entire_sweep_table.get(column)
+				cls.data = entire_sweep_table.get(column)
 
 				if series_specific_recording_mode != "Voltage Clamp":
-					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
-					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+					y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+					cls.data = np.interp(cls.data, (cls.data.min(), cls.data.max()), (y_min, y_max))
 
 				# slice trace according to coursor bounds
-				self.construct_trace()
-				self.slice_trace()
+				cls.construct_trace()
+				cls.slice_trace()
 
-				res = self.specific_calculation()
+				res = cls.specific_calculation()
 
 				print("result")
 				print(res)
-				if self.cslow_normalization:
-					cslow = self.database.get_cslow_value_for_sweep_table(data_table)
+				if cls.cslow_normalization:
+					cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
 					res = res / cslow
 					print("normalized")
 					print(res)
@@ -224,7 +206,7 @@ class SweepWiseAnalysisTemplate(object):
 
 				# get the related pgf value
 				#	therefore get the pgf table for this series first
-				pgf_data_frame = self.database.get_entire_pgf_table(data_table)
+				pgf_data_frame = cls.database.get_entire_pgf_table(data_table)
 				# 	from the coursor bounds indentify the correct segment
 
 				duration_list = pgf_data_frame.loc[:,"duration"].values
@@ -238,27 +220,27 @@ class SweepWiseAnalysisTemplate(object):
 					duration_list_float.append(float(duration_list[i])*1000)
 
 					# should be greater all the time until the correct segment is entered
-					if self.lower_bound <= sum(duration_list_float):
+					if cls.lower_bound <= sum(duration_list_float):
 						volt_val = (float(voltage_list[i])*1000) + (sweep_number-1)*(float(increment_list[i])*1000)
 						break
 
-				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val,res]],columns = column_names)
+				new_df = pd.DataFrame([[cls.database.analysis_id,cls.analysis_function_id,data_table,sweep_number,volt_val,res]],columns = column_names)
 
 				result_data_frame = pd.concat([result_data_frame,new_df])
 
 			# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
 
-			new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id, data_table)
-			self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
-																				   self.analysis_function_id,
+			new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id, data_table)
+			cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+																				   cls.analysis_function_id,
 																				   data_table,
 																				   new_specific_result_table_name,
 																				   result_data_frame)
 
 			print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
-	@classmethod
-	def create_new_specific_result_table_name(cls, analysis_function_id:int, data_table_name:str) -> str:
+	@staticmethod
+	def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
 		"""
 		creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
 		:param offline_analysis_id:
@@ -268,17 +250,15 @@ class SweepWiseAnalysisTemplate(object):
 		"""
 		return "results_analysis_function_" +str(analysis_function_id) + "_" + data_table_name
 
-	@classmethod
 	def specific_calculation(self):
 		# return None
 		print("specific result calculation")
 
-	@classmethod
-	def run_late_register_feature(cls):
+	def run_late_register_feature(self):
 		print("not implemented for sweep wise")
 
 	@classmethod
-	def visualize_results(self, parent_widget) -> list:
+	def visualize_results(cls, parent_widget) -> list:
 		"""Function to retrieve the list result tables for the function analysis id
 
 		Args:
@@ -287,11 +267,12 @@ class SweepWiseAnalysisTemplate(object):
 		Returns:
 			list: list of funciton id related tables
 		"""
-		result_table_names = self.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
+		result_table_names = cls.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
+		print(result_table_names)
 		return result_table_names
 
-	@classmethod
-	def fetch_x_and_y_data(self, table_name: str,database) -> tuple:
+	@staticmethod
+	def fetch_x_and_y_data(table_name: str,database) -> tuple:
 
 		#@todo move this function to the database class ?
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
@@ -314,12 +295,12 @@ class SweepWiseAnalysisTemplate(object):
 		return x_data, y_data, experiment_name, query_increment, sweep_tables
 
 	@classmethod
-	def get_list_of_result_tables(self, analysis_id, analysis_function_id)-> list:
+	def get_list_of_result_tables(cls,analysis_id, analysis_function_id)-> list:
 		"""	
   		
     	"""
 		q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
-		result_list = self.database.get_data_from_database(self.database.database, q,
+		result_list =  cls.database.get_data_from_database(cls.database.database, q,
 														  [analysis_id, analysis_function_id])
 
 		try:
@@ -329,8 +310,7 @@ class SweepWiseAnalysisTemplate(object):
 			result_list = []
 		return result_list
 
-
-	def plot_meta_data_wise(self, canvas, result_list:list, number_of_series:int, meta_data_groups:list):
+	def plot_meta_data_wise(self,canvas, result_list:list, number_of_series:int, meta_data_groups:list):
 		"""
         rearrange the plot to color each trace according to it's meta data group.
 
@@ -344,7 +324,7 @@ class SweepWiseAnalysisTemplate(object):
 		number_of_sweeps = int(len(result_list) / number_of_series)
 		meta_data_types = list(dict.fromkeys(meta_data_groups))
 
-		x_data, y_data, series_names = self.fetch_x_and_y_data(result_list, number_of_sweeps)
+		x_data, y_data, series_names = SweepWiseAnalysisTemplate.fetch_x_and_y_data(result_list, number_of_sweeps)
 		# analysis_specific_plot_widget.addLegend()
 
 		ax = canvas.figure.subplots()
@@ -360,271 +340,4 @@ class SweepWiseAnalysisTemplate(object):
 					ax.plot(x_data[a], y_data[a], self.default_colors[pos], label=series_names[a])
 					
 			ax.legend()
-
-	@classmethod
-	def boxplot_calc(self, result_table_list:list, database):
-		"""Creates the Data for the boxplot --> long table from the Result Tables
-  
-		Args:
-			result_table_list (list): List of Result Table for the Analysis Id
-			database (_type_): DataBase Handler
-
-		Returns:
-			pd.DataFrame: Contains long table with values,metadata, experiment name 
-		"""
-		meta_data_groups = []
-		meta_data_types = []
-		x_list = []
-
-		for table in result_table_list:
-
-			database.database.execute(f'select * from {table}')
-			query_data_df = database.database.fetchdf()
-
-			print("querried data look like this")
-			print(query_data_df)
-
-			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-				f'specific_result_table_name = \'{table}\'))'
-
-			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-			print(meta_data_group)
-			# index has the same name as the function. Will not work if the names differ.
-			#TODO scaling 
-			try:
-				x_data = 1000* query_data_df['Result'].values.tolist()[0]
-			except Exception as e:
-				print(e)
-				break
-
-			print("xdata  data look like this")
-			print(x_data)
-
-			if meta_data_group in meta_data_groups:
-				meta_data_types.append(meta_data_group)
-				x_list.append(x_data)
-			else:
-				# add a new meta data group
-				meta_data_groups.append(meta_data_group)
-				meta_data_types.append(meta_data_group)
-				x_list.append(x_data)
-		
-		boxplot_df = pd.DataFrame()
-		boxplot_df["values"] = x_list
-		boxplot_df["meta_data"] = meta_data_types
-
-		return boxplot_df
-		# no nan handling required since sweeps without an AP are not stored in the dataframe
-
-
-	@classmethod
-	# Here we should also denote if we have an increment for this we would need the location of the 
-	def simple_plot_calc(self, result_table_list: list, database) -> tuple:
-		"""Calculates the data for the experiment aggregated data used in lineplots
-
-		Args:
-			result_table_list (list): List of Result Tables 
-			database (_type_): DataBase Handler
-
-		Returns:
-			tuple: The plot_dataframe with as long table with experiment name, 
-			values and indeces
-		"""
-		plot_data = {"Unit": [],"values":[], "name":[], "meta_data":[], "index":[]}
-		increment_list = []
-  
-		for table in result_table_list:
-    			
-			try:
-				q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-				f'specific_result_table_name = \'{table}\'))'
-				y_data, x_data, experiment_name, increment, sweep_table = self.fetch_x_and_y_data(table, database)
-				meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-				plot_data["values"].extend(y_data)
-				plot_data["Unit"].extend(x_data)
-				plot_data["name"].extend(len(x_data) * [experiment_name])
-				plot_data["meta_data"].extend(len(x_data) * [meta_data_group])
-				plot_data["index"].extend(range(len(x_data)))
-				increment_list.append(increment)
-				
-			except Exception as e:
-				print(e)
-				break
-		print(len(set(plot_data["Unit"])))
-
-		if (len(set(plot_data["Unit"])) == 1) or  (mean(increment_list)==0):
-			increment = True
-		else:
-			increment = None
-
-		plot_dataframe = pd.DataFrame(plot_data)
-		return plot_dataframe, increment
-
-	@classmethod
-	def rheobase_calc(self, result_table_list:list, database):
-		"""Specific calculation for Rheobase Data constructed by the Rheobase Function
-
-		Args:
-			result_table_list (list): Result Table List from Rheobase ID
-			database (duckDb): Database Handler
-
-		Returns:
-			pd.DataFrame: long table pd.DataFrame with Data for boxplot and lineplot plotting
-		"""
-		meta_data_groups = []
-		first_ap = []
-		experiment_names = []
-
-		for table in result_table_list:
-			if "_max" not in table:
-				database.database.execute(f'select * from {table}')
-				experiment_name = "_".join(table.split("_")[-3:-1])
-				query_data_df = database.database.fetchdf()
-
-				q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-					f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-					f'specific_result_table_name = \'{table}\'))'
-
-				first_ap.extend(query_data_df["1st AP"])
-				meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-				if meta_data_group:
-					meta_data_groups.extend([meta_data_group])
-				else:
-					meta_data_groups.extend(["None"])
-				experiment_names.extend([experiment_name])
-
-		plot_dataframe = pd.DataFrame()
-		plot_dataframe["AP"] = first_ap
-		plot_dataframe["Meta_data"] = meta_data_groups
-		plot_dataframe["experiment_name"] = experiment_name
-		return plot_dataframe
-
-	@classmethod
-	def sweep_rheobase_calc(self, result_table_list, database):
-		"""Get the max voltage per sweep for the Rheobase from the Result_Max tables
-
-		Args:
-			result_table_list (list): list of result table for series
-			database (database_handler): datadb Class which should handle the database
-
-		Returns:
-			plot_dataframe	pd.DataFrame: Dataframe containing the data for plotting
-		"""
-		meta_data_groups = []
-		max_voltage = []
-		current = []
-		experiment_names = []
-
-		for table in result_table_list:
-			if "_max" in table:
-				database.database.execute(f'select * from {table}')
-				experiment_name = "_".join(table.split("_")[-3:-1])
-				query_data_df = database.database.fetchdf()
-
-				q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-					f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-					f'specific_result_table_name = \'{table}\'))'
-
-				max_voltage.extend(query_data_df["max_voltage"])
-				current.extend(query_data_df["current"])
-				meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-				meta_data_groups.extend(query_data_df.shape[0]*[meta_data_group])
-				experiment_names.extend(query_data_df.shape[0]*[experiment_name])
-
-		plot_dataframe = pd.DataFrame()
-		plot_dataframe["voltage"] = max_voltage
-		plot_dataframe["current"] = current
-		plot_dataframe["Meta_data"] = meta_data_groups
-		plot_dataframe["experiment_name"] = experiment_name
-		return plot_dataframe
-
-	@classmethod
-	def rheoramp_calc(self, result_table_list:list, database):
-		"""Calculates the #APs per Sweep 
-
-		Args:
-			result_table_list (list): Result Table List Rheoramp
-			database (duckDB): Database Handler
-
-		Returns:
-			_type_: DataFrame with the #APs per sweep and experiment logn table
-		"""
-		count = []
-		rheo = []
-		meta_data = []
-		experiment_names = []
-
-		for table in result_table_list:
-			print(table)
-			experiment_name = "_".join(table.split("_")[-3:-1])
-			database.database.execute(f'select * from {table}')
-			query_data_df = database.database.fetchdf()
-			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-					f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-					f'specific_result_table_name = \'{table}\'))'
-
-			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-
-			rheobase = 1
-			for column in query_data_df:
-
-				data = query_data_df.get(column)
-				data = data.dropna(how='all')
-				data = data.values.tolist()
-				number = len(data)
-				if number == 0:
-					count.append(0)
-				else: 
-					count.append(number)
-				rheo.append("Rheo_"+str(rheobase) + "x")
-				rheobase += 1
-				meta_data.append(meta_data_group)
-				experiment_names.append(experiment_name)
-		
-
-		plot_dataframe = pd.DataFrame()
-		plot_dataframe["Number AP"] = count
-		plot_dataframe["Rheoramp"] = rheo
-		plot_dataframe["Meta_data"] = meta_data
-		plot_dataframe["experiment_name"] = experiment_names
-		return plot_dataframe
-		
-	@classmethod
-	def ap_calc(self, result_table_list:list, database):
-		"""
-		Creates the AP propertie table frmo the AP fitting result table
-		Args:
-			result_table_list (list): Result Tables from AP fitting
-			database (duckDB): database handler
-		"""
-  
-		meta_data_groups = []
-		dataframe = pd.DataFrame()
-		experiment_names = []
-		for table in result_table_list:
-			experiment_name = "_".join(table.split("_")[-3:-1])
-			database.database.execute(f'select * from {table}')
-			query_data_df = database.database.fetchdf()
-			query_data_df.set_index('Fitting Parameters', inplace =True, drop = True)
-
-			# here we can may switch to a join might be faster than iterating database queries
-			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-				f'specific_result_table_name = \'{table}\'))'
-			experiment_names.extend(query_data_df.shape[1]*[experiment_name])
-			dataframe = pd.concat([dataframe, query_data_df], axis = 1)
-			# should still be added
-			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-			meta_data_groups.extend(query_data_df.shape[1]*[experiment_name])	
-
-		dataframe = dataframe.transpose()
-		dataframe["Meta_data"] = meta_data_groups
-		dataframe["experiment_name"] = experiment_names
-
-		z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
-		z_score_df = pd.DataFrame(z_score, columns = dataframe.iloc[:,0:-2].columns, index = dataframe.experiment_name)
-
-		return dataframe, z_score_df
 

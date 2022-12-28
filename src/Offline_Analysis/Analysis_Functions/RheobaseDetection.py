@@ -7,6 +7,8 @@ class RheobaseDetection(object):
     Analysis Class to detect the minimum current that needs to be injected into a cell to fire action potentials
     :author dz, 13.07.2022
     """
+    function_name = "Rheobase-Detection"
+    plot_type_options = ["Rheobase Plot", "Sweep Plot"]
     def __init__(self):
 
         # really needed ?
@@ -178,7 +180,7 @@ class RheobaseDetection(object):
                                                                                     meaned_rheobase)
 
     @classmethod
-    def visualize_results(self, parent_widget,canvas, visualization):
+    def visualize_results(self, parent_widget):
 
         result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
                                                            parent_widget.analysis_function_id)
