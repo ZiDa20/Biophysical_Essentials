@@ -24,7 +24,3 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
         pos = np.where(cls.sliced_volt == max_val)
         x_val = cls.time[pos][0] + cls.lower_bound
         return tuple((x_val, max_val))
-
-    @classmethod
-    def live_data(self,lower_bound,upper_bound,experiment_name,series_identifier, database_handler, sweep_name = None):
-        return super(MaxCurrent,self).live_data(lower_bound,upper_bound,experiment_name,series_identifier,database_handler, sweep_name)

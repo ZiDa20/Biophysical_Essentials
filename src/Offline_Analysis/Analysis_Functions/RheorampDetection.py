@@ -7,14 +7,18 @@ from math import nan, isnan
 import  seaborn as sns
 
 class RheorampDetection(object):
+    
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     function_name = "RheoRamp-Detection"
     plot_type_options = ["Rheoramp-Single","Rheoramp-AUC"]
-    def __init__(self):
-        self.series_name = None
-        self.analysis_function_id = None
-        self.database = None  # database
-
-
+    database = None  # database
+    analysis_function_id = None
+    series_name = None
+    
     @classmethod
     def calculate_results(cls):
 
@@ -73,11 +77,11 @@ class RheorampDetection(object):
 
                 #print(result_data_frame)
 
-                new_specific_result_table_name = cls.create_new_specific_result_table_name(self.analysis_function_id,
+                new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
                                                                                             data_table)
 
-                cls.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
-                                                                                       self.analysis_function_id,
+                cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+                                                                                       cls.analysis_function_id,
                                                                                        data_table,
                                                                                        new_specific_result_table_name,
                                                                                        result_data_frame)
@@ -86,8 +90,17 @@ class RheorampDetection(object):
 
     @classmethod
     def merge_lists_to_list_of_tuples(self,list1, list2):
-            merged_list = [(list1[i], list2[i]) for i in range(0, len(list1))]
-            return merged_list
+        """_summary_
+
+        Args:
+            list1 (_type_): _description_
+            list2 (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        merged_list = [(list1[i], list2[i]) for i in range(0, len(list1))]
+        return merged_list
 
     @classmethod
     def create_new_specific_result_table_name(cls, analysis_function_id, data_table_name):
@@ -101,13 +114,12 @@ class RheorampDetection(object):
         return "results_analysis_function_" + str(analysis_function_id) + "_" + data_table_name
 
     @classmethod
-    def visualize_results(self, parent_widget):
+    def visualize_results(cls, parent_widget):
 
         print("rheoramp visualization")
 
-        result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
+        result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
                                                           parent_widget.analysis_function_id)
-
         return result_table_list
 
 

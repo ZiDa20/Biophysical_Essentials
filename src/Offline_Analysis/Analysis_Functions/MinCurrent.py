@@ -5,8 +5,6 @@ class MinCurrent(SweepWiseAnalysisTemplate):
     
     function_name = 'min_current'
     plot_type_options = ["No Split", "Split by Meta Data"]
-    def __init__(self):
-        super(SweepWiseAnalysisTemplate, self).__init__()
         
     @classmethod
     def specific_calculation(cls):
@@ -25,12 +23,6 @@ class MinCurrent(SweepWiseAnalysisTemplate):
         pos = np.where(cls.sliced_volt == min_val)
         x_val = cls.time[pos][0] +cls.lower_bound
         return tuple((x_val, min_val))
-
-    @classmethod
-    def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler, sweep_name=None):
-        """"""    
-        return super(MinCurrent, cls).live_data(lower_bound, upper_bound, experiment_name, series_identifier,
-                                                 database_handler, sweep_name)
-
+ 
     def __str__(self) -> str:
         return "Min Current Class"

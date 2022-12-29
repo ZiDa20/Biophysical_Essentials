@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
+import array
 
 
 class SpecificAnalysisFunctions():
@@ -18,10 +19,9 @@ class SpecificAnalysisFunctions():
         """
         meta_data_groups = []
         meta_data_types = []
-        x_list = []
+        x_list = array.array("d")
 
         for table in result_table_list:
-
             database.database.execute(f'select * from {table}')
             query_data_df = database.database.fetchdf()
             q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
@@ -70,7 +70,7 @@ class SpecificAnalysisFunctions():
             tuple: The plot_dataframe with as long table with experiment name, 
             values and indeces
         """
-        plot_data = {"Unit": [],"values":[], "name":[], "meta_data":[], "index":[]}
+        plot_data = {"Unit": [],"values":array.array("d"), "name":[], "meta_data":[], "index":[]}
         increment_list = []
 
         for table in result_table_list:
@@ -93,8 +93,6 @@ class SpecificAnalysisFunctions():
             except Exception as e:
                 print(e + " The functin the error was is simple calc")
                 break
-        print(len(set(plot_data["Unit"])))
-
         if (len(set(plot_data["Unit"])) == 1) or  (mean(increment_list)==0):
             increment = True
         else:
@@ -115,7 +113,7 @@ class SpecificAnalysisFunctions():
             pd.DataFrame: long table pd.DataFrame with Data for boxplot and lineplot plotting
         """
         meta_data_groups = []
-        first_ap = []
+        first_ap = array.array("d")
         experiment_names = []
 
         for table in result_table_list:
@@ -154,8 +152,8 @@ class SpecificAnalysisFunctions():
             plot_dataframe	pd.DataFrame: Dataframe containing the data for plotting
         """
         meta_data_groups = []
-        max_voltage = []
-        current = []
+        max_voltage = array.array("d")
+        current = array.array("d")
         experiment_names = []
 
         for table in result_table_list:
@@ -192,13 +190,12 @@ class SpecificAnalysisFunctions():
         Returns:
             _type_: DataFrame with the #APs per sweep and experiment logn table
         """
-        count = []
+        count = array.array("i")
         rheo = []
         meta_data = []
         experiment_names = []
 
         for table in result_table_list:
-            print(table)
             experiment_name = "_".join(table.split("_")[-3:-1])
             database.database.execute(f'select * from {table}')
             query_data_df = database.database.fetchdf()
@@ -207,7 +204,6 @@ class SpecificAnalysisFunctions():
                     f'specific_result_table_name = \'{table}\'))'
 
             meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-
             rheobase = 1
             for column in query_data_df:
 

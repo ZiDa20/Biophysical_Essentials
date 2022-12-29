@@ -9,6 +9,7 @@ from scipy.stats import zscore
 import logging
 
 class OfflinePlots():
+    
     logger = logging.getLogger(__name__)
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
     Basis Analysis Functions
@@ -43,6 +44,7 @@ class OfflinePlots():
         self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
 
     def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
+        
         """Retrieves the appropriate Analysis Function
 
         Args:
@@ -64,8 +66,6 @@ class OfflinePlots():
                                     "Action Potential Fitting": self.ap_fitting_plot
                                     }
 
-        
-        
         # retrieve the appropiate plot from the combobox
             self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list)
             self.logger.info("Analysis function retrieved successfully")
@@ -74,6 +74,7 @@ class OfflinePlots():
             self.logger.error("An error occurred while trying to retrieve the analysis function: %s", e)
           
     def style_plot(self):
+        
         """Plot Styling Class
         """
         self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
@@ -84,6 +85,7 @@ class OfflinePlots():
         self.frontend.change_canvas_dark()
 
     def make_boxplot(self,parent_widget, result_table_list: list):
+        
         """Specific Function to draw Boxplots from long table formats
         of different Analysis Function
 
@@ -92,25 +94,41 @@ class OfflinePlots():
             result_table_list (list): Result Table List of the specific Analysis Function
         """
         boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-        sns.boxplot(data = boxplot_df, x="meta_data", y = "values",  ax = self.ax, width = 0.5)
-        sns.swarmplot(data = boxplot_df, x="meta_data", y = "values",  ax = self.ax, color = "black", size = 10)
+        
+        #make aggregated plots box and lineplot
+        sns.boxplot(data = boxplot_df, 
+                    x="meta_data", 
+                    y = "values",  
+                    ax = self.ax, 
+                    width = 0.5)
+        
+        sns.swarmplot(data = boxplot_df, 
+                      x="meta_data", 
+                      y = "values",  
+                      ax = self.ax, 
+                      color = "black", 
+                      size = 10)
+        
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = pd.DataFrame(boxplot_df)
         parent_widget.export_data_frame = parent_widget.export_data_frame
         #parent_widget.export_data_frame.columns = meta_data_groups
+        
     def simple_plot(self, parent_widget, result_table_list:list):
         """
         Plot all data without incorporating meta data groups
         :param parent_widget: the widget to which the plot is added
         :param result_table_list: the list of result tables for the specific analysis
         """
+        # retrieve the plot_dataframe
         plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
 
-        if increment:
+        if increment: # if sweep have different voltage steps indicated by increment in pgf file
             g = sns.boxplot(data = plot_dataframe, x = "name", y = "values", ax = self.ax)
             g.set_xticklabels(g.get_xticklabels(),rotation=45)
             pivoted_table = plot_dataframe.pivot(index = "index", columns = "name", values = "values")
-        else:
+            
+        else: # if stable voltage dependency
             g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "name", ax = self.ax)
             self.connect_hover(g)
             pivoted_table = plot_dataframe.pivot(index = "Unit", columns = "name", values = "values")
@@ -120,7 +138,6 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
 
         parent_widget.export_data_frame = pivoted_table
-        print("succesfully stored data")
 
     def plot_mean_per_meta_data(self, parent_widget, result_table_list: list):
         """
@@ -162,7 +179,9 @@ class OfflinePlots():
             parent_widget (ResultVisualizer): _description_
             result_table_list (list): Result Table list of the generate by the Analysis Function
         """
+        
         plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
+        
         g = sns.boxplot(data = plot_dataframe, x = "Meta_data", y = "AP", ax = self.ax)
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax.autoscale()
@@ -179,6 +198,7 @@ class OfflinePlots():
         plot_dataframe = SpecificAnalysisFunctions.sweep_rheobase_calc(result_table_list, self.database_handler)
         g = sns.lineplot(data = plot_dataframe, x = "current", y = "voltage", hue = "Meta_data", ax = self.ax, errorbar=("se", 2))
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
+        
         self.ax.autoscale()
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = plot_dataframe
@@ -213,7 +233,7 @@ class OfflinePlots():
                         y = "Number AP", 
                         hue = "experiment_name", 
                         ax = self.ax, 
-                        picker=4
+                        picker= 4
                         )
         
         self.connect_hover(g)
@@ -230,7 +250,6 @@ class OfflinePlots():
             parent_widget (_type_): _description_
             result_table_list (list): List of queried result tables
         """
-        print(result_table_list)
         plot_dataframe, z_score = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
         parent_widget.specific_plot_box.setMinimumHeight(500)
         self.canvas.setMinimumSize(self.canvas.size())
@@ -240,7 +259,7 @@ class OfflinePlots():
         sns.heatmap(data = z_score.T, ax = self.ax)
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = plot_dataframe
-        #self.ax.autoscale()
+        
     def on_click(self, event, annot):
         """Event Detection in the Matplotlib Plot
         
@@ -250,6 +269,7 @@ class OfflinePlots():
         
         """
         for line in self.ax.lines:
+            #check if the selected line is drawn
             if line.contains(event)[0]:
                 cont, ind = line.contains(event)
                 line.set_linewidth(6)
