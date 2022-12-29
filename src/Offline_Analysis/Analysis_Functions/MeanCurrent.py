@@ -36,14 +36,7 @@ class MeanCurrent(SweepWiseAnalysisTemplate):
             y_val.append(mean_val)
         return tuple((x_val, y_val))
 
-    @classmethod
-    def calculate_results(self):
-        return super(MeanCurrent,self).calculate_results()
-
-    @classmethod
-    def visualize_results(self,custom_plot_widget,canvas, visualization):
-        return super(MeanCurrent,self).visualize_results(custom_plot_widget)
-
+   
     @classmethod
     def live_data(self, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
                   sweep_name=None):

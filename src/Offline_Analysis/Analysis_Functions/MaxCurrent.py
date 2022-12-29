@@ -26,13 +26,5 @@ class MaxCurrent(SweepWiseAnalysisTemplate):
         return tuple((x_val, max_val))
 
     @classmethod
-    def calculate_results(cls):
-        return super(MaxCurrent,cls).calculate_results()
-
-    @classmethod
-    def visualize_results(cls,custom_plot_widget):
-        return super(MaxCurrent,cls).visualize_results(custom_plot_widget)
-
-    @classmethod
     def live_data(self,lower_bound,upper_bound,experiment_name,series_identifier, database_handler, sweep_name = None):
         return super(MaxCurrent,self).live_data(lower_bound,upper_bound,experiment_name,series_identifier,database_handler, sweep_name)

@@ -23,27 +23,6 @@ class MeanVoltage(SweepWiseAnalysisTemplate):
         mean_val = np.mean(cls.sliced_volt)
         return mean_val
 
-    @classmethod
-    def calculate_results(cls) -> list:
-        """Calculates the Results by calling the SweepWiseAnalysisTemplate calculate_results method
-
-        Returns:??
-            list: returns the calculated results in form of result tables
-        """
-        return super(MeanVoltage,cls).calculate_results()
-
-    @classmethod
-    def visualize_results(cls,custom_plot_widget):
-        """_summary_
-
-        Args:
-            custom_plot_widget (QWidget): The Widget which holds the data in the stacked widget?? Improve
-
-        Returns:
-            pd.DataFrame: pd.DataFrame holding the results of the Analysis in a long format
-        """
-        return super(MeanVoltage,cls).visualize_results(custom_plot_widget)
-
     def __str__(self) -> str:
         return "Mean Voltage Class"
     

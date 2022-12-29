@@ -27,14 +27,6 @@ class MinCurrent(SweepWiseAnalysisTemplate):
         return tuple((x_val, min_val))
 
     @classmethod
-    def calculate_results(cls):
-        return super(MinCurrent,cls).calculate_results()
-
-    @classmethod
-    def visualize_results(cls,custom_plot_widget):
-        return super(MinCurrent,cls).visualize_results(custom_plot_widget)
-
-    @classmethod
     def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler, sweep_name=None):
         """"""    
         return super(MinCurrent, cls).live_data(lower_bound, upper_bound, experiment_name, series_identifier,
