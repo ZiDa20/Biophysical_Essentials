@@ -20,7 +20,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.setupUi(self)
         #self.data_base_stacked_widget.setCurrentIndex(0)
         self.data_base_stacked_widget.setCurrentIndex(0)
-
         #self.connect_to_database.clicked.connect(self.show_basic_tables)
         self.execute_dialog = ExecuteDialog()
         self.execute_dialog.pushButton.clicked.connect(partial(self.query_data,True))
@@ -37,10 +36,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.database_handler = database_handler
 
     def export_table_to_csv(self):
-        """Table will be exported as csv file"""
+        """
+        Table will be exported as csv file
+        """
         if self.data_base_content is not None:
             response = QFileDialog.getSaveFileName(self, "Save File", "", "CSV(*.csv)")
-            print(response)
             self.pandas_frame.to_csv(response[0])
         else:
             print("No Table to export")
@@ -91,7 +91,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             if "results" in table_name:
                 self.table_dictionary["Result Table"].append(table_name)
 
-
         # create a button for each table
         self.retrieve_tables("Analysis Table", True)
         self.select_table.clear()
@@ -101,7 +100,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
 
     def retrieve_tables(self, manual_table, manual = None):
-        """ When button clicked then we should retrieve the associated tables to structure the 
+        """ 
+        When button clicked then we should retrieve the associated tables to structure the 
         Tables better
         Args:
             manual_table type: str Name of the table to be retrieved
@@ -131,8 +131,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             table_name = text_query
         else:
             table_name = self.sender().currentItem().text()
-            print(table_name)
-
+        
         q = f'SELECT * from {table_name}'
         try:
             # returns a dict, keys = column names, values = array = single rows
@@ -170,7 +169,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.data_base_content.setMinimumHeight(300)
         self.data_base_content.horizontalHeader().setSectionsClickable(True)
 
-
         # create two models one for the table show and a second for the data visualizations
         self.viewing_model = PandasTable(self.pandas_frame)
         print(self.viewing_model._data)
@@ -206,13 +204,14 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
     
     def retrieve_column(self, index):
-        """ Here we can retrieve the data of the the selected columns
+        """ 
+        Here we can retrieve the data of the the selected columns
         
         args:
             index type: QModelIndex Index of the selected row
             
-        returns:
-            None"""
+        returns:None
+        """
 
         index = self.data_base_content.currentIndex().column()
         data = []
@@ -228,7 +227,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
     def draw_table(self, floating_numbers):
         """
-        Draws the selected column if it contains numbers
+        Draws the selected column if it contains numbers 
+        The data amount is using only every 10th point to reduce
+        slowness of the matplotlib plot
         
         args:
             floating_numbers type(np.array): list of numbers
@@ -236,29 +237,43 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         if self.plot:
             for i in reversed(range(self.gridLayout_10.count())):
                 self.gridLayout_10.itemAt(i).widget().deleteLater()
-        
-        
         # this should show the sliced array
         if self.canvas:
             self.canvas.deleteLater()
     
-
         sliced_array = floating_numbers[::10]
+        self.raw_database_signal_plot(sliced_array)
+       
+        # draw the figure
+    def raw_database_signal_plot(self, sliced_array):
+        """
+        Draws the raw signal of the selected column
+        in the DataBase Viewer
+        Args:
+            sliced_array (_type_): array of data, where only every 10th point 
+            is used to reduce the overhead
+        """
+        # creates the Canvase
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
         self.navigation = NavigationToolbar(self.canvas, self)
-
         #add the buttons for the plot navigation
+        self.plot_option_connection()
+        #draws the figure
+        self.draw_figure(sliced_array)
+    
+    def plot_option_connection(self):
+        """
+        Plot Control Options mapped to the ribbon bar buttons
+        """
         self.plot_zoom.clicked.connect(self.navigation.zoom)
         self.plot_home.clicked.connect(self.navigation.home)
         self.plot_move.clicked.connect(self.navigation.pan)
         self.save_plot_online.clicked.connect(self.save_image)
-        self.draw_figure(sliced_array)
-        # draw the figure
-        
 
     def draw_figure(self, sliced_array):
-        """Draws the figure in the canvas
-        
+        """
+        Draws the figure in the canvas
+        @ToDO add this to the frontend class
         args:
             fig type: matplotlib.figure.Figure
         returns:
@@ -278,9 +293,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.gridLayout_10.addWidget(self.canvas)
 
     def save_image(self):
-        """Saves the current plot as png file"""
+        """
+        Saves the current plot as png file
+        """
         if self.canvas:
             response = QFileDialog.getSaveFileName(self, "Save Image", "", "PNG(*.png)")
             self.canvas.figure.savefig(response[0])
+            response.close()
         else:
-            print("No plot to save")
+            raise AttributeError("No Plot selected here")
+            # add here a QDialog that opens with error message

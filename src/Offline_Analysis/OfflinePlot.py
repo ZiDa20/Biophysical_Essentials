@@ -63,7 +63,9 @@ class OfflinePlots():
                                     "Sweep Plot": self.single_rheobase_plot,
                                     "Rheoramp-AUC": self.rheoramp_plot,
                                     "Rheoramp-Single": self.rheoramp_single_plot,
-                                    "Action Potential Fitting": self.ap_fitting_plot
+                                    "Action Potential Fitting": self.ap_fitting_plot,
+                                    "Linear Regression": self.regression_plot,
+                                    "PCA Plot": self.pca_plot
                                     }
 
         # retrieve the appropiate plot from the combobox
@@ -77,12 +79,14 @@ class OfflinePlots():
         
         """Plot Styling Class
         """
+        self.logger.info("Styling the Plot started")
         self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         self.ax.spines.right.set_visible(False)
         self.ax.spines.top.set_visible(False)
         self.ax.patch.set_alpha(0)
         self.canvas.figure.patch.set_alpha(0)
         self.frontend.change_canvas_dark()
+        self.logger.info("Styling the Plot ended")
 
     def make_boxplot(self,parent_widget, result_table_list: list):
         
@@ -94,7 +98,6 @@ class OfflinePlots():
             result_table_list (list): Result Table List of the specific Analysis Function
         """
         boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-        
         #make aggregated plots box and lineplot
         sns.boxplot(data = boxplot_df, 
                     x="meta_data", 
@@ -109,11 +112,11 @@ class OfflinePlots():
                       color = "black", 
                       size = 10)
         
+        self.logger.info("Created Boxplot successfully")
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = pd.DataFrame(boxplot_df)
         parent_widget.export_data_frame = parent_widget.export_data_frame
-        #parent_widget.export_data_frame.columns = meta_data_groups
-        
+    
     def simple_plot(self, parent_widget, result_table_list:list):
         """
         Plot all data without incorporating meta data groups
@@ -259,7 +262,22 @@ class OfflinePlots():
         sns.heatmap(data = z_score.T, ax = self.ax)
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = plot_dataframe
-        
+       
+    def regression_plot(self, parent_widget, result_table_list: list):
+        """Draws a Regression line which determines the slope of the 
+
+        Args:
+            parent_widget (_type_): _description_
+            result_table_list (list): _description_
+        """
+        plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
+        g = sns.regplot(data = plot_dataframe, x = "Unit", y = "values", ax = self.ax, fit_reg = True, robust = True)
+        g.set_xticklabels(g.get_xticklabels(),rotation=45)
+        parent_widget.export_data_frame = plot_dataframe
+    
+    def pca_plot(self, parent_widget, result_table_list: list):
+        print("needs to be implemented")
+    
     def on_click(self, event, annot):
         """Event Detection in the Matplotlib Plot
         
