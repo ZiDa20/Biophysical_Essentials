@@ -1,11 +1,8 @@
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.figure import Figure
+from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
-from scipy.stats import zscore
 import logging
 
 class OfflinePlots():
@@ -48,9 +45,9 @@ class OfflinePlots():
         """Retrieves the appropriate Analysis Function
 
         Args:
-            parent_widget (_type_): The Parent Widget to draw in
-            result_table_list (_type_): The tables that will be visualized
-            analysis_function (_type_): The analysis function choosen
+            parent_widget (_type_): The Parent Widget to draw in as canvas
+            result_table_list (_type_): The tables that will be visualized for the specific series
+            analysis_function (_type_): The analysis function choosen for the specific series
         """
         self.logger.info("Retrieving analysis function")
         # code goes here
