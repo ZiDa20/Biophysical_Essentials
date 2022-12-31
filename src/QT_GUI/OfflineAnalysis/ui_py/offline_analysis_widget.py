@@ -1067,8 +1067,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_list_view)
         # remove the button
 
-
-
     def clear_last_row(self):
         if self.statistics_list_view.count() > 0:
             self.statistics_list_view.takeItem(self.statistics_list_view.count()-1)
@@ -1248,10 +1246,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # slice out all series names that are not related to the specific chosen one
         current_tab_tree_view_manager.create_series_specific_tree(series_name,self.current_tab_plot_manager)
         
-        
-        
-        
-
     @Slot()
     def select_analysis_functions(self, series_name):
         """ open a popup dialog for the user to select available analysis functions """
@@ -1298,17 +1292,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab = self.tab_list[current_index]
 
         current_tab.analysis_function.addWidget(current_tab.analysis_table_widget)
-        current_tab.analysis_table_widget.analysis_table_widget.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
-        current_tab.analysis_table_widget.analysis_table_widget.verticalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
         existing_row_numbers = current_tab.analysis_table_widget.analysis_table_widget.rowCount()
         #current_tab.pushButton_3.clicked.connect(self.add_filter_to_offline_analysis)
 
         if existing_row_numbers == 0:
 
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-            current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(6)
+            current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(7)
             current_tab.analysis_table_widget.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
             self.table_buttons = [0] * len(self.selected_analysis_functions)
         else:
@@ -1326,12 +1316,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.table_buttons[row_to_insert] = QPushButton("Add")
             self.c = QPushButton("Configure")
             self.live_result = QCheckBox()
+            
+            self.get_pgf_file_selection(current_tab)
+            self.pgf_selection = QComboBox()
 
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 3,
                                                                                   self.table_buttons[row_to_insert])
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5, self.live_result)
-
+            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,7,self.pgf_selection)
             self.table_buttons[row_to_insert].clicked.connect(
                 partial(self.add_coursor_bounds, row_to_insert, current_tab))
             self.live_result.clicked.connect(
@@ -1341,6 +1334,26 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         plot_widget_manager  = self.current_tab_visualization[current_index]
         plot_widget_manager.set_analysis_functions_table_widget(
             current_tab.analysis_table_widget.analysis_table_widget)
+        
+    def get_pgf_file_selection(self,current_tab):
+        """Should retrieve the pgf_files for all the files in the current analysis id
+        This should further retrieve each individual segment"""
+        analysis_id = self.database_handler.analysis_id
+        series_name = current_tab.objectName()
+        experiment_name = self.database_handler.database.execute(f"SELECT experiment_name FROM experiment_analysis_mapping WHERE analysis_id = {analysis_id};").fetchall()
+        pgf_file_dict = {}
+        for experiment in experiment_name:
+            try:
+                q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
+                pgf_sections = self.database_handler.get_data_from_database(self.database_handler.database, q, [experiment[0], series_name])[0][0]
+                pgf_table = self.database_handler.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
+                pgf_file_dict.update({experiment[0]: (pgf_table, pgf_table.shape[0])})
+            except IndexError:
+                print(f"The error is at the experiment: {experiment[0]}")
+                continue
+        
+        print(pgf_file_dict)
+
 
     def show_live_results_changed(self, row_number, current_tab, checkbox_object: QCheckBox):
         """
@@ -1504,9 +1517,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         by the analysis function
         :param current_tab:
         :param progress_callback:
-        
         """
-        print("Qthread is running")
         self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)

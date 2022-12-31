@@ -54,6 +54,7 @@ class TreeViewManager():
         self.frontend_style = None
 
         self.analysis_mode = 0
+        self.series_count = 0
 
         # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
         if self.database_handler is None:
@@ -124,6 +125,7 @@ class TreeViewManager():
                     file = directory_path + "/" + i # the full path to the file
                     bundle = self.open_bundle_of_file(file) # open heka reader
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
+                    self.series_count = 0
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
 
@@ -160,10 +162,7 @@ class TreeViewManager():
         returns:
             database type: database object - the database to write the data into
         """
-        print("entering the writing process")
-        print(self.meta_data_assignment_list)
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
-        print(self.meta_data_assigned_experiment_names)
         ################################################################################################################
         #Progress Bar setup
         max_value = len(dat_files)
@@ -535,7 +534,7 @@ class TreeViewManager():
                     self.sweep_data_df = pd.DataFrame()
                     self.sweep_meta_data_df = pd.DataFrame()
 
-                sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_name == node_label]
+                sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
             
 
                 database.add_single_series_to_database(experiment_name, node_label, node_type)
@@ -691,15 +690,20 @@ class TreeViewManager():
         res = splitted_string.groups()
         return int(res[1])
 
-
-    def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, holding_potential = None, series_name = None, sweep_number =None):
+    # ToDo put this into dictionary instead of parameters for dynamic programming
+    def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, 
+                                               holding_potential = None, 
+                                               series_name = None, 
+                                               sweep_number =None, stim_channel = None, 
+                                               series_number = None,
+                                               count = 0):
 
         # open the pulse generator part of the bundle
         root = bundle.pgf
         node = root
+        
         for i in index:
             node = node[i]
-
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
         #print("Node type:")
@@ -708,32 +712,51 @@ class TreeViewManager():
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
 
-
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
-
+            
         if node_type == "Stimulation":
             series_name = node.EntryName
             sweep_number = node.NumberSweeps
+            self.series_count += 1
+            
         if node_type == "Channel":
             # Holding
             holding_potential = node.Holding
-
+            stim_channel = node.children 
+            
         if node_type == "StimChannel":
             duration = node.Duration
             increment = node.DeltaVIncrement
             voltage = node.Voltage
+            series_number = "Series" + str(self.series_count)
 
-            data_list.append([series_name,str(sweep_number),node_type,str(holding_potential),str(duration),str(increment),str(voltage)])
+            data_list.append([series_name,
+                              str(sweep_number),
+                              node_type,
+                              str(holding_potential),
+                              str(duration),
+                              str(increment),
+                              str(voltage), 
+                              str(len(stim_channel)), 
+                              str(series_number)])
 
         try:
             for i in range(len(node.children)):
-                self.read_series_specific_pgf_trace_into_df(index+[i], bundle,data_list, holding_potential, series_name,sweep_number)
+                self.read_series_specific_pgf_trace_into_df(index+[i], 
+                                                            bundle,
+                                                            data_list, 
+                                                            holding_potential, 
+                                                            series_name,
+                                                            sweep_number, 
+                                                            stim_channel, 
+                                                            series_number,
+                                                            count = count)
         except Exception as e:
             print(e)
 
 
-        return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage"])
+        return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id"])
 
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
@@ -749,12 +772,14 @@ class TreeViewManager():
 
         # open the pulse generator part of the bundle
         root = bundle.pgf
+        
         node = root
         for i in index:
             node = node[i]
 
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
+        
         #print("Node type:")
         #print(node_type)
 
