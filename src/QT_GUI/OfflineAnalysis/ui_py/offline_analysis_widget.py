@@ -29,13 +29,17 @@ from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler i
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from PostSql_Handler import PostSqlHandler
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+import matplotlib
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
 from Pandas_Table import PandasTable
 import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
+from animated_ap import AnimatedAP
 
 import copy
 
@@ -1343,11 +1347,32 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         # store analysis parameter in the database
+        
+        #self.show_ap_simulation()
 
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
+        
+    def show_ap_simulation(self):
+
+        ap = AnimatedAP()
+
+        # Create the animation using the update function and the time points as frames
+        ani = animation.FuncAnimation(ap.fig, ap.anim_update, frames=len(ap.time), blit=True)
+
+        # Add labels to the x- and y-axes
+        #ax.set_xlabel('Time (ms)')
+        #ax.set_ylabel('Membrane Potential (mV)')
+        plt.show()
+        # Display the animation
+        #ap.show_dialog()
+
+  
+
+
+
 
     def run_database_thread(self, current_tab, progress_callback):
         """ This function will run the analysis in a separate thread, that is selected
