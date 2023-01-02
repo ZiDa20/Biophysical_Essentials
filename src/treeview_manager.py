@@ -228,24 +228,17 @@ class TreeViewManager():
         for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
 
+        # create the models for the selected and discarded tree
         self.selected_model = TreeModel(selected_table_view_table)
-        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
-
-        if self.selected_model.header:
-            for i in range(0, len(self.selected_model.header)):
-                if i < len(self.selected_model.header) - 3:
-                    self.tree_build_widget.selected_tree_view.setColumnHidden(i, False)
-                else:
-                    self.tree_build_widget.selected_tree_view.setColumnHidden(i, True)
-
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
+        
+        # assign the models to the visible treeview objects 
+        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)        
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
 
-        for i in range(0, len(self.discarded_model.header)):
-            if i < len(self.discarded_model.header) - 3:
-                self.tree_build_widget.discarded_tree_view.setColumnHidden(i, False)
-            else:
-                self.tree_build_widget.discarded_tree_view.setColumnHidden(i, True)
+        # display the correct columns according to the selected metadata and sweeps
+        self.set_visible_columns_treeview(self.selected_model,self.tree_build_widget.selected_tree_view)
+        self.set_visible_columns_treeview(self.discarded_model,self.tree_build_widget.discarded_tree_view)
 
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
@@ -261,6 +254,17 @@ class TreeViewManager():
 
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
+
+    def set_visible_columns_treeview(self,model,treeview):
+        """
+        the last 3 columns of the treeview should not be displayed but the remaining columns should
+        """
+        if model.header:
+            for i in range(0, len(model.header)):
+                if i < len(model.header) - 3:
+                    treeview.setColumnHidden(i, False)
+                else:
+                    treeview.setColumnHidden(i, True)
 
     def create_data_frame_for_tree_model(self, discarded_state: bool, show_sweeps: bool, series_name = None):
         """
@@ -338,13 +342,9 @@ class TreeViewManager():
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
 
-        self.tree_build_widget.selected_tree_view.setColumnHidden(3, True)
-        self.tree_build_widget.selected_tree_view.setColumnHidden(4, True)
-        self.tree_build_widget.selected_tree_view.setColumnHidden(5, True)
-
-        self.tree_build_widget.discarded_tree_view.setColumnHidden(3, True)
-        self.tree_build_widget.discarded_tree_view.setColumnHidden(4, True)
-        self.tree_build_widget.discarded_tree_view.setColumnHidden(5, True)
+        # display the correct columns according to the selected metadata and sweeps
+        self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
+        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)
 
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
