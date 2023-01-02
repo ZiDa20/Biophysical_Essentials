@@ -274,7 +274,7 @@ class TreeViewManager():
         table_name = table_name["selected_meta_data"].values.tolist()[0]
 
         if table_name is not np.nan:
-            return self.create_treeview_with_meta_data_parents(table_name, discarded_state)
+            return self.create_treeview_with_meta_data_parents(table_name, discarded_state, series_name)
         else:
             experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
             series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
@@ -510,7 +510,7 @@ class TreeViewManager():
 
         return df
 
-    def create_treeview_with_meta_data_parents(self,table_name, discarded_state):
+    def create_treeview_with_meta_data_parents(self,table_name, discarded_state, series_name = None):
         """
         create a pandas dataframe with meta data labels as parents for experiments
         """
@@ -609,15 +609,21 @@ class TreeViewManager():
                 # create series
                 for index,row in parent_name_table.iterrows():
 
+                    # check whether meta data were assigned to sweeps: if yes, a series might appear twice in the tree
                     if "sweep_meta_data" not in unique_table:
                         if "experiment_series" in unique_table:
                             query = query.split("experiment_series")
                             query = f'select * from experiment_series ' + query[1] + f' and experiment_name = \'{row["experiment_name"]}\''
-                            print("series query ", query)
+                            if series_name is not None:
+                                query = query + f' and series_name = \'{series_name}\''
                         else:
                             query = query.split("intersect")
-                            query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name in ' + query[1] + ')'
-                            print(query)
+                            query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name in ' + query[1] 
+                            if series_name is not None:
+                                query = query + f' and series_name = \'{series_name}\' )'
+                            else:
+                                query = query + ')'
+
                     else:
                         query = query.split("sweep_meta_data")
                         query = query[1]
