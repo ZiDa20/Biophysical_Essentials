@@ -665,18 +665,20 @@ class TreeViewManager():
 
         # check whether meta data were assigned to sweeps: if yes, a series might appear twice in the tree
         if "sweep_meta_data" not in unique_table:
+            
             if "experiment_series" in unique_table:
                 query = query.split("experiment_series")
                 query = f'select * from experiment_series ' + query[1] + f' and experiment_name = \'{row["experiment_name"]}\''
+                
                 if series_name is not None:
                     query = query + f' and series_name = \'{series_name}\''
             else:
                 query = query.split("intersect")
-                query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name in ' + query[1] 
+                query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name = \'{row["experiment_name"]}\' '
+
                 if series_name is not None:
-                    query = query + f' and series_name = \'{series_name}\' )'
-                else:
-                    query = query + ')'
+                    query = query + f' and series_name = \'{series_name}\''
+
 
         else:
             query = query.split("sweep_meta_data")

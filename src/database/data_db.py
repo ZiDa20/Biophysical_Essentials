@@ -533,8 +533,8 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
 
     def add_experiment_to_global_meta_data(self, id, meta_data):
-        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, species, genotype, sex, condition, individuum_id) values ' \
-            f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' )'
+        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, species, genotype, sex, celltype, condition, individuum_id) values ' \
+            f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' ,\'{meta_data[7]}\')'
         try:
             self.database = self.execute_sql_command(self.database, q)
             self.logger.info(meta_data[0], "added succesfully to global_meta_data")
@@ -572,12 +572,13 @@ class DuckDBDatabaseHandler():
         """
         print(meta_data_list)
         q = f'update global_meta_data set experiment_label = \'{meta_data_list[1]}\',' \
-            f'species = \'{meta_data_list[2]}\', genotype = = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\','\
-            f'celltype = \'{meta_data_list[5]}\', condition = \'{meta_data_list[6]}\',individuum_id = \'{meta_data_list[7]}\' '\
+            f'species = \'{meta_data_list[2]}\', genotype = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\', celltype = \'{meta_data_list[5]}\', condition = \'{meta_data_list[6]}\',individuum_id = \'{meta_data_list[7]}\' '\
             f'where experiment_name = \'{meta_data_list[0]}\''
         try:
             self.database = self.execute_sql_command(self.database, q)
             self.logger.info(f'Wrote meta data for experiment \'{meta_data_list[0]}\' into database"')
+            res = self.database.execute("select * from global_meta_data where experiment_name = \'{meta_data_list[0]}\' ").fetchdf()
+            res_II = self.database.execute("select * from global_meta_data").fetchdf()
             return True
         except Exception as e:
             self.logger.info(f'FAILED to write meta data for experiment \'{meta_data_list[0]}\' into database with error {str(e)}')
