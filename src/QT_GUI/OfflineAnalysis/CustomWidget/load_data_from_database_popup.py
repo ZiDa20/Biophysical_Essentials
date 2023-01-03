@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QDialog, QGridLayout,
-    QGroupBox, QLabel, QListWidget, QListWidgetItem,
-    QPushButton, QSizePolicy, QSpacerItem, QWidget)
+from PySide6.QtWidgets import (QApplication, QDialog, QGridLayout, QGroupBox,
+    QLabel, QPushButton, QSizePolicy, QSpacerItem,
+    QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -30,62 +30,50 @@ class Ui_Dialog(object):
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.load_data = QPushButton(self.gridLayoutWidget)
-        self.load_data.setObjectName(u"load_data")
-
-        self.gridLayout.addWidget(self.load_data, 2, 0, 1, 4)
-
-        self.label = QLabel(self.gridLayoutWidget)
-        self.label.setObjectName(u"label")
-
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 4)
-
-        self.groupBox_3 = QGroupBox(self.gridLayoutWidget)
-        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.available_labels = QGroupBox(self.gridLayoutWidget)
+        self.available_labels.setObjectName(u"available_labels")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
-        self.groupBox_3.setSizePolicy(sizePolicy)
-        self.gridLayout_4 = QGridLayout(self.groupBox_3)
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.meta_data_list = QListWidget(self.groupBox_3)
-        self.meta_data_list.setObjectName(u"meta_data_list")
-
-        self.gridLayout_4.addWidget(self.meta_data_list, 0, 0, 1, 1)
-
-
-        self.gridLayout.addWidget(self.groupBox_3, 1, 3, 1, 1)
-
-        self.selected_labels = QGroupBox(self.gridLayoutWidget)
-        self.selected_labels.setObjectName(u"selected_labels")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.selected_labels.sizePolicy().hasHeightForWidth())
-        self.selected_labels.setSizePolicy(sizePolicy1)
-
-        self.gridLayout.addWidget(self.selected_labels, 1, 1, 1, 1)
-
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout.addItem(self.verticalSpacer, 1, 2, 1, 1)
-
-        self.available_labels = QGroupBox(self.gridLayoutWidget)
-        self.available_labels.setObjectName(u"available_labels")
         sizePolicy.setHeightForWidth(self.available_labels.sizePolicy().hasHeightForWidth())
         self.available_labels.setSizePolicy(sizePolicy)
         self.gridLayout_2 = QGridLayout(self.available_labels)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.available_labels_list = QListWidget(self.available_labels)
-        self.available_labels_list.setObjectName(u"available_labels_list")
-        self.available_labels_list.setDragEnabled(True)
-        self.available_labels_list.setDragDropMode(QAbstractItemView.DragDrop)
+        self.label_grid = QGridLayout()
+        self.label_grid.setObjectName(u"label_grid")
 
-        self.gridLayout_2.addWidget(self.available_labels_list, 0, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.label_grid, 0, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.available_labels, 1, 0, 1, 1)
+
+        self.groupBox_3 = QGroupBox(self.gridLayoutWidget)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        sizePolicy.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
+        self.groupBox_3.setSizePolicy(sizePolicy)
+        self.gridLayout_4 = QGridLayout(self.groupBox_3)
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.diagram_grid = QGridLayout()
+        self.diagram_grid.setObjectName(u"diagram_grid")
+
+        self.gridLayout_4.addLayout(self.diagram_grid, 0, 0, 1, 1)
+
+
+        self.gridLayout.addWidget(self.groupBox_3, 1, 2, 1, 1)
+
+        self.label = QLabel(self.gridLayoutWidget)
+        self.label.setObjectName(u"label")
+
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 3)
+
+        self.load_data = QPushButton(self.gridLayoutWidget)
+        self.load_data.setObjectName(u"load_data")
+
+        self.gridLayout.addWidget(self.load_data, 2, 0, 1, 3)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout.addItem(self.verticalSpacer, 1, 1, 1, 1)
 
 
         self.retranslateUi(Dialog)
@@ -95,10 +83,9 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
-        self.load_data.setText(QCoreApplication.translate("Dialog", u"Load Selection", None))
-        self.label.setText(QCoreApplication.translate("Dialog", u"Drag and Drop available Experiment Labels(s) label selection to load recordings from the database", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("Dialog", u"Meta Data Selection", None))
-        self.selected_labels.setTitle(QCoreApplication.translate("Dialog", u"Label Selection", None))
         self.available_labels.setTitle(QCoreApplication.translate("Dialog", u"Available Label", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("Dialog", u"Descriptive Statistics", None))
+        self.label.setText(QCoreApplication.translate("Dialog", u"Descriptive Statistics and Experiment Selection", None))
+        self.load_data.setText(QCoreApplication.translate("Dialog", u"Load Selection", None))
     # retranslateUi
 

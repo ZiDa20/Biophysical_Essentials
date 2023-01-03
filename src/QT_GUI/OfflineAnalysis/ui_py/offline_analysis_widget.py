@@ -257,24 +257,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
         # open a popup to allow experiment label selection by the user
-        self.dialog = Load_Data_From_Database_Popup_Handler()
-        #self.database_handler.open_connection()
-        available_labels = self.database_handler.get_available_experiment_label()
+        self.dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
+        
 
-        print(available_labels)
-        label_list = []
-        for i in available_labels:
-            if i[0] is None:
-                QListWidgetItem('nan', self.dialog.available_labels_list)
-            else:
-                QListWidgetItem(i[0], self.dialog.available_labels_list)
-
-        grid = QGridLayout()
-        self.list_view = DragAndDropListView(self, self.dialog.available_labels_list)
-        self.list_view.setAcceptDrops(True)
-        self.list_view.fileDropped.connect(self.experiment_label_dropped)
-        grid.addWidget(self.list_view)
-        self.dialog.selected_labels.setLayout(grid)
+        #grid = QGridLayout()
+        #self.list_view = DragAndDropListView(self, self.dialog.available_labels_list)
+        #self.list_view.setAcceptDrops(True)
+        #self.list_view.fileDropped.connect(self.experiment_label_dropped)
+        #grid.addWidget(self.list_view)
+        #self.dialog.selected_labels.setLayout(grid)
 
 
 

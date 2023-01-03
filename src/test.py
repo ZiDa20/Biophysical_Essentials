@@ -8,6 +8,7 @@ df = pd.DataFrame({'Category': ['A', 'B', 'C'], 'Amount': [10, 20, 30]})
 total = df['Amount'].sum()
 
 # Set the figure size
+
 plt.figure(figsize=(6,6))
 
 # Create the donut chart
