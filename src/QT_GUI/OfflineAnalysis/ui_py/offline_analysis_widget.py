@@ -359,13 +359,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.display_select_meta_data_group_dialog(False)
 
-    def continue_open_directory(self, enter_meta_data_dialog, meta_data_option_list=None,
-                                meta_data_group_assignment_list=None):
+    def continue_open_directory(self, enter_meta_data_dialog, meta_data_group_assignment_list=None):
         '''
         Function will continue the function open directory after any continue button in the meta data group dialog has
         been clicked. At first the popup will be closed, all data will be loaded immediately into the databse
         :param pop_up_dialog:
-        :param meta_data_option_list: list of options in the combo box dropdown menu
         :param meta_data_group_assignment_list: list of tuples of experiment name and assigned meta data group
         :return:
         '''
@@ -373,22 +371,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # close the dialog
         enter_meta_data_dialog.close()
 
-        if not (meta_data_option_list and meta_data_group_assignment_list):
+        # create a new treeview manager 
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
+
+        # read the directory data into the database
+        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)
+        
+        # assign meta data 
+        if not meta_data_group_assignment_list:
             meta_data_group_assignment_list = []
-            meta_data_option_list = []
         else:
             for n in meta_data_group_assignment_list:
-                print(n)
+                print("adding meta data to existing experiment ", n)
                 self.database_handler.add_meta_data_group_to_existing_experiment(n)
                 #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
 
-        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
-
-        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_option_list, meta_data_group_assignment_list)
-
+        
 
         #self.add_filter_button.setEnabled(True)
-
         self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
 
 
@@ -503,21 +503,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def open_meta_data_template_file(self, dialog):
         meta_data_assignments = []
-        option_list = []
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
 
         with open(file_name, newline='') as f:
             reader = csv.reader(f)
             meta_data_assignments = list(reader)
 
-        if len(meta_data_assignments[0]) <= 6:
-            CustomErrorDialog().show_dialog("The template needs at least 7 columns which were not found in the specified template.")
+        if len(meta_data_assignments[0]) <= 7:
+            CustomErrorDialog().show_dialog("The template needs at least 8 columns which were not found in the specified template.")
 
         else:
             print("results from the template file")
             print(meta_data_assignments)
-            option_list.append("dummy")
-            self.continue_open_directory(dialog, option_list, meta_data_assignments)
+            self.continue_open_directory(dialog, meta_data_assignments)
 
     def create_meta_data_template(self, old_dialog):
         '''
@@ -534,7 +532,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         directory = self.offline_manager._directory_path
 
-        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Condition",
+        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
                         "Individuum_id"]
 
         template_data_frame = pd.DataFrame(columns=column_names)
@@ -548,7 +546,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
             self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
             template_data_frame = template_data_frame.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
-                                        "Genotype":"None","Sex":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
 
         '''make a table with editable data '''
 
@@ -606,16 +604,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param tmp_tree_manager:
         :return:
         '''
+
         data_frame = meta_data_popup.meta_data_template_layout.itemAtPosition(0,0).widget().model()._data
             #data(0,0).toString()
         print(data_frame)
         file_name = self.offline_manager._directory_path + "/automatic_template.csv"
         print(file_name)
-        data_frame.to_csv(file_name)
+        data_frame.to_csv(file_name, index = False)
         """
         self.continue_open_directory(meta_data_popup, tmp_tree_manager.meta_data_option_list,
                                      tmp_tree_manager.get_meta_data_group_assignments())
         """
+
+        self.continue_open_directory(meta_data_popup, data_frame.values.tolist())
+
     def get_selected_checkboxes(self, checkboxes, labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
         # empty list to be filled

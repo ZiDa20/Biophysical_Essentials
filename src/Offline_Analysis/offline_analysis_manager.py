@@ -90,7 +90,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,tree_view_manager,meta_data_option_list, meta_data_assignment_list=None):
+    def read_data_from_experiment_directory(self,tree_view_manager, meta_data_assignment_list=None):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
@@ -109,14 +109,8 @@ class OfflineManager():
         # if not empty, this list contains all options in the dropdown menu of each combo box
         # when reading a template, "none" might not be assigned - therefore it might be necessary to add this option first
 
-        if meta_data_option_list:
-            try:
-                meta_data_option_list.index("None")
-            except:
-                meta_data_option_list = ["None"] + meta_data_option_list
-
-            self.tree_view_manager.meta_data_option_list = meta_data_option_list
-            self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
+        self.tree_view_manager.meta_data_option_list = []
+        self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
         print(data_list)
