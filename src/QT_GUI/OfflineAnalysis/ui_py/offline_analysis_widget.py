@@ -38,7 +38,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler imp
 import copy
 from Offline_Analysis.tree_model_class import TreeModel
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
-
+from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -118,7 +118,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #dialog_info_text = QLabel("Choose your prefered meta-data label(s)")
         #dialog_grid.addWidget(dialog_info_text, 0, 0)
 
-        # Prepare a checkbox and a label for each meta data column
+        # Prepare a checkbox and a label for each meta data columnx
         checkbox_list = []
         name_list = []
         for s in meta_data_list:
@@ -810,38 +810,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             self.tab_list.append(new_tab_widget)
             self.tab_changed(index, s)
-            # fill the treetabwidgetitems
-            parent = QTreeWidgetItem()
-            self.SeriesItems.addTopLevelItem(parent)
-
-            # set the child items of the widget
-            configurator = QTreeWidgetItem(parent)
-            configurator.setText(0,"Simple Analysis Configuration")
-
-
-            self.series_list.append(s)
-
-            # child stacked notebook per parent node
             self.hierachy_stacked = QStackedWidget()
             self.hierachy_stacked.addWidget(QWidget())
             self.analysis_stacked.addWidget(self.hierachy_stacked)
-
-            # set important data to the parent
-            parent.setText(0, s + " Analysis")
-            parent.setData(1, Qt.UserRole, "parent")  # check if parent
-            parent.setData(2, Qt.UserRole, new_tab_widget)  # save the widget
-            parent.setData(4, Qt.UserRole, self.hierachy_stacked)  # save the child notebook
-            parent.setData(5, Qt.UserRole, 0)
-            parent.setData(6, Qt.UserRole, s)  # specific series name
-            parent.setData(7, Qt.UserRole, index)  # save the index
-            parent.setData(8, Qt.UserRole, False)  # data to check if additional childs like plot ect are already drawn
-
-            configurator.setData(2, Qt.UserRole, new_tab_widget)  # save the widget
-            configurator.setData(4, Qt.UserRole, self.hierachy_stacked)  # save the child notebook
-            configurator.setData(5, Qt.UserRole, 1)
-            configurator.setData(6, Qt.UserRole, self.parent_count)  # specific series name
-            configurator.setData(7, Qt.UserRole, index)
-            configurator.setData(8, Qt.UserRole, False)
+            # fill the treetabwidgetitems
+            parent = SideBarParentItem(self.SeriesItems)
+            parent.setting_data(s, new_tab_widget, self.hierachy_stacked, index, False)
+            # set the child items of the widget
+            configurator = SideBarConfiguratorItem(parent, "Analysis Configurator")
+            configurator.setting_data(new_tab_widget, self.hierachy_stacked, self.parent_count, index)
+            self.series_list.append(s)
+            # child stacked notebook per parent node
             self.hierachy_stacked_list.append(self.hierachy_stacked)
             self.plot_widgets = []
             self.parent_count += 1
@@ -873,7 +852,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @author:DZ
         @todo restructure this and move it maybe into a new class with the related functions ?
         """
-
+        print("this is the function to connect")
         if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
             #self.result_analysis_parent_clicked()
             self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
@@ -885,7 +864,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             else:
                 parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
 
-            if self.SeriesItems.currentItem().text(0) == "Simple Analysis Configuration":
+            if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
                 self.simple_analysis_configuration_clicked(parent_stacked)
                 self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
                 self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
@@ -978,6 +957,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
             
 
+    # offline manager
     def calculate_statistics(self,statistics_table:QTableWidget):
         print("calculating statistic")
         for row in range(0,statistics_table.rowCount()):
@@ -1569,8 +1549,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
                                                                                    parent_item.data(6, Qt.UserRole))
 
-
-
         """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
 
@@ -1602,14 +1580,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         if parent_tree_item.data(8, Qt.UserRole) is False:
             # add new children within the tree:
             for i in ["Plot", "Tables", "Statistics", "Advanced Analysis"]:
-                new_child = QTreeWidgetItem(parent_tree_item)
-                new_child.setText(0, i)
+                new_child = SideBarAnalysisItem(i, parent_tree_item)
                 parent_stacked_widget.addWidget(QWidget())
                 if i in ["Plot", "Tables"]:
-                    new_child.setData(4, Qt.UserRole, self.hierachy_stacked)
-                    new_child.setData(5, Qt.UserRole, 1)
-                    new_child.setData(6, Qt.UserRole, 0)
-
+                    new_child.setting_data(self.hierachy_stacked)
+                
             # overwrite the old stacked widget with the new extended stacked widget
             self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
             if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0:
@@ -1641,8 +1616,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                              analysis_series_name,
                                                                                              lower_bound, upper_bound)
-
-        print("finished")
 
     def get_cursor_bound_value_from_grid(self, row, column, current_tab):
         """
