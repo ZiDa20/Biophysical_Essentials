@@ -376,19 +376,25 @@ class SweepWiseAnalysisTemplate(object):
 		meta_data_types = []
 		x_list = []
 
+		# get the chosen meta data from the database
+		q = f' select * from (select selected_meta_data from offline_analysis where analysis_id = {database.analysis_id}   )'
+		meta_data_table = database.database.execute(q).fetchdf()
+		
+
 		for table in result_table_list:
 
 			database.database.execute(f'select * from {table}')
 			query_data_df = database.database.fetchdf()
 
-			print("querried data look like this")
-			print(query_data_df)
+			#print("querried data look like this")
+			#print(query_data_df)
 
-			q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
+
+			q = f'select * from global_meta_data where experiment_name = (select experiment_name from ' \
 				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
 				f'specific_result_table_name = \'{table}\'))'
 
-			meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+			meta_data_group = database.database.execute(q).fetchdf()
 			print(meta_data_group)
 			# index has the same name as the function. Will not work if the names differ.
 			#TODO scaling 

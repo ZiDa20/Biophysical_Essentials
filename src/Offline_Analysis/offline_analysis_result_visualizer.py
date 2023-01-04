@@ -47,17 +47,17 @@ class OfflineAnalysisResultVisualizer():
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
 
-        print(list_of_series)
+        #print(list_of_series)
 
         for series in list_of_series:
             print(series)
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             if series[0] == series_name:
-                print(analysis_id)
-                print(series_name)
+                #print(analysis_id)
+                #print(series_name)
                 offline_tab = self.analysis_function_specific_visualization(series[0],analysis_id)
-                print(offline_tab)
+                #print(offline_tab)
                 return offline_tab
             else:
                 print("no analysis function selected")
