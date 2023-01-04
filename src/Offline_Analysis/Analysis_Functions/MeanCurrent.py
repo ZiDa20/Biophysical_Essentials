@@ -39,7 +39,3 @@ class MeanCurrent(SweepWiseAnalysisTemplate):
         for i in x_val:
             y_val.append(mean_val)
         return tuple((x_val, y_val))
-
-
-    def __str__(self) -> str:
-        return "Mean Current Class"

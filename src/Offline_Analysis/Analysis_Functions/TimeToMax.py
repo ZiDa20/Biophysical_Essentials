@@ -5,10 +5,7 @@ class TimeToMax(SweepWiseAnalysisTemplate):
 
     plot_type_options = ["No Split", "Split by Meta Data"]
     function_name = 'time_to_max'
-    def __init__(self):
-        SweepWiseAnalysisTemplate.__init__(self)
-
-
+   
     @classmethod
     def specific_calculation(cls):
         cls.cslow_normalization = 0
@@ -45,17 +42,3 @@ class TimeToMax(SweepWiseAnalysisTemplate):
         for i in x_val:
             y_val.append(y_max)
         return tuple((x_val, y_val))
-
-    @classmethod
-    def calculate_results(cls):
-        return super(TimeToMax,cls).calculate_results()
-
-    @classmethod
-    def visualize_results(cls,custom_plot_widget):
-        return super(TimeToMax,cls).visualize_results(custom_plot_widget)
-
-    @classmethod
-    def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
-                  sweep_name=None):
-        return super(TimeToMax, cls).live_data(lower_bound, upper_bound, experiment_name, series_identifier,
-                                                database_handler, sweep_name)

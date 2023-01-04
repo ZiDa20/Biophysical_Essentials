@@ -175,9 +175,6 @@ class TreeViewManager():
             try:
                 increment = 100/max_value
                 progress_value = progress_value + increment
-                print(i)
-                if i[1] == "220315_01":
-                    break
                 self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
                 progress_callback.emit((progress_value,i))
             except Exception as e:

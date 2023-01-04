@@ -263,6 +263,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
 
     def show_sweeps_toggled(self,signal):
+        """toDO add Docstrings!
+
+        Args:
+            signal (_type_): _description_
+        """
         print("toggle" , self.offline_analysis_widgets.currentIndex())
         try:
             if self.offline_analysis_widgets.currentIndex()==1:
@@ -271,15 +276,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 print("not implemented yet")
         except Exception as e:
            print(e)
-           dialog = QDialog()
-           dialog_grid = QGridLayout(dialog)
-           dialog_error = QLabel("Dear looser ! Please load your data first",dialog)
-           dialog_quit = QPushButton("Cancel", dialog)
-           dialog_grid.addWidget(dialog_error,0,0)
-           dialog_grid.addWidget(dialog_quit, 1, 0)
-           dialog_quit.clicked.connect(partial(self.close_dialog,dialog))
-           dialog.setWindowTitle("Please Revise your Action")
-           dialog.exec_()
+           CustomErrorDialog("Please select load an Experiment First")
+           
+
+        
 
     def animate_tree_view(self):
         """Resize the Widget """
@@ -834,12 +834,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             parent.setData(5, Qt.UserRole, 0)
             parent.setData(6, Qt.UserRole, s)  # specific series name
             parent.setData(7, Qt.UserRole, index)  # save the index
+            parent.setData(8, Qt.UserRole, False)  # data to check if additional childs like plot ect are already drawn
 
             configurator.setData(2, Qt.UserRole, new_tab_widget)  # save the widget
             configurator.setData(4, Qt.UserRole, self.hierachy_stacked)  # save the child notebook
             configurator.setData(5, Qt.UserRole, 1)
             configurator.setData(6, Qt.UserRole, self.parent_count)  # specific series name
             configurator.setData(7, Qt.UserRole, index)
+            configurator.setData(8, Qt.UserRole, False)
             self.hierachy_stacked_list.append(self.hierachy_stacked)
             self.plot_widgets = []
             self.parent_count += 1
@@ -854,7 +856,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.tree_widget_index_count = index +1
 
     def start_worker(self):
-    
+        """Starts the Postgres Sql Worker to upload the tables 
+        as background thread
+        toDO rename
+        """
         self.worker = Worker(partial(PostSqlHandler, self.database_handler))
         #self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
@@ -1317,14 +1322,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.c = QPushButton("Configure")
             self.live_result = QCheckBox()
             
-            self.get_pgf_file_selection(current_tab)
             self.pgf_selection = QComboBox()
+            self.get_pgf_file_selection(current_tab)
+            
 
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 3,
                                                                                   self.table_buttons[row_to_insert])
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5, self.live_result)
-            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,7,self.pgf_selection)
+            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,6 ,self.pgf_selection)
             self.table_buttons[row_to_insert].clicked.connect(
                 partial(self.add_coursor_bounds, row_to_insert, current_tab))
             self.live_result.clicked.connect(
@@ -1347,10 +1353,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
                 pgf_sections = self.database_handler.get_data_from_database(self.database_handler.database, q, [experiment[0], series_name])[0][0]
                 pgf_table = self.database_handler.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
+                print(pgf_table)
+                pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
                 pgf_file_dict.update({experiment[0]: (pgf_table, pgf_table.shape[0])})
+            
             except IndexError:
                 print(f"The error is at the experiment: {experiment[0]}")
                 continue
+
+        pgf_files_amount = set([pgf_index[1] for pgf_index in pgf_file_dict.values()])
+        if len(pgf_files_amount) <= 1:
+            for i in range(1, int(list(pgf_files_amount)[0])+1):
+                self.pgf_selection.addItem(f"Segment {i}")
+            
+        else:
+            CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.")
         
         print(pgf_file_dict)
 
@@ -1563,6 +1580,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def add_new_analysis_tree_children(self):
         """
+        MZ: Refactored--> should no check if the children are already there
         add tree items to the analysis
             - plot for the result grpahics
             - table for the data from the result plots
@@ -1575,48 +1593,30 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             parent_tree_item = self.SeriesItems.currentItem()
             parent_stacked_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
             parent_stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
-            #parent_count = parent_tree_item.child(0).data(6, Qt.UserRole)
 
         else: # child is clicked
             parent_tree_item = self.SeriesItems.currentItem().parent()
             parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
             parent_stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
-            #parent_count = self.SeriesItems.currentItem().parent().data(6, Qt.UserRole)
 
-        print(parent_stacked_widget.__class__.__name__)
+        if parent_tree_item.data(8, Qt.UserRole) is False:
+            # add new children within the tree:
+            for i in ["Plot", "Tables", "Statistics", "Advanced Analysis"]:
+                new_child = QTreeWidgetItem(parent_tree_item)
+                new_child.setText(0, i)
+                parent_stacked_widget.addWidget(QWidget())
+                if i in ["Plot", "Tables"]:
+                    new_child.setData(4, Qt.UserRole, self.hierachy_stacked)
+                    new_child.setData(5, Qt.UserRole, 1)
+                    new_child.setData(6, Qt.UserRole, 0)
 
-        # add new children within the tree:
-        simple_analaysis_plot = QTreeWidgetItem(parent_tree_item)
-        simple_analysis_tables = QTreeWidgetItem(parent_tree_item)
-        simple_analysis_statistics = QTreeWidgetItem(parent_tree_item)
-        adavanced_analysis = QTreeWidgetItem(parent_tree_item)
-
-        simple_analaysis_plot.setText(0, "Plot")
-        simple_analysis_tables.setText(0, "Tables")
-        simple_analysis_statistics.setText(0, "Statistics")
-        adavanced_analysis.setText(0, "Advanced Analysis")
-
-        # add new pages to the stacked widget
-        parent_stacked_widget.addWidget(QWidget())
-        parent_stacked_widget.addWidget(QWidget())
-        parent_stacked_widget.addWidget(QWidget())
-        parent_stacked_widget.addWidget(QWidget())
-
-        # set the data for each of the child items
-        # remove and use for loop
-        simple_analaysis_plot.setData(4, Qt.UserRole, self.hierachy_stacked)
-        simple_analaysis_plot.setData(5, Qt.UserRole, 1)
-        simple_analaysis_plot.setData(6, Qt.UserRole, 0)
-
-        simple_analysis_tables.setData(4, Qt.UserRole, self.hierachy_stacked)
-        simple_analysis_tables.setData(5, Qt.UserRole, 1)
-        simple_analysis_tables.setData(6, Qt.UserRole,0)
-
-        print("added new childs")
-
-        # overwrite the old stacked widget with the new extended stacked widget
-        self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
-
+            # overwrite the old stacked widget with the new extended stacked widget
+            self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
+            if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0:
+                self.SeriesItems.currentItem().setData(8, Qt.UserRole, True)
+            else:
+                self.SeriesItems.currentItem().parent().setData(8, Qt.UserRole, True)
+            
 
     def write_function_grid_values_into_database(self, current_tab):
         """

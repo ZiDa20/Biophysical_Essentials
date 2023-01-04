@@ -9,6 +9,7 @@ class RheobaseDetection(object):
     """
     function_name = "Rheobase-Detection"
     plot_type_options = ["Rheobase Plot", "Sweep Plot"]
+    
     def __init__(self):
 
         # really needed ?

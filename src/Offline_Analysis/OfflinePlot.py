@@ -23,11 +23,6 @@ class OfflinePlots():
             frontend (Frontend_Style): Frontend_Style Class that handles dark-light mode
         """
         
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler = logging.FileHandler("offline_plots.log")
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
         self.SeriesItems = SeriesItem
         self.frontend = frontend
         self.canvas = canvas
@@ -39,6 +34,16 @@ class OfflinePlots():
         self.database_handler = database_handler
         self.style_plot()
         self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
+
+
+    def set_loggger(self):
+        """Sets the logger for the Offline Analyiss Plotting
+        """
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler = logging.FileHandler("offline_plots.log")
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
     def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
         
@@ -70,11 +75,11 @@ class OfflinePlots():
             self.logger.info("Analysis function retrieved successfully")
         
         except Exception as e:
-            self.logger.error("An error occurred while trying to retrieve the analysis function: %s", e)
+            self.logger.error("An error occurred while trying to retrieve the analysis function, function is not available: %s", e)
           
     def style_plot(self):
         
-        """Plot Styling Class
+        """Plot Styling Class, this can be used for general changes of the plot visualization
         """
         self.logger.info("Styling the Plot started")
         self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
@@ -95,7 +100,8 @@ class OfflinePlots():
             result_table_list (list): Result Table List of the specific Analysis Function
         """
         boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-        #make aggregated plots box and lineplot
+        
+        
         sns.boxplot(data = boxplot_df, 
                     x="meta_data", 
                     y = "values",  
@@ -147,7 +153,7 @@ class OfflinePlots():
         """
         plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
 
-        if increment:
+        if increment: # increment describes the differences between a step and a stable protocol
             grouped_dataframe = plot_dataframe.groupby(["meta_data", "name", "index"]).mean("values").reset_index()
             g = sns.boxplot(data = grouped_dataframe, x = "meta_data", y = "values", ax = self.ax)
             sns.swarmplot(data = grouped_dataframe, x = "meta_data", y = "values", ax = self.ax, color = "black", size = 5)

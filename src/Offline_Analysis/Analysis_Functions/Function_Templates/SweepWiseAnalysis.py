@@ -2,11 +2,13 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from statistics import mean
-from sklearn.preprocessing import StandardScaler
+import logging
 
 class SweepWiseAnalysisTemplate(object):
 	"""
 	Parent class to handle all analysis general processing to analyze each single sweep of a series:
+	# Still this is not appropriately implemented --> basically never initalized
+
 
 	"""
 	database = None

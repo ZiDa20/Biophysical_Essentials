@@ -24,5 +24,3 @@ class MinCurrent(SweepWiseAnalysisTemplate):
         x_val = cls.time[pos][0] +cls.lower_bound
         return tuple((x_val, min_val))
  
-    def __str__(self) -> str:
-        return "Min Current Class"
