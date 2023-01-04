@@ -142,6 +142,7 @@ class TreeViewManager():
                     
             except Exception as e:
                 # @todo error handling
+                print("Bundle file could not be read: " + str(i[0]) + " the error occured: " + str(e))
                 self.logger.error("Bundle file could not be read: " + str(i[0]) + " the error occured: " + str(e))
 
             if isinstance(i,list):
@@ -175,6 +176,8 @@ class TreeViewManager():
                 increment = 100/max_value
                 progress_value = progress_value + increment
                 print(i)
+                if i[1] == "220315_01":
+                    break
                 self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
                 progress_callback.emit((progress_value,i))
             except Exception as e:
@@ -696,6 +699,7 @@ class TreeViewManager():
                                                series_name = None, 
                                                sweep_number =None, stim_channel = None, 
                                                series_number = None,
+                                               children_amount = None,
                                                count = 0):
 
         # open the pulse generator part of the bundle
@@ -723,7 +727,8 @@ class TreeViewManager():
         if node_type == "Channel":
             # Holding
             holding_potential = node.Holding
-            stim_channel = node.children 
+            stim_channel = node.LinkedChannel
+            children_amount = node.children
             
         if node_type == "StimChannel":
             duration = node.Duration
@@ -738,8 +743,9 @@ class TreeViewManager():
                               str(duration),
                               str(increment),
                               str(voltage), 
-                              str(len(stim_channel)), 
-                              str(series_number)])
+                              str(stim_channel), 
+                              str(series_number),
+                              str(len(children_amount))])
 
         try:
             for i in range(len(node.children)):
@@ -751,12 +757,13 @@ class TreeViewManager():
                                                             sweep_number, 
                                                             stim_channel, 
                                                             series_number,
+                                                            children_amount,
                                                             count = count)
         except Exception as e:
-            print(e)
+            print(f"Error in PGF-file generation: {e}")
 
 
-        return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id"])
+        return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id", "children_amount"])
 
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):

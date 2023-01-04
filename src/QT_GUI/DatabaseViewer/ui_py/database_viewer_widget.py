@@ -31,6 +31,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.plot = None
         self.canvas = None
         self.export_table.clicked.connect(self.export_table_to_csv)
+        self.database_table.itemClicked.connect(self.pull_table_from_database)
         
     def update_database_handler(self,database_handler):
         self.database_handler = database_handler
@@ -115,10 +116,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.database_table.addItem(tables)
         if manual:
             self.pull_table_from_database(None,"offline_analysis")
-            self.database_table.itemClicked.connect(self.pull_table_from_database)
-        else:
-            self.database_table.itemClicked.connect(self.pull_table_from_database)
-
+            
     @Slot(str)
     def pull_table_from_database(self,event = None,  text_query = None):
         '''
@@ -131,10 +129,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             table_name = text_query
         else:
             table_name = self.sender().currentItem().text()
-        
         q = f'SELECT * from {table_name}'
         try:
             # returns a dict, keys = column names, values = array = single rows
+            
             table_dict = self.database.execute(q).fetchnumpy()
             self.create_table_from_dict(table_dict)
         except Exception as e:
@@ -150,6 +148,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         '''
    
         # create the table from dict
+        print("called")
         self.pandas_frame = pd.DataFrame(table_dict)
 
         if self.pandas_frame.shape[0] > 500:
@@ -171,7 +170,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         # create two models one for the table show and a second for the data visualizations
         self.viewing_model = PandasTable(self.pandas_frame)
-        print(self.viewing_model._data)
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
         
