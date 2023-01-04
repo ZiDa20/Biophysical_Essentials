@@ -376,25 +376,41 @@ class SweepWiseAnalysisTemplate(object):
 		meta_data_types = []
 		x_list = []
 
-		# get the chosen meta data from the database
-		q = f' select * from (select selected_meta_data from offline_analysis where analysis_id = {database.analysis_id}   )'
-		meta_data_table = database.database.execute(q).fetchdf()
+		# get the meta data table that is stored in the database
+		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
+		try:
+			q = f'select selected_meta_data from offline_analysis where analysis_id = {database.analysis_id} ' 
+			table_name = database.database.execute(q).fetchdf()
+			table_name = table_name["selected_meta_data"].values[0]
+			q = f'select * from {table_name}'
+			selected_meta_data = database.database.execute(q).fetchdf()
+		except Exception as e:
+			if e == 0:
+				print("Error: No meta data found")
+			
+			print("Error in boxplot calc " , e)
+
+
 		
 
 		for table in result_table_list:
 
 			database.database.execute(f'select * from {table}')
 			query_data_df = database.database.fetchdf()
-
-			#print("querried data look like this")
-			#print(query_data_df)
-
-
+			meta_data_group = None
+			# get the meta data table 
 			q = f'select * from global_meta_data where experiment_name = (select experiment_name from ' \
 				f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
 				f'specific_result_table_name = \'{table}\'))'
+			meta_data = database.database.execute(q).fetchdf()
 
-			meta_data_group = database.database.execute(q).fetchdf()
+			for index,row in selected_meta_data.iterrows():
+				column_name = row["column"]
+				if meta_data_group:
+					meta_data_group = meta_data_group + "::" + meta_data[column_name].values
+				else:
+					meta_data_group = meta_data[column_name].values
+			meta_data_group = meta_data_group[0]
 			print(meta_data_group)
 			# index has the same name as the function. Will not work if the names differ.
 			#TODO scaling 

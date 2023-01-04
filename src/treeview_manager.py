@@ -127,7 +127,6 @@ class TreeViewManager():
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
-
                 
                 if isinstance(i,list):
                     for abf in i:
