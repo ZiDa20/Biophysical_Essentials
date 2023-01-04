@@ -40,7 +40,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Statis
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 from animated_ap import AnimatedAP
-
+from scipy import stats
 import copy
 
 from Offline_Analysis.tree_model_class import TreeModel
@@ -216,7 +216,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
         # static offline analysis number
-        self.database_handler.analysis_id = 8
+        self.database_handler.analysis_id = 107
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
@@ -779,26 +779,71 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
 
                 for i in analysis_functions:
+
                     # prepare a row for each analysis
                     analysis_function = i[0]
                     print(analysis_function)
                     row_to_insert = analysis_functions.index(i) + existing_row_numbers
 
-                    self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Choose")
+                    # add a checkbox in column 0
                     self.select_checkbox = QCheckBox()
-                    self.data_dist  = QComboBox()
-                    self.data_dist.addItems(["Normal Distribution", "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution" ])
-                    self.data_dist.setCurrentIndex(0)
-                    self.stat_test = QComboBox()
-                    self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
-                    self.stat_test.setCurrentIndex(0)
                     statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 0,self.select_checkbox)
+
+                    #add the analysis function to column 1
                     statistics_table_widget.statistics_table_widget.setItem(row_to_insert, 1,
                                                                             QTableWidgetItem(str(analysis_function)))
+
+                    # add meta data change button to column2
+                    self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Change")
                     statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_add_meta_data_buttons[row_to_insert])
 
+                    # get the meta data from the plot widget
+                    # @todo better get them from the database
+                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+                    result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
+                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
+                    
+                    qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(analysis_functions.index(i), 0)
+                    custom_plot_widget = qwidget_item.widget()
+                    df = custom_plot_widget.export_data_frame
+
+                    unique_meta_data = list(df["meta_data"].unique())
+                    
+                    for meta_data in unique_meta_data:
+                        print("adding mt ", meta_data)
+                        statistics_table_widget.statistics_table_widget.setItem(row_to_insert + unique_meta_data.index(meta_data), 2,
+                                                                            QTableWidgetItem(str(meta_data)))
+                    
+                    # show distribútion
+                    self.data_dist  = QComboBox()
+                    self.data_dist.addItems(["Normal Distribution", "Non-Normal Distribution"])
+                    # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution" 
                     statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 3, self.data_dist)
+
+                    # show test
+                    self.stat_test = QComboBox()
+                    self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
                     statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
+
+                    shapiro_test = stats.shapiro(df["values"])
+                    print(shapiro_test)
+                    if shapiro_test.pvalue >= 0.05:
+                        # evidence that data comes from normal distribution
+                        self.data_dist.setCurrentIndex(0)
+                        self.stat_test.setCurrentIndex(0)
+                    else:
+                        # no evidence that data comes from normal distribution
+                        self.data_dist.setCurrentIndex(1)
+                        self.stat_test.setCurrentIndex(1)
+                    
+                    
+                    
+                    
+                    
+                    
+
+                    
+                    
 
                     self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
 
@@ -811,31 +856,30 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
                     statistics_table_widget.statistics_table_widget.show()
 
-                self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
-                self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
-                self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
+                #self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
+                #self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
+                #self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
                 start_statistics = QPushButton("Run Statistic Test")
                 statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
 
                 start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
 
     def calculate_statistics(self,statistics_table:QTableWidget):
+        
         print("calculating statistic")
         for row in range(0,statistics_table.rowCount()):
 
             # get the test to be performed from the combo box (position 4)
             test_type = statistics_table.cellWidget(row,4).currentText()
+            meta_data = statistics_table.cellWidget(row,2).currentText()
             print(statistics_table.item(row, 1).text())
+
+
             if test_type == "t_Test":
 
-                # get the number of comparissons (m1 vs m2)
-                meta_data_comparissons = []
+                print("executing t test")
 
-                for comparison in range(0,statistics_table.cellWidget(row,2).count()):
-
-                    meta_data_comparissons.append(comparison)
-
-                    # read the related results
+                # read the related results
 
                 # add to the new "t-test child" if it does not exist yet
 

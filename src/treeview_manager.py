@@ -860,7 +860,7 @@ class TreeViewManager():
                     print(f"Fehler: {e}")
                     print("adding ", experiment_name, " without meta data")
                     '''experiment_label = 'default, all other parameters are none '''
-                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None"]
+                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
 
 
                 ''' add meta data as the default data indicated with a -1'''

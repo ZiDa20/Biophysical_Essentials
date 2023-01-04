@@ -13,6 +13,7 @@ from plot_widget_manager import PlotWidgetManager
 from pathlib import Path
 from functools import partial
 from Pandas_Table import PandasTable
+from ABFclass import AbfReader
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self, parent=None):
@@ -227,7 +228,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         if file_name is False:
             #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]
-            file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.abf")[0]
+            #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.abf")[0]
+            file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "")[0]
+
             treeview_name = file_name.split("/")
             treeview_name = treeview_name[len(treeview_name) - 1].split(".")[0]
         else:
@@ -312,20 +315,47 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # connect with a new plot manager to handle item clicks within the treeview
         if self.online_analysis_plot_manager is None:
             self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
-                                                                  False)
-        bundle = self.online_analysis_tree_view_manager.open_bundle_of_file(file_name)
-        pgf_data_frame = self.online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
-                                                                                                  None, None)
+                                                         False)
 
         # give the experiment (name provided by treeview_name) the experiment_label ONLINE_ANALYSIS to be identified
         self.online_analysis_tree_view_manager.meta_data_assignment_list = [
             ['Experiment_name', 'Experiment_label', 'Species', 'Genotype', 'Sex', 'Condition', 'Individuum_id'],
-            [treeview_name, 'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None']]
+            [treeview_name, 'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']]
+
         self.online_analysis_tree_view_manager.meta_data_assigned_experiment_names = ['Experiment_name', treeview_name]
 
-        # write this file into the database
-        self.online_analysis_tree_view_manager.single_file_into_db([], bundle, treeview_name, self.database_handler,
+        # file type identification
+        file_type = file_name.split(".")
+        file_type = file_type[1]
+        if file_type =="dat":
+            print("found dat file")
+            bundle = self.online_analysis_tree_view_manager.open_bundle_of_file(file_name)
+            pgf_data_frame = self.online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
+                                                                                                  None, None)
+            # write this file into the database
+            self.online_analysis_tree_view_manager.single_file_into_db([], bundle, treeview_name, self.database_handler,
                                                               [0, -1, 0, 0], pgf_data_frame)
+
+        elif file_type == "abf":
+            print("found abf file")
+
+            abf_file = AbfReader(file_name)
+            data_file = abf_file.get_data_table()
+            meta_data = abf_file.get_metadata_table()
+            print("METADATA HERE")
+            pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+            print("commandn epoch here")
+            experiment_name = [abf_file.get_experiment_name(),'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']
+            series_name = abf_file.get_series_name()
+            abf_file_data = [(data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf")]
+            bundle = [abf_file_data, experiment_name]
+
+            self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
+        else:
+            print("this file type is not supported yet")
+            return
+
+        
 
         # add the option to also display sweep level for each series
         self.online_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
