@@ -327,8 +327,10 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # file type identification
         file_type = file_name.split(".")
         file_type = file_type[1]
+
+        # if .dat file: run dat file specific bundle reading and insertion into db
         if file_type =="dat":
-            print("found dat file")
+            #print("found dat file")
             bundle = self.online_analysis_tree_view_manager.open_bundle_of_file(file_name)
             pgf_data_frame = self.online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
                                                                                                   None, None)
@@ -336,22 +338,26 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.online_analysis_tree_view_manager.single_file_into_db([], bundle, treeview_name, self.database_handler,
                                                               [0, -1, 0, 0], pgf_data_frame)
 
+        # if .abf file: run abf file specific bundle creation and insertion into db
         elif file_type == "abf":
-            print("found abf file")
-
+            #print("found abf file")
             abf_file = AbfReader(file_name)
             data_file = abf_file.get_data_table()
             meta_data = abf_file.get_metadata_table()
-            print("METADATA HERE")
             pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-            print("commandn epoch here")
             experiment_name = [abf_file.get_experiment_name(),'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']
             series_name = abf_file.get_series_name()
             abf_file_data = [(data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf")]
             bundle = [abf_file_data, experiment_name]
-
             self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
         else:
+            # @todo this should be an error dialog shown to the user
+            dialog = QDialog()
+            dialog_grid = QGridLayout()
+            error_message = QLabel("The selected file type is not supported. Supported file types are .dat files and .abf files")
+            dialog_grid.addWidget(error_message)
+            dialog.setLayout(dialog_grid)
+            dialog.exec()
             print("this file type is not supported yet")
             return
 
