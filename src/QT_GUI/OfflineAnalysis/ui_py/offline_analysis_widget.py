@@ -256,21 +256,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :author: dz, 01.07.2022
         """
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
-        # open a popup to allow experiment label selection by the user
-        self.dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
         
-
-        #grid = QGridLayout()
-        #self.list_view = DragAndDropListView(self, self.dialog.available_labels_list)
-        #self.list_view.setAcceptDrops(True)
-        #self.list_view.fileDropped.connect(self.experiment_label_dropped)
-        #grid.addWidget(self.list_view)
-        #self.dialog.selected_labels.setLayout(grid)
-
-
-
-        self.dialog.load_data.clicked.connect(self.load_page_1_tree_view)
-        self.dialog.exec_()
+        # open a popup to allow experiment label selection by the user
+        # the dialog handler has further implementations to handle displayed lists etc
+        self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
+        
+        self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
+        self.load_data_from_database_dialog.exec_()
 
     def load_page_1_tree_view(self):
         """
@@ -278,16 +270,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @return:
         """
         self.selected_meta_data_list = []
-        for n in range(0, self.list_view.count()):
-            self.selected_meta_data_list.append(self.list_view.item(n).text())
 
+        for cb in self.load_data_from_database_dialog.checkbox_list:
+            if cb.isChecked():
+                pos = self.load_data_from_database_dialog.checkbox_list.index(cb)
+                self.selected_meta_data_list.append(self.load_data_from_database_dialog.available_labels[pos][0])
+        
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
         self.blank_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+
         self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
 
-        self.dialog.close()
+        self.load_data_from_database_dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 

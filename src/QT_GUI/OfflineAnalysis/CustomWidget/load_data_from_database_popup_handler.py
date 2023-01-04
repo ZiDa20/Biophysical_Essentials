@@ -36,6 +36,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             self.checkbox_list.append(c)
             self.label_grid.addWidget(c, self.available_labels.index(i)+1 , 0)
             c.stateChanged.connect(partial(self.checkbox_checked,c,i[0]))
+        self.available_labels = [("All",)] + self.available_labels
 
     def checkbox_checked(self,checkbox,label,state):
         if state == Qt.Checked:
@@ -52,26 +53,43 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         
         #Create a figure
         self.figure = Figure()
+       
         # Set the figure size and create the subplots
-        ax = self.figure.add_subplot(111)
+        ax = self.figure.subplots(2, 3)
+
 
         # Create a canvas to display the figure
         self.canvas = FigureCanvas(self.figure)
+        
+        # in case of previous plots: clear the layout first
+        for i in range(self.diagram_grid.count()): 
+            self.diagram_grid.itemAt(i).widget().deleteLater()
 
-        # Create a layout to contain the canvas
+        #select the existing layout and add the canvas
         self.diagram_grid.addWidget(self.canvas)
 
+        # get experiment meta data assigned to this experiment label from the database
         q = f'select * from global_meta_data where experiment_label = \'{label}\''
         meta_data_table = self.database_handler.database.execute(q).fetchdf()
-        print("Welcome to create_experiment_specific_visualization")
-        df = pd.DataFrame({'Category': ['A', 'B', 'C'], 'Amount': [10, 20, 30]})
-        total = df['Amount'].sum()
-        ax.pie(df['Amount'], labels=df['Category'], autopct=lambda p: '{:.0f}'.format(p * total / 100))
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        ax.set_title("Category Breakdown")
-
-        #for column_name in meta_data_table.columns:
-        #    meta_data_table[
+        row = 0
+        column = 0
+        meta_data_columns_to_plot = ["species", "genotype","sex", "celltype", "condition", "individuum_id"]
+        for column_name in meta_data_columns_to_plot:
+            
+            cnt = meta_data_columns_to_plot.index(column_name)
+            if cnt>=1:
+                if cnt%3==0:
+                    column = 0
+                    row = row +1 
+                else:
+                    column = column +1
+            
+            df = meta_data_table
+            total = df[column_name].value_counts().sum()
+            print("row=", row, " column= ", column)
+            ax[row, column].pie(df[column_name].value_counts(), labels=df[column_name].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100))
+            ax[row, column].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+            ax[row, column].set_title(column_name)
+        
 
