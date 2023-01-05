@@ -341,20 +341,28 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # if .abf file: run abf file specific bundle creation and insertion into db
         elif file_type == "abf":
-            # read the whole directory and concat
+
+            # read only files that have the same idenfier as the selected one
+            abf_identifier = os.path.basename(file_name).split("_")
+            abf_identifier = abf_identifier[0]
             abf_file_list = os.listdir(os.path.dirname(file_name))
+
             abf_file_data = []
             for abf in abf_file_list: 
-                abf_file = os.path.dirname(file_name) + "/" + abf
-                abf_file = AbfReader(abf_file)
-                data_file = abf_file.get_data_table()
-                meta_data = abf_file.get_metadata_table()
-                pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                experiment_name = [abf_file.get_experiment_name(),'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']
-                series_name = abf_file.get_series_name()
-                abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
-            bundle = [abf_file_data, experiment_name]
-            self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
+
+                if abf_identifier in abf:
+                    abf_file = os.path.dirname(file_name) + "/" + abf
+                    abf_file = AbfReader(abf_file)
+                    data_file = abf_file.get_data_table()
+                    meta_data = abf_file.get_metadata_table()
+                    pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+                    experiment_name = [abf_file.get_experiment_name(),'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']
+                    series_name = abf_file.get_series_name()
+                    abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
+            
+            if abf_file_data:
+                bundle = [abf_file_data, experiment_name]
+                self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
         else:
             #  an error dialog shown to the user
             dialog = QDialog()
