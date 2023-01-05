@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\src",
-    "\\src\\Offline_Analysis"
+    "\\src\\QT_GUI\\OfflineAnalysis\\ui_py",
+    "\\src\\QT_GUI\\OnlineAnalysis\\ui_py"
   ],
-  "SelectedNode": "\\src\\Offline_Analysis\\tree_model_class.py",
+  "SelectedNode": "\\src\\start.py",
   "PreviewInSolutionExplorer": false
 }

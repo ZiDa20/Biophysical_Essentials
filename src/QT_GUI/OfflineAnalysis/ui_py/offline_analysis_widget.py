@@ -28,13 +28,20 @@ from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler i
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from PostSql_Handler import PostSqlHandler
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+import matplotlib
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
 from Pandas_Table import PandasTable
 import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
+from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
+from animated_ap import AnimatedAP
+from scipy import stats
 import copy
+
 from Offline_Analysis.tree_model_class import TreeModel
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
@@ -127,167 +134,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
 
     def select_tree_view_meta_data(self):
-        """
-        Allows the user to add new meta data parents into the treeview
-        @return:
-        """
-
-        # get available meta data label for specific experiments linked with this specific analysis
-        q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
-        global_meta_data_table = self.database_handler.database.execute(q).fetchdf()
-        meta_data_list = global_meta_data_table.columns.values.tolist()
-        meta_data_list = meta_data_list[2:len(meta_data_list)]
 
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
-        dialog = QDialog()
-        dialog.setWindowFlags(Qt.FramelessWindowHint)
-        dialog_grid = QGridLayout(dialog)
-        #dialog_info_text = QLabel("Choose your prefered meta-data label(s)")
-        #dialog_grid.addWidget(dialog_info_text, 0, 0)
+        dialog = SelectMetaDataForTreeviewDialog(self.database_handler, self.blank_analysis_tree_view_manager, self.blank_analysis_plot_manager)
 
-        # Prepare a checkbox and a label for each meta data columnx
-        checkbox_list = []
-        name_list = []
-        for s in meta_data_list:
-            c = QCheckBox()
-            checkbox_list.append(c)
-            l = QLabel(s)
-            dialog_grid.addWidget(c, meta_data_list.index(s), 0)
-            dialog_grid.addWidget(l, meta_data_list.index(s), 1)
-            name_list.append(s)
+        #dialog.finish_button.clicked.connect(
+        #    partial(self.add_meta_data_to_tree_view,checkbox_list, name_list, dialog))
 
-        select_meta_data_button = QPushButton("Select", dialog)
-        print(checkbox_list)
-        select_meta_data_button.clicked.connect(
-            partial(self.add_meta_data_to_tree_view,checkbox_list,name_list, dialog,global_meta_data_table))
-        dialog_quit = QPushButton("Cancel", dialog)
-        dialog_quit.clicked.connect(partial(self.close_dialog, dialog))
-        dialog_grid.addWidget(dialog_quit, len(name_list) + 2, 0)
-        dialog_grid.addWidget(select_meta_data_button, len(name_list) + 2, 1)
+        dialog.cancel_button.clicked.connect(partial(self.close_dialog, dialog))
+
         dialog.setWindowTitle("Available Meta Data Label")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
-    def add_meta_data_to_tree_view(self, checkbox_list, name_list, dialog, global_meta_data_table):
-        print("not implemented yet")
-        dialog.close()
-
-    def add_meta_data_to_tree_view_coming_soon(self, checkbox_list, name_list, dialog, global_meta_data_table):
-        """
-
-        @param checkbox_list:
-        @param name_list:
-        @param dialog:
-        @param global_meta_data_table:
-        @return:
-        """
-        meta_data_list = self.get_selected_checkboxes(checkbox_list,name_list)
-        dialog.close()
-
-        discarded_state  = False
-
-        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        # needs to be an ordered dict:
-
-        new_level = 0
-        parent = ["root"]
-        q = f'select experiment_name from global_meta_data where '
-
-        for meta_data in meta_data_list:
-            distinct_meta_data = global_meta_data_table[meta_data].unique().tolist()
-            print(meta_data, " : ",  distinct_meta_data)
-            q1 = q + meta_data + "="
-            new_parent = []
-            for d in distinct_meta_data:
-                for p in parent:
-                    new_parent.append(p+ "_" + d)
-                    new_item_df = pd.DataFrame({"item_name":[d], "parent":[p], "type":[meta_data], "level":[new_level],
-                                                "identifier":[p+ "_" + d]})
-
-                    df  =pd.concat([df, new_item_df])
-
-            new_level = new_level +1
-            parent = new_parent
-
-        print("sub result")
-        print(df)
-
-        combinations_to_request = df[df["level"]==new_level-1]["identifier"].values.tolist()
-        base = f'select experiment_name from global_meta_data where '
-        print(combinations_to_request)
-        for combination in combinations_to_request:
-            print(combination)
-            request_details = combination.split("_")
-            # get rid of the "root"
-            request_details.pop(0)
-            if len(request_details)!=len(meta_data_list):
-                print("this case is not implemented so far")
-                print("request_details =", len(request_details))
-                print("meta data  =", len(meta_data_list))
-            else:
-                q = base
-                for detail in range(0,len(request_details)):
-                    if detail == 0:
-                        q = q + " " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
-                    else:
-                        q = q + " and " + meta_data_list[detail] + "= \'" + request_details[detail] + "\'"
-
-
-
-            # print("loading experiment_labels", self.selected_meta_data_list)
-            q2 = (
-                f'select experiment_name from experiment_series where discarded = {discarded_state} ' 
-                f'intersect (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id} '
-                f'intersect ( ' + q + ' ))'
-            )
-            print(q2)
-            parent_name_table = self.database_handler.database.execute(q2).fetchdf()
-            print(parent_name_table)
-
-            if not parent_name_table.empty:
-                tmp_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-                tmp_df["item_name"] = parent_name_table["experiment_name"].values.tolist()
-                tmp_df["parent"] = combination
-                tmp_df["type"] = "Experiment"
-                tmp_df["level"] = new_level
-                tmp_df["identifier"] = parent_name_table["experiment_name"].values.tolist()
-                df = pd.concat([df, tmp_df])
-
-        print("finished")
-        print(df)
-
-        self.selected_model = TreeModel(df)
-        self.treebuild.selected_tree_view.setModel(self.selected_model)
-
-        if self.selected_model.header:
-            for i in range(0, len(self.selected_model.header)):
-                if i < len(self.selected_model.header) - 3:
-                    self.treebuild.selected_tree_view.setColumnHidden(i, False)
-                else:
-                    self.treebuild.selected_tree_view.setColumnHidden(i, True)
-
-
-        self.discarded_model = TreeModel(df, "discarded")
-        self.treebuild.discarded_tree_view.setModel(self.discarded_model)
-
-        for i in range(0, len(self.discarded_model.header)):
-            if i < len(self.discarded_model.header) - 3:
-                self.treebuild.discarded_tree_view.setColumnHidden(i, False)
-            else:
-                self.treebuild.discarded_tree_view.setColumnHidden(i, True)
-
-            self.treebuild.selected_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
-            self.treebuild.discarded_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
-        else:
-            # make sure to disconnect from previous connections otherwise they will be called too
-            self.treebuild.selected_tree_view.clicked.disconnect()
-            self.treebuild.discarded_tree_view.clicked.disconnect()
-            self.treebuild.selected_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.selected_model, self.blank_analysis_plot_manager))
-            self.treebuild.discarded_tree_view.clicked.connect(
-                partial(self.handle_tree_view_click, self.discarded_model, self.blank_analysis_plot_manager))
 
     def show_sweeps_toggled(self,signal):
         """toDO add Docstrings!
@@ -305,9 +164,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
            print(e)
            CustomErrorDialog("Please select load an Experiment First")
            
-
-
-
     def load_and_assign_meta_data(self):
         """
         To play around with the data you may want to load or assign new meta data - here one can do this
@@ -362,7 +218,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # self.Offline_Analysis_Notebook.setCurrentIndex(1)
 
         # static offline analysis number
-        self.database_handler.analysis_id = 8
+        self.database_handler.analysis_id = 107
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
@@ -385,8 +241,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.offline_analysis_widgets.setCurrentIndex(2)
 
-
-
     @Slot()
     def start_blank_analysis(self):
         """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
@@ -403,8 +257,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         :author: dz, 01.07.2022
         """
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.offline_manager, None, 1,
-                                                             False)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
         
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
         self.plot_home.clicked.connect(navigation.home)
@@ -412,29 +265,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.plot_zoom.clicked.connect(navigation.zoom)
         self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
-        self.dialog = Load_Data_From_Database_Popup_Handler()
-        #self.database_handler.open_connection()
-        available_labels = self.database_handler.get_available_experiment_label()
-
-        print(available_labels)
-        label_list = []
-        for i in available_labels:
-            if i[0] is None:
-                QListWidgetItem('nan', self.dialog.available_labels_list)
-            else:
-                QListWidgetItem(i[0], self.dialog.available_labels_list)
-
-        grid = QGridLayout()
-        self.list_view = DragAndDropListView(self, self.dialog.available_labels_list)
-        self.list_view.setAcceptDrops(True)
-        self.list_view.fileDropped.connect(self.experiment_label_dropped)
-        grid.addWidget(self.list_view)
-        self.dialog.selected_labels.setLayout(grid)
-
-
-
-        self.dialog.load_data.clicked.connect(self.load_page_1_tree_view)
-        self.dialog.exec_()
+        # the dialog handler has further implementations to handle displayed lists etc
+        self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
+        
+        self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
+        self.load_data_from_database_dialog.exec_()
 
     def load_page_1_tree_view(self):
         """
@@ -442,17 +277,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @return:
         """
         self.selected_meta_data_list = []
-        for n in range(0, self.list_view.count()):
-            self.selected_meta_data_list.append(self.list_view.item(n).text())
 
+        for cb in self.load_data_from_database_dialog.checkbox_list:
+            if cb.isChecked():
+                pos = self.load_data_from_database_dialog.checkbox_list.index(cb)
+                self.selected_meta_data_list.append(self.load_data_from_database_dialog.available_labels[pos][0])
+        
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
         self.blank_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+
         self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
 
-        self.dialog.close()
+        self.load_data_from_database_dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
@@ -514,27 +353,36 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.display_select_meta_data_group_dialog(False)
 
-    def continue_open_directory(self, enter_meta_data_dialog, meta_data_option_list=None,
-                                meta_data_group_assignment_list=None):
+    def continue_open_directory(self, enter_meta_data_dialog, meta_data_group_assignment_list=None):
         '''
         Function will continue the function open directory after any continue button in the meta data group dialog has
         been clicked. At first the popup will be closed, all data will be loaded immediately into the databse
         :param pop_up_dialog:
-        :param meta_data_option_list: list of options in the combo box dropdown menu
         :param meta_data_group_assignment_list: list of tuples of experiment name and assigned meta data group
         :return:
         '''
 
         # close the dialog
         enter_meta_data_dialog.close()
-        self.offline_manager.database_handler = self.database_handler
+
+        # create a new treeview manager 
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
 
-        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_option_list, meta_data_group_assignment_list)
+        # read the directory data into the database
+        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)
+        
+        # assign meta data 
+        if not meta_data_group_assignment_list:
+            meta_data_group_assignment_list = []
+        else:
+            for n in meta_data_group_assignment_list:
+                print("adding meta data to existing experiment ", n)
+                self.database_handler.add_meta_data_group_to_existing_experiment(n)
+                #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
 
+        
 
         #self.add_filter_button.setEnabled(True)
-
         self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
 
 
@@ -650,21 +498,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def open_meta_data_template_file(self, dialog):
         meta_data_assignments = []
-        option_list = []
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
 
         with open(file_name, newline='') as f:
             reader = csv.reader(f)
             meta_data_assignments = list(reader)
 
-        if len(meta_data_assignments[0]) <= 6:
-            CustomErrorDialog().show_dialog("The template needs at least 7 columns which were not found in the specified template.")
+        if len(meta_data_assignments[0]) <= 7:
+            CustomErrorDialog().show_dialog("The template needs at least 8 columns which were not found in the specified template.")
 
         else:
             print("results from the template file")
             print(meta_data_assignments)
-            option_list.append("dummy")
-            self.continue_open_directory(dialog, option_list, meta_data_assignments)
+            self.continue_open_directory(dialog, meta_data_assignments)
 
     def create_meta_data_template(self, old_dialog):
         '''
@@ -681,7 +527,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         directory = self.offline_manager._directory_path
 
-        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Condition",
+        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
                         "Individuum_id"]
 
         template_data_frame = pd.DataFrame(columns=column_names)
@@ -690,18 +536,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         for dat_file in self.offline_manager.package_list(directory):
             
-            splitted_name = dat_file.split(".")
+            if isinstance(dat_file, list):
+                splitted_name = dat_file[0].split("_")[0]
+            else:
+                splitted_name = dat_file.split(".")
             print(dat_file)
             self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
             self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
             template_data_frame = template_data_frame.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
-                                        "Genotype":"None","Sex":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
 
         '''make a table with editable data '''
 
         # set the TableView and the Model
         template_table_view = QTableView()
-        template_table_view.setObjectName("meta_data_tenplate")
+        template_table_view.setObjectName("meta_data_template")
         template_table_view.setMinimumHeight(300)
         template_table_view.horizontalHeader().setSectionsClickable(True)
 
@@ -753,16 +602,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param tmp_tree_manager:
         :return:
         '''
+
         data_frame = meta_data_popup.meta_data_template_layout.itemAtPosition(0,0).widget().model()._data
             #data(0,0).toString()
         print(data_frame)
         file_name = self.offline_manager._directory_path + "/automatic_template.csv"
         print(file_name)
-        data_frame.to_csv(file_name)
+        data_frame.to_csv(file_name, index = False)
         """
         self.continue_open_directory(meta_data_popup, tmp_tree_manager.meta_data_option_list,
                                      tmp_tree_manager.get_meta_data_group_assignments())
         """
+
+        self.continue_open_directory(meta_data_popup, data_frame.values.tolist())
+
     def get_selected_checkboxes(self, checkboxes, labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
         # empty list to be filled
@@ -803,33 +656,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
         
-    # offline manager
-    def calculate_statistics(self,statistics_table:QTableWidget) -> None:
-        print("calculating statistic")
-        for row in range(0,statistics_table.rowCount()):
-
-            # get the test to be performed from the combo box (position 4)
-            test_type = statistics_table.cellWidget(row,4).currentText()
-            print(statistics_table.item(row, 1).text())
-            if test_type == "t_Test":
-
-                # get the number of comparissons (m1 vs m2)
-                meta_data_comparissons = []
-
-                for comparison in range(0,statistics_table.cellWidget(row,2).count()):
-
-                    meta_data_comparissons.append(comparison)
-
-                    # read the related results
-
-                # add to the new "t-test child" if it does not exist yet
-
-                # add to the database
-
-            else:
-                print("not implemented yet")
-
-
     def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
 
         # honig
@@ -1048,34 +874,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if index == 2:
                 self.fo_forward_button.setEnabled(True)
 
-            
-    @Slot()
-    def tab_changed(self, index, series_name):
-        """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
-        changed. Index is the tab number correlating with a global list of tab objects self.tab_list
-        @author dz, 20.07.2021, updated 02.12.2022"""
-
-        print(series_name)
-        current_tab = self.tab_list[index]
-        series_name = series_name
-
-        self.current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.offline_manager, None, 1, False)
-        self.navigation = NavigationToolbar(self.current_tab_plot_manager.canvas, self)
-        self.navigation_list.append(self.navigation)
-        self.current_tab_visualization.append(self.current_tab_plot_manager)
-        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
-        current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
-
-        current_tab_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
-
-        # make a deepcopy to be able to slize the copied item without changing its parent
-        current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
-            self.blank_analysis_tree_view_manager.selected_tree_view_data_table)
-        current_tab_tree_view_manager.discarded_tree_view_data_table = copy.deepcopy(
-            self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
-
-        # slice out all series names that are not related to the specific chosen one
-        current_tab_tree_view_manager.create_series_specific_tree(series_name,self.current_tab_plot_manager)
         
     @Slot()
     def select_analysis_functions(self, series_name):
@@ -1349,11 +1147,32 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         # store analysis parameter in the database
+        
+        #self.show_ap_simulation()
 
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
+        
+    def show_ap_simulation(self):
+
+        ap = AnimatedAP()
+
+        # Create the animation using the update function and the time points as frames
+        ani = animation.FuncAnimation(ap.fig, ap.anim_update, frames=len(ap.time), blit=True)
+
+        # Add labels to the x- and y-axes
+        #ax.set_xlabel('Time (ms)')
+        #ax.set_ylabel('Membrane Potential (mV)')
+        plt.show()
+        # Display the animation
+        #ap.show_dialog()
+
+  
+
+
+
 
     def run_database_thread(self, current_tab, progress_callback):
         """ This function will run the analysis in a separate thread, that is selected
@@ -1400,10 +1219,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         """simulate click on  "Plot" children """
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
-        self.offline_analysis_result_tree_item_clicked()
+        self.offline_tree.offline_analysis_result_tree_item_clicked()
 
     
-
     def write_function_grid_values_into_database(self, current_tab):
         """
         When the Start Single Series Analysis Button will be pressed, data from the function selection table in the

@@ -265,8 +265,7 @@ if __name__ == "__main__":
     stylesheet = app.styleSheet()
     stylesheet_loaded = "Menu_button.css"
     if sys.platform == "darwin":
-        stylesheet_loaded = "Menu_button_mac.css"
-        
+        stylesheet_loaded = "Menu_button_mac.css" 
     with open(os.getcwd() + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()

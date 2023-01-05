@@ -142,6 +142,7 @@ class DuckDBDatabaseHandler():
                                         species text,
                                         genotype text,
                                         sex text,
+                                        celltype text,
                                         condition text,
                                         individuum_id text,
                                         primary key (analysis_id, experiment_name)
@@ -150,7 +151,8 @@ class DuckDBDatabaseHandler():
         sql_create_offline_analysis_table = """ CREATE TABLE offline_analysis(
                                                 analysis_id integer PRIMARY KEY DEFAULT(nextval ('unique_offline_analysis_sequence')),
                                                 date_time TIMESTAMP,
-                                                user_name TEXT); """
+                                                user_name TEXT,
+                                                selected_meta_data text); """
 
         sql_create_experiments_table = """CREATE TABLE experiments(
                                                experiment_name text PRIMARY KEY,
@@ -166,7 +168,8 @@ class DuckDBDatabaseHandler():
                                               primary key (experiment_name,series_identifier),
                                               sweep_table_name text,
                                               meta_data_table_name text,
-                                              pgf_data_table_name text
+                                              pgf_data_table_name text,
+                                              series_meta_data text 
                                               ); """
 
         sql_create_series_table = """CREATE TABLE analysis_series(
@@ -200,15 +203,19 @@ class DuckDBDatabaseHandler():
                                             specific_result_table_name text
                                             ); """
 
-        #sweep_number integer,
-        #result_value  DOUBLE
-
+        sql_create_sweep_meta_data_table ="""CREATE TABLE sweep_meta_data(
+                                                sweep_name text,
+                                                series_identifier text,
+                                                experiment_name text,
+                                                meta_data text,
+                                                primary key (sweep_name,series_identifier, experiment_name)
+                                                ); """
         try:
             self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
             self.database = self.execute_sql_command(self.database, sql_create_filter_table)
             self.database = self.execute_sql_command(self.database, sql_create_series_table)
             self.database = self.execute_sql_command(self.database, sql_create_experiments_table)
-            # self.database = self.execute_sql_command(self.database, sql_create_sweeps_table)
+            self.database = self.execute_sql_command(self.database, sql_create_sweep_meta_data_table)
             self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
             self.database = self.execute_sql_command(self.database, sql_create_results_table)
             self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
@@ -526,8 +533,8 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
 
     def add_experiment_to_global_meta_data(self, id, meta_data):
-        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, species, genotype, sex, condition, individuum_id) values ' \
-            f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' )'
+        q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, species, genotype, sex, celltype, condition, individuum_id) values ' \
+            f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' ,\'{meta_data[7]}\')'
         try:
             self.database = self.execute_sql_command(self.database, q)
             self.logger.info(meta_data[0], "added succesfully to global_meta_data")
@@ -560,16 +567,18 @@ class DuckDBDatabaseHandler():
     def add_meta_data_group_to_existing_experiment(self, meta_data_list: list):
         """
         Insert meta data group into an exsiting experiment
-        :param meta_data_list: [0]: experiment_name, [1]: experiment_label, [2] = species, [3] =
+        :param meta_data_list: [0]: experiment_name, [1]: experiment_label, [2] = species, [3] = ...
         :return:
         """
         print(meta_data_list)
         q = f'update global_meta_data set experiment_label = \'{meta_data_list[1]}\',' \
-            f'species = \'{meta_data_list[2]}\', genotype =  \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\','\
-            f'condition = \'{meta_data_list[5]}\',individuum_id = \'{meta_data_list[6]}\' where experiment_name = \'{meta_data_list[0]}\''
+            f'species = \'{meta_data_list[2]}\', genotype = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\', celltype = \'{meta_data_list[5]}\', condition = \'{meta_data_list[6]}\',individuum_id = \'{meta_data_list[7]}\' '\
+            f'where experiment_name = \'{meta_data_list[0]}\''
         try:
             self.database = self.execute_sql_command(self.database, q)
             self.logger.info(f'Wrote meta data for experiment \'{meta_data_list[0]}\' into database"')
+            res = self.database.execute("select * from global_meta_data where experiment_name = \'{meta_data_list[0]}\' ").fetchdf()
+            res_II = self.database.execute("select * from global_meta_data").fetchdf()
             return True
         except Exception as e:
             print(e)
@@ -717,9 +726,9 @@ class DuckDBDatabaseHandler():
             "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
             series_name, series_identifier, experiment_name)
         try:
-            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded) values (?,?,?,?) """
+            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data) values (?,?,?,?,?) """
             self.database = self.execute_sql_command(self.database, q,
-                                                     (experiment_name, series_name, series_identifier, 0))
+                                                     (experiment_name, series_name, series_identifier, 0,"None"))
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
             print("insertion finished succesfully")

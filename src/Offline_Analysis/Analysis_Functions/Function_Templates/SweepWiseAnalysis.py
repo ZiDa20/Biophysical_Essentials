@@ -340,4 +340,3 @@ class SweepWiseAnalysisTemplate(object):
 					ax.plot(x_data[a], y_data[a], self.default_colors[pos], label=series_names[a])
 					
 			ax.legend()
-

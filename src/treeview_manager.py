@@ -1,5 +1,7 @@
 import sys
 import os
+
+import numpy as np
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
@@ -94,13 +96,11 @@ class TreeViewManager():
         self.logger.addHandler(file_handler)
         self.logger.info('Treeview Manager Initialized')
 
-
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
         self.data_read_finished = DataReadFinishedSignal()
         self.tree_build_finished = DataReadFinishedSignal()
         self.experiment_tree_finished = DataReadFinishedSignal()
-
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory 
@@ -128,8 +128,8 @@ class TreeViewManager():
                     self.series_count = 0
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
-
-                if isinstance(i,list): # check if single_dat file or ABF file packagge
+                
+                if isinstance(i,list):
                     for abf in i:
                         file_2 = directory_path + "/" + abf
                         abf_file = AbfReader(file_2)
@@ -225,24 +225,17 @@ class TreeViewManager():
         for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
 
+        # create the models for the selected and discarded tree
         self.selected_model = TreeModel(selected_table_view_table)
-        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
-
-        if self.selected_model.header:
-            for i in range(0, len(self.selected_model.header)):
-                if i < len(self.selected_model.header) - 3:
-                    self.tree_build_widget.selected_tree_view.setColumnHidden(i, False)
-                else:
-                    self.tree_build_widget.selected_tree_view.setColumnHidden(i, True)
-
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
+        
+        # assign the models to the visible treeview objects 
+        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)        
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
 
-        for i in range(0, len(self.discarded_model.header)):
-            if i < len(self.discarded_model.header) - 3:
-                self.tree_build_widget.discarded_tree_view.setColumnHidden(i, False)
-            else:
-                self.tree_build_widget.discarded_tree_view.setColumnHidden(i, True)
+        # display the correct columns according to the selected metadata and sweeps
+        self.set_visible_columns_treeview(self.selected_model,self.tree_build_widget.selected_tree_view)
+        self.set_visible_columns_treeview(self.discarded_model,self.tree_build_widget.discarded_tree_view)
 
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
@@ -259,65 +252,84 @@ class TreeViewManager():
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
 
+    def set_visible_columns_treeview(self,model,treeview):
+        """
+        the last 3 columns of the treeview should not be displayed but the remaining columns should
+        """
+        if model.header:
+            for i in range(0, len(model.header)):
+                if i < len(model.header) - 3:
+                    treeview.setColumnHidden(i, False)
+                else:
+                    treeview.setColumnHidden(i, True)
+
     def create_data_frame_for_tree_model(self, discarded_state: bool, show_sweeps: bool, series_name = None):
         """
         @param discarded_state: True or False, indicating whether discarded (True) or non discard elements should be loaded
-        @return: df, filled filled with experiment and series data
+        @return: df, filled with experiment and series data
         """
 
-        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+        # create a dataframe of parents (assigned to meta data groups if selected)
+        q = f'select selected_meta_data from offline_analysis where analysis_id = {self.database_handler.analysis_id}'
+        table_name = self.database_handler.database.execute(q).fetchdf()
+        table_name = table_name["selected_meta_data"].values.tolist()[0]
 
-        # print("loading experiment_labels", self.selected_meta_data_list)
-        q = (
-            f'select distinct experiment_name from experiment_series where discarded = {discarded_state} intersect (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-        parent_name_table = self.database_handler.database.execute(q).fetchdf()
+        if table_name is not np.nan:
+            return self.add_experiments_series_sweeps_to_meta_data_label(table_name, discarded_state, series_name)
+        else:
+            experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
+            series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
 
-        df["item_name"] = parent_name_table["experiment_name"].values.tolist()
-        df["parent"] = "root"
-        df["type"] = "Experiment"
-        df["level"] = 0
-        df["identifier"] = parent_name_table["experiment_name"].values.tolist()
+            if show_sweeps:
+                all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                for sweep_table_name in series_table["sweep_table_name"].values.tolist():
+                    sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                    sweep_table = self.database_handler.database.execute(f'select * from {sweep_table_name}').fetchdf()
+                    sweep_df["item_name"] = sweep_table.columns
 
+                    identifier = series_table[series_table["sweep_table_name"] == sweep_table_name][
+                        "series_identifier"].values.tolist()
+                    experiment_name = series_table[series_table["sweep_table_name"] == sweep_table_name][
+                        "experiment_name"].values.tolist()
+
+                    parent = experiment_name[0] + "::" + identifier[0]
+                    print("sweep parent = ", parent)
+                    sweep_df["parent"] = [parent] * len(sweep_table.columns)
+                    sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
+                    sweep_df["level"] = [experiment_df["level"].max()+2] * len(sweep_table.columns)
+                    sweep_ids = []
+                    for c_name in sweep_table.columns:
+                        sweep_ids.append(parent+"::"+c_name)
+                    sweep_df["identifier"] = sweep_ids
+
+                    print(sweep_df)
+                    all_sweeps_df = pd.concat([all_sweeps_df, sweep_df])
+
+                return pd.concat([experiment_df, series_df, all_sweeps_df])
+            return pd.concat([experiment_df, series_df])
+
+    def create_series_without_meta_data(self,series_name,discarded_state,experiment_df):
         if series_name:
             q = (f'select * from experiment_series where discarded = {discarded_state}  and series_name = \'{series_name }\' and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
         else:
             q = (f'select * from experiment_series where discarded = {discarded_state}  and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
         series_table = self.database_handler.database.execute(q).fetchdf()
+
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
         series_df["item_name"] = series_table["series_name"].values.tolist()
         series_df["parent"] = series_table["experiment_name"].values.tolist()
         series_df["type"] = "Series"
-        series_df["level"] = 1
-        series_df["identifier"] = series_table["series_identifier"].values.tolist()
-
-        if show_sweeps:
-            all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-            for sweep_table_name in series_table["sweep_table_name"].values.tolist():
-                sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-                sweep_table = self.database_handler.database.execute(f'select * from {sweep_table_name}').fetchdf()
-                sweep_df["item_name"] = sweep_table.columns
-
-                identifier = series_table[series_table["sweep_table_name"] == sweep_table_name][
-                    "series_identifier"].values.tolist()
-                experiment_name = series_table[series_table["sweep_table_name"] == sweep_table_name][
-                    "experiment_name"].values.tolist()
-
-                parent = experiment_name[0] + "_" + identifier[0]
-
-                sweep_df["parent"] = [parent] * len(sweep_table.columns)
-                sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
-                sweep_df["level"] = [2] * len(sweep_table.columns)
-                sweep_df["identifier"] = sweep_table.columns
-
-                print(sweep_df)
-                all_sweeps_df = pd.concat([all_sweeps_df, sweep_df])
-
-            return pd.concat([df, series_df, all_sweeps_df])
-        else:
-            print("result = ",  pd.concat([df, series_df]))
-            return pd.concat([df, series_df])
+        series_df["level"] = experiment_df["level"].max()+1
+        identifier_list = []
+        for experiment,identifier in zip(series_table["experiment_name"].values.tolist(),series_table["series_identifier"].values.tolist()):
+            identifier_list.append(experiment+"::"+identifier)
+        series_df["identifier"] = identifier_list
+        return series_table,  series_df
 
     def create_series_specific_tree(self, series_name, plot_widget_manager : PlotWidgetManager):
+        """
+         create a treeview containing only series of the specific series identified by series name
+        """
         self.selected_tree_view_data_table = self.create_data_frame_for_tree_model( False, self.show_sweeps_radio.isChecked(), series_name)
         self.discarded_tree_view_data_table = self.create_data_frame_for_tree_model( True, self.show_sweeps_radio.isChecked(), series_name)
 
@@ -327,13 +339,9 @@ class TreeViewManager():
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
 
-        self.tree_build_widget.selected_tree_view.setColumnHidden(3, True)
-        self.tree_build_widget.selected_tree_view.setColumnHidden(4, True)
-        self.tree_build_widget.selected_tree_view.setColumnHidden(5, True)
-
-        self.tree_build_widget.discarded_tree_view.setColumnHidden(3, True)
-        self.tree_build_widget.discarded_tree_view.setColumnHidden(4, True)
-        self.tree_build_widget.discarded_tree_view.setColumnHidden(5, True)
+        # display the correct columns according to the selected metadata and sweeps
+        self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
+        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)
 
        
         try:
@@ -355,14 +363,25 @@ class TreeViewManager():
         tree_item_list = model.get_data_row(index, Qt.DisplayRole)
         print("click", tree_item_list)
         print(data_pos)
+        print(tree_item_list)
+        tree_item_list = list(tree_item_list)
+
+        p  = tree_item_list[1][data_pos["hidden3_parent"]].split("::")
+        tree_item_list[1][data_pos["hidden3_parent"]] = p[len(p)-1]
+
+        i = tree_item_list[1][data_pos["hidden1_identifier"]].split("::")
+        tree_item_list[1][data_pos["hidden1_identifier"]] = i[len(i)-1]
+
         if tree_item_list[0] == "x":
             print("x clicked")
             print(series_name)
             if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
                 # set the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = True where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' '
-                                                       f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\'')
+                discard_query = f'update experiment_series set discarded = True where ' \
+                                f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' ' \
+                                f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\''
+                print(discard_query)
+                self.database_handler.database.execute(discard_query)
 
                 self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
 
@@ -393,6 +412,7 @@ class TreeViewManager():
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
             print("series clicked")
+            print(tree_item_list)
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
@@ -413,7 +433,6 @@ class TreeViewManager():
             plot_widget_manager.table_view_sweep_clicked_load_from_database(parent_data[data_pos["hidden3_parent"]],
                                                                             parent_data[data_pos["hidden1_identifier"]],
                                                                             tree_item_list[1][data_pos["Sweep"]])
-
 
     def update_treeviews_after_discard_reinsert(self,series_name:str, plot_widget_manager:PlotWidgetManager):
         """
@@ -455,7 +474,335 @@ class TreeViewManager():
         except Exception as e:
             self.logger.error("Not able to open the database properly " + str(e))
 
-    #progress_callback
+    def check_for_selected_meta_data(self):
+        """
+        check the database for anyone selected meta data to be displayed within the treeview
+        """
+        q = f'select selected_meta_data from offline_analysis where analysis_id = {self.database_handler.analysis_id}'
+        table_name = self.database_handler.database.execute(q).fetchdf().values.tolist()
+        table_name = table_name[0][0]
+        print("found selected meta data", table_name)
+
+        if table_name != np.nan:
+            return table_name
+        return None
+
+    def create_parents_without_meta_data_parents(self,discarded_state: bool):
+        """
+        create experiments as parents without any meta data
+        @param discarded_state: true or false: decodes experiment discarded state.
+        @return df: pandas data frame with columns [item_name, parent, type, level, identifier]
+        """
+        q = (f'select distinct experiment_name from experiment_series where '
+             f'discarded = {discarded_state} intersect (select experiment_name from global_meta_data where '
+             f'experiment_label = \'{self.selected_meta_data_list[0]}\')')
+
+        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+        parent_name_table = self.database_handler.database.execute(q).fetchdf()
+
+        df["item_name"] = parent_name_table["experiment_name"].values.tolist()
+        df["parent"] = "root"
+        df["type"] = "Experiment"
+        df["level"] = 0
+        df["identifier"] = parent_name_table["experiment_name"].values.tolist()
+
+        return df       
+
+    def create_treeview_with_meta_data_parents(self,unique_table,meta_data_table, discarded_state, series_name = None):
+        """
+            Create a Pandas DataFrame with metadata labels as parents for experiments.
+
+            Args:
+                unique_table
+                discarded_state (bool): A flag indicating whether to include discarded experiments.
+                series_name (str, optional): The name of the experiment series.
+
+            Returns:
+                Pandas DataFrame: A DataFrame containing treeview data with metadata labels as parents.
+        """
+        # Define constants for table names
+        GLOBAL_META_DATA_TABLE = "global_meta_data"
+        EXPERIMENT_SERIES_TABLE = "experiment_series"
+        SWEEP_META_DATA_TABLE = "sweep_meta_data"
+
+        # Validate input table name
+        #if table_name not in [GLOBAL_META_DATA_TABLE, EXPERIMENT_SERIES_TABLE, SWEEP_META_DATA_TABLE]:
+        #    raise ValueError(f"Invalid table name: {table_name}")
+
+        
+
+        # Create query strings for each table
+        experiment_series_query = f' select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where discarded = {discarded_state}'
+        global_meta_data_query = f'select experiment_name from {GLOBAL_META_DATA_TABLE} where experiment_label = \'{self.selected_meta_data_list[0]}\''
+        sweep_meta_data_query = f'select experiment_name from {SWEEP_META_DATA_TABLE} where '
+        
+         # Construct the final query string by combining the appropriate queries for each table
+        if unique_table == [GLOBAL_META_DATA_TABLE]:
+            specific_intial_query= experiment_series_query + ' intersect (' + global_meta_data_query + ' and '
+        if unique_table == [EXPERIMENT_SERIES_TABLE]:
+            specific_intial_query= global_meta_data_query + ' intersect (' + experiment_series_query + ' and '
+        if unique_table == [SWEEP_META_DATA_TABLE]:
+            specific_intial_query= '( ' + experiment_series_query + ' intersect (' + global_meta_data_query + ')) intersect (' + sweep_meta_data_query
+        if (GLOBAL_META_DATA_TABLE in unique_table) and (EXPERIMENT_SERIES_TABLE in unique_table):
+            specific_intial_query= global_meta_data_query + ' and '
+
+        # Create an empty DataFrame with the necessary columns
+        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier", "sql_req"])
+        old_table = None
+
+        # list of meta data value pairs, e.g. [[male, female],[WT,KO]]
+        combination_list = meta_data_table["values"].values.tolist()
+
+        for meta_data_values in combination_list:
+            
+            # get the column where to find this combination
+            column = meta_data_table["column"].values.tolist()[combination_list.index(meta_data_values)]
+            sql_addition = ""
+            if ("global_meta_data" in unique_table) and ("experiment_series" in unique_table):
+                print("detected both")
+                current_table = meta_data_table["table"].values.tolist()[combination_list.index(meta_data_values)]
+                print(old_table)
+                print(current_table)
+                if old_table == "global_meta_data" and current_table == "experiment_series":
+                    sql_addition = ' intersect ( '+ experiment_series_query
+                print("sql_addition", sql_addition)
+                old_table = current_table
+
+            if df.empty:
+                for val in meta_data_values:
+                    new_q = specific_intial_query + f' {column} = \'{val}\''
+                    new_item_df = pd.DataFrame(
+                        {"item_name": [val], "parent": "root", "type": "Label",  # [meta_data],
+                         "level": [combination_list.index(meta_data_values)],
+                         "identifier": ["root::" + val],
+                         "sql_req": new_q})
+                    df = pd.concat([df, new_item_df])
+            else:
+                for val in meta_data_values:
+                    parents = df[df["level"] == combination_list.index(meta_data_values) - 1][
+                        "identifier"].values.tolist()
+                    sql = df[df["level"] == combination_list.index(meta_data_values) - 1]["sql_req"].values.tolist()
+                    for parent in parents:
+                        new_query = sql[parents.index(parent)] + sql_addition + f' and {column} = \'{val}\''
+                        print(val)
+                        print(parent)
+                        print(new_query)
+                        new_item_df = pd.DataFrame(
+                            {"item_name": [val], "parent": [parent], "type": "Label",  # [meta_data],
+                             "level": [combination_list.index(meta_data_values)],
+                             "identifier": [parent + "::" + val],
+                             "sql_req": new_query})
+                        df = pd.concat([df, new_item_df])
+
+        print("finished label creation")
+        return df
+
+    def add_experiments_series_sweeps_to_meta_data_label(self, table_name, discarded_state, series_name = None):
+
+        # Retrieve all rows from the specified meta data table
+        query = f'select * from {table_name}'
+        meta_data_table = self.database_handler.database.execute(query).fetchdf()
+
+        # Filter the DataFrame to only include unique values in the "table" column
+        unique_table = list(np.unique(meta_data_table["table"].values.tolist()))
+
+        # get a dataframe with hierarchical strcutured meta data items 
+        df = self.create_treeview_with_meta_data_parents(unique_table, meta_data_table, discarded_state, series_name = None)
+
+        id_list = df[df["level"] == df["level"].max()]["identifier"].values.tolist()
+        sql_list = df[df["level"] == df["level"].max()]["sql_req"].values.tolist()
+        df_with_sql = df
+        df = df.drop(columns=['sql_req'])
+        for identifier in id_list:
+            print("id = ", identifier)
+            query = sql_list[id_list.index(identifier)]
+            print("sql: ", query)
+
+            # create parent entries
+            parent_name_table = self.database_handler.database.execute(query + ')').fetchdf()
+            if not parent_name_table.empty:
+                tmp_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                tmp_df["item_name"] = parent_name_table["experiment_name"].values.tolist()
+                tmp_df["parent"] = identifier
+                tmp_df["type"] = "Experiment"
+                tmp_df["level"] = df["level"].max() + 1
+                exp_id = []
+                for exp in parent_name_table["experiment_name"].values.tolist():
+                    exp_id.append(identifier + "::" + exp)
+                tmp_df["identifier"] = exp_id
+                df = pd.concat([df, tmp_df])
+
+                series_level = df["level"].max() + 2
+
+                # create series
+                for index,row in parent_name_table.iterrows():
+                    df, series_table = self.add_series_to_treeview(df, row, unique_table, query, identifier, series_name, discarded_state,series_level)
+
+                    # create sweeps 
+                    if self.show_sweeps_radio.isChecked():
+                        df = self.add_sweeps_to_treeview(df, series_table,series_level, identifier)
+        return df
+
+    def add_series_to_treeview(self,df, row, unique_table, query, identifier, series_name, discarded_state,series_level):
+        """
+        Add series to a treeview DataFrame.
+
+        Args:
+            treeview_df (pandas.DataFrame): The DataFrame containing treeview data.
+            experiment (pandas.Series): A row from an experiments DataFrame containing information about the experiment.
+            unique_table (list): A list of unique tables from the meta data table.
+            query (str): A SQL query for retrieving series data.
+            identifier (str): The identifier of the parent of the series.
+            series_name (str): The name of the series.
+            discarded_state (bool): A flag indicating whether to include discarded experiments.
+            series_level (int): The level at which the series should be added to the treeview.
+
+        Returns:
+            tuple: A tuple containing the modified treeview DataFrame with series added and a DataFrame containing information about the series.
+        """
+
+        # check whether meta data were assigned to sweeps: if yes, a series might appear twice in the tree
+        if "sweep_meta_data" not in unique_table:
+            
+            if "experiment_series" in unique_table:
+                query = query.split("experiment_series")
+                query = f'select * from experiment_series ' + query[1] + f' and experiment_name = \'{row["experiment_name"]}\''
+                
+                if series_name is not None:
+                    query = query + f' and series_name = \'{series_name}\''
+            else:
+                query = query.split("intersect")
+                query = f'select * from experiment_series where discarded = {discarded_state} and experiment_name = \'{row["experiment_name"]}\' '
+
+                if series_name is not None:
+                    query = query + f' and series_name = \'{series_name}\''
+
+
+        else:
+            query = query.split("sweep_meta_data")
+            query = query[1]
+            query = f'select * from experiment_series where discarded = {discarded_state} ' \
+                f' and series_identifier in (select series_identifier from sweep_meta_data ' + query + ')'
+            #print("sweep query", query)
+
+        series_table = self.database_handler.database.execute(query).fetchdf()
+        series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+        series_df["item_name"] = series_table["series_name"].values.tolist()
+        series_df["parent"] = identifier + "::" + row["experiment_name"]
+        series_df["type"] = "Series"
+        series_df["level"] = series_level
+        series_id = identifier + "::" + row["experiment_name"]+"::" + series_table["series_identifier"]
+        series_df["identifier"] = series_id
+        df = pd.concat([df, series_df])
+        return df, series_table
+
+
+    def add_sweeps_to_treeview(self, treeview_df, series_table, series_level, identifier):
+
+        """
+        Add sweeps to a treeview DataFrame.
+
+        Args:
+            treeview_df (pandas.DataFrame): The DataFrame containing treeview data.
+            series_table (pandas.DataFrame): A DataFrame containing information about the sweeps.
+            series_level (int): The level at which the sweeps should be added to the treeview.
+            identifier (str): The identifier of the parent of the sweeps.
+
+        Returns:
+            pandas.DataFrame: The modified treeview DataFrame with sweeps added.
+        """
+
+        #if series_table.empty:
+        #    return treeview_df
+                
+
+        for index, row in series_table.iterrows():
+            sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+            
+            sweep_parent = identifier + "::" + row["experiment_name"] + "::" + row["series_identifier"]
+               # get the table from the database
+            sweep_table = self.database_handler.database.execute(f'select * from {row["sweep_table_name"]}').fetchdf()
+
+            sweep_df["item_name"] = sweep_table.columns
+            sweep_df["parent"] = [sweep_parent] * len(sweep_table.columns)
+            sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
+            sweep_df["level"] = [series_level + 1] * len(sweep_table.columns)
+            sweep_ids = []
+            for c_name in sweep_table.columns:
+                sweep_ids.append(sweep_parent + "::" + c_name)
+            sweep_df["identifier"] = sweep_ids
+
+            treeview_df = pd.concat([treeview_df, sweep_df])
+
+        return treeview_df
+
+
+    def make_table_specific_parents(self,sliced,q):
+        """
+        make treeview dataframe containing meta data label and experiment items
+        they are table specific e.g. global_meta_data or experiment_series
+        """
+
+        df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier", "sql_req"])
+
+        #
+        combination_list = sliced["values"].values.tolist()
+        for meta_data_values in combination_list:
+            column = sliced["column"].values.tolist()[combination_list.index(meta_data_values)]
+            if df.empty:
+                for val in meta_data_values:
+                    new_q = q + f' {column} = \'{val}\''
+                    new_item_df = pd.DataFrame(
+                        {"item_name": [val], "parent": "root", "type": "Label",  # [meta_data],
+                         "level": [combination_list.index(meta_data_values)],
+                         "identifier": ["root::" + val],
+                         "sql_req":new_q})
+                    df = pd.concat([df,new_item_df])
+            else:
+                for val in meta_data_values:
+                    parents = df[df["level"]==combination_list.index(meta_data_values)-1]["identifier"].values.tolist()
+                    sql = df[df["level"]==combination_list.index(meta_data_values)-1]["sql_req"].values.tolist()
+                    for parent in parents:
+                      new_query = sql[parents.index(parent)] + f' and {column} = \'{val}\''
+                      print(val)
+                      print(parent)
+                      print(new_query)
+                      new_item_df = pd.DataFrame(
+                        {"item_name": [val], "parent": [parent], "type": "Label",  # [meta_data],
+                         "level": [combination_list.index(meta_data_values)],
+                         "identifier": [parent + "::" + val],
+                         "sql_req":new_query})
+                      df = pd.concat([df, new_item_df])
+
+
+        id_list = df[df["level"]==df["level"].max()]["identifier"].values.tolist()
+        sql_list = df[df["level"]==df["level"].max()]["sql_req"].values.tolist()
+        df_with_sql = df
+        df = df.drop(columns=['sql_req'])
+        for id in id_list:
+            print("id = ", id)
+            print("sql: ", sql_list[id_list.index(id)])
+            #if list(np.unique(meta_data_table["table"]))==['global_meta_data','experiment_series']
+            parent_name_table = self.database_handler.database.execute(sql_list[id_list.index(id)] + ')').fetchdf()
+            if not parent_name_table.empty:
+                tmp_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                tmp_df["item_name"] = parent_name_table["experiment_name"].values.tolist()
+                tmp_df["parent"] = id
+                tmp_df["type"] = "Experiment"
+                tmp_df["level"] = df["level"].max() + 1
+                exp_id = []
+                for exp in parent_name_table["experiment_name"].values.tolist():
+                    exp_id.append(id + "::" + exp)
+                tmp_df["identifier"] = exp_id
+                df = pd.concat([df, tmp_df])
+
+        print("finished")
+        print(df)
+        for index, row in df_with_sql.iterrows():
+            print(row["sql_req"])
+
+        return df
+
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 
             if database is None:
@@ -490,26 +837,29 @@ class TreeViewManager():
                 parent = ""
 
             if "Group" in node_type:
+
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
                 self.series_identifier = None
 
                 self.logger.info("adding experiment")
+                print("adding experiment")
+                print(experiment_name)
                 self.logger.info(experiment_name)
                 database.add_experiment_to_experiment_table(experiment_name)
 
                 group_name = None
                 try:
-                    #print("adding experiment", experiment_name)
-                    #print(self.meta_data_assignment_list)
-                    #print(self.meta_data_assigned_experiment_names)
+                    print("adding experiment", experiment_name)
+                    print(self.meta_data_assignment_list)
+                    print(self.meta_data_assigned_experiment_names)
                     pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                     meta_data = self.meta_data_assignment_list[pos]
                 except Exception as e:
                     print(f"Fehler: {e}")
                     print("adding ", experiment_name, " without meta data")
                     '''experiment_label = 'default, all other parameters are none '''
-                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None"]
+                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
 
 
                 ''' add meta data as the default data indicated with a -1'''
@@ -577,7 +927,6 @@ class TreeViewManager():
                 database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
                                                   self.sweep_meta_data_df)
 
-
     def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
         database.add_experiment_to_experiment_table(abf_bundle[1][0])
@@ -591,7 +940,6 @@ class TreeViewManager():
             pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
             database.create_series_specific_pgf_table(sweep[2].set_index("series_name").reset_index(), pgf_table_name, abf_bundle[1][0], "Series" + str(series_count))
             series_count += 1
-
 
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
         """
@@ -617,7 +965,6 @@ class TreeViewManager():
 
         self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
 
-
     def cancel_button_clicked(self,dialog):
         '''
         Function to close a given dialog
@@ -628,8 +975,66 @@ class TreeViewManager():
         '''
         dialog.close()
 
-    """
-    def insert_meta_data_items_into_combo_box(self,combo_box):
+    """######################### Chapter B Functions to interact with created treeviews ############################"""
+
+    def assign_meta_data_groups_from_list(self, tree, meta_data_group_assignment_list):
+        ''' Goes through the final tree and will try the assign the assignments from the tuple list
+        todo:  error handling for incomplete lists '''
+
+        # extract all names (tuple position 0) and texts into a seperate list
+        name_list = list(map(lambda x: x[0], meta_data_group_assignment_list))
+        text_list = list(map(lambda x: x[1], meta_data_group_assignment_list))
+
+        for ind in range(0, tree.topLevelItemCount()):
+            top_level_item = tree.topLevelItem(ind)
+            top_level_combo_box = tree.itemWidget(top_level_item, self.meta_data_group_column)
+
+            try:
+                pos = name_list.index(top_level_item.text(0))
+                top_level_combo_box.setCurrentText(text_list[pos])
+            except Exception as e:
+                top_level_combo_box.setCurrentText("None")
+                self.logger.error("Could not assign meta data group for " + top_level_item.text(0))
+
+    def reinsert_button_clicked(self, item, experiment_tree, discarded_tree,specific_series=None):
+        """ Function to reinsert a given item into the experiment tree via button clicked"""
+        print("reinsert button clicked")
+        self.tree_button_clicked(item, discarded_tree, experiment_tree,"reinsert",specific_series)
+
+    def discard_button_clicked(self, item, experiment_tree, discarded_tree, specific_series=None):
+        """ Function to discard a given item into the discarded tree via button clicked"""
+        print("discard button clicked")
+        self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard",specific_series)
+
+    def tree_button_clicked(self, item, experiment_tree,discarded_tree,function,specific_series):
+        """function can be -reinsert- or -discard-"""
+
+        print("tree button clicked")
+        if item.parent():
+            self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function,specific_series)
+
+            # assuming that a series button was clicked
+            experiment_name = item.data(3,0)[0]
+            series_identifier = item.data(3, 0)[1]
+
+            #@todo if the entire experiment gets removed label each series as discarded
+
+            #if self.database is not None:
+            if function == "reinsert":
+                    self.database.reinsert_specific_series(experiment_name,series_identifier)
+            else:
+                    self.database.discard_specific_series(experiment_name,series_identifier)
+        else:
+            # @todo needs to be eddited for group in online_analysis
+            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function,specific_series)
+            if function == "reinsert":
+                self.database.database.execute(
+                    f'update experiment_series set discarded = \'False\' where experiment_name = \'{item.text(0)}\';')
+            else:
+                self.database.database.execute(
+                    f'update experiment_series set discarded = \'True\' where experiment_name = \'{item.text(0)}\';')
+
+    def insert_meta_data_items_into_combo_box(self, combo_box):
         '''
          According to the entries in the global meta data option list, combo box items will be displayed to be selected
           by the user. If nothing is selected None will be inserted.
@@ -655,30 +1060,6 @@ class TreeViewManager():
             # write change to the database
 
         return combo_box
-
-    """
-    """
-    def uncheck_entire_tree(self,tree):
-        top_level_items = tree.topLevelItemCount()
-        for i in range(0,top_level_items):
-            parent_item = tree.topLevelItem(i)
-            self.uncheck_parents_childs(parent_item)
-            parent_item.setCheckState(1, Qt.Unchecked)
-
-    """
-    """
-    def uncheck_parents_childs(self,parent):
-        child_count = parent.childCount()
-        for c in range(0,child_count):
-            parent.child(c).setCheckState(1, Qt.Unchecked)
-
-            if parent.child(c).childCount()>0:
-                self.uncheck_parents_childs(parent.child(c))
-
-    """
-
-
-
     """####################################### Chapter C Helper Functions ########################################  """
 
     def open_bundle_of_file(self,file_name):
@@ -762,6 +1143,7 @@ class TreeViewManager():
 
         return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id", "children_amount"])
 
+    """
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
         '''
@@ -847,7 +1229,7 @@ class TreeViewManager():
                 self.read_series_specific_pgf_trace(index + [i], bundle, pgf_tuple_list, sampling_frequency, number_of_sweeps, holding_potential)
 
         return pgf_tuple_list
-
+    """
 
     def append_samples(self,duration,sampling_frequency,voltage,holding_potential,sub_signal):
         '''

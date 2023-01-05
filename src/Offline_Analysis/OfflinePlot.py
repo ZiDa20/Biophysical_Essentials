@@ -72,10 +72,10 @@ class OfflinePlots():
 
         # retrieve the appropiate plot from the combobox
             self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list)
-            self.logger.info("Analysis function retrieved successfully")
+            self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
         except Exception as e:
-            self.logger.error("An error occurred while trying to retrieve the analysis function, function is not available: %s", e)
+            self.logger.error(f"An error occurred while trying to analyze the following function: {analysis_function}, function is not available: {e}")
           
     def style_plot(self):
         
@@ -128,16 +128,22 @@ class OfflinePlots():
         """
         # retrieve the plot_dataframe
         plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-
+        print(plot_dataframe.shape)
         if increment: # if sweep have different voltage steps indicated by increment in pgf file
             g = sns.boxplot(data = plot_dataframe, x = "name", y = "values", ax = self.ax)
             g.set_xticklabels(g.get_xticklabels(),rotation=45)
-            pivoted_table = plot_dataframe.pivot(index = "index", columns = "name", values = "values")
+            try: 
+                pivoted_table = plot_dataframe.pivot(index = "index", columns = "name", values = "values")
+            except:
+                pivoted_table = plot_dataframe
             
         else: # if stable voltage dependency
             g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "name", ax = self.ax)
             self.connect_hover(g)
-            pivoted_table = plot_dataframe.pivot(index = "Unit", columns = "name", values = "values")
+            try:
+                pivoted_table = plot_dataframe.pivot(index = "Unit", columns = "name", values = "values")
+            except:
+                pivoted_table = plot_dataframe
         
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax.autoscale()

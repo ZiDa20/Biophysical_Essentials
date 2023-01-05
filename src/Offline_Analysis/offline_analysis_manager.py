@@ -93,7 +93,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,tree_view_manager,meta_data_option_list, meta_data_assignment_list=None):
+    def read_data_from_experiment_directory(self,tree_view_manager, meta_data_assignment_list=None):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
@@ -110,26 +110,13 @@ class OfflineManager():
         # meta_data_option_list can be an empty list: in this case, the treeeview manager will provide default elements
         # if not empty, this list contains all options in the dropdown menu of each combo box
         # when reading a template, "none" might not be assigned - therefore it might be necessary to add this option first
+
+        self.tree_view_manager.meta_data_option_list = []
+        self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
+
         data_list = self.package_list(self._directory_path)
-        
-        if not (meta_data_option_list and meta_data_assignment_list):
-            # add the dummy meta data table constructed in the package_list so that the function is running
-            meta_data_assignment_list = self.dummy_meta_data_list
-            meta_data_option_list = self.options_list_dummy
+        print(data_list)
 
-        for n in meta_data_assignment_list:
-            print(n)
-            self.database_handler.add_meta_data_group_to_existing_experiment(n)
-            #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
-        if meta_data_option_list:
-            try:
-                meta_data_option_list.index("None")
-            except:
-                meta_data_option_list = ["None"] + meta_data_option_list
-
-            self.tree_view_manager.meta_data_option_list = meta_data_option_list
-            self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
-            
         # create a threadpool
         self.threadpool = QThreadPool()
         self.threadpool.setExpiryTimeout(1000)
