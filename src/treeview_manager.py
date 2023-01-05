@@ -136,7 +136,7 @@ class TreeViewManager():
                         data_file = abf_file.get_data_table()
                         meta_data = abf_file.get_metadata_table()
                         pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                        experiment_name = [abf_file.get_experiment_name(), "default", "None", "None", "None", "None", "None"]
+                        experiment_name = [abf_file.get_experiment_name(), "default", "None", "None", "None", "None", "None", "None"]
                         series_name = abf_file.get_series_name()
                         abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
                     
@@ -183,12 +183,13 @@ class TreeViewManager():
         
 
         for i in abf_files:
-            print("running abf file and this i ")
+            print("running abf file and this i ", i) 
             try:
                 #increment = 100/max_value
                 #progress_value = progress_value + increment
                 self.single_abf_file_into_db(i, database)
                 #progress_callback.emit((progress_value,i))
+
             except Exception as e:
                 print(e)
                 self.logger.error("The ABF file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
@@ -929,8 +930,12 @@ class TreeViewManager():
 
     def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
+        print("single file into db" )
+        print("adding to experiments", abf_bundle[1][0])
         database.add_experiment_to_experiment_table(abf_bundle[1][0])
+        print("adding to global meta data", abf_bundle[1])
         database.add_experiment_to_global_meta_data(-1 ,abf_bundle[1])
+
         series_count = 1
         print("we try to enter the abf file funciton in treeview manager")
         for sweep in abf_bundle[0]:
