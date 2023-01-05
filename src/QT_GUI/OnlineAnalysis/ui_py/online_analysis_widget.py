@@ -147,7 +147,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 rename_button = QPushButton("Rename")
                 rename_button.clicked.connect(dialog.close)
                 discard_button = QPushButton("Discard")
-                #discard_button.clicked.connect(self.discard_online_analysis_file())
+                # discard_button.clicked.connect(self.discard_online_analysis_file)
                 dialog_layout.addWidget(dialog_label)
                 dialog_layout.addWidget(rename_button)
                 dialog_layout.addWidget(discard_button)
@@ -302,6 +302,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             q = f'delete from {table} where experiment_name = \'{old_file_name}\''
             self.database_handler.database.execute(q)
 
+
         # load the new file into the database and create a treeview from it
         self.show_single_file_in_treeview(file_name, treeview_name)
 
@@ -356,7 +357,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             bundle = [abf_file_data, experiment_name]
             self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
         else:
-            # @todo this should be an error dialog shown to the user
+            #  an error dialog shown to the user
             dialog = QDialog()
             dialog_grid = QGridLayout()
             error_message = QLabel("The selected file type is not supported. Supported file types are .dat files and .abf files")
