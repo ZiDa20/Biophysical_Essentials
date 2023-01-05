@@ -15,7 +15,6 @@ from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from treeview_manager import TreeViewManager
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from functools import partial
-from QT_GUI.OfflineAnalysis.CustomWidget.specififc_analysis_tab import SpecificAnalysisTab
 from plot_widget_manager import PlotWidgetManager
 from raw_analysis import AnalysisRaw
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
@@ -39,7 +38,7 @@ import copy
 from Offline_Analysis.tree_model_class import TreeModel
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
-
+from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -59,29 +58,32 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # produced and set by start.py and shared between all subclasses
         self.frontend_style = None
         self.database_handler = None
-
+        self.offline_tree = SeriesItemTreeWidget(self.SeriesItems)
         self.offline_manager = OfflineManager(progress, status)
+        self.offline_tree.offline_manager = self.offline_manager
+        self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
+        self.offline_tree.splitter = self.object_splitter
+        self.offline_tree.add_widget_to_splitter()
+
         self.offline_analysis_widgets.setCurrentIndex(0)
 
-        self.result_visualizer = OfflineAnalysisResultVisualizer(self.SeriesItems, self.database_handler, self)
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree.SeriesItems, self.database_handler, self)
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
-        self.analysis_stacked = QStackedWidget()
-        self.WidgetAnalysis.addWidget(self.analysis_stacked)
-        self.hierachy_stacked_list = []
-        self.tab_list = []
-        self.series_list = []
-
-        self.SeriesItems.clear()
+        self.hierachy_stacked_list = self.offline_tree.hierachy_stacked_list
+        self.tab_list = self.offline_tree.tab_list
+        self.series_list = self.offline_tree.series_list
+    
+        self.offline_tree.SeriesItems.clear()
 
         self.parent_count = 0
-        self.current_tab_visualization = []
+        self.current_tab_visualization = self.offline_tree.current_tab_visualization
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
 
         # animation of the side dataframe
-        self.series_selection.clicked.connect(self.animate_tree_view)
+        
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
         self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
@@ -98,6 +100,31 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
         self.show_colum.clicked.connect(self.select_tree_view_meta_data)
+        self.parent_stacked = self.offline_tree.parent_stacked
+
+        self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))
+        self.plot_move.clicked.connect(partial(self.navigation_rules, self.plot_move, "move"))
+        self.plot_zoom.clicked.connect(partial(self.navigation_rules, self.plot_zoom, "zoom"))
+
+
+    def navigation_rules(self, plot_button, action):
+        """_summary_
+
+        Args:
+            plot_button (_type_): _description_
+            action (_type_): _description_
+        """
+        print("clicking initalized")
+        print(self.parent_stacked)
+        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
+        if action == "home":
+            plot_button.clicked.connect(navigation.home)
+        elif action == "move":
+            plot_button.clicked.connect(navigation.pan)
+        elif action == "zoom":
+            plot_button.clicked.connect(navigation.zoom)
+        
+        
 
     def select_tree_view_meta_data(self):
         """
@@ -279,31 +306,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
            CustomErrorDialog("Please select load an Experiment First")
            
 
-        
 
-    def animate_tree_view(self):
-        """Resize the Widget """
-        rect = self.SeriesItems.frameGeometry()  # get the width of the menu
-        print(rect)
-        width = self.SeriesItems.width()
-        print(width)
-        if width == 300:
-            new_rect = QRect(9, 53, 0, self.SeriesItems.height())
-            final_width = 0
-        else:
-            new_rect = QRect(9, 53, 300, self.SeriesItems.height())
-            final_width = 300
-
-        self.SeriesItems.setMinimumSize(0, 780)
-        self.SeriesItems.sizePolicy().setHorizontalStretch(50)
-        self.animation = QPropertyAnimation(self.SeriesItems, b"geometry")
-        self.animation.setDuration(500)
-        self.animation.setStartValue(rect)
-        self.animation.setEndValue(new_rect)
-        self.animation.setEasingCurve(QEasingCurve.InOutSine)  # set the Animation
-        self.animation.start()
-        self.SeriesItems.setMaximumSize(final_width, 1666666)
-        self.SeriesItems.setMinimumSize(final_width, 780)
 
     def load_and_assign_meta_data(self):
         """
@@ -328,6 +331,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler = updated_object
         self.offline_manager.database = updated_object
         self.result_visualizer.database_handler = updated_object
+        self.offline_tree.database_handler = updated_object
         
         
     def edit_metadata_analysis_id(self):
@@ -366,16 +370,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
 
-        self.built_analysis_specific_tree(series_names_list)
+        self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list)
         print("displaying to analysis results: ", str(self.database_handler.analysis_id))
 
-        print(self.SeriesItems.topLevelItemCount())
+        print(self.offline_tree.SeriesItems.topLevelItemCount())
 
 
         # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        for parent_pos in range(0,self.SeriesItems.topLevelItemCount()):
+        for parent_pos in range(0,self.offline_tree.SeriesItems.topLevelItemCount()):
 
-            self.SeriesItems.setCurrentItem(self.SeriesItems.topLevelItem(parent_pos).child(0))
+            self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
             self.offline_analysis_result_tree_item_clicked()
             self.finished_result_thread()
 
@@ -446,6 +450,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+        self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
 
         self.dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
@@ -462,6 +467,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.open_connection(read_only=True)
         experiment_label = ""
         self.blank_analysis_page_1_tree_manager.selected_meta_data_list = self.selected_meta_data_list
+        self.offline_tree.selected_meta_data_list = self.selected_meta_data_list
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
                                                                               self.progress_callback)
 
@@ -779,60 +785,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def start_analysis_offline(self):
         """Starts the analysis of the selected series"""
         print(self.final_series)
-        self.built_analysis_specific_tree(self.final_series)
+        self.offline_tree.built_analysis_specific_tree(self.final_series, 
+                                                       self.select_analysis_functions,
+                                                       self.offline_analysis_widgets,
+                                                       self.selected_meta_data_list)
         self.offline_analysis_widgets.setCurrentIndex(2)
         self.final_series = []
         self.selected_series_combo.clear()
-
-    def built_analysis_specific_tree(self, series_names_list):
-        """
-        Function to built series name (e.g. IV, 5xRheo) specific tree. Each series get's a parent item for 3 childs:
-        1) Plot - Result Visualization).
-        2) Tables - Numerical Data shown in the result visualization)
-        3) Statistics - Statistical Test Performed on the results
-        @param series_names_list:
-        @return:
-        """
-        # add selection to database
-        self.database_handler.write_analysis_series_types_to_database(series_names_list)
-
-        # make new tree parent elements and realted childs for ech specific series
-        for index, s in enumerate(series_names_list):
-            index += self.tree_widget_index_count
-
-            # Custom designer widget: contains treeview, plot, analysis function table ...
-            new_tab_widget = SpecificAnalysisTab()
-            new_tab_widget.select_series_analysis_functions.clicked.connect(partial(self.select_analysis_functions, s))
-
-            """will be filled with the related data for the treeview table"""
-
-            new_tab_widget.setObjectName(s)
-
-            self.tab_list.append(new_tab_widget)
-            self.tab_changed(index, s)
-            self.hierachy_stacked = QStackedWidget()
-            self.hierachy_stacked.addWidget(QWidget())
-            self.analysis_stacked.addWidget(self.hierachy_stacked)
-            # fill the treetabwidgetitems
-            parent = SideBarParentItem(self.SeriesItems)
-            parent.setting_data(s, new_tab_widget, self.hierachy_stacked, index, False)
-            # set the child items of the widget
-            configurator = SideBarConfiguratorItem(parent, "Analysis Configurator")
-            configurator.setting_data(new_tab_widget, self.hierachy_stacked, self.parent_count, index)
-            self.series_list.append(s)
-            # child stacked notebook per parent node
-            self.hierachy_stacked_list.append(self.hierachy_stacked)
-            self.plot_widgets = []
-            self.parent_count += 1
-
-
-        # connect the treewidgetsitems
-        self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)
-        self.postgresql_upload.clicked.connect(self.start_worker)        
-        #set the analysis notebook as index
-        self.offline_analysis_widgets.setCurrentIndex(3)
-        self.SeriesItems.expandToDepth(2)
-        self.tree_widget_index_count = index +1
 
     def start_worker(self):
         """Starts the Postgres Sql Worker to upload the tables 
@@ -844,121 +803,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
         
-
-    def offline_analysis_result_tree_item_clicked(self):
-        """
-        Whenever an item within the result tree view is clicked, this function is called
-        @return:
-        @author:DZ
-        @todo restructure this and move it maybe into a new class with the related functions ?
-        """
-        print("this is the function to connect")
-        if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
-            #self.result_analysis_parent_clicked()
-            self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
-            self.offline_analysis_result_tree_item_clicked()
-        else:
-            """identifiy the parent"""
-            if self.SeriesItems.currentItem().child(0):
-                parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-            else:
-                parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
-
-            if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
-                self.simple_analysis_configuration_clicked(parent_stacked)
-                self.plot_home.clicked.connect(self.navigation_list[parent_stacked].home)
-                self.plot_move.clicked.connect(self.navigation_list[parent_stacked].pan)
-                self.plot_zoom.clicked.connect(self.navigation_list[parent_stacked].zoom)
-
-            if self.SeriesItems.currentItem().text(0) == "Plot":
-                self.analysis_stacked.setCurrentIndex(parent_stacked)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
-
-            if self.SeriesItems.currentItem().text(0) == "Tables":
-                self.view_table_clicked(parent_stacked)
-
-            if self.SeriesItems.currentItem().text(0) == "Statistics":
-
-
-
-                # uic the designer object
-                # create in the py file an additional class named StatisticalTableWidget
-                statistics_table_widget = StatisticsTablePromoted()
-
-                self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
-                #statistics_table_widget.statistics_table_widget.setColumnCount(6)
-                #statistics_table_widget.statistics_table_widget.setRowCount(2)
-                #statistics_table_widget.statistics_table_widget.show()
-                statistics_table_widget.statistics_table_widget.horizontalHeader().setSectionResizeMode(
-                    QHeaderView.Stretch)
-                statistics_table_widget.statistics_table_widget.verticalHeader().setSectionResizeMode(
-                    QHeaderView.Stretch)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-
-                series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")
-                analysis_functions = self.database_handler.get_analysis_functions_for_specific_series(series_name[0])
-
-
-                # -------------------
-                existing_row_numbers = statistics_table_widget.statistics_table_widget.rowCount()
-
-
-                if existing_row_numbers == 0:
-
-                    # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-                    statistics_table_widget.statistics_table_widget.setColumnCount(6)
-                    statistics_table_widget.statistics_table_widget.setRowCount(
-                        len(analysis_functions))
-                    self.statistics_table_buttons = [0] * len(analysis_functions)
-                #else:
-                #    current_tab.analysis_table_widget.analysis_table_widget.setRowCount(
-                #        existing_row_numbers + len(self.selected_analysis_functions))
-                #    self.table_buttons = self.table_buttons + [0] * len(self.selected_analysis_functions)
-
-                self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
-
-                for i in analysis_functions:
-                    # prepare a row for each analysis
-                    analysis_function = i[0]
-                    print(analysis_function)
-                    row_to_insert = analysis_functions.index(i) + existing_row_numbers
-
-                    self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Choose")
-                    self.select_checkbox = QCheckBox()
-                    self.data_dist  = QComboBox()
-                    self.data_dist.addItems(["Normal Distribution", "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution" ])
-                    self.data_dist.setCurrentIndex(0)
-                    self.stat_test = QComboBox()
-                    self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
-                    self.stat_test.setCurrentIndex(0)
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 0,self.select_checkbox)
-                    statistics_table_widget.statistics_table_widget.setItem(row_to_insert, 1,
-                                                                            QTableWidgetItem(str(analysis_function)))
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_add_meta_data_buttons[row_to_insert])
-
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 3, self.data_dist)
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
-
-                    self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
-
-                    #current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5,
-                    #                                                                      self.live_result)
-
-                    #self.statistics_table_buttons[row_to_insert].clicked.connect(
-                    #    partial(self.open_statistics_meta_data_selection,row_to_insert))
-                    #self.live_result.clicked.connect(
-                    #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
-                    statistics_table_widget.statistics_table_widget.show()
-
-                
-                start_statistics = QPushButton("Run Statistic Test")
-                statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
-
-                start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
-            
-
     # offline manager
-    def calculate_statistics(self,statistics_table:QTableWidget):
+    def calculate_statistics(self,statistics_table:QTableWidget) -> None:
         print("calculating statistic")
         for row in range(0,statistics_table.rowCount()):
 
@@ -1113,8 +959,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @param parent_stacked:
         @return:
         """
-        stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
-        config_widget = self.SeriesItems.currentItem().parent().child(0).data(2, Qt.UserRole)
+        stacked_widget = self.offline_tree.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
+        config_widget = self.offline_tree.SeriesItems.currentItem().parent().child(0).data(2, Qt.UserRole)
 
         # insert the windget
         stacked_widget.insertWidget(0, config_widget)
@@ -1272,7 +1118,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # read from database - if no settings have been made before execute initalization
 
         self.selected_analysis_functions = self.get_selected_checkboxes(checkbox_list, analysis_function_name_list)
-        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
 
         current_tab = self.tab_list[current_index]
 
@@ -1376,9 +1222,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("I have to make the liveplot")
        # artificial click will replot and add or delete the newly checked or unchecked analysis function
        # item = current_tab.selected_tree_widget.currentItem()
-       # self.current_tab_visualization[self.SeriesItems.currentItem().data(7,
+       # self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7,
        #                                                                    Qt.UserRole)].analysis_functions_table_widget = current_tab.analysis_table_widget.analysis_table_widget
-       # self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].tree_view_click_handler(
+       # self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].tree_view_click_handler(
        #     item)
 
     #def quit_error_dialog(self, dialog: QDialog):
@@ -1400,10 +1246,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.b.clicked.connect(partial(self.add_coursor_bounds, r, current_tab))
 
                 self.current_tab_visualization[
-                    self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
+                    self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
             try:
                 self.current_tab_visualization[
-                    self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
+                    self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
             except:
                 print("nothing to delete")
 
@@ -1413,7 +1259,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-        self.current_tab_visualization[self.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
+        self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
             row_number)
 
         try:
@@ -1425,7 +1271,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             # 1) insert dragable coursor bounds into pyqt graph
             left_val, right_val = self.current_tab_visualization[
-                self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
+                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
                                                                                           (left_cb_val, right_cb_val))
 
 
@@ -1433,14 +1279,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             print(e)
             # 1) insert dragable coursor bounds into pyqt graph
             left_val, right_val = self.current_tab_visualization[
-                self.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
+                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
 
         # 2) connect to the signal taht will be emitted when cursor bounds are moved by user
         self.current_tab_visualization[
-            self.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(
+            self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(
             self.update_left_common_labels)
         self.current_tab_visualization[
-            self.SeriesItems.currentItem().data(7, Qt.UserRole)].right_bound_changed.cursor_bound_signal.connect(
+            self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].right_bound_changed.cursor_bound_signal.connect(
             self.update_right_common_labels)
 
         # 3) update the function selection grid
@@ -1465,7 +1311,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.update_cursor_bound_labels(value, 2, row_number)
 
     def update_cursor_bound_labels(self, value, column_number, row_number):
-        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.tab_list[current_index]
         print("updating: row = " + str(row_number) + " column=" + str(column_number) + " value= " + str(value))
 
@@ -1537,12 +1383,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @return:
         """
         self.database_handler.open_connection()
-        self.add_new_analysis_tree_children()
+        self.offline_tree.add_new_analysis_tree_children()
 
-        if self.SeriesItems.currentItem().child(0):
-            parent_item = self.SeriesItems.currentItem()
+        if self.offline_tree.SeriesItems.currentItem().child(0):
+            parent_item = self.offline_tree.SeriesItems.currentItem()
         else:
-            parent_item = self.SeriesItems.currentItem().parent()
+            parent_item = self.offline_tree.SeriesItems.currentItem().parent()
 
         print(parent_item.text(0))
 
@@ -1553,45 +1399,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
 
         """simulate click on  "Plot" children """
-        self.SeriesItems.setCurrentItem(parent_item.child(1))
+        self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_analysis_result_tree_item_clicked()
 
-    def add_new_analysis_tree_children(self):
-        """
-        MZ: Refactored--> should no check if the children are already there
-        add tree items to the analysis
-            - plot for the result grpahics
-            - table for the data from the result plots
-            - statistics ..
-            - advanced
-        @param offline_tab:
-        @return:
-        """
-        if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0: # thats the parent which is clicked
-            parent_tree_item = self.SeriesItems.currentItem()
-            parent_stacked_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-            parent_stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
-
-        else: # child is clicked
-            parent_tree_item = self.SeriesItems.currentItem().parent()
-            parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
-            parent_stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
-
-        if parent_tree_item.data(8, Qt.UserRole) is False:
-            # add new children within the tree:
-            for i in ["Plot", "Tables", "Statistics", "Advanced Analysis"]:
-                new_child = SideBarAnalysisItem(i, parent_tree_item)
-                parent_stacked_widget.addWidget(QWidget())
-                if i in ["Plot", "Tables"]:
-                    new_child.setting_data(self.hierachy_stacked)
-                
-            # overwrite the old stacked widget with the new extended stacked widget
-            self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
-            if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0:
-                self.SeriesItems.currentItem().setData(8, Qt.UserRole, True)
-            else:
-                self.SeriesItems.currentItem().parent().setData(8, Qt.UserRole, True)
-            
+    
 
     def write_function_grid_values_into_database(self, current_tab):
         """

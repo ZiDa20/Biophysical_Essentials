@@ -194,14 +194,12 @@ class SweepWiseAnalysisTemplate(object):
 
 				res = cls.specific_calculation()
 
-				print("result")
-				print(res)
+				# normalize if necessary
+				# toDO add logging here
 				if cls.cslow_normalization:
 					cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
 					res = res / cslow
-					print("normalized")
-					print(res)
-
+					
 				# get the sweep number
 				sweep_number = column.split("_")
 				sweep_number = int(sweep_number[1])

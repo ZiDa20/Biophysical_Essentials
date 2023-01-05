@@ -17,7 +17,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(655, 872)
+        Form.resize(629, 872)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -65,28 +65,38 @@ class Ui_Form(object):
 "  color: skyblue;\n"
 "  text-transform: scale(1.5);\n"
 "}")
-        self.selected_tree_view = QWidget()
-        self.selected_tree_view.setObjectName(u"selected_tree_view")
-        self.gridLayout_8 = QGridLayout(self.selected_tree_view)
+        self.selected_tab = QWidget()
+        self.selected_tab.setObjectName(u"selected_tab")
+        self.gridLayout_8 = QGridLayout(self.selected_tab)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
-        self.experiments_tree_view = QTreeWidget(self.selected_tree_view)
-        self.experiments_tree_view.setObjectName(u"experiments_tree_view")
-        self.experiments_tree_view.setFrameShape(QFrame.NoFrame)
-        self.experiments_tree_view.setFrameShadow(QFrame.Plain)
+        self.selected_tree_view = QTreeView(self.selected_tab)
+        self.selected_tree_view.setObjectName(u"selected_tree_view")
 
-        self.gridLayout_8.addWidget(self.experiments_tree_view, 0, 0, 1, 1)
+        self.gridLayout_8.addWidget(self.selected_tree_view, 0, 0, 1, 1)
 
-        self.directory_tree_widget.addTab(self.selected_tree_view, "")
-        self.discarde_tree_view = QWidget()
-        self.discarde_tree_view.setObjectName(u"discarde_tree_view")
-        self.gridLayout_2 = QGridLayout(self.discarde_tree_view)
+        self.descriptive_meta_data_label = QLabel(self.selected_tab)
+        self.descriptive_meta_data_label.setObjectName(u"descriptive_meta_data_label")
+
+        self.gridLayout_8.addWidget(self.descriptive_meta_data_label, 2, 0, 1, 1)
+
+        self.line = QFrame(self.selected_tab)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_8.addWidget(self.line, 1, 0, 1, 1)
+
+        self.directory_tree_widget.addTab(self.selected_tab, "")
+        self.discarded_tab = QWidget()
+        self.discarded_tab.setObjectName(u"discarded_tab")
+        self.gridLayout_2 = QGridLayout(self.discarded_tab)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.outfiltered_tree_view = QTreeWidget(self.discarde_tree_view)
-        self.outfiltered_tree_view.setObjectName(u"outfiltered_tree_view")
+        self.discarded_tree_view = QTreeView(self.discarded_tab)
+        self.discarded_tree_view.setObjectName(u"discarded_tree_view")
 
-        self.gridLayout_2.addWidget(self.outfiltered_tree_view, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.discarded_tree_view, 0, 0, 1, 1)
 
-        self.directory_tree_widget.addTab(self.discarde_tree_view, "")
+        self.directory_tree_widget.addTab(self.discarded_tab, "")
 
         self.gridLayout_5.addWidget(self.directory_tree_widget, 0, 0, 1, 1)
 
@@ -105,15 +115,8 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("Form", u"Experiment Hierarchie", None))
-        ___qtreewidgetitem = self.experiments_tree_view.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Discard", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Group", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Object", None));
-        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tree_view), QCoreApplication.translate("Form", u"Selected", None))
-        ___qtreewidgetitem1 = self.outfiltered_tree_view.headerItem()
-        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Form", u"Reinsert", None));
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Form", u"Group", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Form", u"Object", None));
-        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarde_tree_view), QCoreApplication.translate("Form", u"Discarded", None))
+        self.descriptive_meta_data_label.setText(QCoreApplication.translate("Form", u"TextLabel", None))
+        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tab), QCoreApplication.translate("Form", u"Selected", None))
+        self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarded_tab), QCoreApplication.translate("Form", u"Discarded", None))
     # retranslateUi
 
