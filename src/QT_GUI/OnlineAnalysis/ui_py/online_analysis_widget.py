@@ -14,6 +14,7 @@ from pathlib import Path
 from functools import partial
 from Pandas_Table import PandasTable
 from ABFclass import AbfReader
+import os
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self, parent=None):
@@ -340,14 +341,18 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # if .abf file: run abf file specific bundle creation and insertion into db
         elif file_type == "abf":
-            #print("found abf file")
-            abf_file = AbfReader(file_name)
-            data_file = abf_file.get_data_table()
-            meta_data = abf_file.get_metadata_table()
-            pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-            experiment_name = [abf_file.get_experiment_name(),'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']
-            series_name = abf_file.get_series_name()
-            abf_file_data = [(data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf")]
+            # read the whole directory and concat
+            abf_file_list = os.listdir(os.path.dirname(file_name))
+            abf_file_data = []
+            for abf in abf_file_list: 
+                abf_file = os.path.dirname(file_name) + "/" + abf
+                abf_file = AbfReader(abf_file)
+                data_file = abf_file.get_data_table()
+                meta_data = abf_file.get_metadata_table()
+                pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+                experiment_name = [abf_file.get_experiment_name(),'ONLINE_ANALYSIS', 'None', 'None', 'None', 'None', 'None', 'None']
+                series_name = abf_file.get_series_name()
+                abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
             bundle = [abf_file_data, experiment_name]
             self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
         else:
