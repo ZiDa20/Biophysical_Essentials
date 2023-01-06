@@ -159,6 +159,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if self.offline_analysis_widgets.currentIndex()==1:
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
             if self.offline_analysis_widgets.currentIndex() ==2:
+                # parent
+                if self.offline_tree.SeriesItems.currentItem().data(5, Qt.UserRole) == 0 :
+                    stacked_widget = self.offline_tree.SeriesItems.currentItem().data(4, Qt.UserRole)
+                # or child
+                else:
+                    stacked_widget = self.offline_tree.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
+
+                
                 print("not implemented yet")
         except Exception as e:
            print(e)

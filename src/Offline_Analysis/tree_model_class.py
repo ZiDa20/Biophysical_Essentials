@@ -3,7 +3,13 @@ from Offline_Analysis.tree_item_class import TreeItem
 import numpy as np
 
 class TreeModel(QAbstractItemModel):
+    # a class to create a model to be displayed in a treeview widget
+    # model will be a pandas data frame
+
     def __init__(self, data_df, discarded = None, parent=None):
+
+
+
         super(TreeModel, self).__init__(parent)
 
         # data frame with columns comes in
@@ -132,6 +138,8 @@ class TreeModel(QAbstractItemModel):
 
         print("incoming df ")
         print(data_df)
+
+        # go through each level of the data frame 
         for i in np.unique(data_df["level"]):
             print("level = ", i)
 
@@ -139,13 +147,14 @@ class TreeModel(QAbstractItemModel):
             items_to_add = data_df[data_df["level"]==i].values.tolist()
 
             for item in items_to_add:
-                # create a list representing the row that will be written into the tree
-                print("single item to add", item)
+                # create a list of lists.
+                # each list is representing a row that will be added to the tree
+                
                 list_for_one_item = [""] * self.column_count
                 type = item[2]
                 list_for_one_item[self.item_dict[type]]=item[0]
 
-                if self.discarded:
+                if self.discarded: # should not be shown on sweep and meta data level
                     list_for_one_item[self.item_dict["remove"]] = "<-"
                 else:
                     list_for_one_item[self.item_dict["remove"]] = "x"
@@ -169,4 +178,7 @@ class TreeModel(QAbstractItemModel):
                     print("appending parent: ", parent_name)
                 else:
                 """
-                parent.appendChild(new_parent)
+                try:
+                    parent.appendChild(new_parent)
+                except Exception as e:
+                    print(e)
