@@ -44,10 +44,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                 cb.setChecked(False)
             checkbox.setChecked(True)
         
-        if label=="All":
-            print("descriptive statistic of entire db")
-        else:
-            self.create_experiment_specific_visualization(label)
+        self.create_experiment_specific_visualization(label)
 
     def create_experiment_specific_visualization(self, label):
         
@@ -69,7 +66,10 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         self.diagram_grid.addWidget(self.canvas)
 
         # get experiment meta data assigned to this experiment label from the database
-        q = f'select * from global_meta_data where experiment_label = \'{label}\''
+        q = f'select * from global_meta_data '
+        if label is not "All":
+            q = q +  f' where experiment_label = \'{label}\''
+        
         meta_data_table = self.database_handler.database.execute(q).fetchdf()
 
         row = 0

@@ -99,6 +99,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
         self.edit_meta.clicked.connect(self.edit_metadata_analysis_id)
+        self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
         self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
@@ -106,7 +107,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.navigation_list = []
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.show_colum.clicked.connect(self.select_tree_view_meta_data)
+        self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
 
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))
@@ -199,19 +200,45 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         
     def edit_metadata_analysis_id(self):
-        """ Popup Dialog to edit the metadata used for the offline analysis
+        """ Popup Dialog to edit the metadata of the selected experiments 
         """
         edit_data = MetadataPopupAnalysis()
         edit_data.quit.clicked.connect(edit_data.close)
         metadata_table = QTableView()
-        q = 'Select * from offline_analysis'
+        q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
         table_handling = self.database_handler.get_data_from_database(self.database_handler.database, q, fetch_mode = 2)
         table_model = PandasTable(table_handling)
         metadata_table.setModel(table_model)
         edit_data.final_table_layout.addWidget(metadata_table)
         edit_data.exec()
         
+    def edit_series_meta_data_popup(self):
+        """ 
+            Popup Dialog to edit the metadata of the related series
+        """
+        edit_data = MetadataPopupAnalysis()
+        edit_data.quit.clicked.connect(edit_data.close)
+        metadata_table = QTableView()
+        q = f'select * from experiment_series where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
+        table_handling = self.database_handler.get_data_from_database(self.database_handler.database, q, fetch_mode = 2)
+        table_model = PandasTable(table_handling)
+        metadata_table.setModel(table_model)
+        edit_data.final_table_layout.addWidget(metadata_table)
+        edit_data.submit.clicked.connect(partial(self.submit_table_into_db, edit_data, q))
+        edit_data.exec()
     
+    def submit_table_into_db(self, dialog, query):
+        old_df = self.database_handler.get_data_from_database(self.database_handler.database, query, fetch_mode = 2)
+        new_df = dialog.final_table_layout.itemAtPosition(0,0).widget().model()._data
+        df = pd.merge(new_df, old_df, on=['experiment_name','series_identifier', 'series_meta_data'], how="left", indicator=True
+              ).query('_merge=="left_only"')
+
+        for index, row in df.iterrows():
+            q = f'update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\''
+            self.database_handler.database.execute(q)
+
+        dialog.close()
+
     @Slot()
     def open_analysis_results(self):
         """
@@ -302,6 +329,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.load_data_from_database_dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
+
+        #index = treeview.model().index(2, 2, QModelIndex())
+        #click_qtreeview_cell(treeview, index)
 
     def load_recordings(self, progress_callback):
         """_summary_

@@ -231,9 +231,10 @@ class TreeViewManager():
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
         
         # assign the models to the visible treeview objects 
-        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)        
+        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
+        self.tree_build_widget.selected_tree_view.expandAll()      
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
-
+        self.tree_build_widget.discarded_tree_view.expandAll()   
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(self.selected_model,self.tree_build_widget.selected_tree_view)
         self.set_visible_columns_treeview(self.discarded_model,self.tree_build_widget.discarded_tree_view)
@@ -340,7 +341,9 @@ class TreeViewManager():
         discarded_model = TreeModel(self.discarded_tree_view_data_table, "discarded")
 
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
+        self.tree_build_widget.selected_tree_view.expandAll()   
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
+        self.tree_build_widget.discarded_tree_view.expandAll()   
 
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
@@ -357,6 +360,14 @@ class TreeViewManager():
             partial(self.handle_tree_view_click, selected_model, plot_widget_manager, series_name))
         self.tree_build_widget.discarded_tree_view.clicked.connect(
             partial(self.handle_tree_view_click, discarded_model, plot_widget_manager, series_name))
+
+    def click_qtreeview_cell(treeview, index):
+        "click on a specific cell"
+        model = treeview.model()
+        item = model.itemFromIndex(index)
+        treeview.setCurrentIndex(index)
+        treeview.clicked.emit(index)
+        treeview.doubleClicked.emit(index)
 
     def handle_tree_view_click(self, model, plot_widget_manager: PlotWidgetManager, series_name, index):
 
@@ -580,10 +591,22 @@ class TreeViewManager():
             for index,row in meta_data_table.iterrows():
                 
                 if row["table"] ==  GLOBAL_META_DATA_TABLE:
+                    # multiple columns are available for global meta data. 
+                    # therefore table can appear in multiple rows and therefore I have to append
                     global_meta_data_query =  global_meta_data_query + f' and {row["column"]} = \'{meta_data_selections[index]}\' '
-                    
-            experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf() 
+                if row["table"] ==  EXPERIMENT_SERIES_TABLE:
+                    # only one column is available
+                    # can only appear once
+                    experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row["column"]} = \'{meta_data_selections[index]}\''
             
+            # check combination of tables
+            if list(meta_data_table["table"].unique()) == [GLOBAL_META_DATA_TABLE]:
+                experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf() 
+            else:
+                experiment_series_query = experiment_series_query + f' intersect ({global_meta_data_query})'
+                experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf() 
+            
+
             # empty dataframe might be returned when the meta data combinations does not exist
             if not experiment_names.empty:
                 experiment_names = experiment_names.values.tolist()
@@ -612,9 +635,22 @@ class TreeViewManager():
         df = self.create_treeview_with_meta_data_parents(meta_data_table)
         series_level = df["level"].max() + 1
 
+       
         # append series to the experiments
         for index,experiment_row in df[df["type"]=="Experiment"].iterrows():
-            df, series_table = self.add_series_to_treeview(df, experiment_row, discarded_state, series_name, series_level)
+            
+            series_meta_data = None
+            
+            if "experiment_series" in meta_data_table["table"].values.tolist():
+
+                # get the parent
+                label = df[df.identifier == experiment_row["parent"]]["item_name"].values[0]
+                # split at ::
+                label = label.split("::")
+                series_meta_data = label[meta_data_table["table"].values.tolist().index("experiment_series")]
+          
+    
+            df, series_table = self.add_series_to_treeview(df, experiment_row, discarded_state, series_name, series_level, series_meta_data)
 
             # create sweeps 
             if self.show_sweeps_radio.isChecked():
@@ -622,16 +658,20 @@ class TreeViewManager():
 
         return df
 
-    def add_series_to_treeview(self, df, experiment_row, discarded_state, series_name, series_level):
+    def add_series_to_treeview(self, df, experiment_row, discarded_state, series_name, series_level, series_meta_data=None):
+
 
         experiment_name = experiment_row["item_name"]
         experiment_id = experiment_row["identifier"]
 
         if experiment_name == "220318_03":
             print("found")
-
+        
         # get all series linked with this experiment
         query = f'select * from experiment_series where experiment_name = \'{experiment_name}\' and discarded = {discarded_state}'
+        
+        if series_meta_data:
+            query = query + f' and series_meta_data = \'{series_meta_data}\' '
         
         # if specified, get only specific series names
         if series_name is not None:
