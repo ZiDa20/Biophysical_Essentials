@@ -361,10 +361,10 @@ class TreeViewManager():
         self.tree_build_widget.discarded_tree_view.clicked.connect(
             partial(self.handle_tree_view_click, discarded_model, plot_widget_manager, series_name))
 
-    def click_qtreeview_cell(treeview, index):
+    def click_qtreeview_cell(self,treeview, index):
         "click on a specific cell"
         model = treeview.model()
-        item = model.itemFromIndex(index)
+        #item = model.data(index, Qt.DisplayRole)
         treeview.setCurrentIndex(index)
         treeview.clicked.emit(index)
         treeview.doubleClicked.emit(index)

@@ -330,8 +330,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
-        #index = treeview.model().index(2, 2, QModelIndex())
-        #click_qtreeview_cell(treeview, index)
+        index =  self.treebuild.selected_tree_view.model().index(5, 5, QModelIndex())
+        self.blank_analysis_tree_view_manager.click_qtreeview_cell(self.treebuild.selected_tree_view, index)
 
     def load_recordings(self, progress_callback):
         """_summary_
@@ -676,10 +676,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def start_analysis_offline(self):
         """Starts the analysis of the selected series"""
         print(self.final_series)
+
         self.offline_tree.built_analysis_specific_tree(self.final_series, 
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets,
                                                        self.selected_meta_data_list)
+        
         self.offline_analysis_widgets.setCurrentIndex(2)
         self.final_series = []
         self.selected_series_combo.clear()

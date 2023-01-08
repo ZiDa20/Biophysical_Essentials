@@ -75,7 +75,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.button_connections()
       
     def button_connections(self):
-        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.settings_button)
+        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.toolButton_2)
         self.home_buttons = (self.ui.configuration_home_2, self.ui.online_analysis_home_2, self.ui.offline_analysis_home_2, self.ui.database_viewer_home_2)
         for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
@@ -89,6 +89,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
+        self.ui.home_logo.clicked.connect(self.open_bpe_webside)
+
+    def open_bpe_webside(self):
+        import webbrowser
+        url = "https://www.google.com/"
+        webbrowser.open(url, new=0, autoraise=True)
         
     def establish_logger(self):
         """Connect and establish the Logging during StartUp Process
