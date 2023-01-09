@@ -15,12 +15,11 @@ from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget import TreeBuild
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
 
-
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
             Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(1161, 967)
+        Offline_Analysis.resize(1274, 967)
         self.gridLayout_21 = QGridLayout(Offline_Analysis)
         self.gridLayout_21.setObjectName(u"gridLayout_21")
         self.frame = QFrame(Offline_Analysis)
@@ -475,70 +474,86 @@ class Ui_Offline_Analysis(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.start_page.sizePolicy().hasHeightForWidth())
         self.start_page.setSizePolicy(sizePolicy2)
-        self.gridLayout_4 = QGridLayout(self.start_page)
+        self.gridLayout_39 = QGridLayout(self.start_page)
+        self.gridLayout_39.setObjectName(u"gridLayout_39")
+        self.gridLayout_4 = QGridLayout()
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.verticalLayout_3 = QVBoxLayout()
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.groupBox = QGroupBox(self.start_page)
-        self.groupBox.setObjectName(u"groupBox")
-        font2 = QFont()
-        font2.setPointSize(14)
-        self.groupBox.setFont(font2)
-        self.gridLayout_29 = QGridLayout(self.groupBox)
-        self.gridLayout_29.setObjectName(u"gridLayout_29")
-        self.treeView = QTreeView(self.groupBox)
-        self.treeView.setObjectName(u"treeView")
-        self.treeView.setMaximumSize(QSize(300, 16777215))
-
-        self.gridLayout_29.addWidget(self.treeView, 1, 1, 1, 1)
-
-        self.textEdit = QTextEdit(self.groupBox)
-        self.textEdit.setObjectName(u"textEdit")
-
-        self.gridLayout_29.addWidget(self.textEdit, 1, 2, 1, 1)
-
-        self.label = QLabel(self.groupBox)
-        self.label.setObjectName(u"label")
-
-        self.gridLayout_29.addWidget(self.label, 0, 1, 1, 1)
-
-        self.AnalysisOptions = QGroupBox(self.groupBox)
-        self.AnalysisOptions.setObjectName(u"AnalysisOptions")
-        sizePolicy.setHeightForWidth(self.AnalysisOptions.sizePolicy().hasHeightForWidth())
-        self.AnalysisOptions.setSizePolicy(sizePolicy)
-        self.AnalysisOptions.setMinimumSize(QSize(200, 0))
-        self.AnalysisOptions.setMaximumSize(QSize(250, 16777215))
-        self.gridLayout_8 = QGridLayout(self.AnalysisOptions)
-        self.gridLayout_8.setObjectName(u"gridLayout_8")
-        self.gridLayout_5 = QGridLayout()
-        self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.pushButton_8 = QPushButton(self.AnalysisOptions)
-        self.pushButton_8.setObjectName(u"pushButton_8")
-
-        self.gridLayout_5.addWidget(self.pushButton_8, 1, 0, 1, 1)
-
-        self.blank_analysis_button = QPushButton(self.AnalysisOptions)
+        self.blank_analysis_button = QPushButton(self.start_page)
         self.blank_analysis_button.setObjectName(u"blank_analysis_button")
         self.blank_analysis_button.setFont(font)
 
-        self.gridLayout_5.addWidget(self.blank_analysis_button, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.blank_analysis_button, 2, 0, 1, 2)
 
-        self.open_analysis_results_button = QPushButton(self.AnalysisOptions)
+        self.label_3 = QLabel(self.start_page)
+        self.label_3.setObjectName(u"label_3")
+        font2 = QFont()
+        font2.setPointSize(20)
+        self.label_3.setFont(font2)
+        self.label_3.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_4.addWidget(self.label_3, 0, 7, 1, 2)
+
+        self.horizontalSpacer_2 = QSpacerItem(5, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+
+        self.gridLayout_4.addItem(self.horizontalSpacer_2, 2, 6, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(5, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+
+        self.gridLayout_4.addItem(self.horizontalSpacer, 2, 3, 1, 1)
+
+        self.gridLayout_38 = QGridLayout()
+        self.gridLayout_38.setObjectName(u"gridLayout_38")
+
+        self.gridLayout_4.addLayout(self.gridLayout_38, 1, 8, 1, 1)
+
+        self.gridLayout_29 = QGridLayout()
+        self.gridLayout_29.setObjectName(u"gridLayout_29")
+
+        self.gridLayout_4.addLayout(self.gridLayout_29, 1, 1, 1, 1)
+
+        self.label = QLabel(self.start_page)
+        self.label.setObjectName(u"label")
+        self.label.setFont(font2)
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_4.addWidget(self.label, 0, 0, 1, 2)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_4.addItem(self.verticalSpacer, 1, 0, 1, 1)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_4.addItem(self.verticalSpacer_2, 1, 4, 1, 1)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_4.addItem(self.verticalSpacer_3, 1, 7, 1, 1)
+
+        self.label_2 = QLabel(self.start_page)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setFont(font2)
+        self.label_2.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_4.addWidget(self.label_2, 0, 4, 1, 2)
+
+        self.gridLayout_37 = QGridLayout()
+        self.gridLayout_37.setObjectName(u"gridLayout_37")
+
+        self.gridLayout_4.addLayout(self.gridLayout_37, 1, 5, 1, 1)
+
+        self.pushButton_8 = QPushButton(self.start_page)
+        self.pushButton_8.setObjectName(u"pushButton_8")
+
+        self.gridLayout_4.addWidget(self.pushButton_8, 2, 4, 1, 2)
+
+        self.open_analysis_results_button = QPushButton(self.start_page)
         self.open_analysis_results_button.setObjectName(u"open_analysis_results_button")
 
-        self.gridLayout_5.addWidget(self.open_analysis_results_button, 2, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.open_analysis_results_button, 2, 7, 1, 2)
 
 
-        self.gridLayout_8.addLayout(self.gridLayout_5, 0, 0, 1, 1)
-
-
-        self.gridLayout_29.addWidget(self.AnalysisOptions, 0, 0, 2, 1)
-
-
-        self.verticalLayout_3.addWidget(self.groupBox)
-
-
-        self.gridLayout_4.addLayout(self.verticalLayout_3, 0, 0, 1, 2)
+        self.gridLayout_39.addLayout(self.gridLayout_4, 0, 0, 1, 1)
 
         self.offline_analysis_widgets.addWidget(self.start_page)
         self.blank_analysis = QWidget()
@@ -627,12 +642,14 @@ class Ui_Offline_Analysis(object):
         self.SeriesItems = OfflineTree(self.PlotItem)
         self.SeriesItems.setObjectName(u"SeriesItems")
         self.SeriesItems.setMaximumSize(QSize(250, 16777215))
-        self.gridLayout_3.addWidget(self.SeriesItems, 0, 0, 1, 1)
 
         # manually added
         self.object_splitter = QSplitter(Qt.Horizontal)
         self.gridLayout.addWidget(self.object_splitter)
         self.object_splitter.addWidget(self.SeriesItems)
+
+
+        self.gridLayout_3.addWidget(self.SeriesItems, 0, 0, 1, 1)
 
 
         self.gridLayout_11.addLayout(self.gridLayout_3, 1, 0, 1, 1)
@@ -650,7 +667,7 @@ class Ui_Offline_Analysis(object):
 
         self.retranslateUi(Offline_Analysis)
 
-        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.offline_analysis_widgets.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Offline_Analysis)
@@ -723,18 +740,18 @@ class Ui_Offline_Analysis(object):
         self.plot_zoom.setText("")
         self.plot_move.setText("")
         self.plot_home.setText("")
-        self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"How To", None))
-        self.label.setText(QCoreApplication.translate("Offline_Analysis", u"Documentation", None))
-        self.AnalysisOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Analysis Options:", None))
+#if QT_CONFIG(tooltip)
+        self.blank_analysis_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Start a new analysis from scratch</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.blank_analysis_button.setText(QCoreApplication.translate("Offline_Analysis", u"Start Blank Analysis", None))
+        self.label_3.setText(QCoreApplication.translate("Offline_Analysis", u"View Results", None))
+        self.label.setText(QCoreApplication.translate("Offline_Analysis", u"New Blank Analysis", None))
+        self.label_2.setText(QCoreApplication.translate("Offline_Analysis", u"Modify Existing Analysis", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_8.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Open an exisiting analysis from the database and change parameters</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_8.setText(QCoreApplication.translate("Offline_Analysis", u"Open Analysis", None))
-#if QT_CONFIG(tooltip)
-        self.blank_analysis_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Start a new analysis from scratch</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.blank_analysis_button.setText(QCoreApplication.translate("Offline_Analysis", u"Blank Analysis", None))
-        self.open_analysis_results_button.setText(QCoreApplication.translate("Offline_Analysis", u"Result Viewer", None))
+        self.open_analysis_results_button.setText(QCoreApplication.translate("Offline_Analysis", u"View Results", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
     # retranslateUi
 

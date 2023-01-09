@@ -76,12 +76,16 @@ class MainWindow(QMainWindow, QtStyleTools):
       
     def button_connections(self):
         self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.toolButton_2)
-        self.home_buttons = (self.ui.configuration_home_2, self.ui.online_analysis_home_2, self.ui.offline_analysis_home_2, self.ui.database_viewer_home_2)
+        
         for i, button in enumerate(self.buttons):
             button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
-        for i, button in enumerate(self.home_buttons):
-            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i+1))
+        # home buttons 
+        self.ui.configuration_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 1))
+        self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
+        self.ui.database_viewer_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 4))
+        self.ui.home_logo.clicked.connect(self.open_bpe_webside)
+        self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
         self.ui.statistics.clicked.connect(self.initialize_database)
         self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
@@ -89,7 +93,62 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
         self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
         self.ui.maximize_button.clicked.connect(self.quit_application)
-        self.ui.home_logo.clicked.connect(self.open_bpe_webside)
+        
+
+    def insert_row_of_buttons(self,grid_layout: QGridLayout):
+        # Get the number of rows and columns in the grid
+        grid_layout = self.ui.gridLayout_4
+        button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis"]
+        r = grid_layout.rowCount()
+        # new buttons will be inserted in row 6
+        rows = 6
+        cols = grid_layout.columnCount()
+
+        if  grid_layout.itemAtPosition(rows, 1).widget().text() == button_txt[0]:
+            #remove the item
+            for col in range(1,cols):
+                widget_to_remove = grid_layout.itemAtPosition(rows, col).widget()
+                grid_layout.removeWidget(widget_to_remove)
+                widget_to_remove.deleteLater()
+                
+                widget_to_remove = grid_layout.itemAtPosition(rows+1, col).widget()
+                widget_to_add = widget_to_remove
+                grid_layout.removeWidget(widget_to_remove) 
+                #widget_to_remove.deleteLater() 
+                grid_layout.addWidget(widget_to_add,rows,col)            
+                 
+        else:
+            # move old columns to new row
+            for col in range(1,cols):
+                button =  grid_layout.itemAtPosition(rows, col).widget()
+
+                animation = QPropertyAnimation(button, b"geometry")
+                animation.setDuration(500)
+                animation.setStartValue(button.geometry())
+                animation.setEndValue(grid_layout.cellRect(rows, col))
+                easing_curve = QEasingCurve(QEasingCurve.Linear)
+                animation.setEasingCurve(easing_curve)
+                grid_layout.addWidget(button, rows + 1 ,col)
+                animation.start()
+                new_button = QToolButton()
+                new_button.setText(button_txt[col-1])
+                icon = QIcon()
+        
+                if col == 1:
+                    new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open.png", QSize(), QIcon.Normal, QIcon.Off)
+                if col == 2:
+                    new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/load_database.png", QSize(), QIcon.Normal, QIcon.Off)
+                if col == 3:
+                    new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_edit.png", QSize(), QIcon.Normal, QIcon.Off)
+                
+                new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; } QToolButton:hover{background-color: grey;}")
+                new_button.setIcon(icon)
+                new_button.setIconSize(QSize(100, 100))
+                new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                grid_layout.addWidget(new_button, rows, col)
 
     def open_bpe_webside(self):
         import webbrowser
