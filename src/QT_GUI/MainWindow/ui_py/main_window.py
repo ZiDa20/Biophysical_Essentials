@@ -119,8 +119,7 @@ class Ui_MainWindow(object):
 "\n"
 "background-image: url(../QT_GUI/Button/Logo/logo3.png);\n"
 "background-repeat:None;\n"
-"border: none;\n"
-"border-radius: 5px;\n"
+"border: 0px;\n"
 "\n"
 "\n"
 "}")

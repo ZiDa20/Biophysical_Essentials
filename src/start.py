@@ -32,10 +32,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.center() #place the MainWindow in the center
         self.setWindowTitle("Biophysical Essentials")
         
-        # Create a blur effect
-     
-        # Set the blur effect on the window
-       
         # Check the current OS
         if sys.platform != "darwin":
             print("Non Darwin Platform initialized")
@@ -70,9 +66,11 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.database.update_database_handler(self.local_database_handler)
         self.ui.online.update_database_handler(self.local_database_handler)
 
-        #darkmode implementation
+        #darkmode implementation 0 = white, 1 = dark
         self.default_mode = 1
         self.button_connections()
+
+        self.change_to_lightmode()
       
     def button_connections(self):
         self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.toolButton_2)
@@ -96,6 +94,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         
 
     def insert_row_of_buttons(self,grid_layout: QGridLayout):
+        """
+        Function to insert a row of buttons to the start up grid
+        """
         # Get the number of rows and columns in the grid
         grid_layout = self.ui.gridLayout_4
         button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis"]
@@ -116,6 +117,9 @@ class MainWindow(QMainWindow, QtStyleTools):
                 grid_layout.removeWidget(widget_to_remove) 
                 #widget_to_remove.deleteLater() 
                 grid_layout.addWidget(widget_to_add,rows,col)            
+
+            self.ui.offline_analysis_home_2.setStyleSheet(u"QToolButton{ min-width: 15em; min-height: 15em; background-color: transparent; border: 0px; }  QToolButton:hover{background-color: grey;}")
+    
                  
         else:
             # move old columns to new row
@@ -135,22 +139,41 @@ class MainWindow(QMainWindow, QtStyleTools):
                 icon = QIcon()
         
                 if col == 1:
-                    new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open.png", QSize(), QIcon.Normal, QIcon.Off)
+                    new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
                 if col == 2:
-                    new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/load_database.png", QSize(), QIcon.Normal, QIcon.Off)
+                    new_button.clicked.connect(self.start_new_offline_analysis_from_db)
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
                 if col == 3:
                     new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_edit.png", QSize(), QIcon.Normal, QIcon.Off)
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
                 
-                new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; } QToolButton:hover{background-color: grey;}")
+                
+                new_button.setStyleSheet(u"QToolButton{ background-color: #d9d9d9; border: 0px; } QToolButton:hover{background-color: grey;}")
                 new_button.setIcon(icon)
                 new_button.setIconSize(QSize(100, 100))
                 new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                 grid_layout.addWidget(new_button, rows, col)
 
+            self.ui.offline_analysis_home_2.setStyleSheet(u"QToolButton{ min-width: 15em; min-height: 15em; background-color: #d9d9d9; border: 0px; }  QToolButton:hover{background-color: grey;}")
+    
+    def start_new_offline_analysis_from_dir(self):
+        "start new offline analysis, therefore let the user choose a directory and add the data to the database"
+        self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
+        self.ui.notebook.setCurrentIndex(3)
+        self.ui.offline.open_directory()
+
+    def start_new_offline_analysis_from_db(self):
+        "start new offline analysis, therefore let the user choose a data from the database"
+        self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
+        self.ui.notebook.setCurrentIndex(3)
+        self.ui.offline.load_treeview_from_database()
+        
+
     def open_bpe_webside(self):
+        """
+        open the webside of BPE
+        """
         import webbrowser
         url = "https://www.google.com/"
         webbrowser.open(url, new=0, autoraise=True)
