@@ -31,12 +31,12 @@ class Frontend_Style():
                                 "QPushButton:hover{background-color: \"#54545a\";}"
                                   
                                   
-        self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; }\n" \
+        self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; color:black; }\n" \
                            "QPushButton{ padding: 10px 10px; " \
-                           "	        padding-left: 20px;" \
+                           "	         padding-left: 20px;" \
                            "             border None ;" \
                            "             border-radius:5px;" \
-                           "             color:#2986cc; " \
+                           "             color:black; " \
                            "             background-color: \"#e6e6e6\";}" \
                            "QPushButton:hover{ background-color: \"#2986cc\";} " \
                            "QDialog{background-color: \"#ffffff\"; }"

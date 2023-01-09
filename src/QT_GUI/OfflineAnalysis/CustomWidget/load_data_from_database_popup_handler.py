@@ -26,10 +26,11 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         self.available_labels = self.database_handler.get_available_experiment_label()
         self.checkbox_list = []
 
-        c = QCheckBox("All")
-        self.checkbox_list.append(c)
-        self.label_grid.addWidget(c, 0, 0)
-        c.stateChanged.connect(partial(self.checkbox_checked,c,"All"))
+        cba = QCheckBox("All")
+        self.checkbox_list.append(cba)
+        self.label_grid.addWidget(cba, 0, 0)
+        cba.stateChanged.connect(partial(self.checkbox_checked,cba,"All"))
+        self.all_cb = cba
 
         for i in self.available_labels:
             c = QCheckBox(i[0])
@@ -41,8 +42,10 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
     def checkbox_checked(self,checkbox,label,state):
         if state == Qt.Checked:
             for cb in self.checkbox_list:
-                cb.setChecked(False)
-            checkbox.setChecked(True)
+                if cb!= checkbox:
+                    cb.setChecked(False)
+                else:
+                    checkbox.setChecked(True)
         
         self.create_experiment_specific_visualization(label)
 
@@ -74,6 +77,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
         row = 0
         column = 0
+
         meta_data_columns_to_plot = ["species", "genotype","sex", "celltype", "condition", "individuum_id"]
         for column_name in meta_data_columns_to_plot:
             

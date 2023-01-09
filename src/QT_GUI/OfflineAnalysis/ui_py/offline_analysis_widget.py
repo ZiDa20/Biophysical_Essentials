@@ -294,17 +294,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
         
-        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
-        self.plot_home.clicked.connect(navigation.home)
-        self.plot_move.clicked.connect(navigation.pan)
-        self.plot_zoom.clicked.connect(navigation.zoom)
-        self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
+        #navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
+        #self.plot_home.clicked.connect(navigation.home)
+        #self.plot_move.clicked.connect(navigation.pan)
+        #self.plot_zoom.clicked.connect(navigation.zoom)
+        #self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
         # the dialog handler has further implementations to handle displayed lists etc
         self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
-        
+        # set light or dark mode
+        self.frontend_style.set_pop_up_dialog_style_sheet(self.load_data_from_database_dialog)
+ 
         self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
+        #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
+        self.load_data_from_database_dialog.all_cb.setChecked(True)
         self.load_data_from_database_dialog.exec_()
+        
+        
+        #self.load_data_from_database_dialog.all_cb.setChecked(True)
 
     def load_page_1_tree_view(self):
         """
@@ -481,6 +488,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog_grid.addWidget(confirm_series_selection_button, len(name_list) + 2, 0)
         dialog.setWindowTitle("Available Series To Be Analyzed")
         dialog.setWindowModality(Qt.ApplicationModal)
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.exec_()
 
 
