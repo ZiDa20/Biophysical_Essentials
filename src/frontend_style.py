@@ -34,12 +34,14 @@ class Frontend_Style():
         self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; color:black; }\n" \
                            "QPushButton{ padding: 10px 10px; " \
                            "	         padding-left: 20px;" \
-                           "             border None ;" \
+                           "             border: 1px;" \
+                           "             border-color: black;"\
                            "             border-radius:5px;" \
                            "             color:black; " \
                            "             background-color: \"#e6e6e6\";}" \
-                           "QPushButton:hover{ background-color: \"#2986cc\";} " \
-                           "QDialog{background-color: \"#ffffff\"; }"
+                           "QPushButton:hover{ background-color: grey;} " \
+                           "QDialog{background-color: \"#e6e6e6\"; }"\
+                           "QGroupBox:title{color:black;}" \
 
 
         self.dark_style = u"QWidget{ background-color: rgba(4,7,26, 200);\ } \n" \
