@@ -27,6 +27,22 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        # main window
+        #self.ui.progressBar = QProgressBar()
+        #self.ui.statusBar = Ui_MainWindow.statusBar()# add Status Bar to the App
+        #self.ui.statusBar.addPermanentWidget(self.progressBar)
+        #self.ui.progressBar.setFixedWidth(200)
+        #self.ui.progressBar.setAlignment(Qt.AlignLeft)
+
+
+        # offline analysis 
+        self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
+        self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
+        self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
+
+
+
         # Check if the program is launched to avoid resize event
         self._not_launched = True 
         self.center() #place the MainWindow in the center
@@ -36,7 +52,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if sys.platform != "darwin":
             print("Non Darwin Platform initialized")
             self.setAttribute(Qt.WA_TranslucentBackground)
-            self.setWindowFlag(Qt.FramelessWindowHint)
+            #self.setWindowFlag(Qt.FramelessWindowHint)
             GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
         
         # set the window geometry to the screen size
@@ -53,6 +69,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.frontend_style = self.frontend_style
         self.ui.offline.result_visualizer.frontend_style = self.frontend_style
 
+        self.ui.offline.set_splitter(self.ui.offline.object_splitter)
+
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
@@ -68,15 +86,21 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         #darkmode implementation 0 = white, 1 = dark
         self.default_mode = 1
-        self.button_connections()
+        #self.button_connections()
+
+        self.ui.side_left_menu.hide()
 
         self.change_to_lightmode()
+
+        window_size = self.geometry()
+        self.maximize(window_size)
+        #self.maximize()
       
-    def button_connections(self):
-        self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.toolButton_2)
+    #def button_connections(self):
+        #self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.toolButton_2)
         
-        for i, button in enumerate(self.buttons):
-            button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
+        #for i, button in enumerate(self.buttons):
+        #    button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
 
         # home buttons 
         self.ui.configuration_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 1))
@@ -85,77 +109,51 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
-        self.ui.statistics.clicked.connect(self.initialize_database)
-        self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
+        #self.ui.statistics.clicked.connect(self.initialize_database)
+        #self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
-        self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
-        self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
-        self.ui.maximize_button.clicked.connect(self.quit_application)
+        #self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
+        #self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
+        #self.ui.maximize_button.clicked.connect(self.quit_application)
         
 
     def insert_row_of_buttons(self,grid_layout: QGridLayout):
+    
         """
         Function to insert a row of buttons to the start up grid
         """
-        # Get the number of rows and columns in the grid
-        grid_layout = self.ui.gridLayout_4
-        button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis"]
-        r = grid_layout.rowCount()
-        # new buttons will be inserted in row 6
-        rows = 6
-        cols = grid_layout.columnCount()
 
-        if  grid_layout.itemAtPosition(rows, 1).widget().text() == button_txt[0]:
-            #remove the item
-            for col in range(1,cols):
-                widget_to_remove = grid_layout.itemAtPosition(rows, col).widget()
-                grid_layout.removeWidget(widget_to_remove)
-                widget_to_remove.deleteLater()
-                
-                widget_to_remove = grid_layout.itemAtPosition(rows+1, col).widget()
-                widget_to_add = widget_to_remove
-                grid_layout.removeWidget(widget_to_remove) 
-                #widget_to_remove.deleteLater() 
-                grid_layout.addWidget(widget_to_add,rows,col)            
+        if self.ui.side_left_menu.isHidden():
 
-            self.ui.offline_analysis_home_2.setStyleSheet(u"QToolButton{ min-width: 15em; min-height: 15em; background-color: transparent; border: 0px; }  QToolButton:hover{background-color: grey;}")
-    
-                 
+            self.ui.side_left_menu.show()
+
+            button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis"]
+
+            for col in range(0,3):
+
+                    new_button = QToolButton()
+                    new_button.setText(button_txt[col])
+                    icon = QIcon()
+            
+                    if col == 0:
+                        new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
+                        icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if col == 1:
+                        new_button.clicked.connect(self.start_new_offline_analysis_from_db)
+                        icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if col == 2:
+                        new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
+                        icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
+                    
+                    
+                    new_button.setStyleSheet(u"QToolButton{ background-color: #d9d9d9; border: 0px; } QToolButton:hover{background-color: grey;}")
+                    new_button.setIcon(icon)
+                    new_button.setIconSize(QSize(100, 100))
+                    new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    self.ui.gridLayout_3.addWidget(new_button, 0, col)
         else:
-            # move old columns to new row
-            for col in range(1,cols):
-                button =  grid_layout.itemAtPosition(rows, col).widget()
+            self.ui.side_left_menu.hide()
 
-                animation = QPropertyAnimation(button, b"geometry")
-                animation.setDuration(500)
-                animation.setStartValue(button.geometry())
-                animation.setEndValue(grid_layout.cellRect(rows, col))
-                easing_curve = QEasingCurve(QEasingCurve.Linear)
-                animation.setEasingCurve(easing_curve)
-                grid_layout.addWidget(button, rows + 1 ,col)
-                animation.start()
-                new_button = QToolButton()
-                new_button.setText(button_txt[col-1])
-                icon = QIcon()
-        
-                if col == 1:
-                    new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
-                if col == 2:
-                    new_button.clicked.connect(self.start_new_offline_analysis_from_db)
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
-                if col == 3:
-                    new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
-                
-                
-                new_button.setStyleSheet(u"QToolButton{ background-color: #d9d9d9; border: 0px; } QToolButton:hover{background-color: grey;}")
-                new_button.setIcon(icon)
-                new_button.setIconSize(QSize(100, 100))
-                new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                grid_layout.addWidget(new_button, rows, col)
-
-            self.ui.offline_analysis_home_2.setStyleSheet(u"QToolButton{ min-width: 15em; min-height: 15em; background-color: #d9d9d9; border: 0px; }  QToolButton:hover{background-color: grey;}")
     
     def start_new_offline_analysis_from_dir(self):
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
@@ -310,7 +308,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             # open the extension from the css file
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-            self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
+                
+            #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
             self.frontend_style.change_canvas_bright()
            
             
@@ -319,7 +318,9 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.apply_stylesheet(self, "hello.xml")
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-            self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
+
+            #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
+            
             self.frontend_style.change_canvas_dark()
             
 
