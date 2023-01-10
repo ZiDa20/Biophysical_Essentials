@@ -575,6 +575,8 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.SeriesItems = OfflineTree(self.PlotItem)
         self.SeriesItems.setObjectName(u"SeriesItems")
+        sizePolicy2.setHeightForWidth(self.SeriesItems.sizePolicy().hasHeightForWidth())
+        self.SeriesItems.setSizePolicy(sizePolicy2)
         self.SeriesItems.setMaximumSize(QSize(250, 16777215))
 
         self.gridLayout_3.addWidget(self.SeriesItems, 0, 0, 1, 1)

@@ -17,12 +17,13 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(629, 872)
+        Form.resize(786, 872)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
+        Form.setAutoFillBackground(True)
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -44,6 +45,7 @@ class Ui_Form(object):
         self.directory_tree_widget.setObjectName(u"directory_tree_widget")
         sizePolicy.setHeightForWidth(self.directory_tree_widget.sizePolicy().hasHeightForWidth())
         self.directory_tree_widget.setSizePolicy(sizePolicy)
+        self.directory_tree_widget.setAutoFillBackground(True)
         self.directory_tree_widget.setStyleSheet(u"QPushButton{\n"
 "background-repeat:None;\n"
 "background-color: transparent;\n"

@@ -65,12 +65,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # produced and set by start.py and shared between all subclasses
         self.frontend_style = None
         self.database_handler = None
-        self.offline_tree = SeriesItemTreeWidget(self.SeriesItems)
+        self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2)
         self.offline_manager = OfflineManager(progress, status)
         self.offline_tree.offline_manager = self.offline_manager
         self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
-        self.offline_tree.splitter = self.object_splitter
-        self.offline_tree.add_widget_to_splitter()
+
+        self.offline_tree.splitter = None
+        
 
         self.offline_analysis_widgets.setCurrentIndex(0)
 
@@ -99,7 +100,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
         self.edit_meta.clicked.connect(self.edit_metadata_analysis_id)
-        self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
+        #self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
         self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
@@ -107,13 +108,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.navigation_list = []
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
+        #self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
 
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))
         self.plot_move.clicked.connect(partial(self.navigation_rules, self.plot_move, "move"))
         self.plot_zoom.clicked.connect(partial(self.navigation_rules, self.plot_zoom, "zoom"))
 
+    def set_splitter(self, splitter):
+        self.offline_tree.splitter = splitter
+        self.offline_tree.add_widget_to_splitter()
 
     def navigation_rules(self, plot_button, action):
         """_summary_
@@ -294,11 +298,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
         
-        #navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
-        #self.plot_home.clicked.connect(navigation.home)
-        #self.plot_move.clicked.connect(navigation.pan)
-        #self.plot_zoom.clicked.connect(navigation.zoom)
-        #self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
+        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
+        self.plot_home.clicked.connect(navigation.home)
+        self.plot_move.clicked.connect(navigation.pan)
+        self.plot_zoom.clicked.connect(navigation.zoom)
+        self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
         # the dialog handler has further implementations to handle displayed lists etc
         self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
@@ -337,8 +341,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
-        index =  self.treebuild.selected_tree_view.model().index(5, 5, QModelIndex())
-        self.blank_analysis_tree_view_manager.click_qtreeview_cell(self.treebuild.selected_tree_view, index)
+        #index =  self.treebuild.selected_tree_view.model().index(5, 5, QModelIndex())
+        #self.blank_analysis_tree_view_manager.click_qtreeview_cell(self.treebuild.selected_tree_view, index)
 
     def load_recordings(self, progress_callback):
         """_summary_

@@ -1,7 +1,10 @@
 import sys
 import os
-from PySide6.QtWidgets import QMainWindow, QGraphicsBlurEffect
-from PySide6.QtCore import Qt, QPoint, QRect
+
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -27,6 +30,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
+        self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
+        self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
         # Check if the program is launched to avoid resize event
         self._not_launched = True 
         self.center() #place the MainWindow in the center
@@ -56,6 +63,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler()
+
+        self.ui.offline.set_splitter(self.ui.offline.object_splitter)
         
         #self.local_database_handler.database.execute("SET external_threads=1")
         if self.local_database_handler:
