@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'dz_offline_analysis_mz_layouted.ui'
+## Form generated from reading UI file 'offline_analysis_designer.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.1.1
 ##
