@@ -39,8 +39,7 @@ class Worker(QRunnable):
         try:
             result = self.fn(*self.args, **self.kwargs)
         except Exception as e:
-            print(e)
-            print("what happened here?")
+            print(f"The Analysis throwed an error: {e}")
             #traceback.print_exc()
             #exctype, value = sys.exc_info()[:2]
             #self.signals.error.emit((exctype, value, traceback.format_exc()))

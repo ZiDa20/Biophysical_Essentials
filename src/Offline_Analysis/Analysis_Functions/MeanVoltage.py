@@ -6,12 +6,6 @@ class MeanVoltage(SweepWiseAnalysisTemplate):
     function_name = 'mean_voltage'
     plot_type_options = ["Boxplot", "Violinplot"]
 
-    def __init__(self):
-        """Initializes the MeanVoltage Class by calling the SweepWiseAnalysisTemplate __init__ method
-        """
-        SweepWiseAnalysisTemplate.__init__(self)
-        
-
     @classmethod
     def specific_calculation(cls) -> float:
         """Calculates the mean voltage of the sliced data

@@ -46,6 +46,8 @@ from Offline_Analysis.tree_model_class import TreeModel
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
+
+from Offline_Analysis.FinalResultHolder import ResultHolder
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -66,6 +68,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style = None
         self.database_handler = None
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2)
+        self.final_result_holder = ResultHolder()
+      
         self.offline_manager = OfflineManager(progress, status)
         self.offline_tree.offline_manager = self.offline_manager
         self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
@@ -75,7 +79,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.offline_analysis_widgets.setCurrentIndex(0)
 
-        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree.SeriesItems, self.database_handler, self)
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree.SeriesItems, 
+                                                                 self.database_handler, 
+                                                                 self,
+                                                                 self.final_result_holder)
 
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
@@ -197,11 +204,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             csv_file.close()
 
     def update_database_handler_object(self, updated_object):
+        """_summary_: Should add the Database Handler Singleton
+
+        Args:
+            updated_object (database_handler): DuckDB Database Handler Class
+        """
         self.database_handler = updated_object
         self.offline_manager.database = updated_object
         self.result_visualizer.database_handler = updated_object
         self.offline_tree.database_handler = updated_object
-        
+        self.final_result_holder.database_handler = updated_object
         
     def edit_metadata_analysis_id(self):
         """ Popup Dialog to edit the metadata of the selected experiments 

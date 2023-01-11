@@ -4,7 +4,6 @@ import os
 import datetime
 import re
 import sys
-
 import raw_analysis as ra
 import heka_reader
 import numpy as np

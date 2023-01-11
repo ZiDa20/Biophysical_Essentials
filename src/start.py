@@ -330,12 +330,12 @@ class MainWindow(QMainWindow, QtStyleTools):
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
             self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
             self.frontend_style.change_canvas_dark()
-            
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
         #  make sure to have all popups  in the same changed theme color
         self.frontend_style.current_style=self.default_mode
+
 
     def init_offline_analysis(self):
         """Function to initialize the offline analysis"""

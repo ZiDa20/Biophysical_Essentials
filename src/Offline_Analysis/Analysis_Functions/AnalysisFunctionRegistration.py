@@ -8,6 +8,7 @@ from Offline_Analysis.Analysis_Functions.MeanVoltage import *
 from Offline_Analysis.Analysis_Functions.TimeToMin import *
 from Offline_Analysis.Analysis_Functions.TimeToMax import *
 from Offline_Analysis.Analysis_Functions.InputResistance import *
+from Offline_Analysis.Analysis_Functions.PeakFinding import *
 
 class AnalysisFunctionRegistration():
     """
@@ -25,10 +26,22 @@ class AnalysisFunctionRegistration():
         "Input Resistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
+        "Peak-Detection": PeakFinding
     }
 
     @classmethod
     def get_registered_analysis_class(cls,analysis_function_name):
+        """_summary_
+
+        Args:
+            analysis_function_name (_type_): _description_
+
+        Raises:
+            ValueError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         try:
             return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
         except KeyError:
@@ -36,12 +49,26 @@ class AnalysisFunctionRegistration():
 
     @classmethod
     def register_analysis_function(cls, analysis_function_name, analysis_function_class):
+        """_summary_
+
+        Args:
+            analysis_function_name (_type_): _description_
+            analysis_function_class (_type_): _description_
+        """
         cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name] = analysis_function_class
 
     @staticmethod
     def get_elements(recording_mode):
+        """_summary_
+
+        Args:
+            recording_mode (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["mean_voltage",  "Action Potential Fitting",
-                    "Rheobase-Detection", "RheoRamp-Detection", "Input Resistance"] # "Cluster",
+                    "Rheobase-Detection", "RheoRamp-Detection", "Input Resistance", "Peak-Detection"] # "Cluster",

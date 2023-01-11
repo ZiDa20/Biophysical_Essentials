@@ -1,4 +1,3 @@
-from tkinter import filedialog
 import heka_reader
 import numpy as np
 class OnlineAnalysisManager:

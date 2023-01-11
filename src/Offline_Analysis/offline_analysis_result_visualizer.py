@@ -23,7 +23,10 @@ class OfflineAnalysisResultVisualizer():
     @author dz, 13.07.2022
     """
 
-    def __init__(self, visualization_tab_widget, database: DuckDBDatabaseHandler, offline_analysis_widget):
+    def __init__(self, visualization_tab_widget, 
+                 database: DuckDBDatabaseHandler, 
+                 offline_analysis_widget, 
+                 final_result_holder):
         """_summary_
 
         Args:
@@ -36,6 +39,7 @@ class OfflineAnalysisResultVisualizer():
         self.database_handler = database
         self.canvas = None
         self.offline_analysis_widget = offline_analysis_widget
+        self.final_result_holder = final_result_holder
 
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
@@ -143,7 +147,15 @@ class OfflineAnalysisResultVisualizer():
             else:
                 plot_type = None
 
-        OfflinePlots(parent_widget, plot_type, self.canvas, result_table_names, self.database_handler, self.frontend_style, self.visualization_tab_widget, self.offline_analysis_widget)
+        OfflinePlots(parent_widget, 
+                     plot_type, 
+                     self.canvas, 
+                     result_table_names, 
+                     self.database_handler, 
+                     self.frontend_style, 
+                     self.visualization_tab_widget, 
+                     self.offline_analysis_widget,
+                     self.final_result_holder)
     
 
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):

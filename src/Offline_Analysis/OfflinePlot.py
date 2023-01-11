@@ -11,7 +11,17 @@ class OfflinePlots():
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
     Basis Analysis Functions
     """
-    def __init__(self,parent_widget, analysis_function, canvas, result_table_list: list, database_handler, frontend, SeriesItem, offline_analysis_widget):
+    def __init__(self,
+                 parent_widget, 
+                 analysis_function: str, 
+                 canvas, 
+                 result_table_list: list, 
+                 database_handler, 
+                 frontend, 
+                 SeriesItem, 
+                 offline_analysis_widget,
+                 final_result_holder):
+        
         """Initializing the Plotting class with canvas and axis
 
         Args:
@@ -21,8 +31,9 @@ class OfflinePlots():
             result_table_list (list): Analysis Function Result Table names
             database_handler (duckdb): DataBase Handler
             frontend (Frontend_Style): Frontend_Style Class that handles dark-light mode
+            final_result_holder: ResultHolder Class that holds the Final Output Data of the Offline Analysis
+
         """
-        
         self.SeriesItems = SeriesItem
         self.frontend = frontend
         self.canvas = canvas
@@ -34,9 +45,12 @@ class OfflinePlots():
         self.database_handler = database_handler
         self.style_plot()
         self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
+        self.set_logger()
+        self.result_holder = final_result_holder.analysis_result_dictionary # this retrieves the dictionary to fill the data in
+        # This should be implemented for the result tables to be integrated into the DataBase
+    
 
-
-    def set_loggger(self):
+    def set_logger(self):
         """Sets the logger for the Offline Analyiss Plotting
         """
         self.logger.setLevel(logging.INFO)
@@ -46,7 +60,6 @@ class OfflinePlots():
         self.logger.addHandler(handler)
 
     def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
-        
         """Retrieves the appropriate Analysis Function
 
         Args:
@@ -118,7 +131,6 @@ class OfflinePlots():
         self.logger.info("Created Boxplot successfully")
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = pd.DataFrame(boxplot_df)
-        parent_widget.export_data_frame = parent_widget.export_data_frame
     
     def simple_plot(self, parent_widget, result_table_list:list):
         """
@@ -356,5 +368,12 @@ class OfflinePlots():
                 self.SeriesItems.setCurrentItem(self.SeriesItems.selectedItems()[0].parent().child(0))
                 self.offline_analysis_widget.offline_analysis_result_tree_item_clicked()
 
-                
+    def add_data_frame_to_result_dictionary(self, dataframe: pd.DataFrame):
+        """_summary_
+
+        Args:
+            dataframe (_type_): _description_
+        """
+        dataframe["analysis_id"] = self.database_handler.analysis_id
+        self.result_holder.append(dataframe)              
         
