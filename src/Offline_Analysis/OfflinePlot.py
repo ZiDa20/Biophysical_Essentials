@@ -41,14 +41,18 @@ class OfflinePlots():
         self.ax = self.canvas.figure.subplots()
         self.frontend.ax.append(self.ax)
         self.frontend.canvas = self.canvas
+        self.current_meta_data_column = None
+        
+        # reference the needed classes
         self.offline_analysis_widget = offline_analysis_widget
         self.database_handler = database_handler
+        self.result_holder = final_result_holder.analysis_result_dictionary
         self.style_plot()
         self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
         self.set_logger()
-        self.result_holder = final_result_holder.analysis_result_dictionary # this retrieves the dictionary to fill the data in
+         # this retrieves the dictionary to fill the data in
         # This should be implemented for the result tables to be integrated into the DataBase
-    
+      
 
     def set_logger(self):
         """Sets the logger for the Offline Analyiss Plotting
@@ -70,26 +74,25 @@ class OfflinePlots():
         self.logger.info("Retrieving analysis function")
         # code goes here
         
-        try:
-            self.plot_dictionary = {"Boxplot": self.make_boxplot,
-                                    "No Split": self.simple_plot, 
-                                    "Split by Meta Data": self.plot_mean_per_meta_data,
-                                    "Rheobase Plot": self.rheobase_plot,
-                                    "Sweep Plot": self.single_rheobase_plot,
-                                    "Rheoramp-AUC": self.rheoramp_plot,
-                                    "Rheoramp-Single": self.rheoramp_single_plot,
-                                    "Action Potential Fitting": self.ap_fitting_plot,
-                                    "Linear Regression": self.regression_plot,
-                                    "PCA Plot": self.pca_plot
-                                    }
-
-        # retrieve the appropiate plot from the combobox
-            self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list)
-            self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
-        except Exception as e:
-            self.logger.error(f"An error occurred while trying to analyze the following function: {analysis_function}, function is not available: {e}")
-          
+        self.plot_dictionary = {"Boxplot": self.make_boxplot,
+                                "No Split": self.simple_plot, 
+                                "Split by Meta Data": self.plot_mean_per_meta_data,
+                                "Rheobase Plot": self.rheobase_plot,
+                                "Sweep Plot": self.single_rheobase_plot,
+                                "Rheoramp-AUC": self.rheoramp_plot,
+                                "Rheoramp-Single": self.rheoramp_single_plot,
+                                "Action Potential Fitting": self.ap_fitting_plot,
+                                "Linear Regression": self.regression_plot,
+                                "PCA Plot": self.pca_plot
+                                }
+
+    # retrieve the appropiate plot from the combobox
+        if analysis_function == "Violinplot":
+            self.violin = True
+        self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list)
+        self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
+        
     def style_plot(self):
         
         """Plot Styling Class, this can be used for general changes of the plot visualization
@@ -114,12 +117,23 @@ class OfflinePlots():
         """
         boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
         
+        if self.current_meta_data_column:
+            boxplot_df["meta_data"] = boxplot_df[self.current_meta_data_column]
+        else:
+            boxplot_df["meta_data"] = boxplot_df["experiment_name"]
         
-        sns.boxplot(data = boxplot_df, 
+        if self.violin:
+            sns.violinplot(data = boxplot_df, 
                     x="meta_data", 
                     y = "values",  
                     ax = self.ax, 
                     width = 0.5)
+        else:
+            sns.boxplot(data = boxplot_df, 
+                        x="meta_data", 
+                        y = "values",  
+                        ax = self.ax, 
+                        width = 0.5)
         
         sns.swarmplot(data = boxplot_df, 
                       x="meta_data", 
@@ -130,7 +144,8 @@ class OfflinePlots():
         
         self.logger.info("Created Boxplot successfully")
         self.canvas.figure.tight_layout()
-        parent_widget.export_data_frame = pd.DataFrame(boxplot_df)
+        parent_widget.export_data_frame = boxplot_df
+        self.add_data_frame_to_result_dictionary(boxplot_df)
     
     def simple_plot(self, parent_widget, result_table_list:list):
         """

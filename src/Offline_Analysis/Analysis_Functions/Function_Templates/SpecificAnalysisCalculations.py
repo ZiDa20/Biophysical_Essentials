@@ -53,17 +53,19 @@ class SpecificAnalysisFunctions():
         
         result_table_list = tuple(result_table_list)
         
-        q = f'select * from global_meta_data where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
+        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from ' \
+                f'experiment_series where Sweep_Table_Name IN (select sweep_table_name from results where ' \
                 f'specific_result_table_name IN {result_table_list}))'
                 
                 
         meta_data = database.get_data_from_database(database.database, q,fetch_mode = 2)
     
+        meta_data = meta_data.replace("None", np.nan)
+        #meta_data = meta_data.dropna(axis='columns', how ='all').drop("analysis_id")
         boxplot_df = pd.DataFrame()
         boxplot_df["values"] = x_list
         boxplot_df["experiment_name"] = experiment_name_list
-        
+        boxplot_df = pd.merge(boxplot_df, meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         return boxplot_df
         # no nan handling required since sweeps without an AP are not stored in the dataframe
 
