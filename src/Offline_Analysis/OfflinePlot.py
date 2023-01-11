@@ -47,13 +47,15 @@ class OfflinePlots():
         self.offline_analysis_widget = offline_analysis_widget
         self.database_handler = database_handler
         self.result_holder = final_result_holder.analysis_result_dictionary
+        self.custom_plot = None
+        self.holded_dataframe = None
         self.style_plot()
         self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
         self.set_logger()
          # this retrieves the dictionary to fill the data in
         # This should be implemented for the result tables to be integrated into the DataBase
       
-
+    
     def set_logger(self):
         """Sets the logger for the Offline Analyiss Plotting
         """
@@ -63,6 +65,7 @@ class OfflinePlots():
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
+    
     def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
         """Retrieves the appropriate Analysis Function
 
@@ -90,7 +93,8 @@ class OfflinePlots():
     # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
-        self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list)
+        selected_meta_data = self.database_handler.get_selected_meta_data()
+        self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list, selected_meta_data)
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
     def style_plot(self):
@@ -106,7 +110,7 @@ class OfflinePlots():
         self.frontend.change_canvas_dark()
         self.logger.info("Styling the Plot ended")
 
-    def make_boxplot(self,parent_widget, result_table_list: list):
+    def make_boxplot(self,parent_widget, result_table_list: list, selected_meta_data = None):
         
         """Specific Function to draw Boxplots from long table formats
         of different Analysis Function
@@ -115,15 +119,29 @@ class OfflinePlots():
             parent_widget (_type_): _description_
             result_table_list (list): Result Table List of the specific Analysis Function
         """
-        boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-        
-        if self.current_meta_data_column:
-            boxplot_df["meta_data"] = boxplot_df[self.current_meta_data_column]
+
+        if self.holded_dataframe is not None:
+            boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
+            
+            if selected_meta_data:
+                boxplot_df["meta_data"] = boxplot_df[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                boxplot_df["meta_data"] = boxplot_df["experiment_name"]
+
+            self.boxplot_from_template(parent_widget, boxplot_df)
+
         else:
-            boxplot_df["meta_data"] = boxplot_df["experiment_name"]
-        
-        if self.violin:
-            sns.violinplot(data = boxplot_df, 
+
+            self.boxplot_from_template(parent_widget, boxplot_df)
+
+    def boxplot_from_template(self, parent_widget, boxplot_df):
+        """Creates a boxplot from a template
+
+        Args:
+            boxplot_df (_type_): _description_
+        """
+         if self.violin:
+                sns.violinplot(data = boxplot_df, 
                     x="meta_data", 
                     y = "values",  
                     ax = self.ax, 
@@ -146,8 +164,9 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = boxplot_df
         self.add_data_frame_to_result_dictionary(boxplot_df)
-    
-    def simple_plot(self, parent_widget, result_table_list:list):
+
+
+    def simple_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
         """
         Plot all data without incorporating meta data groups
         :param parent_widget: the widget to which the plot is added
@@ -178,7 +197,7 @@ class OfflinePlots():
 
         parent_widget.export_data_frame = pivoted_table
 
-    def plot_mean_per_meta_data(self, parent_widget, result_table_list: list):
+    def plot_mean_per_meta_data(self, parent_widget, result_table_list: list, selected_meta_data = None):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
         :param parent_widget: the widget to which the plot is added
@@ -211,7 +230,7 @@ class OfflinePlots():
 
         parent_widget.export_data_frame = pivoted_table
 
-    def rheobase_plot(self, parent_widget, result_table_list:list):
+    def rheobase_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
         """Plotting Function to draw rheobase boxplot into the OfflineAnalysisResultAnalyzer
 
         Args:
@@ -227,7 +246,7 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = plot_dataframe
         
-    def single_rheobase_plot(self, parent_widget, result_table_list:list):
+    def single_rheobase_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
         """Creates Plots for single rheobase calculation --> stepplot
 
         Args:
@@ -242,7 +261,7 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = plot_dataframe
 
-    def rheoramp_plot(self, parent_widget, result_table_list: list):
+    def rheoramp_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
         """Creates Lineplot and boxplot for Rheoramp Protocols
 
         Args:
@@ -258,7 +277,7 @@ class OfflinePlots():
         self.ax.autoscale()
         parent_widget.export_data_frame = plot_dataframe
 
-    def rheoramp_single_plot(self, parent_widget, result_table_list):
+    def rheoramp_single_plot(self, parent_widget, result_table_list, selected_meta_data = None):
         """_summary_
 
         Args:
@@ -281,7 +300,7 @@ class OfflinePlots():
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         parent_widget.export_data_frame = plot_dataframe
 
-    def ap_fitting_plot(self, parent_widget, result_table_list: list):
+    def ap_fitting_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
         """Should Create the Heatmap for each Fitting Parameter
         calculated by the APFitting Procedure
         
@@ -299,7 +318,7 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
         parent_widget.export_data_frame = plot_dataframe
        
-    def regression_plot(self, parent_widget, result_table_list: list):
+    def regression_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
         """Draws a Regression line which determines the slope of the 
 
         Args:
@@ -311,7 +330,7 @@ class OfflinePlots():
         g.set_xticklabels(g.get_xticklabels(),rotation=45)
         parent_widget.export_data_frame = plot_dataframe
     
-    def pca_plot(self, parent_widget, result_table_list: list):
+    def pca_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
         print("needs to be implemented")
     
     def on_click(self, event, annot):

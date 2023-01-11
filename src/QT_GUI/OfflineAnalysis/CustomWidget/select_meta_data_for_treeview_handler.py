@@ -114,7 +114,7 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
 
     def finish_dialog(self,checkbox_list,name_list):
         print("have to close ")
-        print(name_list)
+        print(name_list) 
         meta_data_df = pd.DataFrame(columns=["table", "column", "values"])
 
         for cb in checkbox_list:
@@ -124,17 +124,19 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                 meta_data_df = pd.concat( [meta_data_df, pd.DataFrame({"table":dt[0], "column":dt[1], "values":[dt[2]]}) ] )
 
         print(meta_data_df)
+        meta_data_df["offline_analysis_id"] = self.database_handler.analysis_id
+        meta_data_df["analysis_function_id"] = -1
         self.close()
 
         table_name = "meta_data_" + str(self.database_handler.analysis_id)
         # in case of re-click on the dialog and new meta data selection the table will already exist.
         try:
-            self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_df')
-            q = f'update offline_analysis set selected_meta_data = \'{table_name}\' where analysis_id = {self.database_handler.analysis_id}'
-            self.database_handler.database.execute(q)
+            self.database_handler.database.register("meta_data_df", meta_data_df)
+            self.database_handler.database.execute(f'INSERT INTO "selected_meta_data" FROM meta_data_df')
         except duckdb.CatalogException as e:
-            self.database_handler.database.execute(f'DROP TABLE {table_name}')
-            self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_df')
+            print(f"TreeHandler {e}")
+            #self.database_handler.database.execute(f'DROP TABLE {table_name}')
+            #self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_df')
             # no need to update again
 
         self.treeview_manager.update_treeviews(self.plot_widget_manager)

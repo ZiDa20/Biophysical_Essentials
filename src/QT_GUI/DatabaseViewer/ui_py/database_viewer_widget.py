@@ -71,26 +71,34 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         q = """SHOW TABLES"""
         tables_names = self.database.execute(q).fetchall() 
 
-        self.table_dictionary = {"Result Table": [],"Raw signal" : [], "Generator Tables":[], "Meta Table": [], "Experiment": [], "Analysis Table":[]}
+        self.table_dictionary = {"Result Table": [],"Raw signal" : [], "Generator Tables":[], "Meta Table": [],"Selected Meta":[], "Experiment": [], "Analysis Table":[]}
         
         # for each table, create a button in a dropdown list
         # connect the button to a function plotting the table
-        button_list = []
         for l in range (len(tables_names)):
             table_name = tables_names[l][0]
 
             if "imon_signal" in table_name:
                 self.table_dictionary["Raw signal"].append(table_name)
+                continue
             if "imon_meta" in table_name:
                 self.table_dictionary["Meta Table"].append(table_name)
+                continue
+            if "meta_data" in table_name:
+                self.table_dictionary["Selected Meta"].append(table_name)
+                continue
             if ("experiment" in table_name) or ("global" in table_name):
                 self.table_dictionary["Experiment"].append(table_name)
+                continue
             if "analysis" in table_name and "result" not in table_name:
                 self.table_dictionary["Analysis Table"].append(table_name)
+                continue
             if "pgf" in table_name:
                 self.table_dictionary["Generator Tables"].append(table_name)
+                continue
             if "results" in table_name:
                 self.table_dictionary["Result Table"].append(table_name)
+                continue
 
         # create a button for each table
         self.retrieve_tables("Analysis Table", True)

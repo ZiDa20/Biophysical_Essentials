@@ -93,7 +93,7 @@ class Ui_result_plot_visualizer(object):
 
         self.verticalLayout.addWidget(self.split_data_label)
 
-        self.split_data_combo_box = QComboBox(self.Control_button)
+        self.split_data_combo_box = QPushButton(self.Control_button)
         self.split_data_combo_box.setObjectName(u"split_data_combo_box")
         sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
@@ -176,7 +176,7 @@ class Ui_result_plot_visualizer(object):
         self.specific_plot_box.setTitle(QCoreApplication.translate("result_plot_visualizer", u"GroupBox", None))
         self.Control_button.setTitle(QCoreApplication.translate("result_plot_visualizer", u"Controls", None))
         self.plot_type.setText(QCoreApplication.translate("result_plot_visualizer", u"Plot Type:", None))
-        self.split_data_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Split Data:", None))
+        self.split_data_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Change Metadata:", None))
         self.label.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Data:", None))
         self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"     Save Data", None))
         self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"    Save Plot", None))
@@ -188,8 +188,6 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-
-
         ## manually added
         self.analysis_id = None
         self.analysis_function_id = None
@@ -197,4 +195,7 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         self.series_name = None
         # object where plot data will be stored to be exported easily
         self.export_data_frame = None
+)
+
+        
 

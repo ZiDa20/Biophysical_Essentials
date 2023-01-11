@@ -1,53 +1,49 @@
-###############################################################################
-## Form generated from reading UI file 'offline_analysis_main_widget.ui'
-##
-## Created by: Qt User Interface Compiler version 6.1.1
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
-import numpy as np
+
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
-from Offline_Analysis.offline_analysis_manager import OfflineManager
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
-from treeview_manager import TreeViewManager
-from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
-from functools import partial
-from plot_widget_manager import PlotWidgetManager
-from raw_analysis import AnalysisRaw
-from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
-import csv
-from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
-from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 from PySide6.QtCore import QThreadPool
+
+from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
+from treeview_manager import TreeViewManager
+from plot_widget_manager import PlotWidgetManager
+
+import numpy as np
+from scipy import stats
 from Worker import Worker
-from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
-from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
-from PostSql_Handler import PostSqlHandler
-from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
-import matplotlib
+
+import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
-from Pandas_Table import PandasTable
 import pandas as pd
+from functools import partial
+
+from PostSql_Handler import PostSqlHandler
+from Pandas_Table import PandasTable
+from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
+from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
+from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_options_pop_up_handler import Select_Meta_Data_Options_Pop_Up
+from Offline_Analysis.offline_analysis_manager import OfflineManager
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
+from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
+from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
+
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
-from animated_ap import AnimatedAP
-from scipy import stats
-import copy
 
+from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+from animated_ap import AnimatedAP
 from Offline_Analysis.tree_model_class import TreeModel
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
-
 from Offline_Analysis.FinalResultHolder import ResultHolder
+
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -107,7 +103,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
         self.edit_meta.clicked.connect(self.edit_metadata_analysis_id)
-        #self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
+        self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
         self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
@@ -115,7 +111,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.navigation_list = []
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        #self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
+        self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
 
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))

@@ -17,6 +17,7 @@ import pandas as pd
 from ABFclass import AbfReader
 from plot_widget_manager import PlotWidgetManager
 from Offline_Analysis.tree_model_class import TreeModel
+import itertools
 
 
 class TreeViewManager():
@@ -272,11 +273,10 @@ class TreeViewManager():
         """
 
         # create a dataframe of parents (assigned to meta data groups if selected)
-        q = f'select selected_meta_data from offline_analysis where analysis_id = {self.database_handler.analysis_id}'
-        table_name = self.database_handler.database.execute(q).fetchdf()
-        table_name = table_name["selected_meta_data"].values.tolist()[0]
+        q = f'select table_name, condition_column, conditions from selected_meta_data where offline_analysis_id={self.database_handler.analysis_id}'
+        table_name = self.database_handler.database.execute(q).fetchdf() # gets the table
 
-        if table_name is not np.nan:
+        if not table_name.empty:
             return self.add_experiments_series_sweeps_to_meta_data_label(table_name, discarded_state, series_name)
         else:
             experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
@@ -535,14 +535,12 @@ class TreeViewManager():
 
         # Recursive case: if the input lists are not empty, create a list of strings by
         # combining the first item in each list with the strings created from the remaining lists
+        subset = [i.strip('][').split(', ') for i in meta_data_values]
+        r = len(subset)
+        combinations = list(itertools.product(*subset))
+        combinations = ["::".join(i) for i in combinations]
 
-        result = []
-        for item in meta_data_values[0]:
-            for string in self.create_meta_data_combinations(meta_data_values[1:]):
-                result.append(item + "::" + string)
-                print(result)
-
-        return result
+        return combinations
 
     def create_treeview_with_meta_data_parents(self, meta_data_table): 
 
@@ -553,7 +551,7 @@ class TreeViewManager():
         """
         
         # list of lists of meta data tuples per column and table
-        meta_data_values = meta_data_table["values"].values.tolist()
+        meta_data_values = meta_data_table["conditions"].values.tolist()
         combinations = self.create_meta_data_combinations(meta_data_values)
    
         # Create an empty DataFrame with the necessary columns
@@ -567,15 +565,7 @@ class TreeViewManager():
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
         for c in combinations:
 
-            # remove the last :: from the string
-            tmp = c.split("::")
-            c = None
-            for m in range(0,len(tmp)-1):
-                if c:
-                    c = c + "::" + tmp[m] 
-                else:
-                    c = tmp[m]
-
+        
             # Create query strings for each table, always reset them 
             #experiment_series_query = f' select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where discarded = {discarded_state}'
             global_meta_data_query = f'select experiment_name from {GLOBAL_META_DATA_TABLE} where experiment_label = \'{self.selected_meta_data_list[0]}\''
@@ -590,17 +580,17 @@ class TreeViewManager():
             
             for index,row in meta_data_table.iterrows():
                 
-                if row["table"] ==  GLOBAL_META_DATA_TABLE:
+                if row["table_name"] ==  GLOBAL_META_DATA_TABLE:
                     # multiple columns are available for global meta data. 
                     # therefore table can appear in multiple rows and therefore I have to append
-                    global_meta_data_query =  global_meta_data_query + f' and {row["column"]} = \'{meta_data_selections[index]}\' '
-                if row["table"] ==  EXPERIMENT_SERIES_TABLE:
+                    global_meta_data_query =  global_meta_data_query + f' and {row["condition_column"]} = \'{meta_data_selections[index]}\' '
+                if row["table_name"] ==  EXPERIMENT_SERIES_TABLE:
                     # only one column is available
                     # can only appear once
-                    experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row["column"]} = \'{meta_data_selections[index]}\''
+                    experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row["condition_column"]} = \'{meta_data_selections[index]}\''
             
             # check combination of tables
-            if list(meta_data_table["table"].unique()) == [GLOBAL_META_DATA_TABLE]:
+            if list(meta_data_table["table_name"].unique()) == [GLOBAL_META_DATA_TABLE]:
                 experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf() 
             else:
                 experiment_series_query = experiment_series_query + f' intersect ({global_meta_data_query})'
@@ -625,11 +615,9 @@ class TreeViewManager():
         
         return df 
 
-    def add_experiments_series_sweeps_to_meta_data_label(self, table_name, discarded_state, series_name = None):
+    def add_experiments_series_sweeps_to_meta_data_label(self, meta_data_table, discarded_state, series_name = None):
 
-        # Retrieve all rows from the specified meta data table
-        query = f'select * from {table_name}'
-        meta_data_table = self.database_handler.database.execute(query).fetchdf()
+    
 
         # get a dataframe with hierarchical strcutured meta data items and exoeriments
         df = self.create_treeview_with_meta_data_parents(meta_data_table)
@@ -641,13 +629,13 @@ class TreeViewManager():
             
             series_meta_data = None
             
-            if "experiment_series" in meta_data_table["table"].values.tolist():
+            if "experiment_series" in meta_data_table["table_name"].values.tolist():
 
                 # get the parent
                 label = df[df.identifier == experiment_row["parent"]]["item_name"].values[0]
                 # split at ::
                 label = label.split("::")
-                series_meta_data = label[meta_data_table["table"].values.tolist().index("experiment_series")]
+                series_meta_data = label[meta_data_table["table_name"].values.tolist().index("experiment_series")]
           
     
             df, series_table = self.add_series_to_treeview(df, experiment_row, discarded_state, series_name, series_level, series_meta_data)

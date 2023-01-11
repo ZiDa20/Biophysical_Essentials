@@ -87,24 +87,24 @@ class OfflineAnalysisResultVisualizer():
         for analysis in list_of_analysis:
 
             # create new custom plot visualizer and parametrize data
-            custom_plot_widget = ResultPlotVisualizer()
+            self.custom_plot_widget = ResultPlotVisualizer()
 
-            custom_plot_widget.analysis_id = analysis_id
-            custom_plot_widget.analysis_function_id = analysis[0]
-            custom_plot_widget.series_name = series
+            self.custom_plot_widget.analysis_id = analysis_id
+            self.custom_plot_widget.analysis_function_id = analysis[0]
+            self.custom_plot_widget.series_name = series
 
             analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
-            custom_plot_widget.analysis_name = analysis_name
+            self.custom_plot_widget.analysis_name = analysis_name
 
-            custom_plot_widget.analysis_name = analysis_name
+            self.custom_plot_widget.analysis_name = analysis_name
 
-            custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
+            self.custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
 
-            custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
-            custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
+            self.custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, self.custom_plot_widget))
+            self.custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,self.custom_plot_widget))
 
             # fill the plot widget with analysis specific data
-            self.single_analysis_visualization(custom_plot_widget)
+            self.single_analysis_visualization(self.custom_plot_widget)
 
             # widgets per row = 2
 
@@ -113,7 +113,7 @@ class OfflineAnalysisResultVisualizer():
 
             print("x pos widget = ", widget_x_pos)
             print("y pos widget = ", widgte_y_pos)
-            offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
+            offline_tab.OfflineResultGrid.addWidget(self.custom_plot_widget, widget_x_pos, widgte_y_pos)
 
         # after all plots have been added
 
@@ -147,7 +147,7 @@ class OfflineAnalysisResultVisualizer():
             else:
                 plot_type = None
 
-        OfflinePlots(parent_widget, 
+        self.offlineplot = OfflinePlots(parent_widget, 
                      plot_type, 
                      self.canvas, 
                      result_table_names, 
@@ -156,7 +156,18 @@ class OfflineAnalysisResultVisualizer():
                      self.visualization_tab_widget, 
                      self.offline_analysis_widget,
                      self.final_result_holder)
+
+        self.offlineplot.tab_widget = self.custom_plot_widget
     
+
+    def handle_metadata_click(self):
+        """
+        Handle the click on the metadata button
+        @return: None
+        @author dz, 13.07.2022
+        """
+        self.metadata_widget = MetadataWidget(self.database_handler, self.analysis_id)
+        self.metadata_widget.show()
 
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
         """

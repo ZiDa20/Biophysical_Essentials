@@ -22,9 +22,7 @@ class PeakFinding(object):
 
     @classmethod
     def calculate_results(cls):
-    
-        print("running rheoramp calculation")
-        
+            
         series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(
             cls.series_name)
 
@@ -66,6 +64,7 @@ class PeakFinding(object):
             # write result_data_frame into database
 
             if ap_window:
+                # check if there is 
                 result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak"])
 
                 new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,

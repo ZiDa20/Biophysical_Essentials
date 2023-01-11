@@ -4,11 +4,10 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis im
 import array
 from sklearn.preprocessing import StandardScaler
 
-
 class SpecificAnalysisFunctions():
     
     @staticmethod
-    def boxplot_calc(result_table_list:list, database, metadata_column: str = ["condition"]):
+    def boxplot_calc(result_table_list:list, database):
         """Creates the Data for the boxplot --> long table from the Result Tables
 
         Args:
@@ -22,21 +21,6 @@ class SpecificAnalysisFunctions():
         x_list =[] # make an array for the data
         experiment_name_list = []
         
-        # get the meta data table that is stored in the database
-		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
-        try:
-            q = f'select selected_meta_data from offline_analysis where analysis_id = {database.analysis_id} ' 
-            table_name = database.database.execute(q).fetchdf()
-            table_name = table_name["selected_meta_data"].values[0]
-            q = f'select * from {table_name}'
-            selected_meta_data = database.database.execute(q).fetchdf()
-            
-        except Exception as e:
-            if e == 0:
-                print("Error: No meta data found")
-			
-            print("Error in boxplot calc " , e)
-
         for table in result_table_list:
             database.database.execute(f'select * from {table}')
             query_data_df = database.database.fetchdf()
@@ -61,7 +45,9 @@ class SpecificAnalysisFunctions():
         meta_data = database.get_data_from_database(database.database, q,fetch_mode = 2)
     
         meta_data = meta_data.replace("None", np.nan)
-        #meta_data = meta_data.dropna(axis='columns', how ='all').drop("analysis_id")
+        meta_data = meta_data.dropna(axis='columns', how ='all')
+
+
         boxplot_df = pd.DataFrame()
         boxplot_df["values"] = x_list
         boxplot_df["experiment_name"] = experiment_name_list
@@ -278,7 +264,7 @@ class SpecificAnalysisFunctions():
 
         return dataframe, z_score_df
 
-    def pca_calc(result_table_list:list, databaes):
+    def pca_calc(result_table_list:list, database):
         """Calculates the 1st and 2nd Principal Component of the queried 
         data --> e.g. Action Potential Parameters
 
