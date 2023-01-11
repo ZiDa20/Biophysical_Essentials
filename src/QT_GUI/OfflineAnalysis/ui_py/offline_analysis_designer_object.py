@@ -15,7 +15,6 @@ from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
 
-
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
@@ -49,73 +48,40 @@ class Ui_Offline_Analysis(object):
         self.frame.setFrameShadow(QFrame.Raised)
         self.gridLayout_13 = QGridLayout(self.frame)
         self.gridLayout_13.setObjectName(u"gridLayout_13")
-        self.gridLayout_22 = QGridLayout()
-        self.gridLayout_22.setObjectName(u"gridLayout_22")
-        self.label_7 = QLabel(self.frame)
-        self.label_7.setObjectName(u"label_7")
-        font = QFont()
-        font.setPointSize(10)
-        self.label_7.setFont(font)
+        self.line_6 = QFrame(self.frame)
+        self.line_6.setObjectName(u"line_6")
+        self.line_6.setFrameShape(QFrame.VLine)
+        self.line_6.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_22.addWidget(self.label_7, 0, 0, 1, 1, Qt.AlignHCenter|Qt.AlignVCenter)
-
-        self.gridLayout_30 = QGridLayout()
-        self.gridLayout_30.setObjectName(u"gridLayout_30")
-        self.go_back_button = QPushButton(self.frame)
-        self.go_back_button.setObjectName(u"go_back_button")
-        self.go_back_button.setMinimumSize(QSize(40, 40))
-        self.go_back_button.setMaximumSize(QSize(50, 503))
-        self.go_back_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/back.png);")
-
-        self.gridLayout_30.addWidget(self.go_back_button, 0, 0, 1, 1)
-
-        self.fo_forward_button = QPushButton(self.frame)
-        self.fo_forward_button.setObjectName(u"fo_forward_button")
-        self.fo_forward_button.setMinimumSize(QSize(40, 40))
-        self.fo_forward_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/forward.png);")
-
-        self.gridLayout_30.addWidget(self.fo_forward_button, 0, 1, 1, 1)
-
-
-        self.gridLayout_22.addLayout(self.gridLayout_30, 1, 0, 1, 1)
-
-
-        self.gridLayout_13.addLayout(self.gridLayout_22, 0, 0, 2, 1)
+        self.gridLayout_13.addWidget(self.line_6, 0, 10, 2, 1)
 
         self.line_2 = QFrame(self.frame)
         self.line_2.setObjectName(u"line_2")
         self.line_2.setFrameShape(QFrame.VLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_13.addWidget(self.line_2, 0, 3, 2, 1)
-
-        self.line_6 = QFrame(self.frame)
-        self.line_6.setObjectName(u"line_6")
-        self.line_6.setFrameShape(QFrame.VLine)
-        self.line_6.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_13.addWidget(self.line_6, 0, 9, 2, 1)
+        self.gridLayout_13.addWidget(self.line_2, 0, 4, 2, 1)
 
         self.line = QFrame(self.frame)
         self.line.setObjectName(u"line")
         self.line.setFrameShape(QFrame.VLine)
         self.line.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_13.addWidget(self.line, 0, 11, 2, 1)
+        self.gridLayout_13.addWidget(self.line, 0, 12, 2, 1)
 
         self.line_4 = QFrame(self.frame)
         self.line_4.setObjectName(u"line_4")
         self.line_4.setFrameShape(QFrame.VLine)
         self.line_4.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_13.addWidget(self.line_4, 0, 13, 2, 1)
+        self.gridLayout_13.addWidget(self.line_4, 0, 14, 2, 1)
 
         self.line_5 = QFrame(self.frame)
         self.line_5.setObjectName(u"line_5")
         self.line_5.setFrameShape(QFrame.VLine)
         self.line_5.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_13.addWidget(self.line_5, 0, 1, 2, 1)
+        self.gridLayout_13.addWidget(self.line_5, 0, 2, 2, 1)
 
         self.groupBox_8 = QGroupBox(self.frame)
         self.groupBox_8.setObjectName(u"groupBox_8")
@@ -146,24 +112,7 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_33.addLayout(self.gridLayout_34, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.groupBox_8, 0, 6, 2, 1)
-
-        self.SweepLevel = QGroupBox(self.frame)
-        self.SweepLevel.setObjectName(u"SweepLevel")
-        self.gridLayout_31 = QGridLayout(self.SweepLevel)
-        self.gridLayout_31.setObjectName(u"gridLayout_31")
-        self.gridLayout_32 = QGridLayout()
-        self.gridLayout_32.setObjectName(u"gridLayout_32")
-        self.show_sweeps_radio = QRadioButton(self.SweepLevel)
-        self.show_sweeps_radio.setObjectName(u"show_sweeps_radio")
-
-        self.gridLayout_32.addWidget(self.show_sweeps_radio, 0, 0, 1, 1)
-
-
-        self.gridLayout_31.addLayout(self.gridLayout_32, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.SweepLevel, 0, 8, 2, 1)
+        self.gridLayout_13.addWidget(self.groupBox_8, 0, 7, 2, 1)
 
         self.FilterOptions = QGroupBox(self.frame)
         self.FilterOptions.setObjectName(u"FilterOptions")
@@ -208,7 +157,24 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_17.addLayout(self.gridLayout_23, 3, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.FilterOptions, 0, 14, 2, 1)
+        self.gridLayout_13.addWidget(self.FilterOptions, 0, 15, 2, 1)
+
+        self.SweepLevel = QGroupBox(self.frame)
+        self.SweepLevel.setObjectName(u"SweepLevel")
+        self.gridLayout_31 = QGridLayout(self.SweepLevel)
+        self.gridLayout_31.setObjectName(u"gridLayout_31")
+        self.gridLayout_32 = QGridLayout()
+        self.gridLayout_32.setObjectName(u"gridLayout_32")
+        self.show_sweeps_radio = QRadioButton(self.SweepLevel)
+        self.show_sweeps_radio.setObjectName(u"show_sweeps_radio")
+
+        self.gridLayout_32.addWidget(self.show_sweeps_radio, 0, 0, 1, 1)
+
+
+        self.gridLayout_31.addLayout(self.gridLayout_32, 0, 0, 1, 1)
+
+
+        self.gridLayout_13.addWidget(self.SweepLevel, 0, 9, 2, 1)
 
         self.SeriesSelection = QGroupBox(self.frame)
         self.SeriesSelection.setObjectName(u"SeriesSelection")
@@ -247,7 +213,7 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_18.addLayout(self.gridLayout_10, 0, 1, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.SeriesSelection, 0, 15, 2, 1)
+        self.gridLayout_13.addWidget(self.SeriesSelection, 0, 16, 2, 1)
 
         self.StartAnalysis = QGroupBox(self.frame)
         self.StartAnalysis.setObjectName(u"StartAnalysis")
@@ -268,7 +234,29 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_20.addLayout(self.gridLayout_19, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.StartAnalysis, 0, 16, 2, 1)
+        self.gridLayout_13.addWidget(self.StartAnalysis, 0, 17, 2, 1)
+
+        self.groupBox_7 = QGroupBox(self.frame)
+        self.groupBox_7.setObjectName(u"groupBox_7")
+        self.groupBox_7.setMinimumSize(QSize(60, 30))
+        self.gridLayout_28 = QGridLayout(self.groupBox_7)
+        self.gridLayout_28.setObjectName(u"gridLayout_28")
+        self.gridLayout_28.setContentsMargins(1, 3, 1, 3)
+        self.gridLayout_27 = QGridLayout()
+        self.gridLayout_27.setObjectName(u"gridLayout_27")
+        self.postgresql_upload = QPushButton(self.groupBox_7)
+        self.postgresql_upload.setObjectName(u"postgresql_upload")
+        self.postgresql_upload.setMinimumSize(QSize(50, 50))
+        self.postgresql_upload.setMaximumSize(QSize(50, 50))
+        self.postgresql_upload.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/sql.png);")
+
+        self.gridLayout_27.addWidget(self.postgresql_upload, 0, 0, 1, 1)
+
+
+        self.gridLayout_28.addLayout(self.gridLayout_27, 0, 0, 1, 1)
+
+
+        self.gridLayout_13.addWidget(self.groupBox_7, 0, 13, 2, 1)
 
         self.groupBox_6 = QGroupBox(self.frame)
         self.groupBox_6.setObjectName(u"groupBox_6")
@@ -307,7 +295,7 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_25.addLayout(self.gridLayout_24, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.groupBox_6, 0, 4, 2, 1)
+        self.gridLayout_13.addWidget(self.groupBox_6, 0, 5, 2, 1)
 
         self.DataGroup = QGroupBox(self.frame)
         self.DataGroup.setObjectName(u"DataGroup")
@@ -363,29 +351,7 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_15.addLayout(self.DataOptions, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.DataGroup, 0, 2, 2, 1)
-
-        self.groupBox_7 = QGroupBox(self.frame)
-        self.groupBox_7.setObjectName(u"groupBox_7")
-        self.groupBox_7.setMinimumSize(QSize(60, 30))
-        self.gridLayout_28 = QGridLayout(self.groupBox_7)
-        self.gridLayout_28.setObjectName(u"gridLayout_28")
-        self.gridLayout_28.setContentsMargins(1, 3, 1, 3)
-        self.gridLayout_27 = QGridLayout()
-        self.gridLayout_27.setObjectName(u"gridLayout_27")
-        self.postgresql_upload = QPushButton(self.groupBox_7)
-        self.postgresql_upload.setObjectName(u"postgresql_upload")
-        self.postgresql_upload.setMinimumSize(QSize(50, 50))
-        self.postgresql_upload.setMaximumSize(QSize(50, 50))
-        self.postgresql_upload.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/sql.png);")
-
-        self.gridLayout_27.addWidget(self.postgresql_upload, 0, 0, 1, 1)
-
-
-        self.gridLayout_28.addLayout(self.gridLayout_27, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.groupBox_7, 0, 12, 2, 1)
+        self.gridLayout_13.addWidget(self.DataGroup, 0, 3, 2, 1)
 
         self.PlotGroup = QGroupBox(self.frame)
         self.PlotGroup.setObjectName(u"PlotGroup")
@@ -398,9 +364,9 @@ class Ui_Offline_Analysis(object):
         self.save_plot_online.setObjectName(u"save_plot_online")
         self.save_plot_online.setMinimumSize(QSize(30, 30))
         self.save_plot_online.setMaximumSize(QSize(30, 30))
-        font1 = QFont()
-        font1.setPointSize(6)
-        self.save_plot_online.setFont(font1)
+        font = QFont()
+        font.setPointSize(6)
+        self.save_plot_online.setFont(font)
         self.save_plot_online.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
 
         self.PlotOptions.addWidget(self.save_plot_online, 1, 0, 1, 1)
@@ -409,7 +375,7 @@ class Ui_Offline_Analysis(object):
         self.plot_zoom.setObjectName(u"plot_zoom")
         self.plot_zoom.setMinimumSize(QSize(30, 30))
         self.plot_zoom.setMaximumSize(QSize(30, 30))
-        self.plot_zoom.setFont(font1)
+        self.plot_zoom.setFont(font)
         self.plot_zoom.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom.png);")
 
         self.PlotOptions.addWidget(self.plot_zoom, 0, 2, 1, 1)
@@ -422,7 +388,7 @@ class Ui_Offline_Analysis(object):
         self.plot_move.setObjectName(u"plot_move")
         self.plot_move.setMinimumSize(QSize(30, 30))
         self.plot_move.setMaximumSize(QSize(30, 30))
-        self.plot_move.setFont(font1)
+        self.plot_move.setFont(font)
         self.plot_move.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/move.png);")
 
         self.PlotOptions.addWidget(self.plot_move, 1, 2, 1, 1)
@@ -431,7 +397,7 @@ class Ui_Offline_Analysis(object):
         self.plot_home.setObjectName(u"plot_home")
         self.plot_home.setMinimumSize(QSize(30, 30))
         self.plot_home.setMaximumSize(QSize(30, 30))
-        self.plot_home.setFont(font1)
+        self.plot_home.setFont(font)
         self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
 
         self.PlotOptions.addWidget(self.plot_home, 0, 0, 1, 1)
@@ -440,21 +406,66 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_16.addLayout(self.PlotOptions, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.PlotGroup, 0, 10, 2, 1)
+        self.gridLayout_13.addWidget(self.PlotGroup, 0, 11, 2, 1)
+
+        self.groupBox = QGroupBox(self.frame)
+        self.groupBox.setObjectName(u"groupBox")
+        self.horizontalLayout = QHBoxLayout(self.groupBox)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.gridLayout_3 = QGridLayout()
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.go_home = QPushButton(self.groupBox)
+        self.go_home.setObjectName(u"go_home")
+        self.go_home.setMinimumSize(QSize(40, 40))
+
+        self.gridLayout_3.addWidget(self.go_home, 0, 0, 1, 1)
+
+
+        self.horizontalLayout.addLayout(self.gridLayout_3)
+
+
+        self.gridLayout_13.addWidget(self.groupBox, 0, 0, 2, 1)
 
         self.line_3 = QFrame(self.frame)
         self.line_3.setObjectName(u"line_3")
         self.line_3.setFrameShape(QFrame.VLine)
         self.line_3.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_13.addWidget(self.line_3, 0, 7, 2, 1)
+        self.gridLayout_13.addWidget(self.line_3, 0, 8, 2, 1)
 
         self.line_7 = QFrame(self.frame)
         self.line_7.setObjectName(u"line_7")
         self.line_7.setFrameShape(QFrame.VLine)
         self.line_7.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_13.addWidget(self.line_7, 0, 5, 2, 1)
+        self.gridLayout_13.addWidget(self.line_7, 0, 6, 2, 1)
+
+        self.groupBox_2 = QGroupBox(self.frame)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.gridLayout_21 = QGridLayout(self.groupBox_2)
+        self.gridLayout_21.setObjectName(u"gridLayout_21")
+        self.gridLayout_11 = QGridLayout()
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+        self.go_back_button = QPushButton(self.groupBox_2)
+        self.go_back_button.setObjectName(u"go_back_button")
+        self.go_back_button.setMinimumSize(QSize(40, 40))
+        self.go_back_button.setMaximumSize(QSize(50, 503))
+        self.go_back_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/back.png);")
+
+        self.gridLayout_11.addWidget(self.go_back_button, 0, 0, 1, 1)
+
+        self.fo_forward_button = QPushButton(self.groupBox_2)
+        self.fo_forward_button.setObjectName(u"fo_forward_button")
+        self.fo_forward_button.setMinimumSize(QSize(40, 40))
+        self.fo_forward_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/forward.png);")
+
+        self.gridLayout_11.addWidget(self.fo_forward_button, 0, 1, 1, 1)
+
+
+        self.gridLayout_21.addLayout(self.gridLayout_11, 0, 0, 1, 1)
+
+
+        self.gridLayout_13.addWidget(self.groupBox_2, 0, 1, 2, 1)
 
 
         self.gridLayout_8.addWidget(self.frame, 0, 0, 1, 1)
@@ -467,7 +478,9 @@ class Ui_Offline_Analysis(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.offline_analysis_widgets.sizePolicy().hasHeightForWidth())
         self.offline_analysis_widgets.setSizePolicy(sizePolicy1)
-        self.offline_analysis_widgets.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(10)
+        self.offline_analysis_widgets.setFont(font1)
         self.start_page = QWidget()
         self.start_page.setObjectName(u"start_page")
         sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -486,7 +499,7 @@ class Ui_Offline_Analysis(object):
 
         self.blank_analysis_button = QPushButton(self.start_page)
         self.blank_analysis_button.setObjectName(u"blank_analysis_button")
-        self.blank_analysis_button.setFont(font)
+        self.blank_analysis_button.setFont(font1)
 
         self.gridLayout_4.addWidget(self.blank_analysis_button, 2, 0, 1, 2)
 
@@ -627,7 +640,7 @@ class Ui_Offline_Analysis(object):
 
         self.retranslateUi(Offline_Analysis)
 
-        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.offline_analysis_widgets.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Offline_Analysis)
@@ -635,9 +648,6 @@ class Ui_Offline_Analysis(object):
 
     def retranslateUi(self, Offline_Analysis):
         Offline_Analysis.setWindowTitle(QCoreApplication.translate("Offline_Analysis", u"Form", None))
-        self.label_7.setText(QCoreApplication.translate("Offline_Analysis", u"Offline Analysis", None))
-        self.go_back_button.setText("")
-        self.fo_forward_button.setText("")
         self.groupBox_8.setTitle(QCoreApplication.translate("Offline_Analysis", u"Treeview Metadata", None))
 #if QT_CONFIG(tooltip)
         self.clear.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Clean the Treeview", None))
@@ -647,11 +657,6 @@ class Ui_Offline_Analysis(object):
         self.show_colum_2.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Select meta data and sort data in the treeview", None))
 #endif // QT_CONFIG(tooltip)
         self.show_colum_2.setText("")
-        self.SweepLevel.setTitle(QCoreApplication.translate("Offline_Analysis", u"Sweeps", None))
-#if QT_CONFIG(tooltip)
-        self.show_sweeps_radio.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Show Single Sweeps for each series", None))
-#endif // QT_CONFIG(tooltip)
-        self.show_sweeps_radio.setText("")
         self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
 #if QT_CONFIG(tooltip)
         self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
@@ -669,6 +674,11 @@ class Ui_Offline_Analysis(object):
         self.select.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Multi-select several experiments in the tree</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.select.setText("")
+        self.SweepLevel.setTitle(QCoreApplication.translate("Offline_Analysis", u"Sweeps", None))
+#if QT_CONFIG(tooltip)
+        self.show_sweeps_radio.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Show Single Sweeps for each series", None))
+#endif // QT_CONFIG(tooltip)
+        self.show_sweeps_radio.setText("")
         self.SeriesSelection.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Series", None))
 #if QT_CONFIG(tooltip)
         self.compare_series.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Specifiy which Series should be analyzed</p></body></html>", None))
@@ -676,6 +686,8 @@ class Ui_Offline_Analysis(object):
         self.compare_series.setText("")
         self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Start Analysis", None))
         self.start_analysis.setText("")
+        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Upload", None))
+        self.postgresql_upload.setText("")
         self.groupBox_6.setTitle(QCoreApplication.translate("Offline_Analysis", u"Assign Metadata", None))
         self.merge_series.setText("")
 #if QT_CONFIG(tooltip)
@@ -693,13 +705,16 @@ class Ui_Offline_Analysis(object):
         self.load_from_database.setText("")
         self.load_meta_data.setText("")
         self.select_directory_button.setText("")
-        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Upload", None))
-        self.postgresql_upload.setText("")
         self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
         self.save_plot_online.setText("")
         self.plot_zoom.setText("")
         self.plot_move.setText("")
         self.plot_home.setText("")
+        self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))
+        self.go_home.setText(QCoreApplication.translate("Offline_Analysis", u"B P E", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"OfflineAnalysis", None))
+        self.go_back_button.setText("")
+        self.fo_forward_button.setText("")
         self.open_analysis_results_button.setText(QCoreApplication.translate("Offline_Analysis", u"View Results", None))
 #if QT_CONFIG(tooltip)
         self.blank_analysis_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Start a new analysis from scratch</p></body></html>", None))

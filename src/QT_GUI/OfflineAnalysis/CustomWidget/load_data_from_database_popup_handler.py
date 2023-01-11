@@ -60,7 +60,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
         # Create a canvas to display the figure
         self.canvas = FigureCanvas(self.figure)
-        
+        self.canvas.setStyleSheet("background-color: rgba(1,0,0,0);")
         # in case of previous plots: clear the layout first
         for i in range(self.diagram_grid.count()): 
             self.diagram_grid.itemAt(i).widget().deleteLater()

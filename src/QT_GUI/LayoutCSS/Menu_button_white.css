@@ -1,20 +1,27 @@
+
+QHeaderView::section{{background-color: white;}}
+QTreeView::branch{{background-color: white; color: "#000000";}}
+QTreeView{{color:black}}
+
+QWidget{{background-color: white;}}
+
+QGroupBox{{background-color: "#5b6e8b";}}
 QGroupBox:title{{color: "#000000";}}
-QGroupBox{{background-color: "#e6e6e6";}} 
+
+QTabWidget{{background-color: "#e6e6e6";}}
+
+QWidget[accessibleName="additional_function_menu"]{{background-color: "#5b6e8b";}}
+
+QPushButton{{background-color: "#5b6e8b"; border: 0px; color:black;}}
+QPushButton:hover{{background-color: "grey"; border: 0px;}}
 
 
 QLabel{{background-color: transparent; 
     color: "#000000";}}
 
-QWidget{{background-color: "#e6e6e6";}}
+QCheckBox{{background-color:transparent; color:black; border:black; }}
 
-QDialog{{background-color: "#e6e6e6";}}
-
-
-QTreeView{{background-color: "#e6e6e6";}}
-
-QTreeView::branch{{background-color: "#e6e6e6"; color: "#000000";}}
-QHeaderView::section{{background-color: "#e6e6e6";}}
-
-QTabWidget{{background-color: "#e6e6e6";}}
-
-QPushButton{{border:black;}}
+QStatusBar{{
+    background-color: "#5b6e8b";
+    border-radius: 0px 0px 20px 20px;
+  }}

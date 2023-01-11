@@ -146,9 +146,9 @@ class MainWindow(QMainWindow, QtStyleTools):
                         icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
                     
                     
-                    new_button.setStyleSheet(u"QToolButton{ background-color: #d9d9d9; border: 0px; } QToolButton:hover{background-color: grey;}")
+                    new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
                     new_button.setIcon(icon)
-                    new_button.setIconSize(QSize(100, 100))
+                    new_button.setIconSize(QSize(200, 200))
                     new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     self.ui.gridLayout_3.addWidget(new_button, 0, col)
         else:

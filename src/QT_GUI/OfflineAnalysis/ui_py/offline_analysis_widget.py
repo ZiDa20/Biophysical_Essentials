@@ -100,7 +100,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
         self.edit_meta.clicked.connect(self.edit_metadata_analysis_id)
-        #self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
+        self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
         self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
@@ -108,7 +108,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.navigation_list = []
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        #self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
+        self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
 
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))

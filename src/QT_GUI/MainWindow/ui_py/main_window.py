@@ -299,4 +299,6 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"Welcome to Biophysical Essentials", None))
         self.offline_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Offline Analysis", None))
         self.home_logo.setText(QCoreApplication.translate("MainWindow", u"BPE Online", None))
+
+        self.side_left_menu.setAccessibleName(QCoreApplication.translate("MainWindow", u"additional_function_menu", None))
     # retranslateUi
