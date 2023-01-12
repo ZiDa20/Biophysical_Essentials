@@ -187,7 +187,7 @@ class OfflineManager():
             n (int): Pieces that should the list be chunked to
 
         Yields:
-            list: The chunked list of list as a generator
+            generator: The chunked list of list as a generator
         """
         for i in range(0, len(lst), int(n)):
             yield lst[i:i + int(n)]

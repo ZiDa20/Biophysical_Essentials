@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 class SpecificAnalysisFunctions():
     
     @staticmethod
-    def boxplot_calc(result_table_list:list, database):
+    def  boxplot_calc(result_table_list:list, database):
         """Creates the Data for the boxplot --> long table from the Result Tables
 
         Args:
@@ -35,23 +35,10 @@ class SpecificAnalysisFunctions():
             x_list.extend(list(set(x_data)))
             experiment_name_list.append(experiment_name*len(list(set(x_data))))
         
-        result_table_list = tuple(result_table_list)
-        
-        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name IN (select sweep_table_name from results where ' \
-                f'specific_result_table_name IN {result_table_list}))'
-                
-                
-        meta_data = database.get_data_from_database(database.database, q,fetch_mode = 2)
     
-        meta_data = meta_data.replace("None", np.nan)
-        meta_data = meta_data.dropna(axis='columns', how ='all')
-
-
         boxplot_df = pd.DataFrame()
         boxplot_df["values"] = x_list
         boxplot_df["experiment_name"] = experiment_name_list
-        boxplot_df = pd.merge(boxplot_df, meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         return boxplot_df
         # no nan handling required since sweeps without an AP are not stored in the dataframe
 
@@ -69,28 +56,23 @@ class SpecificAnalysisFunctions():
             tuple: The plot_dataframe with as long table with experiment name, 
             values and indeces
         """
-        plot_data = {"Unit": [],"values":array.array("d"), "name":[], "meta_data":[], "index":[]}
+        plot_data = {"Unit": [],"values":array.array("d"), "experiment_name":[], "index":[]}
         increment_list = []
 
         for table in result_table_list:
                 
             try:
-                q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                f'specific_result_table_name = \'{table}\'))'
                 y_data, x_data, experiment_name, increment, sweep_table = SweepWiseAnalysisTemplate.fetch_x_and_y_data(table, database)
-                meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-
+        
                 # add data to dictionary
                 plot_data["values"].extend(y_data)
                 plot_data["Unit"].extend(x_data)
-                plot_data["name"].extend(len(x_data) * [experiment_name])
-                plot_data["meta_data"].extend(len(x_data) * [meta_data_group])
+                plot_data["experiment_name"].extend(len(x_data) * [experiment_name])
                 plot_data["index"].extend(range(len(x_data)))
                 increment_list.append(increment)
                 
             except Exception as e:
-                print(e + " The functin the error was is simple calc")
+                print(f"The functin the error was is simple cal: {e}")
                 break
         if (len(set(plot_data["Unit"])) == 1) or  (mean(increment_list)==0):
             increment = True

@@ -7,13 +7,25 @@ import duckdb
 
 class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, database_handler,treeview_manager, plot_widget_manager,parent=None):
+    def __init__(self, 
+                 database_handler,
+                 treeview_manager = None, 
+                 plot_widget_manager = None,
+                 parent=None, 
+                 update_treeview = True, 
+                 update_plot = None,
+                 analysis_function_id = -1):
+        
         super().__init__(parent)
         self.setupUi(self)
         self.database_handler = database_handler
         self.treeview_manager = treeview_manager
         self.plot_widget_manager = plot_widget_manager
+        self.update_treeview = update_treeview
+        self.update_plot = update_plot
+        self.analysis_function_id = analysis_function_id
         self.load_content()
+        
 
     def load_content(self):
         """
@@ -117,26 +129,39 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         print(name_list) 
         meta_data_df = pd.DataFrame(columns=["table", "column", "values"])
 
-        for cb in checkbox_list:
-            if cb.isChecked():
-                dt = name_list[checkbox_list.index(cb)]
-                print("dt", dt)
-                meta_data_df = pd.concat( [meta_data_df, pd.DataFrame({"table":dt[0], "column":dt[1], "values":[dt[2]]}) ] )
+        for _ in self.analysis_function_id: # if the tuple is bigger
+            for cb in checkbox_list:
+                if cb.isChecked():
+                    dt = name_list[checkbox_list.index(cb)]
+                    print("dt", dt)
+                    meta_data_df = pd.concat( [meta_data_df, pd.DataFrame({"table":dt[0], "column":dt[1], "values":[dt[2]]}) ] )
 
-        print(meta_data_df)
         meta_data_df["offline_analysis_id"] = self.database_handler.analysis_id
-        meta_data_df["analysis_function_id"] = -1
+        meta_data_df["analysis_function_id"] = self.analysis_function_id
         self.close()
 
-        table_name = "meta_data_" + str(self.database_handler.analysis_id)
         # in case of re-click on the dialog and new meta data selection the table will already exist.
         try:
             self.database_handler.database.register("meta_data_df", meta_data_df)
-            self.database_handler.database.execute(f'INSERT INTO "selected_meta_data" FROM meta_data_df')
+            selected_meta_data_table = self.database_handler.database.execute(f'Select * from selected_meta_data').fetchdf()
+            already_registered = [i for i in self.analysis_function_id if i not in selected_meta_data_table["analysis_function_id"].tolist()]
+            if already_registered:
+                meta_data_unregistered = meta_data_df[meta_data_df["analysis_function_id"].isin(already_registered)]
+                meta_data_df = meta_data_df[~meta_data_df["analysis_function_id"].isin(already_registered)]
+                self.database_handler.database.register("meta_data_df", meta_data_unregistered)
+                self.database_handler.database.execute(f'INSERT INTO "selected_meta_data" FROM meta_data_df')
+                
+            for i in meta_data_df.itertuples():
+                condition_colum = i[2]
+                condition = i[3]
+                analysis_id = i[5]
+                self.database_handler.database.execute(f'UPDATE selected_meta_data SET condition_column= (?), conditions=(?) WHERE analysis_function_id=(?)', (condition_colum, condition, analysis_id))
+                
         except duckdb.CatalogException as e:
             print(f"TreeHandler {e}")
             #self.database_handler.database.execute(f'DROP TABLE {table_name}')
             #self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_df')
             # no need to update again
 
-        self.treeview_manager.update_treeviews(self.plot_widget_manager)
+        if self.update_treeview:
+            self.treeview_manager.update_treeviews(self.plot_widget_manager)

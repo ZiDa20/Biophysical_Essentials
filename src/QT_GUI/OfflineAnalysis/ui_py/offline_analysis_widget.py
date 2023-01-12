@@ -1229,10 +1229,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # Display the animation
         #ap.show_dialog()
 
-  
-
-
-
 
     def run_database_thread(self, current_tab, progress_callback):
         """ This function will run the analysis in a separate thread, that is selected
@@ -1276,7 +1272,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
-
+        analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
+        analysis_function_tuple = tuple([i[1] for i in analysis_function_tuple])
+        self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
         """simulate click on  "Plot" children """
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_tree.offline_analysis_result_tree_item_clicked()
@@ -1300,8 +1298,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # print("analysis function ", analysis_function)
             lower_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 1).text()), 2)
             upper_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 2).text()), 2)
-            # print(lower_bound)
-            # print(upper_bound)
             self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                              analysis_series_name,
                                                                                              lower_bound, upper_bound)

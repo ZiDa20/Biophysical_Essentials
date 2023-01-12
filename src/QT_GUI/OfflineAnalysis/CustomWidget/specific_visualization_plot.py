@@ -195,7 +195,6 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         self.series_name = None
         # object where plot data will be stored to be exported easily
         self.export_data_frame = None
-)
 
         
 

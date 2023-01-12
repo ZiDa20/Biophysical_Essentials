@@ -1423,11 +1423,14 @@ class DuckDBDatabaseHandler():
                     self.database = self.execute_sql_command(self.database, sql_command, values)
 
 
-    def get_selected_meta_data(self):
+    def get_selected_meta_data(self, analysis_function_id = None):
         # get the meta data table that is stored in the database
 		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
         try:
-            q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id}' 
+            if analysis_function_id:
+                q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
+            else:
+                 q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
             selected_meta_data = self.get_data_from_database(self.database, q, fetch_mode = 2)["condition_column"].tolist()
             return selected_meta_data
         except Exception as e:
@@ -1437,7 +1440,6 @@ class DuckDBDatabaseHandler():
                 return None
             
     
-            
 
         """ @deprecated dz 27.07.2022
         def add_single_sweep_to_database(self, experiment_name, series_identifier, sweep_number, meta_data, data_array):

@@ -4,6 +4,7 @@ import seaborn as sns
 import pandas as pd
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 import logging
+from numpy import nan
 
 class OfflinePlots():
     
@@ -49,8 +50,10 @@ class OfflinePlots():
         self.result_holder = final_result_holder.analysis_result_dictionary
         self.custom_plot = None
         self.holded_dataframe = None
+        self.meta_data = None
         self.style_plot()
-        self.retrieve_analysis_function(parent_widget, result_table_list, analysis_function)
+        self.set_metadata_table(result_table_list)
+        self.retrieve_analysis_function(parent_widget,analysis_function, result_table_list)
         self.set_logger()
          # this retrieves the dictionary to fill the data in
         # This should be implemented for the result tables to be integrated into the DataBase
@@ -64,9 +67,21 @@ class OfflinePlots():
         handler = logging.FileHandler("offline_plots.log")
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
-
     
-    def retrieve_analysis_function(self, parent_widget, result_table_list, analysis_function):
+    
+    def set_metadata_table(self, result_table_list):
+        result_table_list = tuple(result_table_list)
+            
+        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from ' \
+                f'experiment_series where Sweep_Table_Name IN (select sweep_table_name from results where ' \
+                f'specific_result_table_name IN {result_table_list}))'
+                
+                
+        self.meta_data = self.database_handler.get_data_from_database(self.database_handler.database, q,fetch_mode = 2)
+        self.meta_data = self.meta_data.replace("None", nan)
+        self.meta_data = self.meta_data.dropna(axis='columns', how ='all')
+    
+    def retrieve_analysis_function(self, parent_widget, analysis_function, result_table_list = None, analysis_function_id = None):
         """Retrieves the appropriate Analysis Function
 
         Args:
@@ -93,7 +108,8 @@ class OfflinePlots():
     # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
-        selected_meta_data = self.database_handler.get_selected_meta_data()
+        selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
+        
         self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list, selected_meta_data)
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
@@ -120,50 +136,60 @@ class OfflinePlots():
             result_table_list (list): Result Table List of the specific Analysis Function
         """
 
-        if self.holded_dataframe is not None:
-            boxplot_df = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
+        if self.holded_dataframe is None:
+            plot_dataframe = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
+            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            
+            
             
             if selected_meta_data:
-                boxplot_df["meta_data"] = boxplot_df[selected_meta_data].agg('::'.join, axis=1)
+                plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
             else:
-                boxplot_df["meta_data"] = boxplot_df["experiment_name"]
+                plot_dataframe["meta_data"] = plot_dataframe["experiment_name"]
 
-            self.boxplot_from_template(parent_widget, boxplot_df)
+            self.boxplot_from_template(parent_widget, plot_dataframe)
 
         else:
+            if selected_meta_data:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe["experiment_name"]
 
-            self.boxplot_from_template(parent_widget, boxplot_df)
+            self.boxplot_from_template(parent_widget, self.holded_dataframe)
 
-    def boxplot_from_template(self, parent_widget, boxplot_df):
+    def boxplot_from_template(self, parent_widget, plot_dataframe):
         """Creates a boxplot from a template
 
         Args:
             boxplot_df (_type_): _description_
         """
-         if self.violin:
-                sns.violinplot(data = boxplot_df, 
+        if self.violin:
+                sns.violinplot(data = plot_dataframe, 
                     x="meta_data", 
                     y = "values",  
                     ax = self.ax, 
                     width = 0.5)
         else:
-            sns.boxplot(data = boxplot_df, 
+            sns.boxplot(data = plot_dataframe, 
                         x="meta_data", 
                         y = "values",  
                         ax = self.ax, 
                         width = 0.5)
         
-        sns.swarmplot(data = boxplot_df, 
-                      x="meta_data", 
-                      y = "values",  
-                      ax = self.ax, 
-                      color = "black", 
-                      size = 10)
+            sns.swarmplot(data = plot_dataframe, 
+                        x="meta_data", 
+                        y = "values",  
+                        ax = self.ax, 
+                        color = "black", 
+                        size = 10)
         
         self.logger.info("Created Boxplot successfully")
         self.canvas.figure.tight_layout()
-        parent_widget.export_data_frame = boxplot_df
-        self.add_data_frame_to_result_dictionary(boxplot_df)
+        if self.holded_dataframe is not None:
+            self.canvas.draw()
+        parent_widget.export_data_frame = plot_dataframe
+        self.holded_dataframe = plot_dataframe
+        self.add_data_frame_to_result_dictionary(plot_dataframe)
 
 
     def simple_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
@@ -172,31 +198,69 @@ class OfflinePlots():
         :param parent_widget: the widget to which the plot is added
         :param result_table_list: the list of result tables for the specific analysis
         """
-        # retrieve the plot_dataframe
-        plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-        print(plot_dataframe.shape)
+        
+        if self.holded_dataframe is None:
+            # retrieve the plot_dataframe
+            plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
+            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            
+            if selected_meta_data:
+                plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                plot_dataframe["meta_data"] = plot_dataframe["experiment_name"]
+            pivoted_table = self.simple_plot_make(plot_dataframe, increment)
+            self.increment = increment
+            self.holded_dataframe = plot_dataframe
+        
+        else:
+            if selected_meta_data:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe["experiment_name"]
+            
+            for ax in self.canvas.figure.axes:
+                ax.clear()  
+            pivoted_table = self.simple_plot_make(self.holded_dataframe, self.increment)
+            
+            self.canvas.draw()
+        
+        #plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
+        
+        parent_widget.export_data_frame = pivoted_table
+        
+        
+        
+    def simple_plot_make(self,plot_dataframe, increment):
+        """_summary_
+
+        Args:
+            plot_dataframe (_type_): _description_
+            increment (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         if increment: # if sweep have different voltage steps indicated by increment in pgf file
-            g = sns.boxplot(data = plot_dataframe, x = "name", y = "values", ax = self.ax)
+            g = sns.boxplot(data = plot_dataframe, x = "meta_data", y = "values", ax = self.ax)
             g.set_xticklabels(g.get_xticklabels(),rotation=45)
             try: 
-                pivoted_table = plot_dataframe.pivot(index = "index", columns = "name", values = "values")
+                pivoted_table = plot_dataframe.pivot(index = "index", columns = "meta_data", values = "values")
             except:
                 pivoted_table = plot_dataframe
             
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "name", ax = self.ax)
+            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.ax,  errorbar=("se", 2))
             self.connect_hover(g)
             try:
-                pivoted_table = plot_dataframe.pivot(index = "Unit", columns = "name", values = "values")
+                pivoted_table = plot_dataframe.pivot(index = "Unit", columns = "meta_data", values = "values")
             except:
                 pivoted_table = plot_dataframe
         
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax.autoscale()
-        self.canvas.figure.tight_layout()
-
-        parent_widget.export_data_frame = pivoted_table
-
+        self.canvas.figure.tight_layout()        
+        return pivoted_table
+    
+    
     def plot_mean_per_meta_data(self, parent_widget, result_table_list: list, selected_meta_data = None):
         """
         Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
