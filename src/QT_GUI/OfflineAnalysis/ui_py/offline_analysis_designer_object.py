@@ -15,6 +15,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
 
+
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
@@ -94,19 +95,17 @@ class Ui_Offline_Analysis(object):
         self.clear.setObjectName(u"clear")
         self.clear.setMinimumSize(QSize(30, 30))
         self.clear.setMaximumSize(QSize(30, 30))
-        self.clear.setStyleSheet(u"QPushButton {background-image: url(../QT_GUI/Button/OnlineAnalysis/broom.png);}\n"
-"QToolTip { color: #ffffff; background-color: #000000; border: 0px; }")
+        self.clear.setStyleSheet(u"")
 
         self.gridLayout_34.addWidget(self.clear, 0, 0, 1, 1)
 
-        self.show_colum_2 = QPushButton(self.groupBox_8)
-        self.show_colum_2.setObjectName(u"show_colum_2")
-        self.show_colum_2.setMinimumSize(QSize(30, 30))
-        self.show_colum_2.setMaximumSize(QSize(30, 30))
-        self.show_colum_2.setStyleSheet(u"QPushButton {background-image: url(../QT_GUI/Button/OnlineAnalysis/add_column.png);}\n"
-"QToolTip { color: #ffffff; background-color: #000000; border: 0px; }")
+        self.add_meta_data_to_treeview = QPushButton(self.groupBox_8)
+        self.add_meta_data_to_treeview.setObjectName(u"add_meta_data_to_treeview")
+        self.add_meta_data_to_treeview.setMinimumSize(QSize(30, 30))
+        self.add_meta_data_to_treeview.setMaximumSize(QSize(30, 30))
+        self.add_meta_data_to_treeview.setStyleSheet(u"")
 
-        self.gridLayout_34.addWidget(self.show_colum_2, 0, 1, 1, 1)
+        self.gridLayout_34.addWidget(self.add_meta_data_to_treeview, 0, 1, 1, 1)
 
 
         self.gridLayout_33.addLayout(self.gridLayout_34, 0, 0, 1, 1)
@@ -121,37 +120,21 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_17.setContentsMargins(1, 3, 1, 3)
         self.gridLayout_23 = QGridLayout()
         self.gridLayout_23.setObjectName(u"gridLayout_23")
-        self.add_filter_button = QPushButton(self.FilterOptions)
-        self.add_filter_button.setObjectName(u"add_filter_button")
-        self.add_filter_button.setMinimumSize(QSize(30, 30))
-        self.add_filter_button.setMaximumSize(QSize(30, 30))
-        self.add_filter_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/filter_db.png);")
-
-        self.gridLayout_23.addWidget(self.add_filter_button, 0, 0, 1, 1)
-
-        self.sort_by = QPushButton(self.FilterOptions)
-        self.sort_by.setObjectName(u"sort_by")
-        self.sort_by.setMinimumSize(QSize(30, 30))
-        self.sort_by.setMaximumSize(QSize(30, 30))
-        self.sort_by.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/sort_by.png);")
-
-        self.gridLayout_23.addWidget(self.sort_by, 0, 1, 1, 1)
-
         self.delete_selected = QPushButton(self.FilterOptions)
         self.delete_selected.setObjectName(u"delete_selected")
         self.delete_selected.setMinimumSize(QSize(30, 30))
         self.delete_selected.setMaximumSize(QSize(30, 30))
-        self.delete_selected.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/delete.png);")
+        self.delete_selected.setStyleSheet(u"")
 
-        self.gridLayout_23.addWidget(self.delete_selected, 1, 1, 1, 1)
+        self.gridLayout_23.addWidget(self.delete_selected, 0, 1, 1, 1)
 
-        self.select = QPushButton(self.FilterOptions)
-        self.select.setObjectName(u"select")
-        self.select.setMinimumSize(QSize(30, 30))
-        self.select.setMaximumSize(QSize(30, 30))
-        self.select.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/select.png);")
+        self.add_filter_button = QPushButton(self.FilterOptions)
+        self.add_filter_button.setObjectName(u"add_filter_button")
+        self.add_filter_button.setMinimumSize(QSize(30, 30))
+        self.add_filter_button.setMaximumSize(QSize(30, 30))
+        self.add_filter_button.setStyleSheet(u"")
 
-        self.gridLayout_23.addWidget(self.select, 1, 0, 1, 1)
+        self.gridLayout_23.addWidget(self.add_filter_button, 0, 0, 1, 1)
 
 
         self.gridLayout_17.addLayout(self.gridLayout_23, 3, 0, 1, 1)
@@ -195,7 +178,7 @@ class Ui_Offline_Analysis(object):
         self.compare_series.setObjectName(u"compare_series")
         self.compare_series.setMinimumSize(QSize(40, 40))
         self.compare_series.setMaximumSize(QSize(40, 40))
-        self.compare_series.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/select_big.png);")
+        self.compare_series.setStyleSheet(u"")
 
         self.gridLayout_26.addWidget(self.compare_series, 0, 0, 1, 1)
 
@@ -226,7 +209,7 @@ class Ui_Offline_Analysis(object):
         self.start_analysis.setObjectName(u"start_analysis")
         self.start_analysis.setMinimumSize(QSize(50, 50))
         self.start_analysis.setMaximumSize(QSize(50, 50))
-        self.start_analysis.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/start_analysis.png);")
+        self.start_analysis.setStyleSheet(u"")
 
         self.gridLayout_19.addWidget(self.start_analysis, 0, 0, 1, 1)
 
@@ -248,7 +231,7 @@ class Ui_Offline_Analysis(object):
         self.postgresql_upload.setObjectName(u"postgresql_upload")
         self.postgresql_upload.setMinimumSize(QSize(50, 50))
         self.postgresql_upload.setMaximumSize(QSize(50, 50))
-        self.postgresql_upload.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/sql.png);")
+        self.postgresql_upload.setStyleSheet(u"")
 
         self.gridLayout_27.addWidget(self.postgresql_upload, 0, 0, 1, 1)
 
@@ -265,20 +248,11 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_25.setContentsMargins(1, 3, 1, 3)
         self.gridLayout_24 = QGridLayout()
         self.gridLayout_24.setObjectName(u"gridLayout_24")
-        self.merge_series = QPushButton(self.groupBox_6)
-        self.merge_series.setObjectName(u"merge_series")
-        self.merge_series.setMinimumSize(QSize(30, 30))
-        self.merge_series.setMaximumSize(QSize(30, 30))
-        self.merge_series.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/merge.png);")
-
-        self.gridLayout_24.addWidget(self.merge_series, 1, 0, 1, 1)
-
         self.edit_meta = QPushButton(self.groupBox_6)
         self.edit_meta.setObjectName(u"edit_meta")
         self.edit_meta.setMinimumSize(QSize(30, 30))
         self.edit_meta.setMaximumSize(QSize(30, 30))
-        self.edit_meta.setStyleSheet(u"QPushButton {background-image: url(../QT_GUI/Button/OnlineAnalysis/edit_metadata.png);}\n"
-"QToolTip { color: #ffffff; background-color: #000000; border: 0px; }")
+        self.edit_meta.setStyleSheet(u"")
 
         self.gridLayout_24.addWidget(self.edit_meta, 0, 0, 1, 1)
 
@@ -286,10 +260,17 @@ class Ui_Offline_Analysis(object):
         self.edit_series_meta_data.setObjectName(u"edit_series_meta_data")
         self.edit_series_meta_data.setMinimumSize(QSize(30, 30))
         self.edit_series_meta_data.setMaximumSize(QSize(30, 30))
-        self.edit_series_meta_data.setStyleSheet(u"QPushButton {background-image: url(../QT_GUI/Button/OnlineAnalysis/burst.png);}\n"
-"QToolTip { color: #ffffff; background-color: #000000; border: 0px; }")
+        self.edit_series_meta_data.setStyleSheet(u"")
 
         self.gridLayout_24.addWidget(self.edit_series_meta_data, 0, 1, 1, 1)
+
+        self.merge_series = QPushButton(self.groupBox_6)
+        self.merge_series.setObjectName(u"merge_series")
+        self.merge_series.setMinimumSize(QSize(30, 30))
+        self.merge_series.setMaximumSize(QSize(30, 30))
+        self.merge_series.setStyleSheet(u"")
+
+        self.gridLayout_24.addWidget(self.merge_series, 0, 2, 1, 1)
 
 
         self.gridLayout_25.addLayout(self.gridLayout_24, 0, 0, 1, 1)
@@ -304,23 +285,6 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_15.setContentsMargins(1, 3, 1, 3)
         self.DataOptions = QGridLayout()
         self.DataOptions.setObjectName(u"DataOptions")
-        self.load_from_database = QPushButton(self.DataGroup)
-        self.load_from_database.setObjectName(u"load_from_database")
-        self.load_from_database.setMinimumSize(QSize(30, 30))
-        self.load_from_database.setMaximumSize(QSize(30, 30))
-        self.load_from_database.setStyleSheet(u"QPushButton {background-image: url(../QT_GUI/Button/OnlineAnalysis/load_database.png);}\n"
-"QToolTip { color: #ffffff; background-color: #000000; border: 0px; }")
-
-        self.DataOptions.addWidget(self.load_from_database, 0, 2, 1, 1)
-
-        self.load_meta_data = QPushButton(self.DataGroup)
-        self.load_meta_data.setObjectName(u"load_meta_data")
-        self.load_meta_data.setMinimumSize(QSize(30, 30))
-        self.load_meta_data.setMaximumSize(QSize(30, 30))
-        self.load_meta_data.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/add_meta.png);")
-
-        self.DataOptions.addWidget(self.load_meta_data, 2, 0, 1, 1)
-
         self.select_directory_button = QPushButton(self.DataGroup)
         self.select_directory_button.setObjectName(u"select_directory_button")
         self.select_directory_button.setMinimumSize(QSize(30, 30))
@@ -338,14 +302,25 @@ class Ui_Offline_Analysis(object):
         self.select_directory_button.setAccessibleName(u"")
 #endif // QT_CONFIG(accessibility)
         self.select_directory_button.setAutoFillBackground(False)
-        self.select_directory_button.setStyleSheet(u"QPushButton{background-image: url(../QT_GUI/Button/OnlineAnalysis/open.png);}\n"
-"QToolTip { color: #ffffff; background-color: #000000; border: 0px; }")
+        self.select_directory_button.setStyleSheet(u"")
 
         self.DataOptions.addWidget(self.select_directory_button, 0, 0, 1, 1)
 
-        self.horizontalSpacer_19 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.load_from_database = QPushButton(self.DataGroup)
+        self.load_from_database.setObjectName(u"load_from_database")
+        self.load_from_database.setMinimumSize(QSize(30, 30))
+        self.load_from_database.setMaximumSize(QSize(30, 30))
+        self.load_from_database.setStyleSheet(u"")
 
-        self.DataOptions.addItem(self.horizontalSpacer_19, 0, 1, 1, 1)
+        self.DataOptions.addWidget(self.load_from_database, 0, 1, 1, 1)
+
+        self.append = QPushButton(self.DataGroup)
+        self.append.setObjectName(u"append")
+        self.append.setMinimumSize(QSize(30, 30))
+        self.append.setMaximumSize(QSize(30, 30))
+        self.append.setStyleSheet(u"")
+
+        self.DataOptions.addWidget(self.append, 0, 2, 1, 1)
 
 
         self.gridLayout_15.addLayout(self.DataOptions, 0, 0, 1, 1)
@@ -360,47 +335,34 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_16.setContentsMargins(1, 3, 1, 3)
         self.PlotOptions = QGridLayout()
         self.PlotOptions.setObjectName(u"PlotOptions")
-        self.save_plot_online = QPushButton(self.PlotGroup)
-        self.save_plot_online.setObjectName(u"save_plot_online")
-        self.save_plot_online.setMinimumSize(QSize(30, 30))
-        self.save_plot_online.setMaximumSize(QSize(30, 30))
+        self.plot_home = QPushButton(self.PlotGroup)
+        self.plot_home.setObjectName(u"plot_home")
+        self.plot_home.setMinimumSize(QSize(30, 30))
+        self.plot_home.setMaximumSize(QSize(30, 30))
         font = QFont()
         font.setPointSize(6)
-        self.save_plot_online.setFont(font)
-        self.save_plot_online.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/save_img.png);")
+        self.plot_home.setFont(font)
+        self.plot_home.setStyleSheet(u"")
 
-        self.PlotOptions.addWidget(self.save_plot_online, 1, 0, 1, 1)
+        self.PlotOptions.addWidget(self.plot_home, 0, 0, 1, 1)
 
         self.plot_zoom = QPushButton(self.PlotGroup)
         self.plot_zoom.setObjectName(u"plot_zoom")
         self.plot_zoom.setMinimumSize(QSize(30, 30))
         self.plot_zoom.setMaximumSize(QSize(30, 30))
         self.plot_zoom.setFont(font)
-        self.plot_zoom.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/zoom.png);")
+        self.plot_zoom.setStyleSheet(u"")
 
-        self.PlotOptions.addWidget(self.plot_zoom, 0, 2, 1, 1)
-
-        self.horizontalSpacer_20 = QSpacerItem(10, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-
-        self.PlotOptions.addItem(self.horizontalSpacer_20, 0, 1, 1, 1)
+        self.PlotOptions.addWidget(self.plot_zoom, 0, 1, 1, 1)
 
         self.plot_move = QPushButton(self.PlotGroup)
         self.plot_move.setObjectName(u"plot_move")
         self.plot_move.setMinimumSize(QSize(30, 30))
         self.plot_move.setMaximumSize(QSize(30, 30))
         self.plot_move.setFont(font)
-        self.plot_move.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/move.png);")
+        self.plot_move.setStyleSheet(u"")
 
-        self.PlotOptions.addWidget(self.plot_move, 1, 2, 1, 1)
-
-        self.plot_home = QPushButton(self.PlotGroup)
-        self.plot_home.setObjectName(u"plot_home")
-        self.plot_home.setMinimumSize(QSize(30, 30))
-        self.plot_home.setMaximumSize(QSize(30, 30))
-        self.plot_home.setFont(font)
-        self.plot_home.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/home.png);")
-
-        self.PlotOptions.addWidget(self.plot_home, 0, 0, 1, 1)
+        self.PlotOptions.addWidget(self.plot_move, 0, 2, 1, 1)
 
 
         self.gridLayout_16.addLayout(self.PlotOptions, 0, 0, 1, 1)
@@ -450,14 +412,14 @@ class Ui_Offline_Analysis(object):
         self.go_back_button.setObjectName(u"go_back_button")
         self.go_back_button.setMinimumSize(QSize(40, 40))
         self.go_back_button.setMaximumSize(QSize(50, 503))
-        self.go_back_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/back.png);")
+        self.go_back_button.setStyleSheet(u"")
 
         self.gridLayout_11.addWidget(self.go_back_button, 0, 0, 1, 1)
 
         self.fo_forward_button = QPushButton(self.groupBox_2)
         self.fo_forward_button.setObjectName(u"fo_forward_button")
         self.fo_forward_button.setMinimumSize(QSize(40, 40))
-        self.fo_forward_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/OnlineAnalysis/forward.png);")
+        self.fo_forward_button.setStyleSheet(u"")
 
         self.gridLayout_11.addWidget(self.fo_forward_button, 0, 1, 1, 1)
 
@@ -654,31 +616,23 @@ class Ui_Offline_Analysis(object):
 #endif // QT_CONFIG(tooltip)
         self.clear.setText("")
 #if QT_CONFIG(tooltip)
-        self.show_colum_2.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Select meta data and sort data in the treeview", None))
+        self.add_meta_data_to_treeview.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Select meta data and sort data in the treeview", None))
 #endif // QT_CONFIG(tooltip)
-        self.show_colum_2.setText("")
+        self.add_meta_data_to_treeview.setText("")
         self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
-#if QT_CONFIG(tooltip)
-        self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.add_filter_button.setText("")
-#if QT_CONFIG(tooltip)
-        self.sort_by.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Sort by Metadata Categories</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.sort_by.setText("")
 #if QT_CONFIG(tooltip)
         self.delete_selected.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Delete the selected experiments</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.delete_selected.setText("")
 #if QT_CONFIG(tooltip)
-        self.select.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Multi-select several experiments in the tree</p></body></html>", None))
+        self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
-        self.select.setText("")
+        self.add_filter_button.setText("")
         self.SweepLevel.setTitle(QCoreApplication.translate("Offline_Analysis", u"Sweeps", None))
 #if QT_CONFIG(tooltip)
         self.show_sweeps_radio.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Show Single Sweeps for each series", None))
 #endif // QT_CONFIG(tooltip)
-        self.show_sweeps_radio.setText("")
+        self.show_sweeps_radio.setText(QCoreApplication.translate("Offline_Analysis", u"Show", None))
         self.SeriesSelection.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Series", None))
 #if QT_CONFIG(tooltip)
         self.compare_series.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Specifiy which Series should be analyzed</p></body></html>", None))
@@ -689,7 +643,6 @@ class Ui_Offline_Analysis(object):
         self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Upload", None))
         self.postgresql_upload.setText("")
         self.groupBox_6.setTitle(QCoreApplication.translate("Offline_Analysis", u"Assign Metadata", None))
-        self.merge_series.setText("")
 #if QT_CONFIG(tooltip)
         self.edit_meta.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Experiment Meta Data", None))
 #endif // QT_CONFIG(tooltip)
@@ -698,18 +651,21 @@ class Ui_Offline_Analysis(object):
         self.edit_series_meta_data.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Series Meta Data", None))
 #endif // QT_CONFIG(tooltip)
         self.edit_series_meta_data.setText("")
+        self.merge_series.setText("")
         self.DataGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data Options", None))
+        self.select_directory_button.setText("")
 #if QT_CONFIG(tooltip)
         self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
 #endif // QT_CONFIG(tooltip)
         self.load_from_database.setText("")
-        self.load_meta_data.setText("")
-        self.select_directory_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.append.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Append Data", None))
+#endif // QT_CONFIG(tooltip)
+        self.append.setText("")
         self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
-        self.save_plot_online.setText("")
+        self.plot_home.setText("")
         self.plot_zoom.setText("")
         self.plot_move.setText("")
-        self.plot_home.setText("")
         self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))
         self.go_home.setText(QCoreApplication.translate("Offline_Analysis", u"B P E", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"OfflineAnalysis", None))

@@ -109,6 +109,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
+        self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+
+
         #self.ui.statistics.clicked.connect(self.initialize_database)
         #self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)

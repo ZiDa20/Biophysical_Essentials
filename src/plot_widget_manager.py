@@ -619,20 +619,24 @@ class PlotWidgetManager(QRunnable):
         self.ax1.patch.set_alpha(0)
         self.ax2.patch.set_alpha(0)
 
-        self.ax1.spines['bottom'].set_color('white')
-        self.ax1.spines['left'].set_color('white')
-        self.ax1.xaxis.label.set_color('white')
-        self.ax1.yaxis.label.set_color('white')
-        self.ax1.tick_params(axis='x', colors='white')
-        self.ax1.tick_params(axis='y', colors='white')
 
-        self.ax2.spines['bottom'].set_color('white')
-        self.ax2.spines['left'].set_color('white')
-        self.ax2.xaxis.label.set_color('white')
-        self.ax2.yaxis.label.set_color('white')
-        self.ax2.tick_params(axis='x', colors='white')
-        self.ax2.tick_params(axis='y', colors='white')
+        # todo check for white or dakr mode
+        ax_color = 'black'
+        self.ax1.spines['bottom'].set_color(ax_color)
+        self.ax1.spines['left'].set_color(ax_color)
+        self.ax1.xaxis.label.set_color(ax_color)
+        self.ax1.yaxis.label.set_color(ax_color)
+        self.ax1.tick_params(axis='x', colors=ax_color)
+        self.ax1.tick_params(axis='y', colors=ax_color)
 
+
+        self.ax2.spines['bottom'].set_color(ax_color)
+        self.ax2.spines['left'].set_color(ax_color)
+        self.ax2.xaxis.label.set_color(ax_color)
+        self.ax2.yaxis.label.set_color(ax_color)
+        self.ax2.tick_params(axis='x', colors=ax_color)
+        self.ax2.tick_params(axis='y', colors=ax_color)
+        
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.ax1.autoscale()
         self.ax2.autoscale()
