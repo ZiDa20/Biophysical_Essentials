@@ -214,8 +214,8 @@ class DuckDBDatabaseHandler():
                                                 table_name text,
                                                 condition_column text,
                                                 conditions text,
-                                                offline_analysis_id integer,
-                                                analysis_function_id integer
+                                                analysis_function_id integer,
+                                                offline_analysis_id integer
                                                 );"""
 
         try:

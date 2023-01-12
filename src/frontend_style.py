@@ -106,5 +106,10 @@ class Frontend_Style():
                 ax.yaxis.label.set_color('white')
                 ax.tick_params(axis='x', colors='white') 
                 ax.tick_params(axis='y', colors='white')
-        
+                
+    def get_color_plots(self):
+        if self.current_style == 1:
+            return "white"
+        else:
+            return "black"        
         

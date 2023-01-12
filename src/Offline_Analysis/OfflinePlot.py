@@ -12,52 +12,37 @@ class OfflinePlots():
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
     Basis Analysis Functions
     """
-    def __init__(self,
-                 parent_widget, 
-                 analysis_function: str, 
-                 canvas, 
-                 result_table_list: list, 
-                 database_handler, 
+    def __init__(self,  
+                 database_handler,
                  frontend, 
-                 SeriesItem, 
-                 offline_analysis_widget,
+                 offline_tree, 
                  final_result_holder):
         
         """Initializing the Plotting class with canvas and axis
 
         Args:
-            parent_widget (_type_): _description_
-            analysis_function (str): The Function that should be used for plot drawing
-            canvas (FigureCanvas): FigureCanvas where the plot should drawn in
-            result_table_list (list): Analysis Function Result Table names
-            database_handler (duckdb): DataBase Handler
+            database_handler (DuckDBHandler): DataBase Handler
             frontend (Frontend_Style): Frontend_Style Class that handles dark-light mode
-            final_result_holder: ResultHolder Class that holds the Final Output Data of the Offline Analysis
+            offline_tree(SeriesItemTreeWidget): SeriesItemsManager Class
+            final_result_holder(ResultHolder): ResultHolder Class that holds the Final Output Data of the Offline Analysis
 
         """
-        self.SeriesItems = SeriesItem
         self.frontend = frontend
-        self.canvas = canvas
         self.violin = None # should be set if violinplot should be run
-        self.ax = self.canvas.figure.subplots()
-        self.frontend.ax.append(self.ax)
-        self.frontend.canvas = self.canvas
-        self.current_meta_data_column = None
-        
-        # reference the needed classes
-        self.offline_analysis_widget = offline_analysis_widget
-        self.database_handler = database_handler
-        self.result_holder = final_result_holder.analysis_result_dictionary
-        self.custom_plot = None
+        self.canvas = None # The Figure canvas that is drawn
+        self.ax = None # the axis of the canvas
         self.holded_dataframe = None
         self.meta_data = None
-        self.style_plot()
-        self.set_metadata_table(result_table_list)
-        self.retrieve_analysis_function(parent_widget,analysis_function, result_table_list)
+        self.parent_widget = None
+        # reference the needed classes
+        self.offline_tree = offline_tree
+        self.database_handler = database_handler
+        self.result_holder = final_result_holder.analysis_result_dictionary 
+        self.color = frontend.get_color_plots()
+    
+        # initialize the logger
         self.set_logger()
-         # this retrieves the dictionary to fill the data in
-        # This should be implemented for the result tables to be integrated into the DataBase
-      
+        
     
     def set_logger(self):
         """Sets the logger for the Offline Analyiss Plotting
@@ -68,10 +53,22 @@ class OfflinePlots():
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
     
-    
+    def set_frontend_axes(self, canvas, parent):
+        """_summary_
+
+        Args:
+            canvas (_type_): _description_
+        """
+        
+        self.canvas = canvas
+        self.ax = self.canvas.figure.subplots()
+        self.frontend.ax.append(self.ax)
+        self.frontend.canvas = self.canvas 
+        self.style_plot()
+
     def set_metadata_table(self, result_table_list):
+        
         result_table_list = tuple(result_table_list)
-            
         q = f'select * from global_meta_data where experiment_name IN (select experiment_name from ' \
                 f'experiment_series where Sweep_Table_Name IN (select sweep_table_name from results where ' \
                 f'specific_result_table_name IN {result_table_list}))'
@@ -81,21 +78,27 @@ class OfflinePlots():
         self.meta_data = self.meta_data.replace("None", nan)
         self.meta_data = self.meta_data.dropna(axis='columns', how ='all')
     
-    def retrieve_analysis_function(self, parent_widget, analysis_function, result_table_list = None, analysis_function_id = None):
+    def retrieve_analysis_function(self,parent_widget= None, result_table_list = None, analysis_function_id = None, switch = None):
         """Retrieves the appropriate Analysis Function
 
         Args:
-            parent_widget (_type_): The Parent Widget to draw in as canvas
+            self.parent_widget (_type_): The Parent Widget to draw in as canvas
             result_table_list (_type_): The tables that will be visualized for the specific series
             analysis_function (_type_): The analysis function choosen for the specific series
         """
         self.logger.info("Retrieving analysis function")
         # code goes here
         
+        if switch:
+            self.holded_dataframe = None
+            
+        if not self.parent_widget:
+            self.parent_widget = parent_widget
+            
+        analysis_function = self.parent_widget.plot_type_combo_box.currentText()
         
         self.plot_dictionary = {"Boxplot": self.make_boxplot,
                                 "No Split": self.simple_plot, 
-                                "Split by Meta Data": self.plot_mean_per_meta_data,
                                 "Rheobase Plot": self.rheobase_plot,
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
@@ -105,12 +108,12 @@ class OfflinePlots():
                                 "PCA Plot": self.pca_plot
                                 }
 
-    # retrieve the appropiate plot from the combobox
+        # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
+            
         selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
-        
-        self.plot_dictionary.get(analysis_function)(parent_widget, result_table_list, selected_meta_data)
+        self.plot_dictionary.get(analysis_function)(result_table_list, selected_meta_data)
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
     def style_plot(self):
@@ -126,13 +129,13 @@ class OfflinePlots():
         self.frontend.change_canvas_dark()
         self.logger.info("Styling the Plot ended")
 
-    def make_boxplot(self,parent_widget, result_table_list: list, selected_meta_data = None):
+    def make_boxplot(self,result_table_list: list, selected_meta_data = None):
         
         """Specific Function to draw Boxplots from long table formats
         of different Analysis Function
 
         Args:
-            parent_widget (_type_): _description_
+            self.parent_widget (_type_): _description_
             result_table_list (list): Result Table List of the specific Analysis Function
         """
 
@@ -140,14 +143,13 @@ class OfflinePlots():
             plot_dataframe = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
             
-            
-            
             if selected_meta_data:
                 plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
             else:
                 plot_dataframe["meta_data"] = plot_dataframe["experiment_name"]
 
-            self.boxplot_from_template(parent_widget, plot_dataframe)
+            self.comparison_plot(plot_dataframe)
+            self.holded_dataframe = plot_dataframe
 
         else:
             if selected_meta_data:
@@ -155,47 +157,21 @@ class OfflinePlots():
             else:
                 self.holded_dataframe["meta_data"] = self.holded_dataframe["experiment_name"]
 
-            self.boxplot_from_template(parent_widget, self.holded_dataframe)
-
-    def boxplot_from_template(self, parent_widget, plot_dataframe):
-        """Creates a boxplot from a template
-
-        Args:
-            boxplot_df (_type_): _description_
-        """
-        if self.violin:
-                sns.violinplot(data = plot_dataframe, 
-                    x="meta_data", 
-                    y = "values",  
-                    ax = self.ax, 
-                    width = 0.5)
-        else:
-            sns.boxplot(data = plot_dataframe, 
-                        x="meta_data", 
-                        y = "values",  
-                        ax = self.ax, 
-                        width = 0.5)
-        
-            sns.swarmplot(data = plot_dataframe, 
-                        x="meta_data", 
-                        y = "values",  
-                        ax = self.ax, 
-                        color = "black", 
-                        size = 10)
-        
-        self.logger.info("Created Boxplot successfully")
-        self.canvas.figure.tight_layout()
-        if self.holded_dataframe is not None:
+            self.comparison_plot(self.holded_dataframe)
+            for ax in self.canvas.figure.axes:
+                ax.clear()  
             self.canvas.draw()
-        parent_widget.export_data_frame = plot_dataframe
-        self.holded_dataframe = plot_dataframe
+    
+        self.canvas.figure.tight_layout()
+        self.logger.info("Created Boxplot successfully")
+        self.parent_widget.export_data_frame = plot_dataframe
         self.add_data_frame_to_result_dictionary(plot_dataframe)
 
-
-    def simple_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
+    
+    def simple_plot(self, result_table_list:list, selected_meta_data = None):
         """
         Plot all data without incorporating meta data groups
-        :param parent_widget: the widget to which the plot is added
+        :param self.parent_widget: the widget to which the plot is added
         :param result_table_list: the list of result tables for the specific analysis
         """
         
@@ -226,110 +202,83 @@ class OfflinePlots():
         
         #plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         
-        parent_widget.export_data_frame = pivoted_table
-        
-        
-        
-    def simple_plot_make(self,plot_dataframe, increment):
-        """_summary_
+        self.parent_widget.export_data_frame = pivoted_table
+        print("hello")
 
-        Args:
-            plot_dataframe (_type_): _description_
-            increment (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        if increment: # if sweep have different voltage steps indicated by increment in pgf file
-            g = sns.boxplot(data = plot_dataframe, x = "meta_data", y = "values", ax = self.ax)
-            g.set_xticklabels(g.get_xticklabels(),rotation=45)
-            try: 
-                pivoted_table = plot_dataframe.pivot(index = "index", columns = "meta_data", values = "values")
-            except:
-                pivoted_table = plot_dataframe
-            
-        else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.ax,  errorbar=("se", 2))
-            self.connect_hover(g)
-            try:
-                pivoted_table = plot_dataframe.pivot(index = "Unit", columns = "meta_data", values = "values")
-            except:
-                pivoted_table = plot_dataframe
-        
-        self.ax.autoscale()
-        self.canvas.figure.tight_layout()        
-        return pivoted_table
-    
-    
-    def plot_mean_per_meta_data(self, parent_widget, result_table_list: list, selected_meta_data = None):
-        """
-        Plot all data together into one specific analysis plot widget without any differentiation between meta data groups
-        :param parent_widget: the widget to which the plot is added
-        :param result_table_list: the list of result tables for the specific analysis
-        """
-        plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-
-        if increment: # increment describes the differences between a step and a stable protocol
-            grouped_dataframe = plot_dataframe.groupby(["meta_data", "name", "index"]).mean("values").reset_index()
-            g = sns.boxplot(data = grouped_dataframe, x = "meta_data", y = "values", ax = self.ax)
-            sns.swarmplot(data = grouped_dataframe, x = "meta_data", y = "values", ax = self.ax, color = "black", size = 5)
-            g.set_xticklabels(g.get_xticklabels(),rotation=45)
-            self.canvas.figure.tight_layout()
-            self.ax.autoscale()
-            pivoted_table = grouped_dataframe.pivot(index = "index", columns = "meta_data", values = "values")
-            
-        else:
-            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.ax, errorbar=("se", 2))
-            self.canvas.figure.tight_layout()
-            self.ax.autoscale()
-            g.set_xticklabels(g.get_xticklabels(),rotation=45)
-            self.connect_hover(g)
-            
-            grouped_dataframe = plot_dataframe.groupby(["meta_data", "Unit"]).mean("values").reset_index()
-            pivoted_table = grouped_dataframe.pivot(index = "Unit", columns = "meta_data", values = "values").reset_index()
-        
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        self.ax.autoscale()
-        self.canvas.figure.tight_layout()
-
-        parent_widget.export_data_frame = pivoted_table
-
-    def rheobase_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
+                
+    def rheobase_plot(self, result_table_list:list, selected_meta_data = None):
         """Plotting Function to draw rheobase boxplot into the OfflineAnalysisResultAnalyzer
 
         Args:
-            parent_widget (ResultVisualizer): _description_
+            self.parent_widget (ResultVisualizer): _description_
             result_table_list (list): Result Table list of the generate by the Analysis Function
         """
         
-        plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
+        if self.holded_dataframe is None:
+            # retrieve the plot_dataframe
+            plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
+            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            
+            if selected_meta_data:
+                plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                plot_dataframe["meta_data"] = plot_dataframe["experiment_name"]
+                
+            self.comparison_plot(plot_dataframe)
+            self.holded_dataframe = plot_dataframe
         
-        g = sns.boxplot(data = plot_dataframe, x = "Meta_data", y = "AP", ax = self.ax)
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        self.ax.autoscale()
-        self.canvas.figure.tight_layout()
-        parent_widget.export_data_frame = plot_dataframe
+        else:
+            if selected_meta_data:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe["experiment_name"]
+            
+            for ax in self.canvas.figure.axes:
+                ax.clear() 
+            self.comparison_plot(self.holded_dataframe)
+            self.canvas.draw()
+            
+        self.parent_widget.export_data_frame = self.holded_dataframe
         
-    def single_rheobase_plot(self, parent_widget, result_table_list:list, selected_meta_data = None):
+    def single_rheobase_plot(self, result_table_list:list, selected_meta_data = None):
         """Creates Plots for single rheobase calculation --> stepplot
 
         Args:
-            parent_widget (_type_): Class Widget to Plot in 
+            self.parent_widget (_type_): Class Widget to Plot in 
             result_table_list (_type_): List of Rheobase Result Tables
         """
-        plot_dataframe = SpecificAnalysisFunctions.sweep_rheobase_calc(result_table_list, self.database_handler)
-        g = sns.lineplot(data = plot_dataframe, x = "current", y = "voltage", hue = "Meta_data", ax = self.ax, errorbar=("se", 2))
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
+        if self.holded_dataframe is None:
+            # retrieve the plot_dataframe
+            plot_dataframe = SpecificAnalysisFunctions.sweep_rheobase_calc(result_table_list, self.database_handler)
+            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            
+            if selected_meta_data:
+                plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                plot_dataframe["meta_data"] = plot_dataframe["experiment_name"]
+                
+            self.simple_plot_make(plot_dataframe)
+            self.holded_dataframe = plot_dataframe
         
-        self.ax.autoscale()
-        self.canvas.figure.tight_layout()
-        parent_widget.export_data_frame = plot_dataframe
+        else:
+            if selected_meta_data:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            else:
+                self.holded_dataframe["meta_data"] = self.holded_dataframe["experiment_name"]
+            
+            for ax in self.canvas.figure.axes:
+                ax.clear() 
+            self.simple_plot_make(self.holded_dataframe)
+            self.canvas.draw()
+        self.parent_widget.export_data_frame = self.holded_dataframe
+        
+        
 
-    def rheoramp_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
+    def rheoramp_plot(self, result_table_list: list, selected_meta_data = None):
         """Creates Lineplot and boxplot for Rheoramp Protocols
 
         Args:
-            parent_widget (_type_): _description_
+            self.parent_widget (_type_): _description_
             result_table_list (list): Result Table list for Rheoramp Analysis
         """
         plot_dataframe = SpecificAnalysisFunctions.rheoramp_calc(result_table_list, self.database_handler)
@@ -339,13 +288,13 @@ class OfflinePlots():
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.canvas.figure.tight_layout()
         self.ax.autoscale()
-        parent_widget.export_data_frame = plot_dataframe
+        self.parent_widget.export_data_frame = plot_dataframe
 
-    def rheoramp_single_plot(self, parent_widget, result_table_list, selected_meta_data = None):
+    def rheoramp_single_plot(self, result_table_list, selected_meta_data = None):
         """_summary_
 
         Args:
-            parent_widget_ (_type_): Analysis Function parent widget
+            self.parent_widget_ (_type_): Analysis Function parent widget
             result_table_list (list): Rheoramp result tables where _max is for single analysis
             
         """
@@ -362,40 +311,41 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
         self.ax.autoscale()
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        parent_widget.export_data_frame = plot_dataframe
+        self.parent_widget.export_data_frame = plot_dataframe
 
-    def ap_fitting_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
+    def ap_fitting_plot(self, result_table_list: list, selected_meta_data = None):
         """Should Create the Heatmap for each Fitting Parameter
         calculated by the APFitting Procedure
         
         Args:
-            parent_widget (_type_): _description_
+            self.parent_widget (_type_): _description_
             result_table_list (list): List of queried result tables
         """
         plot_dataframe, z_score = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
-        parent_widget.specific_plot_box.setMinimumHeight(500)
+        self.parent_widget.specific_plot_box.setMinimumHeight(500)
         self.canvas.setMinimumSize(self.canvas.size())
         plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        
-        #parent_widget.specific_plot_box.
+      
+      
         sns.heatmap(data = z_score.T, ax = self.ax)
         self.canvas.figure.tight_layout()
-        parent_widget.export_data_frame = plot_dataframe
+        self.parent_widget.export_data_frame = plot_dataframe
        
-    def regression_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
+    def regression_plot(self, result_table_list: list, selected_meta_data = None):
         """Draws a Regression line which determines the slope of the 
 
         Args:
-            parent_widget (_type_): _description_
+            self.parent_widget (_type_): _description_
             result_table_list (list): _description_
         """
         plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
         g = sns.regplot(data = plot_dataframe, x = "Unit", y = "values", ax = self.ax, fit_reg = True, robust = True)
         g.set_xticklabels(g.get_xticklabels(),rotation=45)
-        parent_widget.export_data_frame = plot_dataframe
+        self.parent_widget.export_data_frame = plot_dataframe
     
-    def pca_plot(self, parent_widget, result_table_list: list, selected_meta_data = None):
+    def pca_plot(self, result_table_list: list, selected_meta_data = None):
         print("needs to be implemented")
+        plot_dataframe, z_score = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
     
     def on_click(self, event, annot):
         """Event Detection in the Matplotlib Plot
@@ -463,8 +413,8 @@ class OfflinePlots():
             if line.contains(event)[0]:
                 index_line = line.axes.get_lines().index(line)
                 name = line.axes.get_legend().texts[index_line].get_text()
-                self.SeriesItems.setCurrentItem(self.SeriesItems.selectedItems()[0].parent().child(0))
-                self.offline_analysis_widget.offline_analysis_result_tree_item_clicked()
+                self.offline_tree.SeriesItems.setCurrentItem(self.SeriesItems.selectedItems()[0].parent().child(0))
+                self.offline_tree.offline_tree.offline_analysis_result_tree_item_clicked()
 
     def add_data_frame_to_result_dictionary(self, dataframe: pd.DataFrame):
         """_summary_
@@ -473,5 +423,93 @@ class OfflinePlots():
             dataframe (_type_): _description_
         """
         dataframe["analysis_id"] = self.database_handler.analysis_id
-        self.result_holder.append(dataframe)              
+        self.result_holder.append(dataframe)  
         
+        
+    def simple_plot_make(self,plot_dataframe, increment = None):
+        """Makes either a boxplot if increment is indicating no step protocol
+        
+
+        Args:
+            plot_dataframe (_type_): dataframe holding data that fits the natures of a box plot or a line plot
+            increment (_type_): should indicate if step protocol was use, if None step protocol was used else single step
+
+        Returns:
+            pd.DataFrame: Pivoted dataframe having columns either as experiment name or as metadata name
+        """
+        if increment: # if sweep have different voltage steps indicated by increment in pgf file
+            self.comparison_plot(plot_dataframe)
+            try: 
+                pivoted_table = pd.pivot_table(plot_dataframe, index = ["index"], columns = ["meta_data"], values = "values")
+            except Exception as e:
+                print(e)
+                
+        else: # if stable voltage dependency
+            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.ax,  errorbar=("se", 2))
+            self.connect_hover(g)
+            try:
+                pivoted_table =  pd.pivot_table(plot_dataframe, index = ["Unit"], columns = ["meta_data"], values = "values")
+            except Exception as e:
+                print(e)
+        
+        self.ax.autoscale()
+        self.canvas.figure.tight_layout()        
+        return pivoted_table    
+    
+    def comparison_plot(self, plot_dataframe):
+        """Creates a comparison plot using either boxplots or violin plots 
+        as selected
+
+        Args:
+            boxplot_df (_type_): _description_
+        """
+        # check if violin parameter is set then use the violin plots
+        if self.violin:
+            self.violin_plot_maker(plot_dataframe)        
+        else:
+            self.box_plot_maker(plot_dataframe)
+                
+    
+    def violin_plot_maker(self, plot_dataframe):
+        """_summary_: Draws a Violin and a Swarmplot from the data
+
+        Args:
+            plot_dataframe (pd.DataFrame): DataFrame long format holding result data
+        """
+        g = sns.violinplot(data = plot_dataframe, 
+                    x="meta_data", 
+                    y = "values",  
+                    ax = self.ax, 
+                    width = 0.5)
+                
+        z = sns.swarmplot(data = plot_dataframe, 
+                x="meta_data", 
+                y = "values",  
+                ax = self.ax, 
+                color = self.color, 
+                size = 10)
+        
+        g.set_xticklabels(g.get_xticklabels(),rotation=45)
+        z.set_xticklabels(g.get_xticklabels(),rotation=45)
+        
+    def box_plot_maker(self, plot_dataframe):
+        """_summary_: Draws a boxplot and a Swarmplot from the data
+
+        Args:
+            plot_dataframe (pd.DataFrame): DataFrame long format holding result data
+        """
+        g = sns.boxplot(data = plot_dataframe, 
+                    x="meta_data", 
+                    y = "values",  
+                    ax = self.ax, 
+                    width = 0.5)
+
+        z = sns.swarmplot(data = plot_dataframe, 
+                    x="meta_data", 
+                    y = "values",  
+                    ax = self.ax, 
+                    color = self.color, 
+                    size = 2) 
+        
+        g.set_xticklabels(g.get_xticklabels(),rotation=45)
+        z.set_xticklabels(g.get_xticklabels(),rotation=45)

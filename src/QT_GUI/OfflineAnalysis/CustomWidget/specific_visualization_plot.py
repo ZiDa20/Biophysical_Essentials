@@ -176,13 +176,11 @@ class Ui_result_plot_visualizer(object):
         self.specific_plot_box.setTitle(QCoreApplication.translate("result_plot_visualizer", u"GroupBox", None))
         self.Control_button.setTitle(QCoreApplication.translate("result_plot_visualizer", u"Controls", None))
         self.plot_type.setText(QCoreApplication.translate("result_plot_visualizer", u"Plot Type:", None))
-        self.split_data_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Change Metadata:", None))
+        self.split_data_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Change Analysis Function Metadata:", None))
         self.label.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Data:", None))
         self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"     Save Data", None))
         self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"    Save Plot", None))
     # retranslateUi
-
-
 
 class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
     def __init__(self, parent=None):

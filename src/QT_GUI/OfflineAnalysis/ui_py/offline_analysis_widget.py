@@ -75,9 +75,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.offline_analysis_widgets.setCurrentIndex(0)
 
-        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree.SeriesItems, 
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree, 
                                                                  self.database_handler, 
-                                                                 self,
                                                                  self.final_result_holder)
 
         # might be set during blank analysis

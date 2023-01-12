@@ -294,7 +294,7 @@ class SeriesItemTreeWidget():
         if result_plot_widget.OfflineResultGrid.columnCount() == 1:
             print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
 
-            for r in range(0, result_plot_widget.OfflineResultGrid.rowCount()):
+            for r in range(1, result_plot_widget.OfflineResultGrid.rowCount()):
 
                 qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
                 custom_plot_widget = qwidget_item.widget()

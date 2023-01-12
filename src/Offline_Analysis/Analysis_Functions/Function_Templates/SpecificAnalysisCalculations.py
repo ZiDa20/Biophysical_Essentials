@@ -33,7 +33,7 @@ class SpecificAnalysisFunctions():
                 break
             
             x_list.extend(list(set(x_data)))
-            experiment_name_list.append(experiment_name*len(list(set(x_data))))
+            experiment_name_list.extend([experiment_name]*len(list(set(x_data))))
         
     
         boxplot_df = pd.DataFrame()
@@ -93,8 +93,7 @@ class SpecificAnalysisFunctions():
         Returns:
             pd.DataFrame: long table pd.DataFrame with Data for boxplot and lineplot plotting
         """
-        meta_data_groups = []
-        first_ap = array.array("d")
+        first_ap = array.array("d") #set an array that will be filled with doubles
         experiment_names = []
 
         for table in result_table_list:
@@ -102,23 +101,14 @@ class SpecificAnalysisFunctions():
                 database.database.execute(f'select * from {table}')
                 experiment_name = "_".join(table.split("_")[-3:-1])
                 query_data_df = database.database.fetchdf()
-
-                q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-                    f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                    f'specific_result_table_name = \'{table}\'))'
-
-                first_ap.extend(query_data_df["1st AP"])
-                meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-                if meta_data_group:
-                    meta_data_groups.extend([meta_data_group])
-                else:
-                    meta_data_groups.extend(["None"])
-                experiment_names.extend([experiment_name])
+                if not query_data_df.empty:
+                    first_ap.extend(query_data_df["1st AP"])  
+                    experiment_names.extend([experiment_name])
+                
 
         plot_dataframe = pd.DataFrame()
-        plot_dataframe["AP"] = first_ap
-        plot_dataframe["Meta_data"] = meta_data_groups
-        plot_dataframe["experiment_name"] = experiment_name
+        plot_dataframe["values"] = first_ap
+        plot_dataframe["experiment_name"] = experiment_names
         return plot_dataframe
 
     @staticmethod
@@ -132,32 +122,22 @@ class SpecificAnalysisFunctions():
         Returns:
             plot_dataframe	pd.DataFrame: Dataframe containing the data for plotting
         """
-        meta_data_groups = []
         max_voltage = array.array("d")
         current = array.array("d")
         experiment_names = []
 
         for table in result_table_list:
             if "_max" in table:
-                database.database.execute(f'select * from {table}')
-                experiment_name = "_".join(table.split("_")[-3:-1])
-                query_data_df = database.database.fetchdf()
-
-                q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-                    f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                    f'specific_result_table_name = \'{table}\'))'
-
+                experiment_name = "_".join(table.split("_")[-4:-2])
+                query_data_df = database.database.execute(f'select * from {table}').fetchdf()
                 max_voltage.extend(query_data_df["max_voltage"])
                 current.extend(query_data_df["current"])
-                meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-                meta_data_groups.extend(query_data_df.shape[0]*[meta_data_group])
                 experiment_names.extend(query_data_df.shape[0]*[experiment_name])
 
         plot_dataframe = pd.DataFrame()
-        plot_dataframe["voltage"] = max_voltage
-        plot_dataframe["current"] = current
-        plot_dataframe["Meta_data"] = meta_data_groups
-        plot_dataframe["experiment_name"] = experiment_name
+        plot_dataframe["values"] = max_voltage
+        plot_dataframe["Unit"] = current
+        plot_dataframe["experiment_name"] = experiment_names
         return plot_dataframe
 
     @staticmethod
@@ -173,21 +153,13 @@ class SpecificAnalysisFunctions():
         """
         count = array.array("i")
         rheo = []
-        meta_data = []
         experiment_names = []
 
         for table in result_table_list:
             experiment_name = "_".join(table.split("_")[-3:-1])
-            database.database.execute(f'select * from {table}')
-            query_data_df = database.database.fetchdf()
-            q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-                    f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                    f'specific_result_table_name = \'{table}\'))'
-
-            meta_data_group = database.get_data_from_database(database.database, q)[0][0]
+            query_data_df = database.database.execute(f'select * from {table}').fetchdf()
             rheobase = 1
             for column in query_data_df:
-
                 data = query_data_df.get(column)
                 data = data.dropna(how='all')
                 data = data.values.tolist()
@@ -198,14 +170,12 @@ class SpecificAnalysisFunctions():
                     count.append(number)
                 rheo.append("Rheo_"+str(rheobase) + "x")
                 rheobase += 1
-                meta_data.append(meta_data_group)
                 experiment_names.append(experiment_name)
         
 
         plot_dataframe = pd.DataFrame()
         plot_dataframe["Number AP"] = count
         plot_dataframe["Rheoramp"] = rheo
-        plot_dataframe["Meta_data"] = meta_data
         plot_dataframe["experiment_name"] = experiment_names
         return plot_dataframe
         
@@ -218,27 +188,18 @@ class SpecificAnalysisFunctions():
             database (duckDB): database handler
         """
 
-        meta_data_groups = []
         dataframe = pd.DataFrame()
         experiment_names = []
         for table in result_table_list:
             experiment_name = "_".join(table.split("_")[-3:-1])
-            database.database.execute(f'select * from {table}')
-            query_data_df = database.database.fetchdf()
+            query_data_df = database.database.execute(f'select * from {table}').fetchdf()
             query_data_df.set_index('Fitting Parameters', inplace =True, drop = True)
-
-            # here we can may switch to a join might be faster than iterating database queries
-            q = f'select condition from global_meta_data where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                f'specific_result_table_name = \'{table}\'))'
+            
             experiment_names.extend(query_data_df.shape[1]*[experiment_name])
             dataframe = pd.concat([dataframe, query_data_df], axis = 1)
             # should still be added
-            meta_data_group = database.get_data_from_database(database.database, q)[0][0]
-            meta_data_groups.extend(query_data_df.shape[1]*[experiment_name])	
 
         dataframe = dataframe.transpose()
-        dataframe["Meta_data"] = meta_data_groups
         dataframe["experiment_name"] = experiment_names
 
         z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
@@ -254,5 +215,22 @@ class SpecificAnalysisFunctions():
             result_table_list (list): list of result_tables generated by calculated result
             databaes (DuckDB): DuckDB Database Haendler
         """
-        
         print("needs to be implemented")
+        dataframe = pd.DataFrame()
+        experiment_names = []
+        for table in result_table_list:
+            experiment_name = "_".join(table.split("_")[-3:-1])
+            query_data_df = database.database.execute(f'select * from {table}').fetchdf()
+            query_data_df.set_index('Fitting Parameters', inplace =True, drop = True)
+            
+            experiment_names.extend(query_data_df.shape[1]*[experiment_name])
+            dataframe = pd.concat([dataframe, query_data_df], axis = 1)
+            # should still be added
+
+        dataframe = dataframe.transpose()
+        dataframe["experiment_name"] = experiment_names
+
+        z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
+        
+
+
