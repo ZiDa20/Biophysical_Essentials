@@ -80,7 +80,7 @@ class Frontend_Style():
                 
     def get_color_plots(self):
         if self.current_style == 1:
-            return "white"
+            return "black"
         else:
-            return "black"        
+            return "white"        
         

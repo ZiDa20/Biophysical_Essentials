@@ -619,14 +619,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for dat_file in self.offline_manager.package_list(directory):
             
             if isinstance(dat_file, list):
-                splitted_name = dat_file[0].split("_")[0]
+                splitted_name = "_".join(dat_file[0].split("_")[0:2])
+                self.database_handler.add_experiment_to_experiment_table(splitted_name)
             else:
                 splitted_name = dat_file.split(".")
+                self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
             print(dat_file)
-            self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
-            self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
-            template_data_frame = template_data_frame.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
+            if isinstance(dat_file, list):
+                self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name)
+                template_data_frame = template_data_frame.append({"Experiment_name":splitted_name,"Experiment_label":"None","Species":"None",
                                         "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+            else:
+                self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name)
+                template_data_frame = template_data_frame.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
+                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+                
+            
 
         '''make a table with editable data '''
 
@@ -1061,7 +1069,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
                 pgf_sections = self.database_handler.get_data_from_database(self.database_handler.database, q, [experiment[0], series_name])[0][0]
                 pgf_table = self.database_handler.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
-                print(pgf_table)
+                print(pgf_table.info)
                 pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
                 pgf_file_dict.update({experiment[0]: (pgf_table, pgf_table.shape[0])})
             

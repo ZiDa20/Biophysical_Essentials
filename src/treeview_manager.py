@@ -20,7 +20,7 @@ from Offline_Analysis.tree_model_class import TreeModel
 import itertools
 
 
-class TreeViewManager():
+class TreeViewManager:
     """ Main class to handle interactions with treeviews. In general two  usages are defined right now:
     1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
     2) read a single .dat file without writing to the database.
@@ -132,6 +132,7 @@ class TreeViewManager():
                 
                 if isinstance(i,list):
                     for abf in i:
+                        print(abf)
                         file_2 = directory_path + "/" + abf
                         abf_file = AbfReader(file_2)
                         data_file = abf_file.get_data_table()

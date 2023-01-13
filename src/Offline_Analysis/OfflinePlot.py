@@ -146,7 +146,7 @@ class OfflinePlots():
         self.ax.spines.top.set_visible(False)
         self.ax.patch.set_alpha(0)
         self.canvas.figure.patch.set_alpha(0)
-        self.frontend.change_canvas_dark()
+        self.frontend.change_canvas_bright()
         self.logger.info("Styling the Plot ended")
 
     def make_boxplot(self,result_table_list: list, selected_meta_data = None):

@@ -32,6 +32,7 @@ class AbfReader():
         if self.abf_path:
             try:
                 self.load_abf()
+                print("abf loaded")
             except Exception as e:
                 print(f"this is the error: {e}")
         
@@ -53,12 +54,9 @@ class AbfReader():
 
     def load_abf(self):
         """ Load the data from the Path and insert into abf object"""
-        try:
-            self.abf = pyabf.ABF(self.abf_path)
-        except Exception as e:
-            self.logger.error(f"ABF file could not be loaded, Check path or File for potential corruption error: {e}")
-        
-        
+    
+        self.abf = pyabf.ABF(self.abf_path)
+       
     def get_data_from_sweep(self):
         """ 
         Extract the data sweeps as table and save it into pd.DataFrame
@@ -154,13 +152,12 @@ class AbfReader():
                     "holding_potential",
                     "duration",
                     "increment",
-                    "voltage"
+                    "voltage",
                     
         ]
        
         # retrieves the first and the last sweep
         first, last = self.get_first_and_last_sweep()
-        
         # append the list with the levels and fill the dataframe
         epochs_list.append([self.abf.protocol for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
         epochs_list.append([self.abf.sweepCount for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
@@ -172,18 +169,19 @@ class AbfReader():
     
         #epochs_list.append(self.abf._epochPerDacSection.nEpochType)
         self.epochs_dataframe = pd.DataFrame(epochs_list, index = columns_list)  
-      
         self.epochs_dataframe.insert(loc = 0,
                                     column="col1",
                                     value = first)
         self.epochs_dataframe.insert(loc = len(self.epochs_dataframe.columns),
                                     column="col2",
                                     value = last)
+        self.epochs_dataframe
       
         self.epochs_dataframe = self.epochs_dataframe.transpose()
+        print(self.abf.channelList)
+        self.epochs_dataframe["selected_channel"] = str(self.abf.channelList[0] + 1)
         
             
-
     def get_first_and_last_sweep(self):
         """Get The first and the last sweep from the dac eopchstable since
         these are usually not inserted in the pyABF class

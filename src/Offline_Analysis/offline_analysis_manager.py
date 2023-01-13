@@ -324,7 +324,7 @@ class OfflineManager():
         
         
         for i in data:
-            dummy_meta.append([i,"None","None", "None", "None", "None", "None"])
+            dummy_meta.append([i,"None","None", "None", "None", "None", "None","None"])
             
         return dummy_meta
             
