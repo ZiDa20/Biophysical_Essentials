@@ -265,7 +265,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.online.sizePolicy().hasHeightForWidth())
         self.online.setSizePolicy(sizePolicy)
         self.notebook.addWidget(self.online)
-        self.offline = Offline_Analysis(None,None)
+        self.offline = Offline_Analysis()
         self.offline.setObjectName(u"offline")
         sizePolicy.setHeightForWidth(self.offline.sizePolicy().hasHeightForWidth())
         self.offline.setSizePolicy(sizePolicy)

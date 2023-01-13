@@ -36,33 +36,33 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         wait_widget = QWidget()
         wait_widget_layout = QGridLayout()
+        
+
         self.ui.progressBar = QProgressBar()
-        self.ui.progressBar.setFixedWidth(200)
+        self.ui.progressBar.setFixedWidth(250)
         self.ui.progressBar.setAlignment(Qt.AlignLeft)
+
+        
         new_label = QLabel()
         new_label.setText("Loading... \n Please Wait, your data is getting prepared ")
-        wait_widget_layout.addWidget(new_label, 0, 0)
-        canvas_widget = QWidget()
-        wait_widget_layout.addWidget(canvas_widget,0,1)
-        wait_widget_layout.addWidget(self.ui.progressBar,1,0)
-        wait_widget.setLayout(wait_widget_layout)
+        font = QFont()
+        font.setPointSize(15)
+        new_label.setFont(font)
+        new_label.setAlignment(Qt.AlignCenter)
         
-        fig = Figure()
+        wait_widget_layout.addWidget(new_label,0, 0, 1, 3)
+
+        canvas_widget = QWidget()
+        wait_widget_layout.addWidget(canvas_widget,1,1)
+
+        fig = Figure(figsize=(2,2))
         canvas = FigureCanvas(fig)
         canvas.setParent(canvas_widget)
 
         # Create a plot on the figure
         ax = fig.add_subplot(111)
-
-
-        #ax.plot([1, 2, 3, 4], [10, 20, 25, 30], 'r-')
-
-        # Show the plot on the QWidget
-        #canvas.draw()
-
-        #ax = self.canvas.figure.subplots(nrows=1, ncols=1, sharex=True, sharey=False)
+        
         ap = AnimatedAP(ax)
-
         # Create the animation using the update function and the time points as frames
         anim = animation.FuncAnimation(fig, ap.anim_update, frames=len(ap.time), blit=True)
         
@@ -71,19 +71,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.timer = QTimer()
         self.timer.setInterval(50)
         self.timer.timeout.connect(lambda: anim.event_source.start())        
-        canvas.draw()
-        # Add labels to the x- and y-axes
-        #ax.set_xlabel('Time (ms)')
-        #ax.set_ylabel('Membrane Potential (mV)')
-        #plt.show()
-        # Display the animation
-        #ap.show_dialog()
-        # main window
-        #self.ui.progressBar = QProgressBar()
-        #self.ui.statusBar = Ui_MainWindow.statusBar()# add Status Bar to the App
-        #self.ui.statusBar.addPermanentWidget(self.progressBar)
-        #self.ui.progressBar.setFixedWidth(200)
-        #self.ui.progressBar.setAlignment(Qt.AlignLeft)
+        canvas.draw_idle()
+
+        #wait_widget_layout.addWidget(self.ui.progressBar,2,1)  
+
+        status_label = QLabel("Staus Default")
+        status_label.setAlignment(Qt.AlignCenter)
+        font.setPointSize(12)
+        wait_widget_layout.addWidget(status_label,3,1)
+        #wait_widget_layout.addWidget(statusbar,3,0)
+        wait_widget_layout.addWidget(self.ui.progressBar,2,1)
+        wait_widget.setLayout(wait_widget_layout)
 
 
         # offline analysis 
@@ -91,8 +89,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
         self.ui.offline.ap_timer = self.timer
+        self.ui.offline.status_label = status_label
 
-
+        self.ui.offline.offline_manager.set_status_and_progress_bar(status_label, self.ui.progressBar)
 
         # Check if the program is launched to avoid resize event
         self._not_launched = True 

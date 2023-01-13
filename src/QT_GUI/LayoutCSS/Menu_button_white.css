@@ -29,10 +29,16 @@ QRadioButton::indicator::checked{{ background-color: black;}}
 
 QComboBox{{background-color:transparent; color:black; border:black; }}
 
-QStatusBar{{
+QProgressBar{{
+    border: 2px solid grey;
+    border-radius: 5px;
+    background-color: white;
+}}
+
+QProgressBar::chunk{{
+    border: 2px solid grey;
     background-color: "#5b6e8b";
-    border-radius: 0px 0px 20px 20px;
-  }}
+}}
 
 QTableView::item{{color:black;}}
 QTableView::item::hover{{color:black; background-color:grey;}}
@@ -42,12 +48,6 @@ QTableView::section{{color:black;}}
 PandasTable{{color:black;}}
 
 QSplitter{{background-color: "#5b6e8b";}}
-
-QProgressBar {{
-    border: 2px solid #fff5cc;
-    border-radius: 5px;
-    background-color: black;
-  }}
 
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_right.png);}}  

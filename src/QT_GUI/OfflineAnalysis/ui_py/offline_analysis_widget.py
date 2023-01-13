@@ -10,6 +10,8 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
+from PySide6.QtTest import QTest
+
 from Offline_Analysis.offline_analysis_manager import OfflineManager
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from treeview_manager import TreeViewManager
@@ -49,12 +51,13 @@ from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWid
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
-    def __init__(self, progress, status, parent=None):
+    def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.progressbar = progress
-        self.statusbar = status
+        self.progressbar = None
+        self.statusbar = None
+        self.status_label = None
         self.add_filter_button.setEnabled(False)
 
         
@@ -66,7 +69,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style = None
         self.database_handler = None
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2)
-        self.offline_manager = OfflineManager(progress, status)
+        self.offline_manager = OfflineManager()
         self.offline_tree.offline_manager = self.offline_manager
         self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
        
@@ -347,9 +350,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
-        index =  self.treebuild.selected_tree_view.model().index(5, 5, QModelIndex())
-        self.blank_analysis_tree_view_manager.click_qtreeview_cell(self.treebuild.selected_tree_view, index)
+        index =  self.treebuild.selected_tree_view.model().index(1, 1, QModelIndex())
+        
+        # Get the rect of the index
+        rect = self.treebuild.selected_tree_view.visualRect(index)
 
+        # Get the position of the index
+        pos = self.treebuild.selected_tree_view.viewport().mapFromGlobal(self.treebuild.selected_tree_view.mapToGlobal(rect.center()))
+
+        # simulate a mouse click on the index
+        QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=pos)
     def load_recordings(self, progress_callback):
         """_summary_
 
@@ -421,6 +431,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         enter_meta_data_dialog.close()
 
         # show animation
+        #for i in range(self.canvas_grid_layout.count()): 
+        #        self.canvas_grid_layout.itemAt(i).widget().deleteLater()
+
         self.canvas_grid_layout.addWidget(self.wait_widget)
 
         # create a new treeview manager 
@@ -1252,8 +1265,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         """
         self.progressbar.setValue(data[0])
-        self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
-
+        #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
+        self.status_label.setText("Analyzing: " + str(data[1]) + "%")
+        
     def finished_result_thread(self):
         """
         Once all the reuslt have been calculated, an offline tab is created.
