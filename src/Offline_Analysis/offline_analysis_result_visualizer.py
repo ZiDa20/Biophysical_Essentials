@@ -127,11 +127,22 @@ class OfflineAnalysisResultVisualizer():
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
             self.offline_plot.append(self.offlineplot) 
         # after all plots have been added
-        self.change_meta_data.clicked.connect(partial(self.open_meta_data, parent_widget, analysis_function))
+        self.change_meta_data.clicked.connect(partial(self.open_meta_data, analysis_function))
         
         return offline_tab
     
-    def open_meta_data(self, parent_widget, analysis_function):
+    def open_meta_data(self, analysis_function):
+        """_summary_: This opens the meta data from the selected meta data table to 
+        retrieve the the condition columns holding the column string that can be used
+        for meta data retrieval in offline plot
+        column example: "genotype"
+
+        Args:
+            analysis_function (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         dialog = SelectMetaDataForTreeviewDialog(self.database_handler, 
                                                  update_treeview = False, 
                                                  update_plot = self.offlineplot,
@@ -176,7 +187,7 @@ class OfflineAnalysisResultVisualizer():
             else:
                 analysis_function = None
 
-        self.offlineplot.set_frontend_axes(self.canvas, parent_widget)
+        self.offlineplot.set_frontend_axes(self.canvas)
         self.offlineplot.set_metadata_table(result_table_names)
         
         if switch:

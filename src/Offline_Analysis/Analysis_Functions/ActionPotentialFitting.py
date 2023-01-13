@@ -4,7 +4,7 @@ import pandas as pd
 import math
 
 class ActionPotentialFitting(object):
-    plot_type_options = ["Action Potential Fitting"]
+    plot_type_options = ["Action Potential Fitting", "PCA-Plot"]
     function_name = "Action Potential Fitting"
     def __init__(self):
 

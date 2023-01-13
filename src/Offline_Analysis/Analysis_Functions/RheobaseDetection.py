@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 from natsort import natsorted, ns
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
-class RheobaseDetection(object):
+class RheobaseDetection(SweepWiseAnalysisTemplate):
     """
     Analysis Class to detect the minimum current that needs to be injected into a cell to fire action potentials
     :author dz, 13.07.2022
@@ -19,17 +20,6 @@ class RheobaseDetection(object):
         cls.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
         cls.lower_bound = None
         cls.upper_bound = None
-
-    @classmethod
-    def create_new_specific_result_table_name(cls, analysis_function_id, data_table_name):
-        """
-        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
-        :param offline_analysis_id:
-        :param data_table_name:
-        :return:
-        :author dz, 08.07.2022
-        """
-        return "results_analysis_function_" + str(analysis_function_id) + "_" + data_table_name
 
     @classmethod
     def calculate_results(cls):
@@ -184,27 +174,3 @@ class RheobaseDetection(object):
                                                                                     data_table, 
                                                                                     mean_table_name,
                                                                                     meaned_rheobase)
-
-    @classmethod
-    def visualize_results(cls, parent_widget):
-
-        result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
-                                                           parent_widget.analysis_function_id)
-
-        return result_table_list
-
-    @classmethod
-    def get_list_of_result_tables(cls,analysis_id, analysis_function_id)-> list:
-        """	
-        
-        """
-        q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
-        result_list =  cls.database.get_data_from_database(cls.database.database, q,
-                                                            [analysis_id, analysis_function_id])
-
-        try:
-            result_list = (list(zip(*result_list))[0])
-        except Exception as e:
-            print(e)
-            result_list = []
-        return result_list

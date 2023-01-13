@@ -3,6 +3,7 @@ import pandas as pd
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 import array
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 class SpecificAnalysisFunctions():
     
@@ -202,8 +203,8 @@ class SpecificAnalysisFunctions():
         dataframe = dataframe.transpose()
         dataframe["experiment_name"] = experiment_names
 
-        z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
-        z_score_df = pd.DataFrame(z_score, columns = dataframe.iloc[:,0:-2].columns, index = dataframe.experiment_name)
+        z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-1].values)
+        z_score_df = pd.DataFrame(z_score, columns = dataframe.iloc[:,0:-1].columns, index = dataframe.experiment_name)
 
         return dataframe, z_score_df
 
@@ -230,7 +231,14 @@ class SpecificAnalysisFunctions():
         dataframe = dataframe.transpose()
         dataframe["experiment_name"] = experiment_names
 
-        z_score = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
+        scaled = StandardScaler().fit_transform(dataframe.iloc[:,0:-2].values)
+        pca = PCA(n_components=2)
+        pca_data = pca.fit_transform(scaled)
+        explained_variance = pca.explained_variance_ratio_.tolist()
+        pca_dataframe = pd.DataFrame(pca_data, columns = ["PC1", "PC2"])
+        pca_dataframe["experiment_name"] = experiment_names
         
+        return pca_dataframe, explained_variance
+
 
 

@@ -14,7 +14,7 @@ class RheorampDetection(object):
         _type_: _description_
     """
     function_name = "RheoRamp-Detection"
-    plot_type_options = ["Rheoramp-Single","Rheoramp-AUC"]
+    plot_type_options = ["Rheoramp-AUC"]
     database = None  # database
     analysis_function_id = None
     series_name = None

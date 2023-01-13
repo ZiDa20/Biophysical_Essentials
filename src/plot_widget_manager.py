@@ -130,8 +130,12 @@ class PlotWidgetManager(QRunnable):
                 print(fct_name)
                 if self.analysis_functions_table_widget.cellWidget(row, 5).isChecked():
                     # calculate realted results and visualize
-                    lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
-                    upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
+                    try:
+                        lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
+                        upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
+                    except Exception as e:
+                        lower_bound = None
+                        upper_bound = None
                     analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
 
                     if level == "series":
@@ -140,7 +144,7 @@ class PlotWidgetManager(QRunnable):
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
 
                     print(x_y_tuple)  # only works if parent = experiment
-                    self.plot_scaling_factor = 1e9
+                    #self.plot_scaling_factor = 1e9
                     if x_y_tuple is not None:
                         for tuple in x_y_tuple:
                             if isinstance(tuple[1],list):

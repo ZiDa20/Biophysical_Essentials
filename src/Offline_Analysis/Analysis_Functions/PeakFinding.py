@@ -3,10 +3,11 @@ from scipy.signal import find_peaks
 from natsort import natsorted, ns
 import numpy as np
 from math import nan, isnan
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 
 
-class PeakFinding(object):
+class PeakFinding(SweepWiseAnalysisTemplate):
     
     """_summary_
 
@@ -19,6 +20,7 @@ class PeakFinding(object):
     analysis_function_id = None
     series_name = None
     AP_WINDOW = 50
+    AP_THRESHOLD = 0.01
 
     @classmethod
     def calculate_results(cls):
@@ -134,30 +136,65 @@ class PeakFinding(object):
             return "results_analysis_function_" + str(analysis_function_id) + "_" + data_table_name + "_" +"apwindow"
         else:
             return None
+        
 
     @classmethod
-    def visualize_results(cls, parent_widget):
+    def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler, sweep_name=None):
+        """
+        Will plot 3 points: threshold, max und hyperpolarization, draw bandwith
+        @param lower_bound:
+        @param upper_bound:
+        @param experiment_name:
+        @param series_identifier:
+        @param database_handler:
+        @param sweep_name:
+        @return:
+        """
 
-        print("rheoramp visualization")
+        print("live plot of peak finding")
+        data_table_name = database_handler.get_sweep_table_name(experiment_name, series_identifier)
+        time = database_handler.get_time_in_ms_of_by_sweep_table_name(data_table_name)
+        entire_sweep_table = database_handler.get_entire_sweep_table(data_table_name)
 
-        result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
-                                                          parent_widget.analysis_function_id)
-        return result_table_list
+        parameter_list = []
 
+        if sweep_name is not None:
+            data = entire_sweep_table.get(sweep_name)
+            parameter_list = cls.live_data_single_trace(database_handler,data,data_table_name,sweep_name,time,
+                                                         parameter_list)
+        else:
+            for column in entire_sweep_table:
+                print("column is ", column )
+                data = entire_sweep_table.get(column)
+                parameter_list = cls.live_data_single_trace(database_handler,data,data_table_name,column,time,
+                                                             parameter_list)
 
-    @classmethod
-    def get_list_of_result_tables(self, analysis_id, analysis_function_id):
-        '''
-        reading all specific result table names from the database
-        '''
-        q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
-        result_list = self.database.get_data_from_database(self.database.database, q,
-                                                           [analysis_id, analysis_function_id])
-        # print(analysis_id)
-        # print(analysis_function_id)
-        # print(q)
-        result_list = (list(zip(*result_list))[0])
-        return result_list
-
-
+        return parameter_list
     
+    @classmethod
+    def live_data_single_trace(cls,database_handler,data,data_table_name,column,time, parameter_list):
+        """_summary_
+
+        Args:
+            database_handler (_type_): _description_
+            data (_type_): _description_
+            data_table_name (_type_): _description_
+            column (_type_): _description_
+            time (_type_): _description_
+            parameter_list (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        y_min, y_max = database_handler.get_ymin_from_metadata_by_sweep_table_name(data_table_name, column)
+        data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+        manual_threshold = cls.AP_THRESHOLD  # in mV/ms
+        peaks, peak_heights = find_peaks(data, height=0.0, distance=200)
+        if isinstance(peak_heights, dict):
+            peak_tuple = [(time[i], t) for i,t in zip(peaks, peak_heights["peak_heights"])]
+            parameter_list.extend(peak_tuple)
+            return parameter_list
+        else:
+            # here no peaks should be detected
+            return []
+        
