@@ -122,9 +122,18 @@ class OfflinePlots():
         # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
-            
-        selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
-        self.plot_dictionary.get(analysis_function)(result_table_list, selected_meta_data)
+
+        try:    
+            selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
+        except Exception as e:
+            selected_meta_data = None
+
+        try:
+            self.plot_dictionary.get(analysis_function)(result_table_list, selected_meta_data)
+        except Exception as e:
+            self.logger.error(f"Analysis function could not be retrieved {e}")
+            raise KeyError(f"Analysis function could not be retrieved {e}")	
+        
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
     def style_plot(self):
@@ -203,7 +212,6 @@ class OfflinePlots():
         
         self.parent_widget.export_data_frame = pivoted_table
         self.parent_widget.statistics = self.holded_dataframe
-        print("hello")
 
                 
     def rheobase_plot(self, result_table_list:list, selected_meta_data = None):
