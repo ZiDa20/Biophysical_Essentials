@@ -3,7 +3,7 @@ QHeaderView::section{{background-color: white; color:black;}}
 QTreeView::branch{{background-color: white; color: "#000000";}}
 QTreeView{{color:black}}
 
-QWidget{{background-color: white;}}
+QWidget{{background-color: white;border-radius:5px;}}
 
 QGroupBox{{background-color: "#5b6e8b";}}
 QGroupBox:title{{color: "#000000";}}
@@ -46,6 +46,8 @@ QTableView::item::hover{{color:black; background-color:grey;}}
 QTableView::section{{color:black;}}
 
 PandasTable{{color:black;}}
+
+QLineEdit{{color:black; border: 2px solid black; border-radius:5px;}}
 
 QSplitter{{background-color: "#5b6e8b";}}
 
@@ -99,3 +101,4 @@ QToolTip[objectName="plot_zoadd_filter_button"]{{color: #ffffff; background-colo
 
 QPushButton[objectName="delete_selected"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/filter_remove.png);}}
 QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+

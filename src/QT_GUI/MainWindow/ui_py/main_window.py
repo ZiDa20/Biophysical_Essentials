@@ -118,7 +118,7 @@ class Ui_MainWindow(object):
 "\n"
 "QToolButton:hover{background-color: grey;}")
         icon1 = QIcon()
-        icon1.addFile(u"../../../../Desktop/SP/Biophysical_Essentials/QT_GUI/Button/welcome_page/database_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u"../QT_GUI/Button/welcome_page/database_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
         self.database_viewer_home_2.setIcon(icon1)
         self.database_viewer_home_2.setIconSize(QSize(200, 200))
         self.database_viewer_home_2.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -140,7 +140,7 @@ class Ui_MainWindow(object):
 "\n"
 "QToolButton:hover{background-color: grey;}")
         icon2 = QIcon()
-        icon2.addFile(u"../../../../Desktop/SP/Biophysical_Essentials/QT_GUI/Button/welcome_page/settings_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u"../QT_GUI/Button/welcome_page/settings_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
         self.toolButton_2.setIcon(icon2)
         self.toolButton_2.setIconSize(QSize(200, 200))
         self.toolButton_2.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -161,7 +161,7 @@ class Ui_MainWindow(object):
 "\n"
 "QToolButton:hover{background-color: grey;}")
         icon3 = QIcon()
-        icon3.addFile(u"../../../../Desktop/SP/Biophysical_Essentials/QT_GUI/Button/welcome_page/online_analysis_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon3.addFile(u"../QT_GUI/Button/welcome_page/online_analysis_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
         self.online_analysis_home_2.setIcon(icon3)
         self.online_analysis_home_2.setIconSize(QSize(200, 200))
         self.online_analysis_home_2.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -189,7 +189,7 @@ class Ui_MainWindow(object):
 "\n"
 "QToolButton:hover{background-color: grey;}")
         icon4 = QIcon()
-        icon4.addFile(u"../../../../Desktop/SP/Biophysical_Essentials/QT_GUI/Button/welcome_page/offline_analysis_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon4.addFile(u"../QT_GUI/Button/welcome_page/offline_analysis_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
         self.offline_analysis_home_2.setIcon(icon4)
         self.offline_analysis_home_2.setIconSize(QSize(200, 200))
         self.offline_analysis_home_2.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -207,7 +207,7 @@ class Ui_MainWindow(object):
 "\n"
 "QToolButton:hover{background-color: grey;}")
         icon5 = QIcon()
-        icon5.addFile(u"../../../../Desktop/SP/Biophysical_Essentials/QT_GUI/Button/welcome_page/online_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon5.addFile(u"../QT_GUI/Button/welcome_page/online_welcome.png", QSize(), QIcon.Normal, QIcon.Off)
         self.home_logo.setIcon(icon5)
         self.home_logo.setIconSize(QSize(200, 200))
         self.home_logo.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)

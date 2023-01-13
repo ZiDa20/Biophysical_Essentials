@@ -4,6 +4,7 @@ import os
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtTest import QTest
 
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
@@ -188,9 +189,14 @@ class MainWindow(QMainWindow, QtStyleTools):
 
             self.ui.side_left_menu.show()
 
-            button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis"]
+            button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis", "Continue"]
 
-            for col in range(0,3):
+            amount_of_buttons  = 3
+
+            if self.ui.offline.canvas_grid_layout.count()>0:
+                amount_of_buttons = 4
+                
+            for col in range(0,amount_of_buttons):
 
                     new_button = QToolButton()
                     new_button.setText(button_txt[col])
@@ -203,10 +209,13 @@ class MainWindow(QMainWindow, QtStyleTools):
                         new_button.clicked.connect(self.start_new_offline_analysis_from_db)
                         icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
                     if col == 2:
-                        new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
+                        new_button.clicked.connect(self.open_analysis)
                         icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if col == 3:
+                        new_button.clicked.connect(self.go_to_offline_analysis)
+                        icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
                     
-                    
+
                     new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
                     new_button.setIcon(icon)
                     new_button.setIconSize(QSize(200, 200))
@@ -215,17 +224,28 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.ui.side_left_menu.hide()
 
+    def open_analysis(self):
+        self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
+        # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
+        self.ui.offline.show_open_analysis_dialog()
+        self.ui.notebook.setCurrentIndex(3)
+        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
     
-    def start_new_offline_analysis_from_dir(self):
-        "start new offline analysis, therefore let the user choose a directory and add the data to the database"
+
+    def go_to_offline_analysis(self):
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
         self.ui.notebook.setCurrentIndex(3)
+        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
+        
+        
+    def start_new_offline_analysis_from_dir(self):
+        "start new offline analysis, therefore let the user choose a directory and add the data to the database"
+        self.go_to_offline_analysis()
         self.ui.offline.open_directory()
 
     def start_new_offline_analysis_from_db(self):
         "start new offline analysis, therefore let the user choose a data from the database"
-        self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
-        self.ui.notebook.setCurrentIndex(3)
+        self.go_to_offline_analysis()
         self.ui.offline.load_treeview_from_database()
         
 

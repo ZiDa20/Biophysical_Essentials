@@ -36,6 +36,7 @@ from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
+from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
 
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
@@ -48,6 +49,7 @@ from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import Ana
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 from Offline_Analysis.FinalResultHolder import ResultHolder
+
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -103,7 +105,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # animation of the side dataframe
         
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
-        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
+       
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
 
         # blank analysis menu
@@ -117,6 +119,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         self.navigation_list = []
 
+        self.series_to_csv.clicked.connect(self.write_series_to_csv)
+        #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
+        
+
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
         self.add_meta_data_to_treeview.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
@@ -124,6 +130,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))
         self.plot_move.clicked.connect(partial(self.navigation_rules, self.plot_move, "move"))
         self.plot_zoom.clicked.connect(partial(self.navigation_rules, self.plot_zoom, "zoom"))
+
+
+    def write_series_to_csv(self):
+        file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
+        index = self.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view.currentIndex()
+        tree_item_list = self.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model().get_data_row(index, Qt.DisplayRole)
+        if tree_item_list[1][4] == "Series":
+            q = f'select sweep_table_name from experiment_series where experiment_name = \'{tree_item_list[1][5]}\' and series_identifier = \'{tree_item_list[1][3]}\''
+            table_name = self.database_handler.database.execute(q).fetchdf()
+            table_name = table_name["sweep_table_name"].values[0]
+            df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
+            df.to_csv(file_name)
+
+
+        print("hello from the other side")
 
     def set_splitter(self, splitter):
         self.offline_tree.splitter = splitter
@@ -260,21 +281,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         dialog.close()
 
+    def show_open_analysis_dialog(self):
+        dialog = ChooseExistingAnalysis()
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+        data = self.database_handler.database.execute('select * from offline_analysis').fetchdf()
+        table_model = PandasTable(data)
+        dialog.tableView.setModel(table_model)
+        dialog.submit.clicked.connect(partial(self.open_analysis_results, dialog))
+        dialog.exec()
+        
     @Slot()
-    def open_analysis_results(self):
+    def open_analysis_results(self, dialog):
         """
         Open an existing analysis from the database
         :return:
         """
 
-        # @TODO write a popup to look to the database first or enter an analysis id immediately,
-        # maybe also give a filter function to browse by date or username
-
-        # for now, analysis is static number ->
-        # self.Offline_Analysis_Notebook.setCurrentIndex(1)
+        id = dialog.lineEdit.text()
+        dialog.close()
 
         # static offline analysis number
-        self.database_handler.analysis_id = 107
+        self.database_handler.analysis_id = int(id)
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 

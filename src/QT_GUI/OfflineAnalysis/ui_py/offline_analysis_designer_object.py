@@ -20,7 +20,7 @@ class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
             Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(1274, 710)
+        Offline_Analysis.resize(1280, 710)
         self.gridLayout_8 = QGridLayout(Offline_Analysis)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.frame = QFrame(Offline_Analysis)
@@ -518,6 +518,30 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_9 = QGridLayout()
         self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.gridLayout_14 = QGridLayout()
+        self.gridLayout_14.setObjectName(u"gridLayout_14")
+        self.series_to_csv = QPushButton(self.blank_analysis)
+        self.series_to_csv.setObjectName(u"series_to_csv")
+
+        self.gridLayout_14.addWidget(self.series_to_csv, 1, 0, 1, 1)
+
+        self.experiment_to_csv = QPushButton(self.blank_analysis)
+        self.experiment_to_csv.setObjectName(u"experiment_to_csv")
+
+        self.gridLayout_14.addWidget(self.experiment_to_csv, 1, 1, 1, 1)
+
+        self.treebuild = TreeBuild(self.blank_analysis)
+        self.treebuild.setObjectName(u"treebuild")
+        sizePolicy1.setHeightForWidth(self.treebuild.sizePolicy().hasHeightForWidth())
+        self.treebuild.setSizePolicy(sizePolicy1)
+        self.treebuild.setMinimumSize(QSize(400, 0))
+        self.treebuild.setMaximumSize(QSize(600, 16777215))
+
+        self.gridLayout_14.addWidget(self.treebuild, 0, 0, 1, 2)
+
+
+        self.gridLayout_9.addLayout(self.gridLayout_14, 1, 0, 1, 1)
+
         self.groupBox_5 = QGroupBox(self.blank_analysis)
         self.groupBox_5.setObjectName(u"groupBox_5")
         sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -548,21 +572,7 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_7.addLayout(self.verticalLayout, 2, 2, 1, 1)
 
 
-        self.gridLayout_9.addWidget(self.groupBox_5, 0, 1, 1, 1)
-
-        self.gridLayout_14 = QGridLayout()
-        self.gridLayout_14.setObjectName(u"gridLayout_14")
-        self.treebuild = TreeBuild(self.blank_analysis)
-        self.treebuild.setObjectName(u"treebuild")
-        sizePolicy1.setHeightForWidth(self.treebuild.sizePolicy().hasHeightForWidth())
-        self.treebuild.setSizePolicy(sizePolicy1)
-        self.treebuild.setMinimumSize(QSize(400, 0))
-        self.treebuild.setMaximumSize(QSize(600, 16777215))
-
-        self.gridLayout_14.addWidget(self.treebuild, 0, 0, 1, 1)
-
-
-        self.gridLayout_9.addLayout(self.gridLayout_14, 0, 0, 1, 1)
+        self.gridLayout_9.addWidget(self.groupBox_5, 1, 1, 1, 1)
 
 
         self.gridLayout_2.addLayout(self.gridLayout_9, 0, 0, 1, 1)
@@ -678,5 +688,7 @@ class Ui_Offline_Analysis(object):
         self.blank_analysis_button.setText(QCoreApplication.translate("Offline_Analysis", u"Start Blank Analysis", None))
         self.label_3.setText(QCoreApplication.translate("Offline_Analysis", u"Open Existing Analysis", None))
         self.label.setText(QCoreApplication.translate("Offline_Analysis", u"New Blank Analysis", None))
+        self.series_to_csv.setText(QCoreApplication.translate("Offline_Analysis", u"Series to .csv", None))
+        self.experiment_to_csv.setText(QCoreApplication.translate("Offline_Analysis", u"Experiment to .csv", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
     # retranslateUi
