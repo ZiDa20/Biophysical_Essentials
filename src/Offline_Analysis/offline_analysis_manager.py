@@ -8,7 +8,7 @@ from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 
-    def __init__(self, progress, statusbar):
+    def __init__(self,):
         """ constructor of the manager class
         
         args:
@@ -17,9 +17,10 @@ class OfflineManager():
         """
         self.meta_path = None
         self.dat_files = None
-        self.statusbar = statusbar
-        self.progressbar = progress
+   
         self.database_handler = None
+
+       
 
         self._directory_path = None
 
@@ -51,6 +52,11 @@ class OfflineManager():
     @directory_path.setter
     def directory_path(self,val):
         self._directory_path = val
+
+    def set_status_and_progress_bar(self,status, progress):
+        self.statusbar = status
+        self.progressbar = progress
+        self.statusbar.setText(f"The Process is beeing set up ... ") 
 
     def execute_single_series_analysis(self,series_name, progress_callback):
         """
@@ -200,7 +206,9 @@ class OfflineManager():
             data (callback, tuple[float, str]): Tuple of current Experiment Name and Progress
         """
         self.progressbar.setValue(data[0])
-        self.statusbar.showMessage(f"Writing data to database: {data[1]}")
+        #self.statusbar.showMessage(f"Writing data to database: {data[1]}")
+        self.statusbar.setText(f"Writing data to database: {data[1][1]}")
+
 
     def write_analysis_series_types_to_database(self,series_type_list):
         """

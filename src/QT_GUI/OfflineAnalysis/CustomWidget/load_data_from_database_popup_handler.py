@@ -53,14 +53,15 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         
         #Create a figure
         self.figure = Figure()
-       
+        manual_colors = ["#5b6e8b"] #,"#6b7c96","#7b8ba2","#8c99ad", "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
+
         # Set the figure size and create the subplots
         ax = self.figure.subplots(2, 3)
 
 
         # Create a canvas to display the figure
         self.canvas = FigureCanvas(self.figure)
-        
+        self.canvas.setStyleSheet("background-color: rgba(1,0,0,0);")
         # in case of previous plots: clear the layout first
         for i in range(self.diagram_grid.count()): 
             self.diagram_grid.itemAt(i).widget().deleteLater()
@@ -92,7 +93,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             df = meta_data_table
             total = df[column_name].value_counts().sum()
             print("row=", row, " column= ", column)
-            ax[row, column].pie(df[column_name].value_counts(), labels=df[column_name].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100))
+            ax[row, column].pie(df[column_name].value_counts(), labels=df[column_name].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=manual_colors)
             ax[row, column].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             ax[row, column].set_title(column_name)
         

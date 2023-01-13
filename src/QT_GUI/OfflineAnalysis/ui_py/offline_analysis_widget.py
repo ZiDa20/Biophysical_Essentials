@@ -5,6 +5,11 @@ from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 
+from PySide6.QtTest import QTest
+
+from Offline_Analysis.offline_analysis_manager import OfflineManager
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from treeview_manager import TreeViewManager
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from treeview_manager import TreeViewManager
 from plot_widget_manager import PlotWidgetManager
@@ -47,12 +52,13 @@ from Offline_Analysis.FinalResultHolder import ResultHolder
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
-    def __init__(self, progress, status, parent=None):
+    def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.progressbar = progress
-        self.statusbar = status
+        self.progressbar = None
+        self.statusbar = None
+        self.status_label = None
         self.add_filter_button.setEnabled(False)
 
         
@@ -66,10 +72,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2)
         self.final_result_holder = ResultHolder()
       
-        self.offline_manager = OfflineManager(progress, status)
+        self.offline_manager = OfflineManager()
         self.offline_tree.offline_manager = self.offline_manager
         self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
 
+        self.wait_widget = None
+        self.ap_timer = None
         self.offline_tree.splitter = None
         
 
@@ -105,12 +113,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
-        self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
+        #self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         self.navigation_list = []
 
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.show_colum_2.clicked.connect(self.select_tree_view_meta_data)
+        self.add_meta_data_to_treeview.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
 
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))
@@ -144,7 +152,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
         dialog = SelectMetaDataForTreeviewDialog(self.database_handler, self.blank_analysis_tree_view_manager, self.blank_analysis_plot_manager)
-
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         #dialog.finish_button.clicked.connect(
         #    partial(self.add_meta_data_to_tree_view,checkbox_list, name_list, dialog))
 
@@ -214,6 +222,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """ Popup Dialog to edit the metadata of the selected experiments 
         """
         edit_data = MetadataPopupAnalysis()
+        self.frontend_style.set_pop_up_dialog_style_sheet(edit_data)
         edit_data.quit.clicked.connect(edit_data.close)
         metadata_table = QTableView()
         q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
@@ -228,6 +237,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             Popup Dialog to edit the metadata of the related series
         """
         edit_data = MetadataPopupAnalysis()
+        self.frontend_style.set_pop_up_dialog_style_sheet(edit_data)
         edit_data.quit.clicked.connect(edit_data.close)
         metadata_table = QTableView()
         q = f'select * from experiment_series where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
@@ -329,6 +339,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         @return:
         """
+        self.canvas_grid_layout.addWidget(self.wait_widget)
+
         self.selected_meta_data_list = []
 
         for cb in self.load_data_from_database_dialog.checkbox_list:
@@ -348,9 +360,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
 
-        #index =  self.treebuild.selected_tree_view.model().index(5, 5, QModelIndex())
-        #self.blank_analysis_tree_view_manager.click_qtreeview_cell(self.treebuild.selected_tree_view, index)
+        index =  self.treebuild.selected_tree_view.model().index(1, 1, QModelIndex())
+        
+        # Get the rect of the index
+        rect = self.treebuild.selected_tree_view.visualRect(index)
 
+        # Get the position of the index
+        pos = self.treebuild.selected_tree_view.viewport().mapFromGlobal(self.treebuild.selected_tree_view.mapToGlobal(rect.center()))
+
+        # simulate a mouse click on the index
+        QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=pos)
     def load_recordings(self, progress_callback):
         """_summary_
 
@@ -420,6 +439,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # close the dialog
         enter_meta_data_dialog.close()
+
+        # show animation
+        #for i in range(self.canvas_grid_layout.count()): 
+        #        self.canvas_grid_layout.itemAt(i).widget().deleteLater()
+
+        self.canvas_grid_layout.addWidget(self.wait_widget)
 
         # create a new treeview manager 
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
@@ -1246,8 +1271,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         """
         self.progressbar.setValue(data[0])
-        self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
-
+        #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
+        self.status_label.setText("Analyzing: " + str(data[1]) + "%")
+        
     def finished_result_thread(self):
         """
         Once all the reuslt have been calculated, an offline tab is created.

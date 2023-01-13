@@ -1,290 +1,101 @@
-QPushButton {{
-  border-color: {QTMATERIAL_PRIMARYCOLOR};
-  color: {QTMATERIAL_PRIMARYCOLOR};
-  text-transform: none;
-  height: 30px;
-  border-radius: 10px;
 
+QHeaderView::section{{background-color: white; color:black;}}
+QTreeView::branch{{background-color: white; color: "#000000";}}
+QTreeView{{color:black}}
+
+QWidget{{background-color: white;}}
+
+QGroupBox{{background-color: "#5b6e8b";}}
+QGroupBox:title{{color: "#000000";}}
+
+QTabWidget{{background-color: "#e6e6e6";}}
+
+QWidget[accessibleName="additional_function_menu"]{{background-color: "#5b6e8b";}}
+
+QPushButton{{background-color: "#5b6e8b"; border: 0px; color:black;}}
+QPushButton:hover{{background-color: "grey"; border: 0px;}}
+
+
+QLabel{{
+    background-color: transparent; 
+    color: "#000000";
 }}
 
-QPushButton[objectName ="darkmode_button"] {{
-  background-image : url(../QT_GUI/Button/Logo/Lightmode_button.png);
-  background-repeat: None;
-  color: #d2691e;
-  padding: 5px 10px;
-  background-position: left;
-  border: none;
-  border-radius: 5px;
+QCheckBox{{background-color:transparent; color:black; border:black; }}
+
+QRadioButton{{background-color:transparent; color:white; border:black; }}
+QRadioButton::indicator{{border: 2px solid black; color: black; border-radius:10px;}}
+QRadioButton::indicator::checked{{ background-color: black;}}
+
+QComboBox{{background-color:transparent; color:black; border:black; }}
+
+QProgressBar{{
+    border: 2px solid grey;
+    border-radius: 5px;
+    background-color: white;
 }}
 
-QWidget[objectName="frame"] QGroupBox{{
-  background-color: rgb(48, 25, 52);
-  border: 1px solid {QTMATERIAL_SECONDARYCOLOR};
-  color: white;
+QProgressBar::chunk{{
+    border: 2px solid grey;
+    background-color: "#5b6e8b";
 }}
 
-QPushButton::pressed{{
-  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
-  color: skyblue;
-  text-transform: scale(1.5);
-}}
+QTableView::item{{color:black;}}
+QTableView::item::hover{{color:black; background-color:grey;}}
 
-QPushButton:hover{{
-	background-color: "#54545a";
-}}
+QTableView::section{{color:black;}}
 
-FigureCanvas{{
-  background-color: transparent;
-}}
+PandasTable{{color:black;}}
 
-ListView{{
-  background-color: rgba(4,7,26, 180) ;
-}}
+QSplitter{{background-color: "#5b6e8b";}}
 
-QScrollArea > QWidget > QWidget {{
-  background-color: {QTMATERIAL_PRIMARYCOLOR};
-}}
+QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  
+QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_right.png);}}  
 
-QScrollArea  {{
-  border-radius:10px;
-}}
+QPushButton[objectName="select_directory_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
+QToolTip[objectName="select_directory_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="load_from_database"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/db.png);}}
+QToolTip[objectName="load_from_database"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QTabWidget[accessibleName="self_configuration_notebook"] QStackedWidget > QWidget {{
-  background-color: {QTMATERIAL_SECONDARYCOLOR};
-}}
+QPushButton[objectName="edit_meta"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/edit_meta.png);}}
+QToolTip[objectName="edit_meta"] {{ color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="merge_series"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/merge.png);}}
+QToolTip[objectName="mergie_series"] {{ color: #ffffff; background-color: #000000; border: 0px; }}
 
-QTabWidget[accessibleName="tab_widgets"] QStackedWidget > QWidget {{
-  background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border: 2px solid #fff5cc;
-  border-radius: 5px
+QPushButton[objectName="edit_series_meta_data"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/burst.png);}}
+QToolTip[objectName="edit_series_meta_data"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-}}
+QPushButton[objectName="clear"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/broom.png);}}
+QToolTip[objectName="clear"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QStackedWidget[objectName="offline_analysis_widgets"] {{
-  background-color: rgba(255,255,255, 0);
-  border-radius: 5px
+QPushButton[objectName="append"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/append.png);}}
+QToolTip[objectName="append"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-}}
+QPushButton[objectName="add_meta_data_to_treeview"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/add_meta_data.png);}}
+QToolTip[objectName="add_meta_data_to_treeview"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QStackedWidget[objectName="offline_analysis_widgets"] > QWidget {{
-  background-color: rgba(255,255,255, 0);
-  border-radius: 5px
-}}
+QPushButton[objectName="start_analysis"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/play.png);}}
+QToolTip[objectName="start_analysis"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="compare_series"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/cursor.png);}}
+QToolTip[objectName="compare_series"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QTabWidget[accessibleName="tab_widgets"] QTabBar {{
-  background-color: #fff5cc;
-  color:{QTMATERIAL_SECONDARYCOLOR};
+QPushButton[objectName="postgresql_upload"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/upload.png);}}
+QToolTip[objectName="postgresql_upload"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-}}
+QPushButton[objectName="plot_home"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/plot_home.png);}}
+QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::selected {{
-  color:black;
-}}
+QPushButton[objectName="plot_move"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/plot_move.png);}}
+QToolTip[objectName="plot_move"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QTabWidget[accessibleName="tab_widgets"] QTabBar::tab::!selected {{
-  color:grey;
-}}
+QPushButton[objectName="plot_zoom"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/plot_zoom.png);}}
+QToolTip[objectName="plot_zoom"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QTreeWidget {{
-  background-color:  {QTMATERIAL_SECONDARYCOLOR}
-}}
+QPushButton[objectName="add_filter_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/filter_edit.png);}}
+QToolTip[objectName="plot_zoadd_filter_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-
-QGroupBox[objectName="button_box_1"]{{
-  color:white;
-  border: 1px #fff5cc;
-}}
-
-
-QStackedWidget{{
-  background-color: rgba(255,255,255,100);
-}}
-
-QWidget[objectName="centralwidget"]{{
-  background-color: rgba(255,255,255,50);
-  border-radius: 10px
-}}
-
-QMainWindow{{
-  background-color: {QTMATERIAL_SECONDARYCOLOR};
-  border-radius: 10px 10px 0px 0px;
-}}
-
-QStatusBar{{
-  background-color: rgba(135,206,235, 180);
-  border-radius: 0px 0px 20px 20px;
-}}
-
-QTabWidget[objectName="self_configuration_notebook"] QTabBar{{
-  border-radius: 5px;
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-}}
-
-QTabWidget[objectName="self_configuration_notebook"] QTabBar::tab::selected{{
-  color: black;
-  background-color:#fff5cc;
-  border-radius: 5px
-}}
-
-
-QWidget[objectName="experiment_initialization_3"]{{
-  border-radius: 5px;
-  background-color: rgba(4,7,26, 180)
-}}
-
-QWidget[objectName="batch_communication_3"]{{
-  border-radius: 5px;
-  background-color: rgba(4,7,26, 180)
-}}
-
-QWidget[objectName="camera_3"]{{
-  border-radius: 5px;
-  background-color: rgba(4,7,26, 180)
-}}
-
-QWidget[objectName="page"]{{
-  background-color: rgba(4,7,26, 0);
-}}
-
-QWidget[objectName="page_2"]{{
-  background-color: rgba(4,7,26, 0);
-}}
-
-
-QTabWidget[objectName="online_analysis"] QTabBar{{
-  border-radius: 5px;
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-}}
-
-QTabWidget[objectName="online_analysis"] QTabBar::tab::selected{{
-  color: black;
-  background-color:#fff5cc;
-  border-radius: 5px
-}}
-
-QWidget[objectName="online_analysis_window"]{{
-  border-radius: 5px;
-  background-color: rgba(4,7,26, 180)
-}}
-
-
-QTabWidget[objectName="directory_tree_widget"] {{
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-
-}}
-
-
-QTabWidget[objectName="directory_tree_widget"] QTabBar{{
-  border-radius: 5px;
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-}}
-
-QTabWidget[objectName="directory_tree_widget"] QTabBar::tab::selected{{
-  color: black;
-  background-color:{QTMATERIAL_SECONDARYCOLOR};
-  border-radius: 5px
-}}
-
-
-QWidget[objectName="labbook_window"]{{
-  background-color: rgba(255,255,255, 180);
-}}
-
-QProgressBar {{
-  border: 2px solid #fff5cc;
-  border-radius: 5px;
-  background-color: rgba(255,255,255, 180);
-}}
-
-QWidget[objectName="home"] {{
-
-  background-color: rgba(255,255,255, 0);
-}}
-
-QWidget[objectName="frame"]{{
-  background-color: rgba(255,255,255, 180);
-
-}}
-
-
-QWidget[objectName="OfflineResultWidget"]{{
-  background-color: rgba(0,0,0,0)
-}}
-
-
-QStackedWidget[objectName="data_base_stacked_widget"]{{
-  background-color: rgba(4,7,26, 180)
-}}
-
-QWidget[objectName="data_base"]{{
-  background-color: rgba(4,7,26, 0)
-}}
-
-
-QWidget[objectName="Offline_Analysis_Notebook"]  {{
-  background-color: rgba(4,7,26, 180) ;
-  border-radius: 5px
-}}
-
-
-
-QWidget[objectName="side_left_menu"]  QPushButton{{
-  color: #fff5cc;
-}}
-
-
-QWidget[objectName="side_left_menu"]  QPushButton:pressed{{
-  color: skyblue;
-  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                      stop: 0 #dadbde, stop: 1 #f6f7fa);
-  border-radius: 10px 10px 0px 0px;
-}}
-
-
-QMdiArea {{
-  qproperty-background: transparent;
-  border: 1px solid #fff5cc;
-}}
-
-QTabWidget {{
-  background-color:transparent;
-
-}}
-
-QWidget[objectName = "toolbar_widget"] {{
-background:transparent;
-}}
-
-QWidget[objectName = "toolbar_widget"] QWidget {{
-border:0px;
-border-radius: 10px;
-background-color:rgb(135, 206, 235);
-align:center;
-}}
-
-QListWidget[objectName="database_table"] {{
-  background-color: rgba(4,7,26, 180);
-  border-radius: 5px;
-}}
-
-QTableView {{
-  background-color: transparent;
-}}
-
-QTableView QHeaderView::section{{
-  background-color: transparent;
-  border-color: white;
-}}
-
-QGroupBox[objectName="groupBox_3"]{{
-  background-color: transparent;
-  border-radius: 5px;
-}}
-
-QMainWindow{{
-  border-radius: 5px;
-}}
+QPushButton[objectName="delete_selected"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/filter_remove.png);}}
+QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #000000; border: 0px; }}

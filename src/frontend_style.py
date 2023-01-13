@@ -10,37 +10,9 @@ class Frontend_Style():
         # style 1 = dark mode
         self.canvas = []
         self.ax = []
-        self.current_style = 1
-        self.sideframe_light_style = u"QWidget{background-color: \"#FFFFFF\";}\n" \
-                                "QPushButton{padding: 10px 10px;"\
-                                "	        padding-left: 20px;" \
-                                "	        border: none;" \
-                                "	        border-radius: 20px 20px 0px 0x;" \
-                                "	        background-color: \"#FFFFFF\";"\
-                                "	        color: \"#97ccf2\";}"\
-                                "QPushButton:hover{background-color: \"#54545a\";}"
-
-
-        self.sideframe_dark_style = u"QWidget{background-color: rgba(4,7,26, 180);}\n" \
-                                "QPushButton{padding: 10px 10px;"\
-                                "	        padding-left: 20px;" \
-                                "	        border: none;" \
-                                "	        border-radius: 20px 20px 0px 0x;" \
-                                "	        background-color: rgba(4,7,26, 0);"\
-                                "	        color: #fff5cc;}"\
-                                "QPushButton:hover{background-color: \"#54545a\";}"
+        self.current_style = 1                                                              
                                   
-                                  
-        self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; color:black; }\n" \
-                           "QPushButton{ padding: 10px 10px; " \
-                           "	         padding-left: 20px;" \
-                           "             border None ;" \
-                           "             border-radius:5px;" \
-                           "             color:black; " \
-                           "             background-color: \"#e6e6e6\";}" \
-                           "QPushButton:hover{ background-color: \"#2986cc\";} " \
-                           "QDialog{background-color: \"#ffffff\"; }"
-
+        self.light_style = None
 
         self.dark_style = u"QWidget{ background-color: rgba(4,7,26, 200);\ } \n" \
                            "QPushButton{ padding: 5px 10px; " \
@@ -62,9 +34,6 @@ class Frontend_Style():
 
     def get_light_style(self):
         return self.light_style
-    
-    def get_sideframe_light(self):
-        return self.sideframe_light_style
 
     def get_sideframe_dark(self):
         return self.sideframe_dark_style
@@ -76,7 +45,9 @@ class Frontend_Style():
         :return:
         '''
         if self.current_style == 0:
-            dialog.setStyleSheet(self.light_style)
+            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+                dialog.setStyleSheet(file.read().format(**os.environ))
+
         else:
             dialog.setStyleSheet(self.dark_style)
                     

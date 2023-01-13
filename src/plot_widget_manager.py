@@ -378,23 +378,7 @@ class PlotWidgetManager(QRunnable):
 
         self.time = self.get_time_from_meta_data(meta_data_df)
 
-        fig = self.canvas.figure
-        fig.clf()
-
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-
-        print("error here")
-        print(series_df)
-        print(sweep_name)
+        self.create_new_subplots(split_view)
 
         data = series_df[sweep_name].values.tolist()
         data = np.array(data)
@@ -408,7 +392,9 @@ class PlotWidgetManager(QRunnable):
             # data scaling to nA
             self.plot_scaling_factor = 1e9
 
-        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'yellow', alpha=0.5)
+        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'black')
+
+        self.handle_plot_visualization()
 
         pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
                                                                                         series_identifier)
@@ -428,102 +414,6 @@ class PlotWidgetManager(QRunnable):
             self.ax1.axvline(x_pos, c='tab:gray')
 
         self.handle_plot_visualization()
-
-    """ @deprecated DZ 01.12.2022
-    def series_clicked_load_from_database(self,item):
-        
-        When a series was clicked, data arrays all of its sweeps signal traces will be plotted.
-        The data therefore will be loaded live from the database.
-        :param item:
-        :return:
-        :author: dz, 29.06.2022
-        
-        print("%s series was clicked", item.text(0))
-        split_view = True
-
-        #self.navbar.setStyleSheet('align:center; background:#fff5cc;')
-        self.vertical_layout.addWidget(self.canvas)
-
-        series_name = item.text(0)
-
-
-        # The data table will be pulled from the database from table 'experiment_series'.
-        # the correct table name is identified by the tuple (experiment_name, series_identifier)
-        # stored in the series item at position 3
-
-        data_request_information = item.data(3, 0)
-
-
-        db = self.offline_manager.get_database()
-        series_df = db.get_sweep_table_for_specific_series(data_request_information[0],data_request_information[1])
-
-        print("requested series dataframe")
-        print(series_df)
-
-        #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
-
-        # get the meta data to correctly display y values of traces
-        meta_data_df = db.get_meta_data_table_of_specific_series(data_request_information[0],data_request_information[1])
-        self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
-        self.time = self.get_time_from_meta_data(meta_data_df)
-
-        column_names = series_df.columns.values.tolist()
-
-        fig = self.canvas.figure
-        fig.clf()
-
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-
-
-        # plot for each sweep
-        for name in column_names:
-            data = series_df[name].values.tolist()
-            data = np.array(data)
-
-            if self.y_unit == "V":
-                y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
-                data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
-                # data scaling to mV
-                self.plot_scaling_factor = 1000
-            else:
-                # data scaling to nA
-                self.plot_scaling_factor = 1e9
-
-            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
-
-            if self.detection_mode:
-                peaks, _ = find_peaks(data, height = 0.00,distance=200)
-                print('peaks')
-                print(peaks)
-                self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
-
-
-        # finally also the pgf file needs to be added to the plot
-        # load the table
-        pgf_table_df = db.get_entire_pgf_table_by_experiment_name_and_series_identifier(data_request_information[0],data_request_information[1])
-
-        #print(pgf_table_df)
-
-        protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
-        print("Protocol Steps")
-        print(protocol_steps)
-        for x in range(0,len(protocol_steps)):
-
-            x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
-            print(x_pos)
-            #self.ax1.axvline(x_pos, c = 'tab:gray')
-
-        self.handle_plot_visualization()
-    """
-
 
     def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
 
@@ -555,19 +445,7 @@ class PlotWidgetManager(QRunnable):
 
         column_names = series_df.columns.values.tolist()
 
-        fig = self.canvas.figure
-        fig.clf()
-
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-
+        self.create_new_subplots(split_view)
 
         # plot for each sweep
         for name in column_names:
@@ -583,14 +461,15 @@ class PlotWidgetManager(QRunnable):
                 # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k', label=name)
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k')
 
+            """
             if self.detection_mode:
                 peaks, _ = find_peaks(data, height = 0.00,distance=200)
                 print('peaks')
                 print(peaks)
                 self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
-
+            """
 
         # finally also the pgf file needs to be added to the plot
         # load the table
@@ -599,16 +478,40 @@ class PlotWidgetManager(QRunnable):
         #print(pgf_table_df)
 
         protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
-        print("Protocol Steps")
-        print(protocol_steps)
+        
+        #print("Protocol Steps")
+        #print(protocol_steps)
+        
+        """
         for x in range(0,len(protocol_steps)):
 
             x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
-            #self.ax1.axvline(x_pos, c = 'tab:gray')
-
-        self.handle_plot_visualization()
+            self.ax1.axvline(x_pos, c = 'tab:gray')
+        """
         self.vertical_layout.addWidget(self.canvas)
+        self.handle_plot_visualization()
+
+    def create_new_subplots(self, split_view):
+        """
+        create new subplots for data and pgf view
+        """
+        fig = self.canvas.figure
+        fig.clf()
+
+        if split_view:
+            # initialise the figure. here we share X and Y axis
+            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+
+            self.ax1 = axes[0]
+            self.ax2 = axes[1]
+        else:
+            self.ax1 = self.canvas.figure.subplots()
+            self.ax2 = self.ax1.twinx()
+
+
+            
+ 
 
     def handle_plot_visualization(self):
         """
@@ -620,30 +523,34 @@ class PlotWidgetManager(QRunnable):
         self.ax1.spines['right'].set_visible(False)
         self.ax2.spines['top'].set_visible(False)
         self.ax2.spines['right'].set_visible(False)
-        self.ax1.patch.set_alpha(0)
-        self.ax2.patch.set_alpha(0)
+        #self.ax1.patch.set_alpha(0)
+        #self.ax2.patch.set_alpha(0)
 
-        self.ax1.spines['bottom'].set_color('white')
-        self.ax1.spines['left'].set_color('white')
-        self.ax1.xaxis.label.set_color('white')
-        self.ax1.yaxis.label.set_color('white')
-        self.ax1.tick_params(axis='x', colors='white')
-        self.ax1.tick_params(axis='y', colors='white')
 
-        self.ax2.spines['bottom'].set_color('white')
-        self.ax2.spines['left'].set_color('white')
-        self.ax2.xaxis.label.set_color('white')
-        self.ax2.yaxis.label.set_color('white')
-        self.ax2.tick_params(axis='x', colors='white')
-        self.ax2.tick_params(axis='y', colors='white')
+        # todo check for white or dakr mode
+        ax_color = 'black'
+        self.ax1.spines['bottom'].set_color(ax_color)
+        self.ax1.spines['left'].set_color(ax_color)
+        self.ax1.xaxis.label.set_color(ax_color)
+        self.ax1.yaxis.label.set_color(ax_color)
+        self.ax1.tick_params(axis='x', colors=ax_color)
+        self.ax1.tick_params(axis='y', colors=ax_color)
 
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        self.ax1.autoscale()
-        self.ax2.autoscale()
-        self.canvas.figure.tight_layout()
 
-        self.canvas.figure.patch.set_alpha(0)
-        self.canvas.figure.tight_layout()
+        self.ax2.spines['bottom'].set_color(ax_color)
+        self.ax2.spines['left'].set_color(ax_color)
+        self.ax2.xaxis.label.set_color(ax_color)
+        self.ax2.yaxis.label.set_color(ax_color)
+        self.ax2.tick_params(axis='x', colors=ax_color)
+        self.ax2.tick_params(axis='y', colors=ax_color)
+        
+        #plt.subplots_adjust(left=0.8, right=0.9, bottom=0.8, top=0.9)
+        #self.ax1.autoscale()
+        #self.ax2.autoscale()
+        #self.canvas.figure.tight_layout()
+
+        #self.canvas.figure.patch.set_alpha(0)
+        #self.canvas.figure.tight_layout()
         self.ax2.set_xlabel('Time [ms]')
         if self.y_unit == "V":
             self.ax1.set_ylabel('Voltage [mV]')

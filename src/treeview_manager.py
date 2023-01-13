@@ -180,6 +180,7 @@ class TreeViewManager():
                 progress_callback.emit((progress_value,i))
             except Exception as e:
                 self.logger.error("The DAT file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
+                progress_callback.emit((progress_value,i))
                 database.database.close() # we close the database connection and emit an error message
         
 
