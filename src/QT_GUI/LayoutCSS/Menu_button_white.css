@@ -1,5 +1,5 @@
 
-QHeaderView::section{{background-color: white;}}
+QHeaderView::section{{background-color: white; color:black;}}
 QTreeView::branch{{background-color: white; color: "#000000";}}
 QTreeView{{color:black}}
 
@@ -16,18 +16,37 @@ QPushButton{{background-color: "#5b6e8b"; border: 0px; color:black;}}
 QPushButton:hover{{background-color: "grey"; border: 0px;}}
 
 
-QLabel{{background-color: transparent; 
-    color: "#000000";}}
+QLabel{{
+    background-color: transparent; 
+    color: "#000000";
+}}
 
 QCheckBox{{background-color:transparent; color:black; border:black; }}
 
-QRadioButton{{background-color:transparent; color:black; border:black; }}
+QRadioButton{{background-color:transparent; color:white; border:black; }}
+QRadioButton::indicator{{border: 2px solid black; color: black; border-radius:10px;}}
+QRadioButton::indicator::checked{{ background-color: black;}}
 
 QComboBox{{background-color:transparent; color:black; border:black; }}
 
 QStatusBar{{
     background-color: "#5b6e8b";
     border-radius: 0px 0px 20px 20px;
+  }}
+
+QTableView::item{{color:black;}}
+QTableView::item::hover{{color:black; background-color:grey;}}
+
+QTableView::section{{color:black;}}
+
+PandasTable{{color:black;}}
+
+QSplitter{{background-color: "#5b6e8b";}}
+
+QProgressBar {{
+    border: 2px solid #fff5cc;
+    border-radius: 5px;
+    background-color: black;
   }}
 
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  

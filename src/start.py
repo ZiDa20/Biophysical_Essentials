@@ -12,6 +12,12 @@ from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysi
 from QT_GUI.Settings.ui_py.settings_dialog import *
 from frontend_style import Frontend_Style
 from database.data_db import DuckDBDatabaseHandler
+
+from animated_ap import AnimatedAP
+import matplotlib.animation as animation
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
 if sys.platform != "darwin":
     from BlurWindow.blurWindow import GlobalBlur
 
@@ -28,6 +34,50 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        wait_widget = QWidget()
+        wait_widget_layout = QGridLayout()
+        self.ui.progressBar = QProgressBar()
+        self.ui.progressBar.setFixedWidth(200)
+        self.ui.progressBar.setAlignment(Qt.AlignLeft)
+        new_label = QLabel()
+        new_label.setText("Loading... \n Please Wait, your data is getting prepared ")
+        wait_widget_layout.addWidget(new_label, 0, 0)
+        canvas_widget = QWidget()
+        wait_widget_layout.addWidget(canvas_widget,0,1)
+        wait_widget_layout.addWidget(self.ui.progressBar,1,0)
+        wait_widget.setLayout(wait_widget_layout)
+        
+        fig = Figure()
+        canvas = FigureCanvas(fig)
+        canvas.setParent(canvas_widget)
+
+        # Create a plot on the figure
+        ax = fig.add_subplot(111)
+
+
+        #ax.plot([1, 2, 3, 4], [10, 20, 25, 30], 'r-')
+
+        # Show the plot on the QWidget
+        #canvas.draw()
+
+        #ax = self.canvas.figure.subplots(nrows=1, ncols=1, sharex=True, sharey=False)
+        ap = AnimatedAP(ax)
+
+        # Create the animation using the update function and the time points as frames
+        anim = animation.FuncAnimation(fig, ap.anim_update, frames=len(ap.time), blit=True)
+        
+        # Show the plot on the QWidget
+        # Create a QTimer
+        self.timer = QTimer()
+        self.timer.setInterval(50)
+        self.timer.timeout.connect(lambda: anim.event_source.start())        
+        canvas.draw()
+        # Add labels to the x- and y-axes
+        #ax.set_xlabel('Time (ms)')
+        #ax.set_ylabel('Membrane Potential (mV)')
+        #plt.show()
+        # Display the animation
+        #ap.show_dialog()
         # main window
         #self.ui.progressBar = QProgressBar()
         #self.ui.statusBar = Ui_MainWindow.statusBar()# add Status Bar to the App
@@ -40,6 +90,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
+        self.ui.offline.ap_timer = self.timer
 
 
 
@@ -67,6 +118,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         # distribute this style object to all other classes to be used
         # whenever the style will be changed, all classes share the same style object and adapt it's appearance
         self.ui.offline.frontend_style = self.frontend_style
+        self.ui.offline.wait_widget = wait_widget
+        self.ui.offline.progressbar = self.ui.progressBar
+        
         self.ui.offline.result_visualizer.frontend_style = self.frontend_style
 
         self.ui.offline.set_splitter(self.ui.offline.object_splitter)

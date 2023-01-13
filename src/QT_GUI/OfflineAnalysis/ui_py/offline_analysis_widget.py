@@ -70,6 +70,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.offline_manager = self.offline_manager
         self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
        
+        self.wait_widget = None
+        self.ap_timer = None
 
         self.offline_tree.splitter = None
 
@@ -142,7 +144,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
         dialog = SelectMetaDataForTreeviewDialog(self.database_handler, self.blank_analysis_tree_view_manager, self.blank_analysis_plot_manager)
-
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         #dialog.finish_button.clicked.connect(
         #    partial(self.add_meta_data_to_tree_view,checkbox_list, name_list, dialog))
 
@@ -207,6 +209,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """ Popup Dialog to edit the metadata of the selected experiments 
         """
         edit_data = MetadataPopupAnalysis()
+        self.frontend_style.set_pop_up_dialog_style_sheet(edit_data)
         edit_data.quit.clicked.connect(edit_data.close)
         metadata_table = QTableView()
         q = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
@@ -221,6 +224,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             Popup Dialog to edit the metadata of the related series
         """
         edit_data = MetadataPopupAnalysis()
+        self.frontend_style.set_pop_up_dialog_style_sheet(edit_data)
         edit_data.quit.clicked.connect(edit_data.close)
         metadata_table = QTableView()
         q = f'select * from experiment_series where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
@@ -322,6 +326,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         @return:
         """
+        self.canvas_grid_layout.addWidget(self.wait_widget)
+
         self.selected_meta_data_list = []
 
         for cb in self.load_data_from_database_dialog.checkbox_list:
@@ -413,6 +419,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # close the dialog
         enter_meta_data_dialog.close()
+
+        # show animation
+        self.canvas_grid_layout.addWidget(self.wait_widget)
 
         # create a new treeview manager 
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
