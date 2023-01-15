@@ -432,9 +432,10 @@ class TreeViewManager:
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
+            """
             plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["Series"]],tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]],"series" )
-
+            """
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Sweep":
             print("sweep clicked")

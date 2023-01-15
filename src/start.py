@@ -384,25 +384,25 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
-            self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            
+            #self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
+            self.apply_stylesheet(self, "white_mode.xml", invert_secondary=True)
             # open the extension from the css file
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
                 
             #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
-            self.frontend_style.change_canvas_bright()
+            #self.frontend_style.change_canvas_bright()
            
             
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
-            self.apply_stylesheet(self, "hello.xml")
+            #self.apply_stylesheet(self, "hello.xml")
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
             
-            self.frontend_style.change_canvas_dark()
+            #self.frontend_style.change_canvas_dark()
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
@@ -426,7 +426,6 @@ class MainWindow(QMainWindow, QtStyleTools):
     def get_darkmode(self):
         "returns the darkmode state"
         return self.default_mode
-
 
 if __name__ == "__main__":
     """Main function to start the application"""

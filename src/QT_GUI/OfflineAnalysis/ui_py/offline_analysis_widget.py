@@ -1000,6 +1000,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # 1) create dialog
         dialog = QDialog()
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+
         dialog_grid = QGridLayout(dialog)
 
         # 2) get recording mode of the specific series
@@ -1023,7 +1025,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             partial(self.update_selected_analysis_function_table, checkbox_list, analysis_function_names, dialog))
 
         # 6) Add button widget to correct grid position, finally execute the dialog
-        dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0)
+        dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0 , 1 , 2)
+
         dialog.setWindowTitle("Available Analysis Functions for Series " + series_name)
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
@@ -1295,10 +1298,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab:
         :param progress_callback:
         """
+        current_tab.stackedWidget.setCurrentIndex(1)
+        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+
         self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
         self.database_handler.database.close()
+
+        #@todo remove the widget from the layout
+        current_tab.stackedWidget.setCurrentIndex(0)
+
 
     def progress_bar_update_analysis(self, data):
         """ This function will update the progress bar in the analysis tab

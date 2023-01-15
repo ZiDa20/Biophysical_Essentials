@@ -127,34 +127,46 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
     def finish_dialog(self,checkbox_list,name_list):
         print("have to close ")
         print(name_list) 
-        meta_data_df = pd.DataFrame(columns=["table", "column", "values"])
+        meta_data_df = pd.DataFrame(columns=["table", "column", "values", "analysis_function_id", "offline_analysis_id"])
 
-        for function_id in self.analysis_function_id: # if the tuple is bigger
+        if self.analysis_function_id == -1:
+            # use case: meta data get selected for tree views
             for cb in checkbox_list:
-                if cb.isChecked():
-                    dt = name_list[checkbox_list.index(cb)]
-                    print("dt", dt)
-                    meta_data_df = pd.concat( [meta_data_df, pd.DataFrame({"table":dt[0], "column":dt[1], "values":[dt[2]], "analysis_function_id": function_id}) ] )
+                    if cb.isChecked():
+                        dt = name_list[checkbox_list.index(cb)]
+                        meta_data_df = pd.concat( [meta_data_df, pd.DataFrame({"table":dt[0], "column":dt[1], "values":[dt[2]], "analysis_function_id": self.analysis_function_id}) ] )
 
-        meta_data_df["offline_analysis_id"] = self.database_handler.analysis_id# here still an error ocurrs
-        self.close()
-
-        # in case of re-click on the dialog and new meta data selection the table will already exist.
-        try:
+            meta_data_df["offline_analysis_id"] = self.database_handler.analysis_id
             self.database_handler.database.register("meta_data_df", meta_data_df)
-            selected_meta_data_table = self.database_handler.database.execute(f'Select * from selected_meta_data').fetchdf()
-            already_registered = [i for i in self.analysis_function_id if i in selected_meta_data_table["analysis_function_id"].tolist()]
-            if already_registered: # checks if the analysis_function id is already in the table if not 
-                self.database_handler.database.execute(f'DELETE FROM selected_meta_data WHERE analysis_function_id in {tuple(already_registered)}')
-                self.database_handler.database.register("meta_data_df", meta_data_df)
             self.database_handler.database.execute(f'INSERT INTO selected_meta_data SELECT * FROM meta_data_df')
-                
-                                
-        except duckdb.CatalogException as e:
-            print(f"TreeHandler {e}")
-            #self.database_handler.database.execute(f'DROP TABLE {table_name}')
-            #self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_df')
-            # no need to update again
+            self.close()
+        else:
+            # use case: meta data get selected for specific plots
+            for function_id in self.analysis_function_id: # if the tuple is bigger
+                for cb in checkbox_list:
+                    if cb.isChecked():
+                        dt = name_list[checkbox_list.index(cb)]
+                        meta_data_df = pd.concat( [meta_data_df, pd.DataFrame({"table":dt[0], "column":dt[1], "values":[dt[2]], "analysis_function_id": function_id}) ] )
+
+            meta_data_df["offline_analysis_id"] = self.database_handler.analysis_id# here still an error ocurrs
+            self.close()
+
+            # in case of re-click on the dialog and new meta data selection the table will already exist.
+            try:
+                self.database_handler.database.register("meta_data_df", meta_data_df)
+                selected_meta_data_table = self.database_handler.database.execute(f'Select * from selected_meta_data').fetchdf()
+                already_registered = [i for i in self.analysis_function_id if i in selected_meta_data_table["analysis_function_id"].tolist()]
+                if already_registered: # checks if the analysis_function id is already in the table if not 
+                    self.database_handler.database.execute(f'DELETE FROM selected_meta_data WHERE analysis_function_id in {tuple(already_registered)}')
+                    self.database_handler.database.register("meta_data_df", meta_data_df)
+                self.database_handler.database.execute(f'INSERT INTO selected_meta_data SELECT * FROM meta_data_df')
+                    
+                                    
+            except duckdb.CatalogException as e:
+                print(f"TreeHandler {e}")
+                #self.database_handler.database.execute(f'DROP TABLE {table_name}')
+                #self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM meta_data_df')
+                # no need to update again
 
         if self.update_treeview:
             self.treeview_manager.update_treeviews(self.plot_widget_manager)

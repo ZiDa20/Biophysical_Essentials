@@ -10,7 +10,8 @@ from treeview_manager import TreeViewManager
 import copy
 from Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
-
+from scipy import stats
+import pandas as pd
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
@@ -382,6 +383,7 @@ class SeriesItemTreeWidget():
 
         #initiate the table in case there are no rows yet
         existing_row_numbers = statistics_table_widget.rowCount()
+
         if  existing_row_numbers == 0:
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
             statistics_table_widget.setColumnCount(5)
@@ -411,52 +413,69 @@ class SeriesItemTreeWidget():
 
             # get the meta data from the plot widget
             # @todo better get them from the database
+            self.analysis_stacked.setCurrentIndex(parent_stacked)
             self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
             result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
             self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-                    
-            qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(analysis_functions.index(i), 0)
-            custom_plot_widget = qwidget_item.widget()
-            df = custom_plot_widget.export_data_frame
+            
+            row = analysis_functions.index(i)
+            qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(row, 0)
+            qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, 0)
+            qwidget_item_2 = result_plot_widget.OfflineResultGrid.itemAtPosition(2, 0)
+            
+            custom_plot_widget = qwidget_item_1.widget()
+            df = custom_plot_widget.statistics
+
 
             unique_meta_data = list(df["meta_data"].unique())
-                    
-            for meta_data in unique_meta_data:
-                statistics_table_widget.setItem(row_to_insert + unique_meta_data.index(meta_data), 2,
-                                                                    QTableWidgetItem(str(meta_data)))
-                    
-            # show distrib�tion
-            self.data_dist  = QComboBox()
-            self.data_dist.addItems(["Normal Distribution", "Non-Normal Distribution"])
-            # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution" 
-            statistics_table_widget.setCellWidget(row_to_insert, 3, self.data_dist)
 
-            # show test
-            self.stat_test = QComboBox()
-            self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
-            statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
+            if len(unique_meta_data) == len(df["meta_data"].values):
+                dialog = QDialog()
+                
+                dialog.exec()
 
-            shapiro_test = stats.shapiro(df["values"])
-            print(shapiro_test)
-            if shapiro_test.pvalue >= 0.05:
-                # evidence that data comes from normal distribution
-                self.data_dist.setCurrentIndex(0)
-                self.stat_test.setCurrentIndex(0)
             else:
-                # no evidence that data comes from normal distribution
-                self.data_dist.setCurrentIndex(1)
-                self.stat_test.setCurrentIndex(1)
+                for meta_data in unique_meta_data:
+                    statistics_table_widget.setItem(row_to_insert + unique_meta_data.index(meta_data), 2,
+                                                                        QTableWidgetItem(str(meta_data)))
+                        
+                # show distrib�tion
+                self.data_dist  = QComboBox()
+                self.data_dist.addItems(["Normal Distribution", "Non-Normal Distribution"])
+                # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution"
+                cell_widget = QWidget()
+                cell_widget_layout = QGridLayout()
+                cell_widget.setLayout(cell_widget_layout)
+                cell_widget_layout.addWidget(self.data_dist,0,0)
+                statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
 
-            self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
+                # show test
+                self.stat_test = QComboBox()
+                self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
+                statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
 
-            statistics_table_widget.show()
+                shapiro_test = stats.shapiro(df["values"])
+                print(shapiro_test)
+                cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value = " + str(round(shapiro_test.pvalue,3))),1,0)
+                if shapiro_test.pvalue >= 0.05:
+                    # evidence that data comes from normal distribution
+                    self.data_dist.setCurrentIndex(0)
+                    self.stat_test.setCurrentIndex(0)
+                else:
+                    # no evidence that data comes from normal distribution
+                    self.data_dist.setCurrentIndex(1)
+                    self.stat_test.setCurrentIndex(1)
+
+                #self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
+
+                statistics_table_widget.show()
 
         start_statistics = QPushButton("Run Statistic Test")
         parentW.verticalLayout_2.addWidget(start_statistics)
 
-        start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget,parent_stacked))
+        start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget,parent_stacked,df ))
 
-    def calculate_statistics(self,statistics_table,parent_stacked):
+    def calculate_statistics(self,statistics_table,parent_stacked,df):
 
         for row in range(0,statistics_table.rowCount()):
 
@@ -469,18 +488,7 @@ class SeriesItemTreeWidget():
             if test_type == "t-Test":
 
                 print("executing t test")
-
-                # read the related results
-                # get the meta data from the plot widget
-                # @todo better get them from the database
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
-                result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
                     
-                qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(row, 0)
-                custom_plot_widget = qwidget_item.widget()
-                df = custom_plot_widget.export_data_frame
-                
                 # get unique meta data groups to compare
                 unique_groups  = list(df["meta_data"].unique())
                 

@@ -18,7 +18,7 @@ class Ui_SpecificAnalysisTab(object):
     def setupUi(self, SpecificAnalysisTab):
         if not SpecificAnalysisTab.objectName():
             SpecificAnalysisTab.setObjectName(u"SpecificAnalysisTab")
-        SpecificAnalysisTab.resize(1227, 854)
+        SpecificAnalysisTab.resize(1253, 854)
         font = QFont()
         font.setPointSize(10)
         SpecificAnalysisTab.setFont(font)
@@ -68,11 +68,34 @@ class Ui_SpecificAnalysisTab(object):
         self.groupBox_5.setLayoutDirection(Qt.LeftToRight)
         self.gridLayout_7 = QGridLayout(self.groupBox_5)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.series_plot = QVBoxLayout()
+        self.gridLayout = QGridLayout()
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.stackedWidget = QStackedWidget(self.groupBox_5)
+        self.stackedWidget.setObjectName(u"stackedWidget")
+        self.plot_widget_page = QWidget()
+        self.plot_widget_page.setObjectName(u"plot_widget_page")
+        self.layoutWidget = QWidget(self.plot_widget_page)
+        self.layoutWidget.setObjectName(u"layoutWidget")
+        self.layoutWidget.setGeometry(QRect(0, 0, 1111, 761))
+        self.series_plot = QVBoxLayout(self.layoutWidget)
         self.series_plot.setObjectName(u"series_plot")
         self.series_plot.setSizeConstraint(QLayout.SetDefaultConstraint)
+        self.series_plot.setContentsMargins(0, 0, 0, 0)
+        self.stackedWidget.addWidget(self.plot_widget_page)
+        self.wait_widget_page = QWidget()
+        self.wait_widget_page.setObjectName(u"wait_widget_page")
+        self.gridLayoutWidget_2 = QWidget(self.wait_widget_page)
+        self.gridLayoutWidget_2.setObjectName(u"gridLayoutWidget_2")
+        self.gridLayoutWidget_2.setGeometry(QRect(0, 0, 1111, 761))
+        self.calc_animation_layout = QGridLayout(self.gridLayoutWidget_2)
+        self.calc_animation_layout.setObjectName(u"calc_animation_layout")
+        self.calc_animation_layout.setContentsMargins(0, 0, 0, 0)
+        self.stackedWidget.addWidget(self.wait_widget_page)
 
-        self.gridLayout_7.addLayout(self.series_plot, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.stackedWidget, 0, 1, 1, 1)
+
+
+        self.gridLayout_7.addLayout(self.gridLayout, 0, 0, 1, 1)
 
 
         self.gridLayout_5.addWidget(self.groupBox_5, 0, 1, 1, 1)
@@ -95,6 +118,9 @@ class Ui_SpecificAnalysisTab(object):
 
 
         self.retranslateUi(SpecificAnalysisTab)
+
+        self.stackedWidget.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
     # setupUi
