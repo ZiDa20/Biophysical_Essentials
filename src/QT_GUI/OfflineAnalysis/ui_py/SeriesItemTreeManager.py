@@ -148,9 +148,10 @@ class SeriesItemTreeWidget():
         series_name = series_name
 
         current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False)
-        self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
-        self.navigation_list.append(self.navigation)
+        #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
+        #self.navigation_list.append(self.navigation)
         self.current_tab_visualization.append(current_tab_plot_manager)
+        
         current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
         current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
 

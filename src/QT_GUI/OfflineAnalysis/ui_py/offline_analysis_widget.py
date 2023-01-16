@@ -482,6 +482,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # assign meta data 
         if not meta_data_group_assignment_list:
             meta_data_group_assignment_list = []
+        
         else:
             for n in meta_data_group_assignment_list:
                 print("adding meta data to existing experiment ", n)
@@ -580,9 +581,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         button 3: read values from database
         :param meta_data_groups_in_db: true if for at least each experiment meta data groups are available in the database, false if not
         :return:
-        """
+        """ 
 
+        self.create_meta_data_template()
+
+        """
         dialog = Select_Meta_Data_Options_Pop_Up()
+
+
+
+        # fill the layout with a default table
+
+        
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
 
         # assign later button will close the dialog without any additional assignments
@@ -603,9 +613,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             dialog.select_from_database_button.setDisabled(True)
 
         dialog.exec_()
-            
+        """
 
-    def open_meta_data_template_file(self, dialog):
+    def open_meta_data_template_file(self,template_table_view):
         meta_data_assignments = []
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
 
@@ -619,16 +629,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             print("results from the template file")
             print(meta_data_assignments)
-            self.continue_open_directory(dialog, meta_data_assignments)
+            df = pd.DataFrame(meta_data_assignments[1:len(meta_data_assignments)], columns=meta_data_assignments[0])
+            
+            # create two models one for the table show and a second for the data visualizations
+            content_model = PandasTable(df)
+            print(df)
+            template_table_view.setModel(content_model)
 
-    def create_meta_data_template(self, old_dialog):
+            # show and retrieve the selected columns
+            template_table_view.show()
+        #self.data_base_content.clicked.connect(self.retrieve_column)
+
+    def create_meta_data_template(self):
         '''
         Creates a new dialog popup to create a new meta data template. The created template can be saved or not
         :param dialog: open dialog object
         :return:
         '''
-        # close the open dialog
-        old_dialog.close()
 
         # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
         meta_data_popup = Assign_Meta_Data_PopUp()
@@ -685,32 +702,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         template_table_view.show()
         #self.data_base_content.clicked.connect(self.retrieve_column)
 
-        """
-        tmp_tree_manager = TreeViewManager(self.database_handler)
-        tmp_tree_manager.meta_data_group_column = 1
-        tmp_tree_manager.checkbox_column = 3
-        tmp_tree_manager.analysis_mode = 1
-        tmp_tree_manager.frontend_style = self.frontend_style
 
-        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget, None,
-                                                        self.offline_manager.package_list(directory), directory, 0,
-                                                        None, 2)
-
-        meta_data_popup.meta_data_tree_widget.setColumnWidth(0, 250)
-        meta_data_popup.meta_data_tree_widget.setColumnWidth(1, 25)
-        
-        
-        # meta_data_popup.save_to_template_button
-        
-
-        meta_data_popup.close_and_continue_button.clicked.connect(partial(self.continue_open_directory, meta_data_popup,
-                                                                          tmp_tree_manager.meta_data_option_list,
-                                                                          tmp_tree_manager.get_meta_data_group_assignments()))
-        """
         meta_data_popup.save_to_template_button.clicked.connect(partial(self.save_meta_data_to_template_and_continue,
                                                                         meta_data_popup))
 
+
+        meta_data_popup.load_template.clicked.connect(partial(self.open_meta_data_template_file,template_table_view))
+
+
+        meta_data_popup.continue_loading.clicked.connect(partial(self.make_list,meta_data_popup,template_table_view))
+       
+
         meta_data_popup.exec_()
+        
+    def make_list(self,popup,treeview_model):
+        m_list = treeview_model.model()._data.values.tolist()
+
+        self.continue_open_directory(popup,m_list)
+
 
     def save_meta_data_to_template_and_continue(self, meta_data_popup):
         '''
@@ -731,7 +740,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                      tmp_tree_manager.get_meta_data_group_assignments())
         """
 
-        self.continue_open_directory(meta_data_popup, data_frame.values.tolist())
+
+        m_list = data_frame.values.tolist()
+        self.continue_open_directory(meta_data_popup,m_list)
 
     def get_selected_checkboxes(self, checkboxes, labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
@@ -1298,8 +1309,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab:
         :param progress_callback:
         """
-        current_tab.stackedWidget.setCurrentIndex(1)
-        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+        #current_tab.stackedWidget.setCurrentIndex(1)
+        #current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
 
         self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
@@ -1307,7 +1318,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.database.close()
 
         #@todo remove the widget from the layout
-        current_tab.stackedWidget.setCurrentIndex(0)
+        #current_tab.stackedWidget.setCurrentIndex(0)
 
 
     def progress_bar_update_analysis(self, data):
