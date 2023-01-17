@@ -57,8 +57,6 @@ class TreeViewManager:
         self.frontend_style = None
 
         self.analysis_mode = 0
-        self.series_count = 0
-
         # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
         if self.database_handler is None:
             print("setting analysis mode 0 (online analysis)")
@@ -125,8 +123,7 @@ class TreeViewManager:
                     print(i)
                     file = directory_path + "/" + i # the full path to the file
                     bundle = self.open_bundle_of_file(file) # open heka reader
-                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, [], None, None, None) # retrieve pgf data
-                    self.series_count = 0
+                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
                 
@@ -1005,15 +1002,16 @@ class TreeViewManager:
         return int(res[1])
 
     # ToDo put this into dictionary instead of parameters for dynamic programming
-    def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, 
+    def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, series_count = 0,
                                                holding_potential = None, 
                                                series_name = None, 
                                                sweep_number =None, stim_channel = None, 
                                                series_number = None,
                                                children_amount = None,
-                                               count = 0):
+                                               ):
 
         # open the pulse generator part of the bundle
+           
         root = bundle.pgf
         node = root
         
@@ -1026,15 +1024,14 @@ class TreeViewManager:
 
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
-
+            
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
             
         if node_type == "Stimulation":
             series_name = node.EntryName
             sweep_number = node.NumberSweeps
-            self.series_count += 1
-            
+                   
         if node_type == "Channel":
             # Holding
             holding_potential = node.Holding
@@ -1045,7 +1042,7 @@ class TreeViewManager:
             duration = node.Duration
             increment = node.DeltaVIncrement
             voltage = node.Voltage
-            series_number = "Series" + str(self.series_count)
+            series_number = "Series" + str(series_count)
 
             data_list.append([series_name,
                               str(sweep_number),
@@ -1057,19 +1054,24 @@ class TreeViewManager:
                               str(stim_channel), 
                               str(series_number),
                               str(len(children_amount))])
+            series_count = series_count
 
         try:
             for i in range(len(node.children)):
+                if node_type == "Pgf":
+                    print(i)
+                    series_count = i + 1
                 self.read_series_specific_pgf_trace_into_df(index+[i], 
                                                             bundle,
                                                             data_list, 
+                                                            series_count,
                                                             holding_potential, 
                                                             series_name,
                                                             sweep_number, 
                                                             stim_channel, 
                                                             series_number,
                                                             children_amount,
-                                                            count = count)
+                                                            )
         except Exception as e:
             print(f"Error in PGF-file generation: {e}")
 

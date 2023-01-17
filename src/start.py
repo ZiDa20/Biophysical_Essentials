@@ -22,8 +22,6 @@ import matplotlib.animation as animation
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
-if sys.platform != "darwin":
-    from BlurWindow.blurWindow import GlobalBlur
 
 
 class MainWindow(QMainWindow, QtStyleTools):
@@ -107,7 +105,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             print("Non Darwin Platform initialized")
             self.setAttribute(Qt.WA_TranslucentBackground)
             #self.setWindowFlag(Qt.FramelessWindowHint)
-            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
+       
         
         # set the window geometry to the screen size
         self.desktop = self.screen()
@@ -297,8 +295,6 @@ class MainWindow(QMainWindow, QtStyleTools):
             event (event): retrieve the mouse move event
         """        
         if (event.pos().y()) < 60:
-            if sys.platform != "darwin":
-               GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
             delta = QPoint(event.globalPosition().toPoint() - self.oldPos)
             self.move(self.x() + delta.x(), self.y() + delta.y())
             self.oldPos = event.globalPosition().toPoint()
@@ -306,15 +302,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         if event.globalPosition().y() < 12:
             window_size = self.geometry()
             self.maximize(window_size)
-
-    def mouseReleaseEvent(self, event: QMouseEvent):
-        """Function to detect the mouse release event
-
-        Args:
-            event (event): Mouse release
-        """      
-        if sys.platform != "darwin":   
-            GlobalBlur(self.winId(), Acrylic=True,QWidget=self)
 
     def resizeEvent(self, even: QResizeEvent):
         """resizing of MainWindow
@@ -327,9 +314,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self._not_launched:
             self._not_launched = False
             return
-        # during resize change to aero effect to avoid lag
-        if sys.platform != "darwin":
-            GlobalBlur(self.winId(), Acrylic=False,QWidget=self)
+   
     
     def transfer_file_to_online(self):
         """Function to transfer the Patchmaster generated .Dat file to the online Analysis
