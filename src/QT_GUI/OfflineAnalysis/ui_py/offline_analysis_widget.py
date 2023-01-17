@@ -1309,8 +1309,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab:
         :param progress_callback:
         """
-        #current_tab.stackedWidget.setCurrentIndex(1)
-        #current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+
+        current_tab.stackedWidget.setCurrentIndex(1)
+        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
 
         self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
@@ -1318,7 +1319,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.database.close()
 
         #@todo remove the widget from the layout
-        #current_tab.stackedWidget.setCurrentIndex(0)
+        current_tab.stackedWidget.setCurrentIndex(0)
 
 
     def progress_bar_update_analysis(self, data):
