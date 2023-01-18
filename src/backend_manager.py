@@ -4,6 +4,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 import pandas as pd
 from time import sleep
+import numpy as np
 
 
 class BackendManager:
@@ -130,7 +131,7 @@ class BackendManager:
     def return_dataframe_from_notebook(self):
         """Get the DataFrame from the notebook analysis"""
         data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', skiprows = 2, header = None)
-        print(data_frame_notebook)
+        data_frame_notebook = data_frame_notebook.loc[:, data_frame_notebook.dtypes == float]
         #data_frame_notebook = data_frame_notebook.iloc[:,4:]
         return data_frame_notebook
         

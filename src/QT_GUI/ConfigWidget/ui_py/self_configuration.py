@@ -15,10 +15,12 @@ from tkinter_camera import *
 from time import sleep
 import pandas as pd
 import pyqtgraph as pg
-pg.setConfigOption('foreground', '#ff8117')
+pg.setConfigOption('background', 'w')
+pg.setConfigOption('foreground', 'k')
 from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import *
 import traceback, sys
 from functools import partial
+from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 
 class Config_Widget(QWidget,Ui_Config_Widget):
@@ -60,7 +62,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.submission_count = 2 # each submitte command will increase counts 
 
         ## setup pyqtgraph for experiment visualization
-        self.canvas_config = FigureCanvas()
+        self.graphWidget = pg.PlotWidget()
+        self.pyqt_window.addWidget(self.graphWidget)
 
 
         # Camera Section
@@ -232,7 +235,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 self.submit_patchmaster_files()
                 self.set_dat_file_name(self.experiment_type_desc.text())
                 #self.self_configuration_notebook.setCurrentIndex(1)
-                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis notebook" +"\n")
+                self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "SendOnlineAnalysis all" +"\n")
                 sleep(1)
                 self.increment_count()
                 self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "ConnectionIdentify" +"\n")
@@ -458,8 +461,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # Plotting
     
         
-        
-        self.pyqt_window.addWidget(self.canvas_config) # add the graph to the window
+        # add the graph to the window
 
         # Preprocessing
         series = self.preprocess_series_protocols(sequences) # get the listed series from batch.out response
@@ -540,16 +542,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def draw_live_plot(self,data_x = None):
         """ this is necessary to draw the plot which is plotted to the self.configuration window
         this will further projected to the online-anaysis """
-        print("canvas plot " + data_x)
-        self.canvas_config.figure.clf()
-        self.ax1 = self.canvas_config.figure.subplots() 
-        self.ax1.spines['top'].set_visible(False)
-        self.ax1.spines['right'].set_visible(False)
-        self.ax1.plot([i *1000 for i in data_x[0]], data_x[1], c = "r")
-        self.ax1.set_tilte("Live Plot of Experiment")
-        self.ax1.set_xlabel("Time in ms")
-        self.canvas_config.draw_idle()
-
+        for i in range(data_x.shape[1]):
+            self.graphWidget.plot(data_x[:,0], data_x[:,i],width=3)
          #@todo can we get the y unit here ???
         """      
         if self.y_unit == "V":
@@ -576,6 +570,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """
         # this should be exposed to threading!
         view_list = self.listWidget.model()
+        self.graphWidget.clear()
         self.sequence_experiment_dictionary = {} # all derived online analyiss data will be stored here in a "Series":Data fashion
         self.increment_count()
         final_notebook_dataframe = pd.DataFrame() # initialize an empty dataframe which can be appended to
@@ -696,7 +691,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 final_notebook_dataframe = final_notebook_dataframe.append(dataframe)
 
                 # usually this should write also in the online analysis still not functional!
-                progress_callback.emit(([float(i) for i in final_notebook_dataframe.iloc[1:,:][4].values],[float(i) for i in final_notebook_dataframe.iloc[1:,:][7].values]))
+                progress_callback.emit(final_notebook_dataframe.values)
     
                 # here drawing should be provided to the online analysis class
                 self.trial_setup(final_notebook_dataframe,item, progress_callback)
@@ -724,7 +719,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         final_notebook = notebook[1:]
         final_notebook.columns = columns
         final_notebook = final_notebook.iloc[:,4:]
-        final_notebook = final_notebook.drop("NAN", axis = 1)
+        #final_notebook = final_notebook.drop("NAN", axis = 1)
         return True
 
     def basic_configuration_protcols(self, item):
