@@ -294,6 +294,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         tables
         """
         dialog.close()
+        self. remove_table_from_db(old_file_name)
+
+        # load the new file into the database and create a treeview from it
+        self.show_single_file_in_treeview(file_name, treeview_name)
+
+    def remove_table_from_db(self,old_file_name):
 
         # get the experiment series table since this holds 3 more table names that need to be completely deleted
         q = f'select * from experiment_series where experiment_name = \'{old_file_name}\''
@@ -307,10 +313,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         for table in ["global_meta_data", "experiments", "experiment_series"]:
             q = f'delete from {table} where experiment_name = \'{old_file_name}\''
             self.database_handler.database.execute(q)
-
-
-        # load the new file into the database and create a treeview from it
-        self.show_single_file_in_treeview(file_name, treeview_name)
 
     def show_single_file_in_treeview(self, file_name, treeview_name):
         """
@@ -469,7 +471,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.canvas_live_plot.figure.clf()
 
         self.drawing()
-        self.ax1.plot(data_x[0], data_x[1])
+        self.ax1.plot(data_x[0], data_x[1], c = "k")
         # self.pyqt_graph.setData(data_x[0], data_x[1])
         print("try to give an updated view of the data")
 

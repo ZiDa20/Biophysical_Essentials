@@ -177,7 +177,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
-
+        self.ui.config.ui_notebook = self.ui.notebook
         
 
         #self.ui.statistics.clicked.connect(self.initialize_database)

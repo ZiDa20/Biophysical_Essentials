@@ -19,7 +19,9 @@ pg.setConfigOption('foreground', '#ff8117')
 from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import *
 import traceback, sys
 from functools import partial
-from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     
@@ -46,7 +48,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.batch_path = None
         self.backend_manager = BackendManager() # initialize the backend manager
         self.online_analysis = None # online # load the backend manager
-        
+        self.ui_notebook = None
         # Experiment Section
         ## pathes for the pgf files
         self.pgf_file = None
@@ -60,8 +62,12 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.submission_count = 2 # each submitte command will increase counts 
 
         ## setup pyqtgraph for experiment visualization
-        self.canvas_config = FigureCanvas()
-
+        self.canvas_config = FigureCanvas(Figure(figsize=(5, 3)))
+        self.pyqt_window.addWidget(self.canvas_config)
+        self.ax1 = self.canvas_config.figure.subplots() 
+        self.ax1.spines['top'].set_visible(False)
+        self.ax1.spines['right'].set_visible(False)
+        self.canvas_config.draw_idle()
 
         # Camera Section
         
@@ -171,9 +177,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         returns:
             None
         """
-        name = name + "_" + str(self.data_file_ending) + ".dat"
-        print(name)
-        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile new {name}" + "\n")
+        self.name = name + "_" + str(self.data_file_ending) + ".dat"
+        print(self.name)
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile new {self.name}" + "\n")
         sleep(0.5) 
         self.increment_count() # increment the count for the patch 
         self.data_file_ending += 1 # increment the data file ending
@@ -542,9 +548,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         this will further projected to the online-anaysis """
         print("canvas plot " + data_x)
         self.canvas_config.figure.clf()
-        self.ax1 = self.canvas_config.figure.subplots() 
-        self.ax1.spines['top'].set_visible(False)
-        self.ax1.spines['right'].set_visible(False)
+        #self.ax1 = self.canvas_config.figure.subplots() 
+        #self.ax1.spines['top'].set_visible(False)
+        #self.ax1.spines['right'].set_visible(False)
         self.ax1.plot([i *1000 for i in data_x[0]], data_x[1], c = "r")
         self.ax1.set_tilte("Live Plot of Experiment")
         self.ax1.set_xlabel("Time in ms")
@@ -561,7 +567,23 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """    
     
     def thread_complete(self):
-        print("THREAD COMPLETE!")    
+        print("THREAD COMPLETE, starting to update online analysis")
+        treeview_name = self.name.split(".")
+        treeview_name = treeview_name[0]
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"GetParameters DataFile" +"\n")
+        sleep(0.5)
+        self.increment_count()
+        file_name = self.backend_manager.update_response_file_content()
+        path = file_name.split('"')[1]
+
+        try:
+            self.online_analysis.remove_table_from_db(treeview_name)
+        except Exception as e:
+            print("nothing to delete here", e)
+
+        self.online_analysis.show_single_file_in_treeview(path, treeview_name)
+        self.ui_notebook.setCurrentIndex(2)    
+
 
     def stop_threading(self):
         # Here we need to find a way to stop the threading if an error occur !
