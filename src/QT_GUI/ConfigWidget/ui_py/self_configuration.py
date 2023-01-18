@@ -21,7 +21,7 @@ import traceback, sys
 from functools import partial
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
-
+import shutil
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     
@@ -567,21 +567,40 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """    
     
     def thread_complete(self):
-        print("THREAD COMPLETE, starting to update online analysis")
-        treeview_name = self.name.split(".")
-        treeview_name = treeview_name[0]
+        
+        self.increment_count()
+        reopen_name = self.name.split(".")
+        treeview_name = reopen_name[0]
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"GetParameters DataFile" +"\n")
         sleep(0.5)
+
         self.increment_count()
         file_name = self.backend_manager.update_response_file_content()
+        # contains already the full path + file name
         path = file_name.split('"')[1]
+        
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile read dummy.dat " + "\n")
+        
+        self.increment_count()
+        sleep(0.99)
+
+        #create a local copy that can be kept open while the original .dat file is opened again for appending new series
+        
+        copied_file_name = path.split(".")
+        copied_file_name = copied_file_name[0] + "_tmp_file.dat"
+        shutil.copy(path, copied_file_name)
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile modify {self.name} " + "\n")
+        self.increment_count()
+        
+        print("THREAD COMPLETE, starting to update online analysis")
+        
 
         try:
             self.online_analysis.remove_table_from_db(treeview_name)
         except Exception as e:
             print("nothing to delete here", e)
 
-        self.online_analysis.show_single_file_in_treeview(path, treeview_name)
+        self.online_analysis.show_single_file_in_treeview(copied_file_name, treeview_name)
         self.ui_notebook.setCurrentIndex(2)    
 
 
