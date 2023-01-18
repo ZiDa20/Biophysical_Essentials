@@ -1,231 +1,75 @@
-absresgetter==0.0.12
-appnope @ file:///Users/builder/ci_310/appnope_1642500616005/work
 asttokens @ file:///opt/conda/conda-bld/asttokens_1646925590279/work
-attrs==21.4.0
+attrs==22.2.0
 backcall @ file:///home/ktietz/src/ci/backcall_1611930011877/work
-beautifulsoup4==4.11.1
+blur==0.4
 BlurWindow==1.2.1
-Bottleneck @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_29949159-f86f-474b-bc1f-aaa1e0e222b4ofusifik/croots/recipe/bottleneck_1657175564045/work
-certifi @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_83242e7e-f82d-4a71-8ef2-9d71d212d249gu_wxmeq/croots/recipe/certifi_1655968827803/work/certifi
-click==8.1.3
+boto3==1.26.47
+botocore==1.29.47
+certifi @ file:///C:/b/abs_85o_6fm0se/croot/certifi_1671487778835/work/certifi
+colorama @ file:///C:/b/abs_a9ozq0l032/croot/colorama_1672387194846/work
+comm @ file:///C:/b/abs_1419earm7u/croot/comm_1671231131638/work
+contourpy==1.0.6
 cycler==0.11.0
-debugpy @ file:///Users/builder/ci_310/debugpy_1642501698574/work
+debugpy @ file:///C:/ci_310/debugpy_1642079916595/work
 decorator @ file:///opt/conda/conda-bld/decorator_1643638310831/work
-duckdb==0.5.1
-dvg-pyqtgraph-threadsafe==3.1.0
-dvg-ringbuffer==1.0.3
-entrypoints @ file:///opt/concourse/worker/volumes/live/5eb4850e-dcbc-41ad-5f22-922bac778f70/volume/entrypoints_1649926457041/work
+duckdb==0.6.1
+entrypoints @ file:///C:/ci/entrypoints_1649926676279/work
+exceptiongroup==1.1.0
 executing @ file:///opt/conda/conda-bld/executing_1646925071911/work
-Flask==2.1.2
-fonttools==4.33.3
-iniconfig==1.1.1
-ipykernel @ file:///opt/concourse/worker/volumes/live/b899b150-2bf0-46bf-5730-9e8a3e9ee440/volume/ipykernel_1647000787125/work/dist/ipykernel-6.9.1-py3-none-any.whl
-ipython @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_2ff86d21-7133-4fee-b3b2-6349ba52809eua87k1km/croots/recipe/ipython_1651600160735/work
-itsdangerous==2.1.2
-jedi @ file:///opt/concourse/worker/volumes/live/18b71546-5bde-4add-72d1-7d16b76f0f7a/volume/jedi_1644315243726/work
+fonttools==4.38.0
+greenlet==2.0.1
+iniconfig==2.0.0
+ipykernel @ file:///C:/b/abs_b4f07tbsyd/croot/ipykernel_1672767104060/work
+ipython @ file:///C:/b/abs_536xsn7rj0/croot/ipython_1670919360443/work
+jedi @ file:///C:/ci/jedi_1644315428305/work
 Jinja2==3.1.2
-jupyter-client @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_4d0a367d-74c5-447f-831e-3e1fd3984797bfrg56pj/croots/recipe/jupyter_client_1650622206454/work
-jupyter-core @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_8ba802e0-15f6-4a45-a9ee-144034526783uwxtvvew/croots/recipe/jupyter_core_1651671235924/work
-kiwisolver==1.4.3
-llvmlite==0.38.1
+jmespath==1.0.1
+joblib==1.2.0
+jupyter_client @ file:///C:/b/abs_b9pns5mx5p/croot/jupyter_client_1671703062216/work
+jupyter_core @ file:///C:/b/abs_84df679bho/croot/jupyter_core_1672332237650/work
+kiwisolver==1.4.4
 MarkupSafe==2.1.1
-matplotlib==3.5.2
-matplotlib-inline @ file:///tmp/build/80754af9/matplotlib-inline_1628242447089/work
-mkl-fft==1.3.1
-mkl-random @ file:///opt/concourse/worker/volumes/live/a9eca864-069c-4240-73c8-4e51b036a10d/volume/mkl_random_1639994047876/work
-mkl-service==2.4.0
-natsort==8.1.0
-nest-asyncio @ file:///opt/concourse/worker/volumes/live/4c28d7d6-d544-4f26-7811-eac0cb2a490e/volume/nest-asyncio_1649847935212/work
-numba==0.55.2
-numexpr @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_f4cadb13-5662-4009-98e5-0105539d6a65fifix2d5/croots/recipe/numexpr_1656940304949/work
-numpy @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_e3f85f54-0572-4c0e-b190-4bc4766fc3fenewxarhq/croots/recipe/numpy_and_numpy_base_1652801682879/work
-packaging @ file:///tmp/build/80754af9/packaging_1637314298585/work
-pandas==1.4.2
+matplotlib==3.6.2
+matplotlib-inline @ file:///C:/ci/matplotlib-inline_1661934094726/work
+natsort==8.2.0
+nest-asyncio @ file:///C:/b/abs_3a_4jsjlqu/croot/nest-asyncio_1672387322800/work
+numpy==1.24.1
+packaging==23.0
+pandas==1.5.2
 parso @ file:///opt/conda/conda-bld/parso_1641458642106/work
-pexpect @ file:///tmp/build/80754af9/pexpect_1605563209008/work
 pickleshare @ file:///tmp/build/80754af9/pickleshare_1606932040724/work
-Pillow==9.1.1
+Pillow==9.4.0
+platformdirs @ file:///C:/b/abs_73cc5cz_1u/croots/recipe/platformdirs_1662711386458/work
 pluggy==1.0.0
-prompt-toolkit @ file:///tmp/build/80754af9/prompt-toolkit_1633440160888/work
-psycopg2-binary==2.9.4
-ptyprocess @ file:///tmp/build/80754af9/ptyprocess_1609355006118/work/dist/ptyprocess-0.7.0-py2.py3-none-any.whl
+prompt-toolkit @ file:///C:/b/abs_6coz5_9f2s/croot/prompt-toolkit_1672387908312/work
+psutil @ file:///C:/Windows/Temp/abs_b2c2fd7f-9fd5-4756-95ea-8aed74d0039flsd9qufz/croots/recipe/psutil_1656431277748/work
 pure-eval @ file:///opt/conda/conda-bld/pure_eval_1646925070566/work
-py==1.11.0
-pyabf==2.3.6
-pycairo==1.21.0
+pyabf==2.3.7
 Pygments @ file:///opt/conda/conda-bld/pygments_1644249106324/work
-PyGObject==3.42.1
-pyobjc==8.5
-pyobjc-core==8.5
-pyobjc-framework-Accessibility==8.5
-pyobjc-framework-Accounts==8.5
-pyobjc-framework-AddressBook==8.5
-pyobjc-framework-AdServices==8.5
-pyobjc-framework-AdSupport==8.5
-pyobjc-framework-AppleScriptKit==8.5
-pyobjc-framework-AppleScriptObjC==8.5
-pyobjc-framework-ApplicationServices==8.5
-pyobjc-framework-AppTrackingTransparency==8.5
-pyobjc-framework-AudioVideoBridging==8.5
-pyobjc-framework-AuthenticationServices==8.5
-pyobjc-framework-AutomaticAssessmentConfiguration==8.5
-pyobjc-framework-Automator==8.5
-pyobjc-framework-AVFoundation==8.5
-pyobjc-framework-AVKit==8.5
-pyobjc-framework-BusinessChat==8.5
-pyobjc-framework-CalendarStore==8.5
-pyobjc-framework-CallKit==8.5
-pyobjc-framework-CFNetwork==8.5
-pyobjc-framework-ClassKit==8.5
-pyobjc-framework-CloudKit==8.5
-pyobjc-framework-Cocoa==8.5
-pyobjc-framework-Collaboration==8.5
-pyobjc-framework-ColorSync==8.5
-pyobjc-framework-Contacts==8.5
-pyobjc-framework-ContactsUI==8.5
-pyobjc-framework-CoreAudio==8.5
-pyobjc-framework-CoreAudioKit==8.5
-pyobjc-framework-CoreBluetooth==8.5
-pyobjc-framework-CoreData==8.5
-pyobjc-framework-CoreHaptics==8.5
-pyobjc-framework-CoreLocation==8.5
-pyobjc-framework-CoreMedia==8.5
-pyobjc-framework-CoreMediaIO==8.5
-pyobjc-framework-CoreMIDI==8.5
-pyobjc-framework-CoreML==8.5
-pyobjc-framework-CoreMotion==8.5
-pyobjc-framework-CoreServices==8.5
-pyobjc-framework-CoreSpotlight==8.5
-pyobjc-framework-CoreText==8.5
-pyobjc-framework-CoreWLAN==8.5
-pyobjc-framework-CryptoTokenKit==8.5
-pyobjc-framework-DataDetection==8.5
-pyobjc-framework-DeviceCheck==8.5
-pyobjc-framework-DictionaryServices==8.5
-pyobjc-framework-DiscRecording==8.5
-pyobjc-framework-DiscRecordingUI==8.5
-pyobjc-framework-DiskArbitration==8.5
-pyobjc-framework-DVDPlayback==8.5
-pyobjc-framework-EventKit==8.5
-pyobjc-framework-ExceptionHandling==8.5
-pyobjc-framework-ExecutionPolicy==8.5
-pyobjc-framework-ExternalAccessory==8.5
-pyobjc-framework-FileProvider==8.5
-pyobjc-framework-FileProviderUI==8.5
-pyobjc-framework-FinderSync==8.5
-pyobjc-framework-FSEvents==8.5
-pyobjc-framework-GameCenter==8.5
-pyobjc-framework-GameController==8.5
-pyobjc-framework-GameKit==8.5
-pyobjc-framework-GameplayKit==8.5
-pyobjc-framework-ImageCaptureCore==8.5
-pyobjc-framework-IMServicePlugIn==8.5
-pyobjc-framework-InputMethodKit==8.5
-pyobjc-framework-InstallerPlugins==8.5
-pyobjc-framework-InstantMessage==8.5
-pyobjc-framework-Intents==8.5
-pyobjc-framework-IntentsUI==8.5
-pyobjc-framework-IOSurface==8.5
-pyobjc-framework-iTunesLibrary==8.5
-pyobjc-framework-KernelManagement==8.5
-pyobjc-framework-LatentSemanticMapping==8.5
-pyobjc-framework-LaunchServices==8.5
-pyobjc-framework-libdispatch==8.5
-pyobjc-framework-LinkPresentation==8.5
-pyobjc-framework-LocalAuthentication==8.5
-pyobjc-framework-LocalAuthenticationEmbeddedUI==8.5
-pyobjc-framework-MailKit==8.5
-pyobjc-framework-MapKit==8.5
-pyobjc-framework-MediaAccessibility==8.5
-pyobjc-framework-MediaLibrary==8.5
-pyobjc-framework-MediaPlayer==8.5
-pyobjc-framework-MediaToolbox==8.5
-pyobjc-framework-Metal==8.5
-pyobjc-framework-MetalKit==8.5
-pyobjc-framework-MetalPerformanceShaders==8.5
-pyobjc-framework-MetalPerformanceShadersGraph==8.5
-pyobjc-framework-MetricKit==8.5
-pyobjc-framework-MLCompute==8.5
-pyobjc-framework-ModelIO==8.5
-pyobjc-framework-MultipeerConnectivity==8.5
-pyobjc-framework-NaturalLanguage==8.5
-pyobjc-framework-NetFS==8.5
-pyobjc-framework-Network==8.5
-pyobjc-framework-NetworkExtension==8.5
-pyobjc-framework-NotificationCenter==8.5
-pyobjc-framework-OpenDirectory==8.5
-pyobjc-framework-OSAKit==8.5
-pyobjc-framework-OSLog==8.5
-pyobjc-framework-PassKit==8.5
-pyobjc-framework-PencilKit==8.5
-pyobjc-framework-Photos==8.5
-pyobjc-framework-PhotosUI==8.5
-pyobjc-framework-PreferencePanes==8.5
-pyobjc-framework-PushKit==8.5
-pyobjc-framework-Quartz==8.5
-pyobjc-framework-QuickLookThumbnailing==8.5
-pyobjc-framework-ReplayKit==8.5
-pyobjc-framework-SafariServices==8.5
-pyobjc-framework-SceneKit==8.5
-pyobjc-framework-ScreenSaver==8.5
-pyobjc-framework-ScreenTime==8.5
-pyobjc-framework-ScriptingBridge==8.5
-pyobjc-framework-SearchKit==8.5
-pyobjc-framework-Security==8.5
-pyobjc-framework-SecurityFoundation==8.5
-pyobjc-framework-SecurityInterface==8.5
-pyobjc-framework-ServiceManagement==8.5
-pyobjc-framework-ShazamKit==8.5
-pyobjc-framework-Social==8.5
-pyobjc-framework-SoundAnalysis==8.5
-pyobjc-framework-Speech==8.5
-pyobjc-framework-SpriteKit==8.5
-pyobjc-framework-StoreKit==8.5
-pyobjc-framework-SyncServices==8.5
-pyobjc-framework-SystemConfiguration==8.5
-pyobjc-framework-SystemExtensions==8.5
-pyobjc-framework-UniformTypeIdentifiers==8.5
-pyobjc-framework-UserNotifications==8.5
-pyobjc-framework-UserNotificationsUI==8.5
-pyobjc-framework-VideoSubscriberAccount==8.5
-pyobjc-framework-VideoToolbox==8.5
-pyobjc-framework-Virtualization==8.5
-pyobjc-framework-Vision==8.5
-pyobjc-framework-WebKit==8.5
-pyparsing @ file:///tmp/build/80754af9/pyparsing_1635766073266/work
+pyparsing==3.0.9
 pypylon==1.8.0
-pyqt-custom-titlebar-window==0.0.33
-pyqt-frameless-window==0.0.1
-pyqt-mac-buttons-widget==0.0.15
-pyqt-resource-helper==0.0.12
-pyqt-svg-abstractbutton==0.0.5
-pyqt-svg-button==0.0.26
-pyqt-svg-icon-text-widget==0.0.1
-pyqt-svg-label==0.0.11
-pyqt-titlebar-buttons-widget==0.0.18
-pyqt-top-titlebar-widget==0.0.19
-pyqt-windows-buttons-widget==0.0.18
-PyQt5==5.15.7
-PyQt5-Qt5==5.15.2
-PyQt5-sip==12.11.0
-pyqtgraph==0.12.4
-PySide6==6.3.1
-PySide6-Addons==6.3.1
-PySide6-Essentials==6.3.1
-pytest==7.1.2
+pyqtgraph==0.13.1
+PySide6==6.4.2
+PySide6-Addons==6.4.2
+PySide6-Essentials==6.4.2
+pytest==7.2.0
 python-dateutil @ file:///tmp/build/80754af9/python-dateutil_1626374649649/work
-pytz @ file:///private/var/folders/sy/f16zz6x50xz3113nwtb9bvq00000gp/T/abs_1caf090c-01b6-4973-adac-d2eb884a674e7zonb9eb/croots/recipe/pytz_1654762641285/work
-pyzmq @ file:///Users/builder/ci_310/pyzmq_1642536888228/work
+pytz==2022.7
+pywin32==305.1
+pyzmq @ file:///C:/ci/pyzmq_1657616000714/work
 qt-material==2.12
-scipy==1.8.1
-seaborn==0.11.2
-shiboken6==6.3.1
+s3transfer==0.6.0
+scikit-learn==1.2.0
+scipy==1.10.0
+seaborn==0.12.2
+shiboken6==6.4.2
 six @ file:///tmp/build/80754af9/six_1644875935023/work
-soupsieve==2.3.2.post1
+SQLAlchemy==1.4.46
 stack-data @ file:///opt/conda/conda-bld/stack_data_1646927590127/work
+threadpoolctl==3.1.0
 tomli==2.0.1
-tornado @ file:///Users/builder/ci_310/tornado_1642538510757/work
-traitlets @ file:///tmp/build/80754af9/traitlets_1636710298902/work
-typing_extensions==4.2.0
+tornado @ file:///C:/ci/tornado_1662476985533/work
+traitlets @ file:///C:/b/abs_e5m_xjjl94/croot/traitlets_1671143896266/work
+urllib3==1.26.13
 wcwidth @ file:///Users/ktietz/demo/mc3/conda-bld/wcwidth_1629357192024/work
-Werkzeug==2.1.2
+wincertstore==0.2

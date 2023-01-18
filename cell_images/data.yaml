@@ -1,0 +1,5 @@
+path: /home/data-science/Dropbox/Biophysical_Essentials/cell_images/
+train: train/images
+val: test/images
+nc: 2
+names: ['Pipette_Cell','Cell']
