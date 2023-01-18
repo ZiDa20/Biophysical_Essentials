@@ -139,7 +139,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler)
         self.ui.database.update_database_handler(self.local_database_handler)
+        
         self.ui.online.update_database_handler(self.local_database_handler)
+        self.ui.online.frontend_style = self.frontend_style
+
 
         #darkmode implementation 0 = white, 1 = dark
         self.default_mode = 1
@@ -167,7 +170,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.online.online_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        
+        self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
+        self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
 
+        
 
         #self.ui.statistics.clicked.connect(self.initialize_database)
         #self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)

@@ -70,6 +70,7 @@ QTreeView::item:selected:focus {{
     selection-color: "#000000"; /* For Windows */
   }}
   
+QFrame{{border: 0px solid white;}}
 
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_right.png);}}  
@@ -121,4 +122,13 @@ QToolTip[objectName="plot_zoadd_filter_button"]{{color: #ffffff; background-colo
 
 QPushButton[objectName="delete_selected"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/filter_remove.png);}}
 QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
+
+
+
+
+
+QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
+QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 

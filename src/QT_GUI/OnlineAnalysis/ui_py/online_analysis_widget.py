@@ -39,7 +39,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         ##########
         self.canvas_live_plot = FigureCanvas(Figure(figsize=(5, 3)))
         self.online_analysis_tabs.currentChanged.connect(self.tab_switched)
-
         self.verticalLayout_6.addWidget(self.canvas_live_plot)
         # Connect the buttons, connect the logger
         self.connections_clicked()
@@ -49,6 +48,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.database_handler = None
         self.online_analysis_plot_manager = None
         self.online_analysis_tree_view_manager = None
+
+        self.frontend_style = None
 
     def tab_switched(self, i):
         """ switch the tab of the online analysis """
@@ -208,10 +209,15 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
     def online_analysis_tab_changed(self):
         """handler if the tab is changed, tab 0: online analysis, tab 1: labbook"""
         if self.online_analysis.currentIndex() == 0:
-            self.tree_layouting_change.addWidget(self.tree_tab_widget)
-        else:
-            self.verticalLayout.addWidget(self.tree_tab_widget)
-
+            #self.tree_layouting_change.addWidget(self.tree_tab_widget)
+            self.gridLayout_18.addWidget(self.online_treeview)
+        if self.online_analysis.currentIndex() == 1:
+            self.gridLayout_6.addWidget(self.online_treeview)
+            self.get_columns_data_to_table()
+            #self.verticalLayout.addWidget(self.tree_tab_widget)
+        if self.online_analysis.currentIndex() == 2:
+            self.start_db_transfer()
+            
     def show_sweeps_toggled(self):
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
 
@@ -259,6 +265,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.show_single_file_in_treeview(file_name, treeview_name)
         else:
             dialog = QDialog()
+            self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
             old_file_name = old_file_df["experiment_name"].values.tolist()[0]
             text = f'You have non-transfered experiments from previous online analysis \n ' \
                    f'experiment name: {old_file_name} \n ' \
@@ -412,6 +419,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """Should put the labbook with selecte metadata into the 
         Retrievable Labbook
         """
+
+        """
         count = self.treeWidget.topLevelItemCount()
         list_rows = []
         final_pandas = pd.DataFrame()
@@ -430,7 +439,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 # final_pandas = final_pandas.append(df)
 
         final_pandas.index = pd.Series(list_rows)
-        final_pandas = final_pandas[["Label", "RsValue", "CSlow"]]
+        """
+        final_pandas = self.online_treeview.selected_tree_view.model()._data
+        final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
+
+        final_pandas["condition"] = final_pandas.shape[0] * [""]
+        final_pandas["RsValue"] = final_pandas.shape[0] * [""]
+        final_pandas["Cslow"] = final_pandas.shape[0] * [""]
         final_pandas["comments"] = final_pandas.shape[0] * [""]
 
         self.draw_table(final_pandas)
@@ -438,11 +453,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
     def draw_table(self, data):
         """ draws the table of the .dat metadata as indicated by the .pul Bundle file """
         try:
-            self.table_model = PandasTable(data)
-            print(self.table_model)
-            # self.tableWidget.setStyleSheet("background-color:#232629; ")
-            self.tableWidget.setModel(self.table_model)
-            self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            labbook_table = QTableView()
+            table_model = PandasTable(data)
+            labbook_table.setModel(table_model)
+            self.table_layout.addWidget(labbook_table)
+            labbook_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception as e:
             print(e)
 

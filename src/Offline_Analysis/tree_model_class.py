@@ -46,6 +46,7 @@ class TreeModel(QAbstractItemModel):
         root_parent = [self.rootItem][-1]
         self.parent_dict = {"root":root_parent}
         self.setupModelData(data_df, self.rootItem)
+        self._data = data_df
 
 
     def columnCount(self, parent):
