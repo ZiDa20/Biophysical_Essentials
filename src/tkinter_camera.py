@@ -18,8 +18,8 @@ class BayerCamera():
             bool: If True Camera is connected properly
         """
         try:
-            #self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
-            #self.camera.Open()
+            self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+            self.camera.Open()
             return True
         except:
             return None
