@@ -143,6 +143,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online.update_database_handler(self.local_database_handler)
         self.ui.online.frontend_style = self.frontend_style
 
+        self.ui.config.online_analysis = self.ui.online
 
         #darkmode implementation 0 = white, 1 = dark
         self.default_mode = 1
@@ -167,6 +168,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
         self.ui.database_viewer_home_2.clicked.connect(self.initialize_database)
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
+        self.ui.toolButton_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 5))
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))

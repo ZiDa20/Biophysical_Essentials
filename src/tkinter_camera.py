@@ -1,5 +1,6 @@
 #from pypylon import pylon
 import matplotlib.pyplot as plt
+from pypylon import pylon
 #Switched to pyqt
 
 class BayerCamera():

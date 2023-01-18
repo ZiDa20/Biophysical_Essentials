@@ -23,7 +23,7 @@ from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT a
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     
-    def __init__(self, online, progress_bar, status_bar, parent = None,):
+    def __init__(self, parent = None,):
         """Initialize the configuration widget
         args:
             online type(bool): if the program is online or not
@@ -45,12 +45,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         #select the batch_path
         self.batch_path = None
         self.backend_manager = BackendManager() # initialize the backend manager
-        self.online_analysis = online # load the backend manager
+        self.online_analysis = None # online # load the backend manager
         
-        # add the progresbar and status bar
-        self.progressBar = progress_bar   
-        self.statusBar = status_bar
-
         # Experiment Section
         ## pathes for the pgf files
         self.pgf_file = None
@@ -247,17 +243,17 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             except Exception as e: # if the file does not exist
                 self.logger.error(f"Patchmaster not connected properly: {e}")
                 self.check_connection.setText("Patchmaster not connected properly, please check the path and the Batch files")
-                self.statusBar.showMessage("Patchmaster not connected properly, please check the path and the Batch files")
+                #self.statusBar.showMessage("Patchmaster not connected properly, please check the path and the Batch files")
  
             if connection: # if the connection is established
                 self.logger.info("Connection established")
                 self.check_connection.setText("Connected: \n \nBatch Communication successfully connect \n \nToDo: \n \n Change to the Batch Communication Tab \n \n Patchmaster Message: \n \n" + connection)
-                self.statusBar.showMessage("Connection to Patchmaster successfully established")
+                #self.statusBar.showMessage("Connection to Patchmaster successfully established")
  
             else: # if the connection is not established
                 self.logger.warning("Connection to Patchmaster failed")
                 self.check_connection.setText("Connection to Patchmaster failed")
-                self.statusBar.showMessage("Connection to Patchmaster failed")
+                #self.statusBar.showMessage("Connection to Patchmaster failed")
     
               
         else:   # if the path is not set
@@ -544,12 +540,12 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def draw_live_plot(self,data_x = None):
         """ this is necessary to draw the plot which is plotted to the self.configuration window
         this will further projected to the online-anaysis """
-       
+        print("canvas plot " + data_x)
         self.canvas_config.figure.clf()
         self.ax1 = self.canvas_config.figure.subplots() 
         self.ax1.spines['top'].set_visible(False)
         self.ax1.spines['right'].set_visible(False)
-        self.ax1.plot([i *1000 for i in data_x[0]], data_x[1], c = "k")
+        self.ax1.plot([i *1000 for i in data_x[0]], data_x[1], c = "r")
         self.ax1.set_tilte("Live Plot of Experiment")
         self.ax1.set_xlabel("Time in ms")
         self.canvas_config.draw_idle()
@@ -589,8 +585,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             # start the progress bar
             max_value = (len(range(view_list.rowCount()))+1)
             value = (index+1) * (100/max_value)
-            self.progressBar.setValue(value)
-            self.progressBar.setFormat(f"{value}/100")
+            #self.progressBar.setValue(value)
+            #self.progressBar.setFormat(f"{value}/100")
 
             # retrieve the series or protocol
             item = view_list.item(index).text() # get the name of the stacked protocols/series/programs
@@ -641,7 +637,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
                 sleep(0.3)
 
         # turn the button green if sequence finished succesfully
-        self.progressBar.setValue(100)
+        #self.progressBar.setValue(100)
         self.transfer_to_online_analysis_button.setEnabled(True)
 
     def set_params(self, params_response):

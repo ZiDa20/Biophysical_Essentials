@@ -255,7 +255,7 @@ class Ui_MainWindow(object):
         self.gridLayout_5.addLayout(self.gridLayout_11, 1, 1, 1, 1)
 
         self.notebook.addWidget(self.home)
-        self.config = Config_Widget(None,None,None)
+        self.config = Config_Widget()
         self.config.setObjectName(u"config")
         sizePolicy.setHeightForWidth(self.config.sizePolicy().hasHeightForWidth())
         self.config.setSizePolicy(sizePolicy)

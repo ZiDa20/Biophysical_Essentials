@@ -26,12 +26,13 @@ class SettingsWindow(QWidget,Ui_Settings):
         """ Basler camera initalizing  
         ToDO: Error handling, add multiple camera possibilites for capturing in the dropdown menu"""
 
-        print("stuff worked")
+        
         self.camera = BayerCamera()
         #initialize the camera 
         camera_status = self.camera.init_camera()
         self.scence_trial = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
-  
+        print("stuff worked")
+        
     def quit(self):
         self.close()
     
