@@ -4,6 +4,7 @@ import os
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtTest import QTest
 
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
@@ -138,7 +139,11 @@ class MainWindow(QMainWindow, QtStyleTools):
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler)
         self.ui.database.update_database_handler(self.local_database_handler)
+        
         self.ui.online.update_database_handler(self.local_database_handler)
+        self.ui.online.frontend_style = self.frontend_style
+
+        self.ui.config.online_analysis = self.ui.online
 
         #darkmode implementation 0 = white, 1 = dark
         self.default_mode = 1
@@ -163,10 +168,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
         self.ui.database_viewer_home_2.clicked.connect(self.initialize_database)
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
+        self.ui.toolButton_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 5))
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.online.online_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        
+        self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
+        self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
 
+        
 
         #self.ui.statistics.clicked.connect(self.initialize_database)
         #self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
@@ -186,9 +198,14 @@ class MainWindow(QMainWindow, QtStyleTools):
 
             self.ui.side_left_menu.show()
 
-            button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis"]
+            button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis", "Continue"]
 
-            for col in range(0,3):
+            amount_of_buttons  = 3
+
+            if self.ui.offline.canvas_grid_layout.count()>0:
+                amount_of_buttons = 4
+                
+            for col in range(0,amount_of_buttons):
 
                     new_button = QToolButton()
                     new_button.setText(button_txt[col])
@@ -201,10 +218,13 @@ class MainWindow(QMainWindow, QtStyleTools):
                         new_button.clicked.connect(self.start_new_offline_analysis_from_db)
                         icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
                     if col == 2:
-                        new_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,3))
+                        new_button.clicked.connect(self.open_analysis)
                         icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if col == 3:
+                        new_button.clicked.connect(self.go_to_offline_analysis)
+                        icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
                     
-                    
+
                     new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
                     new_button.setIcon(icon)
                     new_button.setIconSize(QSize(200, 200))
@@ -213,17 +233,28 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.ui.side_left_menu.hide()
 
+    def open_analysis(self):
+        self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
+        # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
+        self.ui.offline.show_open_analysis_dialog()
+        self.ui.notebook.setCurrentIndex(3)
+        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
     
-    def start_new_offline_analysis_from_dir(self):
-        "start new offline analysis, therefore let the user choose a directory and add the data to the database"
+
+    def go_to_offline_analysis(self):
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
         self.ui.notebook.setCurrentIndex(3)
+        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
+        
+        
+    def start_new_offline_analysis_from_dir(self):
+        "start new offline analysis, therefore let the user choose a directory and add the data to the database"
+        self.go_to_offline_analysis()
         self.ui.offline.open_directory()
 
     def start_new_offline_analysis_from_db(self):
         "start new offline analysis, therefore let the user choose a data from the database"
-        self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
-        self.ui.notebook.setCurrentIndex(3)
+        self.go_to_offline_analysis()
         self.ui.offline.load_treeview_from_database()
         
 
@@ -349,25 +380,25 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
-            self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            
+            #self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
+            self.apply_stylesheet(self, "white_mode.xml", invert_secondary=True)
             # open the extension from the css file
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
                 
             #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
-            self.frontend_style.change_canvas_bright()
+            #self.frontend_style.change_canvas_bright()
            
             
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
-            self.apply_stylesheet(self, "hello.xml")
+            #self.apply_stylesheet(self, "hello.xml")
             with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
 
             #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
             
-            self.frontend_style.change_canvas_dark()
+            #self.frontend_style.change_canvas_dark()
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
@@ -391,7 +422,6 @@ class MainWindow(QMainWindow, QtStyleTools):
     def get_darkmode(self):
         "returns the darkmode state"
         return self.default_mode
-
 
 if __name__ == "__main__":
     """Main function to start the application"""

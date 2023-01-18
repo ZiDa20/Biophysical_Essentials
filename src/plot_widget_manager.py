@@ -433,8 +433,8 @@ class PlotWidgetManager(QRunnable):
 
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
 
-        print("requested series dataframe")
-        print(series_df)
+        #print("requested series dataframe")
+        #print(series_df)
 
         #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
 

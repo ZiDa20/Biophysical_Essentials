@@ -36,6 +36,7 @@ from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
+from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
 
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
@@ -48,6 +49,7 @@ from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import Ana
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 from Offline_Analysis.FinalResultHolder import ResultHolder
+
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -103,7 +105,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # animation of the side dataframe
         
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
-        self.open_analysis_results_button.clicked.connect(self.open_analysis_results)
+       
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
 
         # blank analysis menu
@@ -117,6 +119,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         self.navigation_list = []
 
+        self.series_to_csv.clicked.connect(self.write_series_to_csv)
+        #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
+        
+
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
         self.add_meta_data_to_treeview.clicked.connect(self.select_tree_view_meta_data)
         self.parent_stacked = self.offline_tree.parent_stacked
@@ -124,6 +130,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.plot_home.clicked.connect(partial(self.navigation_rules, self.plot_home, "home"))
         self.plot_move.clicked.connect(partial(self.navigation_rules, self.plot_move, "move"))
         self.plot_zoom.clicked.connect(partial(self.navigation_rules, self.plot_zoom, "zoom"))
+
+
+    def write_series_to_csv(self):
+        file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
+        index = self.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view.currentIndex()
+        tree_item_list = self.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model().get_data_row(index, Qt.DisplayRole)
+        if tree_item_list[1][4] == "Series":
+            q = f'select sweep_table_name from experiment_series where experiment_name = \'{tree_item_list[1][5]}\' and series_identifier = \'{tree_item_list[1][3]}\''
+            table_name = self.database_handler.database.execute(q).fetchdf()
+            table_name = table_name["sweep_table_name"].values[0]
+            df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
+            df.to_csv(file_name)
+
+
+        print("hello from the other side")
 
     def set_splitter(self, splitter):
         self.offline_tree.splitter = splitter
@@ -260,21 +281,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         dialog.close()
 
+    def show_open_analysis_dialog(self):
+        dialog = ChooseExistingAnalysis()
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+        data = self.database_handler.database.execute('select * from offline_analysis').fetchdf()
+        table_model = PandasTable(data)
+        dialog.tableView.setModel(table_model)
+        dialog.submit.clicked.connect(partial(self.open_analysis_results, dialog))
+        dialog.exec()
+        
     @Slot()
-    def open_analysis_results(self):
+    def open_analysis_results(self, dialog):
         """
         Open an existing analysis from the database
         :return:
         """
 
-        # @TODO write a popup to look to the database first or enter an analysis id immediately,
-        # maybe also give a filter function to browse by date or username
-
-        # for now, analysis is static number ->
-        # self.Offline_Analysis_Notebook.setCurrentIndex(1)
+        id = dialog.lineEdit.text()
+        dialog.close()
 
         # static offline analysis number
-        self.database_handler.analysis_id = 107
+        self.database_handler.analysis_id = int(id)
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
@@ -455,6 +482,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # assign meta data 
         if not meta_data_group_assignment_list:
             meta_data_group_assignment_list = []
+        
         else:
             for n in meta_data_group_assignment_list:
                 print("adding meta data to existing experiment ", n)
@@ -553,9 +581,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         button 3: read values from database
         :param meta_data_groups_in_db: true if for at least each experiment meta data groups are available in the database, false if not
         :return:
-        """
+        """ 
 
+        self.create_meta_data_template()
+
+        """
         dialog = Select_Meta_Data_Options_Pop_Up()
+
+
+
+        # fill the layout with a default table
+
+        
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
 
         # assign later button will close the dialog without any additional assignments
@@ -576,9 +613,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             dialog.select_from_database_button.setDisabled(True)
 
         dialog.exec_()
-            
+        """
 
-    def open_meta_data_template_file(self, dialog):
+    def open_meta_data_template_file(self,template_table_view):
         meta_data_assignments = []
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
 
@@ -592,16 +629,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             print("results from the template file")
             print(meta_data_assignments)
-            self.continue_open_directory(dialog, meta_data_assignments)
+            df = pd.DataFrame(meta_data_assignments[1:len(meta_data_assignments)], columns=meta_data_assignments[0])
+            
+            # create two models one for the table show and a second for the data visualizations
+            content_model = PandasTable(df)
+            print(df)
+            template_table_view.setModel(content_model)
 
-    def create_meta_data_template(self, old_dialog):
+            # show and retrieve the selected columns
+            template_table_view.show()
+        #self.data_base_content.clicked.connect(self.retrieve_column)
+
+    def create_meta_data_template(self):
         '''
         Creates a new dialog popup to create a new meta data template. The created template can be saved or not
         :param dialog: open dialog object
         :return:
         '''
-        # close the open dialog
-        old_dialog.close()
 
         # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
         meta_data_popup = Assign_Meta_Data_PopUp()
@@ -658,32 +702,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         template_table_view.show()
         #self.data_base_content.clicked.connect(self.retrieve_column)
 
-        """
-        tmp_tree_manager = TreeViewManager(self.database_handler)
-        tmp_tree_manager.meta_data_group_column = 1
-        tmp_tree_manager.checkbox_column = 3
-        tmp_tree_manager.analysis_mode = 1
-        tmp_tree_manager.frontend_style = self.frontend_style
 
-        tmp_tree_manager.create_treeview_from_directory(meta_data_popup.meta_data_tree_widget, None,
-                                                        self.offline_manager.package_list(directory), directory, 0,
-                                                        None, 2)
-
-        meta_data_popup.meta_data_tree_widget.setColumnWidth(0, 250)
-        meta_data_popup.meta_data_tree_widget.setColumnWidth(1, 25)
-        
-        
-        # meta_data_popup.save_to_template_button
-        
-
-        meta_data_popup.close_and_continue_button.clicked.connect(partial(self.continue_open_directory, meta_data_popup,
-                                                                          tmp_tree_manager.meta_data_option_list,
-                                                                          tmp_tree_manager.get_meta_data_group_assignments()))
-        """
         meta_data_popup.save_to_template_button.clicked.connect(partial(self.save_meta_data_to_template_and_continue,
                                                                         meta_data_popup))
 
+
+        meta_data_popup.load_template.clicked.connect(partial(self.open_meta_data_template_file,template_table_view))
+
+
+        meta_data_popup.continue_loading.clicked.connect(partial(self.make_list,meta_data_popup,template_table_view))
+       
+
         meta_data_popup.exec_()
+        
+    def make_list(self,popup,treeview_model):
+        m_list = treeview_model.model()._data.values.tolist()
+
+        self.continue_open_directory(popup,m_list)
+
 
     def save_meta_data_to_template_and_continue(self, meta_data_popup):
         '''
@@ -704,7 +740,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                      tmp_tree_manager.get_meta_data_group_assignments())
         """
 
-        self.continue_open_directory(meta_data_popup, data_frame.values.tolist())
+
+        m_list = data_frame.values.tolist()
+        self.continue_open_directory(meta_data_popup,m_list)
 
     def get_selected_checkboxes(self, checkboxes, labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
@@ -973,6 +1011,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # 1) create dialog
         dialog = QDialog()
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+
         dialog_grid = QGridLayout(dialog)
 
         # 2) get recording mode of the specific series
@@ -996,7 +1036,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             partial(self.update_selected_analysis_function_table, checkbox_list, analysis_function_names, dialog))
 
         # 6) Add button widget to correct grid position, finally execute the dialog
-        dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0)
+        dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0 , 1 , 2)
+
         dialog.setWindowTitle("Available Analysis Functions for Series " + series_name)
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
@@ -1268,10 +1309,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab:
         :param progress_callback:
         """
+
+        current_tab.stackedWidget.setCurrentIndex(1)
+        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+
         self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
         self.database_handler.database.close()
+
+        #@todo remove the widget from the layout
+        current_tab.stackedWidget.setCurrentIndex(0)
+
 
     def progress_bar_update_analysis(self, data):
         """ This function will update the progress bar in the analysis tab

@@ -53,7 +53,8 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         
         #Create a figure
         self.figure = Figure()
-        manual_colors = ["#5b6e8b"] #,"#6b7c96","#7b8ba2","#8c99ad", "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
+        #manual_colors = ["#5b6e8b","#8b785b","#6e8b5b","#785b8b",] # "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
+        manual_colors = ["#7400b8", "#6930c3", "#5e60ce", "#5390d9", "#4ea8de", "#48bfe3", "#56cfe1", "#64dfdf", "#72efdd", "#80ffdb", "#006466", "#065a60", "#0b525b", "#144552", "#1b3a4b", "#212f45", "#272640", "#312244", "#3e1f47", "#4d194d"]
 
         # Set the figure size and create the subplots
         ax = self.figure.subplots(2, 3)
@@ -79,7 +80,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         row = 0
         column = 0
 
-        meta_data_columns_to_plot = ["species", "genotype","sex", "celltype", "condition", "individuum_id"]
+        meta_data_columns_to_plot = ["species", "genotype","sex", "celltype", "condition"] #, "individuum_id"]
         for column_name in meta_data_columns_to_plot:
             
             cnt = meta_data_columns_to_plot.index(column_name)
@@ -93,8 +94,23 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             df = meta_data_table
             total = df[column_name].value_counts().sum()
             print("row=", row, " column= ", column)
-            ax[row, column].pie(df[column_name].value_counts(), labels=df[column_name].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=manual_colors)
+
+            plot_colors = []
+            expl = []
+            for l in range(0, len(df[column_name].unique())):
+                plot_colors.append(manual_colors[l])
+                expl.append(0.1)
+            ax[row, column].pie(df[column_name].value_counts(), labels=df[column_name].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=plot_colors, explode = expl)
             ax[row, column].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             ax[row, column].set_title(column_name)
         
-
+        q = f'select series_meta_data from experiment_series'
+        df = self.database_handler.database.execute(q).fetchdf()
+        plot_colors = []
+        expl = []
+        for l in range(0, len(df["series_meta_data"].unique())):
+                plot_colors.append(manual_colors[l])
+                expl.append(0.1)
+        ax[1, 2].pie(df["series_meta_data"].value_counts(), labels=df["series_meta_data"].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=plot_colors, explode = expl)
+        ax[1, 2].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        ax[1, 2].set_title("series_meta_data")
