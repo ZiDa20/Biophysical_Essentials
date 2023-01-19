@@ -22,6 +22,7 @@ import traceback, sys
 from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+import shutil
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     

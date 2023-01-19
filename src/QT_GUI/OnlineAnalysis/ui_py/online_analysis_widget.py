@@ -302,8 +302,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
     def remove_table_from_db(self,old_file_name):
 
         # get the experiment series table since this holds 3 more table names that need to be completely deleted
-        q = f'select * from experiment_series where experiment_name = \'{old_file_name}\''
+        q = f'select * from experiment_series where experiment_name in (select experiment_name from global_meta_data where experiment_label = \'ONLINE_ANALYSIS\' )'
         experiment_series = self.database_handler.database.execute(q).fetchdf()
+        
         for column in ["sweep_table_name", "meta_data_table_name", "pgf_data_table_name"]:
             for table in experiment_series[column].values.tolist():
                 q = f'drop table {table} '
