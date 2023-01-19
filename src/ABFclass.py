@@ -82,23 +82,20 @@ class AbfReader():
                           "Ymin",
                           "Ymax", 
                           "RecordingMode"]
-        
+
         meta_data_sweep["Parameters"] = metadata_index
-        columns = 1 # number of the sweep
         columns_list = [] 
-        
+
         # loop through each individual swee and extracts the raw data
         # as well as metadata
-        for sweep in self.abf.sweepList:
+        for columns, sweep in enumerate(self.abf.sweepList, start=1):
             self.abf.setSweep(sweep)
             sweep_meta_data = self.extract_metadata_parameters(self.abf)
             data = self.abf.sweepY
             time = self.abf.sweepX
             data_sweep[sweep] = data
             meta_data_sweep[sweep] = sweep_meta_data
-            columns_list.append("sweep_" + str(columns)) # naming of the sweep columns
-            columns += 1
-        
+            columns_list.append(f"sweep_{str(columns)}")
         # construction of the pd.DataFrame that can be inserted into the DuckDB databse
         data_sweep.index = time
         data_sweep.columns = columns_list
@@ -116,26 +113,26 @@ class AbfReader():
         Returns:
             _type_: _description_
         """
-        metadata_list = []
-        
-        # appends all the necessary metadata in accordqnce to the .dat file
-        metadata_list.append(abf_file.dacUnits[0])
-        metadata_list.append(abf_file.dataRate)
-        metadata_list.append(abf_file.dataPointCount)
-        metadata_list.append(abf_file.dataLengthSec)
-        metadata_list.append(abf_file.sweepCount)
-        metadata_list.append(abf_file.sweepLabelY)
-        metadata_list.append(abf_file.sweepLabelX)
-        metadata_list.append(abf_file.sweepUnitsY)
-        metadata_list.append(abf_file.sweepUnitsX)
-        metadata_list.append(abf_file.adcNames[0])
-        metadata_list.append(abf_file.adcUnits[0])
-        metadata_list.append(1)
-        metadata_list.append(abf_file.adcUnits[0][1])
-        metadata_list.append(0)
-        metadata_list.append(abf_file.dataSecPerPoint) # data rate
-        metadata_list.append(abf_file.sweepPointCount) #
-        metadata_list.append(np.min(abf_file.sweepY))
+        metadata_list = [
+            abf_file.dacUnits[0],
+            abf_file.dataRate,
+            abf_file.dataPointCount,
+            abf_file.dataLengthSec,
+            abf_file.sweepCount,
+            abf_file.sweepLabelY,
+            abf_file.sweepLabelX,
+            abf_file.sweepUnitsY,
+            abf_file.sweepUnitsX,
+            abf_file.adcNames[0],
+            abf_file.adcUnits[0],
+            1,
+            abf_file.adcUnits[0][1],
+            0,
+            abf_file.dataSecPerPoint,
+            abf_file.sweepPointCount,
+            np.min(abf_file.sweepY),
+        ]
+
         metadata_list.append(np.max(abf_file.sweepY))
 
         metadata_list.append("3" if abf_file.adcUnits[0] == "pA" else "0")
@@ -145,7 +142,6 @@ class AbfReader():
     def build_command_epoch_table(self):
         """Retrieves the PGF Table equivalent to the Dat Files
         """
-        epochs_list = [] # epoch lists
         columns_list = ["series_name",
                     "sweep_number",
                     "node_type",
@@ -153,22 +149,28 @@ class AbfReader():
                     "duration",
                     "increment",
                     "voltage",
-                    
+
         ]
-       
+
         # retrieves the first and the last sweep
         first, last = self.get_first_and_last_sweep()
-        # append the list with the levels and fill the dataframe
-        epochs_list.append([self.abf.protocol for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
-        epochs_list.append([self.abf.sweepCount for i in range(len(self.abf._epochPerDacSection.fEpochInitLevel))])
-        epochs_list.append(self.abf._epochPerDacSection.nEpochType)
-        epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.fEpochInitLevel])
-        epochs_list.append([i/10000 for i in self.abf._epochPerDacSection.lEpochInitDuration])
-        epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.fEpochLevelInc])
-        epochs_list.append([i/1000 for i in self.abf._epochPerDacSection.fEpochInitLevel])
-    
+        epochs_list = [
+            [
+                self.abf.protocol
+                for _ in range(len(self.abf._epochPerDacSection.fEpochInitLevel))
+            ],
+            [
+                self.abf.sweepCount
+                for _ in range(len(self.abf._epochPerDacSection.fEpochInitLevel))
+            ],
+            self.abf._epochPerDacSection.nEpochType,
+            [i / 1000 for i in self.abf._epochPerDacSection.fEpochInitLevel],
+            [i / 10000 for i in self.abf._epochPerDacSection.lEpochInitDuration],
+            [i / 1000 for i in self.abf._epochPerDacSection.fEpochLevelInc],
+            [i / 1000 for i in self.abf._epochPerDacSection.fEpochInitLevel],
+        ]
         #epochs_list.append(self.abf._epochPerDacSection.nEpochType)
-        self.epochs_dataframe = pd.DataFrame(epochs_list, index = columns_list)  
+        self.epochs_dataframe = pd.DataFrame(epochs_list, index = columns_list)
         self.epochs_dataframe.insert(loc = 0,
                                     column="col1",
                                     value = first)
@@ -176,7 +178,7 @@ class AbfReader():
                                     column="col2",
                                     value = last)
         self.epochs_dataframe
-      
+
         self.epochs_dataframe = self.epochs_dataframe.transpose()
         print(self.abf.channelList)
         self.epochs_dataframe["selected_channel"] = str(self.abf.channelList[0] + 1)

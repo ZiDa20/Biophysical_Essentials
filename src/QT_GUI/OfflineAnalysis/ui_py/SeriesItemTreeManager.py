@@ -12,6 +12,7 @@ from Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from scipy import stats
 import pandas as pd
+from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
@@ -165,115 +166,7 @@ class SeriesItemTreeWidget():
         # slice out all series names that are not related to the specific chosen one
         current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
 
-    """
-    def offline_analysis_result_tree_item_clicked(self):
-        \"""
-        Whenever an item within the result tree view is clicked, this function is called
-        @return:
-        @author:DZ
-        @todo restructure this and move it maybe into a new class with the related functions ?
-        \"""
-        print("this is the function to connect")
-        if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
-            #self.result_analysis_parent_clicked()
-            self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
-            self.offline_analysis_result_tree_item_clicked()
-        else:
-            \"""identifiy the parent\"""
-            if self.SeriesItems.currentItem().child(0):
-                parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-            else:
-                parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
-
-            if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
-                self.simple_analysis_configuration_clicked(parent_stacked)
-                self.parent_stacked = parent_stacked
-
-            if self.SeriesItems.currentItem().text(0) == "Plot":
-                self.analysis_stacked.setCurrentIndex(parent_stacked)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
-
-            if self.SeriesItems.currentItem().text(0) == "Tables":
-                self.view_table_clicked(parent_stacked)
-
-            if self.SeriesItems.currentItem().text(0) == "Statistics":
-
-                # uic the designer object
-                # create in the py file an additional class named StatisticalTableWidget
-                statistics_table_widget = StatisticsTablePromoted()
-
-                self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
-                #statistics_table_widget.statistics_table_widget.setColumnCount(6)
-                #statistics_table_widget.statistics_table_widget.setRowCount(2)
-                #statistics_table_widget.statistics_table_widget.show()
-                statistics_table_widget.statistics_table_widget.horizontalHeader().setSectionResizeMode(
-                    QHeaderView.Stretch)
-                statistics_table_widget.statistics_table_widget.verticalHeader().setSectionResizeMode(
-                    QHeaderView.Stretch)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-
-                series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")
-                analysis_functions = self.database_handler.get_analysis_functions_for_specific_series(series_name[0])
-
-
-                # -------------------
-                existing_row_numbers = statistics_table_widget.statistics_table_widget.rowCount()
-
-
-                if existing_row_numbers == 0:
-
-                    # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-                    statistics_table_widget.statistics_table_widget.setColumnCount(6)
-                    statistics_table_widget.statistics_table_widget.setRowCount(
-                        len(analysis_functions))
-                    self.statistics_table_buttons = [0] * len(analysis_functions)
-                #else:
-                #    current_tab.analysis_table_widget.analysis_table_widget.setRowCount(
-                #        existing_row_numbers + len(self.selected_analysis_functions))
-                #    self.table_buttons = self.table_buttons + [0] * len(self.selected_analysis_functions)
-
-                self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
-
-                for i in analysis_functions:
-                    # prepare a row for each analysis
-                    analysis_function = i[0]
-                    print(analysis_function)
-                    row_to_insert = analysis_functions.index(i) + existing_row_numbers
-
-                    self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Choose")
-                    self.select_checkbox = QCheckBox()
-                    self.data_dist  = QComboBox()
-                    self.data_dist.addItems(["Normal Distribution", "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution" ])
-                    self.data_dist.setCurrentIndex(0)
-                    self.stat_test = QComboBox()
-                    self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
-                    self.stat_test.setCurrentIndex(0)
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 0,self.select_checkbox)
-                    statistics_table_widget.statistics_table_widget.setItem(row_to_insert, 1,
-                                                                            QTableWidgetItem(str(analysis_function)))
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_add_meta_data_buttons[row_to_insert])
-
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 3, self.data_dist)
-                    statistics_table_widget.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
-
-                    self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
-
-                    #current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5,
-                    #                                                                      self.live_result)
-
-                    #self.statistics_table_buttons[row_to_insert].clicked.connect(
-                    #    partial(self.open_statistics_meta_data_selection,row_to_insert))
-                    #self.live_result.clicked.connect(
-                    #    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
-                    statistics_table_widget.statistics_table_widget.show()
-
-                
-                start_statistics = QPushButton("Run Statistic Test")
-                statistics_table_widget.verticalLayout_2.addWidget(start_statistics)
-
-                start_statistics.clicked.connect(partial(self.calculate_statistics,statistics_table_widget.statistics_table_widget))
-
-    """
+   
 
     def view_table_clicked(self, parent_stacked:int):
         """
@@ -478,24 +371,24 @@ class SeriesItemTreeWidget():
 
     def calculate_statistics(self,statistics_table,parent_stacked,df):
 
-        for row in range(0,statistics_table.rowCount()):
+        for row in range(statistics_table.rowCount()):
 
             # get the test to be performed from the combo box (position 4)
             test_type = statistics_table.cellWidget(row,4).currentText()
 
             #meta_data = statistics_table.cellWidget(row,2).currentText()
-            
+
 
             if test_type == "t-Test":
 
                 print("executing t test")
-                    
+
                 # get unique meta data groups to compare
                 unique_groups  = list(df["meta_data"].unique())
-                
+
                 # get a list of tuples for pairwise comparison
                 pairs = self.get_pairs(unique_groups)
-                
+
                 # result data frame to be displayed
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"])
                 for p in pairs:
@@ -503,9 +396,9 @@ class SeriesItemTreeWidget():
                     group2 = df[df["meta_data"]==p[1]]["values"]
                     res =  stats.ttest_ind(group1,group2)
                     tmp = pd.DataFrame({"Group_1":[p[0]], "Group_2":[p[1]], "p_Value":[res.pvalue]})
-                   
+
                     res_df = pd.concat([res_df, tmp])
-                
+
                 print(res_df)
 
             else:
@@ -526,4 +419,18 @@ class SeriesItemTreeWidget():
                 # Add the pair to the list
                 pairs.append((item1, item2))
         return pairs
+    
+
+    def click_top_level_item(self):
+        """Clicks the first top level item in the tree widget.
+        """
+        first_item = self.SeriesItems.topLevelItem(0).child(0)
+        self.SeriesItems.setCurrentItem(first_item)
+        self.SeriesItems.itemClicked.emit(first_item, 0)
+        current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
+        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        # Get the rect of the index
+        rect = current_tab.widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
             

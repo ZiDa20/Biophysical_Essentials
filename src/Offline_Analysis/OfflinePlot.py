@@ -150,7 +150,7 @@ class OfflinePlots():
         self.logger.info("Styling the Plot ended")
 
     def make_boxplot(self,result_table_list: list, selected_meta_data = None):
-        
+
         """Specific Function to draw Boxplots from long table formats
         of different Analysis Function
 
@@ -163,18 +163,14 @@ class OfflinePlots():
 
         if self.holded_dataframe is None:
             plot_dataframe = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.comparison_plot(plot_dataframe)
-            self.holded_dataframe = plot_dataframe
-
+            self.merge_meta_plot_and_assign_meta(plot_dataframe, selected_meta_data)
         else:
             self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
             self.comparison_plot(self.holded_dataframe)
             for ax in self.canvas.figure.axes:
                 ax.clear()  
             self.canvas.draw()
-    
+
         self.canvas.figure.tight_layout()
         self.logger.info("Created Boxplot successfully")
         self.parent_widget.export_data_frame = self.holded_dataframe
@@ -227,20 +223,37 @@ class OfflinePlots():
         if self.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
-            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.comparison_plot(plot_dataframe)
-            self.holded_dataframe = plot_dataframe
-        
+            self.merge_meta_plot_and_assign_meta(plot_dataframe, selected_meta_data)
         else:
             self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
             for ax in self.canvas.figure.axes:
                 ax.clear() 
             self.comparison_plot(self.holded_dataframe)
             self.canvas.draw()
-            
+
         self.parent_widget.export_data_frame = self.holded_dataframe
         self.parent_widget.statistics = self.holded_dataframe
+
+
+    def merge_meta_plot_and_assign_meta(self, plot_dataframe: pd.DataFrame, selected_meta_data: list):
+        """_summary_
+
+        Args:
+            plot_dataframe (pd.DataFrame): _description_
+            selected_meta_data (list): _description_
+        """
+        plot_dataframe = pd.merge(
+            plot_dataframe,
+            self.meta_data,
+            left_on="experiment_name",
+            right_on="experiment_name",
+            how="left",
+        )
+        plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg(
+            '::'.join, axis=1
+        )
+        self.comparison_plot(plot_dataframe)
+        self.holded_dataframe = plot_dataframe
         
     def single_rheobase_plot(self, result_table_list:list, selected_meta_data = None):
         """Creates Plots for single rheobase calculation --> stepplot
@@ -484,8 +497,8 @@ class OfflinePlots():
         """_summary_: Creates a scatter plot from the data"""
         sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.ax)
         if explaind_ratios:
-            self.ax.set_xlabel("PC1: " + str(explaind_ratios[0]))
-            self.ax.set_ylabel("PC2: " + str(explaind_ratios[1]))
+            self.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
+            self.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
 
 
     def line_boxplot(self, plot_dataframe):
@@ -503,24 +516,17 @@ class OfflinePlots():
 
     def hue_regplot(self,data, x, y, hue, palette=None, **kwargs):
         """Draw a scatterplot with regression line for each unique value of a column."""
-        regplots = []
         levels = data[hue].unique()
         if palette is None:
             default_colors = get_cmap('tab10')
             palette = {k: default_colors(i) for i, k in enumerate(levels)}
-        
-        for key in levels:
-            regplots.append(
-                sns.regplot(
-                    x=x,
-                    y=y,
-                    data=data[data[hue] == key],
-                    color=palette[key],
-                    **kwargs
-                )
+
+        return [
+            sns.regplot(
+                x=x, y=y, data=data[data[hue] == key], color=palette[key], **kwargs
             )
-    
-        return regplots
+            for key in levels
+        ]
 
     ################################################################################
     # Hovering Functions: and Plot Controls
@@ -542,10 +548,10 @@ class OfflinePlots():
                 line.set_linewidth(6)
                 self.update_annot(ind,annot,line)
                 annot.set_visible(True)
-                self.canvas.draw_idle()
             else:
                 line.set_linewidth(1)
-                self.canvas.draw_idle()
+
+            self.canvas.draw_idle()
     
     def update_annot(self, ind: tuple, annot, line):
         """Annotation Update for visualization of the lineplot name

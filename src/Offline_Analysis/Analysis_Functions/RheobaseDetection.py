@@ -12,21 +12,21 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
     plot_type_options = ["Rheobase Plot", "Sweep Plot"]
     analysis_function_id = None
     
-    def __init__(cls):
+    def __init__(self):
 
         # really needed ?
-        cls.series_name = None
-        cls.database = None
-        cls.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
-        cls.lower_bound = None
-        cls.upper_bound = None
+        self.series_name = None
+        self.database = None
+        self.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
+        self.lower_bound = None
+        self.upper_bound = None
 
     @classmethod
-    def calculate_results(cls):
+    def calculate_results(cls):  # sourcery skip: low-code-quality
 
         #print("Running Rheobase Detection")
         ap_detection_threshold = 0.01
-        
+
         series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(cls.series_name)
 
         # get the names of all data tables to be evaluated
@@ -37,7 +37,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
 
         for data_table in data_table_names:
             holding_value = None
-            
+
             #print("processing new data table")
             # here we should select which increment should be used 
             if cls.time is None:
@@ -64,7 +64,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             for column in entire_sweep_table:
                 print(column)
                 cls.data = entire_sweep_table.get(column)
-            
+
 
                 if series_specific_recording_mode != "Voltage Clamp":
                     y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
@@ -73,19 +73,16 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                 sweep_number = column.split("_")
                 sweep_number = int(sweep_number[1])
 
-        
+
 
                 if np.max(cls.data) > ap_detection_threshold:
-
-                    # two options are allowed in here
                     if sweep_number<=number_of_sweeps-2:
-
-                        next_sweep = "sweep_"+str(sweep_number+1)
+                        next_sweep = f"sweep_{str(sweep_number + 1)}"
                         s1 = entire_sweep_table.get(next_sweep)
                         y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, next_sweep)
                         s1 = np.interp(s1, (s1.min(), s1.max()), (y_min, y_max))
 
-                        next_sweep = "sweep_" + str(sweep_number + 2)
+                        next_sweep = f"sweep_{str(sweep_number + 2)}"
                         s2 = entire_sweep_table.get(next_sweep)
                         y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, next_sweep)
                         s2 = np.interp(s2, (s2.min(), s2.max()), (y_min, y_max))
@@ -135,13 +132,13 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             data_table_names (list): list of Rheobase tables per experiment
         """
         
+        holding_value = None
+
         for data_table in data_table_names: # got through the data tables
             increment = 0
             current_list = []
             mean_voltage_list = []
             series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(cls.series_name)
-            holding_value = None
-
             if holding_value is None:
                     print(f'requesting holding value for table {data_table}')
                     increment_value = cls.database.get_data_from_recording_specific_pgf_table(data_table, "increment", 1)
@@ -157,16 +154,16 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                     if series_specific_recording_mode != "Voltage Clamp":
                         y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                         cls.data = np.interp(cls.data, (cls.data.min(), cls.data.max()), (y_min, y_max))
-                    
+
                     mean_voltage_list.append(np.max(cls.data))
                     current_list.append(increment)
                     increment += increment_value*1000
-            
+
             meaned_rheobase = pd.DataFrame()
             meaned_rheobase["current"] = current_list
             meaned_rheobase["max_voltage"] = mean_voltage_list
-            
-            
+
+
             mean_table_name = cls.create_new_specific_result_table_name(
                             cls.analysis_function_id, data_table) + "_max"
             cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,

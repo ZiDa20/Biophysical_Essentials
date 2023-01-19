@@ -1,6 +1,6 @@
 #from pypylon import pylon
 import matplotlib.pyplot as plt
-from pypylon import pylon
+#from pypylon import pylon
 #Switched to pyqt
 
 class BayerCamera():
@@ -19,10 +19,10 @@ class BayerCamera():
             bool: If True Camera is connected properly
         """
         try:
-            self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
-            self.camera.Open()
+            #self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+            #self.camera.Open()
             return True
-        except:
+        except Exception:
             return None
    
     def grab_video(self):
@@ -37,17 +37,12 @@ class BayerCamera():
         self.camera.StartGrabbingMax(NUMBER)
 
         self.grabResult = self.camera.RetrieveResult(6000, pylon.TimeoutHandling_ThrowException)
-       
-        if self.grabResult.GrabSucceeded():
-            self.img = self.grabResult.Array
-            return self.img
-        
-        else:
+
+        if not self.grabResult.GrabSucceeded():
             return None
 
-        self.grabResult.Release()
-
-        self.camera.Close()
+        self.img = self.grabResult.Array
+        return self.img
 
     def save_fig(self, bm):   
         """""" 

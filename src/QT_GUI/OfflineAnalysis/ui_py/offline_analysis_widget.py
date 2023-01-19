@@ -297,7 +297,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-        id = dialog.lineEdit.text()
+        id = dialog.lineEdit.text() # change this to a new name
         dialog.close()
 
         # static offline analysis number
@@ -305,18 +305,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
-        for i in range(0,len(series_names_list)):
+        for i in range(len(series_names_list)):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
 
         self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list)
-        print("displaying to analysis results: ", str(self.database_handler.analysis_id))
+        print("displaying to analysis results: ", self.database_handler.analysis_id)
 
         print(self.offline_tree.SeriesItems.topLevelItemCount())
 
 
         # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        for parent_pos in range(0,self.offline_tree.SeriesItems.topLevelItemCount()):
+        for parent_pos in range(self.offline_tree.SeriesItems.topLevelItemCount()):
 
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
             self.offline_analysis_result_tree_item_clicked()
@@ -386,17 +386,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.load_data_from_database_dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
-
-        index =  self.treebuild.selected_tree_view.model().index(1, 1, QModelIndex())
-        
+        index =  self.treebuild.selected_tree_view.model().index(0, 0, self.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
+        self.treebuild.selected_tree_view.setCurrentIndex(index)
         # Get the rect of the index
         rect = self.treebuild.selected_tree_view.visualRect(index)
+        QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
-        # Get the position of the index
-        pos = self.treebuild.selected_tree_view.viewport().mapFromGlobal(self.treebuild.selected_tree_view.mapToGlobal(rect.center()))
-
-        # simulate a mouse click on the index
-        QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=pos)
+        indeces = self.treebuild.selected_tree_view.selectedIndexes()[0]
+        crawler = indeces.model().itemFromIndex(indeces)
+        print(indeces)
     def load_recordings(self, progress_callback):
         """_summary_
 
@@ -627,16 +625,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             CustomErrorDialog().show_dialog("The template needs at least 8 columns which were not found in the specified template.")
 
         else:
-            print("results from the template file")
-            print(meta_data_assignments)
-            df = pd.DataFrame(meta_data_assignments[1:len(meta_data_assignments)], columns=meta_data_assignments[0])
-            
+            df = pd.DataFrame(meta_data_assignments[1:], columns=meta_data_assignments[0])
             # create two models one for the table show and a second for the data visualizations
             content_model = PandasTable(df)
-            print(df)
             template_table_view.setModel(content_model)
-
-            # show and retrieve the selected columns
             template_table_view.show()
         #self.data_base_content.clicked.connect(self.retrieve_column)
 
@@ -663,7 +655,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for dat_file in self.offline_manager.package_list(directory):
             
             if isinstance(dat_file, list):
-                splitted_name = "_".join(dat_file[0].split("_")[0:2])
+                splitted_name = "_".join(dat_file[0].split("_")[:2])
                 self.database_handler.add_experiment_to_experiment_table(splitted_name)
             else:
                 splitted_name = dat_file.split(".")
@@ -677,8 +669,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name)
                 template_data_frame = template_data_frame.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
                                         "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
-                
-            
+
+
 
         '''make a table with editable data '''
 
@@ -711,7 +703,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
         meta_data_popup.continue_loading.clicked.connect(partial(self.make_list,meta_data_popup,template_table_view))
-       
+
 
         meta_data_popup.exec_()
         
@@ -746,13 +738,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def get_selected_checkboxes(self, checkboxes, labels):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
-        # empty list to be filled
-        checked_labels = []
-        for c in checkboxes:
-            if c.isChecked():
-                checked_labels.append(labels[checkboxes.index(c)])
-        # return filled list, can be empty too
-        return checked_labels
+        return [labels[checkboxes.index(c)] for c in checkboxes if c.isChecked()]
 
     def compare_series_clicked(self, checkboxes, series_names, dialog):
         """Handler for a click on the button confirm_series_selection in a pop up window"""
@@ -775,6 +761,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(2)
         self.final_series = []
         self.selected_series_combo.clear()
+        self.offline_tree.click_top_level_item()
 
     def start_worker(self):
         """Starts the Postgres Sql Worker to upload the tables 
@@ -843,10 +830,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.exec()
 
     def finish_statistics_meta_data_popup(self, dialog:StatisticsMetaData_Handler, statistics_table_widget:StatisticsTablePromoted, row_to_insert:int):
-        meta_data_selection = []
-        for n in range(0, self.statistics_list_view.count()):
-            meta_data_selection.append(self.statistics_list_view.item(n))
-
+        meta_data_selection = [
+            self.statistics_list_view.item(n)
+            for n in range(self.statistics_list_view.count())
+        ]
         dialog.close()
 
         list_and_button_widget = QWidget()
@@ -863,7 +850,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         last_item = None
         # select only the last row !!!
         last_row = 0
-        for n in range(0, self.statistics_list_view.count()):
+        for n in range(self.statistics_list_view.count()):
             last_item = self.statistics_list_view.item(n)
             existing_text = last_item.text()
             last_row = n
@@ -893,7 +880,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         existing_text = None
         last_item = None
         last_row = 0
-        for n in range(0, self.statistics_list_view.count()):
+        for n in range(self.statistics_list_view.count()):
             last_item = self.statistics_list_view.item(n)
             existing_text = last_item.text()
             last_row = n
@@ -945,7 +932,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         if result_plot_widget.OfflineResultGrid.columnCount() == 1:
             print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
 
-            for r in range(0, result_plot_widget.OfflineResultGrid.rowCount()):
+            for r in range(result_plot_widget.OfflineResultGrid.rowCount()):
 
                 qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
                 custom_plot_widget = qwidget_item.widget()
@@ -1052,7 +1039,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
 
         current_tab = self.tab_list[current_index]
-
+        current_tab.checkbox_list = []
         current_tab.analysis_function.addWidget(current_tab.analysis_table_widget)
         existing_row_numbers = current_tab.analysis_table_widget.analysis_table_widget.rowCount()
         #current_tab.pushButton_3.clicked.connect(self.add_filter_to_offline_analysis)
@@ -1071,17 +1058,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for row in range(len(self.selected_analysis_functions)):
             row_to_insert = row + existing_row_numbers
             value = self.selected_analysis_functions[row]
-            print(str(value))
+            print(value)
             current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert, 0,
                                                                             QTableWidgetItem(str(value)))
 
             self.table_buttons[row_to_insert] = QPushButton("Add")
             self.c = QPushButton("Configure")
             self.live_result = QCheckBox()
-            
+            current_tab.checkbox_list.append(self.live_result)
+            self.live_result.setEnabled(False)
             self.pgf_selection = QComboBox()
             self.get_pgf_file_selection(current_tab)
-            
+
 
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 3,
                                                                                   self.table_buttons[row_to_insert])
@@ -1112,20 +1100,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 pgf_table = self.database_handler.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
                 print(pgf_table.info)
                 pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
-                pgf_file_dict.update({experiment[0]: (pgf_table, pgf_table.shape[0])})
-            
+                pgf_file_dict[experiment[0]] = (pgf_table, pgf_table.shape[0])
+
             except IndexError:
                 print(f"The error is at the experiment: {experiment[0]}")
                 continue
 
-        pgf_files_amount = set([pgf_index[1] for pgf_index in pgf_file_dict.values()])
+        pgf_files_amount = {pgf_index[1] for pgf_index in pgf_file_dict.values()}
         if len(pgf_files_amount) <= 1:
             for i in range(1, int(list(pgf_files_amount)[0])+1):
                 self.pgf_selection.addItem(f"Segment {i}")
-            
+
         else:
             CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.")
-        
+
         print(pgf_file_dict)
 
 
@@ -1151,16 +1139,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 checkbox_object.setCheckState(Qt.CheckState.Unchecked)
 
         print("I have to make the liveplot")
-       # artificial click will replot and add or delete the newly checked or unchecked analysis function
-       # item = current_tab.selected_tree_widget.currentItem()
-       # self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7,
-       #                                                                    Qt.UserRole)].analysis_functions_table_widget = current_tab.analysis_table_widget.analysis_table_widget
-       # self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].tree_view_click_handler(
-       #     item)
-
-    #def quit_error_dialog(self, dialog: QDialog):
-    #    dialog.close()
-
+        index = current_tab.widget.selected_tree_view.selectedIndexes()[1]
+        rect = current_tab.widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+       
     def analysis_table_cell_changed(self, item):
         print("a cell changed")
         print(item.text())
@@ -1168,7 +1150,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def remove_existing_dragable_lines(self, row_number, current_tab):
         number_of_rows = current_tab.analysis_table_widget.rowCount()
 
-        for r in range(0, number_of_rows):
+        for r in range(number_of_rows):
             if current_tab.analysis_table_widget.item(r, 1) is not None:
                 current_tab.analysis_table_widget.removeCellWidget(r, 3)
                 self.b = QPushButton("Change")
@@ -1181,8 +1163,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             try:
                 self.current_tab_visualization[
                     self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
-            except:
-                print("nothing to delete")
+            except Exception as e:
+                print("function remove_exisiting_dragable_lines {e}")
 
     def add_coursor_bounds(self, row_number, current_tab):
         """
@@ -1228,6 +1210,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.b = QPushButton("Change")
         current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_number, 3, self.b)
         self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
+        current_tab.checkbox_list[row_number].setEnabled(True)
+        self.check
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in):
@@ -1244,7 +1228,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def update_cursor_bound_labels(self, value, column_number, row_number):
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.tab_list[current_index]
-        print("updating: row = " + str(row_number) + " column=" + str(column_number) + " value= " + str(value))
+        print(
+            f"updating: row = {str(row_number)} column={str(column_number)} value= {str(value)}"
+        )
 
         current_tab.analysis_table_widget.analysis_table_widget.setItem(row_number, column_number,
                                                                         QTableWidgetItem(str(value)))
@@ -1259,7 +1245,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
         # print("Checking ready  for analysis")
-        for row in range(0, (current_tab.analysis_table_widget.analysis_table_widget.rowCount())):
+        for row in range(current_tab.analysis_table_widget.analysis_table_widget.rowCount()):
             if current_tab.analysis_table_widget.analysis_table_widget.item(row,
                                                                             1) is None or current_tab.analysis_table_widget.analysis_table_widget.item(
                     row, 2) is None:
@@ -1329,7 +1315,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.progressbar.setValue(data[0])
         #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
-        self.status_label.setText("Analyzing: " + str(data[1]) + "%")
+        self.status_label.setText(f"Analyzing: {str(data[1])}%")
         
     def finished_result_thread(self):
         """
@@ -1355,7 +1341,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
         self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
         analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
-        analysis_function_tuple = tuple([i[1] for i in analysis_function_tuple])
+        analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
         self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
         """simulate click on  "Plot" children """
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
@@ -1375,7 +1361,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.open_connection()
 
         ### to be continued here
-        for r in range(0, row_count):
+        for r in range(row_count):
             analysis_function = current_tab.analysis_table_widget.analysis_table_widget.item(r, 0).text()
             # print("analysis function ", analysis_function)
             lower_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 1).text()), 2)
@@ -1393,8 +1379,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return: value in the specified cell as float
         """
         try:
-            r = float(current_tab.function_selection_grid.itemAtPosition(row, column).widget().text())
-            return r
+            return float(
+                current_tab.function_selection_grid.itemAtPosition(row, column)
+                .widget()
+                .text()
+            )
         except Exception as e:
             print(e)
             return -1
