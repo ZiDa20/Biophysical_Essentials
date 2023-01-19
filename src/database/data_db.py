@@ -83,10 +83,10 @@ class DuckDBDatabaseHandler():
             # Converts TEXT to np.array when selecting
             sqlite3.register_converter("array", self.convert_array)
 
-       
+
         cew = os.path.dirname(os.getcwd())
 
-        dir_list = os.listdir(cew+ "/src/database/")
+        dir_list = os.listdir(f"{cew}/src/database/")
 
         return_val = 0
         if self.db_file_name in dir_list:
@@ -102,11 +102,11 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                path = cew + '/src/database/' + self.db_file_name
+                path = f'{cew}/src/database/{self.db_file_name}'
                 if sys.platform != "darwin":
                     path = path.replace("/","\\")
                 else:
-                    path = path.replace("\\","/")       
+                    path = path.replace("\\","/")
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
             else:
@@ -114,10 +114,7 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             self.logger.error("An error occured during database initialization. Error Message: %s", e)
 
-        if return_val == 0:
-            return False
-        else:
-            return True
+        return return_val != 0
 
     def create_database_tables(self):
         '''function to create the tables needed for the default database'''
@@ -272,7 +269,7 @@ class DuckDBDatabaseHandler():
         print("trials to open connection")
         try:
             cew = os.path.dirname(os.getcwd())
-            path = cew + '/src/database/' + self.db_file_name
+            path = f'{cew}/src/database/{self.db_file_name}'
             print(path)
             if sys.platform != "darwin": # check
                 path = path.replace("/","\\")

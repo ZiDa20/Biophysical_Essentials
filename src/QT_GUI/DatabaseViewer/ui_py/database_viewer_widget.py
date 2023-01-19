@@ -12,6 +12,7 @@ from matplotlib.figure import Figure
 from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
 
+
 class Database_Viewer(QWidget, Ui_Database_Viewer):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -126,25 +127,22 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.pull_table_from_database(None,"offline_analysis")
             
     @Slot(str)
-    def pull_table_from_database(self,event = None,  text_query = None):
+    def pull_table_from_database(self, event = None,  text_query = None):
         '''
         Pull the table from the database and plot it
         Args:
             event: event that triggered the function
             text_query: if not None then we are in manual mode, else click event sender will be registered
         '''
-        if text_query: # check if default manual mode with Offline Analysis table or not
-            table_name = text_query
-        else:
-            table_name = self.sender().currentItem().text()
+        table_name = text_query or self.sender().currentItem().text()
         q = f'SELECT * from {table_name}'
         try:
             # returns a dict, keys = column names, values = array = single rows
-            
+
             table_dict = self.database.execute(q).fetchnumpy()
             self.create_table_from_dict(table_dict)
         except Exception as e:
-            print("failed" + str(e))
+            print(f"failed{str(e)}")
 
 
     def create_table_from_dict(self,table_dict):

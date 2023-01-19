@@ -33,10 +33,9 @@ class PandasTable(QAbstractTableModel):
         return self._data.shape[1]
 
     def data(self, index, role=Qt.DisplayRole): # get the data
-        if index.isValid():
-            if role == Qt.DisplayRole or role == Qt.EditRole:
-                value = self._data.iloc[index.row(), index.column()]
-                return str(value)
+        if index.isValid() and role in [Qt.DisplayRole, Qt.EditRole]:
+            value = self._data.iloc[index.row(), index.column()]
+            return str(value)
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:

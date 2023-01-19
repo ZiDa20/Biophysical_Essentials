@@ -189,7 +189,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         
 
     def insert_row_of_buttons(self,grid_layout: QGridLayout):
-    
+
         """
         Function to insert a row of buttons to the start up grid
         """
@@ -200,36 +200,32 @@ class MainWindow(QMainWindow, QtStyleTools):
 
             button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis", "Continue"]
 
-            amount_of_buttons  = 3
+            amount_of_buttons = 4 if self.ui.offline.canvas_grid_layout.count()>0 else 3
+            for col in range(amount_of_buttons):
 
-            if self.ui.offline.canvas_grid_layout.count()>0:
-                amount_of_buttons = 4
-                
-            for col in range(0,amount_of_buttons):
+                new_button = QToolButton()
+                new_button.setText(button_txt[col])
+                icon = QIcon()
 
-                    new_button = QToolButton()
-                    new_button.setText(button_txt[col])
-                    icon = QIcon()
-            
-                    if col == 0:
-                        new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
-                        icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
-                    if col == 1:
-                        new_button.clicked.connect(self.start_new_offline_analysis_from_db)
-                        icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
-                    if col == 2:
-                        new_button.clicked.connect(self.open_analysis)
-                        icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
-                    if col == 3:
-                        new_button.clicked.connect(self.go_to_offline_analysis)
-                        icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
-                    
+                if col == 0:
+                    new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
+                elif col == 1:
+                    new_button.clicked.connect(self.start_new_offline_analysis_from_db)
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
+                elif col == 2:
+                    new_button.clicked.connect(self.open_analysis)
+                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
+                elif col == 3:
+                    new_button.clicked.connect(self.go_to_offline_analysis)
+                    icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
 
-                    new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
-                    new_button.setIcon(icon)
-                    new_button.setIconSize(QSize(200, 200))
-                    new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    self.ui.gridLayout_3.addWidget(new_button, 0, col)
+
+                new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
+                new_button.setIcon(icon)
+                new_button.setIconSize(QSize(200, 200))
+                new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                self.ui.gridLayout_3.addWidget(new_button, 0, col)
         else:
             self.ui.side_left_menu.hide()
 
@@ -361,14 +357,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         """  
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(50)
-        if size is None:      
+        if size is None:  
             self.animation.setStartValue(self.geometry())
             self.animation.setEndValue(self.screenRect)
-            self.animation.start()
         else:
             self.animation.setStartValue(self.geometry())
             self.animation.setEndValue(QRect(320, 45, 1280, 950))
-            self.animation.start()
+
+        self.animation.start()
 
     def quit_application(self):
         """ Function to quit the app"""
@@ -383,22 +379,22 @@ class MainWindow(QMainWindow, QtStyleTools):
             #self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
             self.apply_stylesheet(self, "white_mode.xml", invert_secondary=True)
             # open the extension from the css file
-            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-                
-            #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
-            #self.frontend_style.change_canvas_bright()
-           
-            
+
+                #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
+                #self.frontend_style.change_canvas_bright()
+
+
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
             #self.apply_stylesheet(self, "hello.xml")
-            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
+            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-
-            #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
-            
-            #self.frontend_style.change_canvas_dark()
+        
+                #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
+        
+                #self.frontend_style.change_canvas_dark()
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
@@ -430,8 +426,8 @@ if __name__ == "__main__":
     stylesheet = app.styleSheet()
     stylesheet_loaded = "Menu_button.css"
     if sys.platform == "darwin":
-        stylesheet_loaded = "Menu_button_mac.css" 
-    with open(os.getcwd() + f"/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
+        stylesheet_loaded = "Menu_button_mac.css"
+    with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
     window = MainWindow()
     window.show()
