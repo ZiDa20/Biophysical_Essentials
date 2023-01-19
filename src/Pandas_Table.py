@@ -12,7 +12,16 @@ class PandasTable(QAbstractTableModel):
     def __init__(self, data):
         super().__init__()
         self._data = data
-
+        self._full_data = None
+    
+    @property    
+    def full_data(self):
+        return self._full_data
+    
+    @full_data.setter    
+    def full_data(self, dataframe):
+        self._full_data = dataframe
+        
     def rowCount(self, index): # get the number of rows
         """ get the dataframe shape row
         index -> int """

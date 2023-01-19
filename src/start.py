@@ -154,7 +154,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.change_to_lightmode()
 
         window_size = self.geometry()
-        self.maximize(window_size)
+        #self.maximize(window_size)
         #self.maximize()
       
     #def button_connections(self):

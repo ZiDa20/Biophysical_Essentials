@@ -6,13 +6,14 @@
     "configurations": [
 
 
+
         {
-            "name": "Python: Aktuelle Datei",
+            "name": "Python: Current File",
             "type": "python",
             "request": "launch",
             "program": "start.py",
-            "cwd": "${workspaceRoot}/src",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

@@ -31,3 +31,5 @@ venv/
 *.json
 *.sqlite
 *.vs
+.cell_images
+.runs
