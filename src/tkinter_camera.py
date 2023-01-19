@@ -1,6 +1,5 @@
-#from pypylon import pylon
+from pypylon import pylon
 import matplotlib.pyplot as plt
-#from pypylon import pylon
 #Switched to pyqt
 
 class BayerCamera():
@@ -19,8 +18,8 @@ class BayerCamera():
             bool: If True Camera is connected properly
         """
         try:
-            #self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
-            #self.camera.Open()
+            self.camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice())
+            self.camera.Open()
             return True
         except Exception:
             return None

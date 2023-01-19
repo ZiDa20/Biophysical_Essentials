@@ -392,9 +392,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
-        indeces = self.treebuild.selected_tree_view.selectedIndexes()[0]
-        crawler = indeces.model().itemFromIndex(indeces)
-        print(indeces)
     def load_recordings(self, progress_callback):
         """_summary_
 
@@ -1210,7 +1207,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.b = QPushButton("Change")
         current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_number, 3, self.b)
         self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
-        current_tab.checkbox_list[row_number].setEnabled(True)
+        current_tab.checkbox_list[0].setEnabled(True)
         self.check
 
     @Slot(tuple)

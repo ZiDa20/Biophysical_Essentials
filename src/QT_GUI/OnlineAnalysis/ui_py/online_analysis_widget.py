@@ -311,8 +311,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 self.database_handler.database.execute(q)
 
         # remove from global_meta_data, experiments, experiment_series
+        names = tuple(experiment_series["experiment_name"].tolist())
         for table in ["global_meta_data", "experiments", "experiment_series"]:
-            q = f'delete from {table} where experiment_name = \'{old_file_name}\''
+            q = f'delete from {table} where experiment_name in {names}'
             self.database_handler.database.execute(q)
 
     def show_single_file_in_treeview(self, file_name, treeview_name):

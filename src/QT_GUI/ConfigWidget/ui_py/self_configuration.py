@@ -23,6 +23,8 @@ from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 import shutil
+from PySide6.QtTest import QTest
+
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     
@@ -591,6 +593,14 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         self.online_analysis.show_single_file_in_treeview(copied_file_name, treeview_name)
         self.ui_notebook.setCurrentIndex(2)    
+
+
+        index =  self.online_analysis.online_treeview.selected_tree_view.model().index(0, 0, self.online_analysis.online_treeview.selected_tree_view.model().index(0,0, QModelIndex()))
+        self.online_analysis.online_treeview.selected_tree_view.setCurrentIndex(index)
+        # Get the rect of the index
+        rect = self.online_analysis.online_treeview.selected_tree_view.visualRect(index)
+        QTest.mouseClick(self.online_analysis.online_treeview.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+
 
 
         """
