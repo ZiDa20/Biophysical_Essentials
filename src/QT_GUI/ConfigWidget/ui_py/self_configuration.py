@@ -22,6 +22,7 @@ from functools import partial
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 import shutil
+from PySide6.QtTest import QTest
 
 class Config_Widget(QWidget,Ui_Config_Widget):
     
@@ -602,6 +603,19 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         self.online_analysis.show_single_file_in_treeview(copied_file_name, treeview_name)
         self.ui_notebook.setCurrentIndex(2)    
+
+
+        """
+        index =  self.online_analysis.online_treeview.selected_tree_view.model().index(1, 1, QModelIndex())        
+        # Get the rect of the index
+        rect = self.online_analysis.online_treeview.selected_tree_view.visualRect(index)
+        # Get the position of the index
+        pos = self.online_analysis.online_treeview.selected_tree_view.viewport().mapFromGlobal(self.online_analysis.online_treeview.selected_tree_view.mapToGlobal(rect.center()))
+        # simulate a mouse click on the index
+        QTest.mouseClick(self.online_analysis.online_treeview.selected_tree_view.viewport(), Qt.LeftButton, pos=pos)
+        """
+
+
 
 
     def stop_threading(self):

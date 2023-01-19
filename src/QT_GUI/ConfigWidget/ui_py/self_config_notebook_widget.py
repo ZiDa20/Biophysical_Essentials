@@ -1788,7 +1788,7 @@ class Ui_Config_Widget(object):
         self.groupBox_13.setTitle(QCoreApplication.translate("Config_Widget", u"Go To", None))
         self.go_to_online.setText(QCoreApplication.translate("Config_Widget", u"Online Analysis", None))
 #if QT_CONFIG(tooltip)
-        self.self_configuration_notebook.setToolTip(QCoreApplication.translate("Config_Widget", u"<html><head/><body><p>Perform the Batch Communication Experiment, via direct communication with the Patch Master.</p><p>Only available with HEKA Patchmaster Systems</p></body></html>", None))
+        #self.self_configuration_notebook.setToolTip(QCoreApplication.translate("Config_Widget", u"<html><head/><body><p>Perform the Batch Communication Experiment, via direct communication with the Patch Master.</p><p>Only available with HEKA Patchmaster Systems</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.groupBox_30.setTitle(QCoreApplication.translate("Config_Widget", u"Cells", None))
         self.label_207.setText(QCoreApplication.translate("Config_Widget", u"License ID", None))
