@@ -217,7 +217,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             #self.verticalLayout.addWidget(self.tree_tab_widget)
         if self.online_analysis.currentIndex() == 2:
             self.start_db_transfer()
-            
+
     def show_sweeps_toggled(self):
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
 

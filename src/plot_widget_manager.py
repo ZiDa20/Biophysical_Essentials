@@ -69,7 +69,7 @@ class PlotWidgetManager(QRunnable):
         # e.g. max_current | 1 | 10 | change | configure | checkbox
         self.analysis_functions_table_widget = None
 
-        self.default_colors = ['white', 'g', 'c','r']
+        self.default_colors = ['r', 'g', 'c','k']
 
     def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
         self.analysis_functions_table_widget = analysis_functions_table_widget

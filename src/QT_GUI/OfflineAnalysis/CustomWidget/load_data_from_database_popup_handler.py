@@ -7,7 +7,7 @@ from functools import partial
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-
+import numpy as np
 import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
 
@@ -53,8 +53,8 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         
         #Create a figure
         self.figure = Figure()
-        #manual_colors = ["#5b6e8b","#8b785b","#6e8b5b","#785b8b",] # "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
-        manual_colors = ["#7400b8", "#6930c3", "#5e60ce", "#5390d9", "#4ea8de", "#48bfe3", "#56cfe1", "#64dfdf", "#72efdd", "#80ffdb", "#006466", "#065a60", "#0b525b", "#144552", "#1b3a4b", "#212f45", "#272640", "#312244", "#3e1f47", "#4d194d"]
+        #manual_colors = ["#FD8A8A","#8b785b","#6e8b5b","#785b8b",] # "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
+        manual_colors = ["#FD8A8A", "#F1F7B5", "#A8D1D1", "#9EA1D4", "#316B83", "#6D8299", "#D5BFBF", "#8CA1A5", "#C6D57E", "#D57E7E", "#A2CDCD", "#FFE1AF", "#0b525b", "#144552", "#1b3a4b", "#212f45", "#272640", "#312244", "#3e1f47", "#4d194d"]
 
         # Set the figure size and create the subplots
         ax = self.figure.subplots(2, 3)
@@ -101,6 +101,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                 plot_colors.append(manual_colors[l])
                 expl.append(0.1)
             ax[row, column].pie(df[column_name].value_counts(), labels=df[column_name].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=plot_colors, explode = expl)
+            #ax[row, column].pie(df[column_name].value_counts(), autopct=lambda p: f'{df[column_name].unique()} \n {p:.0f}, {p * total / 100}', colors=plot_colors, explode = expl)
             ax[row, column].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             ax[row, column].set_title(column_name)
         
@@ -112,5 +113,8 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                 plot_colors.append(manual_colors[l])
                 expl.append(0.1)
         ax[1, 2].pie(df["series_meta_data"].value_counts(), labels=df["series_meta_data"].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=plot_colors, explode = expl)
+        #ax[1, 2].pie(df["series_meta_data"].value_counts(), colors=plot_colors, explode = expl)
+        
+        #ax[1, 2].pie(df["series_meta_data"].value_counts(), colors=plot_colors, explode = expl)
         ax[1, 2].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         ax[1, 2].set_title("series_meta_data")

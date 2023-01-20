@@ -23,18 +23,16 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(991, 786)
-        self.gridLayoutWidget = QWidget(Dialog)
-        self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(20, 30, 941, 721))
-        self.gridLayout = QGridLayout(self.gridLayoutWidget)
+        Dialog.resize(1181, 786)
+        self.gridLayout_3 = QGridLayout(Dialog)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalSpacer_2 = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
         self.gridLayout.addItem(self.verticalSpacer_2, 1, 0, 1, 1)
 
-        self.label = QLabel(self.gridLayoutWidget)
+        self.label = QLabel(Dialog)
         self.label.setObjectName(u"label")
         font = QFont()
         font.setPointSize(15)
@@ -47,13 +45,14 @@ class Ui_Dialog(object):
 
         self.gridLayout.addItem(self.verticalSpacer, 2, 1, 1, 1)
 
-        self.available_labels = QGroupBox(self.gridLayoutWidget)
+        self.available_labels = QGroupBox(Dialog)
         self.available_labels.setObjectName(u"available_labels")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.available_labels.sizePolicy().hasHeightForWidth())
         self.available_labels.setSizePolicy(sizePolicy)
+        self.available_labels.setMaximumSize(QSize(400, 16777215))
         self.available_labels.setAlignment(Qt.AlignCenter)
         self.gridLayout_2 = QGridLayout(self.available_labels)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -65,21 +64,21 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.available_labels, 2, 0, 1, 1)
 
-        self.load_data = QPushButton(self.gridLayoutWidget)
+        self.load_data = QPushButton(Dialog)
         self.load_data.setObjectName(u"load_data")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.load_data.sizePolicy().hasHeightForWidth())
-        self.load_data.setSizePolicy(sizePolicy1)
-        self.load_data.setMaximumSize(QSize(500, 40))
+        sizePolicy.setHeightForWidth(self.load_data.sizePolicy().hasHeightForWidth())
+        self.load_data.setSizePolicy(sizePolicy)
+        self.load_data.setMaximumSize(QSize(400, 40))
 
         self.gridLayout.addWidget(self.load_data, 3, 0, 1, 1)
 
-        self.groupBox_3 = QGroupBox(self.gridLayoutWidget)
+        self.groupBox_3 = QGroupBox(Dialog)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        sizePolicy.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
-        self.groupBox_3.setSizePolicy(sizePolicy)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
+        self.groupBox_3.setSizePolicy(sizePolicy1)
         self.groupBox_3.setAlignment(Qt.AlignCenter)
         self.gridLayout_4 = QGridLayout(self.groupBox_3)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
@@ -90,6 +89,9 @@ class Ui_Dialog(object):
 
 
         self.gridLayout.addWidget(self.groupBox_3, 2, 2, 2, 1)
+
+
+        self.gridLayout_3.addLayout(self.gridLayout, 0, 0, 1, 1)
 
 
         self.retranslateUi(Dialog)
@@ -104,3 +106,4 @@ class Ui_Dialog(object):
         self.load_data.setText(QCoreApplication.translate("Dialog", u"Load Selection", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("Dialog", u"Descriptive Statistics", None))
     # retranslateUi
+
