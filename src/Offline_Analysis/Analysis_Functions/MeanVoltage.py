@@ -2,22 +2,21 @@
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 class MeanVoltage(SweepWiseAnalysisTemplate):
-
-    def __init__(self):
-        SweepWiseAnalysisTemplate.__init__(self)
-        self.function_name = 'mean_voltage'
-        self.plot_type_options = ["Boxplot"]
+    """Calculates the mean voltage of the sliced data"""
+    function_name = 'mean_voltage'
+    plot_type_options = ["Boxplot", "Violinplot"]
 
     @classmethod
-    def specific_calculation(self):
-        self.cslow_normalization = 0
-        max_val = np.mean(self.sliced_volt)
-        return max_val
+    def specific_calculation(cls) -> float:
+        """Calculates the mean voltage of the sliced data
 
-    @classmethod
-    def calculate_results(self):
-        return super(MeanVoltage,self).calculate_results()
+        Returns:
+            float: mean_value
+        """
+        cls.cslow_normalization = 0
+        mean_val = np.mean(cls.sliced_volt)
+        return mean_val
 
-    @classmethod
-    def visualize_results(self,custom_plot_widget,analysis_id,analysis_function_id):
-        return super(MeanVoltage,self).visualize_results(custom_plot_widget,analysis_id,analysis_function_id)
+    def __str__(self) -> str:
+        return "Mean Voltage Class"
+    

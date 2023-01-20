@@ -1,15 +1,16 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/OfflineAnalysis/CustomWidget")
-from data_db import DuckDBDatabaseHandler
-from specific_visualization_plot import ResultPlotVisualizer
+from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import ResultPlotVisualizer
+from database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
-from tab_offline_result import OfflineResultTab
+from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
+from Offline_Analysis.OfflinePlot import OfflinePlots
+from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
@@ -23,14 +24,23 @@ class OfflineAnalysisResultVisualizer():
     @author dz, 13.07.2022
     """
 
-    def __init__(self, visualization_tab_widget: QTabWidget, database: DuckDBDatabaseHandler):
+    def __init__(self, visualization_tab_widget, 
+                 database: DuckDBDatabaseHandler, 
+                 final_result_holder):
+        """_summary_
 
-        self.visualization_tab_widget = visualization_tab_widget
+        Args:
+            visualization_tab_widget (_type_): _description_
+            database (DuckDBDatabaseHandler): _description_
+            offline_analysis_widget (OfflineAnalysis Class): _description_
+        """
+        self.frontend_style = None
+        self.visualization_tab_widget = visualization_tab_widget.SeriesItems
+        self.offline_tree = visualization_tab_widget
         self.database_handler = database
-        self.result_directory = ""
-        self.series_wise_function_list = ["Single_AP_Amplitude [mV]", "Single_AP_Threshold_Amplitude[mV]",
-                    "Single_AP_Afterhyperpolarization_Amplitude [mV]", "Single_AP_Afterhyperpolarization_time[ms], Rheobase_Detection"]
-
+        self.canvas = None
+        self.final_result_holder = final_result_holder
+        self.offline_plot = None  
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
         """
@@ -43,17 +53,14 @@ class OfflineAnalysisResultVisualizer():
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
-        #print(list_of_series)
-
         for series in list_of_series:
-            print(series)
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             if series[0] == series_name:
                 offline_tab = self.analysis_function_specific_visualization(series[0],analysis_id)
                 return offline_tab
             else:
-                print("no analysis function selected")
+                print("The logger should be added here to show that the series is not available in the database")
 
 
     def analysis_function_specific_visualization(self,series,analysis_id):
@@ -72,14 +79,25 @@ class OfflineAnalysisResultVisualizer():
         # print("list of analysis")
         # print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
-
+        self.offline_plot = []
         offline_tab = OfflineResultTab()
         offline_tab.OfflineScroll.setStyleSheet("background-color: rgba(0,0,0,0")
+        self.grid_button = QGridLayout()
+        self.change_meta_data = QPushButton("Change Meta Data")
+        self.grid_button.addWidget(self.change_meta_data, 0, 0)
+        offline_tab.OfflineResultGrid.addLayout(self.grid_button, 0, 0)
+
+        
 
         for analysis in list_of_analysis:
 
             # create new custom plot visualizer and parametrize data
             custom_plot_widget = ResultPlotVisualizer()
+            self.offlineplot = OfflinePlots(
+                     self.database_handler, 
+                     self.frontend_style, 
+                     self.offline_tree,
+                     self.final_result_holder)
 
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
@@ -94,9 +112,10 @@ class OfflineAnalysisResultVisualizer():
 
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
+            
 
             # fill the plot widget with analysis specific data
-            self.single_analysis_visualization(custom_plot_widget)
+            parent_widget, analysis_function = self.single_analysis_visualization(custom_plot_widget)
 
             # widgets per row = 2
 
@@ -105,40 +124,87 @@ class OfflineAnalysisResultVisualizer():
 
             print("x pos widget = ", widget_x_pos)
             print("y pos widget = ", widgte_y_pos)
-            offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos, widgte_y_pos)
-
+            offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
+            self.offline_plot.append(self.offlineplot) 
         # after all plots have been added
-
+        self.change_meta_data.clicked.connect(partial(self.open_meta_data, analysis_function))
+        
         return offline_tab
+    
+    def open_meta_data(self, analysis_function):
+        """_summary_: This opens the meta data from the selected meta data table to 
+        retrieve the the condition columns holding the column string that can be used
+        for meta data retrieval in offline plot
+        column example: "genotype"
 
-    def single_analysis_visualization(self,parent_widget,plot_type=None):
+        Args:
+            analysis_function (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        dialog = SelectMetaDataForTreeviewDialog(self.database_handler, 
+                                                 update_treeview = False, 
+                                                 update_plot = self.offlineplot,
+                                                 analysis_function_id = self.visualization_tab_widget.currentItem().parent().data(8, Qt.UserRole))
+        
+        dialog.setWindowTitle("Available Meta Data Label")
+        dialog.setWindowModality(Qt.ApplicationModal)
+        dialog.exec_()
+        
+        analysis_function_id = self.visualization_tab_widget.currentItem().parent().data(8, Qt.UserRole)
+        
+        for plot,id in zip(self.offline_plot,analysis_function_id):
+            plot.retrieve_analysis_function(analysis_function, analysis_function_id = id)
+        
+        return None
+
+    def single_analysis_visualization(self,parent_widget,analysis_function=None, switch = None):
         """
         For each specific analysis function a new custom widget will be created and filled with available results
         from the database
         @param parent_widget:
         @param plot_type:
         @author dz, 13.07.2022
-        """
-        analysis_id = parent_widget.analysis_id
-        analysis_function_id =  parent_widget.analysis_function_id
-
-        print("calling result list for")
-        print(analysis_id)
-        print(analysis_function_id)
-
+        @reworked MZ        """
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
+        self.canvas = self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
 
-        print(parent_widget.analysis_name)
-        print(class_object().function_name)
-
-        canvas = self.handle_plot_widget_settings(parent_widget, class_object().plot_type_options)
-
-        if plot_type is None:
-            class_object.visualize_results(parent_widget, canvas, class_object().plot_type_options[0])
+        if analysis_function is None:
+            #if class_object.database is None:
+            #    print("I am setting the database")
+            class_object.database = self.database_handler
+            result_table_names = class_object.visualize_results(parent_widget)
+            if result_table_names:
+                analysis_function = class_object.plot_type_options[0]
+            else:
+                analysis_function = None
         else:
-            class_object.visualize_results(parent_widget, canvas, plot_type)
+            result_table_names = class_object.visualize_results(parent_widget)
+            if result_table_names:
+                analysis_function = analysis_function
+            else:
+                analysis_function = None
 
+        self.offlineplot.set_frontend_axes(self.canvas)
+        self.offlineplot.set_metadata_table(result_table_names)
+        
+        if switch:
+            self.offlineplot.retrieve_analysis_function(result_table_list = result_table_names, switch = True) 
+        else:  
+            self.offlineplot.retrieve_analysis_function(parent_widget, result_table_names) 
+            
+        return parent_widget, analysis_function
+        
+    def handle_metadata_click(self):
+        """
+        Handle the click on the metadata button
+        @return: None
+        @author dz, 13.07.2022
+        """
+        self.metadata_widget = MetadataWidget(self.database_handler, self.analysis_id)
+        self.metadata_widget.show()
 
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
         """
@@ -152,11 +218,21 @@ class OfflineAnalysisResultVisualizer():
             # print("overriding existing plot widget")
 
             # remove the old plot if there is one already existing
-            parent_widget.plot_layout.takeAt(0)
+            for i in reversed(range(parent_widget.plot_layout.count())):
+                parent_widget.plot_layout.itemAt(i).widget().deleteLater()
+            #parent_widget.plot_layout.takeAt(0)
 
             # create a new plot and insert it into the already exsiting plot layout
-            canvas = FigureCanvas(Figure(figsize=(5, 3)))
-            parent_widget.plot_layout.addWidget(canvas)
+            self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            self.scroll_area = QScrollArea()
+            self.scroll_layout = QGridLayout()
+
+
+            self.scroll_layout.addWidget(self.canvas)
+            self.scroll_area.setWidgetResizable(True)
+            self.scroll_area.setWidget(self.canvas)
+            parent_widget.plot_layout.addWidget(self.scroll_area)
+        
 
             # add options only once
             try:
@@ -168,10 +244,11 @@ class OfflineAnalysisResultVisualizer():
             except Exception as e:
                 print(str(e))
 
-            return canvas
+            return self.canvas
 
         except Exception as e:
             print(str(e))
+
 
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
         """
@@ -208,5 +285,4 @@ class OfflineAnalysisResultVisualizer():
         @param new_text: item text of the new displayed item in the combo boc
         @author dz, 13.07.2022
         """
-        self.single_analysis_visualization(parent_widget,new_text)
-
+        self.single_analysis_visualization(parent_widget,new_text, switch = True)

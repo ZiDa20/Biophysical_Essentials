@@ -7,28 +7,31 @@ from math import nan, isnan
 import  seaborn as sns
 
 class RheorampDetection(object):
+    
+    """_summary_
 
-    def __init__(self):
-
-        self.function_name = "RheoRamp-Detection"
-        self.series_name = None
-        self.analysis_function_id = None
-        self.database = None  # database
-        self.plot_type_options = ["Boxplot"]
-
+    Returns:
+        _type_: _description_
+    """
+    function_name = "RheoRamp-Detection"
+    plot_type_options = ["Rheoramp-AUC"]
+    database = None  # database
+    analysis_function_id = None
+    series_name = None
+    
     @classmethod
-    def calculate_results(self):
+    def calculate_results(cls):
 
             print("running rheoramp calculation")
 
-            series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(
-                self.series_name)
+            series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(
+                cls.series_name)
 
             # run a peak detection for each sweep.
             # store x and y position of each sweep in the db
 
             # get the names of all data tables to be evaluated
-            data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
+            data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
 
             # set time to non - will be set by the first data frame
             # should assure that the time and bound setting will be only exeuted once since it is the same all the time
@@ -38,9 +41,9 @@ class RheorampDetection(object):
             for data_table in data_table_names:
 
                 if time is None:
-                     time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+                     time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
-                entire_sweep_table = self.database.get_entire_sweep_table_as_df(data_table)
+                entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
 
                 number_of_sweeps = len(entire_sweep_table.columns)
                 column_names = list(entire_sweep_table.columns)
@@ -54,7 +57,7 @@ class RheorampDetection(object):
                     data = entire_sweep_table.get(column)
 
                     if series_specific_recording_mode != "Voltage Clamp":
-                        y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+                        y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                         data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
                     # run the peak detection
@@ -66,7 +69,7 @@ class RheorampDetection(object):
                     sweep_number = column.split("_")
                     sweep_number = int(sweep_number[1])
 
-                    tmp_df = pd.DataFrame({str(sweep_number):self.merge_lists_to_list_of_tuples(peak_x,peak_y)})
+                    tmp_df = pd.DataFrame({str(sweep_number):cls.merge_lists_to_list_of_tuples(peak_x,peak_y)})
 
                     result_data_frame = pd.concat([result_data_frame,tmp_df],axis = 1)
 
@@ -74,11 +77,11 @@ class RheorampDetection(object):
 
                 #print(result_data_frame)
 
-                new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id,
+                new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
                                                                                             data_table)
 
-                self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
-                                                                                       self.analysis_function_id,
+                cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+                                                                                       cls.analysis_function_id,
                                                                                        data_table,
                                                                                        new_specific_result_table_name,
                                                                                        result_data_frame)
@@ -87,8 +90,17 @@ class RheorampDetection(object):
 
     @classmethod
     def merge_lists_to_list_of_tuples(self,list1, list2):
-            merged_list = [(list1[i], list2[i]) for i in range(0, len(list1))]
-            return merged_list
+        """_summary_
+
+        Args:
+            list1 (_type_): _description_
+            list2 (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        merged_list = [(list1[i], list2[i]) for i in range(0, len(list1))]
+        return merged_list
 
     @classmethod
     def create_new_specific_result_table_name(cls, analysis_function_id, data_table_name):
@@ -102,74 +114,14 @@ class RheorampDetection(object):
         return "results_analysis_function_" + str(analysis_function_id) + "_" + data_table_name
 
     @classmethod
-    def visualize_results(self, parent_widget, canvas, visualization_type):
+    def visualize_results(cls, parent_widget):
 
         print("rheoramp visualization")
 
-        result_table_list = self.get_list_of_result_tables(parent_widget.analysis_id,
+        result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
                                                           parent_widget.analysis_function_id)
+        return result_table_list
 
-        meta_data_groups = []
-        result_df = pd.DataFrame()
-
-        for table in result_table_list:
-
-            self.database.database.execute(f'select * from {table}')
-
-            query_data_df = self.database.database.fetchdf()
-
-            #print(table)
-            #print(query_data_df)
-
-
-            # in this case, each sweep column holds a list of tuples
-
-            q = f'select meta_data_group from experiments where experiment_name = (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name = (select sweep_table_name from results where ' \
-                f'specific_result_table_name = \'{table}\'))'
-
-            meta_data_group = self.database.get_data_from_database(self.database.database, q)[0][0]
-
-            for column in query_data_df:
-
-                result_list = []
-
-                data = query_data_df.get(column)
-                data = data.dropna(how='all')
-                data = data.values.tolist()
-                #print(data)
-                float_list = []
-                for d in data:
-                    float_list.append(tuple(float(s) for s in d.strip("()").split(",")))
-
-                #print(float_list)
-
-                x_data = 0
-
-                try: # could fail if there are no tuples e.g. when no AP was detecteed only nans
-                    x_coordinates, y_coordinates = map(list, zip(*float_list))
-
-                    #print(x_coordinates)
-
-                    x_data = len(x_coordinates) # number of tuples
-
-                except Exception as e:
-                    print("Error")
-                    print(e)
-
-                tmp_df = pd.DataFrame([["sweep"+column,x_data,meta_data_group]], columns=["sweep_number","count", "meta_data_name"])
-
-                result_df = pd.concat([result_df, tmp_df])
-
-            print(result_df)
-
-        ax = canvas.figure.subplots()
-
-        # create a grouped boxplot
-
-        print(result_df)
-
-        sns.boxplot(data = result_df, x='sweep_number', y='count', hue = 'meta_data_name', ax = ax )
 
     @classmethod
     def get_list_of_result_tables(self, analysis_id, analysis_function_id):

@@ -4,6 +4,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 import pandas as pd
 from time import sleep
+import numpy as np
 
 
 class BackendManager:
@@ -31,8 +32,7 @@ class BackendManager:
         self._control_path = self.select_path()
 
     def select_path(self):
-        selected_path = QFileDialog.getExistingDirectory()
-        return selected_path
+        return QFileDialog.getExistingDirectory()
 
     @property
     def batch_path(self):
@@ -64,10 +64,7 @@ class BackendManager:
 
 
     def controlpath_valid(self):
-        if not self.control_path:
-            return False
-        else:
-            return True
+        return bool(self.control_path)
 
     # a function to read the content of the E9Batch.In file
     def update_control_file_content(self):
@@ -130,30 +127,29 @@ class BackendManager:
     def return_dataframe_from_notebook(self):
         """Get the DataFrame from the notebook analysis"""
         data_frame_notebook = pd.read_csv(self.batch_path + '/E9Batch.OUT', skiprows = 2, header = None)
-        print(data_frame_notebook)
+        data_frame_notebook = data_frame_notebook.loc[:, data_frame_notebook.dtypes == float]
         #data_frame_notebook = data_frame_notebook.iloc[:,4:]
         return data_frame_notebook
         
         
     def create_ascii_file_from_template(self):
-        # create a new e9Patch file
         if not self.batch_path:
             return False
-        else:
-            try:
-                self.batch_file = open(self.batch_path+'/E9Batch.In', "w")
-                self.batch_file.write("+1\n")
-                self.batch_file.write("GetTime \n")
-                self.batch_file.close()
-                self.update_control_file_content()
-                #copyfile(self.batch_path + '/E9Batch.In', self.batch_path + '/E9BatchIn.txt')
-                print("Batch control file generated succesfully")
-                return True
-            except Exception as error:
-                print(repr(error))
-                # TODO catch error of an already existing file
-                # TODO catch error of no x-rights at the desired location
-                return False
+        try:
+            return self._extracted_from_create_ascii_file_from_template_7()
+        except Exception as error:
+            print(repr(error))
+            return False
+
+    def _extracted_from_create_ascii_file_from_template_7(self):
+        self.batch_file = open(self.batch_path+'/E9Batch.In', "w")
+        self.batch_file.write("+1\n")
+        self.batch_file.write("GetTime \n")
+        self.batch_file.close()
+        self.update_control_file_content()
+        #copyfile(self.batch_path + '/E9Batch.In', self.batch_path + '/E9BatchIn.txt')
+        print("Batch control file generated succesfully")
+        return True
         # fill e9patch file with content from the template
         # TODO check template path to be not empty
         # TODO copy content of the template into the ascii file - only use one identifier initially
@@ -170,19 +166,21 @@ class BackendManager:
             print(type(input_string))
         else:
             print("strange string\n")
-            
-        try:
-                self.c_f= open(self.batch_path + '/E9Batch.In', "r+")
-                self.old_commands = self.c_f.read()
-                self.c_f.seek(0,0)
-                self.new_commands = input_string+ "\n" + self.old_commands
-                self.c_f.write(self.new_commands)
-                self.update_control_file_content()
-                self.c_f.close()
 
+        try:
+            self.open_batch_file_read(input_string)
         except Exception as error:
                 print(repr(error))
 
+    # TODO Rename this here and in `send_text_input`
+    def open_batch_file_read(self, input_string):
+        self.c_f= open(self.batch_path + '/E9Batch.In', "r+")
+        self.old_commands = self.c_f.read()
+        self.c_f.seek(0,0)
+        self.new_commands = input_string+ "\n" + self.old_commands
+        self.c_f.write(self.new_commands)
+        self.update_control_file_content()
+        self.c_f.close()
 
     def get_response_file_content(self):
         # asynchron read seems to be dependent from the used os

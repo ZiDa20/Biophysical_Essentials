@@ -12,7 +12,16 @@ class PandasTable(QAbstractTableModel):
     def __init__(self, data):
         super().__init__()
         self._data = data
-
+        self._full_data = None
+    
+    @property    
+    def full_data(self):
+        return self._full_data
+    
+    @full_data.setter    
+    def full_data(self, dataframe):
+        self._full_data = dataframe
+        
     def rowCount(self, index): # get the number of rows
         """ get the dataframe shape row
         index -> int """
@@ -24,10 +33,9 @@ class PandasTable(QAbstractTableModel):
         return self._data.shape[1]
 
     def data(self, index, role=Qt.DisplayRole): # get the data
-        if index.isValid():
-            if role == Qt.DisplayRole or role == Qt.EditRole:
-                value = self._data.iloc[index.row(), index.column()]
-                return str(value)
+        if index.isValid() and role in [Qt.DisplayRole, Qt.EditRole]:
+            value = self._data.iloc[index.row(), index.column()]
+            return str(value)
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:

@@ -1,41 +1,18 @@
+import os 
+
+
 class Frontend_Style():
     """class that will provide all the frontend styles to be used in common by all frontend classes with the same instance"""
-
 
     def __init__(self):
 
         # style 0 = white mode
         # style 1 = dark mode
-        self.current_style = 1
-
-        self.sideframe_light_style = u"QWidget{background-color: \"#FFFFFF\";}\n" \
-                                "QPushButton{padding: 10px 10px;"\
-                                "	        border: none;" \
-                                "	        border-radius: 20px 20px 0px 0x;" \
-                                "	        background-color: \"#FFFFFF\";"\
-                                "	        color: \"#97ccf2\";}"\
-                                "QPushButton:hover{background-color: \"#54545a\";}"
-
-
-        self.sideframe_dark_style = u"QWidget{background-color: rgba(4,7,26, 180);}\n" \
-                                "QPushButton{padding: 10px 10px;"\
-                                "	        padding-left: 20px;" \
-                                "	        border: none;" \
-                                "	        border-radius: 20px 20px 0px 0x;" \
-                                "	        background-color: rgba(4,7,26, 0);"\
-                                "	        color: #fff5cc;}"\
-                                "QPushButton:hover{background-color: \"#54545a\";}"
+        self.canvas = []
+        self.ax = []
+        self.current_style = 1                                                              
                                   
-                                  
-        self.light_style = u"QWidget{ background-color: \"#e6e6e6\"; }\n" \
-                           "QPushButton{ padding: 10px 10px; " \
-                           "             border None ;" \
-                           "             border-radius:5px;" \
-                           "             color:#2986cc; " \
-                           "             background-color: \"#e6e6e6\";}" \
-                           "QPushButton:hover{ background-color: \"#2986cc\";} " \
-                           "QDialog{background-color: \"#ffffff\"; }"
-
+        self.light_style = None
 
         self.dark_style = u"QWidget{ background-color: rgba(4,7,26, 200);\ } \n" \
                            "QPushButton{ padding: 5px 10px; " \
@@ -57,9 +34,6 @@ class Frontend_Style():
 
     def get_light_style(self):
         return self.light_style
-    
-    def get_sideframe_light(self):
-        return self.sideframe_light_style
 
     def get_sideframe_dark(self):
         return self.sideframe_dark_style
@@ -71,6 +45,42 @@ class Frontend_Style():
         :return:
         '''
         if self.current_style == 0:
-            dialog.setStyleSheet(self.light_style)
+            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+                dialog.setStyleSheet(file.read().format(**os.environ))
+
         else:
             dialog.setStyleSheet(self.dark_style)
+                    
+    def change_canvas_bright(self):
+        """Changes the Appearance of the Plots generate in the OfflineAnalysis
+        in the OfflinePlot Class 
+        """
+        if len(self.ax) > 0:
+            for ax in self.ax:
+                ax.spines['bottom'].set_color('black')
+                ax.spines['left'].set_color('black') 
+                ax.xaxis.label.set_color('black')
+                ax.yaxis.label.set_color('black')
+                ax.tick_params(axis='x', colors='black')
+                ax.tick_params(axis='y', colors='black')
+               
+        
+    def change_canvas_dark(self):  
+        """Changes the Appearance of the Plots generate in the OfflineAnalysis
+        in the OfflinePlot Class 
+        """
+        if len(self.ax) > 0:
+            for ax in self.ax: # loops thorough each individual plot in the axis
+                ax.spines['bottom'].set_color('white')
+                ax.spines['left'].set_color('white') 
+                ax.xaxis.label.set_color('white')
+                ax.yaxis.label.set_color('white')
+                ax.tick_params(axis='x', colors='white') 
+                ax.tick_params(axis='y', colors='white')
+                
+    def get_color_plots(self):
+        if self.current_style == 1:
+            return "black"
+        else:
+            return "white"        
+        

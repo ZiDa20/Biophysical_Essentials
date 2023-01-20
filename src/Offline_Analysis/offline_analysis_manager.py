@@ -2,16 +2,13 @@ from online_analysis_manager import *
 from treeview_manager import *
 from PySide6.QtCore import *  # type: ignore
 from Worker import Worker
-
-import sys
 import os
-sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis/Analysis_Functions")#/Function_Templates")
-from AnalysisFunctionRegistration import *
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 
-    def __init__(self, progress, statusbar):
+    def __init__(self,):
         """ constructor of the manager class
         
         args:
@@ -20,8 +17,10 @@ class OfflineManager():
         """
         self.meta_path = None
         self.dat_files = None
-        self.statusbar = statusbar
-        self.progressbar = progress
+   
+        self.database_handler = None
+
+       
 
         self._directory_path = None
 
@@ -42,7 +41,9 @@ class OfflineManager():
         self.bundle_liste = []
         self.abf_bundle_liste = []
         self.dat_list = None
-
+        self.bundle_worker = None
+        self.dummy_meta_data_list = None
+        self.options_list_dummy = None
 
     @property
     def directory_path(self):
@@ -51,6 +52,11 @@ class OfflineManager():
     @directory_path.setter
     def directory_path(self,val):
         self._directory_path = val
+
+    def set_status_and_progress_bar(self,status, progress):
+        self.statusbar = status
+        self.progressbar = progress
+        self.statusbar.setText(f"The Process is beeing set up ... ") 
 
     def execute_single_series_analysis(self,series_name, progress_callback):
         """
@@ -93,7 +99,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,tree,discarded_tree,meta_data_option_list, meta_data_assignment_list=None):
+    def read_data_from_experiment_directory(self,tree_view_manager, meta_data_assignment_list=None):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
@@ -104,24 +110,18 @@ class OfflineManager():
         @param meta_data_assignment_list:
         @author dz, 13.07.2022
         """
-
         # create a new tree view manager class object and connect it to the database
-        self.tree_view_manager = TreeViewManager(self.database)
+        self.tree_view_manager = tree_view_manager
 
         # meta_data_option_list can be an empty list: in this case, the treeeview manager will provide default elements
         # if not empty, this list contains all options in the dropdown menu of each combo box
         # when reading a template, "none" might not be assigned - therefore it might be necessary to add this option first
 
-        if meta_data_option_list:
-            try:
-                meta_data_option_list.index("None")
-            except:
-                meta_data_option_list = ["None"] + meta_data_option_list
-
-            self.tree_view_manager.meta_data_option_list = meta_data_option_list
-            self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
+        self.tree_view_manager.meta_data_option_list = []
+        self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
+        print(data_list)
 
         # create a threadpool
         self.threadpool = QThreadPool()
@@ -133,19 +133,16 @@ class OfflineManager():
             data_list_final = list(self.chunks(data_list, threads/2))
             for i,t in enumerate(data_list_final): 
                 # read
-                bundle_worker = self.run_bundle_function_in_thread(t)
+                self.run_bundle_function_in_thread(t)
 
         else:
             data_list_final = list(self.chunks(data_list, threads-1))
             for i,t in enumerate(data_list_final):
-                bundle_worker = self.run_bundle_function_in_thread(t)
+                self.run_bundle_function_in_thread(t)
 
-        bundle_worker.signals.finished.connect(
-            partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste, tree, discarded_tree))
-
+        self.bundle_worker.signals.finished.connect(partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste))
+        
         return self.tree_view_manager
-
-
 
     def run_bundle_function_in_thread(self,bundle_liste):
         """
@@ -155,26 +152,33 @@ class OfflineManager():
         @param discarded_tree:
         author MZ, 13.07.2022
         """
-        bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
-        bundle_worker.signals.result.connect(self.show_bundle_result, Qt.DirectConnection)
-        self.threadpool.start(bundle_worker)
-        return bundle_worker
-        
+        self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
+        self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
+        self.threadpool.start(self.bundle_worker)
+              
+    def run_database_threading(self, bundle_liste, abf_list):
+        """_summary_
 
-    def run_database_threading(self, bundle_liste, abf_list, tree, discarded_tree):
-        """"""
+        Args:
+            bundle_liste (list): Collection of Bundle Files /dat files
+            abf_list (list): list of packages ABF files based on date and experimental number
+        """
         self.threadpool.clear()
         self.database.database.close()
         worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste, abf_list)
-        #worker.signals.progress.connect(self.progress_fn)
+        worker.signals.progress.connect(self.progress_fn)
         #worker.signals.result.connect(self.set_database)
-        worker.signals.finished.connect(partial(self.tree_view_manager.update_treeview,tree,discarded_tree)) # when done, update the treeview
-         # signal to update progress bar
+        worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
+        # signal to update progress bar
         self.threadpool.start(worker) # start the thread
 
+    def bundle_to_instance_list(self, result):
+        """Should append the created bundled list for abf and dat files
+        to the instance list which can be accessed
 
-    def show_bundle_result(self, result):
-        """ result from the bundeling of the dat and abf files"""
+        Args:
+            result (event, callback): The bundled results from the indivdiual Qthreads
+        """
         bundle_result, abf_result = result
         for i in bundle_result:
             self.bundle_liste.append(i)
@@ -182,18 +186,29 @@ class OfflineManager():
             self.abf_bundle_liste.append(i)
 
     def chunks(self, lst, n):
-        """Yield successive n-sized chunks from lst."""
+        """Should create a chunked list used for the Qthreads
+
+        Args:
+            lst (list): The list that should be chunked
+            n (int): Pieces that should the list be chunked to
+
+        Yields:
+            generator: The chunked list of list as a generator
+        """
         for i in range(0, len(lst), int(n)):
             yield lst[i:i + int(n)]
 
     def progress_fn(self,data):
-        """ check the progress of the worker thread which contains the readed dat files
-        args:
-            data(int): progress of the worker thread
-            
+        """Checks the progress in the Thread and shows off 
+        percentage in the ProgressBar
+
+        Args:
+            data (callback, tuple[float, str]): Tuple of current Experiment Name and Progress
         """
         self.progressbar.setValue(data[0])
-        self.statusbar.showMessage(f"Writing data to database: {data[1]}")
+        #self.statusbar.showMessage(f"Writing data to database: {data[1]}")
+        self.statusbar.setText(f"Writing data to database: {data[1][1]}")
+
 
     def write_analysis_series_types_to_database(self,series_type_list):
         """
@@ -260,21 +275,57 @@ class OfflineManager():
         @author dz, 13.07.2022
         """
         abf_file_bundle = {} # list to bundle abf files
-
+        experiment_names = []
         if isinstance(dat_path, str):
-            self.data_list = os.listdir(dat_path)
-            self.dat_list = [i for i in self.data_list if i.split(".")[-1] in ["dat"]]
-            self.abf_list = [i for i in self.data_list if i.split(".")[-1] in ["abf"]]
+            data_list = os.listdir(dat_path)
+            dat_list = [i for i in data_list if ".dat" in i]
+            for i in dat_list:
+                dat_name = i.split(".")[0]
+                experiment_names.append(dat_name)
+            abf_list = [i for i in data_list if ".abf" in i]
             # get the list of list for abf files
-            for i in self.abf_list:
+            for i in abf_list:
                 if "abf" in i:
                     experiment_name = i.split("_")[:2]
                     experiment_name = "_".join(experiment_name)
+                    experiment_names.append(experiment_name)
+                    
                     if experiment_name in abf_file_bundle.keys():
                         abf_file_bundle[experiment_name].append(i)
                     else:
                         abf_file_bundle[experiment_name] = []
                         abf_file_bundle[experiment_name].append(i)
+                    
+        data = list(abf_file_bundle.values()) + dat_list
+        
+        #create a dummy metadata file set which can be used to write the database
+        #without assigning specifically in the dialog the metadata template
+        self.dummy_meta_data_list = self.create_dumme_meta_data(experiment_names)
+        self.options_list_dummy = ["dummy"]
+        return data
+    
+    def create_dumme_meta_data(self, data):
+        """Fix to enable database loading without specifying metadata by creating dummy metadata
 
-        self.data = list(abf_file_bundle.values()) + self.dat_list
-        return self.data
+        Args:
+            data (list): List of Data Files to load
+        
+        returns:
+            dummy_meta (list): metadata dummy file with experiment names and all column set do None   
+        """
+        
+        dummy_meta = [["Experiment_name",
+                         "Experiment_label",
+                         "Species",
+                         "Genotype",
+                         "Sex",
+                         "Condition",
+                         "Individuum_id"]]
+        
+        
+        for i in data:
+            dummy_meta.append([i,"None","None", "None", "None", "None", "None","None"])
+            
+        return dummy_meta
+            
+        

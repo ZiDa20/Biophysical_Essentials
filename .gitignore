@@ -21,7 +21,15 @@ bioqypt/
 venv/
 "duck_db_analysis_database.db" 
 "src/duck_db_analysis_database.db" 
-*.png
 .vscode/
 *-workspace
 *key
+.src/database/*.db
+*.vsidx
+*.wsuo
+*.bin
+*.json
+*.sqlite
+*.vs
+.cell_images
+.runs
