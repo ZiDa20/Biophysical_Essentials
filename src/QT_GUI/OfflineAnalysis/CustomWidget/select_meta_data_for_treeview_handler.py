@@ -5,6 +5,10 @@ import numpy as np
 from functools import partial
 import duckdb
 
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+
 class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
 
     def __init__(self, 
@@ -14,7 +18,8 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                  parent=None, 
                  update_treeview = True, 
                  update_plot = None,
-                 analysis_function_id = -1):
+                 analysis_function_id = -1,
+                 frontend = None):
         
         super().__init__(parent)
         self.setupUi(self)
@@ -24,6 +29,12 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         self.update_treeview = update_treeview
         self.update_plot = update_plot
         self.analysis_function_id = analysis_function_id
+        self.frontend_style = frontend
+        self.cancel_button.clicked.connect(self.close)
+        self.setWindowTitle("Available Meta Data Label")
+        self.setWindowModality(Qt.ApplicationModal)
+        if self.frontend_style:
+            self.frontend_style.set_pop_up_dialog_style_sheet(self)
         self.load_content()
         
 
