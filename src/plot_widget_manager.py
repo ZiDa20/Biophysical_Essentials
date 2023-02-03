@@ -151,7 +151,7 @@ class PlotWidgetManager(QRunnable):
                                 y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
                                 self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row], linestyle='dashed')
                             else:
-                                self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
+                                self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o", linewidth = 0.5, markersize = 5, alpha = 0.8, markeredgecolor = "black", markeredgewidth = 0.5)
                     else:
                         print("Tuple was None: is live plot function for", fct_name, " already implemented ? ")
                 else:

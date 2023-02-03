@@ -199,7 +199,7 @@ class SweepWiseAnalysisTemplate(object):
 				if cls.cslow_normalization:
 					cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
 					res = res / cslow
-					
+
 				# get the sweep number
 				sweep_number = column.split("_")
 				sweep_number = int(sweep_number[1])
@@ -216,7 +216,7 @@ class SweepWiseAnalysisTemplate(object):
 				duration_list_float = []
 				volt_val = 0
 
-				for i in range(0,len(duration_list)):
+				for i in range(len(duration_list)):
 					duration_list_float.append(float(duration_list[i])*1000)
 
 					# should be greater all the time until the correct segment is entered
@@ -248,7 +248,7 @@ class SweepWiseAnalysisTemplate(object):
 		:return:
 		:author dz, 08.07.2022
 		"""
-		return "results_analysis_function_" +str(analysis_function_id) + "_" + data_table_name
+		return f"results_analysis_function_{analysis_function_id}_{data_table_name}"
 
 	def specific_calculation(self):
 		# return None
@@ -321,7 +321,7 @@ class SweepWiseAnalysisTemplate(object):
         :return:
         """
 		print("metadata construction")
-		number_of_sweeps = int(len(result_list) / number_of_series)
+		number_of_sweeps = len(result_list) // number_of_series
 		meta_data_types = list(dict.fromkeys(meta_data_groups))
 
 		x_data, y_data, series_names = SweepWiseAnalysisTemplate.fetch_x_and_y_data(result_list, number_of_sweeps)
@@ -338,5 +338,5 @@ class SweepWiseAnalysisTemplate(object):
 				if m == meta_data_group:
 					pos = meta_data_types.index(m)
 					ax.plot(x_data[a], y_data[a], self.default_colors[pos], label=series_names[a])
-					
+
 			ax.legend()

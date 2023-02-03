@@ -169,7 +169,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
                 self.table_layout.itemAt(i).widget().deleteLater()
 
         # set the TableView and the Model
+        scroll_area = QScrollArea()
         self.data_base_content = QTableView()
+        scroll_area.setWidget(self.data_base_content)
+        scroll_area.setWidgetResizable(True)
         self.data_base_content.setObjectName("data_base_content")
         self.data_base_content.setMinimumHeight(300)
         self.data_base_content.horizontalHeader().setSectionsClickable(True)
@@ -178,10 +181,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.viewing_model = PandasTable(self.pandas_frame)
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
-        
+        self.viewing_model.resize_header(self.data_base_content)
         #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
-        self.data_base_content.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
-        self.table_layout.addWidget(self.data_base_content)
+        self.table_layout.addWidget(scroll_area)
         self.data_base_content.setGeometry(20, 20, 691, 581)
 
         # show and retrieve the selected columns

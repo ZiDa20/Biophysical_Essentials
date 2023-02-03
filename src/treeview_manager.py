@@ -126,7 +126,7 @@ class TreeViewManager:
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
-                
+
                 if isinstance(i,list):
                     for abf in i:
                         print(abf)
@@ -138,11 +138,15 @@ class TreeViewManager:
                         experiment_name = [abf_file.get_experiment_name(), "default", "None", "None", "None", "None", "None", "None"]
                         series_name = abf_file.get_series_name()
                         abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
-                    
+
             except Exception as e:
                 # @todo error handling
-                print("Bundle file could not be read: " + str(i[0]) + " the error occured: " + str(e))
-                self.logger.error("Bundle file could not be read: " + str(i[0]) + " the error occured: " + str(e))
+                print(
+                    f"Bundle file could not be read: {str(i[0])} the error occured: {str(e)}"
+                )
+                self.logger.error(
+                    f"Bundle file could not be read: {str(i[0])} the error occured: {str(e)}"
+                )
 
             if isinstance(i,list):
                 abf_list.append((abf_file_data, experiment_name))
@@ -177,13 +181,15 @@ class TreeViewManager:
                 self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
                 progress_callback.emit((progress_value,i))
             except Exception as e:
-                self.logger.error("The DAT file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
+                self.logger.error(
+                    f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
+                )
                 progress_callback.emit((progress_value,i))
                 database.database.close() # we close the database connection and emit an error message
-        
+
 
         for i in abf_files:
-            print("running abf file and this i ", i) 
+            print("running abf file and this i ", i)
             try:
                 #increment = 100/max_value
                 #progress_value = progress_value + increment
@@ -192,7 +198,9 @@ class TreeViewManager:
 
             except Exception as e:
                 print(e)
-                self.logger.error("The ABF file could not be written to the database: " + str(i[0]) + " the error occured: " + str(e))
+                self.logger.error(
+                    f"The ABF file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
+                )
                 database.database.close() # we close the database connection and emit an error message
 
         # trial to see if the database opens correctly
@@ -259,7 +267,7 @@ class TreeViewManager:
         the last 3 columns of the treeview should not be displayed but the remaining columns should
         """
         if model.header:
-            for i in range(0, len(model.header)):
+            for i in range(len(model.header)):
                 if i < len(model.header) - 3:
                     treeview.setColumnHidden(i, False)
                 else:
@@ -277,38 +285,35 @@ class TreeViewManager:
 
         if not table_name.empty:
             return self.add_experiments_series_sweeps_to_meta_data_label(table_name, discarded_state, series_name)
-        else:
-            experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
-            series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
+        experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
+        series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
 
-            if show_sweeps:
-                all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-                for sweep_table_name in series_table["sweep_table_name"].values.tolist():
-                    sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-                    sweep_table = self.database_handler.database.execute(f'select * from {sweep_table_name}').fetchdf()
-                    sweep_df["item_name"] = sweep_table.columns
+        if show_sweeps:
+            all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+            for sweep_table_name in series_table["sweep_table_name"].values.tolist():
+                sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+                sweep_table = self.database_handler.database.execute(f'select * from {sweep_table_name}').fetchdf()
+                sweep_df["item_name"] = sweep_table.columns
 
-                    identifier = series_table[series_table["sweep_table_name"] == sweep_table_name][
-                        "series_identifier"].values.tolist()
-                    experiment_name = series_table[series_table["sweep_table_name"] == sweep_table_name][
-                        "experiment_name"].values.tolist()
+                identifier = series_table[series_table["sweep_table_name"] == sweep_table_name][
+                    "series_identifier"].values.tolist()
+                experiment_name = series_table[series_table["sweep_table_name"] == sweep_table_name][
+                    "experiment_name"].values.tolist()
 
-                    parent = experiment_name[0] + "::" + identifier[0]
-                    print("sweep parent = ", parent)
-                    sweep_df["parent"] = [parent] * len(sweep_table.columns)
-                    sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
-                    sweep_df["level"] = [experiment_df["level"].max()+2] * len(sweep_table.columns)
-                    sweep_ids = []
-                    for c_name in sweep_table.columns:
-                        sweep_ids.append(parent+"::"+c_name)
-                    sweep_df["identifier"] = sweep_ids
+                parent = experiment_name[0] + "::" + identifier[0]
+                print("sweep parent = ", parent)
+                sweep_df["parent"] = [parent] * len(sweep_table.columns)
+                sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
+                sweep_df["level"] = [experiment_df["level"].max()+2] * len(sweep_table.columns)
+                sweep_ids = [parent+"::"+c_name for c_name in sweep_table.columns]
+                sweep_df["identifier"] = sweep_ids
 
-                    print(sweep_df)
-                    all_sweeps_df = pd.concat([all_sweeps_df, sweep_df])
+                print(sweep_df)
+                all_sweeps_df = pd.concat([all_sweeps_df, sweep_df])
 
-                return pd.concat([experiment_df, series_df, all_sweeps_df])
+            return pd.concat([experiment_df, series_df, all_sweeps_df])
 
-            return pd.concat([experiment_df, series_df])
+        return pd.concat([experiment_df, series_df])
 
     def create_series_without_meta_data(self,series_name,discarded_state,experiment_df):
         if series_name:
@@ -322,9 +327,13 @@ class TreeViewManager:
         series_df["parent"] = series_table["experiment_name"].values.tolist()
         series_df["type"] = "Series"
         series_df["level"] = experiment_df["level"].max()+1
-        identifier_list = []
-        for experiment,identifier in zip(series_table["experiment_name"].values.tolist(),series_table["series_identifier"].values.tolist()):
-            identifier_list.append(experiment+"::"+identifier)
+        identifier_list = [
+            experiment + "::" + identifier
+            for experiment, identifier in zip(
+                series_table["experiment_name"].values.tolist(),
+                series_table["series_identifier"].values.tolist(),
+            )
+        ]
         series_df["identifier"] = identifier_list
         return series_table,  series_df
 
@@ -476,7 +485,7 @@ class TreeViewManager:
         self.database_handler.open_connection()
         self.logger.info("Database writing thread successfully finished")  #
         # self.database.open_connection() # open the connection to the database in main thread
-
+        
         try:
 
             df = self.database_handler.database.execute(
@@ -486,7 +495,7 @@ class TreeViewManager:
                 self.data_read_finished.finished_signal.emit()
                 # self.create_treeview_from_database(selected_tree, discarded_tree, "", None)
         except Exception as e:
-            self.logger.error("Not able to open the database properly " + str(e))
+            self.logger.error(f"Not able to open the database properly {str(e)}")
 
     def check_for_selected_meta_data(self):
         """
@@ -496,10 +505,7 @@ class TreeViewManager:
         table_name = self.database_handler.database.execute(q).fetchdf().values.tolist()
         table_name = table_name[0][0]
         print("found selected meta data", table_name)
-
-        if table_name != np.nan:
-            return table_name
-        return None
+        return table_name if table_name != np.nan else None
 
     def create_parents_without_meta_data_parents(self,discarded_state: bool):
         """
@@ -519,7 +525,6 @@ class TreeViewManager:
         df["type"] = "Experiment"
         df["level"] = 0
         df["identifier"] = parent_name_table["experiment_name"].values.tolist()
-
         return df       
 
     def create_meta_data_combinations(self,meta_data_values: list):
@@ -542,7 +547,7 @@ class TreeViewManager:
 
         return combinations
 
-    def create_treeview_with_meta_data_parents(self, meta_data_table): 
+    def create_treeview_with_meta_data_parents(self, meta_data_table):
 
         """
         make labels according to the entries in the meta data table
@@ -553,19 +558,19 @@ class TreeViewManager:
         # list of lists of meta data tuples per column and table
         meta_data_values = meta_data_table["conditions"].values.tolist()
         combinations = self.create_meta_data_combinations(meta_data_values)
-   
+
         # Create an empty DataFrame with the necessary columns
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        
+
         # Define constants for table names
         GLOBAL_META_DATA_TABLE = "global_meta_data"
         EXPERIMENT_SERIES_TABLE = "experiment_series"
         SWEEP_META_DATA_TABLE = "sweep_meta_data"
-        
+
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
         for c in combinations:
-
         
+
             # Create query strings for each table, always reset them 
             #experiment_series_query = f' select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where discarded = {discarded_state}'
             global_meta_data_query = f'select experiment_name from {GLOBAL_META_DATA_TABLE} where experiment_label = \'{self.selected_meta_data_list[0]}\''
@@ -577,9 +582,9 @@ class TreeViewManager:
 
             # add meta data related experiments as childs
             meta_data_selections = c.split("::")
-            
+
             for index,row in meta_data_table.iterrows():
-                
+
                 if row["table_name"] ==  GLOBAL_META_DATA_TABLE:
                     # multiple columns are available for global meta data. 
                     # therefore table can appear in multiple rows and therefore I have to append
@@ -588,32 +593,28 @@ class TreeViewManager:
                     # only one column is available
                     # can only appear once
                     experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row["condition_column"]} = \'{meta_data_selections[index]}\''
-            
+
             # check combination of tables
             if list(meta_data_table["table_name"].unique()) == [GLOBAL_META_DATA_TABLE]:
                 experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf() 
             else:
                 experiment_series_query = experiment_series_query + f' intersect ({global_meta_data_query})'
                 experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf() 
-            
+
 
             # empty dataframe might be returned when the meta data combinations does not exist
             if not experiment_names.empty:
                 experiment_names = experiment_names.values.tolist()
                 experiment_names = [tup[0] for tup in experiment_names]
 
-                # make new unique identifiers
-                identifier_list = []
-                for e in experiment_names:
-                    identifier_list.append("root::" + c + "::" + e)
-
+                identifier_list = ["root::" + c + "::" + e for e in experiment_names]
                 new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names), 
                 "type": ["Experiment"]*len(experiment_names), "level": [1]*len(experiment_names), "identifier": identifier_list})
-                
+
                 df = pd.concat([df, new_item_df])
-            
-        
-        return df 
+
+
+        return df
 
     def add_experiments_series_sweeps_to_meta_data_label(self, meta_data_table, discarded_state, series_name = None):
 
@@ -647,20 +648,20 @@ class TreeViewManager:
         return df
 
     def add_series_to_treeview(self, df, experiment_row, discarded_state, series_name, series_level, series_meta_data=None):
-
+    
 
         experiment_name = experiment_row["item_name"]
         experiment_id = experiment_row["identifier"]
 
         if experiment_name == "220318_03":
             print("found")
-        
+
         # get all series linked with this experiment
         query = f'select * from experiment_series where experiment_name = \'{experiment_name}\' and discarded = {discarded_state}'
-        
+
         if series_meta_data:
             query = query + f' and series_meta_data = \'{series_meta_data}\' '
-        
+
         # if specified, get only specific series names
         if series_name is not None:
             query = query + f' and series_name = \'{series_name}\''
@@ -676,14 +677,13 @@ class TreeViewManager:
         # if series were found they need be appended to the df
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
         series_names = series_table["series_name"].values.tolist()
-        series_df["item_name"] = series_names           
+        series_df["item_name"] = series_names
         series_df["parent"] = [experiment_id]*len(series_names)
         series_df["type"] = ["Series"]*len(series_names)
         series_df["level"] = [series_level]*len(series_names)
-        series_ids = []
-        for s in series_table["series_identifier"]:
-            series_ids.append(experiment_id +"::" + s)
-            
+        series_ids = [
+            experiment_id + "::" + s for s in series_table["series_identifier"]
+        ]
         series_df["identifier"] = series_ids
         df = pd.concat([df, series_df])
 
@@ -708,21 +708,18 @@ class TreeViewManager:
         #if series_table.empty:
         #    return treeview_df
                 
-
+        
         for index, row in series_table.iterrows():
             sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-            
+
             sweep_parent = identifier + "::"  + row["series_identifier"]
-               # get the table from the database
             sweep_table = self.database_handler.database.execute(f'select * from {row["sweep_table_name"]}').fetchdf()
 
             sweep_df["item_name"] = sweep_table.columns
             sweep_df["parent"] = [sweep_parent] * len(sweep_table.columns)
             sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
             sweep_df["level"] = [series_level + 1] * len(sweep_table.columns)
-            sweep_ids = []
-            for c_name in sweep_table.columns:
-                sweep_ids.append(sweep_parent + "::" + c_name)
+            sweep_ids = [sweep_parent + "::" + c_name for c_name in sweep_table.columns]
             sweep_df["identifier"] = sweep_ids
 
             treeview_df = pd.concat([treeview_df, sweep_df])
@@ -731,127 +728,127 @@ class TreeViewManager:
 
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 
-            if database is None:
-                database = self.database_handler
-            
-            self.logger.info("started treeview generation")
-            root = bundle.pul
-            node = root
+        if database is None:
+            database = self.database_handler
 
-            # select the last node
-            for i in index:
-                node = node[i]
+        self.logger.info("started treeview generation")
+        root = bundle.pul
+        node = root
 
-            node_type = node.__class__.__name__
+        # select the last node
+        for i in index:
+            node = node[i]
 
-            if node_type.endswith('Record'):
-                node_type = node_type[:-6]
+        node_type = node.__class__.__name__
+
+        if node_type.endswith('Record'):
+            node_type = node_type[:-6]
+        try:
+            node_type += str(getattr(node, node_type + 'Count'))
+        except AttributeError:
+            pass
+        try:
+            node_label = node.Label
+        except AttributeError:
+            node_label = ''
+
+        self.logger.info(f"processed{node_type}")
+
+        metadata = node
+
+        if "Pulsed" in node_type:
+            parent = ""
+
+        if "Group" in node_type:
+
+            self.sweep_data_df = pd.DataFrame()
+            self.sweep_meta_data_df = pd.DataFrame()
+            self.series_identifier = None
+
+            self.logger.info("adding experiment")
+            print("adding experiment")
+            print(experiment_name)
+            self.logger.info(experiment_name)
+            database.add_experiment_to_experiment_table(experiment_name)
+
+            group_name = None
             try:
-                node_type += str(getattr(node, node_type + 'Count'))
-            except AttributeError:
-                pass
+                print("adding experiment", experiment_name)
+                print(self.meta_data_assignment_list)
+                print(self.meta_data_assigned_experiment_names)
+                pos = self.meta_data_assigned_experiment_names.index(experiment_name)
+                meta_data = self.meta_data_assignment_list[pos]
+            except Exception as e:
+                print(f"Fehler: {e}")
+                print("adding ", experiment_name, " without meta data")
+                '''experiment_label = 'default, all other parameters are none '''
+                meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
+
+
+            ''' add meta data as the default data indicated with a -1'''
+            print(meta_data)
+            database.add_experiment_to_global_meta_data(-1, meta_data)
+
+        if "Series" in node_type:
+            #print(node_type) # node type is None for Series
+            self.logger.info(self.series_identifier)
+            # make empty new df
             try:
-                node_label = node.Label
-            except AttributeError:
-                node_label = ''
-
-            self.logger.info("processed" + node_type)
-
-            metadata = node
-
-            if "Pulsed" in node_type:
-                parent = ""
-
-            if "Group" in node_type:
-
-                self.sweep_data_df = pd.DataFrame()
-                self.sweep_meta_data_df = pd.DataFrame()
-                self.series_identifier = None
-
-                self.logger.info("adding experiment")
-                print("adding experiment")
-                print(experiment_name)
-                self.logger.info(experiment_name)
-                database.add_experiment_to_experiment_table(experiment_name)
-
-                group_name = None
-                try:
-                    print("adding experiment", experiment_name)
-                    print(self.meta_data_assignment_list)
-                    print(self.meta_data_assigned_experiment_names)
-                    pos = self.meta_data_assigned_experiment_names.index(experiment_name)
-                    meta_data = self.meta_data_assignment_list[pos]
-                except Exception as e:
-                    print(f"Fehler: {e}")
-                    print("adding ", experiment_name, " without meta data")
-                    '''experiment_label = 'default, all other parameters are none '''
-                    meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
-
-
-                ''' add meta data as the default data indicated with a -1'''
-                print(meta_data)
-                database.add_experiment_to_global_meta_data(-1, meta_data)
-
-            if "Series" in node_type:
-                #print(node_type) # node type is None for Series
-                self.logger.info(self.series_identifier)
-                # make empty new df
-                try:
-                    if not self.sweep_data_df.empty:
-                        self.logger.info("Non empty dataframe needs to be written to the database")
-                        self.logger.info(self.sweep_data_df)
-                        self.logger.info(self.sweep_meta_data_df)
-                        database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
-                        self.sweep_data_df = pd.DataFrame()
-                        self.sweep_meta_data_df = pd.DataFrame()
-                    else:
-                        self.logger.info("data frame is empty as planned")
-                except Exception as e:
+                if not self.sweep_data_df.empty:
+                    self.logger.info("Non empty dataframe needs to be written to the database")
+                    self.logger.info(self.sweep_data_df)
+                    self.logger.info(self.sweep_meta_data_df)
+                    database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
                     self.sweep_data_df = pd.DataFrame()
                     self.sweep_meta_data_df = pd.DataFrame()
+                else:
+                    self.logger.info("data frame is empty as planned")
+            except Exception as e:
+                self.sweep_data_df = pd.DataFrame()
+                self.sweep_meta_data_df = pd.DataFrame()
 
-                sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
-            
-
-                database.add_single_series_to_database(experiment_name, node_label, node_type)
-
-                print(sliced_pgf_tuple_data_frame)
-                database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
-                                                          "pgf_table_" + experiment_name + "_" + node_type,
-                                                          experiment_name, node_type)
+            sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
 
 
-                # update the series counter
-                data_access_array[1]+=1
-                # reset the sweep counter
-                data_access_array[2] = 0
-                # update series_identifier
-                self.series_identifier = node_type
+            database.add_single_series_to_database(experiment_name, node_label, node_type)
+
+            print(sliced_pgf_tuple_data_frame)
+            database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
+                                                      "pgf_table_" + experiment_name + "_" + node_type,
+                                                      experiment_name, node_type)
 
 
-            if "Sweep" in node_type :
-                self.logger.info(self.series_identifier)
-                self.logger.info(node_type)
-                self.write_sweep_data_into_df(bundle,data_access_array,metadata)
-
-                #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
-                #                                          data_array)
-                data_access_array[2] += 1
-
-            if "NoneType" in node_type:
-                self.logger.error(
-                    "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
-                return
+            # update the series counter
+            data_access_array[1]+=1
+            # reset the sweep counter
+            data_access_array[2] = 0
+            # update series_identifier
+            self.series_identifier = node_type
 
 
-            for i in range(len(node.children)):
+        if "Sweep" in node_type :
+            self.logger.info(self.series_identifier)
+            self.logger.info(node_type)
+            self.write_sweep_data_into_df(bundle,data_access_array,metadata)
+
+            #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
+            #                                          data_array)
+            data_access_array[2] += 1
+
+        if "NoneType" in node_type:
+            self.logger.error(
+                "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
+            return
+
+
+        for i in range(len(node.children)):
             #    progress_callback
-                self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
+            self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
 
-            if node_type == "Pulsed" and not self.sweep_data_df.empty:
-                print("finiahws with non empty dataframe")
-                database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
-                                                  self.sweep_meta_data_df)
+        if node_type == "Pulsed" and not self.sweep_data_df.empty:
+            print("finiahws with non empty dataframe")
+            database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
+                                              self.sweep_meta_data_df)
 
     def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
@@ -882,7 +879,9 @@ class TreeViewManager:
         data_array = bundle.data[data_access_array]
 
         # new for the test
-        data_array_df = pd.DataFrame({'sweep_' + str(data_access_array[2] + 1): data_array})
+        data_array_df = pd.DataFrame(
+            {f'sweep_{str(data_access_array[2] + 1)}': data_array}
+        )
         self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
         self.logger.info(self.sweep_data_df.columns.tolist())
 
@@ -890,8 +889,11 @@ class TreeViewManager:
         child_node = metadata[0]
         child_node_ordered_dict = dict(child_node.get_fields())
 
-        meta_data_df = pd.DataFrame.from_dict(data=child_node_ordered_dict, orient='index',
-                                              columns=['sweep_' + str(data_access_array[2] + 1)])
+        meta_data_df = pd.DataFrame.from_dict(
+            data=child_node_ordered_dict,
+            orient='index',
+            columns=[f'sweep_{str(data_access_array[2] + 1)}'],
+        )
 
         self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
 
@@ -915,7 +917,7 @@ class TreeViewManager:
         name_list = list(map(lambda x: x[0], meta_data_group_assignment_list))
         text_list = list(map(lambda x: x[1], meta_data_group_assignment_list))
 
-        for ind in range(0, tree.topLevelItemCount()):
+        for ind in range(tree.topLevelItemCount()):
             top_level_item = tree.topLevelItem(ind)
             top_level_combo_box = tree.itemWidget(top_level_item, self.meta_data_group_column)
 
@@ -1011,10 +1013,10 @@ class TreeViewManager:
                                                ):
 
         # open the pulse generator part of the bundle
-           
+
         root = bundle.pgf
         node = root
-        
+
         for i in index:
             node = node[i]
         # node type e.g. stimulation, chanel or stimchannel
@@ -1024,25 +1026,25 @@ class TreeViewManager:
 
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
-            
+
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
-            
-        if node_type == "Stimulation":
-            series_name = node.EntryName
-            sweep_number = node.NumberSweeps
-                   
+
         if node_type == "Channel":
             # Holding
             holding_potential = node.Holding
             stim_channel = node.LinkedChannel
             children_amount = node.children
-            
+
+        elif node_type == "Stimulation":
+            series_name = node.EntryName
+            sweep_number = node.NumberSweeps
+
         if node_type == "StimChannel":
             duration = node.Duration
             increment = node.DeltaVIncrement
             voltage = node.Voltage
-            series_number = "Series" + str(series_count)
+            series_number = f"Series{str(series_count)}"
 
             data_list.append([series_name,
                               str(sweep_number),
@@ -1246,7 +1248,7 @@ class TreeViewManager:
         :return:
         '''
         # generate a number of sampling points and add them to the step trace, at the end, step trace is added to the entire signal
-        for sample in range(0, int(duration * sampling_frequency)):
+        for _ in range(int(duration * sampling_frequency)):
             if voltage != 0:
                 sub_signal.append(voltage)
             else:

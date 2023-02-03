@@ -149,6 +149,7 @@ class OfflineAnalysisResultVisualizer():
                                                  analysis_function_id = self.visualization_tab_widget.currentItem().parent().data(8, Qt.UserRole))
         
         dialog.setWindowTitle("Available Meta Data Label")
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
         

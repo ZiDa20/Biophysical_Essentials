@@ -566,8 +566,7 @@ class OfflinePlots():
         annot.xy = (x[ind["ind"][0]], y[ind["ind"][0]])
         index_line = line.axes.get_lines().index(line)
         name = line.axes.get_legend().texts[index_line].get_text()
-        text = "{}, {}".format(" ".join(list(map(str,ind["ind"]))), 
-                            " ".join([name for n in ind["ind"]]))
+        text = f'{" ".join(list(map(str, ind["ind"])))}, {" ".join([name for _ in ind["ind"]])}'
         annot.set_text(text)
         annot.get_bbox_patch().set_alpha(0.4)
         

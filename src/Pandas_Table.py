@@ -53,4 +53,12 @@ class PandasTable(QAbstractTableModel):
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
+    
+
+    def resize_header(self,parent):
+        column_count = self.columnCount()
+        for i in range(column_count):
+            size_hint = parent.horizontalHeader().sectionSizeHint(i)
+            size_hint = size_hint + 20
+            parent.horizontalHeader().resizeSection(i, size_hint)
 

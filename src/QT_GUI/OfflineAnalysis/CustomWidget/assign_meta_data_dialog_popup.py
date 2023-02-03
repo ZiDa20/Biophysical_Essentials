@@ -1,12 +1,69 @@
 
 from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_group_dialog import Ui_assign_meta_data_group
-
+import pandas as pd
+from Pandas_Table import PandasTable
 class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
 
-    def __init__(self, parent=None):
+    def __init__(self, database_handler, offline_manager, frontend, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.database_handler = database_handler
+        self.offline_manager = offline_manager
+        self.frontend_style = frontend
+        self.frontend_style.set_pop_up_dialog_style_sheet(self)
+        self.content_model = None
+        
+    def map_metadata_to_database(self):
+        """_summary_
+        """
+        directory = self.offline_manager._directory_path
+        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
+                        "Individuum_id"]
+        self.template_dataframe = pd.DataFrame(columns=column_names)
+        print(self.offline_manager.package_list(directory))
 
+        for dat_file in self.offline_manager.package_list(directory):
+            
+            if isinstance(dat_file, list):
+                splitted_name = "_".join(dat_file[0].split("_")[:2])
+                self.database_handler.add_experiment_to_experiment_table(splitted_name)
+            else:
+                splitted_name = dat_file.split(".")
+                self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
+            
+            
+            if isinstance(dat_file, list):
+                self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name)
+                self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name,"Experiment_label":"None","Species":"None",
+                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+            else:
+                self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name)
+                self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
+                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
 
+        return self.create_table()
 
+    def create_table(self):
+        """_summary_
+        """
+        template_table_view = QTableView()
+        template_table_view.setObjectName("meta_data_template")
+        template_table_view.setMinimumHeight(300)
+        template_table_view.horizontalHeader().setSectionsClickable(True)
+
+        # create two models one for the table show and a second for the data visualizations
+        self.content_model = PandasTable(self.template_dataframe)
+        template_table_view.setModel(self.content_model)
+
+        # self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        template_table_view.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
+        self.meta_data_template_layout.addWidget(template_table_view)
+        template_table_view.setGeometry(20, 20, 691, 581)
+        # show and retrieve the selected columns
+        template_table_view.show()
+        return template_table_view
+        #self.data_base_content.clicked.connect(self.retrieve_column)
+        
+    
+        
