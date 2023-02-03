@@ -127,8 +127,3 @@ class Ui_MetadataPopup(object):
     # retranslateUi
 
 
-class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setupUi(self)

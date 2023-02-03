@@ -35,7 +35,7 @@ from Offline_Analysis.offline_analysis_manager import OfflineManager
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
-from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
+
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
 
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
@@ -98,14 +98,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # animation of the side dataframe
         
         self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
-        self.append.clicked.connect(self.new_series_creation)
         self.compare_series.clicked.connect(self.select_series_to_be_analized)
 
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
-        self.edit_meta.clicked.connect(self.edit_metadata_analysis_id)
-        self.edit_series_meta_data.clicked.connect(self.edit_series_meta_data_popup)
+        
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
         #self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
@@ -226,80 +224,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.result_visualizer.database_handler = updated_object
         self.offline_tree.database_handler = updated_object
         self.final_result_holder.database_handler = updated_object
+        self.OfflineDialogs = OfflineDialogs(self.database_handler, self.offline_manager, self.frontend_style)
+        self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
+        self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
+        self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
         
-    def new_series_creation(self):
-        series_dialog = SubstractDialog()
-        series_dialog.exec()
-        
-    def edit_metadata_analysis_id(self):
-        """ Popup Dialog to edit the metadata of the selected experiments 
-        """
-        edit_data = MetadataPopupAnalysis()
-        self.frontend_style.set_pop_up_dialog_style_sheet(edit_data)
-        edit_data.quit.clicked.connect(edit_data.close)
-        scroll_area = QScrollArea()
-        metadata_table = QTableView()
-        metadata_table.setSortingEnabled(True)
-        q = self._extracted_from_edit_series_meta_data_popup_10(
-            metadata_table,
-            scroll_area,
-            'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = ',
-        )
-        edit_data.table_layout
-        edit_data.final_table_layout.addWidget(scroll_area)
-        edit_data.exec()
-        
-    def edit_series_meta_data_popup(self):
-        """ 
-            Popup Dialog to edit the metadata of the related series
-        """
-        edit_data = MetadataPopupAnalysis()
-        self.frontend_style.set_pop_up_dialog_style_sheet(edit_data)
-        edit_data.quit.clicked.connect(edit_data.close)
-        scroll_area = QScrollArea()
-        metadata_table = QTableView()
-        q = self._extracted_from_edit_series_meta_data_popup_10(
-            metadata_table,
-            scroll_area,
-            'select * from experiment_series where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = ',
-        )
-        edit_data.final_table_layout.addWidget(scroll_area)
-        edit_data.submit.clicked.connect(partial(self.submit_table_into_db, edit_data, q))
-        edit_data.exec()
-
-    # TODO Rename this here and in `edit_metadata_analysis_id` and `edit_series_meta_data_popup`
-    def _extracted_from_edit_series_meta_data_popup_10(self, metadata_table, scroll_area, arg2):
-        metadata_table.setStyleSheet("border: 0.2px solid black")
-        scroll_area.setWidget(metadata_table)
-        scroll_area.setWidgetResizable(True)
-        result = f'{arg2}{self.database_handler.analysis_id})'
-        table_handling = self.database_handler.get_data_from_database(
-            self.database_handler.database, result, fetch_mode=2
-        )
-        table_model = PandasTable(table_handling)
-        metadata_table.setModel(table_model)
-        table_model.resize_header(metadata_table)
-        return result
-    
-    def submit_table_into_db(self, dialog, query):
-        old_df = self.database_handler.get_data_from_database(self.database_handler.database, query, fetch_mode = 2)
-        new_df = dialog.final_table_layout.itemAtPosition(0,0).widget().model()._data
-        df = pd.merge(new_df, old_df, on=['experiment_name','series_identifier', 'series_meta_data'], how="left", indicator=True
-              ).query('_merge=="left_only"')
-
-        for index, row in df.iterrows():
-            q = f'update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\''
-            self.database_handler.database.execute(q)
-
-        dialog.close()
-
     def show_open_analysis_dialog(self):
-        dialog = ChooseExistingAnalysis()
-        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-        data = self.database_handler.database.execute('select * from offline_analysis').fetchdf()
-        table_model = PandasTable(data)
-        dialog.tableView.setModel(table_model)
-        dialog.submit.clicked.connect(partial(self.open_analysis_results, dialog))
+        dialog = ChooseExistingAnalysis(self.frontend_style,self.open_analysis_results)
         dialog.exec()
         
     @Slot()
@@ -308,7 +239,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Open an existing analysis from the database
         :return:
         """
-
         id = dialog.lineEdit.text() # change this to a new name
         dialog.close()
 
