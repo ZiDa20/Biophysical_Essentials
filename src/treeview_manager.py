@@ -135,7 +135,7 @@ class TreeViewManager:
                         data_file = abf_file.get_data_table()
                         meta_data = abf_file.get_metadata_table()
                         pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                        experiment_name = [abf_file.get_experiment_name(), "default", "None", "None", "None", "None", "None", "None"]
+                        experiment_name = [abf_file.get_experiment_name(), "None", "None", "None", "None", "None", "None", "None"]
                         series_name = abf_file.get_series_name()
                         abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
 

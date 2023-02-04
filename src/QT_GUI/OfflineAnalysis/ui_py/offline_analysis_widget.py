@@ -53,7 +53,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-
         self.progressbar = None
         self.statusbar = None
         self.status_label = None
@@ -67,6 +66,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2)
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
+        
         self.offline_tree.offline_manager = self.offline_manager
         self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
         #self.OfflineDialogs = OfflineDialogs()
@@ -210,11 +210,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.result_visualizer.database_handler = updated_object
         self.offline_tree.database_handler = updated_object
         self.final_result_holder.database_handler = updated_object
+        
         self.OfflineDialogs = OfflineDialogs(self.database_handler, 
                                              self.offline_manager, 
                                              self.frontend_style,
-                                             self.blank_analysis_tree_view_manager,
                                              self.blank_analysis_plot_manager)
+        
         self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
         self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
         self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
@@ -316,7 +317,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
-
+        self.OfflineDialogs.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
         self.load_data_from_database_dialog.close()
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)

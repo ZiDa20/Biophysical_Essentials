@@ -10,22 +10,23 @@ class OfflineDialogs:
                  database_handler, 
                  offline_manager, 
                  frontend, 
-                 blank_analysis_tree_view_manager,
                  blank_analysis_plot_manager) -> None:
         """_summary_
         """
         self.database_handler = database_handler
         self.offline_manager = offline_manager
         self.frontend_style = frontend
-        self.blank_analysis_tree_view_manager = blank_analysis_tree_view_manager
+        self.blank_analysis_tree_view_manager = None
         self.blank_analysis_plot_manager = blank_analysis_plot_manager
         
     def new_series_creation(self):
+        """_summary_: Creates a Popup that can be used for new Series generation
+        such as e.g Substraction/Addition of two equally length series 
+        """
         series_dialog = SubstractDialog()
         series_dialog.exec()
         
     def edit_metadata_analysis_id(self):
-        
         """ Popup Dialog to edit the metadata of the selected experiments 
         """
         edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = False)
@@ -43,11 +44,13 @@ class OfflineDialogs:
         edit_data.exec()
         
     def create_meta_data_template(self, save, open, make):
-        '''
-        Creates a new dialog popup to create a new meta data template. The created template can be saved or not
-        :param dialog: open dialog object
-        :return:
-        '''
+        """_summary_
+
+        Args:
+            save (function): _description_
+            open (function): _description_
+            make (function): _description_
+        """
         # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
         meta_data_popup = Assign_Meta_Data_PopUp(self.database_handler, self.offline_manager, self.frontend_style)
         template_table_view = meta_data_popup.map_metadata_to_database()
@@ -59,6 +62,8 @@ class OfflineDialogs:
         meta_data_popup.exec_()
         
     def select_tree_view_meta_data(self):
+        """_summary_
+        """
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
         dialog = SelectMetaDataForTreeviewDialog(self.database_handler, 
                                                  self.blank_analysis_tree_view_manager, 
