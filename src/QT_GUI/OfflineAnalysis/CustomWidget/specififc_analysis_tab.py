@@ -7,7 +7,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QHBoxLayout,
     QLayout, QPushButton, QSizePolicy, QSpacerItem,
-    QStackedWidget, QVBoxLayout, QWidget)
+    QStackedWidget, QVBoxLayout, QWidget, QTabWidget)
 
 from QT_GUI.OfflineAnalysis.CustomWidget.analysis_function_table_designer import AnalysisFunctionTable
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
@@ -28,20 +28,6 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_5 = QGridLayout(SpecificAnalysisTab)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(-1, 4, -1, 4)
-        self.gridLayout_3 = QGridLayout()
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.widget = TreeBuild(SpecificAnalysisTab)
-        self.widget.setObjectName(u"widget")
-        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QSize(100, 0))
-        self.widget.setMaximumSize(QSize(600, 16777215))
-
-        self.gridLayout_3.addWidget(self.widget, 0, 1, 1, 1)
-
-
-        self.gridLayout_5.addLayout(self.gridLayout_3, 0, 0, 5, 1)
-
         self.stackedWidget = QStackedWidget(SpecificAnalysisTab)
         self.stackedWidget.setObjectName(u"stackedWidget")
         sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
@@ -70,11 +56,6 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_7 = QGridLayout(self.groupBox_5)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setContentsMargins(0, 6, 0, 6)
-        self.analysis_function = QGridLayout()
-        self.analysis_function.setObjectName(u"analysis_function")
-
-        self.gridLayout_7.addLayout(self.analysis_function, 1, 0, 1, 1)
-
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -106,7 +87,7 @@ class Ui_SpecificAnalysisTab(object):
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
 
-        self.gridLayout_7.addLayout(self.horizontalLayout, 2, 0, 1, 1)
+        self.gridLayout_7.addLayout(self.horizontalLayout, 1, 0, 1, 1)
 
         self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
@@ -143,12 +124,47 @@ class Ui_SpecificAnalysisTab(object):
 
         self.stackedWidget.addWidget(self.page_2)
 
-        self.gridLayout_5.addWidget(self.stackedWidget, 0, 1, 5, 1)
+        self.gridLayout_5.addWidget(self.stackedWidget, 0, 3, 5, 1)
+
+        self.tabWidget = QTabWidget(SpecificAnalysisTab)
+        self.tabWidget.setObjectName(u"tabWidget")
+        self.tab = QWidget()
+        self.tab.setObjectName(u"tab")
+        self.gridLayout_2 = QGridLayout(self.tab)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.widget = TreeBuild(self.tab)
+        self.widget.setObjectName(u"widget")
+        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
+        self.widget.setSizePolicy(sizePolicy)
+        self.widget.setMinimumSize(QSize(100, 0))
+        self.widget.setMaximumSize(QSize(600, 16777215))
+
+        self.gridLayout_2.addWidget(self.widget, 0, 1, 1, 1)
+
+        self.gridLayout_3 = QGridLayout()
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+
+        self.gridLayout_2.addLayout(self.gridLayout_3, 0, 0, 1, 1)
+
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QWidget()
+        self.tab_2.setObjectName(u"tab_2")
+        self.gridLayout_4 = QGridLayout(self.tab_2)
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.analysis_function = QGridLayout()
+        self.analysis_function.setObjectName(u"analysis_function")
+
+        self.gridLayout_4.addLayout(self.analysis_function, 0, 0, 1, 1)
+
+        self.tabWidget.addTab(self.tab_2, "")
+
+        self.gridLayout_5.addWidget(self.tabWidget, 0, 2, 1, 1)
 
 
         self.retranslateUi(SpecificAnalysisTab)
 
         self.stackedWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
@@ -159,6 +175,8 @@ class Ui_SpecificAnalysisTab(object):
         self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
         self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
         self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("SpecificAnalysisTab", u"Experiments", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("SpecificAnalysisTab", u"Analysis", None))
     # retranslateUi
 
 

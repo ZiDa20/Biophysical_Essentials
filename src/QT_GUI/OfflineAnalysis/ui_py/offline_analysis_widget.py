@@ -37,7 +37,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler i
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
-
+from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
@@ -45,7 +45,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler i
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
 from animated_ap import AnimatedAP
 from Offline_Analysis.tree_model_class import TreeModel
-from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
+
 from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 from Offline_Analysis.FinalResultHolder import ResultHolder
@@ -994,38 +994,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """ open a popup dialog for the user to select available analysis functions """
 
         # 1) create dialog
-        dialog = QDialog()
+        dialog = Select_Analysis_Functions(self.database_handler,series_name)
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-
-        dialog_grid = QGridLayout(dialog)
-
-        # 2) get recording mode of the specific series
-        recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(series_name)
-
-        # 3) request recording mode specific analysis functions
-        analysis_function_names = AnalysisFunctionRegistration.get_elements(recording_mode)
-
-        # 4) create dialog checkboxes
-        checkbox_list = []
-        for f in analysis_function_names:
-            c = QCheckBox()
-            checkbox_list.append(c)
-            l = QLabel(f)
-            dialog_grid.addWidget(c, analysis_function_names.index(f), 0)
-            dialog_grid.addWidget(l, analysis_function_names.index(f), 1)
-
-        # 5) add button to the dialog, since it's in the dialog only the button can be of local type
-        confirm_selection_button = QPushButton("Confirm Selected Analysis Functions", dialog)
-        confirm_selection_button.clicked.connect(
-            partial(self.update_selected_analysis_function_table, checkbox_list, analysis_function_names, dialog))
-
-        # 6) Add button widget to correct grid position, finally execute the dialog
-        dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0 , 1 , 2)
-
-        dialog.setWindowTitle("Available Analysis Functions for Series " + series_name)
-        dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
+ 
     def update_selected_analysis_function_table(self, checkbox_list, analysis_function_name_list, dialog):
         '''enters data into the analysis table after the dialog has been closed'''
         dialog.close()

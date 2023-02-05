@@ -1,4 +1,4 @@
-
+QListWidget::item{{color: black;}}
 
 QWidget{{background-color: white;border-radius:5px;}}
 
@@ -73,6 +73,7 @@ QTreeView::item:selected:focus {{
 QFrame{{border: 0px solid white;}}
 
 QListView{{color: black;}}
+
 
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_right.png);}}  
