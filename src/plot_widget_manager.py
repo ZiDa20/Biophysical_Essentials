@@ -12,15 +12,16 @@ import matplotlib.pyplot as plt
 from draggable_lines import DraggableLines
 sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
-
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
-    def __init__(self,vertical_layout_widget,database,tree_view,detection,toolbar_widget = None, toolbar_layout = None):
+
+    def __init__(self,vertical_layout_widget,database,tree_view,detection, frontend_style, toolbar_widget = None, toolbar_layout = None):
         """
         INIT:
         :param vertical_layout_widget: layout to be filled with the plotwidget created by this class
@@ -41,6 +42,12 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
+        
+        plt.style.use('seaborn-v0_8-whitegrid')
+        plt.rcParams['axes.facecolor']='#ffffff'
+        plt.rcParams['figure.facecolor']='#ffffff'
+        self.draw_color = "black"
+        self.ax_color = "black"
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
         self.vertical_layout = vertical_layout_widget
 
@@ -49,18 +56,14 @@ class PlotWidgetManager(QRunnable):
         self.tree_view = tree_view
 
         self.database_handler = database
-
-
-
         self.time = None
-
         # neccessary for succesfull signal emitting
         super().__init__()
 
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
-
-
+        
+        #This can help for changing the dark theme correctly
         # all tuples of left and right bounds that will be plotted .. identified by its row number as a key
         self.coursor_bound_tuple_dict = {}
 
@@ -199,7 +202,7 @@ class PlotWidgetManager(QRunnable):
                 self.plot_scaling_factor = 1e9
 
 
-        self.ax1.plot(self.time, self.data * self.plot_scaling_factor, c='yellow', alpha = 0.5)
+        self.ax1.plot(self.time, self.data * self.plot_scaling_factor, c=self.draw_color, alpha = 0.5)
 
         print("plotting sweep")
         print(item.text(0))
@@ -272,7 +275,7 @@ class PlotWidgetManager(QRunnable):
                 # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='k')
+            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c=self.draw_color)
 
         # plot pgf traces
 
@@ -339,7 +342,7 @@ class PlotWidgetManager(QRunnable):
                     # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c='k')
+            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c=self.draw_color)
 
         # plot pgf traces
 
@@ -460,7 +463,7 @@ class PlotWidgetManager(QRunnable):
                 # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time, data * self.plot_scaling_factor, 'k')
+            self.ax1.plot(self.time, data * self.plot_scaling_factor, self.draw_color)
 
             """
             if self.detection_mode:
@@ -524,10 +527,8 @@ class PlotWidgetManager(QRunnable):
         self.ax2.spines['right'].set_visible(False)
         #self.ax1.patch.set_alpha(0)
         #self.ax2.patch.set_alpha(0)
-
-
         # todo check for white or dakr mode
-        ax_color = 'black'
+        ax_color = self.ax_color
         self.ax1.spines['bottom'].set_color(ax_color)
         self.ax1.spines['left'].set_color(ax_color)
         self.ax1.xaxis.label.set_color(ax_color)
@@ -542,7 +543,6 @@ class PlotWidgetManager(QRunnable):
         self.ax2.yaxis.label.set_color(ax_color)
         self.ax2.tick_params(axis='x', colors=ax_color)
         self.ax2.tick_params(axis='y', colors=ax_color)
-        
         #plt.subplots_adjust(left=0.8, right=0.9, bottom=0.8, top=0.9)
         #self.ax1.autoscale()
         #self.ax2.autoscale()
@@ -645,7 +645,7 @@ class PlotWidgetManager(QRunnable):
                 else:
                     self.ax2.plot(self.time, pgf_signal, c='r')
             else:
-                self.ax2.plot(self.time, pgf_signal, c='k')
+                self.ax2.plot(self.time, pgf_signal, c=self.draw_color)
             print("finished sweep %s", sweep_number)
 
         return protocol_steps
@@ -692,7 +692,7 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        self.ax2.plot(self.time, pgf_signal, c = 'k')
+        self.ax2.plot(self.time, pgf_signal, c = self.draw_color)
 
         return protocol_steps
 

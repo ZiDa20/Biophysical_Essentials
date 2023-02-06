@@ -11,6 +11,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
+import matplotlib.pyplot as plt 
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -286,16 +287,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             None"""
         fig = self.canvas.figure
         ax = fig.add_subplot(111)
-        fig.patch.set_facecolor('#04071a')
+        plt.style.use('dark_background')
         fig.tight_layout()
         ax.set_xlabel("Time")
         ax.set_ylabel("Unit [A]|[V]")
-        ax.patch.set_facecolor('#04071a')
-        ax.plot(sliced_array, color = "white")
-        ax.spines['bottom'].set_color('white') 
-        ax.spines['left'].set_color('white')
-        ax.yaxis.label.set_color('white')
-        ax.xaxis.label.set_color('white')
         self.gridLayout_10.addWidget(self.canvas)
 
     def save_image(self):

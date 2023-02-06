@@ -61,31 +61,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # produced and set by start.py and shared between all subclasses
         self.frontend_style = None
         self.database_handler = None
-        self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2, [self.plot_home, self.plot_zoom, self.plot_move])
+        
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
         
-        self.offline_tree.offline_manager = self.offline_manager
-        self.offline_tree.show_sweeps_radio = self.show_sweeps_radio
         #self.OfflineDialogs = OfflineDialogs()
         self.wait_widget = None
         self.ap_timer = None
-        self.offline_tree.splitter = None
         self.offline_analysis_widgets.setCurrentIndex(0)
-        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree, 
-                                                                 self.database_handler, 
-                                                                 self.final_result_holder)
-
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
-        self.hierachy_stacked_list = self.offline_tree.hierachy_stacked_list
-        self.tab_list = self.offline_tree.tab_list
-        self.series_list = self.offline_tree.series_list
+        
+        
+        
 
-        self.offline_tree.SeriesItems.clear()
+        
         self.parent_count = 0
-        self.current_tab_visualization = self.offline_tree.current_tab_visualization
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
         # animation of the side dataframe
         self.final_series = []
@@ -103,22 +95,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.parent_stacked = self.offline_tree.parent_stacked
+        
 
         # this should be transfer to the plot manager 
         # and called with the connected elements
-
-    
-    def set_splitter(self, splitter):
-        """_summary_: Sets the splitter for the offline analysis window
-
-        Args:
-            splitter (QSplitter): _description_
-        """
-        self.offline_tree.splitter = splitter
-        self.offline_tree.add_widget_to_splitter()
-
-        
     def show_sweeps_toggled(self,signal):
         """toDO add Docstrings!
 
@@ -162,7 +142,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         print("load_and_assign_meta_data: error when assigning meta_data_types")
             csv_file.close()
 
-    def update_database_handler_object(self, updated_object):
+    def update_database_handler_object(self, updated_object, splitter):
         """_summary_: Should add the Database Handler Singleton
 
         Args:
@@ -170,10 +150,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.database_handler = updated_object
         self.offline_manager.database = updated_object
-        self.result_visualizer.database_handler = updated_object
-        self.offline_tree.database_handler = updated_object
         self.final_result_holder.database_handler = updated_object
         
+        self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2, 
+                                                 [self.plot_home, self.plot_zoom, self.plot_move],
+                                                 self.frontend_style,
+                                                 self.database_handler,
+                                                 self.offline_manager,
+                                                 self.show_sweeps_radio)
+        self.offline_tree.add_widget_to_splitter(splitter)
+        self.offline_tree.SeriesItems.clear()
+        
+        self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree, 
+                                                                 self.database_handler, 
+                                                                 self.final_result_holder,
+                                                                 self.frontend_style)
+
+        self.result_visualizer.database_handler = updated_object
         self.OfflineDialogs = OfflineDialogs(self.database_handler, 
                                              self.offline_manager, 
                                              self.frontend_style,
@@ -239,8 +232,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         :author: dz, 01.07.2022
         """
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None ,  False)
-        
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None, False,  self.frontend_style)
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)
@@ -251,7 +243,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
         # set light or dark mode
         self.frontend_style.set_pop_up_dialog_style_sheet(self.load_data_from_database_dialog)
- 
         self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
         
         #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
@@ -572,7 +563,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         stacked_widget.setCurrentIndex(0)
 
         self.analysis_stacked.setCurrentIndex(parent_stacked)
-        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
+        self.offline_tree.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
 
     def view_table_clicked(self, parent_stacked:int):
         """
@@ -581,9 +572,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @return:
         """
         self.analysis_stacked.setCurrentIndex(parent_stacked)
-        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+        self.offline_tree.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
 
-        result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
+        result_plot_widget = self.offline_tree.hierachy_stacked_list[parent_stacked].currentWidget()
 
         """create a table view within a tab widget: each tab will become one plot/one specific analysis """
 
@@ -631,8 +622,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             print("More than one column of analysis results is not implemented yet")
 
-        self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
-        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
+        self.offline_tree.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
+        self.offline_tree.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
     @Slot()
     def go_backwards(self):
@@ -700,7 +691,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # read from database - if no settings have been made before execute initalization
         self.selected_analysis_functions = self.get_selected_checkboxes(checkbox_list, analysis_function_name_list)
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-        current_tab = self.tab_list[current_index]
+        current_tab = self.offline_tree.tab_list[current_index]
         current_tab.checkbox_list = []
         current_tab.analysis_function.addWidget(current_tab.analysis_table_widget)
         existing_row_numbers = current_tab.analysis_table_widget.analysis_table_widget.rowCount()
@@ -744,7 +735,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
             current_tab.analysis_table_widget.analysis_table_widget.show()
 
-        plot_widget_manager  = self.current_tab_visualization[current_index]
+        plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
         plot_widget_manager.set_analysis_functions_table_widget(
             current_tab.analysis_table_widget.analysis_table_widget)
     
@@ -799,10 +790,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 self.b.clicked.connect(partial(self.add_coursor_bounds, r, current_tab))
 
-                self.current_tab_visualization[
+                self.offline_tree.current_tab_visualization[
                     self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
             try:
-                self.current_tab_visualization[
+                self.offline_tree.current_tab_visualization[
                     self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
             except Exception as e:
                 print("function remove_exisiting_dragable_lines {e}")
@@ -813,7 +804,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         """
 
-        self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
+        self.offline_tree.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
             row_number)
 
         try:
@@ -824,7 +815,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text()), 2)
 
             # 1) insert dragable coursor bounds into pyqt graph
-            left_val, right_val = self.current_tab_visualization[
+            left_val, right_val = self.offline_tree.current_tab_visualization[
                 self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
                                                                                           (left_cb_val, right_cb_val))
 
@@ -832,14 +823,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         except Exception as e:
             print(e)
             # 1) insert dragable coursor bounds into pyqt graph
-            left_val, right_val = self.current_tab_visualization[
+            left_val, right_val = self.offline_tree.current_tab_visualization[
                 self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
 
         # 2) connect to the signal taht will be emitted when cursor bounds are moved by user
-        self.current_tab_visualization[
+        self.offline_tree.current_tab_visualization[
             self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(
             self.update_left_common_labels)
-        self.current_tab_visualization[
+        self.offline_tree.current_tab_visualization[
             self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].right_bound_changed.cursor_bound_signal.connect(
             self.update_right_common_labels)
 
@@ -867,7 +858,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def update_cursor_bound_labels(self, value, column_number, row_number):
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-        current_tab = self.tab_list[current_index]
+        current_tab = self.offline_tree.tab_list[current_index]
         print(
             f"updating: row = {str(row_number)} column={str(column_number)} value= {str(value)}"
         )
@@ -978,7 +969,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                                    parent_item.data(6, Qt.UserRole))
 
         """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
-        self.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
+        self.offline_tree.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
         analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
         analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
         self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)

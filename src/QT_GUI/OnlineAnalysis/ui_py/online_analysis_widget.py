@@ -327,7 +327,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # connect with a new plot manager to handle item clicks within the treeview
         if self.online_analysis_plot_manager is None:
             self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
-                                                         False)
+                                                         False, self.frontend_style)
 
         # give the experiment (name provided by treeview_name) the experiment_label ONLINE_ANALYSIS to be identified
         self.online_analysis_tree_view_manager.meta_data_assignment_list = [

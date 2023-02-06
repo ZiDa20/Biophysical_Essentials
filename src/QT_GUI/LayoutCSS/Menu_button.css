@@ -1,0 +1,195 @@
+
+
+QWidget{{
+    background-color: #121212;
+    border-radius:5px;
+}}
+
+QDialog{{
+    background-color: #121212;
+    border-radius:5px;
+}}
+
+QGroupBox{{
+    background-color: #1f2933;
+    border: 2px #1f2933;
+    border-radius: 5px;
+}}
+
+QGroupBox:title{{
+    color: "#ffffff";
+}}
+
+QTabWidget{{
+    background-color: "#1f2933";
+}}
+
+QWidget[accessibleName="additional_function_menu"]{{
+    background-color: "#5b6e8b";
+}}
+
+QPushButton{{
+    background-color: "#1f2933";
+    border: 0px;
+    color:white;
+}}
+QPushButton:hover{{
+    background-color: "grey"; 
+    border: 0px;
+}}
+
+QLabel{{
+    background-color: transparent; 
+    color: "#ffffff";
+}}
+
+QCheckBox{{
+    background-color:transparent; 
+    color:white;
+}}
+
+
+QRadioButton{{
+    background-color:transparent; 
+    color:white; 
+    border:white; 
+}}
+
+QComboBox{{
+    background-color:"#121212"; 
+    color:white;
+ }}
+
+QListView::item {{
+    background-color:#1f2933;;
+}}
+
+QProgressBar{{
+    border: 2px solid white;
+    border-radius: 5px;
+    background-color: white;
+}}
+
+QProgressBar::chunk{{
+    border: 2px solid grey;
+    background-color: "#5b6e8b";
+}}
+
+QTableView::item{{
+    color:#ffffff;
+}}
+QTableView::item::hover{{
+    color:white; 
+    background-color:grey;
+}}
+
+QTableView::section{{
+    color:white;
+}}
+
+PandasTable{{
+    color:white;
+}}
+
+QLineEdit{{
+    color:white; 
+    border: 2px solid white; 
+    border-radius:5px;
+}}
+
+QSplitter{{
+    background-color: #121212;
+}}
+
+QHeaderView::section{{
+    background-color: #121212;
+    color:white;}}
+
+QTreeView::branch{{
+    background-color: #121212; 
+    color: #1f2933;}}
+
+QTreeView{{
+    color:white;  
+    padding: 5px;
+    border: 0px solid white;
+}}
+
+QTreeView::item:selected:focus {{
+    background-color: "#121212";
+    color: #ffffff; /* For Windows */
+  }}
+  
+QFrame{{
+    border: 0px solid white;
+}}
+
+QListView{{
+    color: white;
+}}
+
+QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/go_left.png);}}  
+QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/go_right.png);}}  
+
+QPushButton[objectName="select_directory_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/open_dir.png);}}
+QToolTip[objectName="select_directory_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="load_from_database"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/db.png);}}
+QToolTip[objectName="load_from_database"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="edit_meta"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/edit_meta.png);}}
+QToolTip[objectName="edit_meta"] {{ color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="merge_series"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/merge.png);}}
+QToolTip[objectName="mergie_series"] {{ color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="edit_series_meta_data"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/burst.png);}}
+QToolTip[objectName="edit_series_meta_data"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="clear"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/broom.png);}}
+QToolTip[objectName="clear"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="append"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/append.png);}}
+QToolTip[objectName="append"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="add_meta_data_to_treeview"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/add_meta_data.png);}}
+QToolTip[objectName="add_meta_data_to_treeview"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="start_analysis"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/play.png);}}
+QToolTip[objectName="start_analysis"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="compare_series"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/cursor.png);}}
+QToolTip[objectName="compare_series"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="postgresql_upload"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/upload.png);}}
+QToolTip[objectName="postgresql_upload"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="plot_home"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/plot_home.png);}}
+QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="plot_move"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/plot_move.png);}}
+QToolTip[objectName="plot_move"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="plot_zoom"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/plot_zoom.png);}}
+QToolTip[objectName="plot_zoom"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="add_filter_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/filter_edit.png);}}
+QToolTip[objectName="plot_zoadd_filter_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="delete_selected"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/filter_remove.png);}}
+QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/open_dir.png);}}
+QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/db_welcome_dark.png);}}
+QToolButton[objectName="online_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_analysis_dark.png);}}
+QToolButton[objectName="offline_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/offline_welcome_dark.png);}}
+QToolButton[objectName="home_logo"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/bp_online_dark.png);}}
+QToolButton[objectName="configuration_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/configuration_dark.png);}}
+QToolButton[objectName="toolButton_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/settings_dark.png);}}
+
+
+
+
+

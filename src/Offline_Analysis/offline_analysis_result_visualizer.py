@@ -26,7 +26,8 @@ class OfflineAnalysisResultVisualizer():
 
     def __init__(self, visualization_tab_widget, 
                  database: DuckDBDatabaseHandler, 
-                 final_result_holder):
+                 final_result_holder,
+                 frontend_style):
         """_summary_
 
         Args:
@@ -34,7 +35,7 @@ class OfflineAnalysisResultVisualizer():
             database (DuckDBDatabaseHandler): _description_
             offline_analysis_widget (OfflineAnalysis Class): _description_
         """
-        self.frontend_style = None
+        self.frontend_style = frontend_style
         self.visualization_tab_widget = visualization_tab_widget.SeriesItems
         self.offline_tree = visualization_tab_widget
         self.database_handler = database

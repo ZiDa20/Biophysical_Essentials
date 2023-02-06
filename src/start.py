@@ -76,7 +76,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         canvas.draw_idle()
 
         #wait_widget_layout.addWidget(self.ui.progressBar,2,1)  
-
         status_label = QLabel("Staus Default")
         status_label.setAlignment(Qt.AlignCenter)
         font.setPointSize(12)
@@ -99,14 +98,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self._not_launched = True 
         self.center() #place the MainWindow in the center
         self.setWindowTitle("Biophysical Essentials")
-        
-        # Check the current OS
-        if sys.platform != "darwin":
-            print("Non Darwin Platform initialized")
-            self.setAttribute(Qt.WA_TranslucentBackground)
-            #self.setWindowFlag(Qt.FramelessWindowHint)
-       
-        
+             
         # set the window geometry to the screen size
         self.desktop = self.screen()
         self.screenRect = self.desktop.availableGeometry()
@@ -122,27 +114,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.wait_widget = wait_widget
         self.ui.offline.progressbar = self.ui.progressBar
         
-        self.ui.offline.result_visualizer.frontend_style = self.frontend_style
-
-        self.ui.offline.set_splitter(self.ui.offline.object_splitter)
-
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
-        self.local_database_handler = DuckDBDatabaseHandler()
-
-        self.ui.offline.set_splitter(self.ui.offline.object_splitter)
-        
+        self.local_database_handler = DuckDBDatabaseHandler() 
         #self.local_database_handler.database.execute("SET external_threads=1")
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
-        
         # share the object with offline analysis and database viewer
-        self.ui.offline.update_database_handler_object(self.local_database_handler)
+        self.ui.offline.update_database_handler_object(self.local_database_handler, self.ui.offline.object_splitter)
         self.ui.database.update_database_handler(self.local_database_handler)
-        
         self.ui.online.update_database_handler(self.local_database_handler)
         self.ui.online.frontend_style = self.frontend_style
-
         self.ui.config.online_analysis = self.ui.online
 
         #darkmode implementation 0 = white, 1 = dark
@@ -150,7 +132,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         #self.button_connections()
 
         self.ui.side_left_menu.hide()
-
+        # this should be later be triggered by  a button click
         self.change_to_lightmode()
 
         window_size = self.geometry()
@@ -189,11 +171,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         
 
     def insert_row_of_buttons(self,grid_layout: QGridLayout):
-
         """
         Function to insert a row of buttons to the start up grid
         """
-
         if self.ui.side_left_menu.isHidden():
 
             self.ui.side_left_menu.show()
@@ -219,8 +199,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                 elif col == 3:
                     new_button.clicked.connect(self.go_to_offline_analysis)
                     icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
-
-
+                    
                 new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
                 new_button.setIcon(icon)
                 new_button.setIconSize(QSize(200, 200))
@@ -230,6 +209,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.ui.side_left_menu.hide()
 
     def open_analysis(self):
+        """_summary_
+        """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
         self.ui.offline.show_open_analysis_dialog()
@@ -238,10 +219,11 @@ class MainWindow(QMainWindow, QtStyleTools):
     
 
     def go_to_offline_analysis(self):
+        """_summary_
+        """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
         self.ui.notebook.setCurrentIndex(3)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
-        
         
     def start_new_offline_analysis_from_dir(self):
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
@@ -253,7 +235,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.go_to_offline_analysis()
         self.ui.offline.load_treeview_from_database()
         
-
     def open_bpe_webside(self):
         """
         open the webside of BPE
@@ -294,7 +275,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         """        
         self.oldPos = event.globalPosition().toPoint()
     
-
     def mouseMoveEvent(self, event: QMouseEvent):
         """Function to get the mouse moving events
 
@@ -322,7 +302,6 @@ class MainWindow(QMainWindow, QtStyleTools):
             self._not_launched = False
             return
    
-    
     def transfer_file_to_online(self):
         """Function to transfer the Patchmaster generated .Dat file to the online Analysis
         for further analysis
@@ -377,35 +356,26 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             #self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            self.apply_stylesheet(self, "white_mode.xml", invert_secondary=True)
+            self.apply_stylesheet(self, 'dark_cyan.xml', invert_secondary=False)
             # open the extension from the css file
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-
                 #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
                 #self.frontend_style.change_canvas_bright()
-
+            #self.ui.database_viewer_home_2.setIcon(QIcon("../QT_GUI/Button/welcome_page/db_welcome_dark.png"))
 
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
-            #self.apply_stylesheet(self, "hello.xml")
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_mac.css") as file:
+            self.apply_stylesheet(self, 'white_mode.xml', invert_secondary=False)
+            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-        
                 #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
-        
                 #self.frontend_style.change_canvas_dark()
 
         self.ui.config.set_darkmode(self.default_mode)
         self.ui.config.setting_appearance()
         #  make sure to have all popups  in the same changed theme color
         self.frontend_style.current_style=self.default_mode
-
-
-    def init_offline_analysis(self):
-        """Function to initialize the offline analysis"""
-        self.offline_analizer = Offline_Analysis()#Ui_Offline_Analysis()
-        #self.offline_analizer.setupUi(self)
 
     def set_darkmode(self, default_mode: bool):
         """Is important for setting the dark mode and white mode
@@ -422,13 +392,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
-    apply_stylesheet(app, theme='hello.xml')
-    stylesheet = app.styleSheet()
-    stylesheet_loaded = "Menu_button.css"
-    if sys.platform == "darwin":
-        stylesheet_loaded = "Menu_button_mac.css"
-    with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/{stylesheet_loaded}") as file:
-        app.setStyleSheet(stylesheet + file.read().format(**os.environ))
+    apply_stylesheet(app, theme='dark_mode.xml')
     window = MainWindow()
     window.show()
     app.exec()

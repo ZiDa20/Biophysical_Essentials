@@ -16,31 +16,31 @@ from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
-    def __init__(self, offlinetree, plot_buttons):
+    def __init__(self, offlinetree, plot_buttons, frontend_style, database_handler, offline_manager, show_sweeps_radio):
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
+        self.frontend_style = frontend_style
         self.offline_widget = None
-        self.database_handler = None
+        self.database_handler = database_handler
         self.tab_list = []
         self.parent_count = 0
         self.hierachy_stacked_list = []
         self.series_list = []
         self.analysis_stacked = QStackedWidget()
         self.tree_widget_index_count = 0
-        self.show_sweeps_radio = None
-        self.offline_manager = None
+        self.show_sweeps_radio = show_sweeps_radio
+        self.offline_manager = offline_manager
         self.navigation_list = []
         self.current_tab_visualization = []
         self.blank_analysis_tree_view_manager = None
         self.parent_stacked = None
-        self.splitter = None
         self.home = plot_buttons[0]
         self.zoom = plot_buttons[1]
         self.pan = plot_buttons[2]
 
-    def add_widget_to_splitter(self):
-        self.splitter.addWidget(self.analysis_stacked)
+    def add_widget_to_splitter(self, splitter):
+        splitter.addWidget(self.analysis_stacked)
 
 
     def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list):
@@ -152,7 +152,7 @@ class SeriesItemTreeWidget():
         current_tab = self.tab_list[index]
         series_name = series_name
 
-        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False)
+        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
         #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         #self.navigation_list.append(self.navigation)
         self.current_tab_visualization.append(current_tab_plot_manager)

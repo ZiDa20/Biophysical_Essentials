@@ -169,7 +169,7 @@ class Ui_CreateNewSeries(QDialog):
 
         self.retranslateUi(CreateNewSeries)
 
-        self.SeriesStacked.setCurrentIndex(1)
+        self.SeriesStacked.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(CreateNewSeries)

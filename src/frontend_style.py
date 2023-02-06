@@ -45,11 +45,13 @@ class Frontend_Style():
         :return:
         '''
         if self.current_style == 0:
-            with open(os.getcwd() + "/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 dialog.setStyleSheet(file.read().format(**os.environ))
 
         else:
-            dialog.setStyleSheet(self.dark_style)
+            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+                dialog.setStyleSheet(file.read().format(**os.environ))
+            
                     
     def change_canvas_bright(self):
         """Changes the Appearance of the Plots generate in the OfflineAnalysis
@@ -79,8 +81,5 @@ class Frontend_Style():
                 ax.tick_params(axis='y', colors='white')
                 
     def get_color_plots(self):
-        if self.current_style == 1:
-            return "black"
-        else:
-            return "white"        
+        return "black" if self.current_style == 1 else "white"
         
