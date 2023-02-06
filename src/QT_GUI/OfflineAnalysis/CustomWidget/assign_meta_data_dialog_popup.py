@@ -3,6 +3,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_group_dialog import Ui_assign_meta_data_group
 import pandas as pd
 from Pandas_Table import PandasTable
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
 
     def __init__(self, database_handler, offline_manager, frontend, parent=None):
@@ -63,6 +64,26 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         # show and retrieve the selected columns
         template_table_view.show()
         return template_table_view
+        #self.data_base_content.clicked.connect(self.retrieve_column)
+
+
+    def open_meta_data_template_file(self,template_table_view):
+        meta_data_assignments = []
+        file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
+
+        with open(file_name, newline='') as f:
+            reader = csv.reader(f)
+            meta_data_assignments = list(reader)
+
+        if len(meta_data_assignments[0]) <= 7:
+            CustomErrorDialog().show_dialog("The template needs at least 8 columns which were not found in the specified template.")
+
+        else:
+            df = pd.DataFrame(meta_data_assignments[1:], columns=meta_data_assignments[0])
+            # create two models one for the table show and a second for the data visualizations
+            content_model = PandasTable(df)
+            template_table_view.setModel(content_model)
+            template_table_view.show()
         #self.data_base_content.clicked.connect(self.retrieve_column)
         
     

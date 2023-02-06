@@ -11,6 +11,7 @@ import csv
 
 import logging
 from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
+from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
 from time import sleep
 from database.data_db import *
 import pandas as pd
@@ -288,6 +289,7 @@ class TreeViewManager:
         experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
         series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
 
+        experiment_df = experiment_df[experiment_df["item_name"].isin(series_df["parent"].tolist())]
         if show_sweeps:
             all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
             for sweep_table_name in series_table["sweep_table_name"].values.tolist():
@@ -1079,6 +1081,26 @@ class TreeViewManager:
 
 
         return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id", "children_amount"])
+
+
+    def write_series_to_csv(self, frontend_style):
+        """_summary_
+        """
+        #file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
+        index = self.tree_build_widget.selected_tree_view.currentIndex()
+        tree_item_list = self.tree_build_widget.selected_tree_view.model().get_data_row(index, Qt.DisplayRole)
+        file_name = tree_item_list[1][5]+ "_"+ tree_item_list[1][1] + "_" + tree_item_list[1][3] + "_data.csv"
+        dlg = SaveDialog(f"Do you want to save the file: {file_name}", frontend_style)
+        dlg.setWindowTitle("Save File")
+        dlg.exec_()
+        if tree_item_list[1][4] == "Series":
+            q = f'select sweep_table_name from experiment_series where experiment_name = \'{tree_item_list[1][5]}\' and series_identifier = \'{tree_item_list[1][3]}\''
+            table_name = self.database_handler.database.execute(q).fetchdf()
+            table_name = table_name["sweep_table_name"].values[0]
+            df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
+            df.to_csv(file_name)
+        print("hello from the other side")
+
 
     """
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz

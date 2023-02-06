@@ -283,7 +283,6 @@ class OfflinePlots():
         self.parent_widget.statistics = self.holded_dataframe
         
         
-
     def rheoramp_plot(self, result_table_list: list, selected_meta_data = None):
         """Creates Lineplot and boxplot for Rheoramp Protocols
 

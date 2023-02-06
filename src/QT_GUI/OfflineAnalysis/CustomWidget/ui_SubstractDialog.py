@@ -17,9 +17,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
     QGroupBox, QLabel, QPushButton, QSizePolicy,
-    QSpacerItem, QStackedWidget, QWidget)
+    QSpacerItem, QStackedWidget, QWidget, QDialog)
 
-class Ui_CreateNewSeries(object):
+class Ui_CreateNewSeries(QDialog):
     def setupUi(self, CreateNewSeries):
         if not CreateNewSeries.objectName():
             CreateNewSeries.setObjectName(u"CreateNewSeries")
@@ -103,12 +103,24 @@ class Ui_CreateNewSeries(object):
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.PlotGrid = QGridLayout()
         self.PlotGrid.setObjectName(u"PlotGrid")
+        self.gridLayout_3 = QGridLayout()
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+
+        self.PlotGrid.addLayout(self.gridLayout_3, 0, 0, 1, 1)
+
 
         self.gridLayout_6.addLayout(self.PlotGrid, 0, 0, 1, 1)
 
         self.SeriesStacked.addWidget(self.Series1)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
+        self.gridLayout_9 = QGridLayout(self.page_2)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.gridLayout_8 = QGridLayout()
+        self.gridLayout_8.setObjectName(u"gridLayout_8")
+
+        self.gridLayout_9.addLayout(self.gridLayout_8, 0, 0, 1, 1)
+
         self.SeriesStacked.addWidget(self.page_2)
 
         self.plot_series.addWidget(self.SeriesStacked, 0, 0, 1, 1)
@@ -118,25 +130,35 @@ class Ui_CreateNewSeries(object):
 
         self.gridLayout_2 = QGridLayout()
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.pushButton_4 = QPushButton(CreateNewSeries)
+        self.pushButton_4.setObjectName(u"pushButton_4")
 
-        self.gridLayout_2.addItem(self.horizontalSpacer, 0, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.pushButton_4, 0, 6, 1, 1)
+
+        self.pushButton_3 = QPushButton(CreateNewSeries)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+
+        self.gridLayout_2.addWidget(self.pushButton_3, 0, 7, 1, 1)
 
         self.pushButton_2 = QPushButton(CreateNewSeries)
         self.pushButton_2.setObjectName(u"pushButton_2")
         self.pushButton_2.setMaximumSize(QSize(16777215, 200))
 
-        self.gridLayout_2.addWidget(self.pushButton_2, 0, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.pushButton_2, 0, 5, 1, 1)
 
-        self.pushButton_3 = QPushButton(CreateNewSeries)
-        self.pushButton_3.setObjectName(u"pushButton_3")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addWidget(self.pushButton_3, 0, 6, 1, 1)
+        self.gridLayout_2.addItem(self.horizontalSpacer, 0, 4, 1, 1)
 
-        self.pushButton_4 = QPushButton(CreateNewSeries)
-        self.pushButton_4.setObjectName(u"pushButton_4")
+        self.comboBox = QComboBox(CreateNewSeries)
+        self.comboBox.setObjectName(u"comboBox")
 
-        self.gridLayout_2.addWidget(self.pushButton_4, 0, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.comboBox, 0, 1, 1, 2)
+
+        self.label_3 = QLabel(CreateNewSeries)
+        self.label_3.setObjectName(u"label_3")
+
+        self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 1)
 
 
         self.WholeGrid.addLayout(self.gridLayout_2, 0, 0, 1, 1)
@@ -147,12 +169,13 @@ class Ui_CreateNewSeries(object):
 
         self.retranslateUi(CreateNewSeries)
 
+        self.SeriesStacked.setCurrentIndex(1)
+
+
         QMetaObject.connectSlotsByName(CreateNewSeries)
     # setupUi
 
     def retranslateUi(self, CreateNewSeries):
-        CreateNewSeries.setWindowTitle(QCoreApplication.translate("CreateNewSeries", u"GroupBox", None))
-        CreateNewSeries.setTitle(QCoreApplication.translate("CreateNewSeries", u"GroupBox", None))
         self.substract_s.setText(QCoreApplication.translate("CreateNewSeries", u"Substract", None))
         self.label.setText(QCoreApplication.translate("CreateNewSeries", u"Series 1", None))
         self.add_s.setText(QCoreApplication.translate("CreateNewSeries", u"Add", None))
@@ -160,8 +183,9 @@ class Ui_CreateNewSeries(object):
         self.label_2.setText(QCoreApplication.translate("CreateNewSeries", u"Series 2", None))
         self.pushButton.setText(QCoreApplication.translate("CreateNewSeries", u"Process", None))
         self.pushButton_5.setText(QCoreApplication.translate("CreateNewSeries", u"Quit", None))
-        self.pushButton_2.setText(QCoreApplication.translate("CreateNewSeries", u"Add Cursor Bounds", None))
-        self.pushButton_3.setText(QCoreApplication.translate("CreateNewSeries", u"Preview New Series", None))
         self.pushButton_4.setText(QCoreApplication.translate("CreateNewSeries", u"Add Metadata", None))
+        self.pushButton_3.setText(QCoreApplication.translate("CreateNewSeries", u"Preview New Series", None))
+        self.pushButton_2.setText(QCoreApplication.translate("CreateNewSeries", u"Add Cursor Bounds", None))
+        self.label_3.setText(QCoreApplication.translate("CreateNewSeries", u"Experiment Name:", None))
     # retranslateUi
 

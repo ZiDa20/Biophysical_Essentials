@@ -42,7 +42,6 @@ class PlotWidgetManager(QRunnable):
             print(e)
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
-        self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         self.vertical_layout = vertical_layout_widget
 
         self.toolbar_widget = toolbar_widget

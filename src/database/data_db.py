@@ -1,4 +1,5 @@
 import sqlite3
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 import duckdb
 import os
 import datetime
@@ -1338,6 +1339,39 @@ class DuckDBDatabaseHandler():
 
         # cast string and return as float value
         return float(val)
+    
+    def get_pgf_file_selection(self,current_tab, pgf_selection):
+
+        """Should retrieve the pgf_files for all the files in the current analysis id
+        This should further retrieve each individual segment,
+        pgf_selection: combobox that holds the inital segments"""
+        analysis_id = self.analysis_id
+        series_name = current_tab.objectName()
+        experiment_name = self.database.execute(f"SELECT experiment_name FROM experiment_analysis_mapping WHERE analysis_id = {analysis_id};").fetchall()
+        pgf_file_dict = {}
+        for experiment in experiment_name:
+            try:
+                q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
+                pgf_sections = self.get_data_from_database(self.database, q, [experiment[0], series_name])[0][0]
+                pgf_table = self.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
+                print(pgf_table.info)
+                pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
+                pgf_file_dict[experiment[0]] = (pgf_table, pgf_table.shape[0])
+
+            except IndexError:
+                print(f"The error is at the experiment: {experiment[0]}")
+                continue
+
+        pgf_files_amount = {pgf_index[1] for pgf_index in pgf_file_dict.values()}
+
+        if len(pgf_files_amount) <= 1:
+            for i in range(1, int(list(pgf_files_amount)[0])+1):
+                pgf_selection.addItem(f"Segment {i}")
+
+        else:
+            CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.")
+
+        print(pgf_file_dict)
 
     '''-------------------------------------------------------'''
     '''     interaction with  table resutls       '''

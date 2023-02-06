@@ -16,7 +16,7 @@ from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
-    def __init__(self, offlinetree):
+    def __init__(self, offlinetree, plot_buttons):
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
@@ -35,6 +35,9 @@ class SeriesItemTreeWidget():
         self.blank_analysis_tree_view_manager = None
         self.parent_stacked = None
         self.splitter = None
+        self.home = plot_buttons[0]
+        self.zoom = plot_buttons[1]
+        self.pan = plot_buttons[2]
 
     def add_widget_to_splitter(self):
         self.splitter.addWidget(self.analysis_stacked)
@@ -85,7 +88,7 @@ class SeriesItemTreeWidget():
         #set the analysis notebook as index
         offline_stacked_widget.setCurrentIndex(3)
         self.SeriesItems.expandToDepth(2)
-        self.tree_widget_index_count = index +1
+        self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
 
     def simple_analysis_configuration_clicked(self,parent_stacked:int):
         """
@@ -102,6 +105,7 @@ class SeriesItemTreeWidget():
 
         self.analysis_stacked.setCurrentIndex(parent_stacked)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
+        self.click_top_level_tree_item()
 
     def add_new_analysis_tree_children(self):
         """
@@ -164,8 +168,13 @@ class SeriesItemTreeWidget():
             self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
 
         # slice out all series names that are not related to the specific chosen one
+        # at the moment its setting back every plot! @2toDO:MZ 
         current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
-
+        navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
+        self.home.clicked.connect(navigation.home)
+        self.zoom.clicked.connect(navigation.zoom)
+        self.pan.clicked.connect(navigation.pan) 
+        
    
 
     def view_table_clicked(self, parent_stacked:int):
@@ -427,6 +436,7 @@ class SeriesItemTreeWidget():
         first_item = self.SeriesItems.topLevelItem(0).child(0)
         self.SeriesItems.setCurrentItem(first_item)
         self.SeriesItems.itemClicked.emit(first_item, 0)
+
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
         current_tab.widget.selected_tree_view.setCurrentIndex(index)
@@ -434,3 +444,13 @@ class SeriesItemTreeWidget():
         rect = current_tab.widget.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
             
+
+    def click_top_level_tree_item(self):
+        """Should click the toplevel item of the model_view
+        """
+        current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
+        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        # Get the rect of the index
+        rect = current_tab.widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
