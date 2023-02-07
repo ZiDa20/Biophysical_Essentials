@@ -60,21 +60,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # produced and set by start.py and shared between all subclasses
         self.frontend_style = None
         self.database_handler = None
-        
+        self.object_splitter = None
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
         
-        #self.OfflineDialogs = OfflineDialogs()
         self.wait_widget = None
         self.ap_timer = None
         self.offline_analysis_widgets.setCurrentIndex(0)
         # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
-        
-        
-        
-
         
         self.parent_count = 0
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
@@ -127,7 +122,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         To play around with the data you may want to load or assign new meta data - here one can do this
         @return: 
         """
-
         # @todo: multithreading ?
         file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.csv")[0]
         with open(file_name, mode='r') as csv_file:
@@ -141,24 +135,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         print("load_and_assign_meta_data: error when assigning meta_data_types")
             csv_file.close()
 
-    def update_database_handler_object(self, updated_object, splitter):
+    def update_database_handler_object(self, updated_object, frontend_style):
         """_summary_: Should add the Database Handler Singleton
 
         Args:
             updated_object (database_handler): DuckDB Database Handler Class
         """
         self.database_handler = updated_object
+        self.frontend_style = frontend_style
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
         
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None, False,  self.frontend_style)
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2, 
                                                  [self.plot_home, self.plot_zoom, self.plot_move],
                                                  self.frontend_style,
                                                  self.database_handler,
                                                  self.offline_manager,
                                                  self.show_sweeps_radio)
-        self.offline_tree.add_widget_to_splitter(splitter)
+        
+        self.offline_tree.add_widget_to_splitter(self.object_splitter)
         self.offline_tree.SeriesItems.clear()
         
         self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree, 
@@ -232,7 +229,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         :author: dz, 01.07.2022
         """
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None, False,  self.frontend_style)
+        # already initialized in in updated_data_object
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)

@@ -106,46 +106,30 @@ class MainWindow(QMainWindow, QtStyleTools):
         # Logger for the Main function called start
         self.logger=logging.getLogger() 
         self.establish_logger()
-        self.frontend_style = Frontend_Style()
         
+        #darkmode implementation 0 = white, 1 = dark
+        self.default_mode = 1
+        self.frontend_style = Frontend_Style()
+        self.change_to_lightmode()
         # distribute this style object to all other classes to be used
         # whenever the style will be changed, all classes share the same style object and adapt it's appearance
-        self.ui.offline.frontend_style = self.frontend_style
         self.ui.offline.wait_widget = wait_widget
         self.ui.offline.progressbar = self.ui.progressBar
         
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler() 
-        #self.local_database_handler.database.execute("SET external_threads=1")
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer
-        self.ui.offline.update_database_handler_object(self.local_database_handler, self.ui.offline.object_splitter)
+        self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style)
         self.ui.database.update_database_handler(self.local_database_handler)
         self.ui.online.update_database_handler(self.local_database_handler)
         self.ui.online.frontend_style = self.frontend_style
         self.ui.config.online_analysis = self.ui.online
 
-        #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 1
-        #self.button_connections()
-
         self.ui.side_left_menu.hide()
         # this should be later be triggered by  a button click
-        self.change_to_lightmode()
-
-        window_size = self.geometry()
-        #self.maximize(window_size)
-        #self.maximize()
-      
-    #def button_connections(self):
-        #self.buttons = (self.ui.home_window, self.ui.self_configuration, self.ui.online_analysis, self.ui.offline_analysis, self.ui.statistics, self.ui.toolButton_2)
-        
-        #for i, button in enumerate(self.buttons):
-        #    button.clicked.connect(partial(self.ui.notebook.setCurrentIndex, i))
-
-        # home buttons 
         self.ui.configuration_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 1))
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
         self.ui.database_viewer_home_2.clicked.connect(self.initialize_database)
@@ -161,13 +145,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
         self.ui.config.ui_notebook = self.ui.notebook
         
-
-        #self.ui.statistics.clicked.connect(self.initialize_database)
-        #self.ui.darkmode_button.clicked.connect(self.change_to_lightmode)
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
-        #self.ui.minimize_button.clicked.connect(self.minimize) # button to minimize
-        #self.ui.pushButton_3.clicked.connect(self.maximize) # button to maximize 
-        #self.ui.maximize_button.clicked.connect(self.quit_application)
+       
         
 
     def insert_row_of_buttons(self,grid_layout: QGridLayout):
@@ -217,7 +196,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.notebook.setCurrentIndex(3)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
     
-
     def go_to_offline_analysis(self):
         """_summary_
         """
@@ -267,41 +245,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def mousePressEvent(self, event):
-        """Function to detect mouse press
-
-        Args:
-            event (event): is a mouse Press Event
-        """        
-        self.oldPos = event.globalPosition().toPoint()
     
-    def mouseMoveEvent(self, event: QMouseEvent):
-        """Function to get the mouse moving events
-
-        Args:
-            event (event): retrieve the mouse move event
-        """        
-        if (event.pos().y()) < 60:
-            delta = QPoint(event.globalPosition().toPoint() - self.oldPos)
-            self.move(self.x() + delta.x(), self.y() + delta.y())
-            self.oldPos = event.globalPosition().toPoint()
-
-        if event.globalPosition().y() < 12:
-            window_size = self.geometry()
-            self.maximize(window_size)
-
-    def resizeEvent(self, even: QResizeEvent):
-        """resizing of MainWindow
-
-        Args:
-            event (event): Retrieve resizing events of the main window
-        """        
-
-        #check if program is launched to avoid resizing
-        if self._not_launched:
-            self._not_launched = False
-            return
-   
     def transfer_file_to_online(self):
         """Function to transfer the Patchmaster generated .Dat file to the online Analysis
         for further analysis
@@ -310,41 +254,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) 
         self.ui.online.open_single_dat_file(str(file_path)) 
 
-    def minimize(self):
-        """ Function to minimize the window"""
-        self.showMinimized()
-
-    def maximize(self, window_size: QRect):
-        """Function to maximize of to retrive the original window state,
-        
-        args:
-            window_size (QRect): the size of the window
-        """
-        if window_size:
-            self.first_geometry = window_size
-
-        if self.geometry() == self.screenRect:
-            self.animate_resizing(size = True)
-            
-        else:
-            self.animate_resizing()
-
-    def animate_resizing(self, size = None):
-        """Function to animate the resizing of the window
-        args:
-            size (bool): if true the window is maximized, if false the window is minimized
-        """  
-        self.animation = QPropertyAnimation(self, b"geometry")
-        self.animation.setDuration(50)
-        if size is None:  
-            self.animation.setStartValue(self.geometry())
-            self.animation.setEndValue(self.screenRect)
-        else:
-            self.animation.setStartValue(self.geometry())
-            self.animation.setEndValue(QRect(320, 45, 1280, 950))
-
-        self.animation.start()
-
+ 
     def quit_application(self):
         """ Function to quit the app"""
         QCoreApplication.quit()

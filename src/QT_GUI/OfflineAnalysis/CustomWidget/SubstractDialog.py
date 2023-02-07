@@ -44,7 +44,6 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.analysis_dictionary = {}
         self.selectbymetadata.toggled.connect(self.fill_only_metadata_options)
         
-        
     def fill_only_metadata_options(self):
         """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
         """
@@ -196,7 +195,6 @@ class SubstractDialog(Ui_CreateNewSeries):
                     table_name = self.create_new_specific_result_table_name(experiment_name, series_name)
                     analysis_dictionary_temp[experiment_name + series_name_1 + series_name_2] = (experiment_name,series_name_table, series_name, discarded, table_name, series_meta[0][0], series_meta[0][1],"None", new_table) 
                 self.analysis_dictionary.update({analysis_option:analysis_dictionary_temp})
-            count+=1
         self.AddDataBase.setEnabled(True)
         print("Succesfully substracted series")
         self.switch_to_preview()

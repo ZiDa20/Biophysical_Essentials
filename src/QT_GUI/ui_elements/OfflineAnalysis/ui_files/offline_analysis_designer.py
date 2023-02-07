@@ -19,7 +19,6 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
     QGroupBox, QLabel, QPushButton, QRadioButton,
     QSizePolicy, QSpacerItem, QStackedWidget, QVBoxLayout,
     QWidget)
-
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
 

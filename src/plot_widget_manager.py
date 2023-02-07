@@ -49,7 +49,7 @@ class PlotWidgetManager(QRunnable):
             self.draw_color = "white"
             self.ax_color = "white"
         else:
-            mpl_style(False)
+            frontend_style.set_mpl_style_white()
             self.draw_color = "black"
             self.ax_color = "black"
 

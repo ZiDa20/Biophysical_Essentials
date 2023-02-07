@@ -24,7 +24,8 @@ class OfflineAnalysisResultVisualizer():
     @author dz, 13.07.2022
     """
 
-    def __init__(self, visualization_tab_widget, 
+    def __init__(self, 
+                 visualization_tab_widget, 
                  database: DuckDBDatabaseHandler, 
                  final_result_holder,
                  frontend_style):

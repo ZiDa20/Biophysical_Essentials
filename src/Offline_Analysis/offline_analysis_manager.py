@@ -130,13 +130,13 @@ class OfflineManager():
 
         # start the threadpool running the bundle read in function
         if len(data_list) < threads: # 
-            data_list_final = list(self.chunks(data_list, threads/2))
+            data_list_final = list(self.chunks(data_list, len(data_list)))
             for i,t in enumerate(data_list_final): 
                 # read
                 self.run_bundle_function_in_thread(t)
 
         else:
-            data_list_final = list(self.chunks(data_list, threads-1))
+            data_list_final = list(self.chunks(data_list, threads))
             for i,t in enumerate(data_list_final):
                 self.run_bundle_function_in_thread(t)
 
