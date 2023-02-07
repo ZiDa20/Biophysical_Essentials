@@ -488,7 +488,7 @@ class OfflinePlots():
 
     def scatter_plot_make(self, plot_dataframe, explaind_ratios = None):
         """_summary_: Creates a scatter plot from the data"""
-        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.ax, s = 50, linewdith = False)
+        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.ax, s = 50, linewidth = False)
         if explaind_ratios:
             self.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
             self.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
