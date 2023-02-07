@@ -14,13 +14,14 @@ class OfflineDialogs:
                  database_handler, 
                  offline_manager, 
                  frontend, 
-                 blank_analysis_plot_manager) -> None:
+                 blank_analysis_plot_manager,
+                 treeview_manager) -> None:
         
 
         self.database_handler = database_handler
         self.offline_manager = offline_manager
         self.frontend_style = frontend
-        self.blank_analysis_tree_view_manager = None
+        self.blank_analysis_tree_view_manager = treeview_manager
         self.series_dialog = None
         self.blank_analysis_plot_manager = blank_analysis_plot_manager
         self.final_series = []
@@ -29,7 +30,7 @@ class OfflineDialogs:
         """_summary_: Creates a Popup that can be used for new Series generation
         such as e.g Substraction/Addition of two equally length series 
         """
-        series_dialog = SubstractDialog(self.database_handler, self.frontend_style)
+        series_dialog = SubstractDialog(self.database_handler, self.frontend_style, self.edit_series_meta_data_popup, self.blank_analysis_plot_manager, self.blank_analysis_tree_view_manager)
         series_dialog.exec()
         
     def edit_metadata_analysis_id(self):

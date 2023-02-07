@@ -17,6 +17,7 @@ from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
+from qbstyles import mpl_style
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
@@ -42,12 +43,16 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        
-        plt.style.use('seaborn-v0_8-whitegrid')
-        plt.rcParams['axes.facecolor']='#ffffff'
-        plt.rcParams['figure.facecolor']='#ffffff'
-        self.draw_color = "black"
-        self.ax_color = "black"
+        # that the style sheet for the plot class
+        if frontend_style.current_style == 0:
+            frontend_style.set_mpl_style_dark()
+            self.draw_color = "white"
+            self.ax_color = "white"
+        else:
+            mpl_style(False)
+            self.draw_color = "black"
+            self.ax_color = "black"
+
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
         self.vertical_layout = vertical_layout_widget
 

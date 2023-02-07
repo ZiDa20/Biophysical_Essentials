@@ -29,6 +29,10 @@ class OfflinePlots():
 
         """
         self.frontend = frontend
+        if self.frontend.current_style == 0:
+            self.frontend.set_mpl_style_dark()
+        else:
+            self.frontend.set_mpl_style_white()
         self.violin = None # should be set if violinplot should be run
         self.canvas = None # The Figure canvas that is drawn
         self.ax = None # the axis of the canvas
@@ -68,7 +72,6 @@ class OfflinePlots():
         self.ax = self.canvas.figure.subplots()
         self.frontend.ax.append(self.ax)
         self.frontend.canvas = self.canvas 
-        self.style_plot()
 
     def set_metadata_table(self, result_table_list):
         """_summary_: Sets the metadata table retrieved from the result_table_list
@@ -136,18 +139,7 @@ class OfflinePlots():
         
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
-    def style_plot(self):
-        
-        """Plot Styling Class, this can be used for general changes of the plot visualization
-        """
-        self.logger.info("Styling the Plot started")
-        self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
-        self.ax.spines.right.set_visible(False)
-        self.ax.spines.top.set_visible(False)
-        self.ax.patch.set_alpha(0)
-        self.canvas.figure.patch.set_alpha(0)
-        self.frontend.change_canvas_bright()
-        self.logger.info("Styling the Plot ended")
+
 
     def make_boxplot(self,result_table_list: list, selected_meta_data = None):
 
@@ -468,6 +460,7 @@ class OfflinePlots():
         
         g.set_xticklabels(g.get_xticklabels(),rotation=45)
         z.set_xticklabels(g.get_xticklabels(),rotation=45)
+        self.canvas.figure.tight_layout()
         
     def box_plot_maker(self, plot_dataframe):
         """_summary_: Draws a boxplot and a Swarmplot from the data
@@ -490,14 +483,17 @@ class OfflinePlots():
         
         g.set_xticklabels(g.get_xticklabels(),rotation=45)
         z.set_xticklabels(g.get_xticklabels(),rotation=45)
+        self.canvas.figure.tight_layout()
 
 
     def scatter_plot_make(self, plot_dataframe, explaind_ratios = None):
         """_summary_: Creates a scatter plot from the data"""
-        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.ax)
+        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.ax, s = 50, linewdith = False)
         if explaind_ratios:
             self.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
             self.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
+        sns.move_legend(self.ax, "upper left", bbox_to_anchor=(1, 1))
+        self.canvas.figure.tight_layout()
 
 
     def line_boxplot(self, plot_dataframe):

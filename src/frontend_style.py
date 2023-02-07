@@ -1,5 +1,6 @@
 import os 
-
+from qbstyles import mpl_style
+import matplotlib as mpl
 
 class Frontend_Style():
     """class that will provide all the frontend styles to be used in common by all frontend classes with the same instance"""
@@ -53,33 +54,17 @@ class Frontend_Style():
                 dialog.setStyleSheet(file.read().format(**os.environ))
             
                     
-    def change_canvas_bright(self):
-        """Changes the Appearance of the Plots generate in the OfflineAnalysis
-        in the OfflinePlot Class 
-        """
-        if len(self.ax) > 0:
-            for ax in self.ax:
-                ax.spines['bottom'].set_color('black')
-                ax.spines['left'].set_color('black') 
-                ax.xaxis.label.set_color('black')
-                ax.yaxis.label.set_color('black')
-                ax.tick_params(axis='x', colors='black')
-                ax.tick_params(axis='y', colors='black')
-               
-        
-    def change_canvas_dark(self):  
-        """Changes the Appearance of the Plots generate in the OfflineAnalysis
-        in the OfflinePlot Class 
-        """
-        if len(self.ax) > 0:
-            for ax in self.ax: # loops thorough each individual plot in the axis
-                ax.spines['bottom'].set_color('white')
-                ax.spines['left'].set_color('white') 
-                ax.xaxis.label.set_color('white')
-                ax.yaxis.label.set_color('white')
-                ax.tick_params(axis='x', colors='white') 
-                ax.tick_params(axis='y', colors='white')
-                
     def get_color_plots(self):
         return "black" if self.current_style == 1 else "white"
         
+
+    def set_mpl_style_dark(self):
+        mpl_style(True)
+        mpl.rcParams["figure.facecolor"] = "#121212"
+        mpl.rcParams["axes.facecolor"] = "#1f2933"
+
+
+    def set_mpl_style_white(self):
+        mpl_style(False)
+        mpl.rcParams["figure.facecolor"] = "#ffffff"
+        mpl.rcParams["axes.facecolor"] = "#ffffff"

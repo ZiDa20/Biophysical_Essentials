@@ -489,7 +489,6 @@ class TreeViewManager:
         # self.database.open_connection() # open the connection to the database in main thread
         
         try:
-
             df = self.database_handler.database.execute(
                 "SELECT * FROM experiments").fetchall()  # get all the experiments as sanity
             if df:

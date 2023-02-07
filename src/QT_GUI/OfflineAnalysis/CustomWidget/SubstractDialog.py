@@ -3,43 +3,90 @@ from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2Q
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SubstractDialog import Ui_CreateNewSeries
 from functools import partial
 import seaborn as sns
+import matplotlib.pyplot as plt
+from qbstyles import mpl_style
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 class SubstractDialog(Ui_CreateNewSeries):
 
-    def __init__(self, database, frontend_style, parent=None):
+    def __init__(self, database, frontend_style, metadata_open, plot_widget_manager, treeview_manager, parent=None):
 
         super().__init__(parent)
         self.setupUi(self)
         self.database_handler = database
         self.frontend_style = frontend_style
+        self.plot_widget_manager = plot_widget_manager
+        self.treeview_manager = treeview_manager
+        self.checkbox_list = [self.add_s, self.substract_s, self.divide_s]
+        if self.frontend_style.current_style == 0:
+            self.frontend_style.set_mpl_style_dark()
+        else:
+            self.frontend_style.set_mpl_style_white()
         self.canvas = FigureCanvas()
-        self.canvas_2 = FigureCanvas()
+        self.canvas_preview = FigureCanvas()
+        self.ax_preview = self.canvas_preview.figure.subplots()
         self.ax = self.canvas.figure.subplots()
-        self.ax.spines[['right', 'top']].set_visible(False)
+        self.canvas_2 = FigureCanvas()
         self.ax_2 = self.canvas_2.figure.subplots()
-        self.ax_2.spines[['right', 'top']].set_visible(False)
         self.PlotGrid.addWidget(self.canvas)
         self.PlotGrid.addWidget(self.canvas_2)
+        self.PreviewPlot.addWidget(self.canvas_preview)
         self.series_1.currentTextChanged.connect(self.connected_box)
         self.series_2.currentTextChanged.connect(self.connected_box)
         self.experiment_intersect_list = None
         self.fill_combobox_with_series()
-        self.comboBox.currentIndexChanged.connect(self.retrieve_raw_data_series)
-        self.pushButton_3.clicked.connect(self.initialize_data_merge)
+        self.ExperimentCombo.currentIndexChanged.connect(self.retrieve_raw_data_series)
+        self.PreviewSeries.clicked.connect(self.initialize_data_merge)
+        self.AddMeta.clicked.connect(metadata_open)
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
+        self.AddDataBase.clicked.connect(self.write_into_database)
+        self.AddDataBase.setEnabled(False)
+        self.analysis_dictionary = {}
+        self.selectbymetadata.toggled.connect(self.fill_only_metadata_options)
+        
+        
+    def fill_only_metadata_options(self):
+        """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
+        """
+
+    
+        if self.selectbymetadata.isChecked():
+            self.fill_combobox_with_meta_series()
+        else:
+            self.fill_combobox_with_series()
         
     def fill_combobox_with_series(self):
         """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
         """
-        unique_series = [i[0] for i in self.select_series_to_be_analized()]
-        self.series_1.addItems(unique_series)
-        self.series_2.addItems(unique_series)
-        experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id(self.series_1.currentText())]
-        experiment_names_2 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id(self.series_2.currentText())]
-        self.experiment_intersect_list = list(set(experiment_names_1).intersection(set(experiment_names_2)))
-        self.comboBox.addItems(self.experiment_intersect_list)
-        self.retrieve_raw_data_series()
-    
+
+        self.series_1.clear()
+        self.series_2.clear()
+        unique_series_meta = self.database_handler.database.execute("Select series_name, series_identifier, series_meta_data from experiment_series").fetchdf()
+        unique_series_meta = sorted(list(
+            {
+                f"{i}:{t}:{m}"
+                for i, t, m in zip(
+                    unique_series_meta["series_name"],
+                    unique_series_meta["series_meta_data"],
+                    unique_series_meta["series_identifier"],
+                )
+            }
+        ))
+        self.series_1.addItems(unique_series_meta)
+        self.series_2.addItems(unique_series_meta)
+        self.connected_box()
+
+    def fill_combobox_with_meta_series(self):
+        
+        self.series_1.clear()
+        self.series_2.clear()
+        unique_series_meta = self.database_handler.database.execute("Select series_name, series_identifier, series_meta_data from experiment_series ").fetchdf()
+        unique_series_meta = list({f"{i}:{t}" for i, t in zip(unique_series_meta["series_name"],unique_series_meta["series_meta_data"]) if t not in  "None"})
+        self.series_1.addItems(unique_series_meta)
+        self.series_2.addItems(unique_series_meta)
+        self.connected_box()
+
+
     def select_series_to_be_analized(self):
         """
         executed after all experiment files have been loaded
@@ -50,72 +97,153 @@ class SubstractDialog(Ui_CreateNewSeries):
     def connected_box(self):
         """ Retrieve the experiments that represent both series
         """
-        experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id(self.series_1.currentText())]
-        experiment_names_2 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id(self.series_2.currentText())]
+        experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
+        experiment_names_2 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_2.currentText().split(":")[0],self.series_2.currentText().split(":")[1])]
         self.experiment_intersect_list = list(set(experiment_names_1).intersection(set(experiment_names_2)))
-        self.comboBox.clear()
-        self.comboBox.addItems(self.experiment_intersect_list)
+        self.ExperimentCombo.clear()
+        self.ExperimentCombo.addItems(self.experiment_intersect_list)
         self.retrieve_raw_data_series()
 
     def retrieve_raw_data_series(self):
         """_summary: Should retrieve the Analysis Functions
         """
-        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText()) if self.comboBox.currentText() in i] 
-        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText()) if self.comboBox.currentText() in i] 
+        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
+        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
+        
         sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
         sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
-        self.draw_plots_series_1(sweep_table_1)
-        self.draw_plots_series_2(sweep_table_2)
+
+
+        self.draw_plots_series(sweep_table_1, self.ax, self.canvas)
+        self.draw_plots_series(sweep_table_2, self.ax_2, self.canvas_2)
         return sweep_table_1, sweep_table_2
         
-    def draw_plots_series_1(self, sweep_table):
+    def draw_plots_series(self, sweep_table, ax, canvas):
         """_summary_
 
         Args:
             sweep_table (_type_): _description_
+            ax (_type_): _description_
+            canvas (_type_): _description_
         """
-        self.ax.clear()
-        sns.lineplot(data = sweep_table, 
-                     ax = self.ax, 
-                     legend = False, 
-                     color = "black", 
-                     estimator= None, 
-                     errorbar = "se",
-                     palette = "tab20")
-        self.canvas.draw_idle()
+        ax.clear()
+        ax.plot(sweep_table)
+        canvas.draw_idle()
         
-    def draw_plots_series_2(self,sweep_table):
-        """_summary_
-
-        Args:
-            sweep_table (_type_): _description_
-        """
-        self.ax_2.clear()
-        sns.lineplot(data = sweep_table, 
-                     ax = self.ax_2, 
-                     legend = False, 
-                     color = "black", 
-                     estimator=None, 
-                     errorbar = "se",
-                     palette = "tab20")
-        self.canvas_2.draw_idle()
-        
-    def retrieve_sweep_table_iterator(self, experiment_name):
+    def retrieve_sweep_table_iterator(self, experiment_name, draw = False):
         """_summary: Should retrieve the Analysis Functions
         """
-        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText()) if experiment_name in i] 
-        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText()) if experiment_name in i] 
+        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if experiment_name in i] 
+        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if experiment_name in i] 
         sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
         sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
-        self.draw_plots_series_1(sweep_table_1)
-        self.draw_plots_series_2(sweep_table_2)
         return sweep_table_1, sweep_table_2
         
     def initialize_data_merge(self):
-        for experiment_name in self.experiment_intersect_list:
-            sweep_table_1, sweep_table_2 = self.retrieve_sweep_table_iterator(experiment_name)
-            print(sweep_table_1.shape)
-            print(sweep_table_2.shape)
+        """_summary_
+        """
+        if not any(checkbox.isChecked() for checkbox in self.checkbox_list):
+            print("no function is checked yet please check a function")
+            CustomErrorDialog("Please select a Series Analysis Option from the checkboxes")
+            return None
+        count = 1
+        for i in self.checkbox_list:
+
+            if i.isChecked():
+                analysis_option = i.text()
+                analysis_dictionary_temp = {}
+                
+                for experiment_name in self.experiment_intersect_list:
+                    sweep_table_1, sweep_table_2 = self.retrieve_sweep_table_iterator(experiment_name)
+                    #calculation
+
+                    match analysis_option:
+                        case "Add":
+                            new_table = sweep_table_1 + sweep_table_2
+                        case "Divide":
+                            new_table = sweep_table_1 / sweep_table_2
+                        case "Substract":
+                            new_table = sweep_table_1 - sweep_table_2
+
+                    #metadata that should be written into the database
+                    series_len = self.database_handler.database.execute(f"Select * from experiment_series WHERE experiment_name = '{experiment_name}'").fetchdf().shape[0]
+                    series_len += count
+                    series_name = f"Series{series_len}"
+                    discarded = "False"
+
+                    # get the default labels with series name and meta data name
+                    series_name_1 = self.series_1.currentText().split(':')[0]
+                    series_name_2 = self.series_2.currentText().split(':')[0]
+                    series_meta_1 = self.series_1.currentText().split(':')[1]
+                    series_meta_2 = self.series_2.currentText().split(':')[1]
+
+                    # if only metadata where selected than we need to retrieve the series
+                    if self.selectbymetadata.isChecked:
+                        series_name_1_identifier = self.database_handler.database.execute(f"Select series_identifier from experiment_series WHERE experiment_name = '{experiment_name}' AND series_meta_data = '{series_meta_1}'").fetchall()[0][0]
+                        series_name_2_identifier = self.database_handler.database.execute(f"Select series_identifier from experiment_series WHERE experiment_name = '{experiment_name}' AND series_meta_data = '{series_meta_2}'").fetchall()[0][0]
+                        if series_name_1_identifier == series_name_2_identifier:
+                            print("Same series choosen therefore analysis not run further!!!!")
+                            CustomErrorDialog("You selected the same Series! Please use two different Series!")
+                            return
+                    else:
+                        series_name_1_identifier = self.series_1.currentText().split(':')[2]
+                        series_name_2_identifier = self.series_2.currentText().split(':')[2]
+
+                    # retrieve the metadatatable and the pgf table
+                    series_meta = self.database_handler.database.execute(f"Select meta_data_table_name, pgf_data_table_name from experiment_series WHERE experiment_name = '{experiment_name}' AND series_name = '{series_name_1}' AND series_identifier = '{series_name_1_identifier}'").fetchall()
+                    series_name_table = f"{analysis_option}_{series_name_1}_{series_name_2}_{series_meta_1}_{series_meta_2}"
+                    # creates a new specific table name
+                    table_name = self.create_new_specific_result_table_name(experiment_name, series_name)
+                    analysis_dictionary_temp[experiment_name + series_name_1 + series_name_2] = (experiment_name,series_name_table, series_name, discarded, table_name, series_meta[0][0], series_meta[0][1],"None", new_table) 
+                self.analysis_dictionary.update({analysis_option:analysis_dictionary_temp})
+            count+=1
+        self.AddDataBase.setEnabled(True)
+        print("Succesfully substracted series")
+        self.switch_to_preview()
+
+    def switch_to_preview(self):
+        self.SeriesStacked.setCurrentIndex(1)
+        self.Operations.addItems(self.analysis_dictionary.keys())
+        self.Operations.currentIndexChanged.connect(self.show_newly_created_series)
+        self.show_newly_created_series()
+        
+    def show_newly_created_series(self):
+        operation = self.Operations.currentText()
+        operation_dict = self.analysis_dictionary[operation]
+        self.Experiment.clear()
+        self.Experiment.addItems(operation_dict.keys())
+        self.Experiment.currentIndexChanged.connect(lambda index: self.show_series_plot(index, operation_dict))
+        self.show_series_plot(None, operation_dict)
+
+    def show_series_plot(self,index,  operation):
+        selected_experiment = self.Experiment.currentText()
+        table = operation[selected_experiment][-1]
+        self.draw_plots_series(table, self.ax_preview, self.canvas_preview)
+        
+    def create_new_specific_result_table_name(self,experiment_name, series_number) -> str:
+        """
+        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
+        :param offline_analysis_id:
+        :param data_table_name:
+        :return:
+        :author dz, 08.07.2022
+        """
+
+        return f"imon_signal_{experiment_name}_{series_number}"
+    
+    def write_into_database(self):
+        """_summary_
+        """
+        for op, exp in self.analysis_dictionary.items():
+            for key, value in exp.items():
+                imon_name = value[4]
+                imon_table = value[8]
+                self.database_handler.database.execute(f"Create Table {imon_name} AS SELECT * FROM imon_table")
+                self.database_handler.database.execute(f"Insert into experiment_series VALUES ('{value[0]}', '{value[1]}', '{value[2]}', '{value[3]}', '{value[4]}', '{value[5]}', '{value[6]}', '{value[7]}')")
+
+        self.treeview_manager.update_treeviews(self.plot_widget_manager)
+        self.close()
+
             
 
 

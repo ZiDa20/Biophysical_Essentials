@@ -35,7 +35,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
+        self.setMinimumSize(1600,800)
         wait_widget = QWidget()
         wait_widget_layout = QGridLayout()
         

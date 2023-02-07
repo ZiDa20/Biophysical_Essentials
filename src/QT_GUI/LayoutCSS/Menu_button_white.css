@@ -128,6 +128,10 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/plot_home.png);}}
+QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
 QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/database_welcome.png);}}
 QToolButton[objectName="online_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_analysis_welcome.png);}}
 QToolButton[objectName="offline_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/offline_analysis_welcome.png);}}

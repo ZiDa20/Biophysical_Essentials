@@ -11,13 +11,19 @@ import numpy as np
 import pandas as pd
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
 
+
 class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
-    def __init__(self,database_handler, parent=None):
+    def __init__(self,database_handler, frontend_style, parent=None):
         super().__init__(parent)
         self.setupUi(self)
         self.database_handler = database_handler
+        self.frontend_style = frontend_style
         self.read_label_list()
+        if self.frontend_style.current_style == 0:
+            self.frontend_style.set_mpl_style_dark()
+        else:
+            self.frontend_style.set_mpl_style_white()
         #self.setWindowFlags(Qt.FramelessWindowHint)
         #GlobalBlur(self.winId(), Acrylic=True)
 
@@ -52,6 +58,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
     def create_experiment_specific_visualization(self, label):
         
         #Create a figure
+        
         self.figure = Figure()
         #manual_colors = ["#FD8A8A","#8b785b","#6e8b5b","#785b8b",] # "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
         manual_colors = ["#FD8A8A", "#F1F7B5", "#A8D1D1", "#9EA1D4", "#316B83", "#6D8299", "#D5BFBF", "#8CA1A5", "#C6D57E", "#D57E7E", "#A2CDCD", "#FFE1AF", "#0b525b", "#144552", "#1b3a4b", "#212f45", "#272640", "#312244", "#3e1f47", "#4d194d"]

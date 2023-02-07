@@ -8,7 +8,6 @@ from PySide6.QtCore import QThreadPool
 from PySide6.QtTest import QTest
 
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from treeview_manager import TreeViewManager
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from treeview_manager import TreeViewManager
@@ -149,6 +148,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             updated_object (database_handler): DuckDB Database Handler Class
         """
         self.database_handler = updated_object
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
         
@@ -166,11 +166,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                  self.final_result_holder,
                                                                  self.frontend_style)
 
-        self.result_visualizer.database_handler = updated_object
         self.OfflineDialogs = OfflineDialogs(self.database_handler, 
                                              self.offline_manager, 
                                              self.frontend_style,
-                                             self.blank_analysis_plot_manager)
+                                             self.blank_analysis_plot_manager,
+                                             self.blank_analysis_tree_view_manager)
         
         self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
         self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
@@ -240,7 +240,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
         # the dialog handler has further implementations to handle displayed lists etc
-        self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler)
+        self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler, self.frontend_style)
         # set light or dark mode
         self.frontend_style.set_pop_up_dialog_style_sheet(self.load_data_from_database_dialog)
         self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
@@ -264,7 +264,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 pos = self.load_data_from_database_dialog.checkbox_list.index(cb)
                 self.selected_meta_data_list.append(self.load_data_from_database_dialog.available_labels[pos][0])
         
-        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
+        # is alread initialized in update_database_handler_object
+        #self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
         self.blank_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
         self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))
         self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
@@ -358,7 +359,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #        self.canvas_grid_layout.itemAt(i).widget().deleteLater()
         self.canvas_grid_layout.addWidget(self.wait_widget)
         # create a new treeview manager 
-        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
+        # isalread initialized in updated_database_object
+        #self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
 
         # read the directory data into the database
         self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)

@@ -466,25 +466,35 @@ class DuckDBDatabaseHandler():
 
         return y_min,y_max
 
-    def get_sweep_table_names_for_offline_analysis(self, series_name):
+    def get_sweep_table_names_for_offline_analysis(self, series_name, meta = None):
         '''
         returns table names for all with this analysis linked experiments containing a given series name
         :param series_name:  name of the series (e.g. Block Pulse, .. )
         :return: a list of sweep table names
         '''
         # returns a list of tuples
-        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+        if meta:
+            experiment_names = self.get_experiments_by_series_name_and_analysis_id_with_meta(series_name, meta)
+        else:
+            experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
         sweep_table_names = []
 
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
-            q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
-            try:
-                r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
-                sweep_table_names.append(r)
-            except Exception as e:
-                self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
-
+            if meta:
+                q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?) AND series_meta_data = (?)'
+                try:
+                    r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False, meta))[0][0]
+                    sweep_table_names.append(r)
+                except Exception as e:
+                    self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
+            else:
+                q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
+                try:
+                    r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
+                    sweep_table_names.append(r)
+                except Exception as e:
+                    self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
 
         return sweep_table_names
 
@@ -496,6 +506,18 @@ class DuckDBDatabaseHandler():
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?))"""
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name))
+        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
+    
+    def get_experiments_by_series_name_and_analysis_id_with_meta(self, series_name, meta_data):
+        '''
+        Find experiments of the current analysis containing the series specified by the series name.
+        :param series_name: name of the series (e.g. Block Pulse, .. )
+        :param meta_data associated 
+        :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
+        '''
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_meta_data = (?))"""
+        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
 
