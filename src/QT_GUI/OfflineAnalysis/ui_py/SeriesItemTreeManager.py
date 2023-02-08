@@ -5,10 +5,10 @@ from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem
 from QT_GUI.OfflineAnalysis.CustomWidget.specififc_analysis_tab import SpecificAnalysisTab
 from functools import partial
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
-from plot_widget_manager import PlotWidgetManager
-from treeview_manager import TreeViewManager
+from Backend.plot_widget_manager import PlotWidgetManager
+from Backend.treeview_manager import TreeViewManager
 import copy
-from Pandas_Table import PandasTable
+from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from scipy import stats
 import pandas as pd

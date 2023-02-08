@@ -1,7 +1,7 @@
-from online_analysis_manager import *
-from treeview_manager import *
+from Backend.online_analysis_manager import *
+from Backend.treeview_manager import *
 from PySide6.QtCore import *  # type: ignore
-from Worker import Worker
+from Threading.Worker import Worker
 import os
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 

@@ -54,11 +54,13 @@ class SubstractDialog(Ui_CreateNewSeries):
         
     def fill_combobox_with_series(self):
         """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
+        as identified by the selected analysis_id which is available in the database handler
         """
 
         self.series_1.clear()
         self.series_2.clear()
-        unique_series_meta = self.database_handler.database.execute("Select series_name, series_identifier, series_meta_data from experiment_series").fetchdf()
+        analysis_id = self.database_handler.analysis_id
+        unique_series_meta = self.database_handler.database.execute(f"Select series_name, series_identifier, series_meta_data from experiment_series WHERE experiment_name IN (Select experiment_name from experiment_analysis_mapping WHERE analysis_id = {analysis_id})").fetchdf()
         unique_series_meta = sorted(list(
             {
                 f"{i}:{t}:{m}"
@@ -74,7 +76,10 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.connected_box()
 
     def fill_combobox_with_meta_series(self):
-        
+        """This fills the combobox only with the series and with the meta data 
+        Here we should add another layer, by providing evidence that this is only working if we 
+        have only one selected series per meta data group per experiment
+        """
         self.series_1.clear()
         self.series_2.clear()
         unique_series_meta = self.database_handler.database.execute("Select series_name, series_identifier, series_meta_data from experiment_series ").fetchdf()
@@ -144,7 +149,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         """
         if not any(checkbox.isChecked() for checkbox in self.checkbox_list):
             print("no function is checked yet please check a function")
-            CustomErrorDialog("Please select a Series Analysis Option from the checkboxes")
+            CustomErrorDialog("Please select a Series Analysis Option from the checkboxes", self.frontend_style)
             return None
         count = 1
         for i in self.checkbox_list:
@@ -183,7 +188,7 @@ class SubstractDialog(Ui_CreateNewSeries):
                         series_name_2_identifier = self.database_handler.database.execute(f"Select series_identifier from experiment_series WHERE experiment_name = '{experiment_name}' AND series_meta_data = '{series_meta_2}'").fetchall()[0][0]
                         if series_name_1_identifier == series_name_2_identifier:
                             print("Same series choosen therefore analysis not run further!!!!")
-                            CustomErrorDialog("You selected the same Series! Please use two different Series!")
+                            CustomErrorDialog("You selected the same Series! Please use two different Series!", self.frontend_style)
                             return
                     else:
                         series_name_1_identifier = self.series_1.currentText().split(':')[2]
@@ -196,17 +201,23 @@ class SubstractDialog(Ui_CreateNewSeries):
                     table_name = self.create_new_specific_result_table_name(experiment_name, series_name)
                     analysis_dictionary_temp[experiment_name + series_name_1 + series_name_2] = (experiment_name,series_name_table, series_name, discarded, table_name, series_meta[0][0], series_meta[0][1],"None", new_table) 
                 self.analysis_dictionary.update({analysis_option:analysis_dictionary_temp})
+        
+        
         self.AddDataBase.setEnabled(True)
         print("Succesfully substracted series")
         self.switch_to_preview()
 
     def switch_to_preview(self):
+        """_summary_: Switched the SeriesStacked notebook to the preview page
+        """
         self.SeriesStacked.setCurrentIndex(1)
         self.Operations.addItems(self.analysis_dictionary.keys())
         self.Operations.currentIndexChanged.connect(self.show_newly_created_series)
         self.show_newly_created_series()
         
     def show_newly_created_series(self):
+        """_summary_
+        """
         operation = self.Operations.currentText()
         operation_dict = self.analysis_dictionary[operation]
         self.Experiment.clear()
@@ -214,7 +225,13 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.Experiment.currentIndexChanged.connect(lambda index: self.show_series_plot(index, operation_dict))
         self.show_series_plot(None, operation_dict)
 
-    def show_series_plot(self,index,  operation):
+    def show_series_plot(self, operation):
+        """_summary_
+
+        Args:
+            operation (dict): Dictionary holding the Substracted Series with all data necessary
+            for the addition to the database under the operational key
+        """
         selected_experiment = self.Experiment.currentText()
         table = operation[selected_experiment][-1]
         self.draw_plots_series(table, self.ax_preview, self.canvas_preview)
@@ -231,10 +248,11 @@ class SubstractDialog(Ui_CreateNewSeries):
         return f"imon_signal_{experiment_name}_{series_number}"
     
     def write_into_database(self):
-        """_summary_
+        """_summary_: Writes all the substracted data into the dataset and updates the treeview
+        so that newly generated series can be used as series!!
         """
-        for op, exp in self.analysis_dictionary.items():
-            for key, value in exp.items():
+        for _, exp in self.analysis_dictionary.items():
+            for _, value in exp.items():
                 imon_name = value[4]
                 imon_table = value[8]
                 self.database_handler.database.execute(f"Create Table {imon_name} AS SELECT * FROM imon_table")

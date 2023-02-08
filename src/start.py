@@ -11,15 +11,14 @@ from qt_material import apply_stylesheet
 from functools import partial
 import logging
 from qt_material import QtStyleTools
-from QT_GUI.ConfigWidget.ui_py.self_configuration import *
+from Backend.self_configuration import *
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
 from QT_GUI.Settings.ui_py.settings_dialog import *
-from frontend_style import Frontend_Style
+from StyleFrontend.frontend_style import Frontend_Style
 from database.data_db import DuckDBDatabaseHandler
-
-from animated_ap import AnimatedAP
+from StyleFrontend.animated_ap import AnimatedAP
 import matplotlib.animation as animation
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
 
 
@@ -272,7 +271,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         else:
             self.set_darkmode(1) # set the darkmode back to 1 for the switch
-            self.apply_stylesheet(self, 'white_mode.xml', invert_secondary=False)
+            self.apply_stylesheet(self, f"{os.getcwd()}/StyleFrontend/white_mode.xml", invert_secondary=False)
             with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
                 #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
@@ -298,7 +297,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
-    apply_stylesheet(app, theme='dark_mode.xml')
+    apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
     window.show()
     app.exec()

@@ -11,7 +11,7 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-from groupbox_resizing_class import *
+from CustomWidget.groupbox_resizing_class import *
 
 
 class Ui_result_plot_visualizer(object):

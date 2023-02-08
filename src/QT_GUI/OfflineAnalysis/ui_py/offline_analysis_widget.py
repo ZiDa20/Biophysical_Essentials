@@ -6,16 +6,15 @@ from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 
 from PySide6.QtTest import QTest
-
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from treeview_manager import TreeViewManager
+from Backend.treeview_manager import TreeViewManager
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
-from treeview_manager import TreeViewManager
-from plot_widget_manager import PlotWidgetManager
+from Backend.treeview_manager import TreeViewManager
+from Backend.plot_widget_manager import PlotWidgetManager
 
 import numpy as np
 from scipy import stats
-from Worker import Worker
+from Threading.Worker import Worker
 
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
@@ -24,8 +23,8 @@ import matplotlib.animation as animation
 import pandas as pd
 from functools import partial
 
-from PostSql_Handler import PostSqlHandler
-from Pandas_Table import PandasTable
+from database.PostSql_Handler import PostSqlHandler
+from CustomWidget.Pandas_Table import PandasTable
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 
 
@@ -39,7 +38,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Statis
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
-from animated_ap import AnimatedAP
+from StyleFrontend.animated_ap import AnimatedAP
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 from Offline_Analysis.FinalResultHolder import ResultHolder
@@ -112,7 +111,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 print("not implemented yet")
         except Exception as e:
            print(e)
-           CustomErrorDialog("Please select load an Experiment First")
+           CustomErrorDialog("Please select load an Experiment First", self.frontend_style)
            
     def load_and_assign_meta_data(self):
         """
@@ -766,7 +765,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 
             except Exception as e:
                 dialog_message = "Please select cursor bounds first and activate live plot afterwords"
-                CustomErrorDialog().show_dialog(dialog_message)
+                CustomErrorDialog(dialog_message, self.frontend_style)
                 checkbox_object.setCheckState(Qt.CheckState.Unchecked)
                 current_tab.checkbox_list[0].setEnabled(False)
 

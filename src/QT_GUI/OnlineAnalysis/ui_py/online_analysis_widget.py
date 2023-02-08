@@ -6,13 +6,13 @@ import pandas as pd
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from QT_GUI.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
-from online_analysis_manager import OnlineAnalysisManager
-from treeview_manager import TreeViewManager
-from plot_widget_manager import PlotWidgetManager
+from Backend.online_analysis_manager import OnlineAnalysisManager
+from Backend.treeview_manager import TreeViewManager
+from Backend.plot_widget_manager import PlotWidgetManager
 from pathlib import Path
 from functools import partial
-from Pandas_Table import PandasTable
-from ABFclass import AbfReader
+from CustomWidget.Pandas_Table import PandasTable
+from DataReader.ABFclass import AbfReader
 import os
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):

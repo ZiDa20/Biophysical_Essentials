@@ -12,7 +12,7 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
-from groupbox_resizing_class import GroupBoxSize
+from CustomWidget.groupbox_resizing_class import GroupBoxSize
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget import TreeBuild
 
 class Ui_Online_Analysis(object):

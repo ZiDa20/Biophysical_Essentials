@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_dialog import Ui_MetadataPopup
 from functools import partial
-from Pandas_Table import PandasTable
+from CustomWidget.Pandas_Table import PandasTable
 class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
 
     def __init__(self,database_handler, frontend,function_call, parent=None):

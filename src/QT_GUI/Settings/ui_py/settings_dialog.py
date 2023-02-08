@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-from tkinter_camera import * 
+from DeviceAPI.tkinter_camera import * 
 from QT_GUI.Settings.ui_py.settings_designer import Ui_Settings
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore

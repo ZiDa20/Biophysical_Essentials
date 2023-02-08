@@ -278,7 +278,7 @@ class SweepWiseAnalysisTemplate(object):
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
 
 		# @toDO MZ check this function!
-		table_name_increment = database.database.execute("Select pgf_data_table_name from experiment_series WHERE sweep_table_name =(Select sweep_table_name from results WHERE specific_result_table_name = '{table_name}')").fetchall()[0][0]
+		table_name_increment = database.database.execute(f"Select pgf_data_table_name from experiment_series WHERE sweep_table_name =(SELECT sweep_table_name from results WHERE specific_result_table_name = '{table_name}')").fetchall()[0][0]
 		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result from {table_name}'
 		q_increment =f'select Increment from {table_name_increment}'
 		query_data = database.get_data_from_database(database.database, q)

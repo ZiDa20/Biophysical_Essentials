@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import Ui_MetadataPopup
 import pandas as pd
-from Pandas_Table import PandasTable
+from CustomWidget.Pandas_Table import PandasTable
 from functools import partial
 
 class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):

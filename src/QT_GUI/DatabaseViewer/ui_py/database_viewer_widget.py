@@ -5,7 +5,7 @@ import duckdb
 import os
 from QT_GUI.DatabaseViewer.ui_py.data_base_designer_object import Ui_Database_Viewer
 import pandas as pd
-from Pandas_Table import PandasTable
+from CustomWidget.Pandas_Table import PandasTable
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure

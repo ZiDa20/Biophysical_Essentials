@@ -5,14 +5,12 @@ import os
 import datetime
 import re
 import sys
-import raw_analysis as ra
-import heka_reader
+import DataReader.heka_reader
 import numpy as np
 import io
 import logging
 import datetime
 #from global_meta_data_table import GlobalMetaDataTable
-
 import re
 
 

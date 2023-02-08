@@ -22,8 +22,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDockWidget, QFrame,
     QSizePolicy, QSpacerItem, QStackedWidget, QTabWidget,
     QTableView, QTextEdit, QVBoxLayout, QWidget, QMainWindow)
 
-from groupbox_resizing_class import GroupBoxSize
-from QT_GUI.ConfigWidget.ui_py.dropable_list_view import ListView
+from CustomWidget.groupbox_resizing_class import GroupBoxSize
+from CustomWidget.dropable_list_view import ListView
 
 class Ui_Config_Widget(object):
     def setupUi(self, Config_Widget):
