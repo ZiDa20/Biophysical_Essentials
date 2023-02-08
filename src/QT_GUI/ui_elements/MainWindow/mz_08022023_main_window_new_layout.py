@@ -19,12 +19,14 @@ from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
     QMainWindow, QSizePolicy, QSpacerItem, QStackedWidget,
     QToolButton, QWidget)
 
-from database_viewer_widget import Database_Viewer
-from offline_analysis_widget import Offline_Analysis
-from online_analysis_widget import Online_Analysis
-from self_configuration import Config_Widget
-from settings_dialog import SettingsWindow
-import Buttons_Online_rc
+from QT_GUI.ConfigWidget.ui_py.self_configuration import Config_Widget
+from QT_GUI.OnlineAnalysis.ui_py.online_analysis_widget import Online_Analysis
+from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
+from QT_GUI.Settings.ui_py.settings_dialog import SettingsWindow
+from QT_GUI.DatabaseViewer.ui_py.database_viewer_widget import Database_Viewer
+
+import Figures_rc
+from frontend_style import Frontend_Style
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

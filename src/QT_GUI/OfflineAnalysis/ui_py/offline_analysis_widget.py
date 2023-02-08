@@ -85,12 +85,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.fo_forward_button.clicked.connect(self.go_forwards)
         #self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
         self.start_analysis.clicked.connect(self.start_analysis_offline)
-        self.navigation_list = []
-
         #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        
-
+        self.selected_meta_data_list = []
         # this should be transfer to the plot manager 
         # and called with the connected elements
     def show_sweeps_toggled(self,signal):
@@ -153,7 +150,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                  self.frontend_style,
                                                  self.database_handler,
                                                  self.offline_manager,
-                                                 self.show_sweeps_radio)
+                                                 self.show_sweeps_radio,
+                                                 self.blank_analysis_tree_view_manager)
         
         self.offline_tree.add_widget_to_splitter(self.object_splitter)
         self.offline_tree.SeriesItems.clear()
@@ -177,7 +175,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
         
     def show_open_analysis_dialog(self):
-        dialog = ChooseExistingAnalysis(self.frontend_style,self.open_analysis_results)
+        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style,self.open_analysis_results)
         dialog.exec()
         
     @Slot()
@@ -197,19 +195,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for i in range(len(series_names_list)):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
-
-        self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list)
+        self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
+        self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list, reload = True)
         print("displaying to analysis results: ", self.database_handler.analysis_id)
-
         print(self.offline_tree.SeriesItems.topLevelItemCount())
 
-
         # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        for parent_pos in range(self.offline_tree.SeriesItems.topLevelItemCount()):
+        for parent_pos, series_name in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
 
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
             self.offline_analysis_result_tree_item_clicked()
-            self.finished_result_thread()
+            if check_analysis_exist := self.database_handler.get_series_specific_analysis_functions(series_name):
+                self.finished_result_thread()
 
         self.offline_analysis_widgets.setCurrentIndex(2)
 
@@ -230,7 +227,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :author: dz, 01.07.2022
         """
         # already initialized in in updated_data_object
-        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, self)
+        navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, None)
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)
         self.plot_zoom.clicked.connect(navigation.zoom)
@@ -294,9 +291,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
                                                                               self.progress_callback)
 
+    """
     def finished_database_loading(self):
-        """The finish signal which is emitted after after treeview filling and database reading
-        """
+        The finish signal which is emitted after after treeview filling and database reading
+        
 
         print("here we finish the database")
         self.database_handler.open_connection()
@@ -304,6 +302,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
         print("finished loading")
         # show selected tree_view
+    """
 
     @Slot()
     def experiment_label_dropped(self, item_text):
@@ -899,6 +898,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         #self.show_ap_simulation()
 
+        
+        
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
@@ -919,7 +920,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #ap.show_dialog()
 
 
-    def run_database_thread(self, current_tab, progress_callback):
+    def run_database_thread(self, current_tabe,  progress_callback = None):
         """ This function will run the analysis in a separate thread, that is selected
         by the analysis function
         :param current_tab:
@@ -930,8 +931,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
 
         self.database_handler.open_connection()
+
+            
         self.write_function_grid_values_into_database(current_tab)
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
+        
         self.database_handler.database.close()
 
         #@todo remove the widget from the layout
@@ -946,7 +950,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
         self.status_label.setText(f"Analyzing: {str(data[1])}%")
         
-    def finished_result_thread(self):
+    def finished_result_thread(self, write_data = True):
         """
         Once all the reuslt have been calculated, an offline tab is created.
         This tab visualizes all calculated results.
@@ -974,7 +978,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
         """simulate click on  "Plot" children """
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
-        self.offline_tree.offline_analysis_result_tree_item_clicked()
+
+        if reload:
+            self.offline_tree.offline_analysis_result_tree_item_clicked()
 
     def write_function_grid_values_into_database(self, current_tab):
         """

@@ -842,10 +842,10 @@ class DuckDBDatabaseHandler():
         """
         try:
             q = """ select function_name, analysis_function_id from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
-            r = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
-            return r
+            return self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
         except Exception as e:
             self.logger.error(f'error in get_series_specific_analysis_functions: {e}')
+            return None
 
     def get_cursor_bounds_of_analysis_function(self, analysis_function_id, series_name):
         """
@@ -1475,6 +1475,9 @@ class DuckDBDatabaseHandler():
 
                     self.database = self.execute_sql_command(self.database, sql_command, values)
 
+    def retrieve_selected_meta_data_list(self):
+        meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall()[0][0])
+        return [meta_string]
 
     def get_selected_meta_data(self, analysis_function_id = None):
         # get the meta data table that is stored in the database

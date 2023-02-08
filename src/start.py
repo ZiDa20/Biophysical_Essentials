@@ -144,10 +144,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
         self.ui.config.ui_notebook = self.ui.notebook
-        
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
-       
-        
 
     def insert_row_of_buttons(self,grid_layout: QGridLayout):
         """
@@ -254,7 +251,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) 
         self.ui.online.open_single_dat_file(str(file_path)) 
 
- 
     def quit_application(self):
         """ Function to quit the app"""
         QCoreApplication.quit()

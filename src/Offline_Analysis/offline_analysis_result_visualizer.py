@@ -89,8 +89,6 @@ class OfflineAnalysisResultVisualizer():
         self.grid_button.addWidget(self.change_meta_data, 0, 0)
         offline_tab.OfflineResultGrid.addLayout(self.grid_button, 0, 0)
 
-        
-
         for analysis in list_of_analysis:
 
             # create new custom plot visualizer and parametrize data

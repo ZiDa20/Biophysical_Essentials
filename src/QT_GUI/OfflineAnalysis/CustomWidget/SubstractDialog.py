@@ -47,8 +47,6 @@ class SubstractDialog(Ui_CreateNewSeries):
     def fill_only_metadata_options(self):
         """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
         """
-
-    
         if self.selectbymetadata.isChecked():
             self.fill_combobox_with_meta_series()
         else:
@@ -96,6 +94,7 @@ class SubstractDialog(Ui_CreateNewSeries):
     def connected_box(self):
         """ Retrieve the experiments that represent both series
         """
+        print(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1] )
         experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
         experiment_names_2 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_2.currentText().split(":")[0],self.series_2.currentText().split(":")[1])]
         self.experiment_intersect_list = list(set(experiment_names_1).intersection(set(experiment_names_2)))
@@ -111,8 +110,6 @@ class SubstractDialog(Ui_CreateNewSeries):
         
         sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
         sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
-
-
         self.draw_plots_series(sweep_table_1, self.ax, self.canvas)
         self.draw_plots_series(sweep_table_2, self.ax_2, self.canvas_2)
         return sweep_table_1, sweep_table_2

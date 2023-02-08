@@ -16,7 +16,7 @@ from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
-    def __init__(self, offlinetree, plot_buttons, frontend_style, database_handler, offline_manager, show_sweeps_radio):
+    def __init__(self, offlinetree, plot_buttons, frontend_style, database_handler, offline_manager, show_sweeps_radio, blank_analysis_tree):
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
@@ -33,7 +33,7 @@ class SeriesItemTreeWidget():
         self.offline_manager = offline_manager
         self.navigation_list = []
         self.current_tab_visualization = []
-        self.blank_analysis_tree_view_manager = None
+        self.blank_analysis_tree_view_manager = blank_analysis_tree
         self.parent_stacked = None
         self.home = plot_buttons[0]
         self.zoom = plot_buttons[1]
@@ -42,8 +42,7 @@ class SeriesItemTreeWidget():
     def add_widget_to_splitter(self, splitter):
         splitter.addWidget(self.analysis_stacked)
 
-
-    def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list):
+    def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list, reload = False):
         """
         Function to built series name (e.g. IV, 5xRheo) specific tree. Each series get's a parent item for 3 childs:
         1) Plot - Result Visualization).
@@ -54,7 +53,8 @@ class SeriesItemTreeWidget():
         """
         # add selection to database
 
-        self.database_handler.write_analysis_series_types_to_database(series_names_list)
+        if not reload:
+            self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         # make new tree parent elements and realted childs for ech specific series
         for index, s in enumerate(series_names_list):
@@ -150,8 +150,7 @@ class SeriesItemTreeWidget():
         @author dz, 20.07.2021, updated 02.12.2022"""
 
         current_tab = self.tab_list[index]
-        series_name = series_name
-
+    
         current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
         #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         #self.navigation_list.append(self.navigation)

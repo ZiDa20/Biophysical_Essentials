@@ -4,9 +4,11 @@ from functools import partial
 from Pandas_Table import PandasTable
 class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
 
-    def __init__(self, frontend,function_call, parent=None):
+    def __init__(self,database_handler, frontend,function_call, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        self.frontend_style = frontend
+        self.database_handler = database_handler
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
         data = self.database_handler.database.execute('select * from offline_analysis').fetchdf()
         table_model = PandasTable(data)
