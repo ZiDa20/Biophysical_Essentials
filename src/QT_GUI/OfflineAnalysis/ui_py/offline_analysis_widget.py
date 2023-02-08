@@ -205,6 +205,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
             self.offline_tree.offline_analysis_result_tree_item_clicked()
+
+            # should check if an analysis exist if not than skip addition of the treeview elements
             if not self.database_handler.get_series_specific_analysis_functions(series_n):
                 continue
             self.finished_result_thread()

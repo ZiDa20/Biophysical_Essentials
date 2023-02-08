@@ -38,6 +38,8 @@ class OfflineDialogs:
         """
         edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = False)
         edit_data.create_table()
+        edit_data.submit.setAutoDefault(False)
+        edit_data.quit.setAutoDefault(False)
         edit_data.submit.clicked.connect(edit_data.add_metadata_into_db)
         edit_data.exec()
 
@@ -46,6 +48,8 @@ class OfflineDialogs:
         """
         edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = True)
         edit_data.create_table()
+        edit_data.submit.setAutoDefault(False)
+        edit_data.quit.setAutoDefault(False)
         edit_data.submit.clicked.connect(edit_data.add_metadata_into_db)
         edit_data.exec()
         

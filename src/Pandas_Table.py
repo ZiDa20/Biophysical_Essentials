@@ -1,4 +1,4 @@
-from PySide6.QtCore import QAbstractTableModel, Qt
+from PySide6.QtCore import QAbstractTableModel, Qt, Signal, QModelIndex
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableView
 
 
@@ -8,11 +8,13 @@ class PandasTable(QAbstractTableModel):
     ToDO MZ: implement in OnlineAnalysis 
     --> Need to build a table
     """
-
-    def __init__(self, data):
+    data_changed = Signal()
+    def __init__(self, data, sliced_data = None):
         super().__init__()
+        
         self._data = data
         self._full_data = None
+        self.unchanged_data = data
     
     @property    
     def full_data(self):
@@ -22,12 +24,12 @@ class PandasTable(QAbstractTableModel):
     def full_data(self, dataframe):
         self._full_data = dataframe
         
-    def rowCount(self, index): # get the number of rows
+    def rowCount(self, parent=QModelIndex()): # get the number of rows
         """ get the dataframe shape row
         index -> int """
         return self._data.shape[0]
 
-    def columnCount(self, parnet=None): # get the number of columns
+    def columnCount(self, parent=QModelIndex()): # get the number of columns
         """ get the dataframe shape colum
         """
         return self._data.shape[1]
@@ -54,7 +56,6 @@ class PandasTable(QAbstractTableModel):
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
     
-
     def resize_header(self,parent):
         column_count = self.columnCount()
         for i in range(column_count):
@@ -62,3 +63,20 @@ class PandasTable(QAbstractTableModel):
             size_hint = size_hint + 20
             parent.horizontalHeader().resizeSection(i, size_hint)
 
+    def slice_experiment_data(self, text):
+        data = self.unchanged_data
+        data = data[data["experiment_name"].str.contains(text)]
+        self._data = data
+        top_left = self.index(0, 0)
+        bottom_right = self.index(1, 2)
+        self.dataChanged.emit(top_left, bottom_right)
+       
+    def slice_series_data(self, text):
+        data = self.unchanged_data
+        print(text)
+        data = data[data["series_name"].str.contains(text) | data["series_identifier"].str.contains(text)]
+        print(data)
+        self._data = data
+        top_left = self.index(0, 0)
+        bottom_right = self.index(1, 2)
+        self.dataChanged.emit(top_left, bottom_right)

@@ -277,7 +277,8 @@ class SweepWiseAnalysisTemplate(object):
 		#@todo move this function to the database class ?
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
 
-		table_name_increment = "pgf_table_" + "_".join(table_name.split("_")[-3:])
+		# @toDO MZ check this function!
+		table_name_increment = database.database.execute("Select pgf_data_table_name from experiment_series WHERE sweep_table_name =(Select sweep_table_name from results WHERE specific_result_table_name = '{table_name}')").fetchall()[0][0]
 		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result from {table_name}'
 		q_increment =f'select Increment from {table_name_increment}'
 		query_data = database.get_data_from_database(database.database, q)

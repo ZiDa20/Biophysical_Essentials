@@ -28,12 +28,16 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
         self.scroll_area.setWidget(self.metadata_table)
         self.scroll_area.setWidgetResizable(True)
         self.metadata_table.setStyleSheet("border: 0.2px solid black")
-        self.final_table_layout.addWidget(self.scroll_area)
+        self.final_table_layout.addWidget(self.scroll_area, 0, 1)
+        self.series = series
         
-        if series:
+        if self.series:
             self.query = f'select * from experiment_series where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
         else:
             self.query = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
+            self.SearchSeries.hide()
+            self.submitser.hide()
+            self.label_2.hide()
         
         
     def create_table(self):
@@ -50,6 +54,10 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
             self.database_handler.database, self.query, fetch_mode=2
         )
         self.table_model = PandasTable(table_handling)
+
+        
+        self.submitexp.clicked.connect(partial(self.slide_search_model))
+        self.submitser.clicked.connect(partial(self.slide_search_model, series = True))
         self.metadata_table.setModel(self.table_model)
         self.table_model.resize_header(self.metadata_table)
      
@@ -75,3 +83,15 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
             q = f"""update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
             self.database_handler.database.execute(q)
         self.close()
+
+    def slide_search_model(self, series = False):
+        print(series)
+        if series:
+            text = self.SearchSeries.text()
+            self.table_model.slice_series_data(text)
+        else:
+            text = self.SearchExperiment.text()
+            self.table_model.slice_experiment_data(text)
+        #self.metadata_table.dataChanged.connect()
+
+  

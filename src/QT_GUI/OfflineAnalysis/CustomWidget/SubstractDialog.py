@@ -108,11 +108,15 @@ class SubstractDialog(Ui_CreateNewSeries):
         sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
         sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
         
-        sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
-        sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
-        self.draw_plots_series(sweep_table_1, self.ax, self.canvas)
-        self.draw_plots_series(sweep_table_2, self.ax_2, self.canvas_2)
-        return sweep_table_1, sweep_table_2
+        try: 
+            sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
+            sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
+            self.draw_plots_series(sweep_table_1, self.ax, self.canvas)
+            self.draw_plots_series(sweep_table_2, self.ax_2, self.canvas_2)
+            return sweep_table_1, sweep_table_2
+        except Exception as e:
+            print(e)
+            return None
         
     def draw_plots_series(self, sweep_table, ax, canvas):
         """_summary_
