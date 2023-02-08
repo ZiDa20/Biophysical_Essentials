@@ -87,9 +87,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.selected_meta_data_list = []
         # this should be transfer to the plot manager 
         # and called with the connected elements
+
     def show_sweeps_toggled(self,signal):
         """toDO add Docstrings!
 
@@ -175,7 +175,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
         
     def show_open_analysis_dialog(self):
-        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style,self.open_analysis_results)
+        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
         dialog.exec()
         
     @Slot()
@@ -196,17 +196,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
         self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
-        self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list, reload = True)
+        self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list, reload = False)
         print("displaying to analysis results: ", self.database_handler.analysis_id)
         print(self.offline_tree.SeriesItems.topLevelItemCount())
 
         # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        for parent_pos, series_name in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
+        for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
 
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
-            self.offline_analysis_result_tree_item_clicked()
-            if check_analysis_exist := self.database_handler.get_series_specific_analysis_functions(series_name):
-                self.finished_result_thread()
+            self.offline_tree.offline_analysis_result_tree_item_clicked()
+            if not self.database_handler.get_series_specific_analysis_functions(series_n):
+                continue
+            self.finished_result_thread()
 
         self.offline_analysis_widgets.setCurrentIndex(2)
 
@@ -897,9 +898,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # store analysis parameter in the database
         
         #self.show_ap_simulation()
-
-        
-        
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
@@ -920,7 +918,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #ap.show_dialog()
 
 
-    def run_database_thread(self, current_tabe,  progress_callback = None):
+    def run_database_thread(self, current_tab,  progress_callback = None):
         """ This function will run the analysis in a separate thread, that is selected
         by the analysis function
         :param current_tab:
@@ -979,7 +977,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """simulate click on  "Plot" children """
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
 
-        if reload:
+        if write_data:
             self.offline_tree.offline_analysis_result_tree_item_clicked()
 
     def write_function_grid_values_into_database(self, current_tab):

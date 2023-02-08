@@ -79,7 +79,6 @@ class OfflineManager():
             progress_callback.emit((progress, str(fn[0])))
             # get the correct class analysis object
             specific_analysis_class = AnalysisFunctionRegistration().get_registered_analysis_class(fn[0])
-
             cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(fn[1], series_name)
 
             # set up the series where the analysis should be applied and the database where the results will be stored

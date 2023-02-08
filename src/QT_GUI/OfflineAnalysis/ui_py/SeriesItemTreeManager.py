@@ -53,8 +53,8 @@ class SeriesItemTreeWidget():
         """
         # add selection to database
 
-        if not reload:
-            self.database_handler.write_analysis_series_types_to_database(series_names_list)
+        
+        self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         # make new tree parent elements and realted childs for ech specific series
         for index, s in enumerate(series_names_list):
@@ -74,7 +74,7 @@ class SeriesItemTreeWidget():
             parent = SideBarParentItem(self.SeriesItems)
             parent.setting_data(s, new_tab_widget, self.hierachy_stacked, index, False)
             # set the child items of the widget
-            configurator = SideBarConfiguratorItem(parent, "Analysis Configurator")
+            configurator = SideBarConfiguratorItem(parent, "Analysis Configurator", reload)
             configurator.setting_data(new_tab_widget, self.hierachy_stacked, self.parent_count, index)
             self.series_list.append(s)
             # child stacked notebook per parent node
@@ -128,6 +128,7 @@ class SeriesItemTreeWidget():
             parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
             parent_stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
 
+        print(parent_tree_item.data(8, Qt.UserRole))
         if parent_tree_item.data(8, Qt.UserRole) is False:
             # add new children within the tree:
             for i in ["Plot", "Tables", "Statistics", "Advanced Analysis"]:

@@ -126,9 +126,9 @@ class OfflineAnalysisResultVisualizer():
             print("y pos widget = ", widgte_y_pos)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
             self.offline_plot.append(self.offlineplot) 
+            
         # after all plots have been added
         self.change_meta_data.clicked.connect(partial(self.open_meta_data, analysis_function))
-        
         return offline_tab
     
     def open_meta_data(self, analysis_function):
