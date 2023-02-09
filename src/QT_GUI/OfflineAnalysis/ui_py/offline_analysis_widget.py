@@ -197,6 +197,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for i in range(len(series_names_list)):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
+        self.load_treeview_from_database()
         self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
         
         self.offline_tree.built_analysis_specific_tree(series_names_list, 
