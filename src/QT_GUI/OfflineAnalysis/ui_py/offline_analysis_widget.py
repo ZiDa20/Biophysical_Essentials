@@ -27,7 +27,6 @@ from database.PostSql_Handler import PostSqlHandler
 from CustomWidget.Pandas_Table import PandasTable
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 
-
 from Offline_Analysis.offline_analysis_manager import OfflineManager
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
@@ -174,8 +173,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
         
     def show_open_analysis_dialog(self):
-        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
-        dialog.exec()
+        ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
         
     @Slot()
     def open_analysis_results(self, dialog):

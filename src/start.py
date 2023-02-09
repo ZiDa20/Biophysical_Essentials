@@ -122,7 +122,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style)
-        self.ui.database.update_database_handler(self.local_database_handler)
+        self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.update_database_handler(self.local_database_handler)
         self.ui.online.frontend_style = self.frontend_style
         self.ui.config.online_analysis = self.ui.online

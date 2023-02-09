@@ -13,6 +13,8 @@ from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
 import matplotlib.pyplot as plt 
 
+from QT_GUI.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
+
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -33,10 +35,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.plot = None
         self.canvas = None
         self.export_table.clicked.connect(self.export_table_to_csv)
+        self.select_columns.clicked.connect(self.export_offline_analysis_id)
         self.database_table.itemClicked.connect(self.pull_table_from_database)
+        self.frontend_style = None
         
-    def update_database_handler(self,database_handler):
+    def update_database_handler(self,database_handler, frontend_style):
         self.database_handler = database_handler
+        self.frontend_style = frontend_style
 
     def export_table_to_csv(self):
         """
@@ -304,3 +309,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         else:
             raise AttributeError("No Plot selected here")
             # add here a QDialog that opens with error message
+
+
+    def export_offline_analysis_id(self):
+        database_export = ExportOfflineDialog(self.database_handler, self.frontend_style)
+        
+        
