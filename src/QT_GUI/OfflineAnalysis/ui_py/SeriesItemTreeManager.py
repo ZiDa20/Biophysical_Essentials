@@ -74,7 +74,7 @@ class SeriesItemTreeWidget():
             parent = SideBarParentItem(self.SeriesItems)
             parent.setting_data(s, new_tab_widget, self.hierachy_stacked, index, False)
             # set the child items of the widget
-            configurator = SideBarConfiguratorItem(parent, "Analysis Configurator", reload)
+            configurator = SideBarConfiguratorItem(parent, "Analysis Configurator")
             configurator.setting_data(new_tab_widget, self.hierachy_stacked, self.parent_count, index)
             self.series_list.append(s)
             # child stacked notebook per parent node

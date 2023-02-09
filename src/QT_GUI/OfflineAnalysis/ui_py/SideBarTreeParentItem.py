@@ -55,7 +55,6 @@ class SideBarConfiguratorItem(QTreeWidgetItem):
         super().__init__()
         self.setText(0, child_text)
         self.parent_widget = parent_widget
-        self.reload = reload
         
     def setting_data(self, tab_widget, stacked_widget, index, parent_count):
         """Sets the Data to detect which child is selected
@@ -71,7 +70,7 @@ class SideBarConfiguratorItem(QTreeWidgetItem):
         self.setData(5, Qt.UserRole, 1)
         self.setData(6, Qt.UserRole, parent_count)  # specific series name
         self.setData(7, Qt.UserRole, index)
-        self.setData(8, Qt.UserRole, self.reload)
+        self.setData(8, Qt.UserRole, False)
         self.parent_widget.addChild(self)
         
     def __str__(self) -> str:

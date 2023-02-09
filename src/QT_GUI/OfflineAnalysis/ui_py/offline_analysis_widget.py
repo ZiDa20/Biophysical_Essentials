@@ -130,6 +130,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         print("load_and_assign_meta_data: error when assigning meta_data_types")
             csv_file.close()
 
+    def add_splitter(self):
+         self.offline_tree.add_widget_to_splitter(self.object_splitter)
+
+
     def update_database_handler_object(self, updated_object, frontend_style):
         """_summary_: Should add the Database Handler Singleton
 
@@ -151,7 +155,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                  self.show_sweeps_radio,
                                                  self.blank_analysis_tree_view_manager)
         
-        self.offline_tree.add_widget_to_splitter(self.object_splitter)
+       
         self.offline_tree.SeriesItems.clear()
         
         self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree, 
@@ -173,17 +177,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
         
     def show_open_analysis_dialog(self):
-        ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
+        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
         
     @Slot()
-    def open_analysis_results(self, dialog):
+    def open_analysis_results(self, dialog, database, frontend):
         """
         Open an existing analysis from the database
         :return:
         """
-        id_ = dialog.lineEdit.text() # change this to a new name
+        id_ = dialog.offline_analysis_id # change this to a new name
         dialog.close()
 
+        self.update
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()

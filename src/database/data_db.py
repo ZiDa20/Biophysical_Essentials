@@ -12,6 +12,7 @@ import logging
 import datetime
 #from global_meta_data_table import GlobalMetaDataTable
 import re
+from pathlib import Path
 
 
 
@@ -22,6 +23,7 @@ class DuckDBDatabaseHandler():
     def __init__(self):
         #
         self.database = None
+        self.database_path = None
         self.analysis_id = None
 
         # set up the classes for the main tables
@@ -268,21 +270,16 @@ class DuckDBDatabaseHandler():
         print("trials to open connection")
         try:
             cew = os.path.dirname(os.getcwd())
-            path = f'{cew}/src/database/{self.db_file_name}'
-            print(path)
-            if sys.platform != "darwin": # check
-                path = path.replace("/","\\")
-            else:
-                path = path.replace("\\","/")
+            path = self.database_path or str(Path(f'{cew}/src/database/{self.db_file_name}'))
             self.database = duckdb.connect(path, read_only=read_only)
             self.logger.debug("opened connection to database %s", self.db_file_name)
             print("succeeded")
+
         except Exception as e:
             self.database.close()
             self.open_connection()
             self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
             print("failed")
-
 
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """

@@ -80,3 +80,9 @@ class PandasTable(QAbstractTableModel):
         top_left = self.index(0, 0)
         bottom_right = self.index(1, 2)
         self.dataChanged.emit(top_left, bottom_right)
+
+    def update_data(self, data):
+        self._data = data
+        top_left = self.index(0, 0)
+        bottom_right = self.index(data.shape[0] - 1, data.shape[1] - 1)
+        self.dataChanged.emit(top_left, bottom_right)

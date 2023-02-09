@@ -53,8 +53,11 @@ class OfflineAnalysisResultVisualizer():
         """
 
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
+
+        print(self.database_handler.database.execute("""select analysis_series_name from analysis_series where analysis_id = 4""").fetchdf())
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
+        
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
             # print("running analysis")

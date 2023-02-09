@@ -66,7 +66,7 @@ class ExportOfflineAnalysis:
         self.export_database.executemany("INSERT INTO analysis_functions VALUES (?, ?, ?, ?,?,?)", analysis_functions.values)
 
         self.add_pgf_meta_raw_tables_batch(experiment_series, results)
-
+        self.export_database.close()
 
     def add_pgf_meta_raw_tables_batch(self, experiment_series, results):
         """_summary_
