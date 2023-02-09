@@ -80,7 +80,6 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
     def open_database(self):
         """_summary_:Opens the newly selected database and sets it to be the main database of the data db class
         """
-        self.database_handler.database.close()
         self.import_db = duckdb.connect(self.filename, read_only=False)
         self.database_handler.database = self.import_db
         self.database_handler.database_path = self.filename

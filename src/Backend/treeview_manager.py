@@ -38,7 +38,7 @@ class TreeViewManager:
     __author__: dz
     """
 
-    def __init__(self,database=None, treebuild_widget =None):
+    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None):
 
         # it's the database handler
         self.database_handler = database
@@ -49,7 +49,7 @@ class TreeViewManager:
         self.discarded_tree_view_data_table = pd.DataFrame()
 
         # qradio button which can be checked or not
-        self.show_sweeps_radio = None
+        self.show_sweeps_radio = show_sweep_radio
 
         # list of meta data group names represented as strings
         self.selected_meta_data_list = None
@@ -281,7 +281,7 @@ class TreeViewManager:
         """
 
         # create a dataframe of parents (assigned to meta data groups if selected)
-        q = f'select table_name, condition_column, conditions from selected_meta_data where offline_analysis_id={self.database_handler.analysis_id}'
+        q = f'select table_name, condition_column, conditions from selected_meta_data where offline_analysis_id={self.database_handler.analysis_id} AND analysis_function_id = -1'
         table_name = self.database_handler.database.execute(q).fetchdf() # gets the table
 
         if not table_name.empty:
@@ -557,7 +557,7 @@ class TreeViewManager:
         """
         
         # list of lists of meta data tuples per column and table
-        meta_data_values = meta_data_table["conditions"].values.tolist()
+        meta_data_values = list(set(meta_data_table["conditions"].values))
         combinations = self.create_meta_data_combinations(meta_data_values)
 
         # Create an empty DataFrame with the necessary columns
@@ -584,16 +584,16 @@ class TreeViewManager:
             # add meta data related experiments as childs
             meta_data_selections = c.split("::")
 
-            for index,row in meta_data_table.iterrows():
+            for row,index,table in zip(meta_data_table["condition_column"], meta_data_selections, meta_data_table["table_name"]):
 
-                if row["table_name"] ==  GLOBAL_META_DATA_TABLE:
+                if table ==  GLOBAL_META_DATA_TABLE:
                     # multiple columns are available for global meta data. 
                     # therefore table can appear in multiple rows and therefore I have to append
-                    global_meta_data_query =  global_meta_data_query + f' and {row["condition_column"]} = \'{meta_data_selections[index]}\' '
-                if row["table_name"] ==  EXPERIMENT_SERIES_TABLE:
+                    global_meta_data_query =  global_meta_data_query + f'and {row} = \'{index}\''
+                if table ==  EXPERIMENT_SERIES_TABLE:
                     # only one column is available
                     # can only appear once
-                    experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row["condition_column"]} = \'{meta_data_selections[index]}\''
+                    experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row} = \'{index}\''
 
             # check combination of tables
             if list(meta_data_table["table_name"].unique()) == [GLOBAL_META_DATA_TABLE]:
@@ -625,7 +625,6 @@ class TreeViewManager:
         df = self.create_treeview_with_meta_data_parents(meta_data_table)
         series_level = df["level"].max() + 1
 
-       
         # append series to the experiments
         for index,experiment_row in df[df["type"]=="Experiment"].iterrows():
             
@@ -856,18 +855,31 @@ class TreeViewManager:
         print("single file into db" )
         print("adding to experiments", abf_bundle[1][0])
         database.add_experiment_to_experiment_table(abf_bundle[1][0])
-        print("adding to global meta data", abf_bundle[1])
-        database.add_experiment_to_global_meta_data(-1 ,abf_bundle[1])
 
-        series_count = 1
+        pos = self.meta_data_assigned_experiment_names.index(abf_bundle[1][0])
+        meta_data = self.meta_data_assignment_list[pos]
+        database.add_experiment_to_global_meta_data(-1 ,meta_data)
+
         print("we try to enter the abf file funciton in treeview manager")
-        for sweep in abf_bundle[0]:
-            database.add_single_series_to_database(abf_bundle[1][0], sweep[3], "Series" + str(series_count))
-            database.add_sweep_df_to_database(abf_bundle[1][0], "Series" + str(series_count), sweep[0], sweep[1], False)
+        for series_count, sweep in enumerate(abf_bundle[0], start=1):
+            database.add_single_series_to_database(
+                abf_bundle[1][0], sweep[3], f"Series{str(series_count)}"
+            )
+            database.add_sweep_df_to_database(
+                abf_bundle[1][0],
+                f"Series{str(series_count)}",
+                sweep[0],
+                sweep[1],
+                False,
+            )
 
             pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
-            database.create_series_specific_pgf_table(sweep[2].set_index("series_name").reset_index(), pgf_table_name, abf_bundle[1][0], "Series" + str(series_count))
-            series_count += 1
+            database.create_series_specific_pgf_table(
+                sweep[2].set_index("series_name").reset_index(),
+                pgf_table_name,
+                abf_bundle[1][0],
+                f"Series{str(series_count)}",
+            )
 
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
         """

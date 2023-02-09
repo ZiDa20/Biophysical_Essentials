@@ -57,11 +57,14 @@ class PandasTable(QAbstractTableModel):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
     
     def resize_header(self,parent):
-        column_count = self.columnCount()
-        for i in range(column_count):
-            size_hint = parent.horizontalHeader().sectionSizeHint(i)
-            size_hint = size_hint + 20
-            parent.horizontalHeader().resizeSection(i, size_hint)
+        try:
+            column_count = self.columnCount()
+            for i in range(column_count):
+                size_hint = parent.horizontalHeader().sectionSizeHint(i)
+                size_hint = size_hint + 20
+                parent.horizontalHeader().resizeSection(i, size_hint)
+        except IndexError as e:
+            pass
 
     def slice_experiment_data(self, text):
         data = self.unchanged_data

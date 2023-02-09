@@ -4,6 +4,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_group_dialog import Ui
 import pandas as pd
 from CustomWidget.Pandas_Table import PandasTable
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
+import csv
 class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
 
     def __init__(self, database_handler, offline_manager, frontend, parent=None):

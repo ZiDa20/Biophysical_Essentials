@@ -16,7 +16,15 @@ from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
-    def __init__(self, offlinetree, plot_buttons, frontend_style, database_handler, offline_manager, show_sweeps_radio, blank_analysis_tree):
+    def __init__(self, 
+                 offlinetree, 
+                 plot_buttons, 
+                 frontend_style, 
+                 database_handler, 
+                 offline_manager, 
+                 show_sweeps_radio, 
+                 blank_analysis_tree):
+        
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
@@ -53,8 +61,8 @@ class SeriesItemTreeWidget():
         """
         # add selection to database
 
-        
-        self.database_handler.write_analysis_series_types_to_database(series_names_list)
+        if not reload:
+            self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         # make new tree parent elements and realted childs for ech specific series
         for index, s in enumerate(series_names_list):
@@ -157,9 +165,7 @@ class SeriesItemTreeWidget():
         #self.navigation_list.append(self.navigation)
         self.current_tab_visualization.append(current_tab_plot_manager)
         
-        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
-        current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
-
+        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio)
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(

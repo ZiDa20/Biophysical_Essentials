@@ -46,6 +46,7 @@ class ExportOfflineAnalysis:
 
         # Analysis Tables
         offline_analysis = self.database_handler.database.execute(f"SELECT * FROM offline_analysis WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
+        #offline_analysis["selected_meta_data"] = ["None" if i != i else i for i in offline_analysis["selected_meta_data"] ]
         analysis_series =  self.database_handler.database.execute(f"SELECT * FROM analysis_series WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
         analysis_functions =  self.database_handler.database.execute(f"SELECT * FROM analysis_functions WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
         max_index = max(analysis_functions["analysis_function_id"].tolist())
@@ -62,7 +63,7 @@ class ExportOfflineAnalysis:
         for data in self.transfer_list:
             self.export_database.execute(f"CREATE TABLE {data} AS SELECT * FROM {data}")
 
-        self.export_database.executemany("INSERT INTO offline_analysis (analysis_id, date_time, user_name) VALUES (?, ?, ?)", offline_analysis.iloc[:,:-1].values)
+        self.export_database.executemany("INSERT INTO offline_analysis VALUES (?, ?, ?, ?)", offline_analysis.values)
         self.export_database.executemany("INSERT INTO analysis_functions VALUES (?, ?, ?, ?,?,?)", analysis_functions.values)
 
         self.add_pgf_meta_raw_tables_batch(experiment_series, results)

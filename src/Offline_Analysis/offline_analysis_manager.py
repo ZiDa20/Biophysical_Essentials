@@ -299,8 +299,8 @@ class OfflineManager():
         
         #create a dummy metadata file set which can be used to write the database
         #without assigning specifically in the dialog the metadata template
-        self.dummy_meta_data_list = self.create_dumme_meta_data(experiment_names)
-        self.options_list_dummy = ["dummy"]
+        #self.dummy_meta_data_list = self.create_dumme_meta_data(experiment_names)
+        #self.options_list_dummy = ["dummy"]
         return data
     
     def create_dumme_meta_data(self, data):

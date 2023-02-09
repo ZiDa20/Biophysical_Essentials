@@ -142,7 +142,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.database_handler = updated_object
         self.frontend_style = frontend_style
-        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio)
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
         
@@ -198,7 +198,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
         self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
-        self.offline_tree.built_analysis_specific_tree(series_names_list, self.select_analysis_functions, self.offline_analysis_widgets, self.selected_meta_data_list, reload = False)
+        
+        self.offline_tree.built_analysis_specific_tree(series_names_list, 
+                                                       self.select_analysis_functions, 
+                                                       self.offline_analysis_widgets, 
+                                                       self.selected_meta_data_list, 
+                                                       reload = True)
+        
         print("displaying to analysis results: ", self.database_handler.analysis_id)
         print(self.offline_tree.SeriesItems.topLevelItemCount())
 
@@ -265,7 +271,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         # is alread initialized in update_database_handler_object
         #self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
-        self.blank_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
         self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))
         self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
 
