@@ -51,44 +51,12 @@ class Ui_SpecificAnalysisTab(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
         self.groupBox_5.setSizePolicy(sizePolicy2)
+        self.groupBox_5.setMaximumSize(QSize(5000, 16777215))
         self.groupBox_5.setFocusPolicy(Qt.NoFocus)
         self.groupBox_5.setLayoutDirection(Qt.LeftToRight)
         self.gridLayout_7 = QGridLayout(self.groupBox_5)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setContentsMargins(0, 6, 0, 6)
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
-        self.start_analysis_button = QPushButton(self.groupBox_5)
-        self.start_analysis_button.setObjectName(u"start_analysis_button")
-        self.start_analysis_button.setEnabled(False)
-
-        self.horizontalLayout.addWidget(self.start_analysis_button)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_3)
-
-        self.select_series_analysis_functions = QPushButton(self.groupBox_5)
-        self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
-        self.select_series_analysis_functions.setSizePolicy(sizePolicy3)
-
-        self.horizontalLayout.addWidget(self.select_series_analysis_functions)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_2)
-
-
-        self.gridLayout_7.addLayout(self.horizontalLayout, 1, 0, 1, 1)
-
         self.gridLayout = QGridLayout()
         self.gridLayout.setObjectName(u"gridLayout")
         self.series_plot = QVBoxLayout()
@@ -109,11 +77,11 @@ class Ui_SpecificAnalysisTab(object):
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.page_2.sizePolicy().hasHeightForWidth())
-        self.page_2.setSizePolicy(sizePolicy4)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.page_2.sizePolicy().hasHeightForWidth())
+        self.page_2.setSizePolicy(sizePolicy3)
         self.gridLayout_10 = QGridLayout(self.page_2)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
         self.gridLayout_10.setContentsMargins(-1, 0, -1, 0)
@@ -128,6 +96,7 @@ class Ui_SpecificAnalysisTab(object):
 
         self.tabWidget = QTabWidget(SpecificAnalysisTab)
         self.tabWidget.setObjectName(u"tabWidget")
+        self.tabWidget.setMaximumSize(QSize(900, 16777215))
         self.tab = QWidget()
         self.tab.setObjectName(u"tab")
         self.gridLayout_2 = QGridLayout(self.tab)
@@ -156,6 +125,39 @@ class Ui_SpecificAnalysisTab(object):
 
         self.gridLayout_4.addLayout(self.analysis_function, 0, 0, 1, 1)
 
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
+
+        self.start_analysis_button = QPushButton(self.tab_2)
+        self.start_analysis_button.setObjectName(u"start_analysis_button")
+        self.start_analysis_button.setEnabled(False)
+
+        self.horizontalLayout.addWidget(self.start_analysis_button)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_3)
+
+        self.select_series_analysis_functions = QPushButton(self.tab_2)
+        self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
+        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
+        self.select_series_analysis_functions.setSizePolicy(sizePolicy4)
+
+        self.horizontalLayout.addWidget(self.select_series_analysis_functions)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
+
+
+        self.gridLayout_4.addLayout(self.horizontalLayout, 1, 0, 1, 1)
+
         self.tabWidget.addTab(self.tab_2, "")
 
         self.gridLayout_5.addWidget(self.tabWidget, 0, 2, 1, 1)
@@ -164,7 +166,7 @@ class Ui_SpecificAnalysisTab(object):
         self.retranslateUi(SpecificAnalysisTab)
 
         self.stackedWidget.setCurrentIndex(0)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
@@ -173,12 +175,11 @@ class Ui_SpecificAnalysisTab(object):
     def retranslateUi(self, SpecificAnalysisTab):
         SpecificAnalysisTab.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Form", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("SpecificAnalysisTab", u"Experiments", None))
         self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
         self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("SpecificAnalysisTab", u"Experiments", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("SpecificAnalysisTab", u"Analysis", None))
     # retranslateUi
-
 
 
 class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):

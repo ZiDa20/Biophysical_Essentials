@@ -131,6 +131,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.plot_move.clicked.connect(partial(self.navigation_rules, self.plot_move, "move"))
         self.plot_zoom.clicked.connect(partial(self.navigation_rules, self.plot_zoom, "zoom"))
 
+        self.TYPE_GRID_COLUMN = 0
+        self.CURSOR_GRID_COLUMN = 1
+        self.FUNC_GRID_COLUMN = 2
+        self.LEFT_CB_GRID_COLUMN = 3
+        self.RIGHT_CB_GRID_COLUMN = 4
+        self.PGF_SEQ_GRID_COLUMN = 5
+        self.LIVE_SEQ_GRID_COLUMN = 6
+
 
     def write_series_to_csv(self):
         file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
@@ -996,16 +1004,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # 1) create dialog
         dialog = Select_Analysis_Functions(self.database_handler,series_name)
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+        dialog.continue_with_selection.clicked.connect(partial(self.update_selected_analysis_function_table,dialog))
         dialog.exec_()
+        
 
  
-    def update_selected_analysis_function_table(self, checkbox_list, analysis_function_name_list, dialog):
+    def update_selected_analysis_function_table(self, dialog):
+
+
         '''enters data into the analysis table after the dialog has been closed'''
         dialog.close()
 
-        # read from database - if no settings have been made before execute initalization
+        """get the user made selections: can be either single interval or multiple interval analysis """
+        """stored within a list of tuples: first item is either 'single' or 'multiple', second is a list of lists with analysis functions and operands """
+        self.selected_analysis_functions = dialog.selected_analysis_functions
 
-        self.selected_analysis_functions = self.get_selected_checkboxes(checkbox_list, analysis_function_name_list)
+        """check if single or multiple interval analysis"""
+
+
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
 
         current_tab = self.tab_list[current_index]
@@ -1018,43 +1034,72 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
             current_tab.analysis_table_widget.analysis_table_widget.setColumnCount(7)
-            current_tab.analysis_table_widget.analysis_table_widget.setRowCount(len(self.selected_analysis_functions))
-            self.table_buttons = [0] * len(self.selected_analysis_functions)
+            current_tab.analysis_table_widget.analysis_table_widget.setRowCount(dialog.get_selected_analysis_functions_count())
+            self.table_buttons = [0] * dialog.get_selected_analysis_functions_count()
         else:
             current_tab.analysis_table_widget.analysis_table_widget.setRowCount(
                 existing_row_numbers + len(self.selected_analysis_functions))
-            self.table_buttons = self.table_buttons + [0] * len(self.selected_analysis_functions)
-
-        for row in range(len(self.selected_analysis_functions)):
-            row_to_insert = row + existing_row_numbers
-            value = self.selected_analysis_functions[row]
-            print(value)
-            current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert, 0,
-                                                                            QTableWidgetItem(str(value)))
-
-            self.table_buttons[row_to_insert] = QPushButton("Add")
-            self.c = QPushButton("Configure")
-            self.live_result = QCheckBox()
-            current_tab.checkbox_list.append(self.live_result)
-            self.live_result.setEnabled(False)
-            self.pgf_selection = QComboBox()
-            self.get_pgf_file_selection(current_tab)
+            self.table_buttons = self.table_buttons + [0] * dialog.get_selected_analysis_functions_count()
 
 
-            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 3,
-                                                                                  self.table_buttons[row_to_insert])
-            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 4, self.c)
-            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 5, self.live_result)
-            current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,6 ,self.pgf_selection)
-            self.table_buttons[row_to_insert].clicked.connect(
-                partial(self.add_coursor_bounds, row_to_insert, current_tab))
-            self.live_result.clicked.connect(
-                partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
-            current_tab.analysis_table_widget.analysis_table_widget.show()
+        row_to_insert = existing_row_numbers
 
+        """iterate through the selected analysis functions and add them to the table
+            can be either single or multiple analysis functions per list item"""
+        for fct in self.selected_analysis_functions:
+            # if it is a multiple interval analysis
+            if len(fct)>1:
+                span_start = row_to_insert 
+                type_text = ""
+                for fct_component in fct:
+                    if fct_component not in dialog.interval_operands:
+                        self.add_new_row_to_analysis_grid(current_tab, row_to_insert, "multiple", fct_component)
+                        row_to_insert += 1 
+                    type_text += fct_component + " "
+
+                # connect the cells 
+                current_tab.analysis_table_widget.analysis_table_widget.setSpan(span_start,0,2,1)
+                current_tab.analysis_table_widget.analysis_table_widget.setItem(span_start, 0,
+                                                                                QTableWidgetItem(str(type_text)))
+
+            else:
+                self.add_new_row_to_analysis_grid(current_tab, row_to_insert, "single", fct[0])
+                row_to_insert += 1 
+        
         plot_widget_manager  = self.current_tab_visualization[current_index]
-        plot_widget_manager.set_analysis_functions_table_widget(
-            current_tab.analysis_table_widget.analysis_table_widget)
+        plot_widget_manager.set_analysis_functions_table_widget(current_tab.analysis_table_widget.analysis_table_widget)
+        current_tab.analysis_table_widget.analysis_table_widget.show()
+
+
+    def add_new_row_to_analysis_grid(self, current_tab, row_to_insert, interval_type, value):
+
+                current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert, 0,
+                                                                                QTableWidgetItem(str(interval_type)))
+                current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert, 2,
+                                                                                QTableWidgetItem(str(value)))
+
+                self.table_buttons[row_to_insert] = QPushButton("Add")
+                self.c = QPushButton("Configure")
+                self.live_result = QCheckBox()
+                current_tab.checkbox_list.append(self.live_result)
+                self.live_result.setEnabled(False)
+                self.pgf_selection = QComboBox()
+                self.get_pgf_file_selection(current_tab)
+
+
+                current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 1,
+                                                                                    self.table_buttons[row_to_insert])
+ 
+                
+                current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert,5 ,self.pgf_selection)
+                current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 6, self.live_result)
+                self.table_buttons[row_to_insert].clicked.connect(
+                    partial(self.add_coursor_bounds, row_to_insert, current_tab))
+                self.live_result.clicked.connect(
+                    partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
+                
+
+
         
     def get_pgf_file_selection(self,current_tab):
         """Should retrieve the pgf_files for all the files in the current analysis id
@@ -1101,8 +1146,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         if checkbox_object.isChecked():
             # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
             try:
-                lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text())
-                upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text())
+                lower_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 3).text())
+                upper_bound = float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 4).text())
             except Exception as e:
                 dialog_message = "Please select cursor bounds first and activate live plot afterwords"
                 CustomErrorDialog().show_dialog(dialog_message)
@@ -1122,9 +1167,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         for r in range(number_of_rows):
             if current_tab.analysis_table_widget.item(r, 1) is not None:
-                current_tab.analysis_table_widget.removeCellWidget(r, 3)
+                
+                current_tab.analysis_table_widget.removeCellWidget(r, 1)
                 self.b = QPushButton("Change")
-                current_tab.analysis_table_widget.setCellWidget(r, 3, self.b)
+                current_tab.analysis_table_widget.setCellWidget(r, 1, self.b)
 
                 self.b.clicked.connect(partial(self.add_coursor_bounds, r, current_tab))
 
@@ -1148,9 +1194,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         try:
             print("read")
             left_cb_val = round(
-                float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 1).text()), 2)
+                float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 3).text()), 2)
             right_cb_val = round(
-                float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 2).text()), 2)
+                float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 4).text()), 2)
 
             # 1) insert dragable coursor bounds into pyqt graph
             left_val, right_val = self.current_tab_visualization[
@@ -1176,24 +1222,23 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.update_left_common_labels((left_val, row_number))
         self.update_right_common_labels((right_val, row_number))
 
-        current_tab.analysis_table_widget.analysis_table_widget.removeCellWidget(row_number, 3)
+        current_tab.analysis_table_widget.analysis_table_widget.removeCellWidget(row_number, 1)
         self.b = QPushButton("Change")
-        current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_number, 3, self.b)
+        current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_number, 1, self.b)
         self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
         current_tab.checkbox_list[0].setEnabled(True)
-        self.check
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in):
         row_number = tuple_in[1]
         value = tuple_in[0]
-        self.update_cursor_bound_labels(value, 1, row_number)
+        self.update_cursor_bound_labels(value, 3, row_number)
 
     @Slot(tuple)
     def update_right_common_labels(self, tuple_in):
         row_number = tuple_in[1]
         value = tuple_in[0]
-        self.update_cursor_bound_labels(value, 2, row_number)
+        self.update_cursor_bound_labels(value, 4, row_number)
 
     def update_cursor_bound_labels(self, value, column_number, row_number):
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
@@ -1207,6 +1252,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.check_ready_for_analysis(current_tab)
 
+
     def check_ready_for_analysis(self, current_tab):
         """
         function that checks for coursor bounds in all selected functions in this tab to be not empty.
@@ -1217,8 +1263,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # print("Checking ready  for analysis")
         for row in range(current_tab.analysis_table_widget.analysis_table_widget.rowCount()):
             if current_tab.analysis_table_widget.analysis_table_widget.item(row,
-                                                                            1) is None or current_tab.analysis_table_widget.analysis_table_widget.item(
-                    row, 2) is None:
+                                                                            3) is None or current_tab.analysis_table_widget.analysis_table_widget.item(
+                    row,4) is None:
                 return
 
         # make sure to connect start_analysis_button only once  .. otherwise a loop gets created # BUGFIX
@@ -1271,6 +1317,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.database_handler.open_connection()
         self.write_function_grid_values_into_database(current_tab)
+
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
         self.database_handler.database.close()
 
@@ -1332,10 +1379,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         ### to be continued here
         for r in range(row_count):
-            analysis_function = current_tab.analysis_table_widget.analysis_table_widget.item(r, 0).text()
+            analysis_function = current_tab.analysis_table_widget.analysis_table_widget.item(r, 2).text()
             # print("analysis function ", analysis_function)
-            lower_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 1).text()), 2)
-            upper_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 2).text()), 2)
+            lower_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 3).text()), 2)
+            upper_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 4).text()), 2)
             self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                              analysis_series_name,
                                                                                              lower_bound, upper_bound)

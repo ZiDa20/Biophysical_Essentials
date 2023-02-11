@@ -5,18 +5,27 @@ from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_desginer impo
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 
 from functools import partial
+import re
 
 class Select_Analysis_Functions(QDialog, Ui_Dialog):
 
     def __init__(self, database_handler, series_name, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+        
+        self.selected_analysis_functions = []
+        ADD = "+"
+        SUB = "-"
+        DIV = "/"
+        L_BRACK = "("
+        R_BRACK = ")"
+        self.interval_operands = [ADD, SUB, DIV, L_BRACK, R_BRACK]
 
         self.fill_dialog(database_handler, series_name)
-        self.sub_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, " - "))
-        self.div_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, " / "))
-        self.l_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, " ( "))
-        self.r_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, " ) "))
+        self.sub_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, SUB))
+        self.div_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, DIV))
+        self.l_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, L_BRACK))
+        self.r_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, R_BRACK))
 
         self.remove_last_analysis.clicked.connect(self.remove_last_analysis_function)
         
@@ -49,7 +58,9 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
 
     def add_item_to_selected_grid(self,input_string):
         self.selection_list_widget.addItem(QListWidgetItem(input_string))
-    
+        self.selected_analysis_functions.append(input_string.split())
+
+
     def add_text_to_analysis_syntax(self,input_string):
         value = self.analysis_syntax.text()
 
@@ -66,23 +77,14 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
 
         self.analysis_syntax.setText(text_value)
 
-        """
-            c = QCheckBox()
-            checkbox_list.append(c)
-            l = QLabel(f)
-            dialog_grid.addWidget(c, analysis_function_names.index(f), 0)
-            dialog_grid.addWidget(l, analysis_function_names.index(f), 1)
-
-            # 5) add button to the dialog, since it's in the dialog only the button can be of local type
-            confirm_selection_button = QPushButton("Confirm Selected Analysis Functions", dialog)
-            confirm_selection_button.clicked.connect(
-                partial(self.update_selected_analysis_function_table, checkbox_list, analysis_function_names, dialog))
-
-            # 6) Add button widget to correct grid position, finally execute the dialog
-            dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0 , 1 , 2)
-
-            dialog.setWindowTitle("Available Analysis Functions for Series " + series_name)
-            dialog.setWindowModality(Qt.ApplicationModal)
-            dialog.exec_()
-
-        """
+    
+    def get_selected_analysis_functions_count(self):
+        cnt = 0
+        for item in self.selected_analysis_functions:
+            if len(item) ==1:
+                cnt +=1 
+            else:
+                for n in item:
+                    if n not in self.interval_operands:
+                        cnt +=1 
+        return cnt
