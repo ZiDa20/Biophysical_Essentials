@@ -38,10 +38,15 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.select_columns.clicked.connect(self.export_offline_analysis_id)
         self.database_table.itemClicked.connect(self.pull_table_from_database)
         self.frontend_style = None
+        self.SearchTable.clicked.connect(self.search_database_table)
+        
         
     def update_database_handler(self,database_handler, frontend_style):
         self.database_handler = database_handler
         self.frontend_style = frontend_style
+        suggestions = [i[0] for i in self.database_handler.database.execute("SHOW TABLES").fetchall()]
+        completer = QCompleter(suggestions)
+        self.lineEdit.setCompleter(completer)
 
     def export_table_to_csv(self):
         """
@@ -310,6 +315,12 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             raise AttributeError("No Plot selected here")
             # add here a QDialog that opens with error message
 
+    def search_database_table(self):
+        # this needs to be implemented
+        text = self.lineEdit.text()
+        table = self.database_handler.database.execute(f"Select * from {text}").fetchdf()
+        table = table.iloc[:100,]
+        self.data_base_content_model.update_data(table)
 
     def export_offline_analysis_id(self):
         database_export = ExportOfflineDialog(self.database_handler, self.frontend_style)

@@ -58,7 +58,6 @@ class SubstractDialog(Ui_CreateNewSeries):
         """
 
         self.series_1.clear()
-        self.series_2.clear()
         analysis_id = self.database_handler.analysis_id
         unique_series_meta = self.database_handler.database.execute(f"Select series_name, series_identifier, series_meta_data from experiment_series WHERE experiment_name IN (Select experiment_name from experiment_analysis_mapping WHERE analysis_id = {analysis_id})").fetchdf()
         unique_series_meta = self.unique_series_return(unique_series_meta)
@@ -132,6 +131,17 @@ class SubstractDialog(Ui_CreateNewSeries):
             self.ExperimentCombo.addItems(list(set(experiment_names_1)))
             self.series_2.add(series_name_2)
             
+        self.retrieve_raw_data_series()
+        
+    def connected_box(self):
+        """_summary_:Fill only with possible series from the same experiment!
+        """
+        print(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1] )
+        experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
+        series_2_names = self.retrieve_series_ident_meta(experiment_names = experiment_names_1, series = self.series_1.currentText().split(":"))
+        self.ExperimentCombo.clear()
+        self.ExperimentCombo.addItems(experiment_names_1)
+        self.series_2.addItems(series_2_names)
         self.retrieve_raw_data_series()
 
     def retrieve_raw_data_series(self):

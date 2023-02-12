@@ -138,6 +138,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
 
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.online.online_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         

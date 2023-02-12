@@ -132,6 +132,42 @@ QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/light_
 QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
 
+QPushButton[objectName="HomeButton"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/plot_home.png);}}
+QToolTip[objectName="HomeButton"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="open_db"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/open_dir.png);}}
+QToolTip[objectName="open_db"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="export_table"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/export_id_dark.png);}}
+QToolTip[objectName="export_table"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="select_columns"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/export_db_dark.png);}}
+QToolTip[objectName="select_columns"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="query_execute"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/execute_dark.png);}}
+QToolTip[objectName="query_execute"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="complex_query"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/execute_multi_dark.png);}}
+QToolTip[objectName="complex_query"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="AWS"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/aws_dark.png);}}
+QToolTip[objectName="AWS"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="ParquetExport"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/parquet_dark.png);}}
+QToolTip[objectName="ParquetExport"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="SQL"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/post_dark.png);}}
+QToolTip[objectName="SQL"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="SearchTable"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/search_dark.png);}}
+QToolTip[objectName="SearchTable"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="ImportDB"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/import_db_dark.png);}}
+QToolTip[objectName="ImportDB"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_plot_online"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/save_dark.png);}}
+QToolTip[objectName="save_plot_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
 QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/database_welcome.png);}}
 QToolButton[objectName="online_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_analysis_welcome.png);}}
 QToolButton[objectName="offline_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/offline_analysis_welcome.png);}}

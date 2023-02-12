@@ -1,4 +1,0 @@
-protocol	upper_bound	lower_bound
-IV	10	20
-IV-40	10	20
-Inactivation	0	10
