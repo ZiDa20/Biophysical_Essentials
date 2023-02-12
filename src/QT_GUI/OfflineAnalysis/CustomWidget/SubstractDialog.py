@@ -61,20 +61,35 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.series_2.clear()
         analysis_id = self.database_handler.analysis_id
         unique_series_meta = self.database_handler.database.execute(f"Select series_name, series_identifier, series_meta_data from experiment_series WHERE experiment_name IN (Select experiment_name from experiment_analysis_mapping WHERE analysis_id = {analysis_id})").fetchdf()
-        unique_series_meta = sorted(list(
-            {
-                f"{i}:{t}:{m}"
-                for i, t, m in zip(
-                    unique_series_meta["series_name"],
-                    unique_series_meta["series_meta_data"],
-                    unique_series_meta["series_identifier"],
-                )
-            }
-        ))
+        unique_series_meta = self.unique_series_return(unique_series_meta)
         self.series_1.addItems(unique_series_meta)
-        self.series_2.addItems(unique_series_meta)
         self.connected_box()
 
+    def unique_series_return(self, series, meta = False):
+        """_summary_
+
+        Args:
+            series (_type_): _description_
+            meta (bool, optional): _description_. Defaults to False.
+
+        Returns:
+            _type_: _description_
+        """
+        if meta:
+            return list({f"{i}:{t}" for i, t in zip(series["series_name"],series["series_meta_data"]) if t not in  "None"})
+        
+        else:
+            return sorted(list(
+                {
+                    f"{i}:{t}:{m}"
+                    for i, t, m in zip(
+                        series["series_name"],
+                        series["series_meta_data"],
+                        series["series_identifier"],
+                    )
+                }
+            ))
+            
     def fill_combobox_with_meta_series(self):
         """This fills the combobox only with the series and with the meta data 
         Here we should add another layer, by providing evidence that this is only working if we 
@@ -83,12 +98,14 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.series_1.clear()
         self.series_2.clear()
         unique_series_meta = self.database_handler.database.execute("Select series_name, series_identifier, series_meta_data from experiment_series ").fetchdf()
-        unique_series_meta = list({f"{i}:{t}" for i, t in zip(unique_series_meta["series_name"],unique_series_meta["series_meta_data"]) if t not in  "None"})
-        self.series_1.addItems(unique_series_meta)
-        self.series_2.addItems(unique_series_meta)
-        self.connected_box()
-
-
+        unique_series_meta = self.unique_series_return(unique_series_meta, meta = True)
+        
+        if unique_series_meta:
+            self.series_1.addItems(unique_series_meta)
+            self.connected_box(meta = True)
+        else:
+            CustomErrorDialog("No Metadata found! Please first assign Metadata to each Series!", self.frontend_style)
+            
     def select_series_to_be_analized(self):
         """
         executed after all experiment files have been loaded
@@ -96,15 +113,25 @@ class SubstractDialog(Ui_CreateNewSeries):
         """
         return self.database_handler.get_distinct_non_discarded_series_names()
     
-    def connected_box(self):
+    def connected_box(self, meta = False):
         """ Retrieve the experiments that represent both series
         """
-        print(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1] )
         experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
-        experiment_names_2 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_2.currentText().split(":")[0],self.series_2.currentText().split(":")[1])]
-        self.experiment_intersect_list = list(set(experiment_names_1).intersection(set(experiment_names_2)))
-        self.ExperimentCombo.clear()
-        self.ExperimentCombo.addItems(self.experiment_intersect_list)
+        
+        series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data from experiment_series 
+                                                                WHERE experiment_name IN {experiment_names_1}""")
+        if meta: 
+            #check if meta data was applied
+            series_name_2 = self.unique_series_return(series_name_2, meta = True)
+        else:
+            series_name_2 = self.unique_series_return(series_name_2, meta = False)
+            
+        if series_name_2: # check if there is any existing series in the experiments that connects to the current sereies
+            self.ExperimentCombo.clear()
+            self.series_2.clear()
+            self.ExperimentCombo.addItems(list(set(experiment_names_1)))
+            self.series_2.add(series_name_2)
+            
         self.retrieve_raw_data_series()
 
     def retrieve_raw_data_series(self):
@@ -124,6 +151,7 @@ class SubstractDialog(Ui_CreateNewSeries):
             return None
         
     def draw_plots_series(self, sweep_table, ax, canvas):
+        
         """_summary_
 
         Args:
@@ -201,7 +229,6 @@ class SubstractDialog(Ui_CreateNewSeries):
                     table_name = self.create_new_specific_result_table_name(experiment_name, series_name)
                     analysis_dictionary_temp[experiment_name + series_name_1 + series_name_2] = (experiment_name,series_name_table, series_name, discarded, table_name, series_meta[0][0], series_meta[0][1],"None", new_table) 
                 self.analysis_dictionary.update({analysis_option:analysis_dictionary_temp})
-        
         
         self.AddDataBase.setEnabled(True)
         print("Succesfully substracted series")
