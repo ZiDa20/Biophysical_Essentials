@@ -31,11 +31,11 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.PlotGrid.addWidget(self.canvas)
         self.PlotGrid.addWidget(self.canvas_2)
         self.PreviewPlot.addWidget(self.canvas_preview)
-        self.series_1.currentTextChanged.connect(self.connected_box)
-        self.series_2.currentTextChanged.connect(self.connected_box)
+        self.series_1.activated.connect(self.connected_box)
+        self.series_2.activated.connect(self.connected_box)
         self.experiment_intersect_list = None
         self.fill_combobox_with_series()
-        self.ExperimentCombo.currentIndexChanged.connect(self.retrieve_raw_data_series)
+        self.ExperimentCombo.activated.connect(self.retrieve_raw_data_series)
         self.PreviewSeries.clicked.connect(self.initialize_data_merge)
         self.AddMeta.clicked.connect(metadata_open)
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
@@ -112,13 +112,13 @@ class SubstractDialog(Ui_CreateNewSeries):
         """
         return self.database_handler.get_distinct_non_discarded_series_names()
     
-    def connected_box(self, meta = False):
+    def connected_box(self,text = False, meta = False):
         """ Retrieve the experiments that represent both series
         """
         experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
         
         series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data from experiment_series 
-                                                                WHERE experiment_name IN {experiment_names_1}""")
+                                                                WHERE experiment_name IN {tuple(experiment_names_1)}""").fetchdf()
         if meta: 
             #check if meta data was applied
             series_name_2 = self.unique_series_return(series_name_2, meta = True)
@@ -129,21 +129,12 @@ class SubstractDialog(Ui_CreateNewSeries):
             self.ExperimentCombo.clear()
             self.series_2.clear()
             self.ExperimentCombo.addItems(list(set(experiment_names_1)))
-            self.series_2.add(series_name_2)
+            self.series_2.addItems(series_name_2)
+            self.retrieve_raw_data_series()
             
-        self.retrieve_raw_data_series()
+        else:
+            CustomErrorDialog("No experiments found for the second series", self.frontend_style)
         
-    def connected_box(self):
-        """_summary_:Fill only with possible series from the same experiment!
-        """
-        print(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1] )
-        experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
-        series_2_names = self.retrieve_series_ident_meta(experiment_names = experiment_names_1, series = self.series_1.currentText().split(":"))
-        self.ExperimentCombo.clear()
-        self.ExperimentCombo.addItems(experiment_names_1)
-        self.series_2.addItems(series_2_names)
-        self.retrieve_raw_data_series()
-
     def retrieve_raw_data_series(self):
         """_summary: Should retrieve the Analysis Functions
         """
@@ -281,7 +272,6 @@ class SubstractDialog(Ui_CreateNewSeries):
         :return:
         :author dz, 08.07.2022
         """
-
         return f"imon_signal_{experiment_name}_{series_number}"
     
     def write_into_database(self):
