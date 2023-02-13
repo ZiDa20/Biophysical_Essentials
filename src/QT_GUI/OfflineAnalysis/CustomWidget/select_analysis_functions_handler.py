@@ -14,18 +14,18 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
         self.setupUi(self)
         
         self.selected_analysis_functions = []
-        ADD = "+"
-        SUB = "-"
-        DIV = "/"
-        L_BRACK = "("
-        R_BRACK = ")"
-        self.interval_operands = [ADD, SUB, DIV, L_BRACK, R_BRACK]
+        self.ADD = "+"
+        self.SUB = "-"
+        self.DIV = "/"
+        self.L_BRACK = "("
+        self.R_BRACK = ")"
+        self.interval_operands = [self.ADD, self.SUB, self.DIV, self.L_BRACK, self.R_BRACK]
 
         self.fill_dialog(database_handler, series_name)
-        self.sub_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, SUB))
-        self.div_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, DIV))
-        self.l_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, L_BRACK))
-        self.r_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, R_BRACK))
+        self.sub_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, self.SUB))
+        self.div_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, self.DIV))
+        self.l_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, self.L_BRACK))
+        self.r_bracket_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, self.R_BRACK))
 
         self.remove_last_analysis.clicked.connect(self.remove_last_analysis_function)
         

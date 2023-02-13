@@ -1333,7 +1333,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.progressbar.setValue(data[0])
         #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
         self.status_label.setText(f"Analyzing: {str(data[1])}%")
+    
+    def solve_calculation(self, equation_components):
+        """
+        input = list of components
+        """
+        # evaluate content from brackets first
+        l_brack_pos = []
+        r_brack_pos = []
+        for i, item in enumerate(equation_components):
+            if item == Select_Analysis_Functions.L_BRACK:
+                l_brack_pos.append(i)
+            if item == Select_Analysis_Functions.R_BRACK:
+                r_brack_pos.append(i)
         
+        #for bracket_expression in l_brack_pos:
+
+        
+
+            
+
+
     def finished_result_thread(self):
         """
         Once all the reuslt have been calculated, an offline tab is created.
@@ -1342,7 +1362,84 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Furthermore, a table, a statistics and an advanced analysis child are added for further processing steps
         @return:
         """
+
         self.database_handler.open_connection()
+
+        if not self.multiple_interval_analysis.empty:
+            self.multiple_interval_analysis = self.multiple_interval_analysis.reset_index()
+            print(self.multiple_interval_analysis)
+            print("postprocessing started .. hang tight ")
+
+            function_positions = self.multiple_interval_analysis.index[self.multiple_interval_analysis['type'] != "multiple"].tolist()
+
+            for func_pos in function_positions:
+                print("have to calculate this: ")
+                print(self.multiple_interval_analysis["type"][func_pos])
+                
+                # split string into list, e.g. max_current - min_current
+                equation_components = self.multiple_interval_analysis["type"][func_pos].split()
+
+                #reverse the list to use the pop function
+                equation_components.reverse()
+
+                # stat recursive function
+                self.recursive_pop(equation_components,func_pos, 0)
+
+    def recursive_pop(self, equation_components,func_pos, pop_count):
+        
+        if  len(equation_components) > 1:
+
+            func1 = equation_components.pop()
+            func1_request_id = self.multiple_interval_analysis["id"][func_pos+ pop_count]
+            q = f'select specific_result_table_name from results where analysis_function_id == {func1_request_id}'
+            data_1_table_names = self.database_handler.database.execute(q).fetchall()
+            data_1_table_names = self.extract_first_elements(data_1_table_names)
+            pop_count += 1
+
+            operand = equation_components.pop()
+            # no pop count for operands 
+
+            func2 = equation_components.pop()
+            func_2_request_id = self.multiple_interval_analysis["id"][func_pos+ pop_count] # operand not counted
+            q = f'select specific_result_table_name from results where analysis_function_id == {func_2_request_id}'
+            data_2_table_names = self.database_handler.database.execute(q).fetchall()
+            data_2_table_names = self.extract_first_elements(data_2_table_names)
+
+            pop_count += 1
+
+            for tbl_1, tbl_2 in zip(data_1_table_names, data_2_table_names):
+                data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
+                data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
+
+                if operand == "-":
+                        res = data_1["Result"] - data_2["Result"]
+                if operand == "/":
+                        res = data_1["Result"] / data_2["Result"]
+
+                # override table 1
+                data_1["Result"] = res
+                self.database_handler.database.execute(f'drop table {tbl_1}')
+                self.database_handler.database.register(tbl_1, data_1)
+                self.database_handler.database.execute(f'CREATE TABLE {tbl_1} AS SELECT * FROM {tbl_1}')
+                
+                # remove table 2
+                self.database_handler.database.execute(f'drop table {tbl_2}')
+        
+            # update analysis_function_table with the new function name of analysis 1 
+            # delete func2_request_id__from_db and analysis function table
+            self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_2_request_id}')
+
+
+            if equation_components == []:
+                print("my job is done")
+            else:
+                equation_components.append()
+
+        else:
+            print("postprocessing not needed")
+
+
+        
         self.offline_tree.add_new_analysis_tree_children()
 
         if self.offline_tree.SeriesItems.currentItem().child(0):
@@ -1364,6 +1461,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_tree.offline_analysis_result_tree_item_clicked()
 
+    def extract_first_elements(self,lst):
+        return [t[0] for t in lst]
     
     def write_function_grid_values_into_database(self, current_tab):
         """
@@ -1372,6 +1471,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab: tab object from which the function selection grid will be written to the database
         :return:
         """
+        self.multiple_interval_analysis = pd.DataFrame(columns=["type", "id", "function_name"])
         row_count = current_tab.analysis_table_widget.analysis_table_widget.rowCount()
         analysis_series_name = current_tab.objectName()
         column_count = current_tab.analysis_table_widget.analysis_table_widget.columnCount()
@@ -1379,13 +1479,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         ### to be continued here
         for r in range(row_count):
-            analysis_function = current_tab.analysis_table_widget.analysis_table_widget.item(r, 2).text()
+            print("writing row", r, "/",row_count)
+            analysis_function = current_tab.analysis_table_widget.analysis_table_widget.item(r, self.FUNC_GRID_COLUMN).text()
             # print("analysis function ", analysis_function)
-            lower_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 3).text()), 2)
-            upper_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, 4).text()), 2)
+            lower_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, self.LEFT_CB_GRID_COLUMN).text()), 2)
+            upper_bound = round(float(current_tab.analysis_table_widget.analysis_table_widget.item(r, self.RIGHT_CB_GRID_COLUMN).text()), 2)
             self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                              analysis_series_name,
                                                                                              lower_bound, upper_bound)
+
+            # non single analysis types will be calculated as single interval analysis but additional calculation is needed
+            # that is why we have to note down the function with its id for postprocessing
+            cb_analysis_type = current_tab.analysis_table_widget.analysis_table_widget.item(r,self.TYPE_GRID_COLUMN).text()
+            print("analysing " + cb_analysis_type)
+            if cb_analysis_type != "single":
+                print("requesting id")
+                id = self.database_handler.get_last_inserted_analysis_function_id()
+                print("got id, ", id)
+                self.multiple_interval_analysis = pd.concat([self.multiple_interval_analysis, pd.DataFrame({"type": [cb_analysis_type], "id": [id], "function_name":[analysis_function] })])
+                
+
+        
 
     def get_cursor_bound_value_from_grid(self, row, column, current_tab):
         """
