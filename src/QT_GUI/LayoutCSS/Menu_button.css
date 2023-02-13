@@ -128,6 +128,20 @@ QListView{{
     color: white;
 }}
 
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] {{
+    background-color: "#1f2933";
+}}
+
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton {{
+    background-color: "#121212";
+    color: white;
+    border-color: "white";   
+}}
+
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton:hover {{
+    background-color: "#1f2933";  
+}}
+
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/go_right.png);}}  
 

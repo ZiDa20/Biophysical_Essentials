@@ -220,6 +220,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.finished_result_thread()
 
         self.offline_analysis_widgets.setCurrentIndex(2)
+        self.ui.notebook.setCurrentIndex(3)
 
     @Slot()
     def start_blank_analysis(self):

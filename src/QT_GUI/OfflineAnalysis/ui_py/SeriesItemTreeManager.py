@@ -451,22 +451,21 @@ class SeriesItemTreeWidget():
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
             
 
-    def click_top_level_tree_item(self, series = False):
+    def click_top_level_tree_item(self, experiment = False):
         """Should click the toplevel item of the model_view
         """
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         model = current_tab.widget.selected_tree_view.model()
         
-        if series:
-            index = self.findName(model, series)
-            
-            
+        if experiment: # this is applied whenever we supply a name of the exact experiment
+            index = self.findName(model, experiment)
+        
         else:   
             index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
            
         # Get the rect of the index
         current_tab.widget.selected_tree_view.setCurrentIndex(index)
-        if series:
+        if experiment:
             selectedIndexes = current_tab.widget.selected_tree_view.selectedIndexes()
             index = model.index(0, 0, selectedIndexes[0])
         rect = current_tab.widget.selected_tree_view.visualRect(index)

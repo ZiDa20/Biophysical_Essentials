@@ -11,9 +11,11 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         self.setupUi(self)
         self.frontend_style = frontend
         self.database_handler = database_handler
-        self.frontend_style.set_pop_up_dialog_style_sheet(self)
-        self.stackedWidget.setCurrentIndex(0)
+        self.tableView = QTableView()
+        self.final_table_layout.addWidget(self.tableView)
         
+        self.frontend_style.set_pop_up_dialog_style_sheet(self)
+        self.popup_stacked.setCurrentIndex(0)
         data = self.get_analysis_function_id_dataset()
         self.table_model = PandasTable(data)
         self.tableView.setModel(self.table_model)

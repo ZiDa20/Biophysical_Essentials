@@ -25,11 +25,12 @@ QLabel{{
 
 QCheckBox{{background-color:transparent; color:black; }}
 
+QComboBox{{background-color:"#5b6e8b"; color:white; }}
+
 
 QRadioButton{{background-color:transparent; color:black; border:black; }}
 
-QComboBox{{background-color:"#5b6e8b"; color:black; }}
-QListView::item {{background-color:white;}}
+QListView::item {{background-color:white; color: black;}}
 
 QProgressBar{{
     border: 2px solid grey;
@@ -57,6 +58,10 @@ QHeaderView::section{{background-color: white; color:black;}}
 
 QTreeView::branch{{background-color: white; color: "#5b6e8b";}}
 
+QWidget[accessibleName="analysis_specific_notebook"] {{
+    background-color: white;
+}}
+
 QTreeView{{
     color:black;  
     padding: 5px;
@@ -70,9 +75,22 @@ QTreeView::item:selected:focus {{
     selection-color: "#000000"; /* For Windows */
   }}
   
-QFrame{{border: 0px solid white;}}
+QFrame{{border: 0px solid white}}
 
 QListView{{color: black;}}
+
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] {{
+    background-color: #5b6e8b;
+}}
+
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton {{
+    background-color: white;
+    border-color: black;   
+}}
+
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton:hover {{
+    background-color: #5b6e8b;  
+}}
 
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_right.png);}}  

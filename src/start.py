@@ -107,7 +107,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.establish_logger()
         
         #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 0
+        self.default_mode = 1
         self.frontend_style = Frontend_Style()
         self.change_to_lightmode()
         # distribute this style object to all other classes to be used
@@ -192,7 +192,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
         self.ui.offline.show_open_analysis_dialog()
-        self.ui.notebook.setCurrentIndex(3)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
     
     def go_to_offline_analysis(self):
