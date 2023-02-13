@@ -593,8 +593,9 @@ class OfflinePlots():
             if line.contains(event)[0]:
                 index_line = line.axes.get_lines().index(line)
                 name = line.axes.get_legend().texts[index_line].get_text()
-                self.offline_tree.SeriesItems.setCurrentItem(self.SeriesItems.selectedItems()[0].parent().child(0))
-                self.offline_tree.offline_tree.offline_analysis_result_tree_item_clicked()
+                self.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.selectedItems()[0].parent().child(0))
+                self.offline_tree.offline_analysis_result_tree_item_clicked()
+                self.offline_tree.click_top_level_tree_item(name)
 
 
     ################################################################################

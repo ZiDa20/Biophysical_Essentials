@@ -107,7 +107,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.establish_logger()
         
         #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 1
+        self.default_mode = 0
         self.frontend_style = Frontend_Style()
         self.change_to_lightmode()
         # distribute this style object to all other classes to be used
@@ -153,8 +153,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         if self.ui.side_left_menu.isHidden():
 
-            self.ui.side_left_menu.show()
-
+            #self.ui.side_left_menu.show()
             button_txt = ["New Analysis From Directory", "New Analysis From Database", "Open Existing Analysis", "Continue"]
 
             amount_of_buttons = 4 if self.ui.offline.canvas_grid_layout.count()>0 else 3
@@ -182,9 +181,11 @@ class MainWindow(QMainWindow, QtStyleTools):
                 new_button.setIconSize(QSize(200, 200))
                 new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                 self.ui.gridLayout_3.addWidget(new_button, 0, col)
+                self.ui.side_left_menu.show()
         else:
             self.ui.side_left_menu.hide()
 
+ 
     def open_analysis(self):
         """_summary_
         """

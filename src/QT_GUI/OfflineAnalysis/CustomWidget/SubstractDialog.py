@@ -152,7 +152,6 @@ class SubstractDialog(Ui_CreateNewSeries):
             return None
         
     def draw_plots_series(self, sweep_table, ax, canvas):
-        
         """_summary_
 
         Args:

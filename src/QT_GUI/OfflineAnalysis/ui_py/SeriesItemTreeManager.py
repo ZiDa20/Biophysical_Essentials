@@ -451,12 +451,47 @@ class SeriesItemTreeWidget():
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
             
 
-    def click_top_level_tree_item(self):
+    def click_top_level_tree_item(self, series = False):
         """Should click the toplevel item of the model_view
         """
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
-        index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
-        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        model = current_tab.widget.selected_tree_view.model()
+        
+        if series:
+            index = self.findName(model, series)
+            
+            
+        else:   
+            index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
+           
         # Get the rect of the index
+        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        if series:
+            selectedIndexes = current_tab.widget.selected_tree_view.selectedIndexes()
+            index = model.index(0, 0, selectedIndexes[0])
         rect = current_tab.widget.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+
+
+    def findName(self,model, name, parent=QModelIndex()):
+        """_summary_: this function should identify the index of a selected name
+        in the tree using a recursive approach combined by looping through each element in the tree
+
+        Args:
+            model (QTreeViw): QTreeView model
+            name (str): Name of the searched string
+            parent (QModelIndex, optional): _description_. Defaults to QModelIndex().
+
+        Returns:
+            QModelIndex: Location of the searched string
+        """
+        for row in range(model.rowCount(parent)):
+            for column in range(model.columnCount(parent)):
+                index = model.index(row, column, parent)
+                print(model.data(index, Qt.DisplayRole))
+                if model.data(index, Qt.DisplayRole) == name:
+                    return index
+                result = self.findName(model, name, index)
+                if result.isValid():
+                    return result
+        return QModelIndex()
