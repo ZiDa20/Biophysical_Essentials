@@ -12,6 +12,8 @@ class SweepWiseAnalysisTemplate(object):
 
 	"""
 	database = None
+	data_shape = None
+  
 	def __init__(self):
 		"""Initialize the template class for sweep wise analysis
 		"""
@@ -67,8 +69,12 @@ class SweepWiseAnalysisTemplate(object):
 	def construct_trace(cls):
 		""" construct the trace """
 		try:
+			print("entered function")
+			print(cls.time, cls.data)
 			cls.trace = np.vstack((cls.time, cls.data)).T
-		except:
+   
+		except Exception as e:
+			print(e)
 			raise ValueError("Please use the same dimension, only 1-dimensional arrays should be used")
 
 	@classmethod
@@ -99,7 +105,6 @@ class SweepWiseAnalysisTemplate(object):
 		#series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
 
 		print(entire_sweep_table)
-
 		if sweep_name:
 			print(sweep_name)
 			data = entire_sweep_table.get(sweep_name)
@@ -160,6 +165,7 @@ class SweepWiseAnalysisTemplate(object):
 		data_table_names = []
 		# get the names of all data tables to be evaluated
 		data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
+
 		# set time to non - will be set by the first data frame
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
 		cls.time = None
@@ -167,13 +173,17 @@ class SweepWiseAnalysisTemplate(object):
 		cls.lower_bounds = None
 
 		for data_table in data_table_names:
-			if cls.time is None:
+			
+			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
+			key_1 = list(entire_sweep_table.keys())[0]
+
+			if entire_sweep_table[key_1].shape != cls.data_shape:
+				cls.data_shape = entire_sweep_table[key_1].shape
 				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+
 			# calculate the time
 			# set the lower bound
 			# set the upper bound
-
-			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
 
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database ut also add a lot of redundant information

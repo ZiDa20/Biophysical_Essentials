@@ -117,7 +117,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
-        self.local_database_handler = DuckDBDatabaseHandler() 
+        self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style) 
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer

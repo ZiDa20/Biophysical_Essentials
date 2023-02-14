@@ -6,6 +6,7 @@ import math
 class ActionPotentialFitting(object):
     plot_type_options = ["Action Potential Fitting", "PCA-Plot"]
     function_name = "Action Potential Fitting"
+    data_shape = None
     def __init__(self):
 
         # really needed ?
@@ -17,6 +18,7 @@ class ActionPotentialFitting(object):
         self.upper_bound = None
         self.time = None
         self.data = None
+        
 
         self.sliced_volt = None
 
@@ -163,8 +165,8 @@ class ActionPotentialFitting(object):
 
             half_width = time_2nd_half_width - time_1st_half_width
             print(half_width)
-        except:
-            print("Error in half width calculation")
+        except Exception as e:
+            print(f"Error in half width calculation {e}")
             half_width = np.NAN
             return None
 
@@ -213,19 +215,21 @@ class ActionPotentialFitting(object):
             print("reading_table")
             print(data_table)
             #
-            if cls.time is None:
+            entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
+
+            key_1 = list(entire_sweep_table.keys())[0]
+            if entire_sweep_table[key_1].shape != cls.data_shape:
+                cls.data_shape = entire_sweep_table[key_1].shape
                 cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
             # calculate the time
             # set the lower bound
             # set the upper bound
-
-            entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
-
             # added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
             # adding the name would increase readibility of the database ut also add a lot of redundant information
 
             result_data_frame = pd.DataFrame()
 
+            # we should vectorize this
             for column in entire_sweep_table:
 
                 cls.data = entire_sweep_table.get(column)
@@ -253,7 +257,7 @@ class ActionPotentialFitting(object):
 
                     if result_data_frame.empty:
                         result_data_frame = pd.DataFrame.from_dict(res, orient='index', columns = [str(sweep_number)])
-            
+
                     else:
                         col_count = len(result_data_frame.columns)
                         #print(col_count)
@@ -290,8 +294,8 @@ class ActionPotentialFitting(object):
         :return:
         :author dz, 08.07.2022
         """
-        return "results_analysis_function_" + str(analysis_function_id) + "_" + data_table_name
-
+        return f"results_analysis_function_{str(analysis_function_id)}_{data_table_name}"
+        
     @classmethod
     def specific_calculation(cls, manual_threshold = 10, smoothing_window_length = 19):
         print("running action potential fitting")
@@ -344,7 +348,7 @@ class ActionPotentialFitting(object):
         left_bound = np.argmax(time >= 25)
         print(left_bound)
 
-        v_mem = np.mean(data[0:left_bound - 1])
+        v_mem = np.mean(data[:left_bound - 1])
         print(v_mem)
 
         ####### calc max amplitude ####
@@ -392,8 +396,8 @@ class ActionPotentialFitting(object):
 
             half_width = time_2nd_half_width - time_1st_half_width
             print(half_width)
-        except:
-            print("Error in half width calculation")
+        except Exception as e:
+            print(f"Error in half width calculation the error: {e}")
             half_width = np.NAN
             return None
 

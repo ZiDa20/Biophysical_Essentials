@@ -20,7 +20,7 @@ class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
 
-    def __init__(self):
+    def __init__(self, frontend_style):
         #
         self.database = None
         self.database_path = None
@@ -31,6 +31,7 @@ class DuckDBDatabaseHandler():
 
         # logger settings
         self.logger = logging.getLogger()
+        self.frontend_style = frontend_style
         file_handler = logging.FileHandler('../Logs/database_manager.log')
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
@@ -1386,7 +1387,7 @@ class DuckDBDatabaseHandler():
                 pgf_selection.addItem(f"Segment {i}")
 
         else:
-            CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.")
+            CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.", self.frontend_style)
 
         print(pgf_file_dict)
 

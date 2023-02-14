@@ -13,18 +13,15 @@ from Backend.treeview_manager import TreeViewManager
 from Backend.plot_widget_manager import PlotWidgetManager
 
 import numpy as np
-from scipy import stats
 from Threading.Worker import Worker
 
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import pandas as pd
 from functools import partial
 
 from database.PostSql_Handler import PostSqlHandler
-from CustomWidget.Pandas_Table import PandasTable
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 
 from Offline_Analysis.offline_analysis_manager import OfflineManager

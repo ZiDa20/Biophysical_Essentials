@@ -320,6 +320,7 @@ class OfflinePlots():
 
         if self.holded_dataframe is None:
             # retrieve the plot_dataframe
+            
             statitics_dataframe, plot_dataframe = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
             self.statistics = statitics_dataframe
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")

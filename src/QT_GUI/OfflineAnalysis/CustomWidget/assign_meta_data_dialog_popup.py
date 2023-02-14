@@ -15,6 +15,9 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         self.frontend_style = frontend
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
         self.content_model = None
+        self.saving_template = QPushButton("Save Template")
+        self.saving_template.clicked.connect(self.save_template_only)
+        self.gridLayout.addWidget(self.saving_template, 5, 4, 1, 1)
         
     def map_metadata_to_database(self):
         """_summary_
@@ -88,4 +91,7 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         #self.data_base_content.clicked.connect(self.retrieve_column)
         
     
+    def save_template_only(self):
+        data = self.content_model._data
+        data.to_csv("template_creator.csv")
         

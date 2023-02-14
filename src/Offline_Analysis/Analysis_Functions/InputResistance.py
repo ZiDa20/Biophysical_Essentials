@@ -16,6 +16,7 @@ class InputResistance(SweepWiseAnalysisTemplate):
     @classmethod
     def specific_calculation(cls):
         cls.cslow_normalization = 0
+        print(cls.sliced_volt)
         max_val = np.min(cls.sliced_volt)
         return max_val
     
