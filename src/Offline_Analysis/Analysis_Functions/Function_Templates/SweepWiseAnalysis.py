@@ -13,12 +13,13 @@ class SweepWiseAnalysisTemplate(object):
 	"""
 	database = None
 	data_shape = None
-  
+	analysis_function_id = None
+ 
 	def __init__(self):
 		"""Initialize the template class for sweep wise analysis
 		"""
 		self.function_name = None
-		self.analysis_function_id = None
+		
 
 		self.data = None
 		self.voltage = None
@@ -176,6 +177,8 @@ class SweepWiseAnalysisTemplate(object):
 			
 			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
 			key_1 = list(entire_sweep_table.keys())[0]
+			if cls.time is None:
+				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
 			if entire_sweep_table[key_1].shape != cls.data_shape:
 				cls.data_shape = entire_sweep_table[key_1].shape
@@ -239,7 +242,7 @@ class SweepWiseAnalysisTemplate(object):
 				result_data_frame = pd.concat([result_data_frame,new_df])
 
 			# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
-
+			print(f"This is the analysis function id : {cls.analysis_function_id}")
 			new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id, data_table)
 			cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
 																				   cls.analysis_function_id,

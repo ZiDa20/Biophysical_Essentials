@@ -451,17 +451,8 @@ class OfflinePlots():
                     y = "values",  
                     ax = self.ax, 
                     width = 0.5)
-                
-        z = sns.swarmplot(data = plot_dataframe, 
-                x="meta_data", 
-                y = "values",  
-                ax = self.ax, 
-                color = self.color, 
-                size = 10)
-        
-        g.set_xticklabels(g.get_xticklabels(),rotation=45)
-        z.set_xticklabels(g.get_xticklabels(),rotation=45)
-        self.canvas.figure.tight_layout()
+
+        self.swarm_plot(plot_dataframe, 10, g)
         
     def box_plot_maker(self, plot_dataframe):
         """_summary_: Draws a boxplot and a Swarmplot from the data
@@ -475,15 +466,20 @@ class OfflinePlots():
                     ax = self.ax, 
                     width = 0.5)
 
-        z = sns.swarmplot(data = plot_dataframe, 
-                    x="meta_data", 
-                    y = "values",  
-                    ax = self.ax, 
-                    color = self.color, 
-                    size = 2) 
-        
-        g.set_xticklabels(g.get_xticklabels(),rotation=45)
-        z.set_xticklabels(g.get_xticklabels(),rotation=45)
+        self.swarm_plot(plot_dataframe, 2, g)
+
+    # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
+    def swarm_plot(self, plot_dataframe, size, g):
+        z = sns.swarmplot(
+            data=plot_dataframe,
+            x="meta_data",
+            y="values",
+            ax=self.ax,
+            color=self.color,
+            size=size,
+        )
+        g.set_xticklabels(g.get_xticklabels(), rotation=45)
+        z.set_xticklabels(g.get_xticklabels(), rotation=45)
         self.canvas.figure.tight_layout()
 
 
