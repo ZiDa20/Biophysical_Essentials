@@ -25,6 +25,8 @@ import matplotlib.animation as animation
 import pandas as pd
 from functools import partial
 import operator
+import itertools
+
 
 from PostSql_Handler import PostSqlHandler
 from Pandas_Table import PandasTable
@@ -39,6 +41,8 @@ from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndD
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import MetadataPopupAnalysis
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
 from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
+from QT_GUI.OfflineAnalysis.CustomWidget.analysis_table_widget import Analysis_Table_Widget
+
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
@@ -1009,12 +1013,125 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.exec_()
         
 
- 
+    
+    def add_buttons_to_layout(self, current_tab, analysis_functions):
+        
+        layout = current_tab.analysis_button_grid
+        row = 1
+        col = 0
+        
+        sizePolicy4 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+       
+        for fct in analysis_functions:
+            if len(fct)>1:
+                text = ""
+                for n in fct:
+                    text = text +  n + " "
+            else:
+                text = fct [0]
+
+            button = QPushButton(text)
+            show_cb_checkbx = QCheckBox()
+            sizePolicy4.setHeightForWidth(button.sizePolicy().hasHeightForWidth())
+            button.setSizePolicy(sizePolicy4)
+            button.setMinimumSize(QSize(150, 150))
+            button.setMaximumSize(QSize(150, 150))
+            button.setAccessibleName(QCoreApplication.translate("SpecificAnalysisTab", u"analysis_grid_bt", None))
+
+            sizePolicy4.setHeightForWidth(show_cb_checkbx.sizePolicy().hasHeightForWidth())
+            show_cb_checkbx.setSizePolicy(sizePolicy4)
+            #button.setMinimumSize(QSize(150, 150))
+            #button.setMaximumSize(QSize(150, 150))
+
+            layout.addWidget(button, row, col)
+            layout.addWidget(show_cb_checkbx, row, col+1) 
+
+            button_width = button.sizeHint().width()
+            if button_width > 150:
+                lines = text.split()
+                line_width = 0
+                line_text = ""
+                for word in lines:
+                        line_text = line_text + word + " \n "
+
+                layout.removeWidget(button)
+                layout.removeWidget(show_cb_checkbx)
+
+                button.setText(line_text)
+                button.setMaximumSize(QSize(150, 150))
+                show_cb_checkbx.setMaximumSize(QSize(150, 150))
+                
+                layout.addWidget(button, row, col)
+                layout.addWidget(show_cb_checkbx, row, col+1)
+
+            button.clicked.connect(partial(self.show_analysis_grid,current_tab, row,text))
+            row += 1
+
+    def show_analysis_grid(self,current_tab, row,text):
+
+        print("stacked widget page ", row, " requested")
+        
+        try:
+            current_tab.analysis_stacked_widget.setCurrentIndex(row)
+        except Exception as e:
+            print(e)
+        
+        page_widget = QWidget()
+        page_widget_layout = QVBoxLayout()
+        analysis_table_widget = Analysis_Table_Widget()
+        # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+        col = 0
+        if len(text.split())>1:
+            for expr in text.split():
+                if expr not in ["+", "-", "*", "/", "(", ")"]:
+                    col+=1
+        else:
+            col = 1
+        
+        analysis_table_widget.tableWidget.setColumnCount(1)
+        analysis_table_widget.tableWidget.setRowCount(4)
+
+        page_widget_layout.addWidget(analysis_table_widget)
+        page_widget.setLayout(page_widget_layout)    
+
+        current_tab.analysis_stacked_widget.insertWidget(row-1, page_widget)
+
+        hide_bt = QPushButton("Hide")
+        hide_bt.clicked.connect(current_tab.analysis_stacked_widget.hide)
+        page_widget_layout.addWidget(hide_bt)
+
+        # fill the table
+        col = 0
+        if len(text.split())>1:
+            #for expr in text.split():
+            #    if expr not in ["+", "-", "*", "/", "(", ")"]:
+            #        analysis_table_widget.tableWidget.setItem(0, col, QTableWidgetItem(expr))
+            #        analysis_table_widget.tableWidget.show()
+            #        col+=1
+            analysis_table_widget.tableWidget.setItem(0, col, QTableWidgetItem("Häää"))
+        else:   
+            analysis_table_widget.tableWidget.setItem(0, col, QTableWidgetItem(text))
+        
+        analysis_table_widget.tableWidget.show()
+
+        # for each specific row and col cursor bounds will be safed in the plot widget manager cursor bound dict
+        for col in range(analysis_table_widget.tableWidget.columnCount()):
+            self.add_coursor_bounds((row,col), current_tab)
+
+
+        current_tab.analysis_stacked_widget.setCurrentIndex(row)
+        current_tab.analysis_stacked_widget.show()
+
+
     def update_selected_analysis_function_table(self, dialog):
 
 
         '''enters data into the analysis table after the dialog has been closed'''
         dialog.close()
+
+        
 
         """get the user made selections: can be either single interval or multiple interval analysis """
         """stored within a list of tuples: first item is either 'single' or 'multiple', second is a list of lists with analysis functions and operands """
@@ -1026,6 +1143,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
 
         current_tab = self.tab_list[current_index]
+       
+        
+        # add the functions as buttons
+        self.add_buttons_to_layout(current_tab, self.selected_analysis_functions)
+    
+        """
         current_tab.checkbox_list = []
         current_tab.analysis_function.addWidget(current_tab.analysis_table_widget)
         existing_row_numbers = current_tab.analysis_table_widget.analysis_table_widget.rowCount()
@@ -1045,8 +1168,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         row_to_insert = existing_row_numbers
 
-        """iterate through the selected analysis functions and add them to the table
-            can be either single or multiple analysis functions per list item"""
+        iterate through the selected analysis functions and add them to the table
+            can be either single or multiple analysis functions per list item
         for fct in self.selected_analysis_functions:
             # if it is a multiple interval analysis
             if len(fct)>1:
@@ -1070,8 +1193,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         plot_widget_manager  = self.current_tab_visualization[current_index]
         plot_widget_manager.set_analysis_functions_table_widget(current_tab.analysis_table_widget.analysis_table_widget)
         current_tab.analysis_table_widget.analysis_table_widget.show()
-
-
+     """   
+    """
     def add_new_row_to_analysis_grid(self, current_tab, row_to_insert, interval_type, value):
 
                 current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert, 0,
@@ -1098,7 +1221,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     partial(self.add_coursor_bounds, row_to_insert, current_tab))
                 self.live_result.clicked.connect(
                     partial(self.show_live_results_changed, row_to_insert, current_tab, self.live_result))
-                
+
+    """            
 
 
         
@@ -1183,15 +1307,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             except Exception as e:
                 print("function remove_exisiting_dragable_lines {e}")
 
-    def add_coursor_bounds(self, row_number, current_tab):
+    def add_coursor_bounds(self, row_column_tuple, current_tab):
         """
         This function will add 2 dragable lines to the plot which will be provided by the global plot manager object
         :return:
         """
 
-        self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
-            row_number)
-
+        #self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
+        #    row_number)
+        
+        """
         try:
             print("read")
             left_cb_val = round(
@@ -1203,14 +1328,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             left_val, right_val = self.current_tab_visualization[
                 self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
                                                                                           (left_cb_val, right_cb_val))
+        """
 
+        #except Exception as e:
+            #print(e)
+        # 1) insert dragable coursor bounds into pyqt graph
+        left_val, right_val = self.current_tab_visualization[
+                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_column_tuple)
 
-        except Exception as e:
-            print(e)
-            # 1) insert dragable coursor bounds into pyqt graph
-            left_val, right_val = self.current_tab_visualization[
-                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number)
-
+        """
         # 2) connect to the signal taht will be emitted when cursor bounds are moved by user
         self.current_tab_visualization[
             self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(
@@ -1228,6 +1354,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_number, 1, self.b)
         self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
         current_tab.checkbox_list[0].setEnabled(True)
+        """
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in):

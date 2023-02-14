@@ -128,7 +128,10 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 
 
 
-
+QPushButton[accessibleName="analysis_grid_bt"]{{
+    border: 2px solid grey;
+    border-radius: 5px;
+    background-color: white;}}
 
 
 

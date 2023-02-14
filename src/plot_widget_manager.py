@@ -779,7 +779,7 @@ class PlotWidgetManager(QRunnable):
         print("Xinterval = %d", number_of_datapoints)
         return time
 
-    def show_draggable_lines(self,row_number,positions = None):
+    def show_draggable_lines(self,row_col_tuple,positions = None):
         """
         showing existing courspr bounds
         @param row_number:
@@ -787,7 +787,7 @@ class PlotWidgetManager(QRunnable):
         """
 
         if positions is not None:
-            print(row_number)
+            print(row_col_tuple)
             print(self.coursor_bound_tuple_dict)
 
             left_val = positions[0]
@@ -796,20 +796,21 @@ class PlotWidgetManager(QRunnable):
         else:
 
             try:
-                coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
+                coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
                 left_val = round(coursor_tuple[0].XorY,2)
                 right_val = round(coursor_tuple[1].XorY,2)
 
             except:
                 # default
                 print("not found")
-                left_val =  0.2*max(self.time) +  5* row_number
-                right_val = 0.8*max(self.time) +  5 * row_number
+                left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
+ 
+                right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
 
-        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
+        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
 
-        self.coursor_bound_tuple_dict[str(row_number)] = (left_coursor,right_coursor)
+        self.coursor_bound_tuple_dict[row_col_tuple] = (left_coursor,right_coursor)
 
         self.left_coursor = left_coursor
         self.right_coursor = right_coursor

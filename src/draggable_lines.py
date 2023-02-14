@@ -2,7 +2,7 @@ import matplotlib.lines as lines
 from PySide6.QtCore import *  # type: ignore
 
 class DraggableLines:
-    def __init__(self, ax, kind, XorY,canvas, bound_changed, row_number,scaling_factor):
+    def __init__(self, ax, kind, XorY,canvas, bound_changed, row_column_tuple,scaling_factor):
         self.ax = ax
         self.c = canvas
         self.o = kind
@@ -10,11 +10,10 @@ class DraggableLines:
         self.line = None
         self.scaling_factor = scaling_factor
 
-        self.row_number = row_number
+        self.row_number = row_column_tuple
         self.bound_changed = bound_changed
 
-        default_colors = ['k', 'b', 'r', 'g', 'c']
-
+        default_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
         if kind == "h":
             x = [-1, 1]
             y = [XorY, XorY]
@@ -23,7 +22,7 @@ class DraggableLines:
             x = [XorY, XorY]
             y = [-1*self.scaling_factor, self.scaling_factor]
 
-        self.line = lines.Line2D(x, y, color = default_colors[row_number], picker=True)
+        self.line = lines.Line2D(x, y, color = default_colors[row_column_tuple[0]+row_column_tuple[1]], picker=True)
         self.ax.add_line(self.line)
 
         self.sid = self.c.mpl_connect('pick_event', self.clickonline)
