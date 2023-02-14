@@ -807,8 +807,8 @@ class PlotWidgetManager(QRunnable):
  
                 right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
 
-        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
+        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
 
         self.coursor_bound_tuple_dict[row_col_tuple] = (left_coursor,right_coursor)
 
@@ -828,11 +828,18 @@ class PlotWidgetManager(QRunnable):
         print(row)
         print(self.coursor_bound_tuple_dict)
         try:
-            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row))
-            self.ax1.lines.remove(coursor_tuple[0].line)
-            self.ax1.lines.remove(coursor_tuple[1].line)
 
-            self.coursor_bound_tuple_dict.pop(str(row))
+            tuples_to_remove = []
+            for k in self.coursor_bound_tuple_dict.keys():
+                if k[0]==row:
+                    tuples_to_remove.append(k)
+
+            for t in tuples_to_remove:
+
+                coursor_tuple = self.coursor_bound_tuple_dict.get(t)
+                self.ax1.lines.remove(coursor_tuple[0].line)
+                self.ax1.lines.remove(coursor_tuple[1].line)
+                self.coursor_bound_tuple_dict.pop((row, 0))
 
             self.canvas.draw_idle()
         except Exception as e:

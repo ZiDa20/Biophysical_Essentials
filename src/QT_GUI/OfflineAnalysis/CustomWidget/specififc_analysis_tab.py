@@ -92,65 +92,7 @@ class Ui_SpecificAnalysisTab(object):
 
         self.stackedWidget.addWidget(self.page_2)
 
-        self.gridLayout_5.addWidget(self.stackedWidget, 0, 3, 5, 1)
-
-        self.tabWidget = QTabWidget(SpecificAnalysisTab)
-        self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setMaximumSize(QSize(600, 16777215))
-        self.tab = QWidget()
-        self.tab.setObjectName(u"tab")
-        self.gridLayout_2 = QGridLayout(self.tab)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.widget = TreeBuild(self.tab)
-        self.widget.setObjectName(u"widget")
-        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QSize(100, 0))
-        self.widget.setMaximumSize(QSize(600, 16777215))
-
-        self.gridLayout_2.addWidget(self.widget, 0, 1, 1, 1)
-
-        self.gridLayout_3 = QGridLayout()
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-
-        self.gridLayout_2.addLayout(self.gridLayout_3, 0, 0, 1, 1)
-
-        self.tabWidget.addTab(self.tab, "")
-        self.tab_2 = QWidget()
-        self.tab_2.setObjectName(u"tab_2")
-        self.gridLayout_4 = QGridLayout(self.tab_2)
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.analysis_function = QGridLayout()
-        self.analysis_function.setObjectName(u"analysis_function")
-
-        self.gridLayout_4.addLayout(self.analysis_function, 0, 0, 1, 1)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer)
-
-        self.start_analysis_button = QPushButton(self.tab_2)
-        self.start_analysis_button.setObjectName(u"start_analysis_button")
-        self.start_analysis_button.setEnabled(False)
-
-        self.horizontalLayout.addWidget(self.start_analysis_button)
-
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_3)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout.addItem(self.horizontalSpacer_2)
-
-
-        self.gridLayout_4.addLayout(self.horizontalLayout, 1, 0, 1, 1)
-
-        self.tabWidget.addTab(self.tab_2, "")
-
-        self.gridLayout_5.addWidget(self.tabWidget, 0, 2, 1, 1)
+        self.gridLayout_5.addWidget(self.stackedWidget, 0, 6, 5, 1)
 
         self.groupBox = QGroupBox(SpecificAnalysisTab)
         self.groupBox.setObjectName(u"groupBox")
@@ -158,18 +100,6 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.analysi_grid = QGridLayout()
         self.analysi_grid.setObjectName(u"analysi_grid")
-        self.analysis_stacked_widget = QStackedWidget(self.groupBox)
-        self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
-        self.analysis_stacked_widget.setEnabled(True)
-        self.page_3 = QWidget()
-        self.page_3.setObjectName(u"page_3")
-        self.analysis_stacked_widget.addWidget(self.page_3)
-        self.page_4 = QWidget()
-        self.page_4.setObjectName(u"page_4")
-        self.analysis_stacked_widget.addWidget(self.page_4)
-
-        self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
-
         self.analysis_button_grid = QGridLayout()
         self.analysis_button_grid.setObjectName(u"analysis_button_grid")
         self.select_series_analysis_functions = QPushButton(self.groupBox)
@@ -187,17 +117,42 @@ class Ui_SpecificAnalysisTab(object):
 
         self.analysi_grid.addLayout(self.analysis_button_grid, 0, 1, 1, 1)
 
+        self.analysis_stacked_widget = QStackedWidget(self.groupBox)
+        self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
+        self.analysis_stacked_widget.setEnabled(True)
+        self.page_3 = QWidget()
+        self.page_3.setObjectName(u"page_3")
+        self.analysis_stacked_widget.addWidget(self.page_3)
+        self.page_4 = QWidget()
+        self.page_4.setObjectName(u"page_4")
+        self.analysis_stacked_widget.addWidget(self.page_4)
+
+        self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
+
 
         self.gridLayout_9.addLayout(self.analysi_grid, 0, 0, 1, 1)
 
 
-        self.gridLayout_5.addWidget(self.groupBox, 0, 4, 1, 1)
+        self.gridLayout_5.addWidget(self.groupBox, 0, 7, 1, 1)
+
+        self.gridLayout_2 = QGridLayout()
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.widget = TreeBuild(SpecificAnalysisTab)
+        self.widget.setObjectName(u"widget")
+        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
+        self.widget.setSizePolicy(sizePolicy)
+        self.widget.setMinimumSize(QSize(100, 0))
+        self.widget.setMaximumSize(QSize(600, 16777215))
+
+        self.gridLayout_2.addWidget(self.widget, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addLayout(self.gridLayout_2, 0, 4, 1, 1)
 
 
         self.retranslateUi(SpecificAnalysisTab)
 
         self.stackedWidget.setCurrentIndex(0)
-        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
@@ -212,16 +167,12 @@ class Ui_SpecificAnalysisTab(object):
         SpecificAnalysisTab.setAccessibleDescription(QCoreApplication.translate("SpecificAnalysisTab", u"analysis_grid_bt", None))
 #endif // QT_CONFIG(accessibility)
         self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("SpecificAnalysisTab", u"Experiments", None))
-        self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("SpecificAnalysisTab", u"Analysis", None))
         self.groupBox.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis", None))
 #if QT_CONFIG(accessibility)
         self.select_series_analysis_functions.setAccessibleName(QCoreApplication.translate("SpecificAnalysisTab", u"analysis_grid_bt", None))
 #endif // QT_CONFIG(accessibility)
         self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"+", None))
     # retranslateUi
-
 
 
 class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):

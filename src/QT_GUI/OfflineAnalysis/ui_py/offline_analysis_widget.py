@@ -144,6 +144,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.PGF_SEQ_GRID_COLUMN = 5
         self.LIVE_SEQ_GRID_COLUMN = 6
 
+        self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+        
 
     def write_series_to_csv(self):
         file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
@@ -1066,64 +1068,101 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 layout.addWidget(button, row, col)
                 layout.addWidget(show_cb_checkbx, row, col+1)
 
-            button.clicked.connect(partial(self.show_analysis_grid,current_tab, row,text))
+            button.clicked.connect(partial(self.show_analysis_grid,current_tab, row,text, show_cb_checkbx))
+            show_cb_checkbx.stateChanged.connect(partial(self.on_checkbox_state_changed,row,current_tab))
+            show_cb_checkbx.setEnabled(False)
             row += 1
 
-    def show_analysis_grid(self,current_tab, row,text):
-
-        print("stacked widget page ", row, " requested")
+    def on_checkbox_state_changed(self, row, current_tab, state):
         
+        print("row = ", row)
+        
+        current_tab.analysis_stacked_widget.setCurrentIndex(row)
+        table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+        table_widget  = table_widget.layout().itemAt(0).widget()
+        
+        if state == Qt.Checked:
+            # show cursor bounds
+            for col in range(table_widget.columnCount()):
+                self.add_coursor_bounds((row,col), current_tab, table_widget)
+        else:
+                self.remove_existing_dragable_lines(row)
+
+            #remove cursor bounds
+
+    def show_analysis_grid(self,current_tab, row,text, show_cb_checkbx):
+        
+        print("stacked widget page ", row, " requested")
         try:
             current_tab.analysis_stacked_widget.setCurrentIndex(row)
         except Exception as e:
-            print(e)
+            print("I got here", e)
         
-        page_widget = QWidget()
-        page_widget_layout = QVBoxLayout()
-        analysis_table_widget = Analysis_Table_Widget()
-        # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-        col = 0
-        if len(text.split())>1:
-            for expr in text.split():
-                if expr not in ["+", "-", "*", "/", "(", ")"]:
-                    col+=1
+        if current_tab.analysis_stacked_widget.currentWidget().layout():
+            print("i found a layout")
+            # display the cursor bounds -> check if they are in the dict
+            table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+            table_widget  = table_widget.layout().itemAt(0).widget()
+            for col in range(table_widget.columnCount()):
+                self.add_coursor_bounds((row,col), current_tab, table_widget)
+
+            current_tab.analysis_stacked_widget.show()
         else:
-            col = 1
-        
-        analysis_table_widget.tableWidget.setColumnCount(1)
-        analysis_table_widget.tableWidget.setRowCount(4)
+            print("no layout found ")
 
-        page_widget_layout.addWidget(analysis_table_widget)
-        page_widget.setLayout(page_widget_layout)    
+            page_widget = QWidget()
+            page_widget_layout = QVBoxLayout()
+            analysis_table_widget = Analysis_Table_Widget()
+            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+            col = 0
+            if len(text.split())>1:
+                for expr in text.split():
+                    if expr not in ["+", "-", "*", "/", "(", ")"]:
+                        col+=1
+            else:
+                col = 1
+            
+            analysis_table_widget.tableWidget.setColumnCount(col)
+            analysis_table_widget.tableWidget.setRowCount(6)
 
-        current_tab.analysis_stacked_widget.insertWidget(row-1, page_widget)
+            page_widget_layout.addWidget(analysis_table_widget)
+            page_widget.setLayout(page_widget_layout)    
 
-        hide_bt = QPushButton("Hide")
-        hide_bt.clicked.connect(current_tab.analysis_stacked_widget.hide)
-        page_widget_layout.addWidget(hide_bt)
+            current_tab.analysis_stacked_widget.insertWidget(row, page_widget)
 
-        # fill the table
-        col = 0
-        if len(text.split())>1:
-            #for expr in text.split():
-            #    if expr not in ["+", "-", "*", "/", "(", ")"]:
-            #        analysis_table_widget.tableWidget.setItem(0, col, QTableWidgetItem(expr))
-            #        analysis_table_widget.tableWidget.show()
-            #        col+=1
-            analysis_table_widget.tableWidget.setItem(0, col, QTableWidgetItem("Häää"))
-        else:   
-            analysis_table_widget.tableWidget.setItem(0, col, QTableWidgetItem(text))
-        
-        analysis_table_widget.tableWidget.show()
+            hide_bt = QPushButton("Hide")
+            hide_bt.clicked.connect(current_tab.analysis_stacked_widget.hide)
+            page_widget_layout.addWidget(hide_bt)
 
-        # for each specific row and col cursor bounds will be safed in the plot widget manager cursor bound dict
-        for col in range(analysis_table_widget.tableWidget.columnCount()):
-            self.add_coursor_bounds((row,col), current_tab)
+            # fill the table
+            col = 0
+            if len(text.split())>1:
+                for expr in text.split():
+                    if expr not in ["+", "-", "*", "/", "(", ")"]:
+                        analysis_table_widget.tableWidget.setItem(1, col, QTableWidgetItem(expr))
+                        color_button = QPushButton("")
+                        color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
+                        analysis_table_widget.tableWidget.setCellWidget(0, col, color_button)
+                        col+=1
+            else:   
+            
+                color_button = QPushButton("")
+                
+                color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
+                analysis_table_widget.tableWidget.setCellWidget(0, col, color_button)
+                analysis_table_widget.tableWidget.setItem(1, col, QTableWidgetItem(text))
+            
+            analysis_table_widget.tableWidget.horizontalHeader().setVisible(False)
+            #analysis_table_widget.tableWidget.verticalHeader().setRotation(45)
+            analysis_table_widget.tableWidget.verticalHeader().setDefaultSectionSize(60)
+            analysis_table_widget.tableWidget.show()
 
+            current_tab.analysis_stacked_widget.setCurrentIndex(row)
+            current_tab.analysis_stacked_widget.show()
 
-        current_tab.analysis_stacked_widget.setCurrentIndex(row)
-        current_tab.analysis_stacked_widget.show()
-
+            # will draw the cursor bounds             
+            show_cb_checkbx.setEnabled(True)
+            show_cb_checkbx.setChecked(True)
 
     def update_selected_analysis_function_table(self, dialog):
 
@@ -1287,7 +1326,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("a cell changed")
         print(item.text())
 
-    def remove_existing_dragable_lines(self, row_number, current_tab):
+    def remove_existing_dragable_lines(self, row_number):
+        
+        self.current_tab_visualization[
+                    self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
+
+        """
+
         number_of_rows = current_tab.analysis_table_widget.rowCount()
 
         for r in range(number_of_rows):
@@ -1299,15 +1344,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 self.b.clicked.connect(partial(self.add_coursor_bounds, r, current_tab))
 
-                self.current_tab_visualization[
-                    self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
             try:
                 self.current_tab_visualization[
                     self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
             except Exception as e:
                 print("function remove_exisiting_dragable_lines {e}")
+        """
 
-    def add_coursor_bounds(self, row_column_tuple, current_tab):
+    def add_coursor_bounds(self, row_column_tuple, current_tab, table_widget):
         """
         This function will add 2 dragable lines to the plot which will be provided by the global plot manager object
         :return:
@@ -1330,24 +1374,42 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                                           (left_cb_val, right_cb_val))
         """
 
-        #except Exception as e:
-            #print(e)
-        # 1) insert dragable coursor bounds into pyqt graph
-        left_val, right_val = self.current_tab_visualization[
-                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_column_tuple)
+        if row_column_tuple not in self.current_tab_visualization[
+                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].coursor_bound_tuple_dict.keys():
+                
+                if table_widget.item(2, row_column_tuple[1]) is None:
 
+                    # check if already left and right row values were selected -> than recreate with these values - otherwise use default
+
+                    #except Exception as e:
+                        #print(e)
+                    # 1) insert dragable coursor bounds into pyqt graph
+                    left_val, right_val = self.current_tab_visualization[
+                            self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_column_tuple)
+
+                    
+                    # 2) connect to the signal that will be emitted when cursor bounds are moved by user
+                    self.current_tab_visualization[
+                        self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(
+                        self.update_left_common_labels)
+
+                    self.current_tab_visualization[
+                        self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].right_bound_changed.cursor_bound_signal.connect(
+                        self.update_right_common_labels)
+
+                    # 3) update the function selection grid
+                    self.update_left_common_labels((left_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
+
+                    self.update_right_common_labels((right_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
+                
+                else:
+                    l_cb= float(table_widget.item(2, row_column_tuple[1]).text())
+                    r_cb= float(table_widget.item(3, row_column_tuple[1]).text())
+                    left_val, right_val = self.current_tab_visualization[
+                            self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_column_tuple, (l_cb,r_cb))
+        
         """
-        # 2) connect to the signal taht will be emitted when cursor bounds are moved by user
-        self.current_tab_visualization[
-            self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].left_bound_changed.cursor_bound_signal.connect(
-            self.update_left_common_labels)
-        self.current_tab_visualization[
-            self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].right_bound_changed.cursor_bound_signal.connect(
-            self.update_right_common_labels)
-
-        # 3) update the function selection grid
-        self.update_left_common_labels((left_val, row_number))
-        self.update_right_common_labels((right_val, row_number))
+       
 
         current_tab.analysis_table_widget.analysis_table_widget.removeCellWidget(row_number, 1)
         self.b = QPushButton("Change")
@@ -1357,28 +1419,33 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
     @Slot(tuple)
-    def update_left_common_labels(self, tuple_in):
-        row_number = tuple_in[1]
-        value = tuple_in[0]
-        self.update_cursor_bound_labels(value, 3, row_number)
+    def update_left_common_labels(self, tuple_in, table_widget=None):
+        left_cursor_row = 2
+        self.update_cursor_bound_labels(left_cursor_row,tuple_in, table_widget)
 
     @Slot(tuple)
-    def update_right_common_labels(self, tuple_in):
-        row_number = tuple_in[1]
-        value = tuple_in[0]
-        self.update_cursor_bound_labels(value, 4, row_number)
+    def update_right_common_labels(self, tuple_in, table_widget=None):
+        right_cursor_row = 3
+        self.update_cursor_bound_labels(right_cursor_row,tuple_in, table_widget)
 
-    def update_cursor_bound_labels(self, value, column_number, row_number):
-        current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-        current_tab = self.tab_list[current_index]
+    def update_cursor_bound_labels(self, table_row, tuple_in, table_widget):
+        
+        # tuple in has: [0]: cb value, [1]: row of the button, [2]: column of the function
+        if table_widget is None:
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            current_tab = self.tab_list[current_index]
+            current_index = current_tab.analysis_stacked_widget.currentIndex()
+            current_tab.analysis_stacked_widget.setCurrentIndex(tuple_in[1])
+            table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+            table_widget  = table_widget.layout().itemAt(0).widget()
+
         print(
-            f"updating: row = {str(row_number)} column={str(column_number)} value= {str(value)}"
+            f"updating: row = {str(tuple_in[1])} column={str(tuple_in[2])} value= {str(tuple_in[0])}"
         )
 
-        current_tab.analysis_table_widget.analysis_table_widget.setItem(row_number, column_number,
-                                                                        QTableWidgetItem(str(value)))
+        table_widget.setItem(table_row, tuple_in[2], QTableWidgetItem(str(tuple_in[0])))
 
-        self.check_ready_for_analysis(current_tab)
+        #self.check_ready_for_analysis(current_tab)
 
 
     def check_ready_for_analysis(self, current_tab):

@@ -10,10 +10,13 @@ class DraggableLines:
         self.line = None
         self.scaling_factor = scaling_factor
 
-        self.row_number = row_column_tuple
+        self.button_number = row_column_tuple[0]
+        self.table_column = row_column_tuple[1]
+
+
         self.bound_changed = bound_changed
 
-        default_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+        default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         if kind == "h":
             x = [-1, 1]
             y = [XorY, XorY]
@@ -59,7 +62,7 @@ class DraggableLines:
         self.c.mpl_disconnect(self.releaser)
         self.c.mpl_disconnect(self.follower)
 
-        emit_tuple = (round(self.XorY, 2), self.row_number)
+        emit_tuple = (round(self.XorY, 2),  self.button_number, self.table_column )
         print(emit_tuple)
         self.bound_changed.cursor_bound_signal.emit(emit_tuple)
 
