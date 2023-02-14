@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import pandas as pd
 from functools import partial
+import operator
 
 from PostSql_Handler import PostSqlHandler
 from Pandas_Table import PandasTable
@@ -1379,66 +1380,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 # split string into list, e.g. max_current - min_current
                 equation_components = self.multiple_interval_analysis["type"][func_pos].split()
 
-                #reverse the list to use the pop function
-                equation_components.reverse()
+                # replace function name by related analysis_function_id
+                func_counter = 0
+                for i in range(len(equation_components)):
 
+                    if equation_components[i] not in ["+", "-", "*", "/", "(", ")"]: 
+                        equation_components[i] = self.multiple_interval_analysis["id"][func_pos+func_counter]
+                        func_counter += 1
+        
                 # stat recursive function
                 self.recursive_pop(equation_components,func_pos, 0)
-
-    def recursive_pop(self, equation_components,func_pos, pop_count):
         
-        if  len(equation_components) > 1:
-
-            func1 = equation_components.pop()
-            func1_request_id = self.multiple_interval_analysis["id"][func_pos+ pop_count]
-            q = f'select specific_result_table_name from results where analysis_function_id == {func1_request_id}'
-            data_1_table_names = self.database_handler.database.execute(q).fetchall()
-            data_1_table_names = self.extract_first_elements(data_1_table_names)
-            pop_count += 1
-
-            operand = equation_components.pop()
-            # no pop count for operands 
-
-            func2 = equation_components.pop()
-            func_2_request_id = self.multiple_interval_analysis["id"][func_pos+ pop_count] # operand not counted
-            q = f'select specific_result_table_name from results where analysis_function_id == {func_2_request_id}'
-            data_2_table_names = self.database_handler.database.execute(q).fetchall()
-            data_2_table_names = self.extract_first_elements(data_2_table_names)
-
-            pop_count += 1
-
-            for tbl_1, tbl_2 in zip(data_1_table_names, data_2_table_names):
-                data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
-                data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
-
-                if operand == "-":
-                        res = data_1["Result"] - data_2["Result"]
-                if operand == "/":
-                        res = data_1["Result"] / data_2["Result"]
-
-                # override table 1
-                data_1["Result"] = res
-                self.database_handler.database.execute(f'drop table {tbl_1}')
-                self.database_handler.database.register(tbl_1, data_1)
-                self.database_handler.database.execute(f'CREATE TABLE {tbl_1} AS SELECT * FROM {tbl_1}')
-                
-                # remove table 2
-                self.database_handler.database.execute(f'drop table {tbl_2}')
-        
-            # update analysis_function_table with the new function name of analysis 1 
-            # delete func2_request_id__from_db and analysis function table
-            self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_2_request_id}')
-
-
-            if equation_components == []:
-                print("my job is done")
-            else:
-                equation_components.append()
-
         else:
             print("postprocessing not needed")
-
-
         
         self.offline_tree.add_new_analysis_tree_children()
 
@@ -1460,6 +1414,104 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """simulate click on  "Plot" children """
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_tree.offline_analysis_result_tree_item_clicked()
+
+    def recursive_pop(self, equation_components,func_pos, pop_count, eval_dict = None):
+        """take 3 elements from the list: an operand and the expression left to it and right to it, either expression are 
+            a unevaluated analysis function ids or an evaluated result.
+            Calculation results are pushed to the list and the function continues until list is empty """
+        if eval_dict is None:
+            eval_dict = {}
+    
+        # respect mathematical rang of operands and evaluate * and / first
+        if "/" in equation_components:
+           op_index = equation_components.index("/")            
+        elif "*" in equation_components:
+            op_index = equation_components.index("*")
+        else:
+            op_index = 1
+
+        func_1 = equation_components[op_index-1]
+        func_2 = equation_components[op_index+1]
+        operand = equation_components[op_index]
+
+        equation_components.pop(op_index)
+        equation_components.pop(op_index)
+        equation_components.pop(op_index-1)
+        
+
+
+        if func_1 ==")":
+            # in case there is a bracket, evaluate the bracket content and push it to the list
+            self.calculate_brackets(equation_components, op_index, func_1)
+        elif func_1 in eval_dict.keys():
+            data_1 = eval_dict[func_1]
+        else:
+            q = f'select specific_result_table_name from results where analysis_function_id == {func_1}'
+            data_1_table_names = self.database_handler.database.execute(q).fetchall()
+            data_1_table_names = self.extract_first_elements(data_1_table_names)
+
+        if func_2 =="(":
+            # in case there is a bracket, evaluate the bracket content and push it to the list
+            self.calculate_brackets(equation_components, op_index, func_2)
+        elif func_2 in eval_dict.keys():
+            data_2 = eval_dict[func_2]
+        else:
+            q = f'select specific_result_table_name from results where analysis_function_id == {func_2}'
+            data_2_table_names = self.database_handler.database.execute(q).fetchall()
+            data_2_table_names = self.extract_first_elements(data_2_table_names)
+
+            
+        for tbl_1, tbl_2 in zip(data_1_table_names, data_2_table_names):
+                data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
+                data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
+
+                if operand == "-":
+                    try:
+                        res = data_1["Result"] - data_2["Result"]
+                    except Exception as e:
+                        print(e)
+                if operand == "/":
+                        res = data_1["Result"] / data_2["Result"]
+
+                # override table 1
+                data_1["Result"] = res
+                self.database_handler.database.execute(f'drop table {tbl_1}')
+                self.database_handler.database.register(tbl_1, data_1)
+                self.database_handler.database.execute(f'CREATE TABLE {tbl_1} AS SELECT * FROM {tbl_1}')
+                
+                # remove table 2
+                self.database_handler.database.execute(f'drop table {tbl_2}')
+        
+            # update analysis_function_table with the new function name of analysis 1 
+            # delete func2_request_id__from_db and analysis function table
+        
+        self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_2}')
+
+
+        if equation_components == []:
+            print("my job is done")
+            return
+        else:
+            equation_components.append()
+            self.recursive_pop(equation_components,func_pos, pop_count)
+    
+    def calculate_brackets(self, equation_components, operand_index, left_right):
+         
+        if left_right  == "(":
+            pos_calc = operator.add
+            func1 = equation_components.pop(pos_calc(operand_index,2))
+            func2 = equation_components.pop(pos_calc(operand_index,4))
+        else:     
+            pos_calc = operator.sub
+            func2 = equation_components.pop(pos_calc(operand_index,2))
+            func1 = equation_components.pop(pos_calc(operand_index,4))
+        
+        operand = equation_components.pop(pos_calc(operand_index,3))
+        equation_components.pop(pos_calc(operand_index,5))
+
+    #def calculate_func_operand(self,equation_components, operand_index, left_right):
+
+
 
     def extract_first_elements(self,lst):
         return [t[0] for t in lst]
