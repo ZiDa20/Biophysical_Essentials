@@ -11,6 +11,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
     function_name = "Rheobase-Detection"
     plot_type_options = ["Rheobase Plot", "Sweep Plot"]
     analysis_function_id = None
+    data_shape = None
     
     def __init__(self):
 
@@ -41,7 +42,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             #print("processing new data table")
             # here we should select which increment should be used 
             
-            entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
+            entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
 
             key_1 = list(entire_sweep_table.keys())[0]
             if entire_sweep_table[key_1].shape != cls.data_shape:

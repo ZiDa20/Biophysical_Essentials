@@ -95,7 +95,7 @@ class OfflinePlots():
         retrieves the analysis function id from from parent widget and also evaluate the swithc
 
         Args:
-            self.parent_widget (_type_): The Parent Widget to draw in as canvas
+            parent_widget (_type_): The Parent Widget to draw in the canvas
             result_table_list (_type_): The tables that will be visualized for the specific series
             analysis_function (_type_): The analysis function choosen for the specific series
             switch (bool): Should indicate if redraw without 
@@ -106,7 +106,7 @@ class OfflinePlots():
         if switch:
             self.holded_dataframe = None
  
-        if not self.parent_widget:
+        if parent_widget:
             self.parent_widget = parent_widget
             
         analysis_function = self.parent_widget.plot_type_combo_box.currentText()

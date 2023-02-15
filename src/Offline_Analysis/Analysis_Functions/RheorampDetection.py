@@ -18,6 +18,7 @@ class RheorampDetection(object):
     database = None  # database
     analysis_function_id = None
     series_name = None
+    data_shape = None
     
     @classmethod
     def calculate_results(cls):
@@ -35,39 +36,35 @@ class RheorampDetection(object):
 
             # set time to non - will be set by the first data frame
             # should assure that the time and bound setting will be only exeuted once since it is the same all the time
-            time = None
-
-
             for data_table in data_table_names:
 
-                entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
-
+                entire_sweep_table = cls.database.get_entire_sweep_table(data_table, fetchmode = 1)
                 key_1 = list(entire_sweep_table.keys())[0]
                 if entire_sweep_table[key_1].shape != cls.data_shape:
                     cls.data_shape = entire_sweep_table[key_1].shape
                     cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
-                number_of_sweeps = len(entire_sweep_table.columns)
-                column_names = list(entire_sweep_table.columns)
-                nat_sorted_columns = list(natsorted(column_names, key=lambda y: y.lower()))
-                entire_sweep_table = entire_sweep_table[nat_sorted_columns]
+                #number_of_sweeps = len(entire_sweep_table.columns)
+                #column_names = list(entire_sweep_table.columns)
+                #nat_sorted_columns = list(natsorted(column_names, key=lambda y: y.lower()))
+                #entire_sweep_table = entire_sweep_table[nat_sorted_columns]
 
                 result_data_frame = pd.DataFrame()
 
                 for column in entire_sweep_table:
 
                     data = entire_sweep_table.get(column)
-
                     if series_specific_recording_mode != "Voltage Clamp":
                         y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                         data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
-
+                      
                     # run the peak detection
                     peaks, _ = find_peaks(data, height=0.00, distance=200)
 
                     peak_y = data[peaks]
-                    peak_x = time[peaks]
+                    peak_x = cls.time[peaks]
 
+                
                     sweep_number = column.split("_")
                     sweep_number = int(sweep_number[1])
 

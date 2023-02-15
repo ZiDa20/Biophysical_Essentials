@@ -131,10 +131,11 @@ class OfflineAnalysisResultVisualizer():
             self.offline_plot.append(self.offlineplot) 
             
         # after all plots have been added
-        self.change_meta_data.clicked.connect(partial(self.open_meta_data, analysis_function))
+        self.visualization_tab_widget.currentItem().parent().setData(9, Qt.UserRole, self.offline_plot)
+        self.change_meta_data.clicked.connect(partial(self.open_meta_data, analysis_function, parent_widget))
         return offline_tab
     
-    def open_meta_data(self, analysis_function):
+    def open_meta_data(self, analysis_function, parent_widget):
         """_summary_: This opens the meta data from the selected meta data table to 
         retrieve the the condition columns holding the column string that can be used
         for meta data retrieval in offline plot
@@ -157,9 +158,9 @@ class OfflineAnalysisResultVisualizer():
         dialog.exec_()
         
         analysis_function_id = self.visualization_tab_widget.currentItem().parent().data(8, Qt.UserRole)
-        
-        for plot,id in zip(self.offline_plot,analysis_function_id):
-            plot.retrieve_analysis_function(analysis_function, analysis_function_id = id)
+        offline_plots = self.visualization_tab_widget.currentItem().parent().data(9, Qt.UserRole)
+        for plot,id in zip(offline_plots,analysis_function_id):
+            plot.retrieve_analysis_function(parent_widget = parent_widget, analysis_function_id = id)
         
         return None
 

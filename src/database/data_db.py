@@ -530,14 +530,17 @@ class DuckDBDatabaseHandler():
 
         return res["sweep_table_name"].tolist()[0]
 
-    def get_entire_sweep_table(self, table_name):
+    def get_entire_sweep_table(self, table_name, fetchmode = 1):
         '''
         Fetches all sweeps in a sweep table.
         :param table_name:
         :return: the table as dict {column: numpy_array(data ... )]}
         '''
         try:
-            return self.database.execute(f'select * from {table_name}').fetchnumpy()
+            if fetchmode == 1:
+                return self.database.execute(f'select * from {table_name}').fetchnumpy()
+            else:
+                return self.database.execute(f'select * from {table_name}').fetchdf()
         except Exception as e:
             print(table_name)
             return None
