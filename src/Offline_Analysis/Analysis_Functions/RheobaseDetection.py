@@ -40,7 +40,12 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
 
             #print("processing new data table")
             # here we should select which increment should be used 
-            if cls.time is None:
+            
+            entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
+
+            key_1 = list(entire_sweep_table.keys())[0]
+            if entire_sweep_table[key_1].shape != cls.data_shape:
+                cls.data_shape = entire_sweep_table[key_1].shape
                 cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
             if holding_value is None:
@@ -52,7 +57,6 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                 holding_value = cls.database.get_data_from_recording_specific_pgf_table(data_table, "holding", 0)
 
             # get the data frame and make sure to sort sweep numbers correctly
-            entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
             #entire_sweep_table.sort_index(axis=1, inplace = True)
 
             number_of_sweeps = len(entire_sweep_table.columns)

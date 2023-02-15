@@ -159,10 +159,10 @@ class OfflinePlots():
             self.merge_meta_plot_and_assign_meta(plot_dataframe, selected_meta_data)
         else:
             self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.comparison_plot(self.holded_dataframe)
             for ax in self.canvas.figure.axes:
                 ax.clear()  
-            self.canvas.draw()
+            self.comparison_plot(self.holded_dataframe)
+            self.canvas.draw_idle()
 
         self.canvas.figure.tight_layout()
         self.logger.info("Created Boxplot successfully")
@@ -363,6 +363,9 @@ class OfflinePlots():
             self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
             for ax in self.canvas.figure.axes:
                 ax.clear() 
+            
+        self.parent_widget.export_data_frame = self.holded_dataframe
+        self.parent_widget.statistics = self.holded_dataframe
 
         sns.lineplot(data = self.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", errorbar=("se", 2), ax = self.ax) 
         self.canvas.draw_idle()
@@ -491,7 +494,7 @@ class OfflinePlots():
                     ax = self.ax, 
                     width = 0.5)
 
-        self.swarm_plot(plot_dataframe, 2, g)
+        #self.swarm_plot(plot_dataframe, 2, g)
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
     def swarm_plot(self, plot_dataframe, size, g):

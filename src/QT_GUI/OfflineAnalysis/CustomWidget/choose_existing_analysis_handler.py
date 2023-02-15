@@ -4,6 +4,7 @@ from functools import partial
 from CustomWidget.Pandas_Table import PandasTable
 import duckdb
 from pathlib import Path
+from natsort import natsorted
 class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
 
     def __init__(self,database_handler, frontend, function_call,  parent=None):
@@ -22,7 +23,8 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         self.table_model.resize_header(self.tableView)
         self.submit.clicked.connect(partial(function_call, self))
         self.SelectDB.clicked.connect(self.open_path_dialog)
-        self.OfflineAnalysisID.currentTextChanged.connect(self.change_current_offline_analysis_id)
+        self.OfflineAnalysisID.setMinimumWidth(100)
+        self.OfflineAnalysisID.activated.connect(self.change_current_offline_analysis_id)
         self.exec()
 
 
@@ -59,7 +61,7 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
 
         trial = self.database_handler.database.execute("Select * from analysis_series").fetchdf()
         data = data.drop(["time", "analysis_series_name_2","analysis_function_id","analysis_id_2","lower_bound","upper_bound"], axis = 1)
-        ids = {str(i) for i in data["analysis_id"].tolist()}
+        ids = natsorted(list({str(i) for i in data["analysis_id"].tolist()}), reverse = True)
 
         self.OfflineAnalysisID.clear()
         self.OfflineAnalysisID.addItems(ids)

@@ -40,10 +40,12 @@ class RheorampDetection(object):
 
             for data_table in data_table_names:
 
-                if time is None:
-                     time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+                entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
 
-                entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
+                key_1 = list(entire_sweep_table.keys())[0]
+                if entire_sweep_table[key_1].shape != cls.data_shape:
+                    cls.data_shape = entire_sweep_table[key_1].shape
+                    cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
                 number_of_sweeps = len(entire_sweep_table.columns)
                 column_names = list(entire_sweep_table.columns)
