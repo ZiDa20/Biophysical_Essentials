@@ -15,12 +15,13 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         _type_: _description_
     """
     function_name = "Peak-Detection"
-    plot_type_options = ["AP-Overlay","Time-AP-Relationship"]
+    plot_type_options = ["Time-AP-Relationship","AP-Overlay"]
     database = None  # database
     analysis_function_id = None
     series_name = None
     AP_WINDOW = 50
     AP_THRESHOLD = 0.01
+    data_shape = None
 
     @classmethod
     def calculate_results(cls):
@@ -38,10 +39,16 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         time = None
         for data_table in data_table_names:
 
-            if time is None:
-                    time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
-
             entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
+            key_1 = list(entire_sweep_table.keys())[0]
+            if cls.time is None:
+                cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+
+            if entire_sweep_table[key_1].shape != cls.data_shape:
+                cls.data_shape = entire_sweep_table[key_1].shape
+                cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+
+            
             column_names = list(entire_sweep_table.columns)
             nat_sorted_columns = list(natsorted(column_names, key=lambda y: y.lower()))
             entire_sweep_table = entire_sweep_table[nat_sorted_columns]
@@ -61,13 +68,13 @@ class PeakFinding(SweepWiseAnalysisTemplate):
                     print(peaks)
                     ap_window = cls.extract_ap_potentials(data, time, peaks, column)
                 else:
-                     ap_window = None
+                    ap_window = None
 
             # write result_data_frame into database
 
             if ap_window:
                 # check if there is 
-                result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak", "AP_Timing"])
+                result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak"])
 
                 new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
                                                                                             data_table, True)
@@ -95,14 +102,16 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             _type_: _description_
 
         """
-        ap_window = {"AP_Window": [], "AP_Time":[], "Sweep": [], "Peak": [], "AP_Timing": []}
-        for peak_count, peak in enumerate(list(peaks), start=1):
-            data_window = data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW+50]
-            ap_window["AP_Window"].extend(data_window)
-            ap_window["AP_Time"].extend(time[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW+50])
-            ap_window["Sweep"].extend([column] *data_window.shape[0] )
-            ap_window["Peak"].extend([peak_count]*data_window.shape[0])
-            ap_window["AP_Timing"].extend(list(range(1, data_window.shape[0]+1)))
+        ap_window = {"AP_Window": [], "AP_Time":[], "Sweep": [], "Peak": []}
+        peak_count = 1
+
+        for peak in list(peaks):
+            ap_window["AP_Window"].extend(data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW])
+            ap_window["AP_Time"].extend(time[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW])
+            ap_window["Sweep"].extend([column] *data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW].shape[0] )
+            ap_window["Peak"].extend([peak_count]*data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW].shape[0])
+            peak_count += 1
+        #print(pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time"]))
         return ap_window
             
     @classmethod
@@ -133,7 +142,6 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         else:
             return None
         
-
     @classmethod
     def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler, sweep_name=None):
         """

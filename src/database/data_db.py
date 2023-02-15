@@ -1472,7 +1472,7 @@ class DuckDBDatabaseHandler():
                     self.database = self.execute_sql_command(self.database, sql_command, values)
 
     def retrieve_selected_meta_data_list(self):
-        meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall()[0][0])
+        meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
         return [meta_string]
 
     def get_selected_meta_data(self, analysis_function_id = None):

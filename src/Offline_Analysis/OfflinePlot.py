@@ -119,7 +119,8 @@ class OfflinePlots():
                                 "Rheoramp-AUC": self.rheoramp_plot,
                                 "Action Potential Fitting": self.ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
-                                "PCA-Plot": self.pca_plot
+                                "PCA-Plot": self.pca_plot,
+                                "AP-Overlay": self.ap_overlay
                                 }
 
         # retrieve the appropiate plot from the combobox
@@ -341,6 +342,30 @@ class OfflinePlots():
         self.canvas.figure.tight_layout()
         self.parent_widget.export_data_frame = self.statistics
         self.parent_widget.statistics = self.holded_dataframe
+
+    def ap_overlay(self, result_table_list:list, selected_meta_data = None):
+        """_summary_
+
+        Args:
+            result_table_list (list): _description_
+            selected_meta_data (_type_, optional): _description_. Defaults to None.
+        """
+        if not selected_meta_data:
+            selected_meta_data = ["experiment_name"]
+
+        if self.holded_dataframe is None:
+            plot_dataframe = SpecificAnalysisFunctions.overlay_cal(result_table_list, self.database_handler)
+            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            self.holded_dataframe = plot_dataframe 
+            #plot_dataframe = plot_dataframe.groupby(["meta_data", "Time"])["AP_Window"].agg(["mean", "sem"]).reset_index()
+        else:
+            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.canvas.figure.axes:
+                ax.clear() 
+
+        sns.lineplot(data = self.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", errorbar=("se", 2), ax = self.ax) 
+        self.canvas.draw_idle()
        
     def regression_plot(self, result_table_list: list, selected_meta_data = None):
         """Draws a Regression line which determines the slope of the 

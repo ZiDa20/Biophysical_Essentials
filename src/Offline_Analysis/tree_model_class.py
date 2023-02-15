@@ -170,7 +170,7 @@ class TreeModel(QAbstractItemModel):
                 parent = self.parent_dict.get(str(item[1]))
                 new_parent = TreeItem(list_for_one_item, parent)
                 self.parent_dict.update({str(item[4]): new_parent})
-                print("appending parent", str(item[4]))
+                #print("appending parent", str(item[4]))
 
                 """
                 if item[2]=="Series" or item[2]=="Sweep":

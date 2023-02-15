@@ -173,11 +173,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
         
-    def show_open_analysis_dialog(self):
+    def show_open_analysis_dialog(self, notebook):
+        self.notebook = notebook
         dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
         
     @Slot()
-    def open_analysis_results(self, dialog, database, frontend):
+    def open_analysis_results(self, dialog):
         """
         Open an existing analysis from the database
         :return:
@@ -194,7 +195,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for i in range(len(series_names_list)):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
-        self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
+        #self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
         
         self.offline_tree.built_analysis_specific_tree(series_names_list, 
                                                        self.select_analysis_functions, 
@@ -202,8 +203,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                        self.selected_meta_data_list, 
                                                        reload = True)
         
-        print("displaying to analysis results: ", self.database_handler.analysis_id)
-        print(self.offline_tree.SeriesItems.topLevelItemCount())
+        #print("displaying to analysis results: ", self.database_handler.analysis_id)
+        #print(self.offline_tree.SeriesItems.topLevelItemCount())
 
         # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
         for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
@@ -217,7 +218,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.finished_result_thread()
 
         self.offline_analysis_widgets.setCurrentIndex(2)
-        self.ui.notebook.setCurrentIndex(3)
+        self.notebook.setCurrentIndex(3)
 
     @Slot()
     def start_blank_analysis(self):

@@ -20,7 +20,7 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         self.table_model = PandasTable(data)
         self.tableView.setModel(self.table_model)
         self.table_model.resize_header(self.tableView)
-        self.submit.clicked.connect(partial(function_call, self, self.database_handler, self.frontend_style))
+        self.submit.clicked.connect(partial(function_call, self))
         self.SelectDB.clicked.connect(self.open_path_dialog)
         self.OfflineAnalysisID.currentTextChanged.connect(self.change_current_offline_analysis_id)
         self.exec()

@@ -191,7 +191,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
-        self.ui.offline.show_open_analysis_dialog()
+        self.ui.offline.show_open_analysis_dialog(self.ui.notebook)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
     
     def go_to_offline_analysis(self):

@@ -208,6 +208,7 @@ class SpecificAnalysisFunctions():
 
         return dataframe, z_score_df
 
+    @staticmethod
     def pca_calc(result_table_list:list, database):
         """Calculates the 1st and 2nd Principal Component of the queried 
         data --> e.g. Action Potential Parameters
@@ -239,6 +240,17 @@ class SpecificAnalysisFunctions():
         pca_dataframe["experiment_name"] = experiment_names
         
         return pca_dataframe, explained_variance
+    
+    @staticmethod
+    def overlay_cal(result_table_list:list, database):
+        print(result_table_list)
+        dataframe = pd.DataFrame()
+        for table in result_table_list:
+            experiment_name = database.database.execute(f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = (SELECT sweep_table_name FROM results WHERE specific_result_table_name = '{table}')""").fetchall()[0][0]
+            query_data_df = database.database.execute(f'select * from {table}').fetchdf()
+            query_data_df["experiment_name"] = experiment_name
+            dataframe = pd.concat([dataframe, query_data_df], axis = 0)
+        return dataframe
 
 
 
