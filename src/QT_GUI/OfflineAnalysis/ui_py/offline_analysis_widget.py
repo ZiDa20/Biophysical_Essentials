@@ -409,10 +409,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         data_frame = meta_data_popup.content_model._data
-            #data(0,0).toString()
-        print(data_frame)
-        file_name = self.offline_manager._directory_path + "/automatic_template.csv"
-        print(file_name)
+        file_name = f"{self.offline_manager._directory_path}/automatic_template.csv"
         data_frame.to_csv(file_name, index = False)
         """
         self.continue_open_directory(meta_data_popup, tmp_tree_manager.meta_data_option_list,
@@ -535,7 +532,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             self.statistics_list_view.takeItem(last_row)
             #self.statistics_list_view.removeItemWidget(last_item)
-            self.statistics_list_view.insertItem(last_row, existing_text + " vs. " )
+            self.statistics_list_view.insertItem(last_row, f"{existing_text} vs. ")
 
     def avoid_drop(self):
         print("avoiding")
@@ -564,7 +561,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             print("Last Row dropped = ", last_row)
             self.statistics_list_view.takeItem(last_row)
-            QListWidgetItem(existing_text + "_" + item_text, self.statistics_list_view)
+            QListWidgetItem(f"{existing_text}_{item_text}", self.statistics_list_view)
 
     def open_statistics_meta_data_selection(self):
         print("not implemented yet")
@@ -611,7 +608,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 custom_plot_widget = qwidget_item.widget()
                 data = custom_plot_widget.export_data_frame
                 # print(data)
-
+                
                 if custom_plot_widget.plot_type_combo_box.currentText() == "No Split":
                     new_column_names = []
                     print(data.columns.values.tolist())
@@ -619,7 +616,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     try:
                         for column_name in data.columns.values.tolist():
                             res = column_name.split("_")
-                            new_column_names.append(res[6] + "_" + res[7])
+                            new_column_names.append(f"{res[6]}_{res[7]}")
                         data.columns = new_column_names
 
                     except Exception:
@@ -701,7 +698,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # 6) Add button widget to correct grid position, finally execute the dialog
         dialog_grid.addWidget(confirm_selection_button, len(analysis_function_names), 0 , 1 , 2)
 
-        dialog.setWindowTitle("Available Analysis Functions for Series " + series_name)
+        dialog.setWindowTitle(f"Available Analysis Functions for Series {series_name}")
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 

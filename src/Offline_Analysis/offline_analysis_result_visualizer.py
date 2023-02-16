@@ -61,13 +61,12 @@ class OfflineAnalysisResultVisualizer():
         print(self.database_handler.database.execute("""select analysis_series_name from analysis_series where analysis_id = 4""").fetchdf())
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
-        
+
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
             # print("running analysis")
             if series[0] == series_name:
-                offline_tab = self.analysis_function_specific_visualization(series[0],analysis_id)
-                return offline_tab
+                return self.analysis_function_specific_visualization(series[0],analysis_id)
             else:
                 print("The logger should be added here to show that the series is not available in the database")
 
@@ -92,7 +91,7 @@ class OfflineAnalysisResultVisualizer():
         offline_list = []
         offline_tab = OfflineResultTab()
         offline_tab.OfflineScroll.setStyleSheet("background-color: rgba(0,0,0,0")
-        
+
         for analysis in list_of_analysis:
 
             # create new custom plot visualizer and parametrize data
@@ -102,7 +101,7 @@ class OfflineAnalysisResultVisualizer():
                      self.frontend_style, 
                      self.offline_tree,
                      self.final_result_holder)
-            
+
 
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
@@ -113,11 +112,11 @@ class OfflineAnalysisResultVisualizer():
 
             custom_plot_widget.analysis_name = analysis_name
 
-            custom_plot_widget.specific_plot_box.setTitle("Analysis: " + analysis_name)
+            custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
 
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
-            
+
 
             # fill the plot widget with analysis specific data
             analysis_function = self.single_analysis_visualization(custom_plot_widget)
@@ -132,11 +131,11 @@ class OfflineAnalysisResultVisualizer():
             parent_list.append(custom_plot_widget)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
             offline_list.append(self.offlineplot)
-        
+
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(9, Qt.UserRole, offline_list)
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
-        
+
         return offline_tab
     
     def open_meta_data(self):
@@ -193,19 +192,15 @@ class OfflineAnalysisResultVisualizer():
                 analysis_function = None
         else:
             result_table_names = class_object.visualize_results(parent_widget)
-            if result_table_names:
-                analysis_function = analysis_function
-            else:
-                analysis_function = None
-
+            analysis_function = analysis_function if result_table_names else None
         self.offlineplot.set_frontend_axes(self.canvas)
         self.offlineplot.set_metadata_table(result_table_names)
-        
+
         if switch:
             self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget, result_table_list = result_table_names, switch = True) 
         else:  
             self.offlineplot.retrieve_analysis_function(parent_widget =parent_widget, result_table_list =result_table_names) 
-            
+
         return analysis_function
         
     def handle_metadata_click(self):
@@ -243,7 +238,7 @@ class OfflineAnalysisResultVisualizer():
             self.scroll_area.setWidgetResizable(True)
             self.scroll_area.setWidget(self.canvas)
             parent_widget.plot_layout.addWidget(self.scroll_area)
-        
+
 
             # add options only once
             try:
@@ -258,7 +253,7 @@ class OfflineAnalysisResultVisualizer():
             return self.canvas
 
         except Exception as e:
-            print(str(e))
+            print(e)
 
 
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
@@ -270,8 +265,9 @@ class OfflineAnalysisResultVisualizer():
         """
         result_directory = QFileDialog.getExistingDirectory()
         try:
-            parent_widget.export_data_frame.to_csv(result_directory+"/result_export_analysis_function_id_"
-                                                   + str(parent_widget.analysis_function_id) + ".csv")
+            parent_widget.export_data_frame.to_csv(
+                f"{result_directory}/result_export_analysis_function_id_{str(parent_widget.analysis_function_id)}.csv"
+            )
             print("file stored successfully")
         except Exception as e:
             print("Results were not stored successfully")

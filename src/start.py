@@ -1,11 +1,9 @@
 import sys
 import os
-
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtTest import QTest
-
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
@@ -109,7 +107,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.establish_logger()
         
         #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 0
+        self.default_mode = 1
         self.frontend_style = Frontend_Style()
         self.change_to_lightmode()
         # distribute this style object to all other classes to be used

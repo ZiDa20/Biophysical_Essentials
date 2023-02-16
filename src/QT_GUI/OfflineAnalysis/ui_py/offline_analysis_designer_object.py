@@ -22,11 +22,14 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
 
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+
+
+
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
             Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(1420, 710)
+        Offline_Analysis.resize(1429, 710)
         self.gridLayout_8 = QGridLayout(Offline_Analysis)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.frame = QFrame(Offline_Analysis)
@@ -116,7 +119,7 @@ class Ui_Offline_Analysis(object):
         self.groupBox_7.setObjectName(u"groupBox_7")
         sizePolicy.setHeightForWidth(self.groupBox_7.sizePolicy().hasHeightForWidth())
         self.groupBox_7.setSizePolicy(sizePolicy)
-        self.groupBox_7.setMinimumSize(QSize(60, 30))
+        self.groupBox_7.setMinimumSize(QSize(0, 0))
         self.gridLayout_28 = QGridLayout(self.groupBox_7)
         self.gridLayout_28.setObjectName(u"gridLayout_28")
         self.gridLayout_28.setContentsMargins(1, 3, 1, 3)
@@ -158,7 +161,7 @@ class Ui_Offline_Analysis(object):
 
         self.selected_series_combo = QComboBox(self.SeriesSelection)
         self.selected_series_combo.setObjectName(u"selected_series_combo")
-        self.selected_series_combo.setMinimumSize(QSize(100, 0))
+        self.selected_series_combo.setMinimumSize(QSize(50, 0))
         self.selected_series_combo.setMaximumSize(QSize(200, 16777215))
 
         self.gridLayout_26.addWidget(self.selected_series_combo, 0, 1, 1, 1)
@@ -200,21 +203,28 @@ class Ui_Offline_Analysis(object):
         self.show_sweeps_radio = QRadioButton(self.groupBox_8)
         self.show_sweeps_radio.setObjectName(u"show_sweeps_radio")
 
-        self.gridLayout_34.addWidget(self.show_sweeps_radio, 0, 2, 1, 1)
+        self.gridLayout_34.addWidget(self.show_sweeps_radio, 0, 5, 1, 1)
 
         self.series_to_csv = QPushButton(self.groupBox_8)
         self.series_to_csv.setObjectName(u"series_to_csv")
         self.series_to_csv.setMinimumSize(QSize(30, 30))
         self.series_to_csv.setMaximumSize(QSize(30, 30))
 
-        self.gridLayout_34.addWidget(self.series_to_csv, 0, 3, 1, 1)
+        self.gridLayout_34.addWidget(self.series_to_csv, 0, 2, 1, 1)
 
         self.experiment_to_csv = QPushButton(self.groupBox_8)
         self.experiment_to_csv.setObjectName(u"experiment_to_csv")
         self.experiment_to_csv.setMinimumSize(QSize(30, 30))
         self.experiment_to_csv.setMaximumSize(QSize(30, 30))
 
-        self.gridLayout_34.addWidget(self.experiment_to_csv, 0, 4, 1, 1)
+        self.gridLayout_34.addWidget(self.experiment_to_csv, 0, 3, 1, 1)
+
+        self.line_3 = QFrame(self.groupBox_8)
+        self.line_3.setObjectName(u"line_3")
+        self.line_3.setFrameShape(QFrame.VLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_34.addWidget(self.line_3, 0, 4, 1, 1)
 
 
         self.gridLayout_33.addLayout(self.gridLayout_34, 0, 0, 1, 1)
@@ -606,8 +616,8 @@ class Ui_Offline_Analysis(object):
         self.show_sweeps_radio.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Show Single Sweeps for each series", None))
 #endif // QT_CONFIG(tooltip)
         self.show_sweeps_radio.setText(QCoreApplication.translate("Offline_Analysis", u"Sweeps", None))
-        self.series_to_csv.setText(QCoreApplication.translate("Offline_Analysis", u"S", None))
-        self.experiment_to_csv.setText(QCoreApplication.translate("Offline_Analysis", u"E", None))
+        self.series_to_csv.setText("")
+        self.experiment_to_csv.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Page Control", None))
         self.go_back_button.setText("")
         self.fo_forward_button.setText("")

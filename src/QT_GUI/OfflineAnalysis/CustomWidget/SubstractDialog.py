@@ -32,7 +32,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.PlotGrid.addWidget(self.canvas_2)
         self.PreviewPlot.addWidget(self.canvas_preview)
         self.series_1.activated.connect(self.connected_box)
-        self.series_2.activated.connect(self.connected_box)
+        self.series_2.activated.connect(self.connected_box_series_2)
         self.experiment_intersect_list = None
         self.fill_combobox_with_series()
         self.ExperimentCombo.activated.connect(self.retrieve_raw_data_series)
@@ -112,29 +112,49 @@ class SubstractDialog(Ui_CreateNewSeries):
         """
         return self.database_handler.get_distinct_non_discarded_series_names()
     
-    def connected_box(self,text = False, meta = False):
+    def connected_box_series_2(self):
+        """_summary_: recheck the overlapping experiment names
+        """
+        experiment_names_1 = self.get_experiment_names(self.series_2)
+        series_intersection = [i for i in self.experiment_intersect_list if i in experiment_names_1]
+        self.ExperimentCombo.clear()
+        self.ExperimentCombo.addItems(series_intersection)
+        self.retrieve_raw_data_series()
+    
+    def connected_box(self, meta = False):
         """ Retrieve the experiments that represent both series
         """
-        experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(self.series_1.currentText().split(":")[0],self.series_1.currentText().split(":")[1])]
-        
-        series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data from experiment_series 
+     
+        experiment_names_1 = self.get_experiment_names(self.series_1)
+        series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data, experiment_name from experiment_series 
                                                                 WHERE experiment_name IN {tuple(experiment_names_1)}""").fetchdf()
-        if meta: 
+        
+        self.experiment_intersect_list = sorted(series_name_2["experiment_name"].unique())
+        if meta is True: 
             #check if meta data was applied
-            series_name_2 = self.unique_series_return(series_name_2, meta = True)
+            series_name_2 = self.unique_series_return(series_name_2.iloc[:,:-1], meta = True)
         else:
-            series_name_2 = self.unique_series_return(series_name_2, meta = False)
+            series_name_2 = self.unique_series_return(series_name_2.iloc[:,:-1], meta = False)
             
         if series_name_2: # check if there is any existing series in the experiments that connects to the current sereies
             self.ExperimentCombo.clear()
             self.series_2.clear()
-            self.ExperimentCombo.addItems(list(set(experiment_names_1)))
+            self.ExperimentCombo.addItems(self.experiment_intersect_list)
             self.series_2.addItems(series_name_2)
             self.retrieve_raw_data_series()
             
         else:
             CustomErrorDialog("No experiments found for the second series", self.frontend_style)
+            self.series_2.clear()
+            
+    def get_experiment_names(self, series):
+        if self.selectbymetadata.isChecked is True:
+            experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(series.currenText().split(":")[0],series.currentText().split(":")[1])]
+        else:
+            experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_series(series.currentText().split(":")[0],series.currentText().split(":")[2])]
         
+        return experiment_names_1
+    
     def retrieve_raw_data_series(self):
         """_summary: Should retrieve the Analysis Functions
         """
@@ -185,11 +205,14 @@ class SubstractDialog(Ui_CreateNewSeries):
             if i.isChecked():
                 analysis_option = i.text()
                 analysis_dictionary_temp = {}
+                items = []
+                for i in range(self.ExperimentCombo.count()):
+                    items.append(self.ExperimentCombo.itemText(i))
                 
-                for experiment_name in self.experiment_intersect_list:
+                for experiment_name in items:
                     sweep_table_1, sweep_table_2 = self.retrieve_sweep_table_iterator(experiment_name)
                     #calculation
-
+                    print(sweep_table_1.shape, sweep_table_2.shape)
                     match analysis_option:
                         case "Add":
                             new_table = sweep_table_1 + sweep_table_2
@@ -209,9 +232,10 @@ class SubstractDialog(Ui_CreateNewSeries):
                     series_name_2 = self.series_2.currentText().split(':')[0]
                     series_meta_1 = self.series_1.currentText().split(':')[1]
                     series_meta_2 = self.series_2.currentText().split(':')[1]
-
+                    check = self.selectbymetadata.isChecked()
+                    print(check)
                     # if only metadata where selected than we need to retrieve the series
-                    if self.selectbymetadata.isChecked:
+                    if self.selectbymetadata.isChecked is True:
                         series_name_1_identifier = self.database_handler.database.execute(f"Select series_identifier from experiment_series WHERE experiment_name = '{experiment_name}' AND series_meta_data = '{series_meta_1}'").fetchall()[0][0]
                         series_name_2_identifier = self.database_handler.database.execute(f"Select series_identifier from experiment_series WHERE experiment_name = '{experiment_name}' AND series_meta_data = '{series_meta_2}'").fetchall()[0][0]
                         if series_name_1_identifier == series_name_2_identifier:
@@ -249,8 +273,8 @@ class SubstractDialog(Ui_CreateNewSeries):
         operation_dict = self.analysis_dictionary[operation]
         self.Experiment.clear()
         self.Experiment.addItems(operation_dict.keys())
-        self.Experiment.currentIndexChanged.connect(lambda index: self.show_series_plot(index, operation_dict))
-        self.show_series_plot(None, operation_dict)
+        self.Experiment.activated.connect(lambda index: self.show_series_plot(operation_dict))
+        self.show_series_plot(operation_dict)
 
     def show_series_plot(self, operation):
         """_summary_

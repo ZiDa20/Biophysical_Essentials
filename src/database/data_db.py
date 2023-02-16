@@ -516,6 +516,18 @@ class DuckDBDatabaseHandler():
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
+    
+    def get_experiments_by_series_name_and_analysis_id_with_series(self, series_name, meta_data):
+        '''
+        Find experiments of the current analysis containing the series specified by the series name.
+        :param series_name: name of the series (e.g. Block Pulse, .. )
+        :param meta_data associated 
+        :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
+        '''
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
+        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
+        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
 
     def get_sweep_table_name(self, experiment_name, series_identifier):
         '''
