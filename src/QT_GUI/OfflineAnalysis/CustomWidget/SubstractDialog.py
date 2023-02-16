@@ -68,11 +68,12 @@ class SubstractDialog(Ui_CreateNewSeries):
         """_summary_
 
         Args:
-            series (_type_): _description_
+            series (pd.DataFrame): holding the series namess
             meta (bool, optional): _description_. Defaults to False.
 
         Returns:
-            _type_: _description_
+            list: List of combined string of series:meta_data:series_identifier or if metadata
+            then only series:meta_data
         """
         if meta:
             return list({f"{i}:{t}" for i, t in zip(series["series_name"],series["series_meta_data"]) if t not in  "None"})
@@ -122,9 +123,12 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.retrieve_raw_data_series()
     
     def connected_box(self, meta = False):
-        """ Retrieve the experiments that represent both series
+        """_summary_: Function that retrieves the experiment names fill the series 2 combobox
+        in response to the series that are also present in the experiments where series 1 is preseent
+        
+        args:
+            meta: If metadata is present or not
         """
-     
         experiment_names_1 = self.get_experiment_names(self.series_1)
         series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data, experiment_name from experiment_series 
                                                                 WHERE experiment_name IN {tuple(experiment_names_1)}""").fetchdf()
@@ -148,6 +152,15 @@ class SubstractDialog(Ui_CreateNewSeries):
             self.series_2.clear()
             
     def get_experiment_names(self, series):
+        """_summary_: Should retrieve the experiment names either per with the meta data or with
+        the series identifer, metadata only when the radiobutton is checked
+
+        Args:
+            series (QCombobox): The QCombobox holding the series names
+
+        Returns:
+            list: List of Experiments corresponding to the selected series
+        """
         if self.selectbymetadata.isChecked is True:
             experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(series.currenText().split(":")[0],series.currentText().split(":")[1])]
         else:
@@ -162,6 +175,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
         
         try: 
+            # retrieve the sweep tables 
             sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
             sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
             self.draw_plots_series(sweep_table_1, self.ax, self.canvas)
@@ -172,19 +186,25 @@ class SubstractDialog(Ui_CreateNewSeries):
             return None
         
     def draw_plots_series(self, sweep_table, ax, canvas):
-        """_summary_
+        """_summary_: Draw Series Function
 
         Args:
-            sweep_table (_type_): _description_
-            ax (_type_): _description_
-            canvas (_type_): _description_
+            sweep_table (pd.DataFrame): The dataframe holding the sweep table to draw
+            ax (axes): the axes to draw in 
+            canvas (FigureCanvas): The Figure Canvas to draw in 
         """
         ax.clear()
         ax.plot(sweep_table)
         canvas.draw_idle()
         
-    def retrieve_sweep_table_iterator(self, experiment_name, draw = False):
-        """_summary: Should retrieve the Analysis Functions
+    def retrieve_sweep_table_iterator(self, experiment_name):
+        """_summary_ This should retrieve the sweep tables for the selected series_1 and 2
+
+        Args:
+            experiment_name (str): experiment name that is present for both selected series
+        
+        Returns:
+            tuple(pd.DataFrame): Holding the Sweep Tables for series_1 and 2
         """
         sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if experiment_name in i] 
         sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if experiment_name in i] 
@@ -267,7 +287,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.show_newly_created_series()
         
     def show_newly_created_series(self):
-        """_summary_
+        """_summary_: This should draw the newly created series for each experiment
         """
         operation = self.Operations.currentText()
         operation_dict = self.analysis_dictionary[operation]
@@ -277,7 +297,8 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.show_series_plot(operation_dict)
 
     def show_series_plot(self, operation):
-        """_summary_
+        """_summary_: This should show the newly created series plot
+        after selection of the experiment
 
         Args:
             operation (dict): Dictionary holding the Substracted Series with all data necessary
