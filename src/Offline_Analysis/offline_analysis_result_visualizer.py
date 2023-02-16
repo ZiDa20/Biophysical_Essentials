@@ -122,8 +122,8 @@ class OfflineAnalysisResultVisualizer():
 
             # widgets per row = 2
 
-            widget_x_pos = list_of_analysis.index(analysis) // 1#1  # 2 widgets per row
-            widgte_y_pos = list_of_analysis.index(analysis) % 1# 1 # 2 widgets per row
+            widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
+            widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
 
             print("x pos widget = ", widget_x_pos)
             print("y pos widget = ", widgte_y_pos)

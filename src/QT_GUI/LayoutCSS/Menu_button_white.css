@@ -56,10 +56,19 @@ PandasTable{{color:black;}}
 QLineEdit{{color:black; border: 2px solid black; border-radius:5px;}}
 
 QSplitter{{
-    background-color: white;
+    background-color: "white";
     border: 2px "{QTMATERIAL_SECONDARYCOLOR}";
     border-radius: 5px;
 }}
+
+QTreeView[objectName="SeriesItems"]{{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+}}
+
+QTreeView[objectName="SeriesItems"]::branch {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+}}
+
 
 QHeaderView::section{{background-color: white; color:black;}}
 
@@ -192,6 +201,12 @@ QToolTip[objectName="ImportDB"] {{color: #ffffff; background-color: #000000; bor
 
 QPushButton[objectName="save_plot_online"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/save_dark.png);}}
 QToolTip[objectName="save_plot_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="export_data_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_csv_exp.png);}}
+QToolTip[objectName="export_data_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_plot_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_image_exp.png);}}
+QToolTip[objectName="save_plot_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/database_welcome.png);}}
 QToolButton[objectName="online_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_analysis_welcome.png);}}

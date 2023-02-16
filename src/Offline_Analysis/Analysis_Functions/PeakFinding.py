@@ -19,7 +19,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
     database = None  # database
     analysis_function_id = None
     series_name = None
-    AP_WINDOW = 50
+    AP_WINDOW = 100
     AP_THRESHOLD = 0.01
 
     @classmethod

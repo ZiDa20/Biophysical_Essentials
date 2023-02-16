@@ -199,13 +199,20 @@ class SeriesItemTreeWidget():
         table_tab_widget = QTabWidget()
         # works only    if results are organized row wise
         print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
+       
         if result_plot_widget.OfflineResultGrid.columnCount() == 1:
             print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
 
-            for r in range(1, result_plot_widget.OfflineResultGrid.rowCount()):
+        for r in range(1, result_plot_widget.OfflineResultGrid.rowCount()):
+            for t in range(0, result_plot_widget.OfflineResultGrid.columnCount()):
 
-                qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
-                custom_plot_widget = qwidget_item.widget()
+                qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, t)
+
+                try:
+                    custom_plot_widget = qwidget_item.widget()
+                except AttributeError as e:
+                    print("no Widget found here")
+                    continue
                 data = custom_plot_widget.export_data_frame
                 # print(data)
                 if data.empty:
@@ -220,9 +227,7 @@ class SeriesItemTreeWidget():
                     print("setting the model")
                     
                     table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
-        else:
-            print("More than one column of analysis results is not implemented yet")
-
+     
         self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 

@@ -20,7 +20,7 @@ from StyleFrontend.animated_ap import AnimatedAP
 import matplotlib.animation as animation
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
-
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
 
 class MainWindow(QMainWindow, QtStyleTools):
@@ -265,7 +265,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.get_darkmode() == 1:
             self.set_darkmode(0)
             #self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            self.apply_stylesheet(self, 'dark_cyan.xml', invert_secondary=False)
+            self.apply_stylesheet(self, 'dark_mode.xml', invert_secondary=False)
             # open the extension from the css file
             with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button.css") as file:
                 self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
@@ -301,6 +301,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
+    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
     window.show()
