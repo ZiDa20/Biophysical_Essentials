@@ -14,6 +14,13 @@ class SweepWiseAnalysisTemplate(object):
 	database = None
 	data_shape = None
 	analysis_function_id = None
+	time = None
+	upper_bounds = None
+	lower_bounds = None
+	plot_type_options : list = ["No Split", "Split by Meta Data"]
+	cslow_normalization = 1
+	database = None  # database
+		
  
 	def __init__(self):
 		"""Initialize the template class for sweep wise analysis
@@ -22,20 +29,14 @@ class SweepWiseAnalysisTemplate(object):
 		
 
 		self.data = None
-		self.voltage = None
-
-		self.database = None  # database
-		self.plot_type_options : list = ["No Split", "Split by Meta Data"]
-
-		self.cslow_normalization = 1
-
-		self.lower_bound = None
-		self.upper_bound = None
+		#self.lower_bound = None
+		#self.upper_bound = None
 		self.time = None
 		self.data = None
 
 		self.sliced_volt = None
 		self.series_name = None
+		
 		
 	@property
 	def lower_bounds(self) -> float:
@@ -70,8 +71,6 @@ class SweepWiseAnalysisTemplate(object):
 	def construct_trace(cls):
 		""" construct the trace """
 		try:
-			print("entered function")
-			print(cls.time, cls.data)
 			cls.trace = np.vstack((cls.time, cls.data)).T
    
 		except Exception as e:
@@ -105,11 +104,8 @@ class SweepWiseAnalysisTemplate(object):
 		# @Todo
 		#series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
 
-		print(entire_sweep_table)
 		if sweep_name:
-			print(sweep_name)
 			data = entire_sweep_table.get(sweep_name)
-			print(data)
 			return [cls.live_data_for_single_sweep(data)]
 		else:
 			return cls.live_data_for_entire_series(entire_sweep_table)
@@ -169,9 +165,7 @@ class SweepWiseAnalysisTemplate(object):
 
 		# set time to non - will be set by the first data frame
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
-		cls.time = None
-		cls.upper_bounds = None
-		cls.lower_bounds = None
+		
 
 		for data_table in data_table_names:
 			
@@ -222,9 +216,9 @@ class SweepWiseAnalysisTemplate(object):
 				pgf_data_frame = cls.database.get_entire_pgf_table(data_table)
 				# 	from the coursor bounds indentify the correct segment
 
-				duration_list = pgf_data_frame.loc[:,"duration"].values
-				increment_list = pgf_data_frame.loc[:,"increment"].values
-				voltage_list = pgf_data_frame.loc[:,"voltage"].values
+				duration_list = pgf_data_frame["duration"].values
+				increment_list = pgf_data_frame["increment"].values
+				voltage_list = pgf_data_frame["voltage"].values
 
 				duration_list_float = []
 				volt_val = 0
@@ -242,7 +236,7 @@ class SweepWiseAnalysisTemplate(object):
 				result_data_frame = pd.concat([result_data_frame,new_df])
 
 			# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
-			print(f"This is the analysis function id : {cls.analysis_function_id}")
+			#print(f"This is the analysis function id : {cls.analysis_function_id}")
 			new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id, data_table)
 			cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
 																				   cls.analysis_function_id,
@@ -250,7 +244,7 @@ class SweepWiseAnalysisTemplate(object):
 																				   new_specific_result_table_name,
 																				   result_data_frame)
 
-			print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
+			#print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
 	@staticmethod
 	def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
@@ -281,7 +275,6 @@ class SweepWiseAnalysisTemplate(object):
 			list: list of funciton id related tables
 		"""
 		result_table_names = cls.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
-		print(result_table_names)
 		return result_table_names
 
 	@staticmethod

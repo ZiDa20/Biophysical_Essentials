@@ -76,8 +76,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         Request available tables and plot the content
         :return:
         '''
-        database_handler.database.close()
-        database_handler.open_connection()
+        #database_handler.database.close()
+        #database_handler.open_connection()
         self.database = database_handler.database
 
         q = """SHOW TABLES"""
@@ -115,8 +115,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         # create a button for each table
         self.retrieve_tables("Analysis Table", True)
         self.select_table.clear()
-        for key, value in self.table_dictionary.items():
-            self.select_table.addItem(key)
+        self.select_table.addItems(list(self.table_dictionary.keys()))
         self.select_table.currentTextChanged.connect(self.retrieve_tables)
 
 
@@ -128,12 +127,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             manual_table type: str Name of the table to be retrieved
             manual type: bool if true then we are in manual mode
         """
-        retrieved_tables = sorted(self.table_dictionary.get(manual_table))
+        retrieved_tables = sorted(self.table_dictionary[manual_table])
         self.database_table.clear()
 
         # add each item to the listview
-        for tables in retrieved_tables:
-            self.database_table.addItem(tables)
+        self.database_table.addItems(retrieved_tables)
         if manual:
             self.pull_table_from_database(None,"offline_analysis")
             

@@ -197,8 +197,6 @@ class SeriesItemTreeWidget():
         """create a table view within a tab widget: each tab will become one plot/one specific analysis """
 
         table_tab_widget = QTabWidget()
-        table_tab_widget = QTabWidget()
-
         # works only    if results are organized row wise
         print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
         if result_plot_widget.OfflineResultGrid.columnCount() == 1:
@@ -218,11 +216,9 @@ class SeriesItemTreeWidget():
                     # Creating a QTableView
                     self.table_view = QTableView()
                     self.table_view.setModel(self.model)
+                    self.model.resize_header(self.table_view)
                     print("setting the model")
-                    horizontal_header = self.table_view.horizontalHeader()
-                    horizontal_header.setSectionResizeMode(
-                        QHeaderView.ResizeToContents
-                    )
+                    
                     table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
         else:
             print("More than one column of analysis results is not implemented yet")

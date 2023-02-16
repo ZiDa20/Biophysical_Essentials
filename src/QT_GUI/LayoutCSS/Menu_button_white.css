@@ -1,5 +1,4 @@
 
-
 QWidget{{background-color: white;border-radius:5px;}}
 
 QDialog{{
@@ -7,14 +6,18 @@ QDialog{{
     border-radius:5px;
 }}
 
-QGroupBox{{background-color: "#5b6e8b";}}
+QGroupBox{{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    border: 2px "{QTMATERIAL_SECONDARYCOLOR}";
+    border-radius: 5px;
+}}
 QGroupBox:title{{color: "#000000";}}
 
 QTabWidget{{background-color: "#e6e6e6";}}
 
-QWidget[accessibleName="additional_function_menu"]{{background-color: "#5b6e8b";}}
+QWidget[accessibleName="additional_function_menu"]{{background-color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
-QPushButton{{background-color: "#5b6e8b"; border: 0px; color:black;}}
+QPushButton{{background-color: "{QTMATERIAL_SECONDARYCOLOR}"; border: 0px; color:black;}}
 QPushButton:hover{{background-color: "grey"; border: 0px;}}
 
 
@@ -25,7 +28,7 @@ QLabel{{
 
 QCheckBox{{background-color:transparent; color:black; }}
 
-QComboBox{{background-color:"#5b6e8b"; color:white; }}
+QComboBox{{background-color:"{QTMATERIAL_SECONDARYCOLOR}"; color:white; }}
 
 
 QRadioButton{{background-color:transparent; color:black; border:black; }}
@@ -40,7 +43,7 @@ QProgressBar{{
 
 QProgressBar::chunk{{
     border: 2px solid grey;
-    background-color: "#5b6e8b";
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
 }}
 
 QTableView::item{{color:black;}}
@@ -52,11 +55,15 @@ PandasTable{{color:black;}}
 
 QLineEdit{{color:black; border: 2px solid black; border-radius:5px;}}
 
-QSplitter{{background-color: "#5b6e8b";}}
+QSplitter{{
+    background-color: white;
+    border: 2px "{QTMATERIAL_SECONDARYCOLOR}";
+    border-radius: 5px;
+}}
 
 QHeaderView::section{{background-color: white; color:black;}}
 
-QTreeView::branch{{background-color: white; color: "#5b6e8b";}}
+QTreeView::branch{{background-color: white; color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
 QWidget[accessibleName="analysis_specific_notebook"] {{
     background-color: white;
@@ -69,8 +76,8 @@ QTreeView{{
 }}
 
 QTreeView::item:selected:focus {{
-    background-color: "#5b6e8b";
-    selection-background-color: "#5b6e8b";
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
     color: "#000000";
     selection-color: "#000000"; /* For Windows */
   }}
@@ -80,7 +87,7 @@ QFrame{{border: 0px solid white}}
 QListView{{color: black;}}
 
 QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] {{
-    background-color: #5b6e8b;
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
 QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton {{
@@ -89,7 +96,7 @@ QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton
 }}
 
 QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton:hover {{
-    background-color: #5b6e8b;  
+    background-color: {QTMATERIAL_SECONDARYCOLOR};  
 }}
 
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  

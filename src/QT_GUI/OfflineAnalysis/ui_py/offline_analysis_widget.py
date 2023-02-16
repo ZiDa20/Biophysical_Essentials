@@ -23,6 +23,7 @@ from functools import partial
 
 from database.PostSql_Handler import PostSqlHandler
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
+from CustomWidget.LoadingDialogHandler import LoadingDialog
 
 from Offline_Analysis.offline_analysis_manager import OfflineManager
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
@@ -70,7 +71,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
         # animation of the side dataframe
         self.final_series = []
-        self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
+        self.notebook = None # variable for hodling the main stacked widget describing the program
+        #self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
         # blank analysis menu
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
@@ -93,9 +95,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         print("toggle" , self.offline_analysis_widgets.currentIndex())
         try:
-            if self.offline_analysis_widgets.currentIndex()==1:
+            if self.offline_analysis_widgets.currentIndex()==0:
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
-            if self.offline_analysis_widgets.currentIndex() ==2:
+            if self.offline_analysis_widgets.currentIndex() ==1:
                 # parent
                 if self.offline_tree.SeriesItems.currentItem().data(5, Qt.UserRole) == 0 :
                     stacked_widget = self.offline_tree.SeriesItems.currentItem().data(4, Qt.UserRole)
@@ -131,7 +133,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
          self.offline_tree.add_widget_to_splitter(self.object_splitter)
 
 
-    def update_database_handler_object(self, updated_object, frontend_style):
+    def update_database_handler_object(self, updated_object, frontend_style, notebook):
         """_summary_: Should add the Database Handler Singleton
 
         Args:
@@ -139,11 +141,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.database_handler = updated_object
         self.frontend_style = frontend_style
+        self.notebook = notebook
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio)
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
         
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.verticalLayout, self.database_handler, None, False,  self.frontend_style)
+        self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout, self.database_handler, None, False,  self.frontend_style)
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2, 
                                                  [self.plot_home, self.plot_zoom, self.plot_move],
                                                  self.frontend_style,
@@ -173,8 +176,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
         
-    def show_open_analysis_dialog(self, notebook):
-        self.notebook = notebook
+    def show_open_analysis_dialog(self):
         dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
         
     @Slot()
@@ -187,6 +189,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog.close()
 
         self.load_treeview_from_database()
+        
+        #loading_dialog = LoadingDialog(self.wait_widget, self.frontend_style)
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
@@ -207,6 +211,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #print(self.offline_tree.SeriesItems.topLevelItemCount())
 
         # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
+        
         for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
 
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
@@ -217,7 +222,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 continue
             self.finished_result_thread()
 
-        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
 
     @Slot()
@@ -232,9 +237,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     @Slot()
     def load_treeview_from_database(self):
-        """
-        :return:
-        :author: dz, 01.07.2022
+        """_summary_: Should load the treeview from the analysis
+
+        Args:
+            reload (bool, optional): _description_. If this is a reloaded offline analysis or a newly created
         """
         # already initialized in in updated_data_object
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, None)
@@ -251,7 +257,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
         self.load_data_from_database_dialog.all_cb.setChecked(True)
+        
         self.load_data_from_database_dialog.exec_()
+        
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
 
     def load_page_1_tree_view(self):
@@ -259,8 +267,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         @return:
         """
-        self.canvas_grid_layout.addWidget(self.wait_widget)
-
         self.selected_meta_data_list = []
 
         for cb in self.load_data_from_database_dialog.checkbox_list:
@@ -276,14 +282,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
         self.OfflineDialogs.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
-        self.load_data_from_database_dialog.close()
+
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
-        self.offline_analysis_widgets.setCurrentIndex(1)
+        self.offline_analysis_widgets.setCurrentIndex(0)
         index =  self.treebuild.selected_tree_view.model().index(0, 0, self.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
         self.treebuild.selected_tree_view.setCurrentIndex(index)
         # Get the rect of the index
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+        self.stackedWidget.setCurrentIndex(0)
+        self.load_data_from_database_dialog.close()
+        
 
     def load_recordings(self, progress_callback):
         """_summary_
@@ -358,11 +367,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # close the dialog
         enter_meta_data_dialog.close()
-
+        self.animation_layout.addWidget(QPushButton("Sit tight we are currenly updating the database with your files!"))
+        self.notebook.setCurrentIndex(3)
+        self.offline_analysis_widgets.setCurrentIndex(0)
         # show animation
         #for i in range(self.canvas_grid_layout.count()): 
         #        self.canvas_grid_layout.itemAt(i).widget().deleteLater()
-        self.canvas_grid_layout.addWidget(self.wait_widget)
+        
         # create a new treeview manager 
         # isalread initialized in updated_database_object
         #self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
@@ -418,7 +429,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                        self.offline_analysis_widgets,
                                                        self.selected_meta_data_list)
         
-        self.offline_analysis_widgets.setCurrentIndex(2)
+        self.offline_analysis_widgets.setCurrentIndex(1)
         self.OfflineDialogs.final_series = []
         self.selected_series_combo.clear()
         self.offline_tree.click_top_level_item()
@@ -715,10 +726,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 existing_row_numbers + len(self.selected_analysis_functions))
             self.table_buttons = self.table_buttons + [0] * len(self.selected_analysis_functions)
 
+
+        pgf_files_amount = self.database_handler.get_pgf_file_selection(current_tab)
+
         for row in range(len(self.selected_analysis_functions)):
             row_to_insert = row + existing_row_numbers
             value = self.selected_analysis_functions[row]
-            print(value)
             current_tab.analysis_table_widget.analysis_table_widget.setItem(row_to_insert, 0,
                                                                             QTableWidgetItem(str(value)))
 
@@ -728,7 +741,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             current_tab.checkbox_list.append(self.live_result)
             self.live_result.setEnabled(False)
             self.pgf_selection = QComboBox()
-            self.database_handler.get_pgf_file_selection(current_tab, self.pgf_selection)
+            self.pgf_selection.addItems(pgf_files_amount)
 
 
             current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_to_insert, 3,

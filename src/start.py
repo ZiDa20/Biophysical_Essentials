@@ -82,8 +82,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         #wait_widget_layout.addWidget(statusbar,3,0)
         wait_widget_layout.addWidget(self.ui.progressBar,2,1)
         wait_widget.setLayout(wait_widget_layout)
-
-
+        self.ui.offline.animation_layout.addWidget(wait_widget)
+        
+        #self.ui.notebook.setCurrentIndex(3)
+        #self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
         # offline analysis 
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
@@ -107,7 +109,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.establish_logger()
         
         #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 1
+        self.default_mode = 0
         self.frontend_style = Frontend_Style()
         self.change_to_lightmode()
         # distribute this style object to all other classes to be used
@@ -121,7 +123,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer
-        self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style)
+        self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style, self.ui.notebook)
         self.ui.offline.add_splitter()
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.update_database_handler(self.local_database_handler)
@@ -191,19 +193,19 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
-        self.ui.offline.show_open_analysis_dialog(self.ui.notebook)
+        self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
     
     def go_to_offline_analysis(self):
         """_summary_
         """
-        self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
+        self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
         self.ui.notebook.setCurrentIndex(3)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
         
     def start_new_offline_analysis_from_dir(self):
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
-        self.go_to_offline_analysis()
+        #self.go_to_offline_analysis()
         self.ui.offline.open_directory()
 
     def start_new_offline_analysis_from_db(self):

@@ -243,7 +243,6 @@ class SpecificAnalysisFunctions():
     
     @staticmethod
     def overlay_cal(result_table_list:list, database):
-        print(result_table_list)
         dataframe = pd.DataFrame()
         for table in result_table_list:
             experiment_name = database.database.execute(f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = (SELECT sweep_table_name FROM results WHERE specific_result_table_name = '{table}')""").fetchall()[0][0]

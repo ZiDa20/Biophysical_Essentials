@@ -627,20 +627,20 @@ class PlotWidgetManager(QRunnable):
                     # print("index error")
                     end_pos = len(data)
 
-                print(n)
-                print(start_pos)
-                print(end_pos)
+                #print(n)
+                #print(start_pos)
+                #print(end_pos)
 
                 if increments[n]>0:
-                    print(1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n]))
+                    #print(1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n]))
                     pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n])
                 else:
                     if float(voltages[n]) == 0:
                         pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
-                        print(1000 * float(holding[n]))
+                        #print(1000 * float(holding[n]))
                     else:
                         pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
-                        print(1000*float(voltages[n]))
+                        #print(1000*float(voltages[n]))
 
                 start_pos = end_pos
 
@@ -651,7 +651,7 @@ class PlotWidgetManager(QRunnable):
                     self.ax2.plot(self.time, pgf_signal, c='r')
             else:
                 self.ax2.plot(self.time, pgf_signal, c=self.draw_color)
-            print("finished sweep %s", sweep_number)
+            #print("finished sweep %s", sweep_number)
 
         return protocol_steps
 

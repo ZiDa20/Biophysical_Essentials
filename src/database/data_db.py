@@ -247,7 +247,7 @@ class DuckDBDatabaseHandler():
             return database
         except Exception as e:
             print(e)
-            self.logger.error("Error in Execute SQL Command: %s", e)
+            self.logger.error("Error in Execute SQL Command: %s", e)            
             raise Exception(e)
             
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
@@ -1361,7 +1361,7 @@ class DuckDBDatabaseHandler():
         # cast string and return as float value
         return float(val)
     
-    def get_pgf_file_selection(self,current_tab, pgf_selection):
+    def get_pgf_file_selection(self,current_tab):
 
         """Should retrieve the pgf_files for all the files in the current analysis id
         This should further retrieve each individual segment,
@@ -1375,7 +1375,6 @@ class DuckDBDatabaseHandler():
                 q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
                 pgf_sections = self.get_data_from_database(self.database, q, [experiment[0], series_name])[0][0]
                 pgf_table = self.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
-                print(pgf_table.info)
                 pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
                 pgf_file_dict[experiment[0]] = (pgf_table, pgf_table.shape[0])
 
@@ -1386,14 +1385,13 @@ class DuckDBDatabaseHandler():
         pgf_files_amount = {pgf_index[1] for pgf_index in pgf_file_dict.values()}
 
         if len(pgf_files_amount) <= 1:
-            for i in range(1, int(list(pgf_files_amount)[0])+1):
-                pgf_selection.addItem(f"Segment {i}")
+            return list(pgf_files_amount)
 
         else:
             CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.", self.frontend_style)
+            return {"Segments are unequal"}
 
-        print(pgf_file_dict)
-
+   
     '''-------------------------------------------------------'''
     '''     interaction with  table resutls       '''
     '''-------------------------------------------------------'''
@@ -1410,6 +1408,7 @@ class DuckDBDatabaseHandler():
         :return:
         """
         self.database.register('df_1', result_data_frame)
+        print(result_data_frame)
         q = """insert into  results values (?,?,?,?) """ #set specific_result_table_name = (?) where analysis_id = (?) and analysis_function_id = (?) and sweep_table_name = (?) """
 
         try:
