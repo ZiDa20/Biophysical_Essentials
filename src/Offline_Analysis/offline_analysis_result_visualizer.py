@@ -253,7 +253,7 @@ class OfflineAnalysisResultVisualizer():
                     parent_widget.plot_type_combo_box.currentTextChanged.connect(
                         partial(self.plot_type_changed, parent_widget))
             except Exception as e:
-                print(str(e))
+                print(e)
 
             return self.canvas
 
