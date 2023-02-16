@@ -124,6 +124,22 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_15.setContentsMargins(1, 3, 1, 3)
         self.DataOptions = QGridLayout()
         self.DataOptions.setObjectName(u"DataOptions")
+        self.append = QPushButton(self.DataGroup)
+        self.append.setObjectName(u"append")
+        self.append.setMinimumSize(QSize(30, 30))
+        self.append.setMaximumSize(QSize(30, 30))
+        self.append.setStyleSheet(u"")
+
+        self.DataOptions.addWidget(self.append, 0, 2, 1, 1)
+
+        self.load_from_database = QPushButton(self.DataGroup)
+        self.load_from_database.setObjectName(u"load_from_database")
+        self.load_from_database.setMinimumSize(QSize(30, 30))
+        self.load_from_database.setMaximumSize(QSize(30, 30))
+        self.load_from_database.setStyleSheet(u"")
+
+        self.DataOptions.addWidget(self.load_from_database, 0, 1, 1, 1)
+
         self.select_directory_button = QPushButton(self.DataGroup)
         self.select_directory_button.setObjectName(u"select_directory_button")
         self.select_directory_button.setMinimumSize(QSize(30, 30))
@@ -145,21 +161,12 @@ class Ui_Offline_Analysis(object):
 
         self.DataOptions.addWidget(self.select_directory_button, 0, 0, 1, 1)
 
-        self.load_from_database = QPushButton(self.DataGroup)
-        self.load_from_database.setObjectName(u"load_from_database")
-        self.load_from_database.setMinimumSize(QSize(30, 30))
-        self.load_from_database.setMaximumSize(QSize(30, 30))
-        self.load_from_database.setStyleSheet(u"")
+        self.plot_meta = QPushButton(self.DataGroup)
+        self.plot_meta.setObjectName(u"plot_meta")
+        self.plot_meta.setMinimumSize(QSize(30, 30))
+        self.plot_meta.setMaximumSize(QSize(30, 30))
 
-        self.DataOptions.addWidget(self.load_from_database, 0, 1, 1, 1)
-
-        self.append = QPushButton(self.DataGroup)
-        self.append.setObjectName(u"append")
-        self.append.setMinimumSize(QSize(30, 30))
-        self.append.setMaximumSize(QSize(30, 30))
-        self.append.setStyleSheet(u"")
-
-        self.DataOptions.addWidget(self.append, 0, 2, 1, 1)
+        self.DataOptions.addWidget(self.plot_meta, 0, 3, 1, 1)
 
 
         self.gridLayout_15.addLayout(self.DataOptions, 0, 0, 1, 1)
@@ -584,15 +591,16 @@ class Ui_Offline_Analysis(object):
         self.fo_forward_button.setText("")
         self.go_home.setText("")
         self.DataGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data Options", None))
-        self.select_directory_button.setText("")
-#if QT_CONFIG(tooltip)
-        self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
-#endif // QT_CONFIG(tooltip)
-        self.load_from_database.setText("")
 #if QT_CONFIG(tooltip)
         self.append.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Append Data", None))
 #endif // QT_CONFIG(tooltip)
         self.append.setText("")
+#if QT_CONFIG(tooltip)
+        self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
+#endif // QT_CONFIG(tooltip)
+        self.load_from_database.setText("")
+        self.select_directory_button.setText("")
+        self.plot_meta.setText("")
         self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
         self.plot_home.setText("")
         self.plot_zoom.setText("")

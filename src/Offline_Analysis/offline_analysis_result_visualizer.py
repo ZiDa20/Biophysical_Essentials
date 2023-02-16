@@ -28,7 +28,8 @@ class OfflineAnalysisResultVisualizer():
                  visualization_tab_widget, 
                  database: DuckDBDatabaseHandler, 
                  final_result_holder,
-                 frontend_style):
+                 frontend_style, 
+                 plot_meta_button):
         """_summary_
 
         Args:
@@ -40,9 +41,12 @@ class OfflineAnalysisResultVisualizer():
         self.visualization_tab_widget = visualization_tab_widget.SeriesItems
         self.offline_tree = visualization_tab_widget
         self.database_handler = database
-        self.canvas = None
         self.final_result_holder = final_result_holder
-        self.offline_plot = None  
+        self.canvas = None
+        
+        
+        self.change_meta_data = plot_meta_button
+        
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
         """
@@ -84,14 +88,11 @@ class OfflineAnalysisResultVisualizer():
         # print("list of analysis")
         # print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
-        self.offline_plot = []
+        parent_list = []
+        offline_list = []
         offline_tab = OfflineResultTab()
         offline_tab.OfflineScroll.setStyleSheet("background-color: rgba(0,0,0,0")
-        self.grid_button = QGridLayout()
-        self.change_meta_data = QPushButton("Change Meta Data")
-        self.grid_button.addWidget(self.change_meta_data, 0, 0)
-        offline_tab.OfflineResultGrid.addLayout(self.grid_button, 0, 0)
-
+        
         for analysis in list_of_analysis:
 
             # create new custom plot visualizer and parametrize data
@@ -101,6 +102,7 @@ class OfflineAnalysisResultVisualizer():
                      self.frontend_style, 
                      self.offline_tree,
                      self.final_result_holder)
+            
 
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
@@ -118,7 +120,7 @@ class OfflineAnalysisResultVisualizer():
             
 
             # fill the plot widget with analysis specific data
-            parent_widget, analysis_function = self.single_analysis_visualization(custom_plot_widget)
+            analysis_function = self.single_analysis_visualization(custom_plot_widget)
 
             # widgets per row = 2
 
@@ -127,15 +129,17 @@ class OfflineAnalysisResultVisualizer():
 
             print("x pos widget = ", widget_x_pos)
             print("y pos widget = ", widgte_y_pos)
+            parent_list.append(custom_plot_widget)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
-            self.offline_plot.append(self.offlineplot) 
-            
+            offline_list.append(self.offlineplot)
+        
         # after all plots have been added
-        self.visualization_tab_widget.currentItem().parent().setData(9, Qt.UserRole, self.offline_plot)
-        self.change_meta_data.clicked.connect(partial(self.open_meta_data, analysis_function, parent_widget))
+        self.visualization_tab_widget.currentItem().parent().setData(9, Qt.UserRole, offline_list)
+        self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
+        
         return offline_tab
     
-    def open_meta_data(self, analysis_function, parent_widget):
+    def open_meta_data(self):
         """_summary_: This opens the meta data from the selected meta data table to 
         retrieve the the condition columns holding the column string that can be used
         for meta data retrieval in offline plot
@@ -157,10 +161,12 @@ class OfflineAnalysisResultVisualizer():
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
         
-        analysis_function_id = self.visualization_tab_widget.currentItem().parent().data(8, Qt.UserRole)
-        offline_plots = self.visualization_tab_widget.currentItem().parent().data(9, Qt.UserRole)
-        for plot,id in zip(offline_plots,analysis_function_id):
-            plot.retrieve_analysis_function(parent_widget = parent_widget, analysis_function_id = id)
+
+        parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
+        offlines = self.visualization_tab_widget.currentItem().parent().data(9, Qt.UserRole)
+        for parent, offline in zip(parents, offlines):
+            # parent seems to be 
+            offline.retrieve_analysis_function(parent_widget = parent)
         
         return None
 
@@ -196,11 +202,11 @@ class OfflineAnalysisResultVisualizer():
         self.offlineplot.set_metadata_table(result_table_names)
         
         if switch:
-            self.offlineplot.retrieve_analysis_function(result_table_list = result_table_names, switch = True) 
+            self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget, result_table_list = result_table_names, switch = True) 
         else:  
-            self.offlineplot.retrieve_analysis_function(parent_widget, result_table_names) 
+            self.offlineplot.retrieve_analysis_function(parent_widget =parent_widget, result_table_list =result_table_names) 
             
-        return parent_widget, analysis_function
+        return analysis_function
         
     def handle_metadata_click(self):
         """

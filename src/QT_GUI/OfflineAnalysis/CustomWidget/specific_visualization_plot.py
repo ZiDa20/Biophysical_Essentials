@@ -13,8 +13,6 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from CustomWidget.groupbox_resizing_class import *
 
-
-
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
         if not result_plot_visualizer.objectName():
@@ -168,6 +166,7 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         self.series_name = None
         # object where plot data will be stored to be exported easily
         self.export_data_frame = None
+        self.holded_dataframe = None
 
         
 

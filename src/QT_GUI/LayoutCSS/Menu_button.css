@@ -235,6 +235,16 @@ QToolTip[objectName="ImportDB"] {{color: #ffffff; background-color: #000000; bor
 QPushButton[objectName="save_plot_online"]{{background-image: url(../QT_GUI/Button/dark_mode/database_viewer/save_white.png);}}
 QToolTip[objectName="save_plot_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="export_data_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_csv_exp.png);}}
+QToolTip[objectName="export_data_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_plot_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_image_exp.png);}}
+QToolTip[objectName="save_plot_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="plot_meta"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_plot_meta.png);}}
+QToolTip[objectName="plot_meta"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
 QToolButton[objectName="database_viewer_home_2"]{{ 
     qproperty-icon: url(../QT_GUI/Button/welcome_page/db_welcome_dark.png);
                }}
