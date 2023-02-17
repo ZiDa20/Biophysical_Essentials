@@ -1,5 +1,4 @@
 #from pypylon import pylon
-import matplotlib.pyplot as plt
 #Switched to pyqt
 
 class BayerCamera():
@@ -45,8 +44,6 @@ class BayerCamera():
 
     def save_fig(self, bm):   
         """""" 
-        fig, ax = plt.subplots(figsize = (10,10))
-        plt.imshow(self.img)
         #save the image into the class 
         self.online_analysis.image_labbook = self.img
         #plt.savefig(bm.set_batch_path())

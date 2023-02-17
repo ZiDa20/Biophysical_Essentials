@@ -98,42 +98,29 @@ class OfflineAnalysisResultVisualizer():
         for analysis in list_of_analysis:
 
             # create new custom plot visualizer and parametrize data
-            custom_plot_widget = ResultPlotVisualizer()
-            
-
-
+            custom_plot_widget = ResultPlotVisualizer(self.offline_tree)
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
             custom_plot_widget.series_name = series
 
             analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
             custom_plot_widget.analysis_name = analysis_name
-
-            custom_plot_widget.analysis_name = analysis_name
-
             custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
-
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
-
-
             # fill the plot widget with analysis specific data
             analysis_function = self.single_analysis_visualization(custom_plot_widget)
-
             # widgets per row = 2
-
             widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
             widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
 
             print("x pos widget = ", widget_x_pos)
             print("y pos widget = ", widgte_y_pos)
-            parent_list.append(custom_plot_widget)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
-           
+            parent_list.append(custom_plot_widget)
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
-
         return offline_tab
     
     def open_meta_data(self):

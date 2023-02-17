@@ -1,6 +1,4 @@
 import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 class AnimatedAP:
     def __init__(self,ax):
@@ -26,6 +24,3 @@ class AnimatedAP:
     def anim_update(self,num):
         self.line.set_data(self.time[:num], self.potential[:num])
         return self.line,
-
-    def show_dialog(self):
-          plt.show()

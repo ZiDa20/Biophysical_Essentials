@@ -1,28 +1,31 @@
-import sys
-import os
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
-from PySide6.QtTest import QTest
-from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
-from qt_material import apply_stylesheet
-from functools import partial
 import logging
-from qt_material import QtStyleTools
-from Backend.self_configuration import *
-from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
-from QT_GUI.Settings.ui_py.settings_dialog import *
-from StyleFrontend.frontend_style import Frontend_Style
-from database.data_db import DuckDBDatabaseHandler
-from StyleFrontend.animated_ap import AnimatedAP
+import os
+import sys
+from functools import partial
+
 import matplotlib.animation as animation
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import *  # type: ignore
+from qt_material import QtStyleTools, apply_stylesheet
+
+from Backend.self_configuration import *
+from database.data_db import DuckDBDatabaseHandler
+from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
+from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import \
+    Offline_Analysis
+from QT_GUI.Settings.ui_py.settings_dialog import *
+from StyleFrontend.animated_ap import AnimatedAP
+from StyleFrontend.frontend_style import Frontend_Style
+
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
 
 class MainWindow(QMainWindow, QtStyleTools):
-
+ 
     def __init__(self, parent = None):
         """Initialize the MainWindow class for starting the Application
 

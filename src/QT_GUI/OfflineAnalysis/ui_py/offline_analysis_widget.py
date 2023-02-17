@@ -17,13 +17,10 @@ from Threading.Worker import Worker
 
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 from functools import partial
 
 from database.PostSql_Handler import PostSqlHandler
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
-from CustomWidget.LoadingDialogHandler import LoadingDialog
 
 from Offline_Analysis.offline_analysis_manager import OfflineManager
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
@@ -35,7 +32,6 @@ from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Statis
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
-from StyleFrontend.animated_ap import AnimatedAP
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 from Offline_Analysis.FinalResultHolder import ResultHolder
@@ -923,20 +919,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
         
-    def show_ap_simulation(self):
-
-        ap = AnimatedAP()
-
-        # Create the animation using the update function and the time points as frames
-        ani = animation.FuncAnimation(ap.fig, ap.anim_update, frames=len(ap.time), blit=True)
-
-        # Add labels to the x- and y-axes
-        #ax.set_xlabel('Time (ms)')
-        #ax.set_ylabel('Membrane Potential (mV)')
-        plt.show()
-        # Display the animation
-        #ap.show_dialog()
-
 
     def run_database_thread(self, current_tab,  progress_callback = None):
         """ This function will run the analysis in a separate thread, that is selected

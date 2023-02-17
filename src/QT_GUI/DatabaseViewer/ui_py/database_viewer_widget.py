@@ -1,8 +1,6 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-import duckdb
-import os
 from QT_GUI.DatabaseViewer.ui_py.data_base_designer_object import Ui_Database_Viewer
 import pandas as pd
 from CustomWidget.Pandas_Table import PandasTable
@@ -11,8 +9,6 @@ from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
-import matplotlib.pyplot as plt 
-
 from QT_GUI.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
 
 
@@ -296,7 +292,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             None"""
         fig = self.canvas.figure
         ax = fig.add_subplot(111)
-        plt.style.use('dark_background')
         fig.tight_layout()
         ax.set_xlabel("Time")
         ax.set_ylabel("Unit [A]|[V]")

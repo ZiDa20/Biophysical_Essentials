@@ -1,11 +1,14 @@
-from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 import logging
-from numpy import nan
+import pandas as pd
+import seaborn as sns
+from matplotlib.backends.backend_qtagg import \
+    NavigationToolbar2QT as NavigationToolbar
 from matplotlib.cm import get_cmap
+from numpy import nan
+
+from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import \
+    SpecificAnalysisFunctions
+
 
 class OfflinePlots():
     
@@ -139,8 +142,6 @@ class OfflinePlots():
         
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
-
-
     def make_boxplot(self,result_table_list: list):
 
         """Specific Function to draw Boxplots from long table formats
@@ -154,7 +155,7 @@ class OfflinePlots():
 
         if self.parent_widget.holded_dataframe is None:
             plot_dataframe = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-            self.merge_meta_plot_and_assign_meta(plot_dataframe, self.parent_widget.selected_meta_data)
+            self.merge_meta_plot_and_assign_meta(plot_dataframe)
         else:
             self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             for ax in self.parent_widget.canvas.figure.axes:
@@ -190,8 +191,7 @@ class OfflinePlots():
         self.parent_widget.canvas.draw_idle()        
         self.parent_widget.export_data_frame = pivoted_table
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
-
-                
+        
     def rheobase_plot(self, result_table_list:list):
         """Plotting Function to draw rheobase boxplot into the OfflineAnalysisResultAnalyzer
 
@@ -204,7 +204,7 @@ class OfflinePlots():
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
-            self.merge_meta_plot_and_assign_meta(plot_dataframe, self.parent_widget.selected_meta_data)
+            self.merge_meta_plot_and_assign_meta(plot_dataframe)
         else:
             self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             for ax in self.parent_widget.canvas.figure.axes:
@@ -257,7 +257,7 @@ class OfflinePlots():
                 ax.clear() 
                 
         self.simple_plot_make(self.parent_widget.holded_dataframe)
-        self.parent_widget.canvas.draw()
+        self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
         
@@ -284,11 +284,9 @@ class OfflinePlots():
                 ax.clear() 
                 
         self.line_boxplot(self.parent_widget.holded_dataframe)
-        self.parent_widget.canvas.draw()
+        self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
-
-
 
     def ap_fitting_plot(self, result_table_list: list, agg: bool = False):
         """Should Create the Heatmap for each Fitting Parameter
@@ -312,7 +310,6 @@ class OfflinePlots():
 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
         sns.heatmap(data = drawing_data, ax = self.parent_widget.ax)
         self.parent_widget.canvas.figure.tight_layout()
@@ -366,7 +363,7 @@ class OfflinePlots():
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
             self.hue_regplot(data=self.parent_widget.holded_dataframe, x='index', y='values', hue='meta_data', ax=self.parent_widget.ax)
-            self.parent_widget.canvas.draw()
+            self.parent_widget.canvas.draw_idle()
 
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
@@ -410,7 +407,7 @@ class OfflinePlots():
                 
         else: # if stable voltage dependency
             g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
-            self.connect_hover(g)
+            self.parent_widget.connect_hover(g)
             try:
                 pivoted_table =  pd.pivot_table(plot_dataframe, index = ["Unit"], columns = ["meta_data"], values = "values")
             except Exception as e:
@@ -495,7 +492,6 @@ class OfflinePlots():
         """
         g = sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, errorbar=("se", 2), legend = False)
         sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax)
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.ax.autoscale()
 
@@ -513,82 +509,6 @@ class OfflinePlots():
             )
             for key in levels
         ]
-
-    ################################################################################
-    # Hovering Functions: and Plot Controls
-    ################################################################################
-
-      
-    def on_click(self, event, annot):
-        """Event Detection in the Matplotlib Plot
-        
-        Args:
-            event (mpl_connect_event): Event Connection via hovering motion notify
-            annot (ax.annotate): Annotations of the axis
-        
-        """
-        for line in self.parent_widget.ax.lines:
-            #check if the selected line is drawn
-            if line.contains(event)[0]:
-                cont, ind = line.contains(event)
-                line.set_linewidth(6)
-                self.update_annot(ind,annot,line)
-                annot.set_visible(True)
-            else:
-                line.set_linewidth(1)
-
-            self.parent_widget.canvas.draw_idle()
-    
-    def update_annot(self, ind: tuple, annot, line):
-        """Annotation Update for visualization of the lineplot name
-        when hovering
-
-        Args:
-            ind (tuple): _description_
-            annot (_type_): _description_
-            line (_type_): _description_
-        """
-        x,y = line.get_data()
-        annot.xy = (x[ind["ind"][0]], y[ind["ind"][0]])
-        index_line = line.axes.get_lines().index(line)
-        name = line.axes.get_legend().texts[index_line].get_text()
-        text = f'{" ".join(list(map(str, ind["ind"])))}, {" ".join([name for _ in ind["ind"]])}'
-        annot.set_text(text)
-        annot.get_bbox_patch().set_alpha(0.4)
-        
-    def connect_hover(self, plot):
-        """Function to connect the plot with the on_click function
-
-        Args:
-            plot (seaborn plot): seaborn plot (g) which should be connected
-        """
-        self.parent_widget.ax.legend().set_visible(False)
-        
-        annot = self.parent_widget.ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
-                    bbox=dict(boxstyle="round", fc="w"),
-                    arrowprops=dict(arrowstyle="->"))
-        annot.set_visible(False)
-        
-        plot.figure.canvas.mpl_connect("motion_notify_event", 
-                                    lambda event: self.on_click(event, 
-                                                                annot
-                                                                ))
-        plot.figure.canvas.mpl_connect("button_press_event",self.on_pick)
-
-    def on_pick(self, event):
-        """Event Detection in the Matplotlib Plot to retrieve the Experiment from the TreeView
-        
-        Args:
-            event (mpl_connect_event): Event Connection via button pressing"""
-        for line in self.parent_widget.ax.lines:
-            if line.contains(event)[0]:
-                index_line = line.axes.get_lines().index(line)
-                name = line.axes.get_legend().texts[index_line].get_text()
-                print(self.offline_tree.SeriesItems.selectedItems())
-                self.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.selectedItems()[0].parent().child(0))
-                self.offline_tree.offline_analysis_result_tree_item_clicked()
-                self.offline_tree.click_top_level_tree_item(name)
-
 
     ################################################################################
     # Upload Data Controls

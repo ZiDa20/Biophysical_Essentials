@@ -1,14 +1,10 @@
-from pickle import FALSE
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtCore import * 
 from functools import partial
 
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-import numpy as np
-import pandas as pd
+from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
 
 

@@ -1,23 +1,16 @@
 from re import T
-from PySide6 import QtCore
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from Backend.treeview_manager import *
 import pyqtgraph as pg
 import numpy as np
-from scipy.signal import find_peaks
-import matplotlib.pyplot as plt
-
 from CustomWidget.draggable_lines import DraggableLines
-sys.path.append(os.path.dirname(os.getcwd()) + "/src/Offline_Analysis")
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
-from qbstyles import mpl_style
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
@@ -599,7 +592,7 @@ class PlotWidgetManager(QRunnable):
         increments = np.array(increments, dtype=float)
 
         # according to the number n of intervals sweep_number * n signals need to be created
-        increment_intervals = np.where(increments>0)[0]
+        increment_intervals = np.where((increments>0)| (increments <0))[0]
         increment_interval_amount = len(increment_intervals)
 
         durations = pgf_table_df['duration'].values.tolist()
@@ -631,7 +624,7 @@ class PlotWidgetManager(QRunnable):
                 #print(start_pos)
                 #print(end_pos)
 
-                if increments[n]>0:
+                if increments[n]!=0:
                     #print(1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n]))
                     pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n])
                 else:

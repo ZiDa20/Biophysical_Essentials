@@ -1,10 +1,6 @@
 from PySide6.QtWidgets import *  # type: ignore
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SubstractDialog import Ui_CreateNewSeries
-from functools import partial
-import seaborn as sns
-import matplotlib.pyplot as plt
-from qbstyles import mpl_style
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 class SubstractDialog(Ui_CreateNewSeries):
