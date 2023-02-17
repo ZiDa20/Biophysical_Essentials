@@ -128,3 +128,5 @@ class TreeBuild(Ui_Form):
         self.parent = parent
         QWidget.__init__(self,parent)
         self.setupUi(self)
+        self.selected_tree_view.header().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.discarded_tree_view.header().setSectionResizeMode(QHeaderView.ResizeToContents)

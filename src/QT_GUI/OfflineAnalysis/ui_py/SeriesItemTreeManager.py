@@ -28,6 +28,7 @@ class SeriesItemTreeWidget():
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
+        self.SeriesItems.setHeaderLabel("Series Selector:")
         self.frontend_style = frontend_style
         self.offline_widget = None
         self.database_handler = database_handler

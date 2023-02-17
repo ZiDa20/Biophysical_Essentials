@@ -194,7 +194,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
         # show and retrieve the selected columns
         self.data_base_content.show()
-        self.data_base_content.clicked.connect(self.retrieve_column)
+        # at the moment this is slow and instable and therefor is not implemented
+        #self.data_base_content.clicked.connect(self.retrieve_column)
 
 
     @Slot()

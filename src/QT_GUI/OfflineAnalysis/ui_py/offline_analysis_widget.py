@@ -55,7 +55,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.object_splitter = None
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
-        
+        self.selected_series_combo.view().setFixedWidth(100)
         self.wait_widget = None
         self.ap_timer = None
         self.offline_analysis_widgets.setCurrentIndex(0)
@@ -912,8 +912,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         # store analysis parameter in the database
-        
-        #self.show_ap_simulation()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)

@@ -61,16 +61,25 @@ QSplitter{{
     border-radius: 5px;
 }}
 
-QTreeView[objectName="SeriesItems"]{{
+QTreeWidget[objectName="SeriesItems"]{{
     background-color: "{QTMATERIAL_SECONDARYCOLOR}";
 }}
+
 
 QTreeView[objectName="SeriesItems"]::branch {{
     background-color: "{QTMATERIAL_SECONDARYCOLOR}";
 }}
 
+QTreeView[objectName="SeriesItems"]::header {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+}}
 
-QHeaderView::section{{background-color: white; color:black;}}
+QComboBox::menu{{
+    width: 100px;
+}}
+
+
+QHeaderView::section{{background-color: {QTMATERIAL_SECONDARYCOLOR}; color:white;}}
 
 QTreeView::branch{{background-color: white; color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 

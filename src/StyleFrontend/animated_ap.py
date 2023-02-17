@@ -1,5 +1,6 @@
 import matplotlib
 
+
 class AnimatedAP:
     def __init__(self,ax):
 
@@ -15,7 +16,7 @@ class AnimatedAP:
 
         # Initialize a line plot showing the action potential over time
         self.line, = ax.plot(self.time, self.potential, 'maroon')
-        ax.plot(self.time, self.potential, 'lightgrey')
+        ax.plot(self.time, self.potential)
         ax.axis('off')
         #self.fig.set_facecolor('#54545a')
 
