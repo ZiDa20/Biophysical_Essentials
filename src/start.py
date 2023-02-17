@@ -165,18 +165,34 @@ class MainWindow(QMainWindow, QtStyleTools):
 
                 if col == 0:
                     new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if self.default_mode == 1:
+                        icon.addFile(u"../QT_GUI/Button/Menu/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
+                    else:
+                        icon.addFile(u"../QT_GUI/Button/Menu/open_dir_dark.png", QSize(), QIcon.Normal, QIcon.Off)
                 elif col == 1:
                     new_button.clicked.connect(self.start_new_offline_analysis_from_db)
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/db.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if self.default_mode == 1:
+                        icon.addFile(u"../QT_GUI/Button/Menu/db.png", QSize(), QIcon.Normal, QIcon.Off)
+                    else:
+                        icon.addFile(u"../QT_GUI/Button/Menu/db_dark.png", QSize(), QIcon.Normal, QIcon.Off)
                 elif col == 2:
                     new_button.clicked.connect(self.open_analysis)
-                    icon.addFile(u"../QT_GUI/Button/OnlineAnalysis/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
+                    if self.default_mode == 1:
+                        icon.addFile(u"../QT_GUI/Button/Menu/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
+                    else:
+                        icon.addFile(u"../QT_GUI/Button/Menu/open_exisiting_results_dark.png", QSize(), QIcon.Normal, QIcon.Off)
                 elif col == 3:
                     new_button.clicked.connect(self.go_to_offline_analysis)
-                    icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
-                    
-                new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
+                    if self.default_mode == 1:
+                        icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
+                    else:
+                        icon.addFile(u"../QT_GUI/Button/dark_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
+
+
+                if self.default_mode == 1:
+                    new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
+                else:
+                    new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
                 new_button.setIcon(icon)
                 new_button.setIconSize(QSize(200, 200))
                 new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)

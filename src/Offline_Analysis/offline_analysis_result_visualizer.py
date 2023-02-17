@@ -43,7 +43,11 @@ class OfflineAnalysisResultVisualizer():
         self.database_handler = database
         self.final_result_holder = final_result_holder
         self.canvas = None
-        
+        self.offlineplot = OfflinePlots(
+                     self.database_handler, 
+                     self.frontend_style, 
+                     self.offline_tree,
+                     self.final_result_holder)
         
         self.change_meta_data = plot_meta_button
         
@@ -88,7 +92,6 @@ class OfflineAnalysisResultVisualizer():
         # print(list_of_analysis)
         # e.g. [(43,), (45,), (47,)]
         parent_list = []
-        offline_list = []
         offline_tab = OfflineResultTab()
         offline_tab.OfflineScroll.setStyleSheet("background-color: rgba(0,0,0,0")
 
@@ -96,11 +99,7 @@ class OfflineAnalysisResultVisualizer():
 
             # create new custom plot visualizer and parametrize data
             custom_plot_widget = ResultPlotVisualizer()
-            self.offlineplot = OfflinePlots(
-                     self.database_handler, 
-                     self.frontend_style, 
-                     self.offline_tree,
-                     self.final_result_holder)
+            
 
 
             custom_plot_widget.analysis_id = analysis_id
@@ -130,10 +129,9 @@ class OfflineAnalysisResultVisualizer():
             print("y pos widget = ", widgte_y_pos)
             parent_list.append(custom_plot_widget)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
-            offline_list.append(self.offlineplot)
+           
 
         # after all plots have been added
-        self.visualization_tab_widget.currentItem().parent().setData(9, Qt.UserRole, offline_list)
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
 
         return offline_tab
@@ -162,11 +160,8 @@ class OfflineAnalysisResultVisualizer():
         
 
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
-        offlines = self.visualization_tab_widget.currentItem().parent().data(9, Qt.UserRole)
-        for parent, offline in zip(parents, offlines):
-            # parent seems to be 
-            offline.retrieve_analysis_function(parent_widget = parent)
-        
+        for parent in parents: 
+            self.offlineplot.retrieve_analysis_function(parent_widget = parent, meta = True)
         return None
 
     def single_analysis_visualization(self,parent_widget,analysis_function=None, switch = None):
@@ -193,9 +188,9 @@ class OfflineAnalysisResultVisualizer():
         else:
             result_table_names = class_object.visualize_results(parent_widget)
             analysis_function = analysis_function if result_table_names else None
-        self.offlineplot.set_frontend_axes(self.canvas)
+       
+        self.offlineplot.set_frontend_axes(parent_widget, self.canvas)
         self.offlineplot.set_metadata_table(result_table_names)
-
         if switch:
             self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget, result_table_list = result_table_names, switch = True) 
         else:  
@@ -281,8 +276,7 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
         result_path = QFileDialog.getSaveFileName()[0]
-        canvas= parent_widget.plot_layout.itemAt(0).widget()
-        canvas.print_figure(result_path)
+        parent_widget.canvas.print_figure(result_path)
         #print("saved plot in " + result_path)
 
     def plot_type_changed(self, parent_widget, new_text):

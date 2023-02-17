@@ -58,10 +58,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         else:
             print("No Table to export")
 
+    """
     @Slot()
     def open_database(self):
         #@todo: find a way to anyhow access the already opened database object from offline analysis
-        """open a dropdown menu and connect to a database selected by the user"""
+        \"""open a dropdown menu and connect to a database selected by the user\"""
         cew = os.path.dirname(os.getcwd())
         self.db_file_name = "duck_db_analysis_database.db"
         try:
@@ -69,7 +70,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.show_basic_tables(True)
         except Exception as e:
             print(e)
-            
+    """     
 
     def show_basic_tables(self,database_handler):
         '''
