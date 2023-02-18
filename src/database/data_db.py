@@ -1489,23 +1489,24 @@ class DuckDBDatabaseHandler():
         meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
         return [meta_string]
 
-    def get_selected_meta_data(self, analysis_function_id, meta):
+    def get_selected_meta_data(self, analysis_function_id):
         # get the meta data table that is stored in the database
 		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
-        try:
-            q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
-            
-            if meta:
-                q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
-            
-            selected_meta_data = self.get_data_from_database(self.database, q, fetch_mode = 2)["condition_column"].tolist()
-            return selected_meta_data
+       
+        q_analysis = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
+        q_specific = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
         
-        except Exception as e:
-            print(e)
-            if e == np.nan:
-                print("Error: No meta data found")
+        selected_meta_data = self.get_data_from_database(self.database,q_specific, fetch_mode = 2)["condition_column"].tolist()
+        if selected_meta_data:
+            return selected_meta_data
+        else:
+            selected_meta_data = self.get_data_from_database(self.database,q_analysis, fetch_mode = 2)["condition_column"].tolist()
+            if selected_meta_data:
+                return selected_meta_data
+            else:
                 return None
+            
+    
             
     
 
