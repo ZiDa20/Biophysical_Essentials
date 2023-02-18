@@ -25,7 +25,6 @@ class DuckDBDatabaseHandler():
         self.database = None
         self.database_path = None
         self.analysis_id = None
-
         # set up the classes for the main tables
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
 
@@ -278,7 +277,6 @@ class DuckDBDatabaseHandler():
 
         except Exception as e:
             self.database.close()
-            self.open_connection()
             self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
             print("failed")
 
@@ -536,11 +534,16 @@ class DuckDBDatabaseHandler():
         :param series_name:
         :return:
         '''
+        if not isinstance(experiment_name, str):
+            raise TypeError(f"expected String type and not {type(experiment_name)}")
         q = f'select sweep_table_name from experiment_series where experiment_name = \'{experiment_name}\' AND series_identifier = \'{series_identifier}\''
-        print("hello", q)
         res = self.database.execute(q).fetchdf()
-
-        return res["sweep_table_name"].tolist()[0]
+        
+        # check if the result is not empty
+        if not res.empty:
+            return res["sweep_table_name"].tolist()[0]
+        else:
+            return None
 
     def get_entire_sweep_table(self, table_name, fetchmode = 1):
         '''
@@ -601,6 +604,8 @@ class DuckDBDatabaseHandler():
         :return:
         :author dz, 28.06.2022
         """
+        if not isinstance(experiment_name, str):
+            raise TypeError(f"The entered value is of type {type(experiment_name)}, but str is expected")
         q = f'select condition from global_meta_data where experiment_name = \'{experiment_name}\''
         return self.get_data_from_database(self.database, q)[0][0]
 
@@ -821,7 +826,10 @@ class DuckDBDatabaseHandler():
     def get_analysis_function_name_from_id(self,analysis_function_id):
         q= f'select function_name from analysis_functions where analysis_function_id = {analysis_function_id}'
         r = self.get_data_from_database(self.database, q)
-        return r[0][0]
+        if r:
+            return r[0][0]
+        else:
+            return None
 
     def get_analysis_series_name_by_analysis_function_id(self,analysis_function_id):
         q = f'select analysis_series_name from analysis_functions where analysis_function_id = {analysis_function_id}'
