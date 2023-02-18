@@ -1507,9 +1507,6 @@ class DuckDBDatabaseHandler():
                 return None
             
     
-            
-    
-
         """ @deprecated dz 27.07.2022
         def add_single_sweep_to_database(self, experiment_name, series_identifier, sweep_number, meta_data, data_array):
         

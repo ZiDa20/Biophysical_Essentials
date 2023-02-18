@@ -127,11 +127,8 @@ class OfflinePlots():
         if analysis_function == "Violinplot":
             self.violin = True
 
-       
         self.parent_widget.selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
             
-
-
         try:
             self.plot_dictionary.get(analysis_function)(result_table_list)
         except Exception as e:
