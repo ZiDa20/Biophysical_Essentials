@@ -40,15 +40,19 @@ class TestFrontPage(unittest.TestCase):
         # constructor of the mainwindow
         cls.ui = MainWindow()
         cls.database_handler = cls.ui.local_database_handler
-        cls.database_handler.analysis_id = 102
-        cls.database_handler.database.close()
-        cls.test_database = duckdb.connect("../Tests/testDB.db")
-        cls.database_handler.database_path = "../Tests/testDB.db"
-        cls.database_handler.database = cls.test_database
+        cls.set_database()
         cls.configuration = cls.ui.ui.configuration_home_2 #check the 
         cls.online_analysis = cls.ui.ui.online_analysis_home_2
         cls.database_viewer = cls.ui.ui.database_viewer_home_2
         cls.offline_analysis = cls.ui.ui.offline_analysis_home_2
+        
+    @classmethod   
+    def set_database(cls):
+        cls.database_handler.analysis_id = 102
+        cls.database_handler.database.close()
+        test_database = duckdb.connect("../Tests/testDB.db")
+        cls.database_handler.database = test_database
+        cls.database_handler.database_path = "../Tests/testDB.db"
         
     def tearDown(self):
         """Close the App later"""
@@ -102,6 +106,9 @@ class TestFrontPage(unittest.TestCase):
         """ Check if database if properly assigned constructed"""
         show_tables = self.database_handler.database.execute("Select * from offline_analysis;").fetchdf()
         self.assertEqual(show_tables.shape[0], 1 , "no database")
+        # should be a property of the database_hanlder instead of a open variable
+        self.assertEqual(self.database_handler.analysis_id, 102)
+        self.assertEqual(self.database_handler.database_path,  "../Tests/testDB.db")
 
     def test_sweep_tables_return(self):
         sweep_tables = self.database_handler.get_sweep_table_names_for_offline_analysis("IV")
@@ -158,8 +165,12 @@ class TestFrontPage(unittest.TestCase):
         self.assertIsInstance(cursor_bounds, list, f"Should be a list(tuple), and not a {type(cursor_bounds)}")
         self.assertEqual(cursor_bounds, [(19.989999771118164, 79.95999908447266)])
         
-        
+    def test_get_analysis_series_names_for_specific_analysis_id(self):
+        analysis_series_names = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
+        self.assertEqual(analysis_series_names, [('IV',), ('CClamp',)], """Should be of type list(tuple), 
+                                                                           holding IV and Cclamp and not {analysis_series_name}""")
      
         
+    
 if __name__ == '__main__':
     unittest.main()
