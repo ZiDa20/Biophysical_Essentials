@@ -2,29 +2,18 @@ from unittest import result
 import numpy as np
 import pandas as pd
 import math
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
+#from numba import jit
 
-class ActionPotentialFitting(object):
+class ActionPotentialFitting(SweepWiseAnalysisTemplate):
+    
     plot_type_options = ["Action Potential Fitting", "PCA-Plot"]
     function_name = "Action Potential Fitting"
     data_shape = None
-    def __init__(self):
-
-        # really needed ?
-        self.analysis_function_id = None
-        self.data = None
-        self.voltage = None
-        self.database = None  # database
-        self.lower_bound = None
-        self.upper_bound = None
-        self.time = None
-        self.data = None
-        
-
-        self.sliced_volt = None
-
-        self.database = None
-        self.series_name = None
-
+    database = None
+    time = None
+    
+    
     def show_configuration_options(self):
         print("not implemented")
 
@@ -176,7 +165,6 @@ class ActionPotentialFitting(object):
             y.append(half_width_amplitude/1e9)
         parameter_list.append((x,y))
         return parameter_list
-
 
 
     @classmethod

@@ -25,6 +25,7 @@ class DuckDBDatabaseHandler():
         self.database = None
         self.database_path = None
         self.analysis_id = None
+        #@toDO add properties instead of open variable names like analysis_id and database path
         # set up the classes for the main tables
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
 
