@@ -10,7 +10,18 @@ from functools import partial
 
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
+import pandas as pd
+
 class AnalysisFunctionSelectionManager():
+
+    """
+    Main class to handle all set up configurations for the analysis functions.
+    This includes button generation for each of the selected analysis function. 
+    Additionally, cursor bounds, pgf segment selection and live plot feature 
+    can be activated in a QTableWidget which is also generated and controlled 
+    by this class.
+    """
+
 
     def __init__(self, database_handler, plot_widget_manager, current_tab, analysis_functions):
         
@@ -19,19 +30,35 @@ class AnalysisFunctionSelectionManager():
         self.current_tab = current_tab
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+        
+        # add a button for each selected analysis function
         self.add_buttons_to_layout(analysis_functions)
+
+        self.FUNC_GRID_ROW = 1
+        self.LEFT_CB_GRID_ROW = 2
+        self.RIGHT_CB_GRID_ROW = 3
+        self.PGF_SEQ_GRID_ROW = 4
+        self.LIVE_SEQ_GRID_ROW = 5
 
 
     def add_buttons_to_layout(self, analysis_functions):
-        
+        """
+        Add a button for each of the selected analysis functions to the layout.
+        """
+
         layout = self.current_tab.analysis_button_grid
+
+        # at 0 there is the "add" button which shouldn't be deleted
+        for i in range(1,layout.count()):
+            layout.itemAt(i).widget().deleteLater()
+
         row = 1
         col = 0
         
         sizePolicy4 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
-       
+
         for fct in analysis_functions:
             if len(fct)>1:
                 text = ""
@@ -41,6 +68,8 @@ class AnalysisFunctionSelectionManager():
                 text = fct [0]
 
             button = QPushButton(text)
+
+
             show_cb_checkbx = QCheckBox()
             sizePolicy4.setHeightForWidth(button.sizePolicy().hasHeightForWidth())
             button.setSizePolicy(sizePolicy4)
@@ -77,7 +106,16 @@ class AnalysisFunctionSelectionManager():
             button.clicked.connect(partial(self.show_analysis_grid, row,text, show_cb_checkbx))
             show_cb_checkbx.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
             show_cb_checkbx.setEnabled(False)
+
+            # click the buttons to make sure each analysis function gets assigned with cursor bounds
+            # this eliminated the need of further checks for empty cursor bounds
+            QTest.mouseClick(button, Qt.LeftButton)
+
             row += 1
+
+        self.run_analysis_functions = QPushButton("Run")
+        layout.addWidget(self.run_analysis_functions, row, col)
+        
 
     def on_checkbox_state_changed(self, row, state):
         
@@ -131,7 +169,6 @@ class AnalysisFunctionSelectionManager():
         
             table_widget.setHorizontalHeaderItem(c, QTableWidgetItem("Column " + str(c)))
         
-
         row_names = ["Color", "Func", "Left", "Right", "PGF", "Live"]
         # Set the row index names and rotate them by 90 degrees
         for row in range(row_cnt):
@@ -163,8 +200,7 @@ class AnalysisFunctionSelectionManager():
 
     def show_analysis_grid(self, row,text, show_cb_checkbx):
         
-        print("stacked widget page ", row, " requested")
-        
+        print("stacked widget page ", row, " requested")      
 
         try:
             self.current_tab.analysis_stacked_widget.setCurrentIndex(row)
@@ -175,8 +211,8 @@ class AnalysisFunctionSelectionManager():
             print("i found a layout")
             # display the cursor bounds -> check if they are in the dict
             table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-            for col in range(table_widget.columnCount()):
-                self.add_coursor_bounds((row,col), self.current_tab, table_widget)
+            #for col in range(table_widget.columnCount()):
+            #    self.add_coursor_bounds((row,col), self.current_tab, table_widget)
 
             self.current_tab.analysis_stacked_widget.show()
         else:
@@ -227,7 +263,7 @@ class AnalysisFunctionSelectionManager():
                         color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
                         analysis_table_widget.setCellWidget(0, col, color_button)
                         self.pgf_selection = QComboBox()
-                        self.get_pgf_file_selection(self.current_tab)
+                        self.get_pgf_file_selection()
                         analysis_table_widget.setCellWidget(4,col ,self.pgf_selection)
                         self.live_result = QCheckBox()
                         analysis_table_widget.setCellWidget(5,col ,self.live_result)
@@ -329,29 +365,7 @@ class AnalysisFunctionSelectionManager():
         print(item.text())
 
     def remove_existing_dragable_lines(self, row_number):
-        
-        self.current_tab_visualization[
-                    self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(row_number)
-
-        """
-
-        number_of_rows = current_tab.analysis_table_widget.rowCount()
-
-        for r in range(number_of_rows):
-            if current_tab.analysis_table_widget.item(r, 1) is not None:
-                
-                current_tab.analysis_table_widget.removeCellWidget(r, 1)
-                self.b = QPushButton("Change")
-                current_tab.analysis_table_widget.setCellWidget(r, 1, self.b)
-
-                self.b.clicked.connect(partial(self.add_coursor_bounds, r, current_tab))
-
-            try:
-                self.current_tab_visualization[
-                    self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines()
-            except Exception as e:
-                print("function remove_exisiting_dragable_lines {e}")
-        """
+        self.plot_widget_manager.remove_dragable_lines(row_number)
 
     def add_coursor_bounds(self, row_column_tuple, current_tab, table_widget):
         """
@@ -443,4 +457,45 @@ class AnalysisFunctionSelectionManager():
         insert_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         table_widget.setItem(table_row, tuple_in[2], insert_item)
 
-        #self.check_ready_for_analysis(current_tab)
+
+    def write_table_widget_to_database(self):
+        """
+         iterates through each tab of the stacked widget and writes each column as a new row to the database
+        """
+
+        initial_index = self.current_tab.analysis_stacked_widget.currentIndex()
+        multiple_interval_analysis = pd.DataFrame(columns=["page", "id", "function"])
+
+        # -2 because of the add button at the beginning and the run button at the end
+        max_page = int((self.current_tab.analysis_button_grid.count()-2)/2)+1
+
+        for page in range(1,max_page):
+
+            print("reading page " , str(page))
+            self.current_tab.analysis_stacked_widget.setCurrentIndex(page)
+            table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+
+            for col in range(table_widget.columnCount()):
+                print("writing col" , col)
+                analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
+                lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
+                upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
+                analysis_series_name = self.current_tab.objectName()
+                self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
+                                                                                                analysis_series_name,
+                                                                                                lower_bound, upper_bound)
+
+                # non single analysis types will be calculated as single interval analysis but additional calculation is needed
+                # that is why we have to note down the function with its id for postprocessing
+                if table_widget.columnCount()>1:
+                    print("requesting id")
+                    id = self.database_handler.get_last_inserted_analysis_function_id()
+                    print("got id, ", id)
+                    multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "id": [id], "function_name":[analysis_function] })])
+
+        return multiple_interval_analysis
+
+
+   
+           
+                

@@ -839,7 +839,7 @@ class PlotWidgetManager(QRunnable):
                 coursor_tuple = self.coursor_bound_tuple_dict.get(t)
                 self.ax1.lines.remove(coursor_tuple[0].line)
                 self.ax1.lines.remove(coursor_tuple[1].line)
-                self.coursor_bound_tuple_dict.pop((row, 0))
+                self.coursor_bound_tuple_dict.pop(t)
 
             self.canvas.draw_idle()
         except Exception as e:
