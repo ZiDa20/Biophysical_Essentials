@@ -55,15 +55,16 @@ class Ui_Form(object):
         ___qtablewidgetitem = self.tableWidget.verticalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Color", None));
         ___qtablewidgetitem1 = self.tableWidget.verticalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Function", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Func", None));
         ___qtablewidgetitem2 = self.tableWidget.verticalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Left Cursor", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Left", None));
         ___qtablewidgetitem3 = self.tableWidget.verticalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Right Cursor", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"asdadsasd", None));
         ___qtablewidgetitem4 = self.tableWidget.verticalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"PGF Segment", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"PGF", None));
         ___qtablewidgetitem5 = self.tableWidget.verticalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Live Plot", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Live", None))
+        ___qtablewidgetitem5.setTextAlignment(0x0080 | 0x0020)  # Set the text alignment to be vertically centered and rotated by 90 degrees
     # retranslateUi
 
 
@@ -72,3 +73,5 @@ class Analysis_Table_Widget(QWidget, Ui_Form):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         #add this to promote
+
+  

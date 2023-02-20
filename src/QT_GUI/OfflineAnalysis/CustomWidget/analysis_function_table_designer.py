@@ -84,7 +84,7 @@ class Ui_AnalysisFunction(object):
         ___qtablewidgetitem2 = self.analysis_table_widget.horizontalHeaderItem(2)
         ___qtablewidgetitem2.setText(QCoreApplication.translate("AnalysisFunction", u"Func", None));
         ___qtablewidgetitem3 = self.analysis_table_widget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("AnalysisFunction", u"Left", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("AnalysisFunction", u"blablabla", None));
         ___qtablewidgetitem4 = self.analysis_table_widget.horizontalHeaderItem(4)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("AnalysisFunction", u"Right", None));
         ___qtablewidgetitem5 = self.analysis_table_widget.horizontalHeaderItem(5)
@@ -95,4 +95,4 @@ class Ui_AnalysisFunction(object):
 class AnalysisFunctionTable(QWidget, Ui_AnalysisFunction):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi(self)  
