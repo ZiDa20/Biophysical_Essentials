@@ -31,14 +31,19 @@ class AnalysisFunctionSelectionManager():
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         
-        # add a button for each selected analysis function
-        self.add_buttons_to_layout(analysis_functions)
-
         self.FUNC_GRID_ROW = 1
         self.LEFT_CB_GRID_ROW = 2
         self.RIGHT_CB_GRID_ROW = 3
         self.PGF_SEQ_GRID_ROW = 4
-        self.LIVE_SEQ_GRID_ROW = 5
+        self.LIVE_GRID_ROW = 5
+
+        # add a button for each selected analysis function
+        self.add_buttons_to_layout(analysis_functions)
+
+    
+
+        # keep grid changes within the related dataframe to avoid exhaustive iteration over the grid
+        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor"]) #, "live_plot"
 
 
     def add_buttons_to_layout(self, analysis_functions):
@@ -256,48 +261,76 @@ class AnalysisFunctionSelectionManager():
             if len(text.split())>1:
                 for expr in text.split():
                     if expr not in ["+", "-", "*", "/", "(", ")"]:
-                        func_item = QTableWidgetItem(expr)
-                        func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                        analysis_table_widget.setItem(1, col, func_item)
-                        color_button = QPushButton("")
-                        color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
-                        analysis_table_widget.setCellWidget(0, col, color_button)
-                        self.pgf_selection = QComboBox()
-                        self.get_pgf_file_selection()
-                        analysis_table_widget.setCellWidget(4,col ,self.pgf_selection)
-                        self.live_result = QCheckBox()
-                        analysis_table_widget.setCellWidget(5,col ,self.live_result)
+                        self.add_cell_widgets_to_analysis_grid(row,col, analysis_table_widget, expr)
                         col+=1
             else:   
-                color_button = QPushButton("")
-                color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
-                analysis_table_widget.setCellWidget(0, col, color_button)
-                func_item = QTableWidgetItem(text)
-                func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                analysis_table_widget.setItem(1, col, func_item)
-                self.pgf_selection = QComboBox()
-                self.get_pgf_file_selection()
-                analysis_table_widget.setCellWidget(4,col ,self.pgf_selection)
-                self.live_result = QCheckBox()
-                analysis_table_widget.setCellWidget(5,col ,self.live_result)
-                # tuple 
-                self.live_result.clicked.connect(partial(self.show_live_results_changed, (row,0), self.current_tab, self.live_result))
-            """
-            analysis_table_widget.horizontalHeader().setVisible(False)
-            #analysis_table_widget.tableWidget.verticalHeader().setRotation(45)
-            analysis_table_widget.verticalHeader().setDefaultSectionSize(60)
-            analysis_table_widget.show()
+                self.add_cell_widgets_to_analysis_grid(row,col, analysis_table_widget, text)
 
-            current_tab.analysis_stacked_widget.setCurrentIndex(row)
-            current_tab.analysis_stacked_widget.show()
-
-            """
             self.adapt_stacked_widget_width(analysis_table_widget, self.current_tab.analysis_stacked_widget)
             analysis_table_widget.show()
             self.current_tab.analysis_stacked_widget.show()
             # will draw the cursor bounds             
             show_cb_checkbx.setEnabled(True)
             show_cb_checkbx.setChecked(True)
+
+    def add_cell_widgets_to_analysis_grid(self, row, col, analysis_table_widget, text):
+        """
+        adds cell widgets for a specific column of a an analysis table widget
+        """
+        color_button = QPushButton("")
+        color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
+        analysis_table_widget.setCellWidget(0, col, color_button)
+        func_item = QTableWidgetItem(text)
+        func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        analysis_table_widget.setItem(self.FUNC_GRID_ROW, col, func_item)
+        self.pgf_selection = QComboBox()
+        self.get_pgf_file_selection()
+        analysis_table_widget.setCellWidget(self.PGF_SEQ_GRID_ROW,col ,self.pgf_selection)
+        self.live_result = QCheckBox()
+        analysis_table_widget.setCellWidget(self.LIVE_GRID_ROW,col ,self.live_result)
+        # tuple 
+        self.live_result.clicked.connect(partial(self.show_live_results_changed, (row,col), text, self.live_result))
+
+    def show_live_results_changed(self, row_column_tuple, text, checkbox_object: QCheckBox):
+        """
+        Function to handle activation of an analysis function specific checkbox in the analysis table. It checks if
+        cursor bounds were set correctly (if not error dialog is displayed). In the analysis function objects specified
+        points used for the related analysis will be added or removed within the trace plot.
+        @param row_number: row of the checkbox in the analysis function table
+        @param current_tab: current tab
+        @param checkbox_object: QCheckbox
+        @return:
+        @author: dz, 01.10.2022
+        """
+
+        table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+        if checkbox_object.isChecked():
+            # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
+            try:
+                # table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+                l_cb= float(table_widget.item(2, row_column_tuple[1]).text())
+                r_cb= float(table_widget.item(3, row_column_tuple[1]).text())
+
+                #self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot"])
+
+                tmp = pd.DataFrame({"page":[ row_column_tuple[0]], "col":[row_column_tuple[1]], "func_name":[text], "left_cursor":[l_cb], "right_cursor":[r_cb]})
+                self.live_plot_info = pd.concat([self.live_plot_info, tmp])
+                print("I have to make the liveplot")
+            
+            except Exception as e:
+                dialog_message = "Please select cursor bounds first and activate live plot afterwords"
+                CustomErrorDialog().show_dialog(dialog_message)
+                checkbox_object.setCheckState(Qt.CheckState.Unchecked)
+        else:
+            self.live_plot_info = self.live_plot_info.reset_index(drop=True)
+            index = self.live_plot_info[(self.live_plot_info['page'] == row_column_tuple[0]) & (self.live_plot_info['col'] == row_column_tuple[1]) & (self.live_plot_info['func_name'] == text)].index[0]
+            self.live_plot_info.drop(index,inplace=True)
+
+        print("I have to make the liveplot")
+        self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
+        index = self.current_tab.widget.selected_tree_view.selectedIndexes()[1]
+        rect = self.current_tab.widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(self.current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def get_pgf_file_selection(self):
         """Should retrieve the pgf_files for all the files in the current analysis id
@@ -330,35 +363,7 @@ class AnalysisFunctionSelectionManager():
         print(pgf_file_dict)
 
 
-    def show_live_results_changed(self, row_column_tuple, checkbox_object: QCheckBox):
-        """
-        Function to handle activation of an analysis function specific checkbox in the analysis table. It checks if
-        cursor bounds were set correctly (if not error dialog is displayed). In the analysis function objects specified
-        points used for the related analysis will be added or removed within the trace plot.
-        @param row_number: row of the checkbox in the analysis function table
-        @param current_tab: current tab
-        @param checkbox_object: QCheckbox
-        @return:
-        @author: dz, 01.10.2022
-        """
-
-        table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-        if checkbox_object.isChecked():
-            # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
-            try:
-                # table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-                l_cb= float(table_widget.item(2, row_column_tuple[1]).text())
-                r_cb= float(table_widget.item(3, row_column_tuple[1]).text())
-                #self.plot_widget_manager.
-            except Exception as e:
-                dialog_message = "Please select cursor bounds first and activate live plot afterwords"
-                CustomErrorDialog().show_dialog(dialog_message)
-                checkbox_object.setCheckState(Qt.CheckState.Unchecked)
-
-        print("I have to make the liveplot")
-        index = self.current_tab.widget.selected_tree_view.selectedIndexes()[1]
-        rect = self.current_tab.widget.selected_tree_view.visualRect(index)
-        QTest.mouseClick(self.current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+    
        
     def analysis_table_cell_changed(self, item):
         print("a cell changed")

@@ -1139,15 +1139,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 # replace function name by related analysis_function_id
                 func_counter = 0
+                func_to_remove = []
+
                 for i in range(len(equation_components)):
 
                     if equation_components[i] not in ["+", "-", "*", "/", "(", ")"]: 
 
                         equation_components[i] = related_intervals["id"].values[func_counter]
+                        func_to_remove.append(equation_components[i])
                         func_counter += 1
         
                 # stat recursive function
                 self.recursive_pop(equation_components,0, 0)
+
         
         else:
             print("postprocessing not needed")
@@ -1173,37 +1177,58 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_tree.offline_analysis_result_tree_item_clicked()
 
-    def recursive_pop(self, equation_components,func_pos, pop_count, eval_dict = None):
-        """take 3 elements from the list: an operand and the expression left to it and right to it, either expression are 
-            a unevaluated analysis function ids or an evaluated result.
-            Calculation results are pushed to the list and the function continues until list is empty """
-        if eval_dict is None:
-            eval_dict = {}
-    
-        # respect mathematical rang of operands and evaluate * and / first
+    def get_operand_index(self,equation_components):
+
+        # consider mathematical rang of operands and evaluate * and / first
         if "/" in equation_components:
            op_index = equation_components.index("/")            
         elif "*" in equation_components:
             op_index = equation_components.index("*")
         else:
-            op_index = 1
+            for c in equation_components:
+                if c in ["+", "-", "*", "/"]:
+                    return equation_components.index(c)
 
-        func_1 = equation_components[op_index-1]
-        func_2 = equation_components[op_index+1]
-        operand = equation_components[op_index]
+        return op_index
 
-        equation_components.pop(op_index)
-        equation_components.pop(op_index)
-        equation_components.pop(op_index-1)
+    def recursive_pop(self, equation_components,func_pos, pop_count, eval_dict = None):
+        """take 3 elements from the list: an operand and the expression left to it and right to it, either expression are 
+            a unevaluated analysis function ids or an evaluated result.
+            Calculation results are pushed to the list and the function continues until list is empty """
         
         # per default read tables from db (==1), if preprocessing was performed, read the preprocessed data table (==0)
         read_data_1_from_db = 1
         read_data_2_from_db = 1
 
-        if func_1 ==")":
-            # in case there is a bracket, evaluate the bracket content and push it to the list
-            self.calculate_brackets(equation_components, op_index, func_1)
-        elif func_1 in eval_dict.keys():
+        if eval_dict is None:
+            eval_dict = {}
+
+        # check for brackets and evaluate the bracket term first
+        if "(" in equation_components:
+            i1 = equation_components.index("(")
+            i2 = equation_components.index(")") 
+            op_index = self.get_operand_index(equation_components[i1:i2]) + i1
+
+            # make sure to check for brackets to be removed
+            if equation_components[op_index-2] == "(" and equation_components[op_index+2] == ")":
+                equation_components.pop(op_index-2)
+                equation_components.pop(op_index+1)
+                op_index -= 1
+        else:
+            op_index = self.get_operand_index(equation_components)
+        
+        # take the operand and the item left to it (-1) and right to it (+1)
+        func_1 = equation_components[op_index-1]
+        func_2 = equation_components[op_index+1]
+        operand = equation_components[op_index]
+
+        # remove the selected items from the list
+        equation_components.pop(op_index)
+        equation_components.pop(op_index)
+        equation_components.pop(op_index-1)
+
+
+        if func_1 in eval_dict.keys():
             data_1_table_names = eval_dict[func_1]
             read_data_1_from_db = 0
         else:
@@ -1211,18 +1236,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             data_1_table_names = self.database_handler.database.execute(q).fetchall()
             data_1_table_names = self.extract_first_elements(data_1_table_names)
 
-        if func_2 =="(":
-            # in case there is a bracket, evaluate the bracket content and push it to the list
-            self.calculate_brackets(equation_components, op_index, func_2)
-        elif func_2 in eval_dict.keys():
+        if func_2 in eval_dict.keys():
             data_2_table_names = eval_dict[func_2]
             read_data_2_from_db = 0
         else:
             q = f'select specific_result_table_name from results where analysis_function_id == {func_2}'
             data_2_table_names = self.database_handler.database.execute(q).fetchall()
             data_2_table_names = self.extract_first_elements(data_2_table_names)
-            
-
         
         sub_results = []
         for tbl_1, tbl_2 in zip(data_1_table_names, data_2_table_names):
@@ -1260,63 +1280,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 
                 if equation_components == []:
                     # register only if finished, sub results dont need to be stored in the db
-                    self.database_handler.database.register(tbl_1, data_1)
-                    self.database_handler.database.execute(f'CREATE TABLE {tbl_1} AS SELECT * FROM {tbl_1}')
-                
-            
-            # update analysis_function_table with the new function name of analysis 1 
-            # delete func2_request_id__from_db and analysis function table
+                    table_name = "results_analysis_function_"+str(func_1)+"_"+ str(data_1["Sweep_Table_Name"].values[0])
+                    
+                    self.database_handler.database.register(table_name, data_1)
+                    self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {table_name}')
         
+        # delete the id from the analysis functions table
         self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_2}')
-
 
         if equation_components == []:
             print("my job is done")
+            #q = f'update analysis_functions set function_text = {dummy text} where analysis_function_id == {func_1}'
+            self.database_handler.database.execute(q)
             return
         else:
             eval_dict[func_1]=sub_results
             equation_components.insert(op_index-1,func_1)
             self.recursive_pop(equation_components,func_pos, pop_count,eval_dict)
-    
-    def calculate_brackets(self, equation_components, operand_index, left_right):
-         
-        if left_right  == "(":
-            pos_calc = operator.add
-            func1 = equation_components.pop(pos_calc(operand_index,2))
-            func2 = equation_components.pop(pos_calc(operand_index,4))
-        else:     
-            pos_calc = operator.sub
-            func2 = equation_components.pop(pos_calc(operand_index,2))
-            func1 = equation_components.pop(pos_calc(operand_index,4))
-        
-        operand = equation_components.pop(pos_calc(operand_index,3))
-        equation_components.pop(pos_calc(operand_index,5))
-
-    #def calculate_func_operand(self,equation_components, operand_index, left_right):
-
-
 
     def extract_first_elements(self,lst):
         return [t[0] for t in lst]
     
-   
-
-        
-
-    def get_cursor_bound_value_from_grid(self, row, column, current_tab):
-        """
-        reads a grid cell defined by column and row and returnsit's float value
-        :param row: integer of the row index in the grid
-        :param column: integer of column index in the grid
-        :param current_tab: the current tab object which is providing the grid
-        :return: value in the specified cell as float
-        """
-        try:
-            return float(
-                current_tab.function_selection_grid.itemAtPosition(row, column)
-                .widget()
-                .text()
-            )
-        except Exception as e:
-            print(e)
-            return -1

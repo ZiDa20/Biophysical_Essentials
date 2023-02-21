@@ -69,7 +69,10 @@ class PlotWidgetManager(QRunnable):
         # e.g. max_current | 1 | 10 | change | configure | checkbox
         self.analysis_functions_table_widget = None
 
-        self.default_colors = ['r', 'g', 'c','k']
+        self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+     
+        self.live_analysis_info = None
+
 
     def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
         self.analysis_functions_table_widget = analysis_functions_table_widget
@@ -109,7 +112,14 @@ class PlotWidgetManager(QRunnable):
             self.check_live_analysis_plot(item,"series")
 
 
-    def check_live_analysis_plot(self,item_text,experiment_name,identifier, level):
+    def update_live_analysis_info(self,live_analysis_info):
+        """
+        update from extern functions and classes, such as analysis function seletion manager
+        """
+        #self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor"])
+        self.live_analysis_info = live_analysis_info
+
+    def check_live_analysis_plot(self, experiment_name, identifier):
         """
         calculate values to be plotted in the "live plot" feature during analysis
         @param item:
@@ -117,48 +127,40 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 29.09.2022
         """
-        print("checking live analysis for item ", item_text)
-        print(experiment_name)
-        print(identifier)
-        if self.analysis_functions_table_widget is not None:
-            row_count = self.analysis_functions_table_widget.rowCount()
-            # iterate through the rows of the table,
-            print(row_count)
-            for row in range(0,row_count):
-                # check which checkboxes are selected
-                fct_name = self.analysis_functions_table_widget.item(row, 0).text()
-                print(fct_name)
-                if self.analysis_functions_table_widget.cellWidget(row, 5).isChecked():
-                    # calculate realted results and visualize
-                    try:
-                        lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
-                        upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
-                    except Exception as e:
-                        lower_bound = None
-                        upper_bound = None
-                    analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
+        print("checking live analysis")
 
-                    if level == "series":
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier, self.database_handler)
+        if  self.live_analysis_info is not None:
+
+            for index,row in  self.live_analysis_info.iterrows():
+                
+
+                fct = row["func_name"]
+                lower_bound = row["left_cursor"]
+                upper_bound = row["right_cursor"]
+                row_nr = row["page"]
+                column = row["col"]
+
+                analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
+
+                x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
+
+                if x_y_tuple is not None:
+                            for tuple in x_y_tuple:
+                                if isinstance(tuple[1],list):
+                                    y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
+                                    self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
+                                else:
+                                    self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row_nr+column], marker="o")
+                else:
+                            print("Tuple was None: is live plot function for", fct, " already implemented ? ")
+
+
+            """
+             if level == "series":
+                       
                     else:
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
-
-                    print(x_y_tuple)  # only works if parent = experiment
-                    #self.plot_scaling_factor = 1e9
-                    if x_y_tuple is not None:
-                        for tuple in x_y_tuple:
-                            if isinstance(tuple[1],list):
-                                y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
-                                self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row], linestyle='dashed')
-                            else:
-                                self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o")
-                    else:
-                        print("Tuple was None: is live plot function for", fct_name, " already implemented ? ")
-                else:
-                    print("nothing to check in row %i", row)
-        else:
-            print("analysis_functions_table_widget was None ")
-
+            """
 
     def sweep_clicked_load_from_dat_file(self,item):
         """
