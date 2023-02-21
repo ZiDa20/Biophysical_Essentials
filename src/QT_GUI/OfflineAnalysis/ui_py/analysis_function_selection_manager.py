@@ -464,7 +464,7 @@ class AnalysisFunctionSelectionManager():
         """
 
         initial_index = self.current_tab.analysis_stacked_widget.currentIndex()
-        multiple_interval_analysis = pd.DataFrame(columns=["page", "id", "function"])
+        multiple_interval_analysis = pd.DataFrame(columns=["page", "func", "id", "function"])
 
         # -2 because of the add button at the beginning and the run button at the end
         max_page = int((self.current_tab.analysis_button_grid.count()-2)/2)+1
@@ -481,6 +481,10 @@ class AnalysisFunctionSelectionManager():
                 lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
                 analysis_series_name = self.current_tab.objectName()
+
+                func_name = self.current_tab.analysis_button_grid.itemAtPosition(page, 0).widget().text()
+
+
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
                                                                                                 lower_bound, upper_bound)
@@ -491,7 +495,7 @@ class AnalysisFunctionSelectionManager():
                     print("requesting id")
                     id = self.database_handler.get_last_inserted_analysis_function_id()
                     print("got id, ", id)
-                    multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "id": [id], "function_name":[analysis_function] })])
+                    multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "func": [func_name],"id": [id], "function_name":[analysis_function] })])
 
         return multiple_interval_analysis
 

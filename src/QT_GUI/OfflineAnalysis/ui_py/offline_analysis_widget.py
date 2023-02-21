@@ -1031,8 +1031,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.analysis_function_selection_manager.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
-
-    """
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
         Performs analysis according to the selected criteria.
@@ -1040,39 +1038,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param current_tab:
         :return:
         '''
-
-        current_tab.stackedWidget.setCurrentIndex(1)
-        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
-
-        self.database_handler.open_connection()
-
-        print("writing analysis to database")
-        self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-
-        print("finished: ", self.multiple_interval_analysis)
-
-        # self.write_function_grid_values_into_database(current_tab)
-
-        #self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
-        #self.database_handler.database.close()
-
-        #@todo remove the widget from the layout
-        #current_tab.stackedWidget.setCurrentIndex(0)
-    """
-
-
-    
-    def start_offline_analysis_of_single_series(self, current_tab):
-        '''
-        Performs analysis according to the selected criteria.
-        Before the analysis starts, the selected criteria will be stored in the database
-        :param current_tab:
-        :return:
-        '''
-
-        # store analysis parameter in the database
-        
-        #self.show_ap_simulation()
 
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
@@ -1142,12 +1107,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if item == Select_Analysis_Functions.R_BRACK:
                 r_brack_pos.append(i)
         
-        #for bracket_expression in l_brack_pos:
-
-        
-
-            
-
 
     def finished_result_thread(self):
         """
@@ -1165,25 +1124,30 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             print(self.multiple_interval_analysis)
             print("postprocessing started .. hang tight ")
 
-            function_positions = self.multiple_interval_analysis.index[self.multiple_interval_analysis['type'] != "multiple"].tolist()
+            page_ids = self.multiple_interval_analysis['page'].unique()
 
-            for func_pos in function_positions:
+            for page in page_ids:
+
+                related_intervals = self.multiple_interval_analysis[self.multiple_interval_analysis['page'] == page]
                 print("have to calculate this: ")
-                print(self.multiple_interval_analysis["type"][func_pos])
+                print(related_intervals["func"].values[0])
                 
                 # split string into list, e.g. max_current - min_current
-                equation_components = self.multiple_interval_analysis["type"][func_pos].split()
+                # @todo: can this be done better ? 
+                equation_components = related_intervals["func"].values[0].split(" \n ")
+                equation_components.remove("")
 
                 # replace function name by related analysis_function_id
                 func_counter = 0
                 for i in range(len(equation_components)):
 
                     if equation_components[i] not in ["+", "-", "*", "/", "(", ")"]: 
-                        equation_components[i] = self.multiple_interval_analysis["id"][func_pos+func_counter]
+
+                        equation_components[i] = related_intervals["id"].values[func_counter]
                         func_counter += 1
         
                 # stat recursive function
-                self.recursive_pop(equation_components,func_pos, 0)
+                self.recursive_pop(equation_components,0, 0)
         
         else:
             print("postprocessing not needed")
@@ -1232,13 +1196,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         equation_components.pop(op_index)
         equation_components.pop(op_index-1)
         
-
+        # per default read tables from db (==1), if preprocessing was performed, read the preprocessed data table (==0)
+        read_data_1_from_db = 1
+        read_data_2_from_db = 1
 
         if func_1 ==")":
             # in case there is a bracket, evaluate the bracket content and push it to the list
             self.calculate_brackets(equation_components, op_index, func_1)
         elif func_1 in eval_dict.keys():
-            data_1 = eval_dict[func_1]
+            data_1_table_names = eval_dict[func_1]
+            read_data_1_from_db = 0
         else:
             q = f'select specific_result_table_name from results where analysis_function_id == {func_1}'
             data_1_table_names = self.database_handler.database.execute(q).fetchall()
@@ -1248,16 +1215,36 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # in case there is a bracket, evaluate the bracket content and push it to the list
             self.calculate_brackets(equation_components, op_index, func_2)
         elif func_2 in eval_dict.keys():
-            data_2 = eval_dict[func_2]
+            data_2_table_names = eval_dict[func_2]
+            read_data_2_from_db = 0
         else:
             q = f'select specific_result_table_name from results where analysis_function_id == {func_2}'
             data_2_table_names = self.database_handler.database.execute(q).fetchall()
             data_2_table_names = self.extract_first_elements(data_2_table_names)
-
             
+
+        
+        sub_results = []
         for tbl_1, tbl_2 in zip(data_1_table_names, data_2_table_names):
-                data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
-                data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
+                if read_data_1_from_db:
+                    try:
+                        data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
+                        # remove table 1
+                        self.database_handler.database.execute(f'drop table {tbl_1}')
+                    except Exception as e:
+                        print(e)
+                else:
+                    data_1 = tbl_1
+                
+                if read_data_2_from_db:
+                    try:
+                        data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
+                        # remove table 2
+                        self.database_handler.database.execute(f'drop table {tbl_2}')
+                    except Exception as e:
+                        print(e)
+                else:
+                    data_2 = tbl_2
 
                 if operand == "-":
                     try:
@@ -1267,15 +1254,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 if operand == "/":
                         res = data_1["Result"] / data_2["Result"]
 
-                # override table 1
+                # override table 1 and append for further processing
                 data_1["Result"] = res
-                self.database_handler.database.execute(f'drop table {tbl_1}')
-                self.database_handler.database.register(tbl_1, data_1)
-                self.database_handler.database.execute(f'CREATE TABLE {tbl_1} AS SELECT * FROM {tbl_1}')
+                sub_results.append(data_1)
                 
-                # remove table 2
-                self.database_handler.database.execute(f'drop table {tbl_2}')
-        
+                if equation_components == []:
+                    # register only if finished, sub results dont need to be stored in the db
+                    self.database_handler.database.register(tbl_1, data_1)
+                    self.database_handler.database.execute(f'CREATE TABLE {tbl_1} AS SELECT * FROM {tbl_1}')
+                
+            
             # update analysis_function_table with the new function name of analysis 1 
             # delete func2_request_id__from_db and analysis function table
         
@@ -1286,8 +1274,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             print("my job is done")
             return
         else:
-            equation_components.append()
-            self.recursive_pop(equation_components,func_pos, pop_count)
+            eval_dict[func_1]=sub_results
+            equation_components.insert(op_index-1,func_1)
+            self.recursive_pop(equation_components,func_pos, pop_count,eval_dict)
     
     def calculate_brackets(self, equation_components, operand_index, left_right):
          
