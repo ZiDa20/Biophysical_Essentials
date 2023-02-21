@@ -40,15 +40,20 @@ class TestFrontPage(unittest.TestCase):
         # constructor of the mainwindow
         cls.ui = MainWindow()
         cls.database_handler = cls.ui.local_database_handler
-        cls.database_handler.analysis_id = 102
-        cls.database_handler.database.close()
-        cls.test_database = duckdb.connect("../Tests/testDB.db")
-        cls.database_handler.database_path = "../Tests/testDB.db"
-        cls.database_handler.database = cls.test_database
+        cls.set_database()
         cls.configuration = cls.ui.ui.configuration_home_2 #check the 
         cls.online_analysis = cls.ui.ui.online_analysis_home_2
         cls.database_viewer = cls.ui.ui.database_viewer_home_2
         cls.offline_analysis = cls.ui.ui.offline_analysis_home_2
+        
+    @classmethod   
+    def set_database(cls):
+        cls.database_handler.analysis_id = 1
+        cls.database_handler.database.close()
+        test_database = duckdb.connect("../Tests/test")
+        cls.database_handler.database = test_database
+        cls.database_handler.database_path = "../Tests/test"
+        print(cls.database_handler.database.execute("Select * from offline_analysis").fetchdf())
         
     def tearDown(self):
         """Close the App later"""
@@ -102,25 +107,28 @@ class TestFrontPage(unittest.TestCase):
         """ Check if database if properly assigned constructed"""
         show_tables = self.database_handler.database.execute("Select * from offline_analysis;").fetchdf()
         self.assertEqual(show_tables.shape[0], 1 , "no database")
+        # should be a property of the database_hanlder instead of a open variable
+        self.assertEqual(self.database_handler.analysis_id, 1)
+        self.assertEqual(self.database_handler.database_path,  "../Tests/test")
 
     def test_sweep_tables_return(self):
         sweep_tables = self.database_handler.get_sweep_table_names_for_offline_analysis("IV")
-        self.assertEqual(len(sweep_tables), 105, "There are side effects which changed the database")
+        self.assertEqual(len(sweep_tables), 23, "There are side effects which changed the database")
         
     def test_get_sweep_table_return(self):
         # here we retrieve the sweep table for two experiment
         # 140206_02, 201228_03
-        data_table_1 = self.database_handler.get_sweep_table_name("140206_02", "Series2")
-        data_table_2 = self.database_handler.get_sweep_table_name("201228_03", "Series2")
+        data_table_1 = self.database_handler.get_sweep_table_name("201229_03", "Series2")
+        data_table_2 = self.database_handler.get_sweep_table_name("220315_01", "Series2")
         self.assertRaises(TypeError, self.database_handler.get_sweep_table_name, 1, "Series_2")
-        self.assertEqual(data_table_1, "imon_signal_140206_02_Series2", "Wrong table identified")
-        self.assertEqual(data_table_2, "imon_signal_201228_03_Series2", "Wrong table identified")
+        self.assertEqual(data_table_1, "imon_signal_201229_03_Series2", "Wrong table identified")
+        self.assertEqual(data_table_2, "imon_signal_220315_01_Series2", "Wrong table identified")
         
     def test_get_meta_data_group_experiment(self):
         """_summary_: 
         """
-        meta_1 = self.database_handler.get_meta_data_group_of_specific_experiment("140206_02")
-        meta_2 = self.database_handler.get_meta_data_group_of_specific_experiment("201228_03")
+        meta_1 = self.database_handler.get_meta_data_group_of_specific_experiment("201229_03")
+        meta_2 = self.database_handler.get_meta_data_group_of_specific_experiment("220315_01")
         self.assertRaises(TypeError, self.database_handler.get_meta_data_group_of_specific_experiment,1)
         self.assertEqual(meta_1, 'None', "Wrong metadata type check if TestDatabase is correct")
         self.assertEqual(meta_2, 'None', "Wrong metadata type check if TestDatabase is correct")
@@ -128,8 +136,8 @@ class TestFrontPage(unittest.TestCase):
     def test_get_cslow_value(self):
         """_summary_
         """
-        cslow = self.database_handler.get_cslow_value_for_sweep_table("imon_signal_140206_02_Series2")
-        self.assertEqual(cslow, 2.267676524625806e-11, "not true")
+        cslow = self.database_handler.get_cslow_value_for_sweep_table("imon_signal_201229_03_Series2")
+        self.assertEqual(cslow, 4.911629514629301e-11 , "not true")
         self.assertIsInstance(cslow, float, "wrong type returned")
         
     def test_get_experiment_name_by_label(self):
@@ -141,25 +149,29 @@ class TestFrontPage(unittest.TestCase):
     def test_get_analysis_id_from_analysis_function_id(self):
         """_summary_
         """
-        iden = self.database_handler.get_analysis_function_name_from_id(103)
-        iden_2 = self.database_handler.get_analysis_function_name_from_id(1)
+        iden = self.database_handler.get_analysis_function_name_from_id(1)
+        iden_2 = self.database_handler.get_analysis_function_name_from_id(2)
         self.assertEqual(iden, "max_current", "not true")
         self.assertIsInstance(iden, str, f"Should be a analysis function name with type str not {type(iden)}")
         self.assertEqual(iden_2, None, "This analysis function id is not mapped here")
 
     def test_get_analysis_id_from_analysis_function_id(self):
-        iden = self.database_handler.get_analysis_series_name_by_analysis_function_id(103)
-        iden2 = self.database_handler.get_analysis_series_name_by_analysis_function_id(104)
-        self.assertEqual(iden, "IV", f"Should be IV and not {iden2}")
-        self.assertEqual(iden2, "IV", f"Should be IV and not {iden2}")
+        iden = self.database_handler.get_analysis_series_name_by_analysis_function_id(2)
+        iden2 = self.database_handler.get_analysis_series_name_by_analysis_function_id(3)
+        self.assertEqual(iden, "Rheobase", f"Should be Rheobase and not {iden2}")
+        self.assertEqual(iden2, "Rheobase", f"Should be RheoRamp and not {iden2}")
     
     def test_get_cursor_bounds_from_analysis_id(self):
-        cursor_bounds = self.database_handler.get_cursor_bounds_of_analysis_function(103, "IV")
+        cursor_bounds = self.database_handler.get_cursor_bounds_of_analysis_function(1, "Peak-Detection")
         self.assertIsInstance(cursor_bounds, list, f"Should be a list(tuple), and not a {type(cursor_bounds)}")
-        self.assertEqual(cursor_bounds, [(19.989999771118164, 79.95999908447266)])
+        self.assertEqual(cursor_bounds, [])
         
-        
+    def test_get_analysis_series_names_for_specific_analysis_id(self):
+        analysis_series_names = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
+        self.assertEqual(analysis_series_names, [('Rheobase',), ('5xRheo',)], """Should be of type list(tuple), 
+                                                                           holding IV and Cclamp and not {analysis_series_name}""")
      
         
+    
 if __name__ == '__main__':
     unittest.main()

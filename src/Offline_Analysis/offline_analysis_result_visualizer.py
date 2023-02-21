@@ -4,9 +4,9 @@ from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import Resu
 from database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
+from CustomWidget.ResizedFigure import MyFigureCanvas
 
 from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
 from Offline_Analysis.OfflinePlot import OfflinePlots
@@ -29,7 +29,8 @@ class OfflineAnalysisResultVisualizer():
                  database: DuckDBDatabaseHandler, 
                  final_result_holder,
                  frontend_style, 
-                 plot_meta_button):
+                 plot_meta_button,
+                 splitter):
         """_summary_
 
         Args:
@@ -43,6 +44,7 @@ class OfflineAnalysisResultVisualizer():
         self.database_handler = database
         self.final_result_holder = final_result_holder
         self.canvas = None
+        self.splitter = splitter
         self.offlineplot = OfflinePlots(
                      self.database_handler, 
                      self.frontend_style, 
@@ -102,7 +104,6 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.analysis_id = analysis_id
             custom_plot_widget.analysis_function_id = analysis[0]
             custom_plot_widget.series_name = series
-
             analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
             custom_plot_widget.analysis_name = analysis_name
             custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
@@ -118,6 +119,7 @@ class OfflineAnalysisResultVisualizer():
             print("y pos widget = ", widgte_y_pos)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
             parent_list.append(custom_plot_widget)
+        
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
@@ -161,7 +163,7 @@ class OfflineAnalysisResultVisualizer():
         @reworked MZ        """
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
-        self.canvas = self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
+        self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
 
         if analysis_function is None:
             #if class_object.database is None:
@@ -176,7 +178,7 @@ class OfflineAnalysisResultVisualizer():
             result_table_names = class_object.visualize_results(parent_widget)
             analysis_function = analysis_function if result_table_names else None
        
-        self.offlineplot.set_frontend_axes(parent_widget, self.canvas)
+        self.offlineplot.set_frontend_axes(parent_widget)
         self.offlineplot.set_metadata_table(result_table_names)
         if switch:
             self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget, result_table_list = result_table_names, switch = True) 
@@ -209,19 +211,20 @@ class OfflineAnalysisResultVisualizer():
             for i in reversed(range(parent_widget.plot_layout.count())):
                 parent_widget.plot_layout.itemAt(i).widget().deleteLater()
             #parent_widget.plot_layout.takeAt(0)
-
+            self.fig = Figure()
             # create a new plot and insert it into the already exsiting plot layout
-            self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+            parent_widget.canvas= MyFigureCanvas(self.fig)
+            
+            #self.canvas.mpl_connect('resize_event', self.handle_canvas_resize)
             self.scroll_area = QScrollArea()
+            #self.spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.scroll_layout = QGridLayout()
-
-
-            self.scroll_layout.addWidget(self.canvas)
+            #self.scroll_layout.addItem(self.spacer, 0,0)
+            self.scroll_layout.addWidget(parent_widget.canvas)
+            #self.scroll_layout.addItem(self.spacer,0,2)
             self.scroll_area.setWidgetResizable(True)
-            self.scroll_area.setWidget(self.canvas)
+            self.scroll_area.setWidget(parent_widget.canvas)
             parent_widget.plot_layout.addWidget(self.scroll_area)
-
-
             # add options only once
             try:
                 if parent_widget.plot_type_combo_box.currentText() not in plot_type_list:
@@ -232,12 +235,17 @@ class OfflineAnalysisResultVisualizer():
             except Exception as e:
                 print(e)
 
-            return self.canvas
-
         except Exception as e:
             print(e)
 
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonRelease:
+            # do something with the mouse release event here
+            print("Mouse released on splitter")
 
+            # return True to filter the event and prevent it from being propagated
+            return True
+        
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
         """
         Write the data shown in the plot into a csv file. The data are stored in the export data frame object

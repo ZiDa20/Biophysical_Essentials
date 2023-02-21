@@ -60,7 +60,7 @@ class OfflinePlots():
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
     
-    def set_frontend_axes(self, parent_widget, canvas):
+    def set_frontend_axes(self, parent_widget):
         """_summary_: This function should set the axis and teh figure of the canvas
         and assign this as instance member
 
@@ -68,7 +68,7 @@ class OfflinePlots():
             canvas (Figure Canvas): Matplotlib Figure Canvas holding the plot
         """
         
-        parent_widget.canvas = canvas
+        #parent_widget.canvas = canvas
         parent_widget.ax = parent_widget.canvas.figure.subplots()
         self.frontend.ax.append(parent_widget.ax)
         self.frontend.canvas = parent_widget.canvas

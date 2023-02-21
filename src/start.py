@@ -6,6 +6,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtTest import QTest
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
+from CustomWidget.EventSplitter import MySplitter
 from functools import partial
 import logging
 from qt_material import QtStyleTools
@@ -83,9 +84,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.animation_layout.addWidget(wait_widget)
         
         #self.ui.notebook.setCurrentIndex(3)
+        self.ui.offline.stackedWidget.setCurrentIndex(1)
         #self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
         # offline analysis 
+
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
+        
+ 
+
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
         self.ui.offline.ap_timer = self.timer

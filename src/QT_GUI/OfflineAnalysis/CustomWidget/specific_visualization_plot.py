@@ -12,6 +12,7 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from CustomWidget.groupbox_resizing_class import *
+from matplotlib.backends.backend_qtagg import FigureCanvas
 
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
@@ -166,7 +167,9 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         # object where plot data will be stored to be exported easily
         self.export_data_frame = None
         self.holded_dataframe = None
-        
+        self.is_splitter_moving = False
+        self.first_resize = True
+                    
     def on_click(self, event, annot):
         """Event Detection in the Matplotlib Plot
         
@@ -237,6 +240,5 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
                 self.offline_tree.offline_analysis_result_tree_item_clicked()
                 self.offline_tree.click_top_level_tree_item(name)
 
-
-        
+       
 

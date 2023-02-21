@@ -158,7 +158,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                  self.database_handler, 
                                                                  self.final_result_holder,
                                                                  self.frontend_style,
-                                                                 self.plot_meta)
+                                                                 self.plot_meta,
+                                                                 self.object_splitter)
 
         self.plot_meta.clicked.connect(self.result_visualizer.open_meta_data)
         self.OfflineDialogs = OfflineDialogs(self.database_handler, 

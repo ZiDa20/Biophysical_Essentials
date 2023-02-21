@@ -12,16 +12,9 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
     plot_type_options = ["Rheobase Plot", "Sweep Plot"]
     analysis_function_id = None
     data_shape = None
+    database = None
+    series_name = None
     
-    def __init__(self):
-
-        # really needed ?
-        self.series_name = None
-        self.database = None
-        self.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
-        self.lower_bound = None
-        self.upper_bound = None
-
     @classmethod
     def calculate_results(cls):  # sourcery skip: low-code-quality
 
