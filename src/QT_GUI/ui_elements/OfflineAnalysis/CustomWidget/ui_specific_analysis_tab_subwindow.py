@@ -97,10 +97,21 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_7 = QGridLayout(self.groupBox_5)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setContentsMargins(0, 6, 0, 6)
+        self.gridLayout = QGridLayout()
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.series_plot = QVBoxLayout()
+        self.series_plot.setObjectName(u"series_plot")
+        self.series_plot.setSizeConstraint(QLayout.SetDefaultConstraint)
+
+        self.gridLayout.addLayout(self.series_plot, 0, 0, 1, 1)
+
+
+        self.gridLayout_7.addLayout(self.gridLayout, 1, 0, 1, 1)
+
         self.analysis_function = QGridLayout()
         self.analysis_function.setObjectName(u"analysis_function")
 
-        self.gridLayout_7.addLayout(self.analysis_function, 1, 0, 1, 1)
+        self.gridLayout_7.addLayout(self.analysis_function, 2, 0, 1, 1)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -133,18 +144,14 @@ class Ui_SpecificAnalysisTab(object):
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
 
-        self.gridLayout_7.addLayout(self.horizontalLayout, 2, 0, 1, 1)
+        self.gridLayout_7.addLayout(self.horizontalLayout, 3, 0, 1, 1)
 
-        self.gridLayout = QGridLayout()
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.series_plot = QVBoxLayout()
-        self.series_plot.setObjectName(u"series_plot")
-        self.series_plot.setSizeConstraint(QLayout.SetDefaultConstraint)
+        self.dock_button = QPushButton(self.groupBox_5)
+        self.dock_button.setObjectName(u"dock_button")
+        self.dock_button.setMinimumSize(QSize(30, 30))
+        self.dock_button.setMaximumSize(QSize(30, 30))
 
-        self.gridLayout.addLayout(self.series_plot, 0, 0, 1, 1)
-
-
-        self.gridLayout_7.addLayout(self.gridLayout, 0, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.dock_button, 0, 0, 1, 1)
 
 
         self.gridLayout_6.addWidget(self.groupBox_5, 0, 0, 1, 1)
@@ -192,5 +199,6 @@ class Ui_SpecificAnalysisTab(object):
         self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
         self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
         self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
+        self.dock_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"D", None))
     # retranslateUi
 

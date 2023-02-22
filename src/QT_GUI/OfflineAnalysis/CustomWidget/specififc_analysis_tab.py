@@ -140,9 +140,13 @@ class Ui_SpecificAnalysisTab(object):
         self.select_series_analysis_functions.setSizePolicy(sizePolicy3)
         self.horizontalLayout.addWidget(self.select_series_analysis_functions)
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
+        self.dock_button = QPushButton("Dock me",self.groupBox_5)
+        self.horizontalLayout.addWidget(self.dock_button)
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
+        self.tile_button = QPushButton("tile me",self.groupBox_5)
+        self.horizontalLayout.addWidget(self.tile_button)
+        self.horizontalLayout.addItem(self.horizontalSpacer_2)
 
         self.gridLayout_7.addLayout(self.horizontalLayout, 2, 0, 1, 1)
 
@@ -195,11 +199,6 @@ class Ui_SpecificAnalysisTab(object):
         
 
         self.retranslateUi(SpecificAnalysisTab)
-
-        
-
-
-
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
     # setupUi
 
@@ -224,8 +223,41 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.analysis_table_widget = AnalysisFunctionTable()
         self.CameraMDI.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.CameraMDI.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.CameraMDI.tileSubWindows()
+        self.title_bar_widget = self.dock_widget.titleBarWidget()
+        self.dock_widget.setTitleBarWidget(QWidget(self.dock_widget))
         self.CameraWindow.setWindowFlags(self.CameraWindow.windowFlags() | Qt.WindowMinMaxButtonsHint)
-        size_grip = QSizeGrip(self.CameraWindow)
+        self.dock_button.clicked.connect(self.undock_me)
+        self.dock_widget.topLevelChanged.connect(self.remove_title_bar_dock)
+        self.tile_button.clicked.connect(self.show_and_tile)
+        self.floating: bool = False
+        #size_grip = QSizeGrip(self.CameraWindow)
         #size_grip.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         #self.CameraMDI.set
         #self.CameraMDI.setTabsMovable(True)
+    
+    def show_and_tile(self):
+        """ Should draw subwindows next to each other"""
+        self.CameraMDI.tileSubWindows()
+        
+    def undock_me(self):
+        """_summary_: This is a handler to dock and undock
+        """
+        if self.floating is not True:
+            self.floating = True
+            self.dock_widget.setFloating(self.floating)
+            self.dock_widget.setTitleBarWidget(self.title_bar_widget)
+            self.CameraWindow.showMinimized()
+                    
+        else:
+            self.floating = False
+            self.dock_widget.setFloating(self.floating)
+            self.dock_widget.setTitleBarWidget(QWidget(self.dock_widget))
+        
+    def remove_title_bar_dock(self):
+        """_summary_: Should remove the title bar whenver the toplevelchanged signal is initiated
+        """
+        self.dock_widget.setTitleBarWidget(QWidget(self.dock_widget))
+        self.floating = False
+            
+        

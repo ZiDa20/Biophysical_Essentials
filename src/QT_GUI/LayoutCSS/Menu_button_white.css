@@ -117,6 +117,11 @@ QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton
     background-color: {QTMATERIAL_SECONDARYCOLOR};  
 }}
 
+QMdiArea {{
+    qproperty-background: transparent;
+}}
+
+
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/go_right.png);}}  
 
