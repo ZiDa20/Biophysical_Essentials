@@ -1,3 +1,11 @@
+################################################################################
+## Form generated from reading UI file 'specific_analysis_tab_subwindow.ui'
+##
+## Created by: Qt User Interface Compiler version 6.4.2
+##
+## WARNING! All changes made in this file will be lost when recompiling UI file!
+################################################################################
+
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -5,18 +13,18 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QHBoxLayout,
-    QLayout, QPushButton, QSizePolicy, QSpacerItem,
-    QStackedWidget, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QGridLayout, QGroupBox,
+    QHBoxLayout, QLayout, QMdiArea, QPushButton,
+    QSizePolicy, QSpacerItem, QStackedWidget, QVBoxLayout,
+    QWidget)
 
 from QT_GUI.OfflineAnalysis.CustomWidget.analysis_function_table_designer import AnalysisFunctionTable
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
-
 class Ui_SpecificAnalysisTab(object):
     def setupUi(self, SpecificAnalysisTab):
         if not SpecificAnalysisTab.objectName():
             SpecificAnalysisTab.setObjectName(u"SpecificAnalysisTab")
-        SpecificAnalysisTab.resize(1262, 920)
+        SpecificAnalysisTab.resize(1282, 955)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -25,24 +33,47 @@ class Ui_SpecificAnalysisTab(object):
         font = QFont()
         font.setPointSize(10)
         SpecificAnalysisTab.setFont(font)
-        self.gridLayout_5 = QGridLayout(SpecificAnalysisTab)
-        self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.gridLayout_5.setContentsMargins(-1, 4, -1, 4)
+        self.gridLayout_2 = QGridLayout(SpecificAnalysisTab)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.CameraMDI = QMdiArea(SpecificAnalysisTab)
+        self.CameraMDI.setObjectName(u"CameraMDI")
+        sizePolicy.setHeightForWidth(self.CameraMDI.sizePolicy().hasHeightForWidth())
+        self.CameraMDI.setSizePolicy(sizePolicy)
+        self.CameraMDI.setMinimumSize(QSize(400, 500))
+        self.CameraMDI.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.CameraWindow = QWidget()
+        self.CameraWindow.setObjectName(u"CameraWindow")
+        sizePolicy.setHeightForWidth(self.CameraWindow.sizePolicy().hasHeightForWidth())
+        self.CameraWindow.setSizePolicy(sizePolicy)
+        self.CameraWindow.setMinimumSize(QSize(600, 600))
+        self.gridLayout_13 = QGridLayout(self.CameraWindow)
+        self.gridLayout_13.setObjectName(u"gridLayout_13")
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.widget = TreeBuild(SpecificAnalysisTab)
+        self.gridLayout_3.setContentsMargins(5, 5, 5, 5)
+        self.widget = TreeBuild(self.CameraWindow)
         self.widget.setObjectName(u"widget")
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QSize(100, 0))
-        self.widget.setMaximumSize(QSize(600, 16777215))
+        self.widget.setMinimumSize(QSize(500, 600))
+        self.widget.setMaximumSize(QSize(16777215, 16777215))
 
-        self.gridLayout_3.addWidget(self.widget, 0, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
 
 
-        self.gridLayout_5.addLayout(self.gridLayout_3, 0, 0, 5, 1)
+        self.gridLayout_13.addLayout(self.gridLayout_3, 0, 0, 1, 1)
 
-        self.stackedWidget = QStackedWidget(SpecificAnalysisTab)
+        self.CameraMDI.addSubWindow(self.CameraWindow)
+        self.subwindow = QWidget()
+        self.subwindow.setObjectName(u"subwindow")
+        sizePolicy.setHeightForWidth(self.subwindow.sizePolicy().hasHeightForWidth())
+        self.subwindow.setSizePolicy(sizePolicy)
+        self.subwindow.setMinimumSize(QSize(600, 800))
+        self.gridLayout_4 = QGridLayout(self.subwindow)
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.gridLayout_4.setContentsMargins(5, 5, 5, 5)
+        self.stackedWidget = QStackedWidget(self.subwindow)
         self.stackedWidget.setObjectName(u"stackedWidget")
         sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
         self.stackedWidget.setSizePolicy(sizePolicy)
@@ -143,7 +174,11 @@ class Ui_SpecificAnalysisTab(object):
 
         self.stackedWidget.addWidget(self.page_2)
 
-        self.gridLayout_5.addWidget(self.stackedWidget, 0, 1, 5, 1)
+        self.gridLayout_4.addWidget(self.stackedWidget, 0, 0, 1, 1)
+
+        self.CameraMDI.addSubWindow(self.subwindow)
+
+        self.gridLayout_2.addWidget(self.CameraMDI, 0, 0, 1, 1)
 
 
         self.retranslateUi(SpecificAnalysisTab)
@@ -156,6 +191,8 @@ class Ui_SpecificAnalysisTab(object):
 
     def retranslateUi(self, SpecificAnalysisTab):
         SpecificAnalysisTab.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Form", None))
+        self.CameraWindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Subwindow", None))
+        self.subwindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Subwindow", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
         self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
         self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
@@ -163,9 +200,18 @@ class Ui_SpecificAnalysisTab(object):
 
 
 
+from PySide6.QtWidgets import QSizeGrip
+
 class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         #add this to promote 
         self.analysis_table_widget = AnalysisFunctionTable()
+        self.CameraMDI.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.CameraMDI.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.CameraWindow.setWindowFlags(self.CameraWindow.windowFlags() | Qt.WindowMinMaxButtonsHint)
+        size_grip = QSizeGrip(self.CameraWindow)
+        #size_grip.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+        #self.CameraMDI.set
+        #self.CameraMDI.setTabsMovable(True)
