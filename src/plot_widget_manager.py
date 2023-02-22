@@ -122,7 +122,7 @@ class PlotWidgetManager(QRunnable):
         #self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor"])
         self.live_analysis_info = live_analysis_info
 
-    def check_live_analysis_plot(self, experiment_name, identifier):
+    def check_live_analysis_plot(self, experiment_name, identifier, sweep_number = None):
         """
         calculate values to be plotted in the "live plot" feature during analysis
         @param item:
@@ -134,6 +134,8 @@ class PlotWidgetManager(QRunnable):
 
         if  self.live_analysis_info is not None:
             
+            self.show_pgf_segment_buttons(experiment_name, identifier)
+
             for index,row in  self.live_analysis_info.iterrows():
                 
                 row_nr = row["page"]
@@ -147,6 +149,7 @@ class PlotWidgetManager(QRunnable):
                 if cursor_bound:
 
                     self.show_draggable_lines((row_nr,column))
+                    
 
                     # only show live plot if also cursor bounds were selected                
                     if live_plot:
@@ -174,14 +177,59 @@ class PlotWidgetManager(QRunnable):
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
             """
 
+    def show_pgf_segment_buttons(self, experiment_name, series_identifier):
+
+        
+        # get the upper and most right ax value (lowest y and smallest x at [0])
+        current_ax_height = self.ax1.get_ylim()[1]
+        current_ax_length = self.ax1.get_xlim()[1]
+
+        pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
+        self.rect_list = []
+        self.text_list = []
+        total_duration = 0
+        for d in range(len(pgf_table['duration'].values)):
+            max_len = float(pgf_table['duration'].values[d]) * 1000
+            
+            rect = plt.Rectangle((total_duration+1/5*max_len, current_ax_height),  3/5*max_len , 3, facecolor='w', edgecolor='grey', alpha=1,label='Section 1')
+            text = self.ax1.text(total_duration+0.5*max_len, current_ax_height + 1.5, f'Seg. {d+1}', fontsize=10, ha='center', va='center')
+            
+            self.rect_list.append(rect)
+            self.text_list.append(text)
+
+            self.ax1.add_patch(rect)
+            total_duration += max_len
+
+        # Variable to keep track of the currently clicked rectangle
+        clicked_rect = None
+        self.canvas.draw_idle()
+    
+    def onclick(self,event):
+        global clicked_rect
+        # Find which rectangle was clicked
+        for rect, text in zip(self.rect_list, self.text_list):
+
+            if rect.contains(event)[0]:
+               
+                # Set the color of the clicked rectangle to red and the others to white
+                for r in self.rect_list:
+                    r.set_facecolor('w')
+
+                rect.set_facecolor('red')
+                
+                self.canvas.draw_idle()
+                print(f'Clicked on rectangle with label: {text.get_text()}')
+                break
+    """
     def sweep_clicked_load_from_dat_file(self,item):
-        """
+        
         Whenever a sweep is clicked in online analysis, this handler will be executed to plot the selected sweep
         @param item: treeviewitem
         :author: dz, 21.07.2022
         @return:
 
-        """
+        
         self.time = None
 
         split_view = 1
@@ -232,14 +280,15 @@ class PlotWidgetManager(QRunnable):
 
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
-
+    """
+    """
     def series_clicked_load_from_dat_file(self,item):
-        """
+        
         plots trace data and pgf data after a series was clicked in the online analysis
         @param item:
         @return:
         :author: dz, 21.07.2022
-        """
+        
         print("online analysis %s series was clicked", item.text(0))
         children = item.childCount()
         split_view = 1
@@ -299,14 +348,15 @@ class PlotWidgetManager(QRunnable):
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
-
+    """
+    """
     def series_clicked_load_from_dat_file(self,item):
-        """
+        
         plots trace data and pgf data after a series was clicked in the online analysis
         @param item:
         @return:
         :author: dz, 21.07.2022
-        """
+         
         print("online analysis %s series was clicked", item.text(0))
         children = item.childCount()
         split_view = 1
@@ -365,6 +415,9 @@ class PlotWidgetManager(QRunnable):
 
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
+
+    """
+
 
     def table_view_sweep_clicked_load_from_database(self, experiment_name, series_identifier, sweep_name):
         """
@@ -487,22 +540,17 @@ class PlotWidgetManager(QRunnable):
 
         # finally also the pgf file needs to be added to the plot
         # load the table
-        pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
 
-        #print(pgf_table_df)
-
-        protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
-        
-        #print("Protocol Steps")
-        #print(protocol_steps)
-        
-        """
+        protocol_steps = self.plot_pgf_signal(pgf_table,data)
+    
         for x in range(0,len(protocol_steps)):
 
             x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
             self.ax1.axvline(x_pos, c = 'tab:gray')
-        """
+        
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 

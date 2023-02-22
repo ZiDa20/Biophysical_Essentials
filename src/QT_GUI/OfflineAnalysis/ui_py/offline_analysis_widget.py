@@ -109,6 +109,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.parent_count = 0
         self.current_tab_visualization = self.offline_tree.current_tab_visualization
+        self.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
+
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
 
         # animation of the side dataframe
@@ -204,15 +206,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if self.offline_analysis_widgets.currentIndex()==1:
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
             if self.offline_analysis_widgets.currentIndex() ==2:
-                # parent
-                if self.offline_tree.SeriesItems.currentItem().data(5, Qt.UserRole) == 0 :
-                    stacked_widget = self.offline_tree.SeriesItems.currentItem().data(4, Qt.UserRole)
-                # or child
-                else:
-                    stacked_widget = self.offline_tree.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
 
-                
-                print("not implemented yet")
+                 current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+                 plot_widget_manager  = self.current_tab_visualization[current_index]
+                 self.current_tab_tree_view_manager[current_index].update_treeviews(plot_widget_manager)
+        
         except Exception as e:
            print(e)
            CustomErrorDialog("Please select load an Experiment First")

@@ -32,6 +32,7 @@ class SeriesItemTreeWidget():
         self.offline_manager = None
         self.navigation_list = []
         self.current_tab_visualization = []
+        self.current_tab_tree_view_manager = []
         self.blank_analysis_tree_view_manager = None
         self.parent_stacked = None
         self.splitter = None
@@ -155,6 +156,9 @@ class SeriesItemTreeWidget():
         
         current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
         current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+
+        self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
+
 
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
         # make a deepcopy to be able to slize the copied item without changing its parent

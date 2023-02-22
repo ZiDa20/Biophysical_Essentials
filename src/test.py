@@ -1,5 +1,5 @@
 
-"""
+
 import matplotlib.pyplot as plt
 
 # Create a figure and set the title
@@ -49,8 +49,8 @@ fig.canvas.mpl_connect('button_press_event', onclick)
 # Show the plot
 plt.show()
 
-"""
 
+"""
 import random
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -207,3 +207,4 @@ if __name__ == "__main__":
     w.resize(640, 480)
     w.show()
     sys.exit(app.exec_())
+"""
