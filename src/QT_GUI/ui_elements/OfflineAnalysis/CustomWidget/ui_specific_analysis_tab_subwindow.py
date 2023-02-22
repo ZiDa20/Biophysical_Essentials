@@ -51,9 +51,6 @@ class Ui_SpecificAnalysisTab(object):
         self.CameraWindow.setMinimumSize(QSize(600, 600))
         self.gridLayout_13 = QGridLayout(self.CameraWindow)
         self.gridLayout_13.setObjectName(u"gridLayout_13")
-        self.gridLayout_3 = QGridLayout()
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.gridLayout_3.setContentsMargins(5, 5, 5, 5)
         self.widget = TreeBuild(self.CameraWindow)
         self.widget.setObjectName(u"widget")
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
@@ -61,10 +58,7 @@ class Ui_SpecificAnalysisTab(object):
         self.widget.setMinimumSize(QSize(500, 600))
         self.widget.setMaximumSize(QSize(16777215, 16777215))
 
-        self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addLayout(self.gridLayout_3, 0, 0, 1, 1)
+        self.gridLayout_13.addWidget(self.widget, 0, 0, 1, 1)
 
         self.CameraMDI.addSubWindow(self.CameraWindow)
         self.subwindow = QWidget()

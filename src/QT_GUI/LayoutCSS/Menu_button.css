@@ -146,6 +146,10 @@ QFrame[accessibleName="divline"]{{
     background-color: "#1f2933";
 }}
 
+QMdiArea {{
+    qproperty-background: transparent;
+}}
+
 QPushButton[objectName="go_back_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/go_left.png);}}  
 QPushButton[objectName="fo_forward_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/go_right.png);}}  
 

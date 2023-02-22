@@ -16,10 +16,12 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QGridLayout, QGroupBox,
     QHBoxLayout, QLayout, QMdiArea, QPushButton,
     QSizePolicy, QSpacerItem, QStackedWidget, QVBoxLayout,
-    QWidget)
+    QWidget, QMdiSubWindow, QDockWidget, QMainWindow, QStatusBar)
 
 from QT_GUI.OfflineAnalysis.CustomWidget.analysis_function_table_designer import AnalysisFunctionTable
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+
+
 class Ui_SpecificAnalysisTab(object):
     def setupUi(self, SpecificAnalysisTab):
         if not SpecificAnalysisTab.objectName():
@@ -42,44 +44,51 @@ class Ui_SpecificAnalysisTab(object):
         self.CameraMDI.setSizePolicy(sizePolicy)
         self.CameraMDI.setMinimumSize(QSize(400, 500))
         self.CameraMDI.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.CameraWindow = QWidget()
+        self.CameraWindow = QMainWindow()
+        self.statusBar = QStatusBar()
+        self.CameraWindow.setStatusBar(self.statusBar)
         self.CameraWindow.setObjectName(u"CameraWindow")
-        sizePolicy.setHeightForWidth(self.CameraWindow.sizePolicy().hasHeightForWidth())
-        self.CameraWindow.setSizePolicy(sizePolicy)
-        self.CameraWindow.setMinimumSize(QSize(600, 600))
-        self.gridLayout_13 = QGridLayout(self.CameraWindow)
+        self.CameraWindow.setMinimumSize(QSize(400,400))
+        #sizePolicy.setHeightForWidth(self.CameraWindow.sizePolicy().hasHeightForWidth())
+        #self.CameraWindow.setSizePolicy(sizePolicy)
+        #self.CameraWindow.setMaximumSize(QSize(16777215, 16777215))
+        self.gridLayout_13 = QGridLayout()
         self.gridLayout_13.setObjectName(u"gridLayout_13")
-        self.gridLayout_3 = QGridLayout()
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.gridLayout_3.setContentsMargins(5, 5, 5, 5)
         self.widget = TreeBuild(self.CameraWindow)
         self.widget.setObjectName(u"widget")
-        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy)
-        self.widget.setMinimumSize(QSize(500, 600))
-        self.widget.setMaximumSize(QSize(16777215, 16777215))
+        self.widget.groupBox_4.setMaximumSize(QSize(16777215, 16777215))
+        #self.widget.setMinimumSize(QSize(500, 600))
+        #self.widget.setMaximumSize(QSize(16777215, 16777215))
+        self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.gridLayout_3.addWidget(self.widget, 0, 0, 1, 1)
+        #self.gridLayout_13.addWidget(self.widget, 0, 0, 1, 1)
+        
+            
+        
 
-
-        self.gridLayout_13.addLayout(self.gridLayout_3, 0, 0, 1, 1)
-
-        self.CameraMDI.addSubWindow(self.CameraWindow)
-        self.subwindow = QWidget()
+        self.subwindow = QMdiSubWindow()
+        self.dock_widget = QDockWidget("Dock Widget", self)
+        self.plot_widget = QWidget()
         self.subwindow.setObjectName(u"subwindow")
-        sizePolicy.setHeightForWidth(self.subwindow.sizePolicy().hasHeightForWidth())
-        self.subwindow.setSizePolicy(sizePolicy)
-        self.subwindow.setMinimumSize(QSize(600, 800))
-        self.gridLayout_4 = QGridLayout(self.subwindow)
+        self.grid = QSizeGrip(self.subwindow)
+        #sizePolicy.setHeightForWidth(self.subwindow.sizePolicy().hasHeightForWidth())
+        #self.subwindow.setSizePolicy(sizePolicy)
+        #self.subwindow.setMinimumSize(QSize(600, 800))
+        self.gridLayout_4 = QGridLayout()
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(5, 5, 5, 5)
-        self.stackedWidget = QStackedWidget(self.subwindow)
+        self.stackedWidget = QStackedWidget()
         self.stackedWidget.setObjectName(u"stackedWidget")
-        sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
-        self.stackedWidget.setSizePolicy(sizePolicy)
+        self.subwindow_layout = QVBoxLayout(self.stackedWidget)
+        self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignRight)
+        
+        #self.stackedWidget.setMinimumSize(QSize(400,700))
+        #sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
+        #self.stackedWidget.setSizePolicy(sizePolicy)
+        self.stackedWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.page = QWidget()
         self.page.setObjectName(u"page")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.page.sizePolicy().hasHeightForWidth())
@@ -129,9 +138,7 @@ class Ui_SpecificAnalysisTab(object):
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
         self.select_series_analysis_functions.setSizePolicy(sizePolicy3)
-
         self.horizontalLayout.addWidget(self.select_series_analysis_functions)
-
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer_2)
@@ -159,7 +166,7 @@ class Ui_SpecificAnalysisTab(object):
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QWidget()
         self.page_2.setObjectName(u"page_2")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.page_2.sizePolicy().hasHeightForWidth())
@@ -171,19 +178,26 @@ class Ui_SpecificAnalysisTab(object):
         self.calc_animation_layout.setObjectName(u"calc_animation_layout")
 
         self.gridLayout_10.addLayout(self.calc_animation_layout, 0, 0, 1, 1)
-
+        self.dock_widget.setAllowedAreas(Qt.AllDockWidgetAreas)
+        self.dock_widget.setWidget(self.stackedWidget)
         self.stackedWidget.addWidget(self.page_2)
-
-        self.gridLayout_4.addWidget(self.stackedWidget, 0, 0, 1, 1)
-
+        self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea,self.dock_widget)
+        self.CameraMDI.addSubWindow(self.CameraWindow)
+        self.subwindow.setWidget(self.widget)
         self.CameraMDI.addSubWindow(self.subwindow)
+    
 
+        #self.gridLayout_4.addWidget(self.stackedWidget, 0, 0, 1, 1)
+
+        
         self.gridLayout_2.addWidget(self.CameraMDI, 0, 0, 1, 1)
-
+        self.stackedWidget.setCurrentIndex(0)
+        
 
         self.retranslateUi(SpecificAnalysisTab)
 
-        self.stackedWidget.setCurrentIndex(0)
+        
+
 
 
         QMetaObject.connectSlotsByName(SpecificAnalysisTab)
