@@ -206,7 +206,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if self.offline_analysis_widgets.currentIndex()==1:
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
             if self.offline_analysis_widgets.currentIndex() ==2:
-
                  current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
                  plot_widget_manager  = self.current_tab_visualization[current_index]
                  self.current_tab_tree_view_manager[current_index].update_treeviews(plot_widget_manager)

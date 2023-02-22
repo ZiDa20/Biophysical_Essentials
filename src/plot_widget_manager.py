@@ -134,7 +134,7 @@ class PlotWidgetManager(QRunnable):
 
         if  self.live_analysis_info is not None:
             
-            self.show_pgf_segment_buttons(experiment_name, identifier)
+            #self.show_pgf_segment_buttons(experiment_name, identifier)
 
             for index,row in  self.live_analysis_info.iterrows():
                 
@@ -157,6 +157,11 @@ class PlotWidgetManager(QRunnable):
                         analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
 
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
+                        
+                        if sweep_number:
+                            sweep_number = sweep_number.split("_")
+                            sweep_number = int(sweep_number[1])
+                            x_y_tuple = [x_y_tuple[sweep_number-1]]
 
                         if x_y_tuple is not None:
                                     for tuple in x_y_tuple:
