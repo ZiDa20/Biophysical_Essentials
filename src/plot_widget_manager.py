@@ -103,6 +103,8 @@ class PlotWidgetManager(QRunnable):
             print("experiment was clicked")
             self.series_in_treeview_clicked(item.child(0))
     """
+
+    """
     def sweep_in_treeview_clicked(self,item):
             self.sweep_clicked_load_from_dat_database(item)
             self.check_live_analysis_plot(item,"sweep")
@@ -111,6 +113,7 @@ class PlotWidgetManager(QRunnable):
             self.series_clicked_load_from_database(item)
             self.check_live_analysis_plot(item,"series")
 
+    """
 
     def update_live_analysis_info(self,live_analysis_info):
         """
@@ -130,30 +133,39 @@ class PlotWidgetManager(QRunnable):
         print("checking live analysis")
 
         if  self.live_analysis_info is not None:
-
+            
             for index,row in  self.live_analysis_info.iterrows():
                 
-
+                row_nr = row["page"]
+                column = row["col"]
                 fct = row["func_name"]
                 lower_bound = row["left_cursor"]
                 upper_bound = row["right_cursor"]
-                row_nr = row["page"]
-                column = row["col"]
+                live_plot = row["live_plot"]
+                cursor_bound  = row["cursor_bound"]
 
-                analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
+                if cursor_bound:
 
-                x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
+                    self.show_draggable_lines((row_nr,column))
 
-                if x_y_tuple is not None:
-                            for tuple in x_y_tuple:
-                                if isinstance(tuple[1],list):
-                                    y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
-                                    self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
-                                else:
-                                    self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row_nr+column], marker="o")
+                    # only show live plot if also cursor bounds were selected                
+                    if live_plot:
+
+                        analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
+
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
+
+                        if x_y_tuple is not None:
+                                    for tuple in x_y_tuple:
+                                        if isinstance(tuple[1],list):
+                                            y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
+                                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
+                                        else:
+                                            self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row_nr+column], marker="o")
+                        else:
+                                    print("Tuple was None: is live plot function for", fct, " already implemented ? ")
                 else:
-                            print("Tuple was None: is live plot function for", fct, " already implemented ? ")
-
+                    self.remove_dragable_lines(row_nr)
 
             """
              if level == "series":
@@ -509,12 +521,8 @@ class PlotWidgetManager(QRunnable):
             self.ax2 = axes[1]
         else:
             self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-
-            
+            self.ax2 = self.ax1.twinx()         
  
-
     def handle_plot_visualization(self):
         """
         handle visualizations of the data and pgf plot
@@ -781,46 +789,59 @@ class PlotWidgetManager(QRunnable):
         print("Xinterval = %d", number_of_datapoints)
         return time
 
+    def create_dragable_lines(self,row_col_tuple):
+        """
+        """
+
+        print("creating new dragable lines")
+        left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
+ 
+        right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
+
+        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
+
+        self.left_coursor = left_coursor
+        self.right_coursor = right_coursor
+
+        print("adding", row_col_tuple, " to the dict")
+        self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
+        print(self.coursor_bound_tuple_dict.keys())
+
+    
+        self.canvas.draw_idle()
+
+        return left_val,right_val
+
     def show_draggable_lines(self,row_col_tuple,positions = None):
         """
         showing existing courspr bounds
         @param row_number:
         @return:
         """
+        coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
+                
+        left_val = coursor_tuple[0].XorY
+        right_val = coursor_tuple[1].XorY
 
-        if positions is not None:
-            print(row_col_tuple)
-            print(self.coursor_bound_tuple_dict)
+        self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, 10)
+        self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, 10)
 
-            left_val = positions[0]
-            right_val = positions[1]
+        self.coursor_bound_tuple_dict.pop(row_col_tuple)
+        self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
 
-        else:
+        # coursor_tuple[0]# 
+        # coursor_tuple[1] # 
 
-            try:
-                coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
-                left_val = round(coursor_tuple[0].XorY,2)
-                right_val = round(coursor_tuple[1].XorY,2)
-
-            except:
-                # default
-                print("not found")
-                left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
- 
-                right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
-
-        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
-
-        self.coursor_bound_tuple_dict[row_col_tuple] = (left_coursor,right_coursor)
-
-        self.left_coursor = left_coursor
-        self.right_coursor = right_coursor
+        #left_coursor.c = self.canvas
+        #left_coursor.draw_line_on_ax(self.ax1)
+        #left_coursor.redraw()
+        #right_coursor.redraw()
 
         self.canvas.draw_idle()
 
-        return left_val,right_val
 
+                
     def on_press(self,event):
         self.left_coursor.clickonline(event)
         self.right_coursor.clickonline(event)
@@ -841,7 +862,7 @@ class PlotWidgetManager(QRunnable):
                 coursor_tuple = self.coursor_bound_tuple_dict.get(t)
                 self.ax1.lines.remove(coursor_tuple[0].line)
                 self.ax1.lines.remove(coursor_tuple[1].line)
-                self.coursor_bound_tuple_dict.pop(t)
+                #self.coursor_bound_tuple_dict.pop(t)
 
             self.canvas.draw_idle()
         except Exception as e:

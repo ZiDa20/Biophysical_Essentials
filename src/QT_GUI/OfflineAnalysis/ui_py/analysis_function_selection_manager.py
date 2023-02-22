@@ -30,7 +30,10 @@ class AnalysisFunctionSelectionManager():
         self.current_tab = current_tab
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
-        
+
+         # keep grid changes within the related dataframe to avoid exhaustive iteration over the grid
+        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"]) #, "live_plot"
+ 
         self.FUNC_GRID_ROW = 1
         self.LEFT_CB_GRID_ROW = 2
         self.RIGHT_CB_GRID_ROW = 3
@@ -40,11 +43,7 @@ class AnalysisFunctionSelectionManager():
         # add a button for each selected analysis function
         self.add_buttons_to_layout(analysis_functions)
 
-    
-
-        # keep grid changes within the related dataframe to avoid exhaustive iteration over the grid
-        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor"]) #, "live_plot"
-
+       
 
     def add_buttons_to_layout(self, analysis_functions):
         """
@@ -123,7 +122,11 @@ class AnalysisFunctionSelectionManager():
         
 
     def on_checkbox_state_changed(self, row, state):
-        
+        """
+        Handles checkboxes next to the analysis function button.
+        Enables or disables all additional drawings ( cursor bounds and live plot) 
+        which are related to this analysis function
+        """
         print("row = ", row)
         
         self.current_tab.analysis_stacked_widget.setCurrentIndex(row)
@@ -131,14 +134,46 @@ class AnalysisFunctionSelectionManager():
         #table_widget  = table_widget.layout().itemAt(0).widget()
         
         if state == Qt.Checked:
-            # show cursor bounds
+
+            # if checked show cursor bounds and also (if checked) live plot
             for col in range(table_widget.columnCount()):
+
+                # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
                 self.add_coursor_bounds((row,col), self.current_tab, table_widget)
+
+                condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
+                filtered_df = self.live_plot_info[condition]
+                
+                # if cursor bounds were created, they will be added to the live plot info dataframe
+                if filtered_df.empty:
+                    
+                    func_name = table_widget.item(self.FUNC_GRID_ROW, col).text()
+                    left_cursor = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
+                    right_cursor = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
+                    tmp = pd.DataFrame({"page":[row], "col":[col], "func_name":[func_name], 
+                        "left_cursor":[left_cursor], "right_cursor":[right_cursor], 
+                        "live_plot":[False], "cursor_bound":[True]})
+                
+                    self.live_plot_info = pd.concat([self.live_plot_info, tmp])
+                    self.live_plot_info.reset_index(drop = True, inplace=True)
+                else:
+                    index = self.live_plot_info[(self.live_plot_info['page'] == row) & (self.live_plot_info["col"]==col)].index[0]
+                    self.live_plot_info["cursor_bound"][index]=True
+        
         else:
-                self.remove_existing_dragable_lines(row)
+                # @todo improve: merge the  two for loops
+                self.plot_widget_manager.remove_dragable_lines(row)
+
+                for col in self.live_plot_info[self.live_plot_info['page'] == row]["col"].values:
+                    index = self.live_plot_info[(self.live_plot_info['page'] == row) & (self.live_plot_info["col"]==col)].index[0]
+                    self.live_plot_info["cursor_bound"][index]=False
+
+        # very important: dont forget to update the plot widget manager object !
+        self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
 
             #remove cursor bounds
 
+    """
     def rotate_row_indexes(self,table_widget):
         print("rotation started")
         # Get the current number of rows in the table
@@ -164,6 +199,7 @@ class AnalysisFunctionSelectionManager():
         # Set the row height to be equal to the column width (for square cells)
         table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
         print("rotation finished")
+    """
 
     def create_qtablewidget(self,col_cnt,row_cnt):
         # Create a new QTableWidget with 2 columns and 5 rows
@@ -286,12 +322,13 @@ class AnalysisFunctionSelectionManager():
         self.pgf_selection = QComboBox()
         self.get_pgf_file_selection()
         analysis_table_widget.setCellWidget(self.PGF_SEQ_GRID_ROW,col ,self.pgf_selection)
-        self.live_result = QCheckBox()
-        analysis_table_widget.setCellWidget(self.LIVE_GRID_ROW,col ,self.live_result)
+        live_result = QCheckBox()
+        analysis_table_widget.setCellWidget(self.LIVE_GRID_ROW,col ,live_result)
         # tuple 
-        self.live_result.clicked.connect(partial(self.show_live_results_changed, (row,col), text, self.live_result))
+        live_result.stateChanged.connect(partial(self.show_live_results_changed, (row,col), text))
 
-    def show_live_results_changed(self, row_column_tuple, text, checkbox_object: QCheckBox):
+
+    def show_live_results_changed(self, row_column_tuple, text, state):
         """
         Function to handle activation of an analysis function specific checkbox in the analysis table. It checks if
         cursor bounds were set correctly (if not error dialog is displayed). In the analysis function objects specified
@@ -300,36 +337,38 @@ class AnalysisFunctionSelectionManager():
         @param current_tab: current tab
         @param checkbox_object: QCheckbox
         @return:
-        @author: dz, 01.10.2022
+        @author: dz, 02.2023
         """
 
         table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-        if checkbox_object.isChecked():
+        if state == Qt.Checked:
             # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
             try:
                 # table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
                 l_cb= float(table_widget.item(2, row_column_tuple[1]).text())
                 r_cb= float(table_widget.item(3, row_column_tuple[1]).text())
 
-                #self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot"])
-
-                tmp = pd.DataFrame({"page":[ row_column_tuple[0]], "col":[row_column_tuple[1]], "func_name":[text], "left_cursor":[l_cb], "right_cursor":[r_cb]})
-                self.live_plot_info = pd.concat([self.live_plot_info, tmp])
-                print("I have to make the liveplot")
-            
+                index = self.live_plot_info[(self.live_plot_info['page'] == row_column_tuple[0]) & (self.live_plot_info["col"]==row_column_tuple[1])].index[0]
+                self.live_plot_info["live_plot"][index]=True
+                self.live_plot_info["left_cursor"][index]=l_cb
+                self.live_plot_info["right_cursor"][index]=r_cb
             except Exception as e:
-                dialog_message = "Please select cursor bounds first and activate live plot afterwords"
-                CustomErrorDialog().show_dialog(dialog_message)
-                checkbox_object.setCheckState(Qt.CheckState.Unchecked)
+                print(e)
+                #dialog_message = "Please select cursor bounds first and activate live plot afterwords"
+                #CustomErrorDialog().show_dialog(dialog_message)
+                #checkbox_object.setCheckState(Qt.CheckState.Unchecked)
         else:
-            self.live_plot_info = self.live_plot_info.reset_index(drop=True)
-            index = self.live_plot_info[(self.live_plot_info['page'] == row_column_tuple[0]) & (self.live_plot_info['col'] == row_column_tuple[1]) & (self.live_plot_info['func_name'] == text)].index[0]
-            self.live_plot_info.drop(index,inplace=True)
+            index = self.live_plot_info[(self.live_plot_info['page'] == row_column_tuple[0]) & (self.live_plot_info["col"]==row_column_tuple[1])].index[0]
+            self.live_plot_info["live_plot"][index]=False
 
-        print("I have to make the liveplot")
+        # very important: dont forget to update the plot widget manager object !
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
+     
+        print("I have to make the liveplot")
+        
         index = self.current_tab.widget.selected_tree_view.selectedIndexes()[1]
         rect = self.current_tab.widget.selected_tree_view.visualRect(index)
+        # on click (handled in treeview manager) plot compartments will be evaluated
         QTest.mouseClick(self.current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def get_pgf_file_selection(self):
@@ -369,73 +408,35 @@ class AnalysisFunctionSelectionManager():
         print("a cell changed")
         print(item.text())
 
-    def remove_existing_dragable_lines(self, row_number):
-        self.plot_widget_manager.remove_dragable_lines(row_number)
-
     def add_coursor_bounds(self, row_column_tuple, current_tab, table_widget):
-        """
-        This function will add 2 dragable lines to the plot which will be provided by the global plot manager object
-        :return:
-        """
-
-        #self.current_tab_visualization[self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].remove_dragable_lines(
-        #    row_number)
-        
-        """
-        try:
-            print("read")
-            left_cb_val = round(
-                float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 3).text()), 2)
-            right_cb_val = round(
-                float(current_tab.analysis_table_widget.analysis_table_widget.item(row_number, 4).text()), 2)
-
-            # 1) insert dragable coursor bounds into pyqt graph
-            left_val, right_val = self.current_tab_visualization[
-                self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].show_draggable_lines(row_number,
-                                                                                          (left_cb_val, right_cb_val))
-        """
-
-        #if row_column_tuple not in self.current_tab_visualization[
-        #        self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)].coursor_bound_tuple_dict.keys():
-                
-        if table_widget.item(2, row_column_tuple[1]) is None:
-
-                    # check if already left and right row values were selected -> than recreate with these values - otherwise use default
-
-                    #except Exception as e:
-                        #print(e)
-                    # 1) insert dragable coursor bounds into pyqt graph
-                    left_val, right_val = self.plot_widget_manager.show_draggable_lines(row_column_tuple)
-
-                    
-                    # 2) connect to the signal that will be emitted when cursor bounds are moved by user
-                    self.plot_widget_manager.left_bound_changed.cursor_bound_signal.connect(
-                        self.update_left_common_labels)
-
-                    self.plot_widget_manager.right_bound_changed.cursor_bound_signal.connect(
-                        self.update_right_common_labels)
-
-                    # 3) update the function selection grid
-                    self.update_left_common_labels((left_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
-
-                    self.update_right_common_labels((right_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
-                
-        else:
-                    l_cb= float(table_widget.item(2, row_column_tuple[1]).text())
-                    r_cb= float(table_widget.item(3, row_column_tuple[1]).text())
-                    left_val, right_val = self.plot_widget_manager.show_draggable_lines(row_column_tuple, (l_cb,r_cb))
-        
-
-                #self.check_ready_for_analysis(current_tab)
-        """
        
+        print("adding cursor bounds")
 
-        current_tab.analysis_table_widget.analysis_table_widget.removeCellWidget(row_number, 1)
-        self.b = QPushButton("Change")
-        current_tab.analysis_table_widget.analysis_table_widget.setCellWidget(row_number, 1, self.b)
-        self.b.clicked.connect(partial(self.add_coursor_bounds, row_number, current_tab))
-        current_tab.checkbox_list[0].setEnabled(True)
-        """
+        print(self.plot_widget_manager.coursor_bound_tuple_dict.keys())
+
+        if row_column_tuple in self.plot_widget_manager.coursor_bound_tuple_dict.keys():
+
+            # show existing cursor bounds which are also already connected 
+            self.plot_widget_manager.show_draggable_lines(row_column_tuple)
+
+        else:
+
+            # 1) insert dragable coursor bounds into graph
+            left_val, right_val = self.plot_widget_manager.create_dragable_lines(row_column_tuple)
+            
+            # 2) connect to the signal that will be emitted when cursor bounds are moved by user
+            self.plot_widget_manager.left_bound_changed.cursor_bound_signal.connect(
+                self.update_left_common_labels)
+
+            self.plot_widget_manager.right_bound_changed.cursor_bound_signal.connect(
+                self.update_right_common_labels)
+
+            # 3) update the function selection grid
+            self.update_left_common_labels((left_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
+
+            self.update_right_common_labels((right_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
+
+
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in, table_widget=None):

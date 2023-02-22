@@ -26,7 +26,8 @@ class DraggableLines:
             y = [-1*self.scaling_factor, self.scaling_factor]
 
         self.line = lines.Line2D(x, y, color = default_colors[row_column_tuple[0]+row_column_tuple[1]], picker=True)
-        self.ax.add_line(self.line)
+
+        self.draw_line_on_ax(self.ax)      
 
         self.sid = self.c.mpl_connect('pick_event', self.clickonline)
         #self.c.draw_idle()
@@ -66,3 +67,11 @@ class DraggableLines:
         print(emit_tuple)
         self.bound_changed.cursor_bound_signal.emit(emit_tuple)
 
+    def redraw(self):
+        #self.line = lines.Line2D(x, y, color = default_colors[row_column_tuple[0]+row_column_tuple[1]], picker=True)
+        self.ax.add_line(self.line)
+        self.sid = self.c.mpl_connect('pick_event', self.clickonline)
+
+    def draw_line_on_ax(self,ax):
+         ax.add_line(self.line)
+    
