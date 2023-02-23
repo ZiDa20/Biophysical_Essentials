@@ -877,8 +877,8 @@ class PlotWidgetManager(QRunnable):
         left_val = coursor_tuple[0].XorY
         right_val = coursor_tuple[1].XorY
 
-        self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, 10)
-        self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, 10)
+        self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.ax1.get_ylim())
+        self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.ax1.get_ylim())
 
         self.coursor_bound_tuple_dict.pop(row_col_tuple)
         self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)

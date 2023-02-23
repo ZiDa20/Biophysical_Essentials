@@ -23,7 +23,11 @@ class DraggableLines:
 
         elif kind == "v":
             x = [XorY, XorY]
-            y = [-1*self.scaling_factor, self.scaling_factor]
+
+            if isinstance(self.scaling_factor,tuple):
+               y = [self.scaling_factor[0],self.scaling_factor[1]] 
+            else:
+               y = [-1*self.scaling_factor, self.scaling_factor]
 
         self.line = lines.Line2D(x, y, color = default_colors[row_column_tuple[0]+row_column_tuple[1]], picker=True)
 
