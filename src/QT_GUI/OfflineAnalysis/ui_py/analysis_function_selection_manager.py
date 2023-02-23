@@ -42,15 +42,10 @@ class AnalysisFunctionSelectionManager():
         # add a button for each selected analysis function
         self.add_buttons_to_layout(analysis_functions)
 
-       
-
-    def add_buttons_to_layout(self, analysis_functions):
+    def clear_analysis_widgets(self,layout):
         """
-        Add a button for each of the selected analysis functions to the layout.
+        clears all pages and layouts from previous widgets 
         """
-
-        layout = self.current_tab.analysis_button_grid
-
         # at 0 there is the "add" button which shouldn't be deleted
         for i in range(1,layout.count()):
             layout.itemAt(i).widget().deleteLater()
@@ -68,13 +63,17 @@ class AnalysisFunctionSelectionManager():
 
         print("page count = ", self.current_tab.analysis_stacked_widget.count())
 
-
-        #for r in self.plot_widget_manager.coursor_bound_tuple_dict.keys():
-        #    self.plot_widget_manager.remove_dragable_lines(r[0])
-
         self.plot_widget_manager.coursor_bound_tuple_dict = {}
         self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"]) #, "live_plot"
- 
+
+
+    def add_buttons_to_layout(self, analysis_functions):
+        """
+        Add a button for each of the selected analysis functions to the layout.
+        """
+        layout = self.current_tab.analysis_button_grid
+        self.clear_analysis_widgets(layout)
+        
         row = 1
         col = 0
         
