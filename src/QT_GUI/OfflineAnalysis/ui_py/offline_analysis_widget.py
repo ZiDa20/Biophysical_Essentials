@@ -1117,39 +1117,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.open_connection()
 
         if not self.multiple_interval_analysis.empty:
-            self.multiple_interval_analysis = self.multiple_interval_analysis.reset_index()
-            print(self.multiple_interval_analysis)
-            print("postprocessing started .. hang tight ")
 
-            page_ids = self.multiple_interval_analysis['page'].unique()
-
-            for page in page_ids:
-
-                related_intervals = self.multiple_interval_analysis[self.multiple_interval_analysis['page'] == page]
-                print("have to calculate this: ")
-                print(related_intervals["func"].values[0])
-                
-                # split string into list, e.g. max_current - min_current
-                # @todo: can this be done better ? 
-                equation_components = related_intervals["func"].values[0].split(" \n ")
-                equation_components.remove("")
-
-                # replace function name by related analysis_function_id
-                func_counter = 0
-                func_to_remove = []
-
-                for i in range(len(equation_components)):
-
-                    if equation_components[i] not in ["+", "-", "*", "/", "(", ")"]: 
-
-                        equation_components[i] = related_intervals["id"].values[func_counter]
-                        func_to_remove.append(equation_components[i])
-                        func_counter += 1
-        
-                # stat recursive function
-                self.recursive_pop(equation_components,0, 0)
-
-        
+            self.finish_multiple_interval_analysis()
+            
         else:
             print("postprocessing not needed")
         
@@ -1174,19 +1144,64 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
         self.offline_tree.offline_analysis_result_tree_item_clicked()
 
-    def get_operand_index(self,equation_components):
+    def finish_multiple_interval_analysis(self):
+        """
+        run the post processing of multiple interval analysis:
+        so far, each interval was calculated in a separate thread
+        now, single intervals needs to be subtracted/divided according the selected analysis syntax
+        """
 
-        # consider mathematical rang of operands and evaluate * and / first
-        if "/" in equation_components:
-           op_index = equation_components.index("/")            
-        elif "*" in equation_components:
-            op_index = equation_components.index("*")
-        else:
+        # this dataframe has been filled before single interval analysis started
+        self.multiple_interval_analysis = self.multiple_interval_analysis.reset_index()
+        
+        print(self.multiple_interval_analysis)
+        print("postprocessing started .. hang tight ")
+
+        page_ids = self.multiple_interval_analysis['page'].unique()
+
+        for page in page_ids:
+
+            related_intervals = self.multiple_interval_analysis[self.multiple_interval_analysis['page'] == page]
+            print("have to calculate this: ")
+
+            # this is the calculation equation 
+            print(related_intervals["func"].values[0])
+            
+            # split string into list, e.g. max_current - min_current
+            # @todo: can this be done better ? 
+            equation_components = related_intervals["func"].values[0].split(" \n ")
+            equation_components.remove("")
+
+            #reconstrcut the text before pop
+            db_text = ""
             for c in equation_components:
-                if c in ["+", "-", "*", "/"]:
-                    return equation_components.index(c)
+                db_text = db_text + c + " "
 
-        return op_index
+            # replace function name by related analysis_function_id
+            func_counter = 0
+            func_to_remove = []
+
+            for i in range(len(equation_components)):
+
+                if equation_components[i] not in ["+", "-", "*", "/", "(", ")"]: 
+
+                    equation_components[i] = related_intervals["id"].values[func_counter]
+                    func_to_remove.append(equation_components[i])
+                    func_counter += 1
+
+            
+
+            # stat recursive function
+            self.recursive_pop(equation_components,0, 0)
+
+            # if everything worked correctly, only the first func to remove should still exist in the analysis functions table
+            # the name here needs to be adapted too 
+         
+
+            q = f'update analysis_functions set function_name = \'{db_text}\' where analysis_function_id == {func_to_remove[0]}'
+            self.database_handler.database.execute(q)
+
+            print(func_to_remove)
 
     def recursive_pop(self, equation_components,func_pos, pop_count, eval_dict = None):
         """take 3 elements from the list: an operand and the expression left to it and right to it, either expression are 
@@ -1294,6 +1309,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             eval_dict[func_1]=sub_results
             equation_components.insert(op_index-1,func_1)
             self.recursive_pop(equation_components,func_pos, pop_count,eval_dict)
+
+    def get_operand_index(self,equation_components):
+
+        # consider mathematical rang of operands and evaluate * and / first
+        if "/" in equation_components:
+           op_index = equation_components.index("/")            
+        elif "*" in equation_components:
+            op_index = equation_components.index("*")
+        else:
+            for c in equation_components:
+                if c in ["+", "-", "*", "/"]:
+                    return equation_components.index(c)
+
+        return op_index
+
 
     def extract_first_elements(self,lst):
         return [t[0] for t in lst]

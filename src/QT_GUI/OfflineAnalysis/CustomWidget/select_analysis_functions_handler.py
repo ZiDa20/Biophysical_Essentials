@@ -3,6 +3,7 @@ from PySide6.QtWidgets import *  # type: ignore
 
 from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_desginer import Ui_Dialog
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 from functools import partial
 import re
@@ -17,9 +18,15 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
         self.ADD = "+"
         self.SUB = "-"
         self.DIV = "/"
+        self.MUL = "*"
         self.L_BRACK = "("
         self.R_BRACK = ")"
-        self.interval_operands = [self.ADD, self.SUB, self.DIV, self.L_BRACK, self.R_BRACK]
+        self.interval_operands = [self.ADD, self.SUB, self.DIV, self.MUL, self.L_BRACK, self.R_BRACK]
+
+        self.OPERAND = "operand"
+        self.BRACKET = "bracket"
+        self.FUNCTION = "function"
+
 
         self.fill_dialog(database_handler, series_name)
         self.sub_analysis.clicked.connect(partial(self.add_text_to_analysis_syntax, self.SUB))
@@ -30,7 +37,7 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
         self.remove_last_analysis.clicked.connect(self.remove_last_analysis_function)
         
         self.add_combined.clicked.connect(self.add_text_label_to_selection)
-        self.clear_all.clicked.connect(self.selection_list_widget.clear)
+        self.clear_all.clicked.connect(self.clear_all_fct)
 
     def fill_dialog(self,database_handler, series_name):
 
@@ -53,8 +60,70 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
 
     def add_text_label_to_selection(self):
         value = self.analysis_syntax.text()
-        self.add_item_to_selected_grid(value)
-        self.analysis_syntax.setText("")
+        if self.valid_syntax_check(value) and value is not []:
+            self.add_item_to_selected_grid(value)
+            self.analysis_syntax.setText("")
+
+
+    def valid_syntax_check(self,value):
+        value = value.split()
+        open_bracket = False
+        close_bracket = False
+
+        for pos in range(len(value)):
+            
+            # needed since act expression and the following are evaluated
+            if pos < len(value)-1:
+            
+                if self.expression_type(value[pos]) == self.OPERAND and self.expression_type(value[pos+1])==self.OPERAND:
+                    CustomErrorDialog("Syntax Error: Between two operands, there must be a function expression")
+                    return False
+                
+                if self.expression_type(value[pos]) == self.FUNCTION and self.expression_type(value[pos+1])==self.FUNCTION:
+                    CustomErrorDialog("Syntax Error: Between two functions, there must be an operator")
+                    return False
+
+            if value[pos] == self.L_BRACK:
+                if not open_bracket:
+                    open_bracket = True
+                else:
+                    CustomErrorDialog("Syntax Error: Please close the first bracket before opening a new one.")
+                    return False
+            
+            if value[pos] == self.R_BRACK:
+                if not close_bracket:
+                    # check if a bracket was already opened and if yes - reset to allow new bracket expression
+                    if open_bracket:
+                        open_bracket = False
+                    else:
+                        CustomErrorDialog("Syntax Error: You have to place an opening bracket first.")
+                        return False
+        
+
+        if open_bracket and not close_bracket:
+            CustomErrorDialog("Syntax Error: Opening but no closing bracket detected")
+            return False
+        if not open_bracket and close_bracket:
+            CustomErrorDialog("Syntax Error: Closing but no opening brachet detected.")
+            return False
+        
+        return True
+            
+    def expression_type(self,value:str):
+        """
+        check the expression type
+        """
+        if value in [self.ADD, self.SUB, self.DIV, self.MUL]:
+            return self.OPERAND
+        
+        if value in [self.L_BRACK, self.R_BRACK]:
+            return self.BRACKET
+        
+        return self.FUNCTION
+
+    def clear_all_fct(self):
+        self.selected_analysis_functions = []
+        self.selection_list_widget.clear()
 
     def add_item_to_selected_grid(self,input_string):
         self.selection_list_widget.addItem(QListWidgetItem(input_string))
@@ -74,7 +143,7 @@ class Select_Analysis_Functions(QDialog, Ui_Dialog):
         text_value = ""
         for i in value:
             text_value = text_value + " " + i
-
+        self.analysis_syntax.clear()
         self.analysis_syntax.setText(text_value)
 
     

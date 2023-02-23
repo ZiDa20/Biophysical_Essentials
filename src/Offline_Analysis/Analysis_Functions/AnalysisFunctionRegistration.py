@@ -42,8 +42,16 @@ class AnalysisFunctionRegistration():
         Returns:
             _type_: _description_
         """
+        operands = ["+", "-", "*", "/", "(", ")"]
+
         try:
-            return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            try:
+                analysis_function_name =analysis_function_name.replace("(","").split()
+                return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name[0]]
+            except Exception as e:
+                print(e)
+                return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            
         except KeyError:
             raise ValueError(f"No analysis function found with name '{analysis_function_name}'")
 

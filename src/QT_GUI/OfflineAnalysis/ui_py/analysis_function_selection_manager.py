@@ -30,10 +30,9 @@ class AnalysisFunctionSelectionManager():
         self.current_tab = current_tab
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
-
+        self.operands =  ["+", "-", "*", "/", "(", ")"]
          # keep grid changes within the related dataframe to avoid exhaustive iteration over the grid
-        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"]) #, "live_plot"
- 
+        
         self.FUNC_GRID_ROW = 1
         self.LEFT_CB_GRID_ROW = 2
         self.RIGHT_CB_GRID_ROW = 3
@@ -56,6 +55,26 @@ class AnalysisFunctionSelectionManager():
         for i in range(1,layout.count()):
             layout.itemAt(i).widget().deleteLater()
 
+        
+        pages = self.current_tab.analysis_stacked_widget.count()
+        for i in range(pages):
+            # allways delete page 0
+            widget = self.current_tab.analysis_stacked_widget.widget(0)
+            self.current_tab.analysis_stacked_widget.removeWidget(widget)
+
+        # insert the default Widget for the "+" button "        
+        page_widget = QWidget()
+        self.current_tab.analysis_stacked_widget.insertWidget(0, page_widget)
+
+        print("page count = ", self.current_tab.analysis_stacked_widget.count())
+
+
+        #for r in self.plot_widget_manager.coursor_bound_tuple_dict.keys():
+        #    self.plot_widget_manager.remove_dragable_lines(r[0])
+
+        self.plot_widget_manager.coursor_bound_tuple_dict = {}
+        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"]) #, "live_plot"
+ 
         row = 1
         col = 0
         
@@ -63,14 +82,23 @@ class AnalysisFunctionSelectionManager():
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
 
+        try:
+            analysis_functions.remove([])
+        except:
+            print("No need to remove an empty list")
+
+
         for fct in analysis_functions:
+
             if len(fct)>1:
                 text = ""
                 for n in fct:
                     text = text +  n + " "
             else:
-                text = fct [0]
-
+                try:
+                    text = fct [0]
+                except Exception as e:
+                    print(e)
             button = QPushButton(text)
 
 
@@ -240,22 +268,21 @@ class AnalysisFunctionSelectionManager():
     def show_analysis_grid(self, row,text, show_cb_checkbx):
         
         print("stacked widget page ", row, " requested")      
+        self.current_tab.analysis_stacked_widget.setCurrentIndex(row)
+        print("Current Index = ", self.current_tab.analysis_stacked_widget.currentIndex())
 
-        try:
-            self.current_tab.analysis_stacked_widget.setCurrentIndex(row)
-        except Exception as e:
-            print("I got here", e)
-        
-        if self.current_tab.analysis_stacked_widget.currentWidget().layout():
-            print("i found a layout")
-            # display the cursor bounds -> check if they are in the dict
-            table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-            #for col in range(table_widget.columnCount()):
-            #    self.add_coursor_bounds((row,col), self.current_tab, table_widget)
+        if row == self.current_tab.analysis_stacked_widget.currentIndex():
 
-            self.current_tab.analysis_stacked_widget.show()
+                print("i found a layout")
+                # display the cursor bounds -> check if they are in the dict
+                table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+                #for col in range(table_widget.columnCount()):
+                #    self.add_coursor_bounds((row,col), self.current_tab, table_widget)
+
+                self.current_tab.analysis_stacked_widget.show()
         else:
-            print("no layout found ")
+
+            print("page didnt exist yet")
 
             page_widget = QWidget()
             page_widget_layout = QVBoxLayout()
@@ -264,10 +291,11 @@ class AnalysisFunctionSelectionManager():
             col = 0
             if len(text.split())>1:
                 for expr in text.split():
-                    if expr not in ["+", "-", "*", "/", "(", ")"]:
+                    if expr not in self.operands:
                         col+=1
             else:
                 col = 1
+        
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
             analysis_table_widget =  self.create_qtablewidget(col,6)
             #analysis_table_widget.tableWidget.setColumnCount(col)
@@ -438,6 +466,7 @@ class AnalysisFunctionSelectionManager():
             self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
             self.reclick_tree_view_item()
         except Exception as e:
+            # will give an error at the beginning when no cursor bounds are added to the table widget
             print(e)
 
     @Slot(tuple)
@@ -449,9 +478,10 @@ class AnalysisFunctionSelectionManager():
             self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
             self.reclick_tree_view_item()
         except Exception as e:
+             # will give an error at the beginning when no cursor bounds are added to the table widget
             print(e)
 
-            
+
     def update_cursor_bound_labels(self, table_row, tuple_in, table_widget):
         
         # tuple in fields: [0]: cb value, [1]: row of the button, [2]: column of the function

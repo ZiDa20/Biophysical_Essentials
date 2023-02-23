@@ -872,6 +872,9 @@ class PlotWidgetManager(QRunnable):
         @param row_number:
         @return:
         """
+
+        
+
         coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
                 
         left_val = coursor_tuple[0].XorY
@@ -882,17 +885,12 @@ class PlotWidgetManager(QRunnable):
 
         self.coursor_bound_tuple_dict.pop(row_col_tuple)
         self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
-
-        # coursor_tuple[0]# 
-        # coursor_tuple[1] # 
-
-        #left_coursor.c = self.canvas
-        #left_coursor.draw_line_on_ax(self.ax1)
-        #left_coursor.redraw()
-        #right_coursor.redraw()
-
+        
         self.canvas.draw_idle()
 
+        #self.ax1.draw_artist(self.left_coursor)
+        #self.canvas.blit()
+        #self.canvas.flush_events()
 
                 
     def on_press(self,event):
