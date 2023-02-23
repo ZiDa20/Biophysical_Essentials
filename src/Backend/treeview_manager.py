@@ -441,8 +441,8 @@ class TreeViewManager:
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
             
-            plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["Series"]],tree_item_list[1][data_pos["hidden3_parent"]],
-                                                              tree_item_list[1][data_pos["hidden1_identifier"]],"series" )
+            plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["hidden3_parent"]],
+                                                              tree_item_list[1][data_pos["hidden1_identifier"]])
         
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Sweep":
@@ -458,6 +458,11 @@ class TreeViewManager:
             plot_widget_manager.table_view_sweep_clicked_load_from_database(parent_data[data_pos["hidden3_parent"]],
                                                                             parent_data[data_pos["hidden1_identifier"]],
                                                                             tree_item_list[1][data_pos["Sweep"]])
+
+            plot_widget_manager.check_live_analysis_plot(parent_data[data_pos["hidden3_parent"]],
+                                tree_item_list[1][data_pos["hidden3_parent"]],
+                                tree_item_list[1][data_pos["Sweep"]])
+
 
     def update_treeviews_after_discard_reinsert(self,series_name:str, plot_widget_manager:PlotWidgetManager):
         """

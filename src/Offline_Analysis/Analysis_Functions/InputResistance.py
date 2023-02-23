@@ -10,7 +10,7 @@ class InputResistance(SweepWiseAnalysisTemplate):
     """
     
     plot_type_options = ["Linear Regression", "Aggregated"]
-    function_name = "Input Resistance"
+    function_name = "Input-Resistance"
     database = None
     
     @classmethod

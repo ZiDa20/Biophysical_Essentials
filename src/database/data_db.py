@@ -14,8 +14,6 @@ import datetime
 import re
 from pathlib import Path
 
-
-
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
@@ -845,8 +843,10 @@ class DuckDBDatabaseHandler():
             analysis_function, analysis_series_name, self.analysis_id, lower_bound, upper_bound))
             self.logger.info(
                 f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
-        except:
-            print("error")
+            print(f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
+        except Exception as e:
+            print("Insertion of analysis function name and cursor bounds into database failed because of error %s", e)
+
 
     def get_last_inserted_analysis_function_id(self):
         q = """select analysis_function_id from analysis_functions """

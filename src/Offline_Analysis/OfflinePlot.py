@@ -117,7 +117,7 @@ class OfflinePlots():
                                 "Rheobase Plot": self.rheobase_plot,
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
-                                "Action Potential Fitting": self.ap_fitting_plot,
+                                "Action_Potential_Fitting": self.ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
                                 "PCA-Plot": self.pca_plot,
                                 "AP-Overlay": self.ap_overlay

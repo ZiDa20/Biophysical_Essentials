@@ -22,8 +22,8 @@ class AnalysisFunctionRegistration():
         "time_to_min": TimeToMin,
         "time_to_max": TimeToMax,
         "mean_voltage": MeanVoltage,
-        "Action Potential Fitting": ActionPotentialFitting,
-        "Input Resistance": InputResistance,
+        "Action_Potential_Fitting": ActionPotentialFitting,
+        "Input-Resistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
         "Peak-Detection": PeakFinding
@@ -42,8 +42,16 @@ class AnalysisFunctionRegistration():
         Returns:
             _type_: _description_
         """
+        operands = ["+", "-", "*", "/", "(", ")"]
+
         try:
-            return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            try:
+                analysis_function_name =analysis_function_name.replace("(","").split()[0]
+                return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            except Exception as e:
+                print(e)
+                return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            
         except KeyError:
             raise ValueError(f"No analysis function found with name '{analysis_function_name}'")
 

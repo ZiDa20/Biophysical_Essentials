@@ -7,8 +7,8 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis im
 
 class ActionPotentialFitting(SweepWiseAnalysisTemplate):
     
-    plot_type_options = ["Action Potential Fitting", "PCA-Plot"]
-    function_name = "Action Potential Fitting"
+    plot_type_options = ["Action_Potential_Fitting", "PCA-Plot"]
+    function_name = "Action_Potential_Fitting"
     data_shape = None
     database = None
     time = None

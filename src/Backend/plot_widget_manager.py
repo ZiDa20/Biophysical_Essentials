@@ -69,7 +69,10 @@ class PlotWidgetManager(QRunnable):
         # e.g. max_current | 1 | 10 | change | configure | checkbox
         self.analysis_functions_table_widget = None
 
-        self.default_colors = ['r', 'g', 'c','k']
+        self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
+     
+        self.live_analysis_info = None
+
 
     def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
         self.analysis_functions_table_widget = analysis_functions_table_widget
@@ -100,6 +103,8 @@ class PlotWidgetManager(QRunnable):
             print("experiment was clicked")
             self.series_in_treeview_clicked(item.child(0))
     """
+
+    """
     def sweep_in_treeview_clicked(self,item):
             self.sweep_clicked_load_from_dat_database(item)
             self.check_live_analysis_plot(item,"sweep")
@@ -108,8 +113,16 @@ class PlotWidgetManager(QRunnable):
             self.series_clicked_load_from_database(item)
             self.check_live_analysis_plot(item,"series")
 
+    """
 
-    def check_live_analysis_plot(self,item_text,experiment_name,identifier, level):
+    def update_live_analysis_info(self,live_analysis_info):
+        """
+        update from extern functions and classes, such as analysis function seletion manager
+        """
+        #self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor"])
+        self.live_analysis_info = live_analysis_info
+
+    def check_live_analysis_plot(self, experiment_name, identifier, sweep_number = None):
         """
         calculate values to be plotted in the "live plot" feature during analysis
         @param item:
@@ -117,57 +130,111 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 29.09.2022
         """
-        print("checking live analysis for item ", item_text)
-        print(experiment_name)
-        print(identifier)
-        if self.analysis_functions_table_widget is not None:
-            row_count = self.analysis_functions_table_widget.rowCount()
-            # iterate through the rows of the table,
-            print(row_count)
-            for row in range(0,row_count):
-                # check which checkboxes are selected
-                fct_name = self.analysis_functions_table_widget.item(row, 0).text()
-                print(fct_name)
-                if self.analysis_functions_table_widget.cellWidget(row, 5).isChecked():
-                    # calculate realted results and visualize
-                    try:
-                        lower_bound = float(self.analysis_functions_table_widget.item(row, 1).text())
-                        upper_bound = float(self.analysis_functions_table_widget.item(row, 2).text())
-                    except Exception as e:
-                        lower_bound = None
-                        upper_bound = None
-                    analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct_name)
+        print("checking live analysis")
 
-                    if level == "series":
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier, self.database_handler)
+        if  self.live_analysis_info is not None:
+            
+            #self.show_pgf_segment_buttons(experiment_name, identifier)
+
+            for index,row in  self.live_analysis_info.iterrows():
+                
+                row_nr = row["page"]
+                column = row["col"]
+                fct = row["func_name"]
+                lower_bound = row["left_cursor"]
+                upper_bound = row["right_cursor"]
+                live_plot = row["live_plot"]
+                cursor_bound  = row["cursor_bound"]
+
+                if cursor_bound:
+
+                    self.show_draggable_lines((row_nr,column))
+                    
+
+                    # only show live plot if also cursor bounds were selected                
+                    if live_plot:
+
+                        analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
+
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
+                        
+                        if sweep_number:
+                            sweep_number = sweep_number.split("_")
+                            sweep_number = int(sweep_number[1])
+                            x_y_tuple = [x_y_tuple[sweep_number-1]]
+
+                        if x_y_tuple is not None:
+                                    for tuple in x_y_tuple:
+                                        if isinstance(tuple[1],list):
+                                            y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
+                                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
+                                        else:
+                                            self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row_nr+column], marker="o")
+                        else:
+                                    print("Tuple was None: is live plot function for", fct, " already implemented ? ")
+                else:
+                    self.remove_dragable_lines(row_nr)
+
+            """
+             if level == "series":
+                       
                     else:
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
+            """
 
-                    print(x_y_tuple)  # only works if parent = experiment
-                    #self.plot_scaling_factor = 1e9
-                    if x_y_tuple is not None:
-                        for tuple in x_y_tuple:
-                            if isinstance(tuple[1],list):
-                                y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
-                                self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row], linestyle='dashed')
-                            else:
-                                self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row], marker="o", linewidth = 0.5, markersize = 5, alpha = 0.8, markeredgecolor = "black", markeredgewidth = 0.5)
-                    else:
-                        print("Tuple was None: is live plot function for", fct_name, " already implemented ? ")
-                else:
-                    print("nothing to check in row %i", row)
-        else:
-            print("analysis_functions_table_widget was None ")
+    def show_pgf_segment_buttons(self, experiment_name, series_identifier):
+    
+        
+        # get the upper and most right ax value (lowest y and smallest x at [0])
+        current_ax_height = self.ax1.get_ylim()[1]
+        current_ax_length = self.ax1.get_xlim()[1]
 
+        pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
+        self.rect_list = []
+        self.text_list = []
+        total_duration = 0
+        for d in range(len(pgf_table['duration'].values)):
+            max_len = float(pgf_table['duration'].values[d]) * 1000
+            
+            rect = plt.Rectangle((total_duration+1/5*max_len, current_ax_height),  3/5*max_len , 3, facecolor='w', edgecolor='grey', alpha=1,label='Section 1')
+            text = self.ax1.text(total_duration+0.5*max_len, current_ax_height + 1.5, f'Seg. {d+1}', fontsize=10, ha='center', va='center')
+            
+            self.rect_list.append(rect)
+            self.text_list.append(text)
 
+            self.ax1.add_patch(rect)
+            total_duration += max_len
+
+        # Variable to keep track of the currently clicked rectangle
+        clicked_rect = None
+        self.canvas.draw_idle()
+    
+    def onclick(self,event):
+        global clicked_rect
+        # Find which rectangle was clicked
+        for rect, text in zip(self.rect_list, self.text_list):
+
+            if rect.contains(event)[0]:
+               
+                # Set the color of the clicked rectangle to red and the others to white
+                for r in self.rect_list:
+                    r.set_facecolor('w')
+
+                rect.set_facecolor('red')
+                
+                self.canvas.draw_idle()
+                print(f'Clicked on rectangle with label: {text.get_text()}')
+                break
+    """
     def sweep_clicked_load_from_dat_file(self,item):
-        """
+        
         Whenever a sweep is clicked in online analysis, this handler will be executed to plot the selected sweep
         @param item: treeviewitem
         :author: dz, 21.07.2022
         @return:
 
-        """
+        
         self.time = None
 
         split_view = 1
@@ -218,14 +285,15 @@ class PlotWidgetManager(QRunnable):
 
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
-
+    """
+    """
     def series_clicked_load_from_dat_file(self,item):
-        """
+        
         plots trace data and pgf data after a series was clicked in the online analysis
         @param item:
         @return:
         :author: dz, 21.07.2022
-        """
+        
         print("online analysis %s series was clicked", item.text(0))
         children = item.childCount()
         split_view = 1
@@ -285,14 +353,15 @@ class PlotWidgetManager(QRunnable):
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
-
+    """
+    """
     def series_clicked_load_from_dat_file(self,item):
-        """
+        
         plots trace data and pgf data after a series was clicked in the online analysis
         @param item:
         @return:
         :author: dz, 21.07.2022
-        """
+         
         print("online analysis %s series was clicked", item.text(0))
         children = item.childCount()
         split_view = 1
@@ -351,6 +420,9 @@ class PlotWidgetManager(QRunnable):
 
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
+
+    """
+
 
     def table_view_sweep_clicked_load_from_database(self, experiment_name, series_identifier, sweep_name):
         """
@@ -473,22 +545,17 @@ class PlotWidgetManager(QRunnable):
 
         # finally also the pgf file needs to be added to the plot
         # load the table
-        pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
 
-        #print(pgf_table_df)
-
-        protocol_steps = self.plot_pgf_signal(pgf_table_df,data)
-        
-        #print("Protocol Steps")
-        #print(protocol_steps)
-        
-        """
+        protocol_steps = self.plot_pgf_signal(pgf_table,data)
+    
         for x in range(0,len(protocol_steps)):
 
             x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
             self.ax1.axvline(x_pos, c = 'tab:gray')
-        """
+        
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
@@ -507,12 +574,8 @@ class PlotWidgetManager(QRunnable):
             self.ax2 = axes[1]
         else:
             self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-
-            
+            self.ax2 = self.ax1.twinx()         
  
-
     def handle_plot_visualization(self):
         """
         handle visualizations of the data and pgf plot
@@ -776,45 +839,57 @@ class PlotWidgetManager(QRunnable):
         print("Xinterval = %d", number_of_datapoints)
         return time
 
-    def show_draggable_lines(self,row_number,positions = None):
+    def create_dragable_lines(self,row_col_tuple):
+        """
+        """
+
+        print("creating new dragable lines")
+        left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
+ 
+        right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
+
+        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
+
+        self.left_coursor = left_coursor
+        self.right_coursor = right_coursor
+
+        print("adding", row_col_tuple, " to the dict")
+        self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
+        print(self.coursor_bound_tuple_dict.keys())
+
+    
+        self.canvas.draw_idle()
+
+        return left_val,right_val
+
+    def show_draggable_lines(self,row_col_tuple,positions = None):
         """
         showing existing courspr bounds
         @param row_number:
         @return:
         """
 
-        if positions is not None:
-            print(row_number)
-            print(self.coursor_bound_tuple_dict)
+        
 
-            left_val = positions[0]
-            right_val = positions[1]
+        coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
+                
+        left_val = coursor_tuple[0].XorY
+        right_val = coursor_tuple[1].XorY
 
-        else:
+        self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.ax1.get_ylim())
+        self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.ax1.get_ylim())
 
-            try:
-                coursor_tuple = self.coursor_bound_tuple_dict.get(str(row_number))
-                left_val = round(coursor_tuple[0].XorY,2)
-                right_val = round(coursor_tuple[1].XorY,2)
-
-            except:
-                # default
-                print("not found")
-                left_val =  0.2*max(self.time) +  5* row_number
-                right_val = 0.8*max(self.time) +  5 * row_number
-
-        left_coursor = DraggableLines(self.ax1, "v", left_val,self.canvas, self.left_bound_changed,row_number, self.plot_scaling_factor)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val,self.canvas, self.right_bound_changed,row_number, self.plot_scaling_factor)
-
-        self.coursor_bound_tuple_dict[str(row_number)] = (left_coursor,right_coursor)
-
-        self.left_coursor = left_coursor
-        self.right_coursor = right_coursor
-
+        self.coursor_bound_tuple_dict.pop(row_col_tuple)
+        self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
+        
         self.canvas.draw_idle()
 
-        return left_val,right_val
+        #self.ax1.draw_artist(self.left_coursor)
+        #self.canvas.blit()
+        #self.canvas.flush_events()
 
+                
     def on_press(self,event):
         self.left_coursor.clickonline(event)
         self.right_coursor.clickonline(event)
@@ -824,11 +899,18 @@ class PlotWidgetManager(QRunnable):
         print(row)
         print(self.coursor_bound_tuple_dict)
         try:
-            coursor_tuple = self.coursor_bound_tuple_dict.get(str(row))
-            self.ax1.lines.remove(coursor_tuple[0].line)
-            self.ax1.lines.remove(coursor_tuple[1].line)
 
-            self.coursor_bound_tuple_dict.pop(str(row))
+            tuples_to_remove = []
+            for k in self.coursor_bound_tuple_dict.keys():
+                if k[0]==row:
+                    tuples_to_remove.append(k)
+
+            for t in tuples_to_remove:
+
+                coursor_tuple = self.coursor_bound_tuple_dict.get(t)
+                self.ax1.lines.remove(coursor_tuple[0].line)
+                self.ax1.lines.remove(coursor_tuple[1].line)
+                #self.coursor_bound_tuple_dict.pop(t)
 
             self.canvas.draw_idle()
         except Exception as e:

@@ -43,6 +43,7 @@ class SeriesItemTreeWidget():
         self.navigation_list = []
         self.current_tab_visualization = []
         self.blank_analysis_tree_view_manager = blank_analysis_tree
+        self.current_tab_tree_view_manager = []
         self.parent_stacked = None
         self.home = plot_buttons[0]
         self.zoom = plot_buttons[1]
@@ -50,6 +51,13 @@ class SeriesItemTreeWidget():
 
     def add_widget_to_splitter(self, splitter):
         splitter.addWidget(self.analysis_stacked)
+
+    def add_analysis_tree_selection(self, index):
+        # retrieve the current tab 
+        if index == 0:
+            current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+            current_tab.subwindow_calc.show()
+        
 
     def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list, reload = False):
         """
@@ -168,6 +176,9 @@ class SeriesItemTreeWidget():
         self.current_tab_visualization.append(current_tab_plot_manager)
         
         current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio)
+        self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
+
+
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
