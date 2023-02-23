@@ -71,7 +71,7 @@ class SeriesItemTreeWidget():
 
             # Custom designer widget: contains treeview, plot, analysis function table ...
             
-            new_tab_widget = SpecificAnalysisTab()
+            new_tab_widget = SpecificAnalysisTab(self.frontend_style)
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
             new_tab_widget.setObjectName(s)
 

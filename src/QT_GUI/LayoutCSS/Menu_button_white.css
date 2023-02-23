@@ -129,12 +129,14 @@ QSizeGrip {{
     background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
-QMainWindow[objectName="SubwindowMain"]{{
-    background-color: {QTMATERIAL_SECONDARYCOLOR};
-}}
-
 QStatusBar{{
     background-color: {QTMATERIAL_SECONDARYCOLOR};
+    border-radius: 0px;
+}}
+
+QStackedWidget[accessibleName="substack"] QWidget{{
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
+    border-radius: 0px;
 }}
 
 

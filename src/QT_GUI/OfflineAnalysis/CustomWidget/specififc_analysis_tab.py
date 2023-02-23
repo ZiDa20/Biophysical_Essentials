@@ -74,7 +74,8 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(5, 5, 5, 5)
         self.stackedWidget = QStackedWidget()
-        self.stackedWidget.setObjectName(u"stackedWidget")
+        self.stackedWidget.setObjectName(u"stackedSub")
+        self.stackedWidget.setAccessibleName("substack")
         self.subwindow_layout = QVBoxLayout(self.widget.groupBox_4)
         self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignRight)
         self.subwindow.setMaximumSize(QSize(550, 16777215))
@@ -213,13 +214,15 @@ class Ui_SpecificAnalysisTab(object):
 from PySide6.QtWidgets import QSizeGrip
 
 class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
+    def __init__(self,frontend, parent=None):
+        QWidget.__init__(self,  parent)
         self.setupUi(self)
         #add this to promote 
+        self.frontend_style = frontend
         self.analysis_table_widget = AnalysisFunctionTable()
         self.widget.groupBox_4.setStyleSheet("border-radius: 0px;")
-        self.stackedWidget.setStyleSheet("background-color: #d2d3db; border-radius: 0px;")
+        
+        # this needs to be added to the stylesheets
         self.CameraMDI.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.CameraMDI.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.CameraMDI.tileSubWindows()
@@ -230,6 +233,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.dock_widget.topLevelChanged.connect(self.remove_title_bar_dock)
         self.tile_button.clicked.connect(self.show_and_tile)
         self.floating: bool = False
+        self.frontend_style.set_pop_up_dialog_style_sheet(self)
         #size_grip = QSizeGrip(self.CameraWindow)
         #size_grip.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         #self.CameraMDI.set
