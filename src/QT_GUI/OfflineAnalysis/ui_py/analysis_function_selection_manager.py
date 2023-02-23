@@ -157,21 +157,19 @@ class AnalysisFunctionSelectionManager():
                     self.live_plot_info = pd.concat([self.live_plot_info, tmp])
                     self.live_plot_info.reset_index(drop = True, inplace=True)
                 else:
-                    index = self.live_plot_info[(self.live_plot_info['page'] == row) & (self.live_plot_info["col"]==col)].index[0]
-                    self.live_plot_info["cursor_bound"][index]=True
+                    self.update_grid_data_frame(row,col,"cursor_bound",True)
+                    
         
         else:
                 # @todo improve: merge the  two for loops
                 self.plot_widget_manager.remove_dragable_lines(row)
 
                 for col in self.live_plot_info[self.live_plot_info['page'] == row]["col"].values:
-                    index = self.live_plot_info[(self.live_plot_info['page'] == row) & (self.live_plot_info["col"]==col)].index[0]
-                    self.live_plot_info["cursor_bound"][index]=False
-
+                    self.update_grid_data_frame(row,col,"cursor_bound",False)
+                    
         # very important: dont forget to update the plot widget manager object !
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
-
-            #remove cursor bounds
+        self.reclick_tree_view_item()
 
     """
     def rotate_row_indexes(self,table_widget):
@@ -358,18 +356,12 @@ class AnalysisFunctionSelectionManager():
                 #CustomErrorDialog().show_dialog(dialog_message)
                 #checkbox_object.setCheckState(Qt.CheckState.Unchecked)
         else:
-            index = self.live_plot_info[(self.live_plot_info['page'] == row_column_tuple[0]) & (self.live_plot_info["col"]==row_column_tuple[1])].index[0]
-            self.live_plot_info["live_plot"][index]=False
+            self.update_grid_data_frame( row_column_tuple[0],  row_column_tuple[1], "live_plot", False)
 
         # very important: dont forget to update the plot widget manager object !
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
-     
-        print("I have to make the liveplot")
+        self.reclick_tree_view_item()
         
-        index = self.current_tab.widget.selected_tree_view.selectedIndexes()[1]
-        rect = self.current_tab.widget.selected_tree_view.visualRect(index)
-        # on click (handled in treeview manager) plot compartments will be evaluated
-        QTest.mouseClick(self.current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def get_pgf_file_selection(self):
         """Should retrieve the pgf_files for all the files in the current analysis id
@@ -440,17 +432,29 @@ class AnalysisFunctionSelectionManager():
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in, table_widget=None):
-        left_cursor_row = 2
-        self.update_cursor_bound_labels(left_cursor_row,tuple_in, table_widget)
+        self.update_cursor_bound_labels(self.LEFT_CB_GRID_ROW,tuple_in, table_widget)
+        try:
+            self.update_grid_data_frame(tuple_in[1], tuple_in[2], "left_cursor", tuple_in[0])
+            self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
+            self.reclick_tree_view_item()
+        except Exception as e:
+            print(e)
 
     @Slot(tuple)
     def update_right_common_labels(self, tuple_in, table_widget=None):
-        right_cursor_row = 3
-        self.update_cursor_bound_labels(right_cursor_row,tuple_in, table_widget)
+        # tuple in fields: [0]: cb value, [1]: row of the button, [2]: column of the function
+        self.update_cursor_bound_labels(self.RIGHT_CB_GRID_ROW,tuple_in, table_widget)
+        try:
+            self.update_grid_data_frame(tuple_in[1], tuple_in[2], "right_cursor", tuple_in[0])
+            self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
+            self.reclick_tree_view_item()
+        except Exception as e:
+            print(e)
 
+            
     def update_cursor_bound_labels(self, table_row, tuple_in, table_widget):
         
-        # tuple in has: [0]: cb value, [1]: row of the button, [2]: column of the function
+        # tuple in fields: [0]: cb value, [1]: row of the button, [2]: column of the function
         if table_widget is None:
             self.current_tab.analysis_stacked_widget.setCurrentIndex(tuple_in[1])
             table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
@@ -463,6 +467,22 @@ class AnalysisFunctionSelectionManager():
         insert_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         table_widget.setItem(table_row, tuple_in[2], insert_item)
 
+    def update_grid_data_frame(self, page:int, column:int, column_name:str, value):
+        """
+        update a single data frame cell value
+        value can be either float, bool, str, ... 
+        """
+        index = self.live_plot_info[(self.live_plot_info['page'] == page) & (self.live_plot_info["col"]==column)].index[0]
+        self.live_plot_info[column_name][index]=value      
+
+    def reclick_tree_view_item(self):
+        """
+        reclick the last clicked treeview item to update the view
+        """
+        index = self.current_tab.widget.selected_tree_view.selectedIndexes()[1]
+        rect = self.current_tab.widget.selected_tree_view.visualRect(index)
+        # on click (handled in treeview manager) plot compartments will be evaluated
+        QTest.mouseClick(self.current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def write_table_widget_to_database(self):
         """
