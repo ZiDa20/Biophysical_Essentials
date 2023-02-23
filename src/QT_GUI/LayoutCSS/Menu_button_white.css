@@ -17,7 +17,7 @@ QTabWidget{{background-color: "#e6e6e6";}}
 
 QWidget[accessibleName="additional_function_menu"]{{background-color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
-QPushButton{{background-color: "{QTMATERIAL_SECONDARYCOLOR}"; border: 0px; color:black;}}
+QPushButton{{background-color: #9394a5; border: 0px; color:black;}}
 QPushButton:hover{{background-color: "grey"; border: 0px;}}
 
 
@@ -28,7 +28,7 @@ QLabel{{
 
 QCheckBox{{background-color:transparent; color:black; }}
 
-QComboBox{{background-color:"{QTMATERIAL_SECONDARYCOLOR}"; color:white; }}
+QComboBox{{background-color:"{QTMATERIAL_SECONDARYCOLOR}"; color:black; }}
 
 
 QRadioButton{{background-color:transparent; color:black; border:black; }}
@@ -79,7 +79,7 @@ QComboBox::menu{{
 }}
 
 
-QHeaderView::section{{background-color: {QTMATERIAL_SECONDARYCOLOR}; color:white;}}
+QHeaderView::section{{background-color: {QTMATERIAL_SECONDARYCOLOR}; color:black;}}
 
 QTreeView::branch{{background-color: white; color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
@@ -118,7 +118,23 @@ QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton
 }}
 
 QMdiArea {{
-    qproperty-background: transparent;
+    qproperty-background: #F5F5F5;
+}}
+
+QMdiSubWindow {{
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QSizeGrip {{
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QMainWindow[objectName="SubwindowMain"]{{
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QStatusBar{{
+    background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
 

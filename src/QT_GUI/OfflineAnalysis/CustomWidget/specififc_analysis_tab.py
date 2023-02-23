@@ -62,10 +62,6 @@ class Ui_SpecificAnalysisTab(object):
         self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         #self.gridLayout_13.addWidget(self.widget, 0, 0, 1, 1)
-        
-            
-        
-
         self.subwindow = QMdiSubWindow()
         self.dock_widget = QDockWidget("Dock Widget", self)
         self.plot_widget = QWidget()
@@ -79,13 +75,14 @@ class Ui_SpecificAnalysisTab(object):
         self.gridLayout_4.setContentsMargins(5, 5, 5, 5)
         self.stackedWidget = QStackedWidget()
         self.stackedWidget.setObjectName(u"stackedWidget")
-        self.subwindow_layout = QVBoxLayout(self.stackedWidget)
+        self.subwindow_layout = QVBoxLayout(self.widget.groupBox_4)
         self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignRight)
-        
+        self.subwindow.setMaximumSize(QSize(550, 16777215))
         #self.stackedWidget.setMinimumSize(QSize(400,700))
         #sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
         #self.stackedWidget.setSizePolicy(sizePolicy)
         self.stackedWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
         self.page = QWidget()
         self.page.setObjectName(u"page")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -221,6 +218,8 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.setupUi(self)
         #add this to promote 
         self.analysis_table_widget = AnalysisFunctionTable()
+        self.widget.groupBox_4.setStyleSheet("border-radius: 0px;")
+        self.stackedWidget.setStyleSheet("background-color: #d2d3db; border-radius: 0px;")
         self.CameraMDI.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.CameraMDI.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.CameraMDI.tileSubWindows()
