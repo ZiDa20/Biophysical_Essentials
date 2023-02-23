@@ -202,8 +202,8 @@ class Ui_SpecificAnalysisTab(object):
 
     def retranslateUi(self, SpecificAnalysisTab):
         SpecificAnalysisTab.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Form", None))
-        self.CameraWindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Subwindow", None))
-        self.subwindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Subwindow", None))
+        self.CameraWindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Plot", None))
+        self.subwindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Tree", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
         self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
         self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
