@@ -113,7 +113,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.establish_logger()
         
         #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 0
+        self.default_mode = 1
         self.frontend_style = Frontend_Style()
         self.change_to_lightmode()
         # distribute this style object to all other classes to be used
@@ -321,7 +321,8 @@ class MainWindow(QMainWindow, QtStyleTools):
 if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    app.setStyle("Fusion")
+    #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
     window.show()
