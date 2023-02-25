@@ -38,6 +38,7 @@ class Ui_SpecificAnalysisTab(object):
                 self.gridLayout_2 = QGridLayout(SpecificAnalysisTab)
                 self.gridLayout_2.setObjectName(u"gridLayout_2")
                 self.gridLayout_2.setContentsMargins(2, 2, 2, 2)
+
                 self.CameraMDI = QMdiArea(SpecificAnalysisTab)
                 self.CameraMDI.setObjectName(u"CameraMDI")
                 sizePolicy.setHeightForWidth(self.CameraMDI.sizePolicy().hasHeightForWidth())
@@ -200,6 +201,7 @@ class Ui_SpecificAnalysisTab(object):
                 self.page_4.setObjectName(u"page_4")
                 self.analysis_stacked_widget.addWidget(self.page_4)
                 self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
+                
                 self.gridLayout_9.addLayout(self.analysi_grid, 0, 0, 1, 1)
 
                 self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea,self.dock_widget)
@@ -242,7 +244,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.analysis_table_widget = AnalysisFunctionTable()
         self.analysis_stacked_widget.hide()
         self.widget.groupBox_4.setStyleSheet("border-radius: 0px;")
-        self.subwindow_calc.hide()
+        #self.subwindow_calc.hide()
         
         # this needs to be added to the stylesheets
         self.CameraMDI.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)

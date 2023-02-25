@@ -168,7 +168,7 @@ class AnalysisFunctionSelectionManager():
         table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
         #table_widget  = table_widget.layout().itemAt(0).widget()
         
-        if state != 2:
+        if state == 2:
 
             # if checked show cursor bounds and also (if checked) live plot
             for col in range(table_widget.columnCount()):
