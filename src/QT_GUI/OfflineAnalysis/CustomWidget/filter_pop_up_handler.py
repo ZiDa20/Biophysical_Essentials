@@ -1,8 +1,8 @@
 
 from PySide6.QtWidgets import *  # type: ignore
-from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up import Ui_FilterSettings
+from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up import Ui_Dialog
 
-class Filter_Settings(QDialog, Ui_FilterSettings):
+class Filter_Settings(QDialog, Ui_Dialog):
 
     def __init__(self,frontend, parent=None):
         super().__init__(parent)

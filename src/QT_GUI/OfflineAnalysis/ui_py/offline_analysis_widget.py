@@ -44,6 +44,7 @@ from Offline_Analysis.FinalResultHolder import ResultHolder
 from QT_GUI.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
 
 from QT_GUI.OfflineAnalysis.ui_py.analysis_function_selection_manager import AnalysisFunctionSelectionManager
+from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
 
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
@@ -55,7 +56,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.progressbar = None
         self.statusbar = None
         self.status_label = None
-        self.add_filter_button.setEnabled(False)
+    
         self.threadpool = QThreadPool()
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -94,6 +95,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
         # this should be transfer to the plot manager 
         # and called with the connected elements
+
+        self.add_filter_button.clicked.connect(self.open_filter_dialog)
+
+
+    def open_filter_dialog(self):
+
+        dialog = Filter_Settings(self.frontend_style)
+        dialog.exec()
 
     def show_sweeps_toggled(self,signal):
         """toDO add Docstrings!
@@ -160,7 +169,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
        
         self.offline_tree.SeriesItems.clear()
-        self.delete_selected.clicked.connect(partial(self.offline_tree.add_analysis_tree_selection, self.offline_analysis_widgets.currentIndex()))
+
+        #self.delete_selected.clicked.connect(partial(self.offline_tree.add_analysis_tree_selection, self.offline_analysis_widgets.currentIndex()))
         
         self.result_visualizer = OfflineAnalysisResultVisualizer(self.offline_tree, 
                                                                  self.database_handler, 
