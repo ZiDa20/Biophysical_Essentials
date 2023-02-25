@@ -101,8 +101,52 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def open_filter_dialog(self):
 
-        dialog = Filter_Settings(self.frontend_style)
+        dialog = Filter_Settings(self.frontend_style,self.database_handler)
+
+        dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection,dialog))
+
         dialog.exec()
+
+    def apply_filter_selection(self, dialog):
+        
+        if dialog.DISCARD_DATA:
+            # for now, mark all the experiments as discarded
+            # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
+            if dialog.contains_series_list is not []:
+                
+
+                # only keep experiment_names with 2 and more counts
+                q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'
+                list_of_all_experiments = self.database_handler.database.execute(q).fetchall()
+                list_of_all_experiments = self.extract_first_elements(list_of_all_experiments)
+
+
+                # prepare the sql expression:
+                q1 = ""
+                for pos in range(len(dialog.contains_series_list)):
+
+                        q1 = q1 + f' series_name == \'{dialog.contains_series_list[pos]}\' '
+
+                        if pos < len(dialog.contains_series_list) - 1:
+                            q1 += " or "
+
+                for experiment_name in list_of_all_experiments:
+                     q = f' select series_identifier from experiment_series where experiment_name == \'{experiment_name}\' and ({q1})'
+                     occurency_cnts = self.database_handler.database.execute(q).fetchall()
+                     if len(self.extract_first_elements(occurency_cnts))<2:
+                        
+                        # discard
+                        q = f"update experiment_series set discarded = 1 where experiment_name == \'{experiment_name}\'"
+                        self.database_handler.database.execute(q).fetchall()
+                        
+                self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+                               
+   
+
+                #update experiment_series set discarded = True 
+
+                print(dialog.contains_series_list)
+
 
     def show_sweeps_toggled(self,signal):
         """toDO add Docstrings!

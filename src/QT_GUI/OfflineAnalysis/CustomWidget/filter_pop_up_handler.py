@@ -1,16 +1,55 @@
 
 from PySide6.QtWidgets import *  # type: ignore
 from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up import Ui_Dialog
+from functools import partial
 
+from PySide6.QtCore import *  # type: ignore
+from PySide6.QtGui import *  # type: ignore
+from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import Slot
+from PySide6.QtCore import QThreadPool
+from PySide6.QtGui import QFont, QFontMetrics, QTransform
 class Filter_Settings(QDialog, Ui_Dialog):
 
-    def __init__(self,frontend, parent=None):
+    def __init__(self,frontend, database_handler, parent=None):
         super().__init__(parent)
         self.frontend_style = frontend
         self.setupUi(self)
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
+        self.database_handler = database_handler
+        self.contains_series_list = []
+        self.read_available_series_names()
+        self.DISCARD_DATA = 0
+
+        self.filter_checkbox_remove.stateChanged.connect(self.handle_filter_options)
 
 
+    def read_available_series_names(self):
+
+        series_names_string_list =self.database_handler.get_distinct_non_discarded_series_names()
+        # series_names_string_list = ["Block Pulse", "IV"]
+        
+        for s in series_names_string_list:
+            c = QCheckBox()
+            c.setText(s[0])
+            self.contains_series_grid.addWidget(c)    
+            c.stateChanged.connect(partial(self.checkbox_state_changed,c,self.contains_series_list))
+
+
+    def checkbox_state_changed(self,checkbox,list_name,state):
+        if checkbox.checkState() == 2:
+           list_name.append(checkbox.text())
+        else:
+            list_name.remove(checkbox.text())
+
+
+    def handle_filter_options(self,state):
+        if state == 2:
+            self.DISCARD_DATA =1
+        else:
+            self.DISCARD_DATA =0
+
+    
     def set_meta_data_filter_combobox_options(self, combo_box):
         '''go through all series metadata of the tree and find all common meta data information
 
