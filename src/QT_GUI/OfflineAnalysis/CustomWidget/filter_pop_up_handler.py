@@ -9,6 +9,12 @@ from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 from PySide6.QtGui import QFont, QFontMetrics, QTransform
+
+
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+import mplcursors
+
 class Filter_Settings(QDialog, Ui_Dialog):
 
     def __init__(self,frontend, database_handler, parent=None):
@@ -20,9 +26,12 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.contains_series_list = []
         self.read_available_series_names()
         self.DISCARD_DATA = 0
-
+    
         self.filter_checkbox_remove.stateChanged.connect(self.handle_filter_options)
 
+        self.SeriesItems = None
+        self.current_tab_visualization = None
+        self.current_tab_tree_view_manager = None
 
     def read_available_series_names(self):
 
@@ -50,6 +59,45 @@ class Filter_Settings(QDialog, Ui_Dialog):
             self.DISCARD_DATA =0
 
     
+
+    def make_cslow_plot(self):
+        """
+        
+        """
+        # df with columns item_name, parent, type, level, identifier
+        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        plot_widget_manager  = self.current_tab_visualization[current_index]
+        tree_manager = self.current_tab_tree_view_manager[current_index]
+
+        df = tree_manager.selected_tree_view_data_table
+        experiment_cslow_param = {}
+        for identifier in df[df['type'] == 'Series']["identifier"].values:
+            identifier = identifier.split("::")
+
+            q = f'select sweep_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
+            name = self.database_handler.database.execute(q).fetchall()[0][0]
+            cslow =  self.database_handler.get_cslow_value_for_sweep_table(name)
+            experiment_cslow_param[identifier[0]]=cslow
+
+        fig = Figure(figsize=(5, 4), dpi=100)
+        canvas = FigureCanvasQTAgg(fig)        
+        self.filter_plot_widget.addWidget(canvas)
+
+        ax = fig.add_subplot(111)
+        points = ax.plot(experiment_cslow_param.values(),'o')
+        labels = list(experiment_cslow_param.keys())
+
+        # Add annotations to the points using mplcursors
+        cursor = mplcursors.cursor(points)
+
+        canvas.draw()
+        @cursor.connect("add")
+        def on_add(sel):
+            idx = sel.target.index
+            label = labels[idx]
+            sel.annotation.set_text(label)
+   
+
     def set_meta_data_filter_combobox_options(self, combo_box):
         '''go through all series metadata of the tree and find all common meta data information
 

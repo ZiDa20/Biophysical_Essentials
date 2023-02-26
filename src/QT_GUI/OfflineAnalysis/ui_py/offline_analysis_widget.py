@@ -97,23 +97,37 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # and called with the connected elements
 
         self.add_filter_button.clicked.connect(self.open_filter_dialog)
-
+        self.filter_dialog = None
 
     def open_filter_dialog(self):
+        """
+        open the filter dialog.
+        dialog is safed global to be reused for the whole analysis
+        """
+        if self.filter_dialog is None:
+            # if none, the dialog is created initially
+            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler)
+            self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
 
-        dialog = Filter_Settings(self.frontend_style,self.database_handler)
+        # dialog contains a tab widget which holds filter functions for experiments (0) and series (1)
+        # experiment filters can be applied on series level to, but not the other way round
+    
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            # get the index of the tab (e.g. tabe name might be IV, IV-40)
+            self.filter_dialog.SeriesItems = self.offline_tree.SeriesItems
+            self.filter_dialog.current_tab_visualization = self.offline_tree.current_tab_visualization
+            self.filter_dialog.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
+            self.filter_dialog.make_cslow_plot()
 
-        dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection,dialog))
+        self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
+        self.filter_dialog.exec()
 
-        dialog.exec()
-
-    def apply_filter_selection(self, dialog):
+    def apply_filter_selection(self):
         
-        if dialog.DISCARD_DATA:
+        if self.filter_dialog.DISCARD_DATA:
             # for now, mark all the experiments as discarded
             # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
-            if dialog.contains_series_list is not []:
-                
+            if self.filter_dialog.contains_series_list is not []:               
 
                 # only keep experiment_names with 2 and more counts
                 q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'
@@ -123,11 +137,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
                 # prepare the sql expression:
                 q1 = ""
-                for pos in range(len(dialog.contains_series_list)):
+                for pos in range(len(self.filter_dialog.contains_series_list)):
 
-                        q1 = q1 + f' series_name == \'{dialog.contains_series_list[pos]}\' '
+                        q1 = q1 + f' series_name == \'{self.filter_dialog.contains_series_list[pos]}\' '
 
-                        if pos < len(dialog.contains_series_list) - 1:
+                        if pos < len(self.filter_dialog.contains_series_list) - 1:
                             q1 += " or "
 
                 for experiment_name in list_of_all_experiments:
@@ -138,15 +152,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         # discard
                         q = f"update experiment_series set discarded = 1 where experiment_name == \'{experiment_name}\'"
                         self.database_handler.database.execute(q).fetchall()
-                        
+
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
                                
    
 
                 #update experiment_series set discarded = True 
 
-                print(dialog.contains_series_list)
+                print(self.filter_dialog.contains_series_list)
 
+        self.filter_dialog.close()
 
     def show_sweeps_toggled(self,signal):
         """toDO add Docstrings!
