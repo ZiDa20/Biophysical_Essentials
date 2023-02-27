@@ -793,20 +793,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param progress_callback:
         """
 
-        current_tab.stackedWidget.setCurrentIndex(1)
-        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
-
-        self.database_handler.open_connection()
-
         print("writing analysis to database")
+        #current_tab.stackedWidget.setCurrentIndex(1)
+        #current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+
+       
+        self.database_handler.open_connection()
+        self.analysis_function_selection_manager.database_handler = self.database_handler
+        
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
+
+        
+        #self.analysis_function_selection_manager.database_handler = self.database_handler
 
         print("finished: ", self.multiple_interval_analysis)
 
         # self.write_function_grid_values_into_database(current_tab)
+        print("executing single series analysis")
 
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
         
+        print("finished single series analysis")
         self.database_handler.database.close()
 
         #@todo remove the widget from the layout

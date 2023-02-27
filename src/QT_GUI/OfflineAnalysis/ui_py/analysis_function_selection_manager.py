@@ -510,15 +510,29 @@ class AnalysisFunctionSelectionManager():
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
                 lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
+
+                print("hi")
                 analysis_series_name = self.current_tab.objectName()
+                print(analysis_series_name)
 
                 func_name = self.current_tab.analysis_button_grid.itemAtPosition(page, 0).widget().text()
 
-
+                print("func name", func_name  )
+                print("starting to wrtie to db")
+                print(analysis_function)
+                print(analysis_series_name)
+                print(lower_bound)
+                print(upper_bound)
+                try:
+                    self.database_handler.open_connection()
+                except Exception as e:
+                    print("opening failed with error", e)
+                
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
-                                                                                                lower_bound, upper_bound)
-
+                                                                                               lower_bound, upper_bound)
+                #self.database_handler.database.close()
+                print("finished writing")
                 # non single analysis types will be calculated as single interval analysis but additional calculation is needed
                 # that is why we have to note down the function with its id for postprocessing
                 if table_widget.columnCount()>1:
@@ -526,6 +540,8 @@ class AnalysisFunctionSelectionManager():
                     id = self.database_handler.get_last_inserted_analysis_function_id()
                     print("got id, ", id)
                     multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "func": [func_name],"id": [id], "function_name":[analysis_function] })])
+
+        print("returning multiple analysis ", multiple_interval_analysis)
 
         return multiple_interval_analysis
 

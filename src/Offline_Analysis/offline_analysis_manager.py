@@ -70,11 +70,13 @@ class OfflineManager():
         # read analysis functions from database
         analysis_function_tuple = self.database.get_series_specific_analysis_functions(series_name)
         #print(analysis_function_tuple)
+        print("analysis function tuple ", analysis_function_tuple)
+        
         progress_value = 100/len(analysis_function_tuple)
         progress = 0
-
+        
         for fn in analysis_function_tuple:
-
+            print("for loop", fn)
             progress += progress_value
             progress_callback.emit((progress, str(fn[0])))
             # get the correct class analysis object

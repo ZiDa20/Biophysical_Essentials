@@ -78,5 +78,5 @@ class AnalysisFunctionRegistration():
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["mean_voltage",  "Action Potential Fitting",
-                    "Rheobase-Detection", "RheoRamp-Detection", "Input Resistance", "Peak-Detection"] # "Cluster",
+            return ["mean_voltage",  "Action_Potential_Fitting",
+                    "Rheobase-Detection", "RheoRamp-Detection", "Input_Resistance", "Peak-Detection"] # "Cluster",
