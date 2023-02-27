@@ -14,7 +14,7 @@ from PySide6.QtGui import QFont, QFontMetrics, QTransform
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import mplcursors
-
+import numpy as np
 class Filter_Settings(QDialog, Ui_Dialog):
 
     def __init__(self,frontend, database_handler, parent=None):
@@ -84,13 +84,24 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.filter_plot_widget.addWidget(canvas)
 
         ax = fig.add_subplot(111)
-        points = ax.plot(experiment_cslow_param.values(),'o')
-        labels = list(experiment_cslow_param.keys())
 
+        # adjust axis to pico farad 
+        vals =  [float(i)* 1e12   for i in experiment_cslow_param.values()] # 
+    
+
+        points = ax.plot(vals,'o')
+        labels = list(experiment_cslow_param.keys())
+        m = np.mean(vals)
+        mad = np.median(np.absolute(vals - np.median(vals)))
+        ax.axhline(y = m, color = 'b', linestyle = ':', label = "mean")
+        ax.axhline(y = m+mad, color = 'b', linestyle = ':', label = "mean + MAD")
+        ax.axhline(y = m-mad, color = 'b', linestyle = ':', label = "mean - MAD")
+        ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
         # Add annotations to the points using mplcursors
         cursor = mplcursors.cursor(points)
-
+        ax.set_ylabel("CSlow in pF")
         canvas.draw()
+
         @cursor.connect("add")
         def on_add(sel):
             idx = sel.target.index

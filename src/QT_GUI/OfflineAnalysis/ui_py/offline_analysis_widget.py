@@ -780,6 +780,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
+        self.database_handler.database.close()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.progress_bar_update_analysis)
@@ -799,7 +800,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
        
         self.database_handler.open_connection()
-        self.analysis_function_selection_manager.database_handler = self.database_handler
+        #self.analysis_function_selection_manager.database_handler = self.database_handler
         
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
 

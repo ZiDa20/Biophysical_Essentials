@@ -275,7 +275,6 @@ class DuckDBDatabaseHandler():
             print("succeeded")
 
         except Exception as e:
-            self.database.close()
             self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
             print("failed")
 

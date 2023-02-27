@@ -456,7 +456,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         if not cls.database.get_data_from_database(cls.database.database, q):
             q = """select analysis_function_id from analysis_functions where analysis_id = (?) and function_name = (?)"""
             apf_id = cls.database.get_data_from_database(cls.database.database, q,
-                                                          [parent_widget.analysis_id, "Action Potential Fitting"])[0][0]
+                                                          [parent_widget.analysis_id, "Action_Potential_Fitting"])[0][0]
 
             result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
                                                                apf_id)
@@ -527,6 +527,8 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         '''
         reading all specific result table names from the database
         '''
+
+
         q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
         result_list = cls.database.get_data_from_database(cls.database.database, q,
                                                            [analysis_id, analysis_function_id])

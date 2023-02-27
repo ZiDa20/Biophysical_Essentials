@@ -78,7 +78,7 @@ class AnalysisFunctionSelectionManager():
         Add a button for each of the selected analysis functions to the layout.
         """
         layout = self.current_tab.analysis_button_grid
-        self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
+        self.pgf_files_amount = ["1","2","3"] #self.database_handler.get_pgf_file_selection(self.current_tab)
         self.clear_analysis_widgets(layout)
 
         
@@ -544,11 +544,12 @@ class AnalysisFunctionSelectionManager():
                 print(analysis_series_name)
                 print(lower_bound)
                 print(upper_bound)
+                """
                 try:
                     self.database_handler.open_connection()
                 except Exception as e:
                     print("opening failed with error", e)
-                
+                """
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
                                                                                                lower_bound, upper_bound)
