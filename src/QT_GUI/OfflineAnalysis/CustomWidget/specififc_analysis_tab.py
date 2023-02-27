@@ -171,6 +171,8 @@ class Ui_SpecificAnalysisTab(object):
 
 
                 self.subwindow_calc = QMdiSubWindow()
+                self.subwindow_calc.setMinimumSize(QSize(250, 700))
+                self.subwindow_calc.setMaximumSize(QSize(250, 700))
                 self.groupBox = QGroupBox()
                 self.groupBox.setObjectName(u"groupBox")
                 self.gridLayout_9 = QGridLayout(self.groupBox)
@@ -262,7 +264,9 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         #size_grip.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         #self.CameraMDI.set
         #self.CameraMDI.setTabsMovable(True)
-    
+
+        self.subwindow_calc.setMinimumSize(QSize(self.analysis_button_grid.sizeHint().width(), 700))
+        self.subwindow_calc.setMaximumSize(QSize(self.analysis_button_grid.sizeHint().width(), 700))
     def show_and_tile(self):
         """ Should draw subwindows next to each other"""
         self.CameraMDI.tileSubWindows()

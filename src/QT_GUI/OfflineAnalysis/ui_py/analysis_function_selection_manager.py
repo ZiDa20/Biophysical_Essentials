@@ -206,6 +206,20 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
 
+    def group_box_fullsize(self):
+        tmp_size = self.current_tab.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_stacked_widget.sizeHint().width()
+        self.resize_group_box(tmp_size)
+    
+    def group_box_smallsize(self):
+        tmp_size = self.current_tab.analysis_button_grid.sizeHint().width() + 50
+        self.resize_group_box(tmp_size)
+
+    def resize_group_box(self,tmp_size):
+        self.current_tab.subwindow_calc.setMinimumSize(QSize(tmp_size, 900))
+        self.current_tab.subwindow_calc.setMaximumSize(QSize(tmp_size, 900))
+    
+
+        
     """
     def rotate_row_indexes(self,table_widget):
         print("rotation started")
@@ -313,7 +327,7 @@ class AnalysisFunctionSelectionManager():
             page_widget_layout.addWidget(analysis_table_widget)
 
             hide_bt = QPushButton("Hide")
-            hide_bt.clicked.connect(self.current_tab.analysis_stacked_widget.hide)
+            hide_bt.clicked.connect(self.hide_stacked_widget)
             page_widget_layout.addWidget(hide_bt)
 
             page_widget.setLayout(page_widget_layout)    
@@ -341,6 +355,13 @@ class AnalysisFunctionSelectionManager():
             # will draw the cursor bounds             
             show_cb_checkbx.setEnabled(True)
             show_cb_checkbx.setChecked(True)
+        
+        self.group_box_fullsize()
+
+    def hide_stacked_widget(self):
+      self.current_tab.analysis_stacked_widget.hide()
+      self.group_box_smallsize()
+
 
     def add_cell_widgets_to_analysis_grid(self, row, col, analysis_table_widget, text):
         """
