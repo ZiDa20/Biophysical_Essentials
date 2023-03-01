@@ -23,7 +23,7 @@ class AnalysisFunctionRegistration():
         "time_to_max": TimeToMax,
         "mean_voltage": MeanVoltage,
         "Action_Potential_Fitting": ActionPotentialFitting,
-        "Input-Resistance": InputResistance,
+        "Input_Resistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
         "Peak-Detection": PeakFinding
