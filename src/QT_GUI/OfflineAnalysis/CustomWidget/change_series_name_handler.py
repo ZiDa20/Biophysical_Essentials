@@ -4,13 +4,37 @@ from functools import partial
 
 class ChangeSeriesName(QDialog, Ui_Dialog):
 
-    def __init__(self,database_handler, frontend, parent=None):
-
+    def __init__(self,database_handler, parent=None):
+        super().__init__(parent)
+        self.setupUi(self)
+        1
         self.database_handler = database_handler
-        self.frontned = frontend
 
         self.fill_combobox()
 
-
     def fill_combobox(self):
-    
+        series_names  =self.database_handler.get_distinct_non_discarded_series_names()
+
+        for s in series_names:
+            self.series_names_combobox.addItem(s[0])
+
+    def excecute_rename(self):
+
+        new_name = self.new_name_field.text()
+        series_name_to_change = self.series_names_combobox.currentText()
+
+        if new_name == '':
+            print("empty name found")
+            return
+        
+        if self.permanent.isChecked():
+
+            q = f'update experiment_series set series_name = \'{new_name}\' where series_name = \'{series_name_to_change}\''
+            self.database_handler.database.execute(q)
+
+        else:
+
+            print("not implemented yet")
+
+
+

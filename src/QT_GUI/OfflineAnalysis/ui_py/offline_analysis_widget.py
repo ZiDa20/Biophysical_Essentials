@@ -46,6 +46,8 @@ from QT_GUI.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
 from QT_GUI.OfflineAnalysis.ui_py.analysis_function_selection_manager import AnalysisFunctionSelectionManager
 from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
 
+from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
+
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -92,12 +94,28 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
         self.start_analysis.clicked.connect(self.start_analysis_offline)
         #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
-        self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
+        self.show_sweeps_radio.toggled.connect(self.update_gui_treeviews)
         # this should be transfer to the plot manager 
         # and called with the connected elements
 
         self.add_filter_button.clicked.connect(self.open_filter_dialog)
         self.filter_dialog = None
+
+        self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
+
+    
+    def open_change_series_name_dialog(self):
+        dialog = ChangeSeriesName(self.database_handler)
+        dialog.apply.clicked.connect(partial(self.update_after_series_change,dialog))
+        dialog.exec_()
+        
+
+    def update_after_series_change(self,dialog):
+        dialog.excecute_rename()
+        self.update_gui_treeviews()
+        dialog.close()
+
+
 
     def open_filter_dialog(self):
         """
@@ -163,13 +181,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.filter_dialog.close()
 
-    def show_sweeps_toggled(self,signal):
+    def update_gui_treeviews(self,signal=None):
         """toDO add Docstrings!
 
         Args:
             signal (_type_): _description_
         """
-        print("toggle" , self.offline_analysis_widgets.currentIndex())
+        print("update treeviewsd for index" , self.offline_analysis_widgets.currentIndex())
         try:
             if self.offline_analysis_widgets.currentIndex()==0:
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
