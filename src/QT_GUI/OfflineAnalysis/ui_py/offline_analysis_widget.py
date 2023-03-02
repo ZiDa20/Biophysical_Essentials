@@ -107,6 +107,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def open_change_series_name_dialog(self):
         dialog = ChangeSeriesName(self.database_handler)
         dialog.apply.clicked.connect(partial(self.update_after_series_change,dialog))
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.exec_()
         
 

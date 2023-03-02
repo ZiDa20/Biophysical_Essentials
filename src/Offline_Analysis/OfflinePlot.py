@@ -120,6 +120,8 @@ class OfflinePlots():
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
                                 "Action_Potential_Fitting": self.ap_fitting_plot,
+                                "Single_AP_Parameter": self.single_ap_parameter_plot,
+                                "Mean_Action_Potential_Fitting": self.mean_ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
                                 "PCA-Plot": self.pca_plot,
                                 "AP-Overlay": self.ap_overlay
@@ -285,6 +287,74 @@ class OfflinePlots():
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
+    def initiate_hidden_selection_widgets(self):
+        """
+        specific function to show single ap parameter:  therefore, a hidden combobox is made visible
+        """
+        self.parent_widget.parameter_label.show()
+        self.parent_widget.parameter_combobox.show()
+        for i in list(self.statistics.columns[0:-1]): # last item is the experiment name which is non numeric and would throw an error
+            self.parent_widget.parameter_combobox.addItem(i)
+
+        self.parent_widget.parameter_combobox.currentIndexChanged.connect(self.show_single_ap_param_selected_in_combobox)
+
+
+    def single_ap_parameter_plot(self, result_table_list:list):
+        """
+        creates a boxplot of a single AP parameter, specific ap can be selected by the user
+        therefore, a hidden combobox is made visible
+
+        Args:
+            result_table_list (list): Result Table list for AP Analysis
+        
+        """
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
+
+        if self.parent_widget.holded_dataframe is None:
+            statitics_dataframe, _ = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
+            # its the unscaled dataframe
+            self.parent_widget.statistics = statitics_dataframe
+            self.parent_widget.holded_dataframe = pd.merge(statitics_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+
+        else:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
+                ax.clear()  
+        
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+        self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
+
+        if self.parent_widget.parameter_label.isHidden():
+            self.initiate_hidden_selection_widgets()
+
+        self.show_single_ap_param_selected_in_combobox()
+
+    def show_single_ap_param_selected_in_combobox(self):
+        """
+        creates the boxplot of a single AP parameter, specific ap can be selected by the user in a combobox
+        """
+        param = [self.parent_widget.parameter_combobox.currentText()]
+        param.append("meta_data")
+        plot_df = self.holded_dataframe[param]
+        plot_df.rename(columns={param[0]:"values"}, inplace=True)
+
+        #drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
+        
+        for ax in self.parent_widget.canvas.figure.axes:
+            ax.cla() 
+                     
+        self.comparison_plot(plot_df)
+        self.parent_widget.canvas.draw_idle()
+        self.logger.info("Created Boxplot successfully")
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        self.add_data_frame_to_result_dictionary(self.parent_widget.holded_dataframe)
+
+    def mean_ap_fitting_plot(self):
+        print("not implemented yet")
+
+
     def ap_fitting_plot(self, result_table_list: list, agg: bool = False):
         """Should Create the Heatmap for each Fitting Parameter
         calculated by the APFitting Procedure
@@ -323,6 +393,7 @@ class OfflinePlots():
         self.parent_widget.export_data_frame = self.statistics
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
         self.parent_widget.canvas.draw_idle()
+
 
 
     def ap_overlay(self, result_table_list:list):
