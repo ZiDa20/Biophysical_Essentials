@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 import seaborn as sns
+import numpy as np
 from matplotlib.backends.backend_qtagg import \
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.cm import get_cmap
@@ -351,9 +352,9 @@ class OfflinePlots():
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
         self.add_data_frame_to_result_dictionary(self.parent_widget.holded_dataframe)
 
-    def mean_ap_fitting_plot(self):
-        print("not implemented yet")
-
+    def mean_ap_fitting_plot(self, result_table_list:list):
+        # calculate a mean for each column per meta data type
+        self.ap_fitting_plot(result_table_list, True)
 
     def ap_fitting_plot(self, result_table_list: list, agg: bool = False):
         """Should Create the Heatmap for each Fitting Parameter
@@ -383,12 +384,21 @@ class OfflinePlots():
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
         
-        drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
-
-        sns.heatmap(data = drawing_data[0:], ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
+       
+        if agg:  # if agg - calculate the mean for each meta data group
+            new_df = pd.DataFrame()
+            for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
+                subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
+                tmp_dict = {}
+                for c in  self.statistics.columns[0:-1]: # get rid of the last since this is the experiment name
+                    tmp_dict[c] = [np.mean(subset[c].values)]
+                new_df = pd.concat([new_df, pd.DataFrame(tmp_dict)])
+            drawing_data = new_df.T
+            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
+        else:
+           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
+           sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
     
-        # self.parent_widget.canvas.figure
-
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.export_data_frame = self.statistics
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
