@@ -102,11 +102,7 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                path = f'{cew}/src/database/{self.db_file_name}'
-                if sys.platform != "darwin":
-                    path = path.replace("/","\\")
-                else:
-                    path = path.replace("\\","/")
+                path = str(Path(f'./database/{self.db_file_name}'))
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
             else:
@@ -523,6 +519,12 @@ class DuckDBDatabaseHandler():
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
+
+    def get_experiment_from_sweeptable_series(self, series_name, sweep_table_name):
+        q = f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = '{sweep_table_name}' AND series_name = '{series_name}'"""
+        print(q)
+        res = self.database.execute(q).fetchall()[0][0]
         return res
 
     def get_sweep_table_name(self, experiment_name, series_identifier):

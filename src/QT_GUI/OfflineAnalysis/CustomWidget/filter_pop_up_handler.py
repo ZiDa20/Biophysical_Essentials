@@ -59,7 +59,6 @@ class Filter_Settings(QDialog, Ui_Dialog):
             self.DISCARD_DATA =0
 
     
-
     def make_cslow_plot(self):
         """
         

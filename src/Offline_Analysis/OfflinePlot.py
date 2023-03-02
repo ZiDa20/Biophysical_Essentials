@@ -348,6 +348,7 @@ class OfflinePlots():
         sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", errorbar=("se", 2), ax = self.parent_widget.ax) 
         self.parent_widget.canvas.draw_idle()
        
+
     def regression_plot(self, result_table_list: list):
         """Draws a Regression line which determines the slope of the 
 
@@ -363,7 +364,7 @@ class OfflinePlots():
             plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
             plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
-            self.hue_regplot(data=plot_dataframe, x='index', y='values', hue='meta_data', ax=self.parent_widget.ax)
+            self.hue_regplot(data=plot_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
             self.parent_widget.holded_dataframe = plot_dataframe
 
 
@@ -371,7 +372,8 @@ class OfflinePlots():
             self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.hue_regplot(data=self.parent_widget.holded_dataframe, x='index', y='values', hue='meta_data', ax=self.parent_widget.ax)
+
+            self.hue_regplot(data=self.parent_widget.holded_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
             self.parent_widget.canvas.draw_idle()
 
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
@@ -407,18 +409,18 @@ class OfflinePlots():
         Returns:
             pd.DataFrame: Pivoted dataframe having columns either as experiment name or as metadata name
         """
-        if increment: # if sweep have different voltage steps indicated by increment in pgf file
+        if increment: # if sweep has no voltage steps --> check naming of thev ariable
             self.comparison_plot(plot_dataframe)
             try: 
-                pivoted_table = pd.pivot_table(plot_dataframe, index = ["index"], columns = ["meta_data"], values = "values")
+                pivoted_table = pd.pivot_table(plot_dataframe, index = ["Sweep_Number"], columns = ["meta_data"], values = "Result")
             except Exception as e:
                 print(e)
                 
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
+            g = sns.lineplot(data = plot_dataframe, x = "Voltage", y = "Result", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
             self.parent_widget.connect_hover(g)
             try:
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = ["Unit"], columns = ["meta_data"], values = "values")
+                pivoted_table =  pd.pivot_table(plot_dataframe, index = ["Voltage"], columns = ["meta_data"], values = "Result")
             except Exception as e:
                 print(e)
         
@@ -448,7 +450,7 @@ class OfflinePlots():
         """
         g = sns.violinplot(data = plot_dataframe, 
                     x="meta_data", 
-                    y = "values",  
+                    y = "Result",  
                     ax = self.parent_widget.ax, 
                     width = 0.5)
 
@@ -462,7 +464,7 @@ class OfflinePlots():
         """
         g = sns.boxplot(data = plot_dataframe, 
                     x="meta_data", 
-                    y = "values",  
+                    y = "Result",  
                     ax = self.parent_widget.ax, 
                     width = 0.5)
 

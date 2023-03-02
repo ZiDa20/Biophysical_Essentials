@@ -103,6 +103,11 @@ class Ui_result_plot_visualizer(object):
 
         self.gridLayout_5 = QGridLayout()
         self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.parameter_label = QLabel(self.specific_plot_box)
+        self.parameter_label.setObjectName(u"parameter_label")
+
+        self.gridLayout_5.addWidget(self.parameter_label, 0, 2, 1, 1)
+
         self.plot_type = QLabel(self.specific_plot_box)
         self.plot_type.setObjectName(u"plot_type")
 
@@ -122,7 +127,12 @@ class Ui_result_plot_visualizer(object):
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_5.addItem(self.horizontalSpacer, 0, 2, 1, 1)
+        self.gridLayout_5.addItem(self.horizontalSpacer, 0, 4, 1, 1)
+
+        self.parameter_combobox = QComboBox(self.specific_plot_box)
+        self.parameter_combobox.setObjectName(u"parameter_combobox")
+
+        self.gridLayout_5.addWidget(self.parameter_combobox, 0, 3, 1, 1)
 
 
         self.gridLayout_2.addLayout(self.gridLayout_5, 0, 0, 1, 1)
@@ -155,6 +165,7 @@ class Ui_result_plot_visualizer(object):
         self.specific_plot_box.setTitle(QCoreApplication.translate("result_plot_visualizer", u"GroupBox", None))
         self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Plot", None))
         self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Table", None))
+        self.parameter_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Parameter", None))
         self.plot_type.setText(QCoreApplication.translate("result_plot_visualizer", u"Plot Type:", None))
     # retranslateUi
 

@@ -45,7 +45,7 @@ class SpecificAnalysisFunctions():
 
     # Here we should also denote if we have an increment for this we would need the location of the 
     @staticmethod	
-    def simple_plot_calc(result_table_list: list, database) -> tuple:
+    def simple_plot_calc(result_table: list, database) -> tuple:
             
         """Calculates the data for the experiment aggregated data used in lineplots
 
@@ -57,31 +57,10 @@ class SpecificAnalysisFunctions():
             tuple: The plot_dataframe with as long table with experiment name, 
             values and indeces
         """
-        plot_data = {"Unit": [],"values":array.array("d"), "experiment_name":[], "index":[]}
-        increment_list = []
-
-        for table in result_table_list:
-                
-            try:
-                y_data, x_data, experiment_name, increment, sweep_table = SweepWiseAnalysisTemplate.fetch_x_and_y_data(table, database)
         
-                # add data to dictionary
-                plot_data["values"].extend(y_data)
-                plot_data["Unit"].extend(x_data)
-                plot_data["experiment_name"].extend(len(x_data) * [experiment_name])
-                plot_data["index"].extend(range(len(x_data)))
-                increment_list.append(increment)
-                
-            except Exception as e:
-                print(f"The functin the error was is simple cal: {e}")
-                break
-        if (len(set(plot_data["Unit"])) == 1) or  (mean(increment_list)==0):
-            increment = True
-        else:
-            increment = None
-
-        plot_dataframe = pd.DataFrame(plot_data)
-        return plot_dataframe, increment
+        sweep_table, increment= SweepWiseAnalysisTemplate.fetch_x_and_y_data(result_table, database)
+        return sweep_table, increment
+        
 
     @staticmethod
     def rheobase_calc(result_table_list:list, database):

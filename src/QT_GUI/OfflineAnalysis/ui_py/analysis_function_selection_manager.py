@@ -356,7 +356,7 @@ class AnalysisFunctionSelectionManager():
             show_cb_checkbx.setEnabled(True)
             show_cb_checkbx.setChecked(True)
         
-        self.group_box_fullsize()
+        #self.group_box_fullsize()
 
     def hide_stacked_widget(self):
       self.current_tab.analysis_stacked_widget.hide()
