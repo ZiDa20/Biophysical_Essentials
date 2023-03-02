@@ -813,8 +813,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
         print("writing analysis to database")
-        #current_tab.stackedWidget.setCurrentIndex(1)
-        #current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+        current_tab.stackedWidget.setCurrentIndex(1)
+        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
 
        
         self.database_handler.open_connection()
