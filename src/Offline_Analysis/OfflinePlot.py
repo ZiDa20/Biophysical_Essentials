@@ -4,6 +4,8 @@ import seaborn as sns
 from matplotlib.backends.backend_qtagg import \
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.cm import get_cmap
+import matplotlib.pyplot as plt
+
 from numpy import nan
 
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import \
@@ -293,7 +295,10 @@ class OfflinePlots():
         """
         if not self.parent_widget.selected_meta_data:
             self.parent_widget.selected_meta_data = ["experiment_name"]
-
+        
+        # cbar = parameter to control the display of the colorbar next to the plot. 
+        # should only be plotted once and then never again when meta data is changed.
+        cbar = True 
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             statitics_dataframe, plot_dataframe = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
@@ -301,15 +306,24 @@ class OfflinePlots():
             self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         else:
             for ax in self.parent_widget.canvas.figure.axes:
-                ax.clear() 
+                if not ax._label =="<colorbar>":
+                     ax.cla() 
+                     cbar = False
 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
+        
         drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
-        sns.heatmap(data = drawing_data, ax = self.parent_widget.ax)
+
+        sns.heatmap(data = drawing_data[0:], ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
+    
+        # self.parent_widget.canvas.figure
+
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.export_data_frame = self.statistics
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        self.parent_widget.canvas.draw_idle()
+
 
     def ap_overlay(self, result_table_list:list):
         """_summary_
