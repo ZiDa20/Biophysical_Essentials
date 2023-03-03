@@ -1065,8 +1065,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         if equation_components == []:
             print("my job is done")
-            #q = f'update analysis_functions set function_text = {dummy text} where analysis_function_id == {func_1}'
-            self.database_handler.database.execute(q)
             return
         else:
             eval_dict[func_1]=sub_results
