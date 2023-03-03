@@ -187,10 +187,8 @@ class SweepWiseAnalysisTemplate(object):
 			column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"]
 			result_data_frame = pd.DataFrame(columns = column_names)
 
-			# get the pgf segment
-			print("reading the pgf segment")
+			# get the pgf segment whic hwas selected by the user and stored in the db
 			pgf_segment = cls.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {cls.analysis_function_id}').fetchall()[0][0]
-			print("found pgf segment ", pgf_segment)
 
 			for column in entire_sweep_table:
 

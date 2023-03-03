@@ -532,28 +532,9 @@ class AnalysisFunctionSelectionManager():
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
                 lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
-                pgf_segment = 2 #table_widget.item(self.PGF_SEQ_GRID_ROW, col).widget.currentText()
-
-                print("hi")
+                pgf_segment = int(table_widget.cellWidget(self.PGF_SEQ_GRID_ROW, col).currentText())
                 analysis_series_name = self.current_tab.objectName()
-                print(analysis_series_name)
-
                 func_name = self.current_tab.analysis_button_grid.itemAtPosition(page, 0).widget().text()
-
-                print("func name", func_name  )
-                print("starting to wrtie to db")
-                print(analysis_function)
-                print(analysis_series_name)
-                print(lower_bound)
-                print(upper_bound)
-                print(pgf_segment)
-
-                """
-                try:
-                    self.database_handler.open_connection()
-                except Exception as e:
-                    print("opening failed with error", e)
-                """
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
                                                                                                lower_bound, upper_bound, pgf_segment)
