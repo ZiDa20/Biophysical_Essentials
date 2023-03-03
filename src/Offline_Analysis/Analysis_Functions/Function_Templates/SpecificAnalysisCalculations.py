@@ -103,8 +103,10 @@ class SpecificAnalysisFunctions():
         """
 
         plot_dataframe = database.database.execute(f'select * from {result_table[0]}').fetchdf()
+        plot_dataframe = plot_dataframe.dropna(axis = 0)
         z_score = StandardScaler().fit_transform(plot_dataframe.iloc[:,0:-1].values)
-        z_score_df = pd.DataFrame(z_score, columns = plot_dataframe.iloc[:,0:-1].columns, index = plot_dataframe.experiment_name)
+        z_score_df = pd.DataFrame(z_score, columns = plot_dataframe.iloc[:,0:-1].columns)
+        z_score_df["experiment_name"] = plot_dataframe.experiment_name
         return plot_dataframe, z_score_df
 
     @staticmethod
@@ -117,12 +119,14 @@ class SpecificAnalysisFunctions():
             databaes (DuckDB): DuckDB Database Haendler
         """
         plot_dataframe = database.database.execute(f'select * from {result_table[0]}').fetchdf()
+        plot_dataframe = plot_dataframe.dropna(axis = 0)
         scaled = StandardScaler().fit_transform(plot_dataframe.iloc[:,0:-1].values)
         pca = PCA(n_components=2)
         pca_data = pca.fit_transform(scaled)
         explained_variance = pca.explained_variance_ratio_.tolist()
         pca_dataframe = pd.DataFrame(pca_data, columns = ["PC1", "PC2"])
         pca_dataframe["experiment_name"] = plot_dataframe["experiment_name"]
+        plot_dataframe = plot_dataframe.dropna(axis = 0)
         
         return pca_dataframe, explained_variance
     

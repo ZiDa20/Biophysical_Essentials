@@ -89,8 +89,8 @@ class OfflinePlots():
                 
                 
         self.meta_data = self.database_handler.get_data_from_database(self.database_handler.database, q,fetch_mode = 2)
-        self.meta_data = self.meta_data.replace("None", nan)
         self.meta_data = self.meta_data.dropna(axis='columns', how ='all')
+        self.meta_data = self.meta_data.fillna("None")
     
     def retrieve_analysis_function(self,parent_widget= None, result_table_list = None, switch = None, meta = None):
         """Retrieves the appropriate Analysis Function, sets the parent widget as instance variable
@@ -310,7 +310,7 @@ class OfflinePlots():
                      ax.cla() 
                      cbar = False
 
-        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
         
         drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
@@ -392,7 +392,7 @@ class OfflinePlots():
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
         
-        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)     
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)     
         self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
         self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe

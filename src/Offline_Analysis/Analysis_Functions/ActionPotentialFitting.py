@@ -227,7 +227,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
                     cls.data = np.interp(cls.data, (cls.data.min(), cls.data.max()), (y_min, y_max))
 
                 res = cls.specific_calculation(experiment_name)
-
+                print(res)
                 # res can be none if there is a beat that had no action potential
                 if res is not None:
                     #print("result")
@@ -407,7 +407,10 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             fitting_parameters['AP_with [ms]'] = half_width
             fitting_parameters["experiment_name"] = experiment_name
 
-        return fitting_parameters
+            return fitting_parameters
+
+        else:
+            return None
 
     @staticmethod
     def smooth_action_potential(first_derivative, smoothing_window_length):
