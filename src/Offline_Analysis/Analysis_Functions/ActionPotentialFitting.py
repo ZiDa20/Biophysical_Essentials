@@ -198,13 +198,13 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         cls.upper_bounds = None
         cls.lower_bounds = None
 
+
+        agg_table = pd.DataFrame()
         for data_table in data_table_names:
-
-            print("reading_table")
-            print(data_table)
-            #
+            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
+            # add logger
             entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
-
+            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
             key_1 = list(entire_sweep_table.keys())[0]
             if entire_sweep_table[key_1].shape != cls.data_shape:
                 cls.data_shape = entire_sweep_table[key_1].shape
@@ -226,50 +226,46 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
                     y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                     cls.data = np.interp(cls.data, (cls.data.min(), cls.data.max()), (y_min, y_max))
 
-                res = cls.specific_calculation()
+                res = cls.specific_calculation(experiment_name)
 
                 # res can be none if there is a beat that had no action potential
                 if res is not None:
                     #print("result")
                     #print(res)
 
+                    # should be in the outer loop not in the inner
                     if cslow_normalization:
                         cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
                         res = res / cslow
-                        print("normalized")
-                        print(res)
-
+                        # add logger
                     # get the sweep number
                     sweep_number = column.split("_")
                     sweep_number = int(sweep_number[1])
-
-                    if result_data_frame.empty:
-                        result_data_frame = pd.DataFrame.from_dict(res, orient='index', columns = [str(sweep_number)])
-
-                    else:
-                        col_count = len(result_data_frame.columns)
-                        #print(col_count)
-                        dataframe = pd.DataFrame.from_dict(res, orient='index', columns = [str(sweep_number)])
-                        #print(dataframe)
-                        result_data_frame = pd.concat([result_data_frame, dataframe],axis=1)
+                    
+                    
+                    dataframe = pd.DataFrame.from_dict(res, orient='index', columns = [str(sweep_number)]).T
+                    #print(dataframe)
+                    result_data_frame = pd.concat([result_data_frame, dataframe])
+                    
                         #print(result_data_frame)
 
-            print(result_data_frame)
             # write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
-            result_data_frame['Fitting Parameters'] = result_data_frame.index
+            #result_data_frame["experiment_name"] = experiment_name
+            agg_table = pd.concat([agg_table, result_data_frame])
             #print(result_data_frame)
+        print("here is the aggregated table")
+        print(agg_table)
+        new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
+                                                                                    "AP_Fitting")
+        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+                                                                                cls.analysis_function_id,
+                                                                                data_table,
+                                                                                new_specific_result_table_name,
+                                                                                agg_table)
 
-            new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
-                                                                                        data_table)
-            cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
-                                                                                   cls.analysis_function_id,
-                                                                                   data_table,
-                                                                                   new_specific_result_table_name,
-                                                                                   result_data_frame)
+        # make sure to register all fitting parameters to plotted
 
-            # make sure to register all fitting parameters to plotted
-
-            print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
+        print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
         cls.run_late_register_feature()
 
@@ -285,7 +281,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         return f"results_analysis_function_{str(analysis_function_id)}_{data_table_name}"
         
     @classmethod
-    def specific_calculation(cls, manual_threshold = 10, smoothing_window_length = 19):
+    def specific_calculation(cls,experiment_name, manual_threshold = 10, smoothing_window_length = 19):
         print("running action potential fitting")
 
         fitting_parameters = {}
@@ -409,6 +405,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             fitting_parameters['t_min_1st_derivative [ms]'] = t_min_1st_derivative_amplitude
             fitting_parameters['dt t_min-t_max [ms]'] = t_min_1st_derivative_amplitude - t_max_1st_derivative_amplitude
             fitting_parameters['AP_with [ms]'] = half_width
+            fitting_parameters["experiment_name"] = experiment_name
 
         return fitting_parameters
 
@@ -455,6 +452,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         if not cls.database.get_data_from_database(cls.database.database, q):
             q = """select analysis_function_id from analysis_functions where analysis_id = (?) and function_name = (?)"""
+            
             apf_id = cls.database.get_data_from_database(cls.database.database, q,
                                                           [parent_widget.analysis_id, "Action_Potential_Fitting"])[0][0]
 

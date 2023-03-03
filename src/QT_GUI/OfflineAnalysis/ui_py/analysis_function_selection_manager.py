@@ -360,7 +360,7 @@ class AnalysisFunctionSelectionManager():
 
     def hide_stacked_widget(self):
       self.current_tab.analysis_stacked_widget.hide()
-      self.group_box_smallsize()
+      #self.group_box_smallsize()
 
 
     def add_cell_widgets_to_analysis_grid(self, row, col, analysis_table_widget, text):

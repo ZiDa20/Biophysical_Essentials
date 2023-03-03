@@ -36,8 +36,9 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             # set time to non - will be set by the first data frame
         # should assure that the time and bound setting will be only exeuted once since it is the same all the time
         time = None
+        agg_table = pd.DataFrame()
         for data_table in data_table_names:
-
+            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
             if time is None:
                     time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
@@ -68,17 +69,20 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             if ap_window:
                 # check if there is 
                 result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak", "AP_Timing"])
+                result_data_frame["experiment_name"] = experiment_name
+                agg_table = pd.concat([agg_table, result_data_frame])
 
-                new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
-                                                                                            data_table, True)
 
-                cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
-                                                                                        cls.analysis_function_id,
-                                                                                        data_table,
-                                                                                        new_specific_result_table_name,
-                                                                                        result_data_frame)
+        new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
+                                                                                    "Peak_Detection", True)
 
-                print("added %s to database",new_specific_result_table_name )
+        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+                                                                                cls.analysis_function_id,
+                                                                                data_table,
+                                                                                new_specific_result_table_name,
+                                                                                agg_table)
+
+        print("added %s to database",new_specific_result_table_name )
 
 
     @classmethod

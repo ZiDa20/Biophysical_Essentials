@@ -161,33 +161,40 @@ class SweepWiseAnalysisTemplate(object):
 		data_table_names = []
 		# get the names of all data tables to be evaluated
 		data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
+  
+		# check here if current or voltage clamp and add the respective name of the unit to the table
+		unit_name = "Voltage"
+		if series_specific_recording_mode != "Voltage Clamp":
+			unit_name = "Current"
 
 		# set time to non - will be set by the first data frame
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
-		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result", "Increment","experiment_name"]
+		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Result", "Increment","experiment_name"]
 
 		dataframe_trial = pd.DataFrame()
 		for data_table in data_table_names:
-			
+
+			# retrieves the experiment name
 			experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
-	
 			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
 			key_1 = list(entire_sweep_table.keys())[0]
 			if cls.time is None:
 				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
-			# get times
+			# get times check if time changes for individual series, and correct the values
 			if entire_sweep_table[key_1].shape != cls.data_shape:
 				cls.data_shape = entire_sweep_table[key_1].shape
 				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
 			# get pgf table from database 
 			# retrieve increment
+			# pgf table is also just once per data_table and not per sweep
 			pgf_data_frame = cls.database.get_entire_pgf_table(data_table)
-			print("clsow")
+   
+			# shifted this through the outside 
+			# closw is just ones per series and not sweep
 			if cls.cslow_normalization:
 					cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
-			print("done cslwo")
 			# calculate the time
 			# set the lower bound
 			# set the upper bound
@@ -195,8 +202,6 @@ class SweepWiseAnalysisTemplate(object):
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
 			
-			result_data_frame = pd.DataFrame(columns = column_names)
-
 			for column in entire_sweep_table:
 
 				cls.data = entire_sweep_table.get(column)
@@ -240,9 +245,8 @@ class SweepWiseAnalysisTemplate(object):
 						inc = float(increment_list[i])
 						break
 
-				print("print df")
+	
 				new_df = pd.DataFrame([[cls.database.analysis_id,cls.analysis_function_id,data_table,sweep_number,volt_val,res,inc,experiment_name]],columns = column_names)
-				print("new df")
 				dataframe_trial = pd.concat([dataframe_trial,new_df])
 
 
