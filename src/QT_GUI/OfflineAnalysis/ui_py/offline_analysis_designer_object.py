@@ -678,7 +678,7 @@ class Ui_Offline_Analysis(object):
         self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
 #endif // QT_CONFIG(tooltip)
         self.load_from_database.setText("")
-        self.change_series_name.setText(QCoreApplication.translate("Offline_Analysis", u"PushButton", None))
+        self.change_series_name.setText(QCoreApplication.translate("Offline_Analysis", u"", None))
         self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
         self.plot_zoom.setText("")
         self.plot_home.setText("")

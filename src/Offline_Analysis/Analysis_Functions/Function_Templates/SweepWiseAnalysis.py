@@ -187,6 +187,11 @@ class SweepWiseAnalysisTemplate(object):
 			column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"]
 			result_data_frame = pd.DataFrame(columns = column_names)
 
+			# get the pgf segment
+			print("reading the pgf segment")
+			pgf_segment = cls.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {cls.analysis_function_id}').fetchall()[0][0]
+			print("found pgf segment ", pgf_segment)
+
 			for column in entire_sweep_table:
 
 				cls.data = entire_sweep_table.get(column)
@@ -199,6 +204,7 @@ class SweepWiseAnalysisTemplate(object):
 				cls.construct_trace()
 				cls.slice_trace()
 
+				# run the result calculation for the specific analysis function e.g. max or min detection
 				res = cls.specific_calculation()
 
 				# normalize if necessary
@@ -216,21 +222,11 @@ class SweepWiseAnalysisTemplate(object):
 				pgf_data_frame = cls.database.get_entire_pgf_table(data_table)
 				# 	from the coursor bounds indentify the correct segment
 
-				duration_list = pgf_data_frame["duration"].values
 				increment_list = pgf_data_frame["increment"].values
 				voltage_list = pgf_data_frame["voltage"].values
-
-				duration_list_float = []
-				volt_val = 0
-
-				for i in range(len(duration_list)):
-					duration_list_float.append(float(duration_list[i])*1000)
-
-					# should be greater all the time until the correct segment is entered
-					if cls.lower_bound <= sum(duration_list_float):
-						volt_val = (float(voltage_list[i])*1000) + (sweep_number-1)*(float(increment_list[i])*1000)
-						break
-
+		
+				volt_val = (float(voltage_list[pgf_segment-1])*1000) + (sweep_number-1)*(float(increment_list[pgf_segment-1])*1000)
+		
 				new_df = pd.DataFrame([[cls.database.analysis_id,cls.analysis_function_id,data_table,sweep_number,volt_val,res]],columns = column_names)
 
 				result_data_frame = pd.concat([result_data_frame,new_df])

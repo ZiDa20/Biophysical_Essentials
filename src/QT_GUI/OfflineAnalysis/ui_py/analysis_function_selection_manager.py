@@ -215,8 +215,9 @@ class AnalysisFunctionSelectionManager():
         self.resize_group_box(tmp_size)
 
     def resize_group_box(self,tmp_size):
-        self.current_tab.subwindow_calc.setMinimumSize(QSize(tmp_size, 900))
-        self.current_tab.subwindow_calc.setMaximumSize(QSize(tmp_size, 900))
+        print("resize not working")
+        #self.current_tab.subwindow_calc.setMinimumSize(QSize(tmp_size, 900))
+        #self.current_tab.subwindow_calc.setMaximumSize(QSize(tmp_size, 900))
     
 
         
@@ -531,6 +532,7 @@ class AnalysisFunctionSelectionManager():
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
                 lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
+                pgf_segment = 2 #table_widget.item(self.PGF_SEQ_GRID_ROW, col).widget.currentText()
 
                 print("hi")
                 analysis_series_name = self.current_tab.objectName()
@@ -544,6 +546,8 @@ class AnalysisFunctionSelectionManager():
                 print(analysis_series_name)
                 print(lower_bound)
                 print(upper_bound)
+                print(pgf_segment)
+
                 """
                 try:
                     self.database_handler.open_connection()
@@ -552,7 +556,7 @@ class AnalysisFunctionSelectionManager():
                 """
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
-                                                                                               lower_bound, upper_bound)
+                                                                                               lower_bound, upper_bound, pgf_segment)
                 #self.database_handler.database.close()
                 print("finished writing")
                 # non single analysis types will be calculated as single interval analysis but additional calculation is needed

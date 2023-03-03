@@ -189,7 +189,8 @@ class DuckDBDatabaseHandler():
                                             lower_bound float,
                                             upper_bound float,
                                             analysis_series_name text,
-                                            analysis_id integer
+                                            analysis_id integer,
+                                            pgf_segment integer
                                             );"""
 
         sql_create_results_table = """ CREATE TABLE results(
@@ -835,11 +836,11 @@ class DuckDBDatabaseHandler():
         return r[0][0]
 
     def write_analysis_function_name_and_cursor_bounds_to_database(self, analysis_function, analysis_series_name,
-                                                                   lower_bound, upper_bound):
+                                                                   lower_bound, upper_bound, pgf_segment):
         try:
-            q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound) values (?,?,?,?,?)"""
+            q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
             self.database = self.execute_sql_command(self.database, q, (
-            analysis_function, analysis_series_name, self.analysis_id, lower_bound, upper_bound))
+            analysis_function, analysis_series_name, self.analysis_id, lower_bound, upper_bound, pgf_segment))
             self.logger.info(
                 f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
             print(f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
