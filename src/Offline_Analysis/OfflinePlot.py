@@ -388,20 +388,26 @@ class OfflinePlots():
         if agg:  # if agg - calculate the mean for each meta data group
             new_df = pd.DataFrame()
             for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
+                #print(m)
                 subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
+                subset.dropna(axis = 0, inplace = True)
                 tmp_dict = {}
                 for c in  self.statistics.columns[0:-1]: # get rid of the last since this is the experiment name
                     tmp_dict[c] = [np.mean(subset[c].values)]
-                new_df = pd.concat([new_df, pd.DataFrame(tmp_dict)])
+                #print(tmp_dict)
+                tmp_df = pd.DataFrame(tmp_dict)
+                #print(tmp_df)
+                new_df = pd.concat([new_df, tmp_df])
+                #print("new df ", new_df)
             drawing_data = new_df.T
-            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
+            sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
            drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
     
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.export_data_frame = self.statistics
-        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.statistics #drawing_data #self.parent_widget.holded_dataframe
         self.parent_widget.canvas.draw_idle()
 
 
