@@ -553,6 +553,8 @@ class AnalysisFunctionSelectionManager():
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
                                                                                                lower_bound, upper_bound)
+                
+                
                 #self.database_handler.database.close()
                 print("finished writing")
                 # non single analysis types will be calculated as single interval analysis but additional calculation is needed
@@ -562,6 +564,7 @@ class AnalysisFunctionSelectionManager():
                     id = self.database_handler.get_last_inserted_analysis_function_id()
                     print("got id, ", id)
                     multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "func": [func_name],"id": [id], "function_name":[analysis_function] })])
+                    print(multiple_interval_analysis)
 
         print("returning multiple analysis ", multiple_interval_analysis)
 

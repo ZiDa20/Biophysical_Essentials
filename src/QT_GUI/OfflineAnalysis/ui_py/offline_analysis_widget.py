@@ -954,11 +954,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             
 
             # stat recursive function
+            print("starting the recursive function")
+            print(equation_components)
             self.recursive_pop(equation_components,0, 0)
 
             # if everything worked correctly, only the first func to remove should still exist in the analysis functions table
             # the name here needs to be adapted too 
-         
+
+            print("finished recursive function")
 
             q = f'update analysis_functions set function_name = \'{db_text}\' where analysis_function_id == {func_to_remove[0]}'
             self.database_handler.database.execute(q)
@@ -1055,7 +1058,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             
             if equation_components == []:
                 # register only if finished, sub results dont need to be stored in the db
-                table_name = "results_analysis_function_"+str(func_1)+"_"+ str(data_1["Sweep_Table_Name"].values[0])
+                table_name = tbl_1 #"results_analysis_function_"+str(func_1)+"_"+  #str(data_1["Sweep_Table_Name"].values[0])
                 
                 self.database_handler.database.register(table_name, data_1)
                 self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {table_name}')

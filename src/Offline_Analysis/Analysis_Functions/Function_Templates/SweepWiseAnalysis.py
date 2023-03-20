@@ -253,13 +253,16 @@ class SweepWiseAnalysisTemplate(object):
 		# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
 		#print(f"This is the analysis function id : {cls.analysis_function_id}")
 		new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id, cls.function_name)
+
+		
+
 		cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
 																				cls.analysis_function_id,
 																				data_table,
 																				new_specific_result_table_name,
 																				dataframe_trial)
 
-			#print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
+		print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
 	@staticmethod
 	def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:

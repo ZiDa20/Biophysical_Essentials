@@ -33,3 +33,5 @@ venv/
 *.vs
 .cell_images
 .runs
+*.ipynb
+*.ipynb_checkpoints
