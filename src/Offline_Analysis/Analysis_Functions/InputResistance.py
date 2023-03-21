@@ -10,14 +10,13 @@ class InputResistance(SweepWiseAnalysisTemplate):
     """
     
     plot_type_options = ["Linear Regression", "Aggregated"]
-    function_name = "Input Resistance"
+    function_name = "Input-Resistance"
     database = None
     
     @classmethod
     def specific_calculation(cls):
         cls.cslow_normalization = 0
-        max_val = np.min(cls.sliced_volt)
-        return max_val
+        return np.min(cls.sliced_volt)
     
     @classmethod
     def live_data_calculation(cls):

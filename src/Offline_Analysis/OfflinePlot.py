@@ -1,11 +1,17 @@
-from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 import logging
-from numpy import nan
+import pandas as pd
+import seaborn as sns
+import numpy as np
+from matplotlib.backends.backend_qtagg import \
+    NavigationToolbar2QT as NavigationToolbar
 from matplotlib.cm import get_cmap
+import matplotlib.pyplot as plt
+
+from numpy import nan
+
+from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import \
+    SpecificAnalysisFunctions
+
 
 class OfflinePlots():
     
@@ -29,10 +35,11 @@ class OfflinePlots():
 
         """
         self.frontend = frontend
+        if self.frontend.current_style == 0:
+            self.frontend.set_mpl_style_dark()
+        else:
+            self.frontend.set_mpl_style_white()
         self.violin = None # should be set if violinplot should be run
-        self.canvas = None # The Figure canvas that is drawn
-        self.ax = None # the axis of the canvas
-        self.holded_dataframe = None
         self.meta_data = None
         self.parent_widget = None
         # reference the needed classes
@@ -56,7 +63,7 @@ class OfflinePlots():
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
     
-    def set_frontend_axes(self, canvas):
+    def set_frontend_axes(self, parent_widget):
         """_summary_: This function should set the axis and teh figure of the canvas
         and assign this as instance member
 
@@ -64,11 +71,10 @@ class OfflinePlots():
             canvas (Figure Canvas): Matplotlib Figure Canvas holding the plot
         """
         
-        self.canvas = canvas
-        self.ax = self.canvas.figure.subplots()
-        self.frontend.ax.append(self.ax)
-        self.frontend.canvas = self.canvas 
-        self.style_plot()
+        #parent_widget.canvas = canvas
+        parent_widget.ax = parent_widget.canvas.figure.subplots()
+        self.frontend.ax.append(parent_widget.ax)
+        self.frontend.canvas = parent_widget.canvas
 
     def set_metadata_table(self, result_table_list):
         """_summary_: Sets the metadata table retrieved from the result_table_list
@@ -78,21 +84,21 @@ class OfflinePlots():
             analysis function id
         """
         result_table_list = tuple(result_table_list)
-        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name IN (select sweep_table_name from results where ' \
-                f'specific_result_table_name IN {result_table_list}))'
+        
+        # this we have do redo
+        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from {result_table_list[0]})'
                 
                 
         self.meta_data = self.database_handler.get_data_from_database(self.database_handler.database, q,fetch_mode = 2)
-        self.meta_data = self.meta_data.replace("None", nan)
         self.meta_data = self.meta_data.dropna(axis='columns', how ='all')
+        self.meta_data = self.meta_data.fillna("None")
     
-    def retrieve_analysis_function(self,parent_widget= None, result_table_list = None, analysis_function_id = None, switch = None):
+    def retrieve_analysis_function(self,parent_widget= None, result_table_list = None, switch = None, meta = None):
         """Retrieves the appropriate Analysis Function, sets the parent widget as instance variable
         retrieves the analysis function id from from parent widget and also evaluate the swithc
 
         Args:
-            self.parent_widget (_type_): The Parent Widget to draw in as canvas
+            parent_widget (_type_): The Parent Widget to draw in the canvas
             result_table_list (_type_): The tables that will be visualized for the specific series
             analysis_function (_type_): The analysis function choosen for the specific series
             switch (bool): Should indicate if redraw without 
@@ -100,147 +106,122 @@ class OfflinePlots():
         self.logger.info("Retrieving analysis function")
         # code goes here
         
+        
+        self.parent_widget = parent_widget
+            
         if switch:
-            self.holded_dataframe = None
- 
-        if not self.parent_widget:
-            self.parent_widget = parent_widget
+            self.parent_widget.holded_dataframe = None
             
         analysis_function = self.parent_widget.plot_type_combo_box.currentText()
-        
+        analysis_function_id = self.parent_widget.analysis_function_id
         # should retrieve the right function based on the selected analysis function
         self.plot_dictionary = {"Boxplot": self.make_boxplot,
                                 "No Split": self.simple_plot, 
                                 "Rheobase Plot": self.rheobase_plot,
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
-                                "Action Potential Fitting": self.ap_fitting_plot,
+                                "Action_Potential_Fitting": self.ap_fitting_plot,
+                                "Single_AP_Parameter": self.single_ap_parameter_plot,
+                                "Mean_Action_Potential_Fitting": self.mean_ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
-                                "PCA-Plot": self.pca_plot
+                                "PCA-Plot": self.pca_plot,
+                                "AP-Overlay": self.ap_overlay
                                 }
 
         # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
 
-        try:    
-            selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
-        except Exception as e:
-            selected_meta_data = None
-
+        self.parent_widget.selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
+            
         try:
-            self.plot_dictionary.get(analysis_function)(result_table_list, selected_meta_data)
+            self.plot_dictionary.get(analysis_function)(result_table_list)
         except Exception as e:
             self.logger.error(f"Analysis function could not be retrieved {e}")
             raise KeyError(f"Analysis function could not be retrieved {e}")	
         
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
         
-    def style_plot(self):
-        
-        """Plot Styling Class, this can be used for general changes of the plot visualization
-        """
-        self.logger.info("Styling the Plot started")
-        self.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
-        self.ax.spines.right.set_visible(False)
-        self.ax.spines.top.set_visible(False)
-        self.ax.patch.set_alpha(0)
-        self.canvas.figure.patch.set_alpha(0)
-        self.frontend.change_canvas_bright()
-        self.logger.info("Styling the Plot ended")
-
-    def make_boxplot(self,result_table_list: list, selected_meta_data = None):
+    def make_boxplot(self,result_table_list: list):
 
         """Specific Function to draw Boxplots from long table formats
         of different Analysis Function
 
         Args:
-            self.parent_widget (_type_): _description_
             result_table_list (list): Result Table List of the specific Analysis Function
         """
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"]
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             plot_dataframe = SpecificAnalysisFunctions.boxplot_calc(result_table_list, self.database_handler)
-            self.merge_meta_plot_and_assign_meta(plot_dataframe, selected_meta_data)
+            self.merge_meta_plot_and_assign_meta(plot_dataframe)
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.comparison_plot(self.holded_dataframe)
-            for ax in self.canvas.figure.axes:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear()  
-            self.canvas.draw()
-
-        self.canvas.figure.tight_layout()
+                
+        self.comparison_plot(self.parent_widget.holded_dataframe)
+        self.parent_widget.canvas.draw_idle()
         self.logger.info("Created Boxplot successfully")
-        self.parent_widget.export_data_frame = self.holded_dataframe
-        self.parent_widget.statistics = self.holded_dataframe
-        self.add_data_frame_to_result_dictionary(self.holded_dataframe)
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        self.add_data_frame_to_result_dictionary(self.parent_widget.holded_dataframe)
 
     
-    def simple_plot(self, result_table_list:list, selected_meta_data = None):
+    def simple_plot(self, result_table_list:list):
         """
         Plot all data without incorporating meta data groups
-        :param self.parent_widget: the widget to which the plot is added
         :param result_table_list: the list of result tables for the specific analysis
         """
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"]
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            pivoted_table = self.simple_plot_make(plot_dataframe, increment)
-            self.increment = increment
-            self.holded_dataframe = plot_dataframe
-        
+            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            self.parent_widget.increment = increment
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            for ax in self.canvas.figure.axes:
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear()  
-            pivoted_table = self.simple_plot_make(self.holded_dataframe, self.increment)
-            
-            self.canvas.draw()
-        
-        #plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        
-        self.parent_widget.export_data_frame = pivoted_table
-        self.parent_widget.statistics = self.holded_dataframe
-
                 
-    def rheobase_plot(self, result_table_list:list, selected_meta_data = None):
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)    
+        pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
+        self.parent_widget.canvas.draw_idle()        
+        self.parent_widget.export_data_frame = pivoted_table
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        
+    def rheobase_plot(self, result_table_list:list):
         """Plotting Function to draw rheobase boxplot into the OfflineAnalysisResultAnalyzer
 
         Args:
-            self.parent_widget (ResultVisualizer): _description_
             result_table_list (list): Result Table list of the generate by the Analysis Function
         """
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"]
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
-            self.merge_meta_plot_and_assign_meta(plot_dataframe, selected_meta_data)
+            self.merge_meta_plot_and_assign_meta(plot_dataframe)
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            for ax in self.canvas.figure.axes:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.comparison_plot(self.holded_dataframe)
-            self.canvas.draw()
+        
+        self.comparison_plot(self.parent_widget.holded_dataframe)
+        self.parent_widget.canvas.draw_idle()
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
-        self.parent_widget.export_data_frame = self.holded_dataframe
-        self.parent_widget.statistics = self.holded_dataframe
 
-
-    def merge_meta_plot_and_assign_meta(self, plot_dataframe: pd.DataFrame, selected_meta_data: list):
+    def merge_meta_plot_and_assign_meta(self, plot_dataframe: pd.DataFrame):
         """_summary_
 
         Args:
             plot_dataframe (pd.DataFrame): _description_
-            selected_meta_data (list): _description_
+            self.parent_widget.selected_meta_data (list): _description_
         """
         plot_dataframe = pd.merge(
             plot_dataframe,
@@ -249,162 +230,262 @@ class OfflinePlots():
             right_on="experiment_name",
             how="left",
         )
-        plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg(
+        plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg(
             '::'.join, axis=1
         )
-        self.comparison_plot(plot_dataframe)
-        self.holded_dataframe = plot_dataframe
+        self.parent_widget.holded_dataframe = plot_dataframe
         
-    def single_rheobase_plot(self, result_table_list:list, selected_meta_data = None):
+    def single_rheobase_plot(self, result_table_list:list):
         """Creates Plots for single rheobase calculation --> stepplot
 
         Args:
-            self.parent_widget (_type_): Class Widget to Plot in 
             result_table_list (_type_): List of Rheobase Result Tables
         """
-        if not selected_meta_data:
-                selected_meta_data = ["experiment_name"]
+        if not self.parent_widget.selected_meta_data:
+                self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe = SpecificAnalysisFunctions.sweep_rheobase_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.simple_plot_make(plot_dataframe)
-            self.holded_dataframe = plot_dataframe
+            plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            self.parent_widget.holded_dataframe = plot_dataframe
         
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            for ax in self.canvas.figure.axes:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.simple_plot_make(self.holded_dataframe)
-            self.canvas.draw()
-        self.parent_widget.export_data_frame = self.holded_dataframe
-        self.parent_widget.statistics = self.holded_dataframe
+                
+        self.simple_plot_make(self.parent_widget.holded_dataframe, value = "current")
+        self.parent_widget.canvas.draw_idle()
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
         
         
-
-    def rheoramp_plot(self, result_table_list: list, selected_meta_data = None):
+    def rheoramp_plot(self, result_table_list: list):
         """Creates Lineplot and boxplot for Rheoramp Protocols
 
         Args:
-            self.parent_widget (_type_): _description_
             result_table_list (list): Result Table list for Rheoramp Analysis
         """
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"]
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe = SpecificAnalysisFunctions.rheoramp_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.line_boxplot(plot_dataframe)
-            self.holded_dataframe = plot_dataframe
+            plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            self.parent_widget.holded_dataframe = plot_dataframe
         
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            for ax in self.canvas.figure.axes:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.line_boxplot(self.holded_dataframe)
-            self.canvas.draw()
+                
+        self.line_boxplot(self.parent_widget.holded_dataframe)
+        self.parent_widget.canvas.draw_idle()
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
-        self.parent_widget.export_data_frame = self.holded_dataframe
-        self.parent_widget.statistics = self.holded_dataframe
+    def initiate_hidden_selection_widgets(self):
+        """
+        specific function to show single ap parameter:  therefore, a hidden combobox is made visible
+        """
+        self.parent_widget.parameter_label.show()
+        self.parent_widget.parameter_combobox.show()
+        for i in list(self.statistics.columns[0:-1]): # last item is the experiment name which is non numeric and would throw an error
+            self.parent_widget.parameter_combobox.addItem(i)
+
+        self.parent_widget.parameter_combobox.currentIndexChanged.connect(self.show_single_ap_param_selected_in_combobox)
 
 
+    def single_ap_parameter_plot(self, result_table_list:list):
+        """
+        creates a boxplot of a single AP parameter, specific ap can be selected by the user
+        therefore, a hidden combobox is made visible
 
-    def ap_fitting_plot(self, result_table_list: list, selected_meta_data = None, agg = False):
+        Args:
+            result_table_list (list): Result Table list for AP Analysis
+        
+        """
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
+
+        if self.parent_widget.holded_dataframe is None:
+            statitics_dataframe, _ = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
+            # its the unscaled dataframe
+            self.parent_widget.statistics = statitics_dataframe
+            self.parent_widget.holded_dataframe = pd.merge(statitics_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+
+        else:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
+                ax.clear()  
+        
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+        self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
+
+        if self.parent_widget.parameter_label.isHidden():
+            self.initiate_hidden_selection_widgets()
+
+        self.show_single_ap_param_selected_in_combobox()
+
+    def show_single_ap_param_selected_in_combobox(self):
+        """
+        creates the boxplot of a single AP parameter, specific ap can be selected by the user in a combobox
+        """
+        param = [self.parent_widget.parameter_combobox.currentText()]
+        param.append("meta_data")
+        plot_df = self.holded_dataframe[param]
+        plot_df.rename(columns={param[0]:"values"}, inplace=True)
+
+        #drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
+        
+        for ax in self.parent_widget.canvas.figure.axes:
+            ax.cla() 
+                     
+        self.comparison_plot(plot_df)
+        self.parent_widget.canvas.draw_idle()
+        self.logger.info("Created Boxplot successfully")
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        self.add_data_frame_to_result_dictionary(self.parent_widget.holded_dataframe)
+
+    def mean_ap_fitting_plot(self, result_table_list:list):
+        # calculate a mean for each column per meta data type
+        self.ap_fitting_plot(result_table_list, True)
+
+    def ap_fitting_plot(self, result_table_list: list, agg: bool = False):
         """Should Create the Heatmap for each Fitting Parameter
         calculated by the APFitting Procedure
         
         Args:
-            self.parent_widget (_type_): _description_
             result_table_list (list): List of queried result tables
-            selected_meta_data (str, optional): Meta Data to be used for aggregation. Defaults to None.
             agg (bool, optional): If True, the data will be aggregated by the selected meta data. Defaults to False.
         """
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"]
-
-        if self.holded_dataframe is None:
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
+        
+        # cbar = parameter to control the display of the colorbar next to the plot. 
+        # should only be plotted once and then never again when meta data is changed.
+        cbar = True 
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             statitics_dataframe, plot_dataframe = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
             self.statistics = statitics_dataframe
-            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.holded_dataframe = plot_dataframe
+            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.holded_daataframe = self.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
-            for ax in self.canvas.figure.axes:
-                ax.clear() 
+            for ax in self.parent_widget.canvas.figure.axes:
+                if not ax._label =="<colorbar>":
+                     ax.cla() 
+                     cbar = False
 
-
-        self.parent_widget.specific_plot_box.setMinimumHeight(500)
-        self.canvas.setMinimumSize(self.canvas.size())
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        drawing_data = self.holded_dataframe[self.statistics.columns[1:-1]].T
-        sns.heatmap(data = drawing_data, ax = self.ax)
-        self.canvas.figure.tight_layout()
-        self.parent_widget.export_data_frame = self.statistics
-        self.parent_widget.statistics = self.holded_dataframe
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
+        self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
+        
        
-    def regression_plot(self, result_table_list: list, selected_meta_data = None):
+        if agg:  # if agg - calculate the mean for each meta data group
+            new_df = pd.DataFrame()
+            for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
+                #print(m)
+                subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
+                subset.dropna(axis = 0, inplace = True)
+                tmp_dict = {}
+                for c in  self.statistics.columns[0:-1]: # get rid of the last since this is the experiment name
+                    tmp_dict[c] = [np.mean(subset[c].values)]
+                #print(tmp_dict)
+                tmp_df = pd.DataFrame(tmp_dict)
+                #print(tmp_df)
+                new_df = pd.concat([new_df, tmp_df])
+                #print("new df ", new_df)
+            drawing_data = new_df.T
+            sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
+        else:
+           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
+           sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
+    
+        self.parent_widget.canvas.figure.tight_layout()
+        self.parent_widget.export_data_frame = self.statistics
+        self.parent_widget.statistics = self.statistics #drawing_data #self.parent_widget.holded_dataframe
+        self.parent_widget.canvas.draw_idle()
+
+
+
+    def ap_overlay(self, result_table_list:list):
+        """_summary_
+
+        Args:
+            result_table_list (list): _description_
+        """
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
+
+        if self.parent_widget.holded_dataframe is None:
+            plot_dataframe = SpecificAnalysisFunctions.overlay_cal(result_table_list, self.database_handler)
+            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            #plot_dataframe = plot_dataframe.groupby(["meta_data", "Time"])["AP_Window"].agg(["mean", "sem"]).reset_index()
+        else:
+            for ax in self.parent_widget.canvas.figure.axes:
+                ax.clear() 
+          
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)  
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", errorbar=("se", 2), ax = self.parent_widget.ax) 
+        self.parent_widget.canvas.draw_idle()
+       
+
+    def regression_plot(self, result_table_list: list):
         """Draws a Regression line which determines the slope of the 
 
         Args:
             self.parent_widget (_type_): _description_
             result_table_list (list): _description_
         """
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"]
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            self.hue_regplot(data=plot_dataframe, x='index', y='values', hue='meta_data', ax=self.ax)
-            self.holded_dataframe = plot_dataframe
+            plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            self.hue_regplot(data=plot_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
+            self.parent_widget.holded_dataframe = plot_dataframe
 
 
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            for ax in self.canvas.figure.axes:
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.hue_regplot(data=self.holded_dataframe, x='index', y='values', hue='meta_data', ax=self.ax)
-            self.canvas.draw()
 
-        self.parent_widget.export_data_frame = self.holded_dataframe
-        self.parent_widget.statistics = self.holded_dataframe
+            self.hue_regplot(data=self.parent_widget.holded_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
+            self.parent_widget.canvas.draw_idle()
+
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
     
-    def pca_plot(self, result_table_list: list, selected_meta_data = None):
+    def pca_plot(self, result_table_list: list):
          
-        if not selected_meta_data:
-            selected_meta_data = ["experiment_name"] 
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"] 
 
-        if self.holded_dataframe is None:
+        if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc(result_table_list, self.database_handler)
-            plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            plot_dataframe["meta_data"] = plot_dataframe[selected_meta_data].agg('::'.join, axis=1)
-          
-                
-            self.scatter_plot_make(plot_dataframe, self.explained_ratio)
-            self.holded_dataframe = plot_dataframe
-        
+            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         else:
-            self.holded_dataframe["meta_data"] = self.holded_dataframe[selected_meta_data].agg('::'.join, axis=1)
-            for ax in self.canvas.figure.axes:
+            for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.scatter_plot_make(self.holded_dataframe, self.explained_ratio)
-            self.canvas.draw()
-
-        self.parent_widget.export_data_frame = self.holded_dataframe
-        self.parent_widget.statistics = self.holded_dataframe
+        
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)     
+        self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
+        self.parent_widget.canvas.draw_idle()
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
   
-    def simple_plot_make(self,plot_dataframe, increment = None):
+    def simple_plot_make(self,plot_dataframe, value = "Voltage", increment = None):
         """Makes either a boxplot if increment is indicating no step protocol
         
 
@@ -415,23 +496,23 @@ class OfflinePlots():
         Returns:
             pd.DataFrame: Pivoted dataframe having columns either as experiment name or as metadata name
         """
-        if increment: # if sweep have different voltage steps indicated by increment in pgf file
+        if increment: # if sweep has no voltage steps --> check naming of thev ariable
             self.comparison_plot(plot_dataframe)
             try: 
-                pivoted_table = pd.pivot_table(plot_dataframe, index = ["index"], columns = ["meta_data"], values = "values")
+                pivoted_table = pd.pivot_table(plot_dataframe, index = ["Sweep_Number"], columns = ["meta_data"], values = "Result")
             except Exception as e:
                 print(e)
                 
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.ax,  errorbar=("se", 2))
-            self.connect_hover(g)
+            g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
+            self.parent_widget.connect_hover(g)
             try:
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = ["Unit"], columns = ["meta_data"], values = "values")
+                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
             except Exception as e:
                 print(e)
         
-        self.ax.autoscale()
-        self.canvas.figure.tight_layout()        
+        self.parent_widget.ax.autoscale()
+        self.parent_widget.canvas.figure.tight_layout()        
         return pivoted_table    
     
     def comparison_plot(self, plot_dataframe):
@@ -456,19 +537,11 @@ class OfflinePlots():
         """
         g = sns.violinplot(data = plot_dataframe, 
                     x="meta_data", 
-                    y = "values",  
-                    ax = self.ax, 
+                    y = "Result",  
+                    ax = self.parent_widget.ax, 
                     width = 0.5)
-                
-        z = sns.swarmplot(data = plot_dataframe, 
-                x="meta_data", 
-                y = "values",  
-                ax = self.ax, 
-                color = self.color, 
-                size = 10)
-        
-        g.set_xticklabels(g.get_xticklabels(),rotation=45)
-        z.set_xticklabels(g.get_xticklabels(),rotation=45)
+
+        self.swarm_plot(plot_dataframe, 10, g)
         
     def box_plot_maker(self, plot_dataframe):
         """_summary_: Draws a boxplot and a Swarmplot from the data
@@ -478,27 +551,35 @@ class OfflinePlots():
         """
         g = sns.boxplot(data = plot_dataframe, 
                     x="meta_data", 
-                    y = "values",  
-                    ax = self.ax, 
+                    y = "Result",  
+                    ax = self.parent_widget.ax, 
                     width = 0.5)
 
-        z = sns.swarmplot(data = plot_dataframe, 
-                    x="meta_data", 
-                    y = "values",  
-                    ax = self.ax, 
-                    color = self.color, 
-                    size = 2) 
-        
-        g.set_xticklabels(g.get_xticklabels(),rotation=45)
-        z.set_xticklabels(g.get_xticklabels(),rotation=45)
+        #self.swarm_plot(plot_dataframe, 2, g)
+
+    # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
+    def swarm_plot(self, plot_dataframe, size, g):
+        z = sns.swarmplot(
+            data=plot_dataframe,
+            x="meta_data",
+            y="values",
+            ax=self.parent_widget.ax,
+            color=self.color,
+            size=size,
+        )
+        g.set_xticklabels(g.get_xticklabels(), rotation=45)
+        z.set_xticklabels(g.get_xticklabels(), rotation=45)
+        self.parent_widget.canvas.figure.tight_layout()
 
 
     def scatter_plot_make(self, plot_dataframe, explaind_ratios = None):
         """_summary_: Creates a scatter plot from the data"""
-        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.ax)
+        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
         if explaind_ratios:
-            self.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
-            self.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
+            self.parent_widget.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
+            self.parent_widget.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
+        sns.move_legend(self.parent_widget.ax, "upper left", bbox_to_anchor=(1, 1))
+        self.parent_widget.canvas.figure.tight_layout()
 
 
     def line_boxplot(self, plot_dataframe):
@@ -507,11 +588,10 @@ class OfflinePlots():
         Args:
             plot_dataframe (_type_): _description_
         """
-        g = sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.ax, errorbar=("se", 2), legend = False)
-        sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.ax)
-        plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
-        self.canvas.figure.tight_layout()
-        self.ax.autoscale()
+        g = sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, errorbar=("se", 2), legend = False)
+        #sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax)
+        self.parent_widget.canvas.figure.tight_layout()
+        self.parent_widget.ax.autoscale()
 
 
     def hue_regplot(self,data, x, y, hue, palette=None, **kwargs):
@@ -527,81 +607,6 @@ class OfflinePlots():
             )
             for key in levels
         ]
-
-    ################################################################################
-    # Hovering Functions: and Plot Controls
-    ################################################################################
-
-      
-    def on_click(self, event, annot):
-        """Event Detection in the Matplotlib Plot
-        
-        Args:
-            event (mpl_connect_event): Event Connection via hovering motion notify
-            annot (ax.annotate): Annotations of the axis
-        
-        """
-        for line in self.ax.lines:
-            #check if the selected line is drawn
-            if line.contains(event)[0]:
-                cont, ind = line.contains(event)
-                line.set_linewidth(6)
-                self.update_annot(ind,annot,line)
-                annot.set_visible(True)
-            else:
-                line.set_linewidth(1)
-
-            self.canvas.draw_idle()
-    
-    def update_annot(self, ind: tuple, annot, line):
-        """Annotation Update for visualization of the lineplot name
-        when hovering
-
-        Args:
-            ind (tuple): _description_
-            annot (_type_): _description_
-            line (_type_): _description_
-        """
-        x,y = line.get_data()
-        annot.xy = (x[ind["ind"][0]], y[ind["ind"][0]])
-        index_line = line.axes.get_lines().index(line)
-        name = line.axes.get_legend().texts[index_line].get_text()
-        text = "{}, {}".format(" ".join(list(map(str,ind["ind"]))), 
-                            " ".join([name for n in ind["ind"]]))
-        annot.set_text(text)
-        annot.get_bbox_patch().set_alpha(0.4)
-        
-    def connect_hover(self, plot):
-        """Function to connect the plot with the on_click function
-
-        Args:
-            plot (seaborn plot): seaborn plot (g) which should be connected
-        """
-        self.ax.legend().set_visible(False)
-        
-        annot = self.ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
-                    bbox=dict(boxstyle="round", fc="w"),
-                    arrowprops=dict(arrowstyle="->"))
-        annot.set_visible(False)
-        
-        plot.figure.canvas.mpl_connect("motion_notify_event", 
-                                    lambda event: self.on_click(event, 
-                                                                annot
-                                                                ))
-        plot.figure.canvas.mpl_connect("button_press_event",self.on_pick)
-
-    def on_pick(self, event):
-        """Event Detection in the Matplotlib Plot to retrieve the Experiment from the TreeView
-        
-        Args:
-            event (mpl_connect_event): Event Connection via button pressing"""
-        for line in self.ax.lines:
-            if line.contains(event)[0]:
-                index_line = line.axes.get_lines().index(line)
-                name = line.axes.get_legend().texts[index_line].get_text()
-                self.offline_tree.SeriesItems.setCurrentItem(self.SeriesItems.selectedItems()[0].parent().child(0))
-                self.offline_tree.offline_tree.offline_analysis_result_tree_item_clicked()
-
 
     ################################################################################
     # Upload Data Controls

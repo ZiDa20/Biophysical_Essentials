@@ -3,15 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'SeriesItem.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.1
+## Created by: Qt User Interface Compiler version 6.4.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QHeaderView, QSizePolicy,
+    QTreeWidget, QTreeWidgetItem, QWidget)
 
 class Ui_OfflineTree(object):
     def setupUi(self, OfflineTree):
@@ -20,30 +25,16 @@ class Ui_OfflineTree(object):
         OfflineTree.resize(291, 623)
         self.gridLayout = QGridLayout(OfflineTree)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.TreeLayout1 = QGridLayout()
         self.TreeLayout1.setObjectName(u"TreeLayout1")
-        self.gridLayout_2 = QGridLayout()
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.pushButton = QPushButton(OfflineTree)
-        self.pushButton.setObjectName(u"pushButton")
-
-        self.gridLayout_2.addWidget(self.pushButton, 0, 1, 1, 1)
-
-        self.label = QLabel(OfflineTree)
-        self.label.setObjectName(u"label")
-
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-
-
-        self.TreeLayout1.addLayout(self.gridLayout_2, 0, 0, 1, 1)
-
         self.SeriesItems = QTreeWidget(OfflineTree)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setText(0, u"1");
         self.SeriesItems.setHeaderItem(__qtreewidgetitem)
         self.SeriesItems.setObjectName(u"SeriesItems")
 
-        self.TreeLayout1.addWidget(self.SeriesItems, 2, 0, 1, 1)
+        self.TreeLayout1.addWidget(self.SeriesItems, 1, 0, 1, 1)
 
 
         self.gridLayout.addLayout(self.TreeLayout1, 0, 0, 1, 1)
@@ -56,7 +47,5 @@ class Ui_OfflineTree(object):
 
     def retranslateUi(self, OfflineTree):
         OfflineTree.setWindowTitle(QCoreApplication.translate("OfflineTree", u"Form", None))
-        self.pushButton.setText(QCoreApplication.translate("OfflineTree", u"Discard Series", None))
-        self.label.setText(QCoreApplication.translate("OfflineTree", u"Analysis Tree:", None))
     # retranslateUi
 

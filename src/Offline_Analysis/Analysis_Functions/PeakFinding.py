@@ -15,11 +15,11 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         _type_: _description_
     """
     function_name = "Peak-Detection"
-    plot_type_options = ["Time-AP-Relationship","AP-Overlay"]
+    plot_type_options = ["AP-Overlay","Time-AP-Relationship"]
     database = None  # database
     analysis_function_id = None
     series_name = None
-    AP_WINDOW = 50
+    AP_WINDOW = 100
     AP_THRESHOLD = 0.01
 
     @classmethod
@@ -36,8 +36,9 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             # set time to non - will be set by the first data frame
         # should assure that the time and bound setting will be only exeuted once since it is the same all the time
         time = None
+        agg_table = pd.DataFrame()
         for data_table in data_table_names:
-
+            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
             if time is None:
                     time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
@@ -67,18 +68,21 @@ class PeakFinding(SweepWiseAnalysisTemplate):
 
             if ap_window:
                 # check if there is 
-                result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak"])
+                result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak", "AP_Timing"])
+                result_data_frame["experiment_name"] = experiment_name
+                agg_table = pd.concat([agg_table, result_data_frame])
 
-                new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
-                                                                                            data_table, True)
 
-                cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
-                                                                                        cls.analysis_function_id,
-                                                                                        data_table,
-                                                                                        new_specific_result_table_name,
-                                                                                        result_data_frame)
+        new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
+                                                                                    "Peak_Detection", True)
 
-                print("added %s to database",new_specific_result_table_name )
+        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+                                                                                cls.analysis_function_id,
+                                                                                data_table,
+                                                                                new_specific_result_table_name,
+                                                                                agg_table)
+
+        print("added %s to database",new_specific_result_table_name )
 
 
     @classmethod
@@ -95,18 +99,14 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             _type_: _description_
 
         """
-        ap_window = {"AP_Window": [], "AP_Time":[], "Sweep": [], "Peak": []}
-        peak_count = 1
-
-        for peak in list(peaks):
-            ap_window["AP_Window"].extend(data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW])
-            ap_window["AP_Time"].extend(time[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW])
-            ap_window["Sweep"].extend([column] *data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW].shape[0] )
-            ap_window["Peak"].extend([peak_count]*data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW].shape[0])
-            peak_count += 1
-
-        
-        #print(pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time"]))
+        ap_window = {"AP_Window": [], "AP_Time":[], "Sweep": [], "Peak": [], "AP_Timing": []}
+        for peak_count, peak in enumerate(list(peaks), start=1):
+            data_window = data[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW+50]
+            ap_window["AP_Window"].extend(data_window)
+            ap_window["AP_Time"].extend(time[peak - cls.AP_WINDOW:peak + cls.AP_WINDOW+50])
+            ap_window["Sweep"].extend([column] *data_window.shape[0] )
+            ap_window["Peak"].extend([peak_count]*data_window.shape[0])
+            ap_window["AP_Timing"].extend(list(range(1, data_window.shape[0]+1)))
         return ap_window
             
     @classmethod

@@ -17,29 +17,24 @@ class Ui_AnalysisFunction(object):
     def setupUi(self, AnalysisFunction):
         if not AnalysisFunction.objectName():
             AnalysisFunction.setObjectName(u"AnalysisFunction")
-        AnalysisFunction.resize(1274, 496)
-        self.gridLayout_3 = QGridLayout(AnalysisFunction)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.stackedWidget = QStackedWidget(AnalysisFunction)
-        self.stackedWidget.setObjectName(u"stackedWidget")
-        self.AnalysisPage = QWidget()
-        self.AnalysisPage.setObjectName(u"AnalysisPage")
-        self.gridLayout = QGridLayout(self.AnalysisPage)
+        AnalysisFunction.resize(967, 874)
+        self.gridLayout = QGridLayout(AnalysisFunction)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.groupBox = QGroupBox(self.AnalysisPage)
+        self.groupBox = QGroupBox(AnalysisFunction)
         self.groupBox.setObjectName(u"groupBox")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
-        self.groupBox.setMaximumSize(QSize(16777215, 500))
+        self.groupBox.setMaximumSize(QSize(900, 900))
         self.groupBox.setLayoutDirection(Qt.LeftToRight)
-        self.gridLayout_2 = QGridLayout(self.groupBox)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.groupBox.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.analysis_table_widget = QTableWidget(self.groupBox)
-        if (self.analysis_table_widget.columnCount() < 5):
-            self.analysis_table_widget.setColumnCount(5)
+        if (self.analysis_table_widget.columnCount() < 7):
+            self.analysis_table_widget.setColumnCount(7)
         __qtablewidgetitem = QTableWidgetItem()
         self.analysis_table_widget.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -50,12 +45,17 @@ class Ui_AnalysisFunction(object):
         self.analysis_table_widget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
         __qtablewidgetitem4 = QTableWidgetItem()
         self.analysis_table_widget.setHorizontalHeaderItem(4, __qtablewidgetitem4)
+        __qtablewidgetitem5 = QTableWidgetItem()
+        self.analysis_table_widget.setHorizontalHeaderItem(5, __qtablewidgetitem5)
+        __qtablewidgetitem6 = QTableWidgetItem()
+        self.analysis_table_widget.setHorizontalHeaderItem(6, __qtablewidgetitem6)
         self.analysis_table_widget.setObjectName(u"analysis_table_widget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy1.setHorizontalStretch(1)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.analysis_table_widget.sizePolicy().hasHeightForWidth())
         self.analysis_table_widget.setSizePolicy(sizePolicy1)
+        self.analysis_table_widget.setShowGrid(True)
         self.analysis_table_widget.horizontalHeader().setVisible(True)
         self.analysis_table_widget.horizontalHeader().setCascadingSectionResizes(False)
         self.analysis_table_widget.horizontalHeader().setDefaultSectionSize(125)
@@ -63,50 +63,36 @@ class Ui_AnalysisFunction(object):
         self.analysis_table_widget.horizontalHeader().setStretchLastSection(False)
         self.analysis_table_widget.verticalHeader().setStretchLastSection(False)
 
-        self.gridLayout_2.addWidget(self.analysis_table_widget, 0, 0, 1, 1)
+        self.verticalLayout_2.addWidget(self.analysis_table_widget)
 
 
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
 
-        self.stackedWidget.addWidget(self.AnalysisPage)
-        self.FilterFunction = QWidget()
-        self.FilterFunction.setObjectName(u"FilterFunction")
-        self.gridLayout_4 = QGridLayout(self.FilterFunction)
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.groupBox_2 = QGroupBox(self.FilterFunction)
-        self.groupBox_2.setObjectName(u"groupBox_2")
 
-        self.gridLayout_4.addWidget(self.groupBox_2, 0, 0, 1, 1)
-
-        self.stackedWidget.addWidget(self.FilterFunction)
-
-        self.gridLayout_3.addWidget(self.stackedWidget, 0, 0, 1, 1)
         self.retranslateUi(AnalysisFunction)
-
-        self.stackedWidget.setCurrentIndex(0)
-
 
         QMetaObject.connectSlotsByName(AnalysisFunction)
     # setupUi
 
     def retranslateUi(self, AnalysisFunction):
         AnalysisFunction.setWindowTitle(QCoreApplication.translate("AnalysisFunction", u"Form", None))
-        self.groupBox.setTitle(QCoreApplication.translate("AnalysisFunction", u"Analysis Function", None))
+        self.groupBox.setTitle(QCoreApplication.translate("AnalysisFunction", u"Analysis Function Selection", None))
         ___qtablewidgetitem = self.analysis_table_widget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("AnalysisFunction", u"Analysis Functions", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("AnalysisFunction", u"Type", None));
         ___qtablewidgetitem1 = self.analysis_table_widget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("AnalysisFunction", u"Left Boundary", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("AnalysisFunction", u"Cursor", None));
         ___qtablewidgetitem2 = self.analysis_table_widget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("AnalysisFunction", u"Right Boundary", None));
-        ___qtablewidgetitem3 = self.analysis_table_widget.horizontalHeaderItem(4)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("AnalysisFunction", u"Configuration", None));
-        self.groupBox_2.setTitle(QCoreApplication.translate("AnalysisFunction", u"Filter Function", None))
-    # retranslateUi
-
-
-
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("AnalysisFunction", u"Func", None));
+        ___qtablewidgetitem3 = self.analysis_table_widget.horizontalHeaderItem(3)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("AnalysisFunction", u"blablabla", None));
+        ___qtablewidgetitem4 = self.analysis_table_widget.horizontalHeaderItem(4)
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("AnalysisFunction", u"Right", None));
+        ___qtablewidgetitem5 = self.analysis_table_widget.horizontalHeaderItem(5)
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("AnalysisFunction", u"PGF Seq", None));
+        ___qtablewidgetitem6 = self.analysis_table_widget.horizontalHeaderItem(6)
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("AnalysisFunction", u"Live", None));
 
 class AnalysisFunctionTable(QWidget, Ui_AnalysisFunction):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setupUi(self)
+        self.setupUi(self)  

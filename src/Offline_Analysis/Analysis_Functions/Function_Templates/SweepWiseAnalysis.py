@@ -12,27 +12,31 @@ class SweepWiseAnalysisTemplate(object):
 
 	"""
 	database = None
+	data_shape = None
+	analysis_function_id = None
+	time = None
+	upper_bounds = None
+	lower_bounds = None
+	plot_type_options : list = ["No Split", "Split by Meta Data"]
+	cslow_normalization = 1
+	database = None  # database
+		
+ 
 	def __init__(self):
 		"""Initialize the template class for sweep wise analysis
 		"""
 		self.function_name = None
-		self.analysis_function_id = None
+		
 
 		self.data = None
-		self.voltage = None
-
-		self.database = None  # database
-		self.plot_type_options : list = ["No Split", "Split by Meta Data"]
-
-		self.cslow_normalization = 1
-
-		self.lower_bound = None
-		self.upper_bound = None
+		#self.lower_bound = None
+		#self.upper_bound = None
 		self.time = None
 		self.data = None
 
 		self.sliced_volt = None
 		self.series_name = None
+		
 		
 	@property
 	def lower_bounds(self) -> float:
@@ -68,7 +72,9 @@ class SweepWiseAnalysisTemplate(object):
 		""" construct the trace """
 		try:
 			cls.trace = np.vstack((cls.time, cls.data)).T
-		except:
+   
+		except Exception as e:
+			print(e)
 			raise ValueError("Please use the same dimension, only 1-dimensional arrays should be used")
 
 	@classmethod
@@ -98,12 +104,8 @@ class SweepWiseAnalysisTemplate(object):
 		# @Todo
 		#series_specific_recording_mode = database_handler.get_recording_mode_from_analysis_series_table(self.series_name)
 
-		print(entire_sweep_table)
-
 		if sweep_name:
-			print(sweep_name)
 			data = entire_sweep_table.get(sweep_name)
-			print(data)
 			return [cls.live_data_for_single_sweep(data)]
 		else:
 			return cls.live_data_for_entire_series(entire_sweep_table)
@@ -154,32 +156,55 @@ class SweepWiseAnalysisTemplate(object):
 		"""
 
 		# @todo get this from the configuration window
-
 		print("here we calculate the specific results")
 		series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(cls.series_name)
 		data_table_names = []
 		# get the names of all data tables to be evaluated
 		data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
-		# set time to non - will be set by the first data frame
-		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
-		cls.time = None
-		cls.upper_bounds = None
-		cls.lower_bounds = None
+  
+		# check here if current or voltage clamp and add the respective name of the unit to the table
+		unit_name = "Voltage"
+		if series_specific_recording_mode != "Voltage Clamp":
+			unit_name = "Current"
 
+			# set time to non - will be set by the first data frame
+		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
+		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Result", "Increment","experiment_name"]
+
+		# get the pgf segment whic hwas selected by the user and stored in the db
+		pgf_segment = cls.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {cls.analysis_function_id}').fetchall()[0][0]
+		
+		dataframe_trial = pd.DataFrame()
 		for data_table in data_table_names:
+
+			# retrieves the experiment name
+			experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
+			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
+			key_1 = list(entire_sweep_table.keys())[0]
 			if cls.time is None:
 				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+
+			# get times check if time changes for individual series, and correct the values
+			if entire_sweep_table[key_1].shape != cls.data_shape:
+				cls.data_shape = entire_sweep_table[key_1].shape
+				cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+
+			# get pgf table from database 
+			# retrieve increment
+			# pgf table is also just once per data_table and not per sweep
+			pgf_data_frame = cls.database.get_entire_pgf_table(data_table)
+   
+			# shifted this through the outside 
+			# closw is just ones per series and not sweep
+			if cls.cslow_normalization:
+					cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
 			# calculate the time
 			# set the lower bound
 			# set the upper bound
 
-			entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
-
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
-			column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"]
-			result_data_frame = pd.DataFrame(columns = column_names)
-
+			
 			for column in entire_sweep_table:
 
 				cls.data = entire_sweep_table.get(column)
@@ -191,53 +216,42 @@ class SweepWiseAnalysisTemplate(object):
 				# slice trace according to coursor bounds
 				cls.construct_trace()
 				cls.slice_trace()
-
 				res = cls.specific_calculation()
 
 				# normalize if necessary
 				# toDO add logging here
+
 				if cls.cslow_normalization:
-					cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
 					res = res / cslow
-					
+
 				# get the sweep number
 				sweep_number = column.split("_")
 				sweep_number = int(sweep_number[1])
 
 				# get the related pgf value
 				#	therefore get the pgf table for this series first
-				pgf_data_frame = cls.database.get_entire_pgf_table(data_table)
+				
 				# 	from the coursor bounds indentify the correct segment
+				increment_list = pgf_data_frame["increment"].values
+				voltage_list = pgf_data_frame["voltage"].values
 
-				duration_list = pgf_data_frame.loc[:,"duration"].values
-				increment_list = pgf_data_frame.loc[:,"increment"].values
-				voltage_list = pgf_data_frame.loc[:,"voltage"].values
+				inc = (float(increment_list[pgf_segment-1])*1000)
+				volt_val = (float(voltage_list[pgf_segment-1])*1000) + (sweep_number-1)*inc
+	
+				new_df = pd.DataFrame([[cls.database.analysis_id,cls.analysis_function_id,data_table,sweep_number,volt_val,res,inc,experiment_name]],columns = column_names)
+				dataframe_trial = pd.concat([dataframe_trial,new_df])
 
-				duration_list_float = []
-				volt_val = 0
 
-				for i in range(0,len(duration_list)):
-					duration_list_float.append(float(duration_list[i])*1000)
+		# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
+		#print(f"This is the analysis function id : {cls.analysis_function_id}")
+		new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id, cls.function_name)
+		cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+																				cls.analysis_function_id,
+																				data_table,
+																				new_specific_result_table_name,
+																				dataframe_trial)
 
-					# should be greater all the time until the correct segment is entered
-					if cls.lower_bound <= sum(duration_list_float):
-						volt_val = (float(voltage_list[i])*1000) + (sweep_number-1)*(float(increment_list[i])*1000)
-						break
-
-				new_df = pd.DataFrame([[cls.database.analysis_id,cls.analysis_function_id,data_table,sweep_number,volt_val,res]],columns = column_names)
-
-				result_data_frame = pd.concat([result_data_frame,new_df])
-
-			# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
-
-			new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id, data_table)
-			cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
-																				   cls.analysis_function_id,
-																				   data_table,
-																				   new_specific_result_table_name,
-																				   result_data_frame)
-
-			print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
+			#print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
 	@staticmethod
 	def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
@@ -248,7 +262,7 @@ class SweepWiseAnalysisTemplate(object):
 		:return:
 		:author dz, 08.07.2022
 		"""
-		return "results_analysis_function_" +str(analysis_function_id) + "_" + data_table_name
+		return f"results_analysis_function_{analysis_function_id}_{data_table_name}"
 
 	def specific_calculation(self):
 		# return None
@@ -268,7 +282,6 @@ class SweepWiseAnalysisTemplate(object):
 			list: list of funciton id related tables
 		"""
 		result_table_names = cls.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id)
-		print(result_table_names)
 		return result_table_names
 
 	@staticmethod
@@ -277,22 +290,20 @@ class SweepWiseAnalysisTemplate(object):
 		#@todo move this function to the database class ?
 		# "Sweep_Table_Name", "Sweep_Number", "Voltage", "Result"
 
-		table_name_increment = "pgf_table_" + "_".join(table_name.split("_")[-3:])
-		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result from {table_name}'
-		q_increment =f'select Increment from {table_name_increment}'
-		query_data = database.get_data_from_database(database.database, q)
-		query_increment = mean([float(t) for i in database.get_data_from_database(database.database, q_increment) for t in i])
-		
+		# @toDO MZ check this function!
+	
+	
 		# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
 		# therefore make lists of each tuple "column"
-		x_data = (list(zip(*query_data))[3])
-		y_data = (list(zip(*query_data))[2])
-		sweep_tables = (list(zip(*query_data))[0])
+		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result, Increment, experiment_name from {table_name[0]}'
+		query_data = database.get_data_from_database(database.database, q, fetch_mode = 2)
 
-		q = """select experiment_name from experiment_series where sweep_table_name = (?)"""
-		experiment_name = database.get_data_from_database(database.database, q,
-														  [query_data[0][0]]) [0][0]
-		return x_data, y_data, experiment_name, query_increment, sweep_tables
+		if (query_data["Increment"] > 0).any():
+			increment = None
+		else:
+			increment = 1
+
+		return query_data[["Sweep_Number","Voltage","Result","experiment_name"]], increment
 
 	@classmethod
 	def get_list_of_result_tables(cls,analysis_id, analysis_function_id)-> list:
@@ -321,7 +332,7 @@ class SweepWiseAnalysisTemplate(object):
         :return:
         """
 		print("metadata construction")
-		number_of_sweeps = int(len(result_list) / number_of_series)
+		number_of_sweeps = len(result_list) // number_of_series
 		meta_data_types = list(dict.fromkeys(meta_data_groups))
 
 		x_data, y_data, series_names = SweepWiseAnalysisTemplate.fetch_x_and_y_data(result_list, number_of_sweeps)
@@ -338,5 +349,5 @@ class SweepWiseAnalysisTemplate(object):
 				if m == meta_data_group:
 					pos = meta_data_types.index(m)
 					ax.plot(x_data[a], y_data[a], self.default_colors[pos], label=series_names[a])
-					
+
 			ax.legend()

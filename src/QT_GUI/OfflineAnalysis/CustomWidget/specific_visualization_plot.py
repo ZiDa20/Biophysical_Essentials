@@ -11,14 +11,15 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-from groupbox_resizing_class import *
+from CustomWidget.groupbox_resizing_class import *
+from matplotlib.backends.backend_qtagg import FigureCanvas
 
 
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
         if not result_plot_visualizer.objectName():
             result_plot_visualizer.setObjectName(u"result_plot_visualizer")
-        result_plot_visualizer.resize(677, 422)
+        result_plot_visualizer.resize(757, 588)
         self.gridLayout = QGridLayout(result_plot_visualizer)
         self.gridLayout.setObjectName(u"gridLayout")
         self.specific_plot_box = QGroupBox(result_plot_visualizer)
@@ -28,139 +29,123 @@ class Ui_result_plot_visualizer(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.specific_plot_box.sizePolicy().hasHeightForWidth())
         self.specific_plot_box.setSizePolicy(sizePolicy)
-        self.specific_plot_box.setMaximumSize(QSize(16777215, 400))
+        self.specific_plot_box.setMaximumSize(QSize(16777215, 600))
         self.gridLayout_2 = QGridLayout(self.specific_plot_box)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.verticalSpacer_5 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.gridLayout_4 = QGridLayout()
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.save_plot_button = QPushButton(self.specific_plot_box)
+        self.save_plot_button.setObjectName(u"save_plot_button")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.save_plot_button.sizePolicy().hasHeightForWidth())
+        self.save_plot_button.setSizePolicy(sizePolicy1)
+        self.save_plot_button.setMinimumSize(QSize(150, 50))
+        font = QFont()
+        font.setPointSize(12)
+        self.save_plot_button.setFont(font)
+        self.save_plot_button.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
+"background-repeat:None;\n"
+"border: 1px #fff5cc;\n"
+"padding: 5px 10px;\n"
+"background-position: left;\n"
+"border-radius: 5px;")
 
-        self.gridLayout_2.addItem(self.verticalSpacer_5, 5, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.save_plot_button, 0, 1, 1, 1)
 
-        self.horizontalSpacer = QSpacerItem(150, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.export_data_button = QPushButton(self.specific_plot_box)
+        self.export_data_button.setObjectName(u"export_data_button")
+        sizePolicy1.setHeightForWidth(self.export_data_button.sizePolicy().hasHeightForWidth())
+        self.export_data_button.setSizePolicy(sizePolicy1)
+        self.export_data_button.setMinimumSize(QSize(150, 50))
+        self.export_data_button.setMaximumSize(QSize(25, 16777215))
+        self.export_data_button.setFont(font)
+        self.export_data_button.setStyleSheet(u"\n"
+"background-color: rgba(255,255,255,0);\n"
+"background-repeat:None;\n"
+"border: 1px #fff5cc;\n"
+"padding: 5px 10px;\n"
+"background-position: left;\n"
+"border-radius: 5px;")
 
-        self.gridLayout_2.addItem(self.horizontalSpacer, 1, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.export_data_button, 0, 0, 1, 1)
 
-        self.horizontalSpacer_2 = QSpacerItem(150, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.gridLayout_2.addItem(self.horizontalSpacer_2, 1, 2, 1, 1)
+        self.gridLayout_4.addItem(self.horizontalSpacer_2, 0, 2, 1, 1)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_2.addItem(self.verticalSpacer_3, 3, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout_4, 4, 0, 1, 1)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
-
-        self.gridLayout_2.addItem(self.verticalSpacer_4, 4, 0, 1, 1)
-
+        self.widget = QWidget(self.specific_plot_box)
+        self.widget.setObjectName(u"widget")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
+        self.widget.setSizePolicy(sizePolicy2)
+        self.widget.setMinimumSize(QSize(0, 400))
+        self.widget.setStyleSheet(u"border-radius: 5px;")
+        self.gridLayout_3 = QGridLayout(self.widget)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.plot_layout = QVBoxLayout()
         self.plot_layout.setObjectName(u"plot_layout")
 
-        self.gridLayout_2.addLayout(self.plot_layout, 2, 1, 5, 4)
+        self.gridLayout_3.addLayout(self.plot_layout, 0, 0, 1, 1)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 80, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_2.addItem(self.verticalSpacer_2, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.widget, 2, 0, 1, 1)
 
-        self.Control_button = QGroupBox(self.specific_plot_box)
-        self.Control_button.setObjectName(u"Control_button")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.Control_button.sizePolicy().hasHeightForWidth())
-        self.Control_button.setSizePolicy(sizePolicy1)
-        self.gridLayout_3 = QGridLayout(self.Control_button)
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.plot_type = QLabel(self.Control_button)
+        self.gridLayout_5 = QGridLayout()
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.parameter_label = QLabel(self.specific_plot_box)
+        self.parameter_label.setObjectName(u"parameter_label")
+
+        self.gridLayout_5.addWidget(self.parameter_label, 0, 2, 1, 1)
+
+        self.plot_type = QLabel(self.specific_plot_box)
         self.plot_type.setObjectName(u"plot_type")
 
-        self.verticalLayout.addWidget(self.plot_type)
+        self.gridLayout_5.addWidget(self.plot_type, 0, 0, 1, 1)
 
-        self.plot_type_combo_box = QComboBox(self.Control_button)
+        self.plot_type_combo_box = QComboBox(self.specific_plot_box)
         self.plot_type_combo_box.setObjectName(u"plot_type_combo_box")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.plot_type_combo_box.sizePolicy().hasHeightForWidth())
-        self.plot_type_combo_box.setSizePolicy(sizePolicy2)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.plot_type_combo_box.sizePolicy().hasHeightForWidth())
+        self.plot_type_combo_box.setSizePolicy(sizePolicy3)
         self.plot_type_combo_box.setMinimumSize(QSize(150, 0))
         self.plot_type_combo_box.setMaximumSize(QSize(200, 16777215))
 
-        self.verticalLayout.addWidget(self.plot_type_combo_box)
+        self.gridLayout_5.addWidget(self.plot_type_combo_box, 0, 1, 1, 1)
 
-        self.split_data_label = QLabel(self.Control_button)
-        self.split_data_label.setObjectName(u"split_data_label")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.verticalLayout.addWidget(self.split_data_label)
+        self.gridLayout_5.addItem(self.horizontalSpacer, 0, 4, 1, 1)
 
-        self.split_data_combo_box = QPushButton(self.Control_button)
-        self.split_data_combo_box.setObjectName(u"split_data_combo_box")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.split_data_combo_box.sizePolicy().hasHeightForWidth())
-        self.split_data_combo_box.setSizePolicy(sizePolicy3)
-        self.split_data_combo_box.setMinimumSize(QSize(150, 0))
-        self.split_data_combo_box.setMaximumSize(QSize(200, 16777215))
+        self.parameter_combobox = QComboBox(self.specific_plot_box)
+        self.parameter_combobox.setObjectName(u"parameter_combobox")
 
-        self.verticalLayout.addWidget(self.split_data_combo_box)
-
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_6)
-
-        self.label = QLabel(self.Control_button)
-        self.label.setObjectName(u"label")
-
-        self.verticalLayout.addWidget(self.label)
-
-        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_4)
-
-        self.export_data_button = QPushButton(self.Control_button)
-        self.export_data_button.setObjectName(u"export_data_button")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.export_data_button.sizePolicy().hasHeightForWidth())
-        self.export_data_button.setSizePolicy(sizePolicy4)
-        self.export_data_button.setMinimumSize(QSize(150, 50))
-        self.export_data_button.setMaximumSize(QSize(25, 16777215))
-        self.export_data_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/Logo/export_plot.png);\n"
-"background-color: rgba(255,255,255,0);\n"
-"background-repeat:None;\n"
-"border: 1px #fff5cc;\n"
-"padding: 5px 10px;\n"
-"background-position: left;\n"
-"border-radius: 5px;")
-
-        self.verticalLayout.addWidget(self.export_data_button)
-
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-
-        self.verticalLayout.addItem(self.horizontalSpacer_5)
-
-        self.save_plot_button = QPushButton(self.Control_button)
-        self.save_plot_button.setObjectName(u"save_plot_button")
-        sizePolicy4.setHeightForWidth(self.save_plot_button.sizePolicy().hasHeightForWidth())
-        self.save_plot_button.setSizePolicy(sizePolicy4)
-        self.save_plot_button.setMinimumSize(QSize(150, 50))
-        self.save_plot_button.setStyleSheet(u"background-image: url(../QT_GUI/Button/Logo/data_button.png);\n"
-"background-color: rgba(255,255,255,0);\n"
-"background-repeat:None;\n"
-"border: 1px #fff5cc;\n"
-"padding: 5px 10px;\n"
-"background-position: left;\n"
-"border-radius: 5px;")
-
-        self.verticalLayout.addWidget(self.save_plot_button)
+        self.gridLayout_5.addWidget(self.parameter_combobox, 0, 3, 1, 1)
 
 
-        self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
+        self.line = QFrame(self.specific_plot_box)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_2.addWidget(self.Control_button, 2, 5, 4, 1)
+        self.gridLayout_2.addWidget(self.line, 1, 0, 1, 1)
+
+        self.line_2 = QFrame(self.specific_plot_box)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_2.addWidget(self.line_2, 3, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.specific_plot_box, 0, 1, 1, 1)
@@ -174,25 +159,100 @@ class Ui_result_plot_visualizer(object):
     def retranslateUi(self, result_plot_visualizer):
         result_plot_visualizer.setWindowTitle(QCoreApplication.translate("result_plot_visualizer", u"Form", None))
         self.specific_plot_box.setTitle(QCoreApplication.translate("result_plot_visualizer", u"GroupBox", None))
-        self.Control_button.setTitle(QCoreApplication.translate("result_plot_visualizer", u"Controls", None))
+        self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Plot", None))
+        self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Table", None))
+        self.parameter_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Parameter", None))
         self.plot_type.setText(QCoreApplication.translate("result_plot_visualizer", u"Plot Type:", None))
-        self.split_data_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Change Analysis Function Metadata:", None))
-        self.label.setText(QCoreApplication.translate("result_plot_visualizer", u"Save Data:", None))
-        self.export_data_button.setText(QCoreApplication.translate("result_plot_visualizer", u"     Save Data", None))
-        self.save_plot_button.setText(QCoreApplication.translate("result_plot_visualizer", u"    Save Plot", None))
     # retranslateUi
 
 class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
-    def __init__(self, parent=None):
+    def __init__(self, offline_tree, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         ## manually added
+        self.offline_tree = offline_tree
         self.analysis_id = None
         self.analysis_function_id = None
         self.analysis_name = None
         self.series_name = None
         # object where plot data will be stored to be exported easily
         self.export_data_frame = None
+        self.holded_dataframe = None
+        self.is_splitter_moving = False
+        self.first_resize = True
 
+        self.parameter_label.hide()
+        self.parameter_combobox.hide()
+                    
+    def on_click(self, event, annot):
+        """Event Detection in the Matplotlib Plot
         
+        Args:
+            event (mpl_connect_event): Event Connection via hovering motion notify
+            annot (ax.annotate): Annotations of the axis
+        
+        """
+        for line in self.ax.lines:
+            #check if the selected line is drawn
+            if line.contains(event)[0]:
+                cont, ind = line.contains(event)
+                line.set_linewidth(4)
+                self.update_annot(ind,annot,line)
+                annot.set_visible(True)
+            else:
+                line.set_linewidth(1)
+
+            self.canvas.draw_idle()
+    
+    def update_annot(self, ind: tuple, annot, line):
+        """Annotation Update for visualization of the lineplot name
+        when hovering
+
+        Args:
+            ind (tuple): _description_
+            annot (_type_): _description_
+            line (_type_): _description_
+        """
+        x,y = line.get_data()
+        annot.xy = (x[ind["ind"][0]], y[ind["ind"][0]])
+        index_line = line.axes.get_lines().index(line)
+        name = line.axes.get_legend().texts[index_line].get_text()
+        text = f'{" ".join(list(map(str, ind["ind"])))}, {" ".join([name for _ in ind["ind"]])}'
+        annot.set_text(text)
+        annot.get_bbox_patch().set_alpha(0.4)
+        
+    def connect_hover(self, plot):
+        """Function to connect the plot with the on_click function
+
+        Args:
+            plot (seaborn plot): seaborn plot (g) which should be connected
+        """
+        self.ax.legend().set_visible(False)
+        
+        annot = self.ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
+                    bbox=dict(boxstyle="round", fc="w"),
+                    arrowprops=dict(arrowstyle="->"))
+        annot.set_visible(False)
+        
+        self.canvas.mpl_connect("motion_notify_event", 
+                                    lambda event: self.on_click(event, 
+                                                                annot
+                                                                ))
+        self.canvas.mpl_connect("button_press_event",self.on_pick)
+
+    def on_pick(self, event):
+        """Event Detection in the Matplotlib Plot to retrieve the Experiment from the TreeView
+        
+        Args:
+            event (mpl_connect_event): Event Connection via button pressing"""
+        for line in self.ax.lines:
+            if line.contains(event)[0]:
+                index_line = line.axes.get_lines().index(line)
+                name = line.axes.get_legend().texts[index_line].get_text()
+                print(self.offline_tree.SeriesItems.selectedItems())
+                self.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.selectedItems()[0].parent().child(0))
+                self.offline_tree.offline_analysis_result_tree_item_clicked()
+                self.offline_tree.click_top_level_tree_item(name)
+
+       
 

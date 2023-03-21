@@ -11,16 +11,10 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
     function_name = "Rheobase-Detection"
     plot_type_options = ["Rheobase Plot", "Sweep Plot"]
     analysis_function_id = None
+    data_shape = None
+    database = None
+    series_name = None
     
-    def __init__(self):
-
-        # really needed ?
-        self.series_name = None
-        self.database = None
-        self.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
-        self.lower_bound = None
-        self.upper_bound = None
-
     @classmethod
     def calculate_results(cls):  # sourcery skip: low-code-quality
 
@@ -34,13 +28,18 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
         cls.get_max_values_per_sweep_table(data_table_names)
         # set to None, will be set once and should be equal for all data tables
         cls.time = None
-
+        agg_table = pd.DataFrame()
         for data_table in data_table_names:
             holding_value = None
-
+            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
             #print("processing new data table")
             # here we should select which increment should be used 
-            if cls.time is None:
+            
+            entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
+
+            key_1 = list(entire_sweep_table.keys())[0]
+            if entire_sweep_table[key_1].shape != cls.data_shape:
+                cls.data_shape = entire_sweep_table[key_1].shape
                 cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
             if holding_value is None:
@@ -52,7 +51,6 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                 holding_value = cls.database.get_data_from_recording_specific_pgf_table(data_table, "holding", 0)
 
             # get the data frame and make sure to sort sweep numbers correctly
-            entire_sweep_table = cls.database.get_entire_sweep_table_as_df(data_table)
             #entire_sweep_table.sort_index(axis=1, inplace = True)
 
             number_of_sweeps = len(entire_sweep_table.columns)
@@ -94,16 +92,13 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                             print("increment_value")
                             print(increment_value)
                             injected_current =  (sweep_number - 1) * increment_value * 1000
-                            new_specific_result_table_name = cls.create_new_specific_result_table_name(
-                                cls.analysis_function_id, data_table)
+                            
 
                             print("injected current with greater 2 sweeps")
                             print(injected_current)
                             result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
-
-                            cls.database.update_results_table_with_new_specific_result_table_name(
-                                cls.database.analysis_id, cls.analysis_function_id, data_table,
-                                new_specific_result_table_name, result_data_frame)
+                            result_data_frame["experiment_name"] = experiment_name
+                            agg_table = pd.concat([agg_table, result_data_frame])
                             break
 
                     else:
@@ -115,14 +110,18 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                             cls.analysis_function_id, data_table)
 
                         result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
-
-
-                        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id, 
-                                                                                               cls.analysis_function_id, 
-                                                                                               data_table, 
-                                                                                               new_specific_result_table_name, 
-                                                                                               result_data_frame)
+                        result_data_frame["experiment_name"] = experiment_name
+                        agg_table = pd.concat([agg_table, result_data_frame])
                         break
+               
+        new_specific_result_table_name = cls.create_new_specific_result_table_name(
+                            cls.analysis_function_id, "Rheobase_detection")     
+        
+        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id, 
+                                                                                        cls.analysis_function_id, 
+                                                                                        data_table, 
+                                                                                        new_specific_result_table_name, 
+                                                                                        agg_table)
 
     @classmethod
     def get_max_values_per_sweep_table(cls, data_table_names):
@@ -133,8 +132,9 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
         """
         
         holding_value = None
-
+        agg_table = pd.DataFrame()
         for data_table in data_table_names: # got through the data tables
+            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
             increment = 0
             current_list = []
             mean_voltage_list = []
@@ -161,13 +161,15 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
 
             meaned_rheobase = pd.DataFrame()
             meaned_rheobase["current"] = current_list
-            meaned_rheobase["max_voltage"] = mean_voltage_list
+            meaned_rheobase["Result"] = mean_voltage_list
+            meaned_rheobase["experiment_name"] = experiment_name
+            agg_table = pd.concat([agg_table, meaned_rheobase])
 
-
-            mean_table_name = cls.create_new_specific_result_table_name(
-                            cls.analysis_function_id, data_table) + "_max"
-            cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
-                                                                                    cls.analysis_function_id,
-                                                                                    data_table, 
-                                                                                    mean_table_name,
-                                                                                    meaned_rheobase)
+        mean_table_name = cls.create_new_specific_result_table_name(
+                        cls.analysis_function_id, "Rheobase_detection") + "_max"
+        
+        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
+                                                                                cls.analysis_function_id,
+                                                                                data_table, 
+                                                                                mean_table_name,
+                                                                                agg_table)

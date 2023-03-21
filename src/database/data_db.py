@@ -1,35 +1,35 @@
 import sqlite3
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 import duckdb
 import os
 import datetime
 import re
 import sys
-import raw_analysis as ra
-import heka_reader
+import DataReader.heka_reader
 import numpy as np
 import io
 import logging
 import datetime
 #from global_meta_data_table import GlobalMetaDataTable
-
 import re
-
-
+from pathlib import Path
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
 
-    def __init__(self):
+    def __init__(self, frontend_style):
         #
         self.database = None
+        self.database_path = None
         self.analysis_id = None
-
+        #@toDO add properties instead of open variable names like analysis_id and database path
         # set up the classes for the main tables
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
 
         # logger settings
         self.logger = logging.getLogger()
+        self.frontend_style = frontend_style
         file_handler = logging.FileHandler('../Logs/database_manager.log')
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
         file_handler.setFormatter(formatter)
@@ -102,11 +102,7 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                path = f'{cew}/src/database/{self.db_file_name}'
-                if sys.platform != "darwin":
-                    path = path.replace("/","\\")
-                else:
-                    path = path.replace("\\","/")
+                path = str(Path(f'./database/{self.db_file_name}'))
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
             else:
@@ -189,7 +185,8 @@ class DuckDBDatabaseHandler():
                                             lower_bound float,
                                             upper_bound float,
                                             analysis_series_name text,
-                                            analysis_id integer
+                                            analysis_id integer,
+                                            pgf_segment integer
                                             );"""
 
         sql_create_results_table = """ CREATE TABLE results(
@@ -244,8 +241,8 @@ class DuckDBDatabaseHandler():
             database.commit()
             return database
         except Exception as e:
-            print(e)
-            self.logger.error("Error in Execute SQL Command: %s", e)
+            print("error in execute sql command", e)
+            self.logger.error("Error in Execute SQL Command: %s", e)            
             raise Exception(e)
             
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
@@ -269,21 +266,14 @@ class DuckDBDatabaseHandler():
         print("trials to open connection")
         try:
             cew = os.path.dirname(os.getcwd())
-            path = f'{cew}/src/database/{self.db_file_name}'
-            print(path)
-            if sys.platform != "darwin": # check
-                path = path.replace("/","\\")
-            else:
-                path = path.replace("\\","/")
+            path = self.database_path or str(Path(f'{cew}/src/database/{self.db_file_name}'))
             self.database = duckdb.connect(path, read_only=read_only)
             self.logger.debug("opened connection to database %s", self.db_file_name)
             print("succeeded")
+
         except Exception as e:
-            self.database.close()
-            self.open_connection()
             self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
             print("failed")
-
 
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """
@@ -465,25 +455,35 @@ class DuckDBDatabaseHandler():
 
         return y_min,y_max
 
-    def get_sweep_table_names_for_offline_analysis(self, series_name):
+    def get_sweep_table_names_for_offline_analysis(self, series_name, meta = None):
         '''
         returns table names for all with this analysis linked experiments containing a given series name
         :param series_name:  name of the series (e.g. Block Pulse, .. )
         :return: a list of sweep table names
         '''
         # returns a list of tuples
-        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+        if meta:
+            experiment_names = self.get_experiments_by_series_name_and_analysis_id_with_meta(series_name, meta)
+        else:
+            experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
         sweep_table_names = []
 
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
-            q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
-            try:
-                r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
-                sweep_table_names.append(r)
-            except Exception as e:
-                self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
-
+            if meta:
+                q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?) AND series_meta_data = (?)'
+                try:
+                    r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False, meta))[0][0]
+                    sweep_table_names.append(r)
+                except Exception as e:
+                    self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
+            else:
+                q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
+                try:
+                    r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
+                    sweep_table_names.append(r)
+                except Exception as e:
+                    self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
 
         return sweep_table_names
 
@@ -497,6 +497,36 @@ class DuckDBDatabaseHandler():
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
+    
+    def get_experiments_by_series_name_and_analysis_id_with_meta(self, series_name, meta_data):
+        '''
+        Find experiments of the current analysis containing the series specified by the series name.
+        :param series_name: name of the series (e.g. Block Pulse, .. )
+        :param meta_data associated 
+        :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
+        '''
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_meta_data = (?))"""
+        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
+        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
+    
+    def get_experiments_by_series_name_and_analysis_id_with_series(self, series_name, meta_data):
+        '''
+        Find experiments of the current analysis containing the series specified by the series name.
+        :param series_name: name of the series (e.g. Block Pulse, .. )
+        :param meta_data associated 
+        :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
+        '''
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
+        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
+        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
+
+    def get_experiment_from_sweeptable_series(self, series_name, sweep_table_name):
+        q = f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = '{sweep_table_name}' AND series_name = '{series_name}'"""
+        print(q)
+        res = self.database.execute(q).fetchall()[0][0]
+        return res
 
     def get_sweep_table_name(self, experiment_name, series_identifier):
         '''
@@ -505,20 +535,28 @@ class DuckDBDatabaseHandler():
         :param series_name:
         :return:
         '''
+        if not isinstance(experiment_name, str):
+            raise TypeError(f"expected String type and not {type(experiment_name)}")
         q = f'select sweep_table_name from experiment_series where experiment_name = \'{experiment_name}\' AND series_identifier = \'{series_identifier}\''
-        print("hello", q)
         res = self.database.execute(q).fetchdf()
+        
+        # check if the result is not empty
+        if not res.empty:
+            return res["sweep_table_name"].tolist()[0]
+        else:
+            return None
 
-        return res["sweep_table_name"].tolist()[0]
-
-    def get_entire_sweep_table(self, table_name):
+    def get_entire_sweep_table(self, table_name, fetchmode = 1):
         '''
         Fetches all sweeps in a sweep table.
         :param table_name:
         :return: the table as dict {column: numpy_array(data ... )]}
         '''
         try:
-            return self.database.execute(f'select * from {table_name}').fetchnumpy()
+            if fetchmode == 1:
+                return self.database.execute(f'select * from {table_name}').fetchnumpy()
+            else:
+                return self.database.execute(f'select * from {table_name}').fetchdf()
         except Exception as e:
             print(table_name)
             return None
@@ -567,6 +605,8 @@ class DuckDBDatabaseHandler():
         :return:
         :author dz, 28.06.2022
         """
+        if not isinstance(experiment_name, str):
+            raise TypeError(f"The entered value is of type {type(experiment_name)}, but str is expected")
         q = f'select condition from global_meta_data where experiment_name = \'{experiment_name}\''
         return self.get_data_from_database(self.database, q)[0][0]
 
@@ -787,7 +827,10 @@ class DuckDBDatabaseHandler():
     def get_analysis_function_name_from_id(self,analysis_function_id):
         q= f'select function_name from analysis_functions where analysis_function_id = {analysis_function_id}'
         r = self.get_data_from_database(self.database, q)
-        return r[0][0]
+        if r:
+            return r[0][0]
+        else:
+            return None
 
     def get_analysis_series_name_by_analysis_function_id(self,analysis_function_id):
         q = f'select analysis_series_name from analysis_functions where analysis_function_id = {analysis_function_id}'
@@ -795,15 +838,17 @@ class DuckDBDatabaseHandler():
         return r[0][0]
 
     def write_analysis_function_name_and_cursor_bounds_to_database(self, analysis_function, analysis_series_name,
-                                                                   lower_bound, upper_bound):
+                                                                   lower_bound, upper_bound, pgf_segment):
         try:
-            q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound) values (?,?,?,?,?)"""
+            q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
             self.database = self.execute_sql_command(self.database, q, (
-            analysis_function, analysis_series_name, self.analysis_id, lower_bound, upper_bound))
+            analysis_function, analysis_series_name, self.analysis_id, lower_bound, upper_bound, pgf_segment))
             self.logger.info(
                 f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
-        except:
-            print("error")
+            print(f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
+        except Exception as e:
+            print("Insertion of analysis function name and cursor bounds into database failed because of error %s", e)
+
 
     def get_last_inserted_analysis_function_id(self):
         q = """select analysis_function_id from analysis_functions """
@@ -819,10 +864,10 @@ class DuckDBDatabaseHandler():
         """
         try:
             q = """ select function_name, analysis_function_id from analysis_functions where analysis_series_name = (?) AND analysis_id = (?) """
-            r = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
-            return r
+            return self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
         except Exception as e:
             self.logger.error(f'error in get_series_specific_analysis_functions: {e}')
+            return None
 
     def get_cursor_bounds_of_analysis_function(self, analysis_function_id, series_name):
         """
@@ -1338,7 +1383,38 @@ class DuckDBDatabaseHandler():
 
         # cast string and return as float value
         return float(val)
+    
+    def get_pgf_file_selection(self,current_tab):
 
+        """Should retrieve the pgf_files for all the files in the current analysis id
+        This should further retrieve each individual segment,
+        pgf_selection: combobox that holds the inital segments"""
+        analysis_id = self.analysis_id
+        series_name = current_tab.objectName()
+        experiment_name = self.database.execute(f"SELECT experiment_name FROM experiment_analysis_mapping WHERE analysis_id = {analysis_id};").fetchall()
+        pgf_file_dict = {}
+        for experiment in experiment_name:
+            try:
+                q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
+                pgf_sections = self.get_data_from_database(self.database, q, [experiment[0], series_name])[0][0]
+                pgf_table = self.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
+                pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
+                pgf_file_dict[experiment[0]] = (pgf_table, pgf_table.shape[0])
+
+            except IndexError:
+                print(f"The error is at the experiment: {experiment[0]}")
+                continue
+
+        pgf_files_amount = {pgf_index[1] for pgf_index in pgf_file_dict.values()}
+
+        if len(pgf_files_amount) <= 1:
+            return list(pgf_files_amount)
+
+        else:
+            CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.", self.frontend_style)
+            return {"Segments are unequal"}
+
+   
     '''-------------------------------------------------------'''
     '''     interaction with  table resutls       '''
     '''-------------------------------------------------------'''
@@ -1355,9 +1431,11 @@ class DuckDBDatabaseHandler():
         :return:
         """
         self.database.register('df_1', result_data_frame)
+        print(result_data_frame)
         q = """insert into  results values (?,?,?,?) """ #set specific_result_table_name = (?) where analysis_id = (?) and analysis_function_id = (?) and sweep_table_name = (?) """
-
+        print("updating results table with new specific result ")
         try:
+            print("inside try")
             # create a new sweep table
             self.database.execute(f'create table {new_specific_result_table_name} as select * from df_1')
 
@@ -1366,6 +1444,7 @@ class DuckDBDatabaseHandler():
             self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,
                              data_table_name, function_analysis_id)
         except Exception as e:
+            print("inside error")
             print("error")
             print(e)
     ###### deprecated ######
@@ -1419,25 +1498,28 @@ class DuckDBDatabaseHandler():
 
                     self.database = self.execute_sql_command(self.database, sql_command, values)
 
+    def retrieve_selected_meta_data_list(self):
+        meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
+        return [meta_string]
 
-    def get_selected_meta_data(self, analysis_function_id = None):
+    def get_selected_meta_data(self, analysis_function_id):
         # get the meta data table that is stored in the database
 		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
-        try:
-            if analysis_function_id:
-                q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
-            else:
-                 q = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
-            selected_meta_data = self.get_data_from_database(self.database, q, fetch_mode = 2)["condition_column"].tolist()
+       
+        q_analysis = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
+        q_specific = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
+        
+        selected_meta_data = self.get_data_from_database(self.database,q_specific, fetch_mode = 2)["condition_column"].tolist()
+        if selected_meta_data:
             return selected_meta_data
-        except Exception as e:
-            print(e)
-            if e == np.nan:
-                print("Error: No meta data found")
+        else:
+            selected_meta_data = self.get_data_from_database(self.database,q_analysis, fetch_mode = 2)["condition_column"].tolist()
+            if selected_meta_data:
+                return selected_meta_data
+            else:
                 return None
             
     
-
         """ @deprecated dz 27.07.2022
         def add_single_sweep_to_database(self, experiment_name, series_identifier, sweep_number, meta_data, data_array):
         

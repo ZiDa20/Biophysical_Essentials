@@ -5,10 +5,10 @@ from QT_GUI.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem
 from QT_GUI.OfflineAnalysis.CustomWidget.specififc_analysis_tab import SpecificAnalysisTab
 from functools import partial
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
-from plot_widget_manager import PlotWidgetManager
-from treeview_manager import TreeViewManager
+from Backend.plot_widget_manager import PlotWidgetManager
+from Backend.treeview_manager import TreeViewManager
 import copy
-from Pandas_Table import PandasTable
+from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
 from scipy import stats
 import pandas as pd
@@ -16,31 +16,50 @@ from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
-    def __init__(self, offlinetree):
+    def __init__(self, 
+                 offlinetree, 
+                 plot_buttons, 
+                 frontend_style, 
+                 database_handler, 
+                 offline_manager, 
+                 show_sweeps_radio, 
+                 blank_analysis_tree):
+        
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
+        self.SeriesItems.setHeaderLabel("Series Selector:")
+        self.frontend_style = frontend_style
         self.offline_widget = None
-        self.database_handler = None
+        self.database_handler = database_handler
         self.tab_list = []
         self.parent_count = 0
         self.hierachy_stacked_list = []
         self.series_list = []
         self.analysis_stacked = QStackedWidget()
         self.tree_widget_index_count = 0
-        self.show_sweeps_radio = None
-        self.offline_manager = None
+        self.show_sweeps_radio = show_sweeps_radio
+        self.offline_manager = offline_manager
         self.navigation_list = []
         self.current_tab_visualization = []
-        self.blank_analysis_tree_view_manager = None
+        self.blank_analysis_tree_view_manager = blank_analysis_tree
+        self.current_tab_tree_view_manager = []
         self.parent_stacked = None
-        self.splitter = None
+        self.home = plot_buttons[0]
+        self.zoom = plot_buttons[1]
+        self.pan = plot_buttons[2]
 
-    def add_widget_to_splitter(self):
-        self.splitter.addWidget(self.analysis_stacked)
+    def add_widget_to_splitter(self, splitter):
+        splitter.addWidget(self.analysis_stacked)
 
+    def add_analysis_tree_selection(self, index):
+        # retrieve the current tab 
+        if index == 0:
+            current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+            current_tab.subwindow_calc.show()
+        
 
-    def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list):
+    def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list, reload = False):
         """
         Function to built series name (e.g. IV, 5xRheo) specific tree. Each series get's a parent item for 3 childs:
         1) Plot - Result Visualization).
@@ -51,14 +70,16 @@ class SeriesItemTreeWidget():
         """
         # add selection to database
 
-        self.database_handler.write_analysis_series_types_to_database(series_names_list)
+        if not reload:
+            self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         # make new tree parent elements and realted childs for ech specific series
         for index, s in enumerate(series_names_list):
             index += self.tree_widget_index_count
 
             # Custom designer widget: contains treeview, plot, analysis function table ...
-            new_tab_widget = SpecificAnalysisTab()
+            
+            new_tab_widget = SpecificAnalysisTab(self.frontend_style)
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
             new_tab_widget.setObjectName(s)
 
@@ -85,7 +106,7 @@ class SeriesItemTreeWidget():
         #set the analysis notebook as index
         offline_stacked_widget.setCurrentIndex(3)
         self.SeriesItems.expandToDepth(2)
-        self.tree_widget_index_count = index +1
+        self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
 
     def simple_analysis_configuration_clicked(self,parent_stacked:int):
         """
@@ -102,6 +123,7 @@ class SeriesItemTreeWidget():
 
         self.analysis_stacked.setCurrentIndex(parent_stacked)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
+        self.click_top_level_tree_item()
 
     def add_new_analysis_tree_children(self):
         """
@@ -124,6 +146,7 @@ class SeriesItemTreeWidget():
             parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
             parent_stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
 
+        print(parent_tree_item.data(8, Qt.UserRole))
         if parent_tree_item.data(8, Qt.UserRole) is False:
             # add new children within the tree:
             for i in ["Plot", "Tables", "Statistics", "Advanced Analysis"]:
@@ -146,15 +169,15 @@ class SeriesItemTreeWidget():
         @author dz, 20.07.2021, updated 02.12.2022"""
 
         current_tab = self.tab_list[index]
-        series_name = series_name
-
-        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False)
+    
+        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
         #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         #self.navigation_list.append(self.navigation)
         self.current_tab_visualization.append(current_tab_plot_manager)
         
-        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget)
-        current_tab_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
+        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio)
+        self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
+
 
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
         # make a deepcopy to be able to slize the copied item without changing its parent
@@ -164,8 +187,13 @@ class SeriesItemTreeWidget():
             self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
 
         # slice out all series names that are not related to the specific chosen one
+        # at the moment its setting back every plot! @2toDO:MZ 
         current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
-
+        navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
+        self.home.clicked.connect(navigation.home)
+        self.zoom.clicked.connect(navigation.zoom)
+        self.pan.clicked.connect(navigation.pan) 
+        
    
 
     def view_table_clicked(self, parent_stacked:int):
@@ -182,17 +210,22 @@ class SeriesItemTreeWidget():
         """create a table view within a tab widget: each tab will become one plot/one specific analysis """
 
         table_tab_widget = QTabWidget()
-        table_tab_widget = QTabWidget()
-
         # works only    if results are organized row wise
         print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
+       
         if result_plot_widget.OfflineResultGrid.columnCount() == 1:
             print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
 
-            for r in range(1, result_plot_widget.OfflineResultGrid.rowCount()):
+        for r in range(1, result_plot_widget.OfflineResultGrid.rowCount()):
+            for t in range(0, result_plot_widget.OfflineResultGrid.columnCount()):
 
-                qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, 0)
-                custom_plot_widget = qwidget_item.widget()
+                qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, t)
+
+                try:
+                    custom_plot_widget = qwidget_item.widget()
+                except AttributeError as e:
+                    print("no Widget found here")
+                    continue
                 data = custom_plot_widget.export_data_frame
                 # print(data)
                 if data.empty:
@@ -203,15 +236,11 @@ class SeriesItemTreeWidget():
                     # Creating a QTableView
                     self.table_view = QTableView()
                     self.table_view.setModel(self.model)
+                    self.model.resize_header(self.table_view)
                     print("setting the model")
-                    horizontal_header = self.table_view.horizontalHeader()
-                    horizontal_header.setSectionResizeMode(
-                        QHeaderView.ResizeToContents
-                    )
+                    
                     table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
-        else:
-            print("More than one column of analysis results is not implemented yet")
-
+     
         self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
@@ -427,6 +456,7 @@ class SeriesItemTreeWidget():
         first_item = self.SeriesItems.topLevelItem(0).child(0)
         self.SeriesItems.setCurrentItem(first_item)
         self.SeriesItems.itemClicked.emit(first_item, 0)
+
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
         current_tab.widget.selected_tree_view.setCurrentIndex(index)
@@ -434,3 +464,47 @@ class SeriesItemTreeWidget():
         rect = current_tab.widget.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
             
+
+    def click_top_level_tree_item(self, experiment = False):
+        """Should click the toplevel item of the model_view
+        """
+        current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        model = current_tab.widget.selected_tree_view.model()
+        
+        if experiment: # this is applied whenever we supply a name of the exact experiment
+            index = self.findName(model, experiment)
+        
+        else:   
+            index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
+           
+        # Get the rect of the index
+        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        if experiment:
+            selectedIndexes = current_tab.widget.selected_tree_view.selectedIndexes()
+            index = model.index(0, 0, selectedIndexes[0])
+        rect = current_tab.widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+
+
+    def findName(self,model, name, parent=QModelIndex()):
+        """_summary_: this function should identify the index of a selected name
+        in the tree using a recursive approach combined by looping through each element in the tree
+
+        Args:
+            model (QTreeViw): QTreeView model
+            name (str): Name of the searched string
+            parent (QModelIndex, optional): _description_. Defaults to QModelIndex().
+
+        Returns:
+            QModelIndex: Location of the searched string
+        """
+        for row in range(model.rowCount(parent)):
+            for column in range(model.columnCount(parent)):
+                index = model.index(row, column, parent)
+                print(model.data(index, Qt.DisplayRole))
+                if model.data(index, Qt.DisplayRole) == name:
+                    return index
+                result = self.findName(model, name, index)
+                if result.isValid():
+                    return result
+        return QModelIndex()

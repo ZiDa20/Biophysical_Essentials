@@ -1,16 +1,15 @@
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-import duckdb
-import os
 from QT_GUI.DatabaseViewer.ui_py.data_base_designer_object import Ui_Database_Viewer
 import pandas as pd
-from Pandas_Table import PandasTable
+from CustomWidget.Pandas_Table import PandasTable
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
+from QT_GUI.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -32,10 +31,18 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.plot = None
         self.canvas = None
         self.export_table.clicked.connect(self.export_table_to_csv)
+        self.select_columns.clicked.connect(self.export_offline_analysis_id)
         self.database_table.itemClicked.connect(self.pull_table_from_database)
+        self.frontend_style = None
+        self.SearchTable.clicked.connect(self.search_database_table)
         
-    def update_database_handler(self,database_handler):
+        
+    def update_database_handler(self,database_handler, frontend_style):
         self.database_handler = database_handler
+        self.frontend_style = frontend_style
+        suggestions = [i[0] for i in self.database_handler.database.execute("SHOW TABLES").fetchall()]
+        completer = QCompleter(suggestions)
+        self.lineEdit.setCompleter(completer)
 
     def export_table_to_csv(self):
         """
@@ -47,10 +54,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         else:
             print("No Table to export")
 
+    """
     @Slot()
     def open_database(self):
         #@todo: find a way to anyhow access the already opened database object from offline analysis
-        """open a dropdown menu and connect to a database selected by the user"""
+        \"""open a dropdown menu and connect to a database selected by the user\"""
         cew = os.path.dirname(os.getcwd())
         self.db_file_name = "duck_db_analysis_database.db"
         try:
@@ -58,15 +66,15 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.show_basic_tables(True)
         except Exception as e:
             print(e)
-            
+    """     
 
     def show_basic_tables(self,database_handler):
         '''
         Request available tables and plot the content
         :return:
         '''
-        database_handler.database.close()
-        database_handler.open_connection()
+        #database_handler.database.close()
+        #database_handler.open_connection()
         self.database = database_handler.database
 
         q = """SHOW TABLES"""
@@ -104,8 +112,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         # create a button for each table
         self.retrieve_tables("Analysis Table", True)
         self.select_table.clear()
-        for key, value in self.table_dictionary.items():
-            self.select_table.addItem(key)
+        self.select_table.addItems(list(self.table_dictionary.keys()))
         self.select_table.currentTextChanged.connect(self.retrieve_tables)
 
 
@@ -117,12 +124,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             manual_table type: str Name of the table to be retrieved
             manual type: bool if true then we are in manual mode
         """
-        retrieved_tables = sorted(self.table_dictionary.get(manual_table))
+        retrieved_tables = sorted(self.table_dictionary[manual_table])
         self.database_table.clear()
 
         # add each item to the listview
-        for tables in retrieved_tables:
-            self.database_table.addItem(tables)
+        self.database_table.addItems(retrieved_tables)
         if manual:
             self.pull_table_from_database(None,"offline_analysis")
             
@@ -169,7 +175,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
                 self.table_layout.itemAt(i).widget().deleteLater()
 
         # set the TableView and the Model
+        scroll_area = QScrollArea()
         self.data_base_content = QTableView()
+        scroll_area.setWidget(self.data_base_content)
+        scroll_area.setWidgetResizable(True)
         self.data_base_content.setObjectName("data_base_content")
         self.data_base_content.setMinimumHeight(300)
         self.data_base_content.horizontalHeader().setSectionsClickable(True)
@@ -178,15 +187,15 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.viewing_model = PandasTable(self.pandas_frame)
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
-        
+        self.viewing_model.resize_header(self.data_base_content)
         #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
-        self.data_base_content.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
-        self.table_layout.addWidget(self.data_base_content)
+        self.table_layout.addWidget(scroll_area)
         self.data_base_content.setGeometry(20, 20, 691, 581)
 
         # show and retrieve the selected columns
         self.data_base_content.show()
-        self.data_base_content.clicked.connect(self.retrieve_column)
+        # at the moment this is slow and instable and therefor is not implemented
+        #self.data_base_content.clicked.connect(self.retrieve_column)
 
 
     @Slot()
@@ -284,16 +293,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             None"""
         fig = self.canvas.figure
         ax = fig.add_subplot(111)
-        fig.patch.set_facecolor('#04071a')
         fig.tight_layout()
         ax.set_xlabel("Time")
         ax.set_ylabel("Unit [A]|[V]")
-        ax.patch.set_facecolor('#04071a')
-        ax.plot(sliced_array, color = "white")
-        ax.spines['bottom'].set_color('white') 
-        ax.spines['left'].set_color('white')
-        ax.yaxis.label.set_color('white')
-        ax.xaxis.label.set_color('white')
         self.gridLayout_10.addWidget(self.canvas)
 
     def save_image(self):
@@ -307,3 +309,15 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         else:
             raise AttributeError("No Plot selected here")
             # add here a QDialog that opens with error message
+
+    def search_database_table(self):
+        # this needs to be implemented
+        text = self.lineEdit.text()
+        table = self.database_handler.database.execute(f"Select * from {text}").fetchdf()
+        table = table.iloc[:100,]
+        self.data_base_content_model.update_data(table)
+
+    def export_offline_analysis_id(self):
+        database_export = ExportOfflineDialog(self.database_handler, self.frontend_style)
+        
+        

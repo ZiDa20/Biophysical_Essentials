@@ -1,7 +1,7 @@
-from online_analysis_manager import *
-from treeview_manager import *
+from Backend.online_analysis_manager import *
+from Backend.treeview_manager import *
 from PySide6.QtCore import *  # type: ignore
-from Worker import Worker
+from Threading.Worker import Worker
 import os
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
 
@@ -70,16 +70,17 @@ class OfflineManager():
         # read analysis functions from database
         analysis_function_tuple = self.database.get_series_specific_analysis_functions(series_name)
         #print(analysis_function_tuple)
+        print("analysis function tuple ", analysis_function_tuple)
+        
         progress_value = 100/len(analysis_function_tuple)
         progress = 0
-
+        
         for fn in analysis_function_tuple:
-
+            print("for loop", fn)
             progress += progress_value
             progress_callback.emit((progress, str(fn[0])))
             # get the correct class analysis object
             specific_analysis_class = AnalysisFunctionRegistration().get_registered_analysis_class(fn[0])
-
             cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(fn[1], series_name)
 
             # set up the series where the analysis should be applied and the database where the results will be stored
@@ -130,13 +131,13 @@ class OfflineManager():
 
         # start the threadpool running the bundle read in function
         if len(data_list) < threads: # 
-            data_list_final = list(self.chunks(data_list, threads/2))
+            data_list_final = list(self.chunks(data_list, len(data_list)))
             for i,t in enumerate(data_list_final): 
                 # read
                 self.run_bundle_function_in_thread(t)
 
         else:
-            data_list_final = list(self.chunks(data_list, threads-1))
+            data_list_final = list(self.chunks(data_list, threads))
             for i,t in enumerate(data_list_final):
                 self.run_bundle_function_in_thread(t)
 
@@ -300,8 +301,8 @@ class OfflineManager():
         
         #create a dummy metadata file set which can be used to write the database
         #without assigning specifically in the dialog the metadata template
-        self.dummy_meta_data_list = self.create_dumme_meta_data(experiment_names)
-        self.options_list_dummy = ["dummy"]
+        #self.dummy_meta_data_list = self.create_dumme_meta_data(experiment_names)
+        #self.options_list_dummy = ["dummy"]
         return data
     
     def create_dumme_meta_data(self, data):

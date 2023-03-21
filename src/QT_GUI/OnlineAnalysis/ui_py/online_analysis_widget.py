@@ -6,13 +6,13 @@ import pandas as pd
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from QT_GUI.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
-from online_analysis_manager import OnlineAnalysisManager
-from treeview_manager import TreeViewManager
-from plot_widget_manager import PlotWidgetManager
+from Backend.online_analysis_manager import OnlineAnalysisManager
+from Backend.treeview_manager import TreeViewManager
+from Backend.plot_widget_manager import PlotWidgetManager
 from pathlib import Path
 from functools import partial
-from Pandas_Table import PandasTable
-from ABFclass import AbfReader
+from CustomWidget.Pandas_Table import PandasTable
+from DataReader.ABFclass import AbfReader
 import os
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
@@ -327,7 +327,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # connect with a new plot manager to handle item clicks within the treeview
         if self.online_analysis_plot_manager is None:
             self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
-                                                         False)
+                                                         False, self.frontend_style)
 
         # give the experiment (name provided by treeview_name) the experiment_label ONLINE_ANALYSIS to be identified
         self.online_analysis_tree_view_manager.meta_data_assignment_list = [

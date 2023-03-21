@@ -22,8 +22,8 @@ class AnalysisFunctionRegistration():
         "time_to_min": TimeToMin,
         "time_to_max": TimeToMax,
         "mean_voltage": MeanVoltage,
-        "Action Potential Fitting": ActionPotentialFitting,
-        "Input Resistance": InputResistance,
+        "Action_Potential_Fitting": ActionPotentialFitting,
+        "Input_Resistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
         "Peak-Detection": PeakFinding
@@ -42,8 +42,16 @@ class AnalysisFunctionRegistration():
         Returns:
             _type_: _description_
         """
+        operands = ["+", "-", "*", "/", "(", ")"]
+
         try:
-            return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            try:
+                analysis_function_name =analysis_function_name.replace("(","").split()[0]
+                return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            except Exception as e:
+                print(e)
+                return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+            
         except KeyError:
             raise ValueError(f"No analysis function found with name '{analysis_function_name}'")
 
@@ -70,5 +78,5 @@ class AnalysisFunctionRegistration():
         if recording_mode == "Voltage Clamp":
             return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["mean_voltage",  "Action Potential Fitting",
-                    "Rheobase-Detection", "RheoRamp-Detection", "Input Resistance", "Peak-Detection"] # "Cluster",
+            return ["mean_voltage",  "Action_Potential_Fitting",
+                    "Rheobase-Detection", "RheoRamp-Detection", "Input_Resistance", "Peak-Detection"] # "Cluster",

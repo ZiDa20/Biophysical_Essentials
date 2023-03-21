@@ -45,7 +45,7 @@ class SideBarConfiguratorItem(QTreeWidgetItem):
     the Configurator
 
     """
-    def __init__(self,parent_widget, child_text):
+    def __init__(self,parent_widget, child_text, reload = False):
         """_summary_
 
         Args:
