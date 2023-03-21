@@ -23,11 +23,12 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
 from QT_GUI.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
 
+
 class Ui_Offline_Analysis(object):
     def setupUi(self, Offline_Analysis):
         if not Offline_Analysis.objectName():
             Offline_Analysis.setObjectName(u"Offline_Analysis")
-        Offline_Analysis.resize(1429, 710)
+        Offline_Analysis.resize(1428, 708)
         self.gridLayout_8 = QGridLayout(Offline_Analysis)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.frame = QFrame(Offline_Analysis)
@@ -58,6 +59,83 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_13.setObjectName(u"gridLayout_13")
         self.gridLayout_13.setHorizontalSpacing(5)
         self.gridLayout_13.setContentsMargins(2, 2, 2, 2)
+        self.ribbon_series_normalization = QStackedWidget(self.frame)
+        self.ribbon_series_normalization.setObjectName(u"ribbon_series_normalization")
+        self.page = QWidget()
+        self.page.setObjectName(u"page")
+        self.gridLayout_19 = QGridLayout(self.page)
+        self.gridLayout_19.setObjectName(u"gridLayout_19")
+        self.SeriesSelection = QGroupBox(self.page)
+        self.SeriesSelection.setObjectName(u"SeriesSelection")
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.SeriesSelection.sizePolicy().hasHeightForWidth())
+        self.SeriesSelection.setSizePolicy(sizePolicy)
+        self.SeriesSelection.setMaximumSize(QSize(200, 16777215))
+        self.gridLayout_18 = QGridLayout(self.SeriesSelection)
+        self.gridLayout_18.setObjectName(u"gridLayout_18")
+        self.gridLayout_18.setContentsMargins(3, 1, 3, 1)
+        self.gridLayout_10 = QGridLayout()
+        self.gridLayout_10.setObjectName(u"gridLayout_10")
+        self.gridLayout_26 = QGridLayout()
+        self.gridLayout_26.setObjectName(u"gridLayout_26")
+        self.compare_series = QPushButton(self.SeriesSelection)
+        self.compare_series.setObjectName(u"compare_series")
+        self.compare_series.setMinimumSize(QSize(40, 40))
+        self.compare_series.setMaximumSize(QSize(40, 40))
+        self.compare_series.setStyleSheet(u"")
+
+        self.gridLayout_26.addWidget(self.compare_series, 0, 0, 1, 1)
+
+        self.selected_series_combo = QComboBox(self.SeriesSelection)
+        self.selected_series_combo.setObjectName(u"selected_series_combo")
+        self.selected_series_combo.setMinimumSize(QSize(50, 0))
+        self.selected_series_combo.setMaximumSize(QSize(200, 16777215))
+
+        self.gridLayout_26.addWidget(self.selected_series_combo, 0, 1, 1, 1)
+
+
+        self.gridLayout_10.addLayout(self.gridLayout_26, 1, 0, 1, 1)
+
+
+        self.gridLayout_18.addLayout(self.gridLayout_10, 0, 1, 1, 1)
+
+
+        self.gridLayout_19.addWidget(self.SeriesSelection, 0, 0, 1, 1)
+
+        self.ribbon_series_normalization.addWidget(self.page)
+        self.page_2 = QWidget()
+        self.page_2.setObjectName(u"page_2")
+        self.gridLayout_29 = QGridLayout(self.page_2)
+        self.gridLayout_29.setObjectName(u"gridLayout_29")
+        self.groupBox_3 = QGroupBox(self.page_2)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.gridLayout_30 = QGridLayout(self.groupBox_3)
+        self.gridLayout_30.setObjectName(u"gridLayout_30")
+        self.comboBox = QComboBox(self.groupBox_3)
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.setObjectName(u"comboBox")
+
+        self.gridLayout_30.addWidget(self.comboBox, 0, 0, 1, 1)
+
+
+        self.gridLayout_29.addWidget(self.groupBox_3, 0, 0, 1, 1)
+
+        self.ribbon_series_normalization.addWidget(self.page_2)
+
+        self.gridLayout_13.addWidget(self.ribbon_series_normalization, 0, 11, 1, 1)
+
+        self.line_7 = QFrame(self.frame)
+        self.line_7.setObjectName(u"line_7")
+        self.line_7.setFrameShape(QFrame.VLine)
+        self.line_7.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_13.addWidget(self.line_7, 0, 6, 2, 1)
+
         self.line_2 = QFrame(self.frame)
         self.line_2.setObjectName(u"line_2")
         self.line_2.setFrameShape(QFrame.VLine)
@@ -65,11 +143,57 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_13.addWidget(self.line_2, 0, 1, 2, 1)
 
+        self.ribbon_analysis = QStackedWidget(self.frame)
+        self.ribbon_analysis.setObjectName(u"ribbon_analysis")
+        self.page_4 = QWidget()
+        self.page_4.setObjectName(u"page_4")
+        self.gridLayout_27 = QGridLayout(self.page_4)
+        self.gridLayout_27.setObjectName(u"gridLayout_27")
+        self.StartAnalysis = QGroupBox(self.page_4)
+        self.StartAnalysis.setObjectName(u"StartAnalysis")
+        sizePolicy.setHeightForWidth(self.StartAnalysis.sizePolicy().hasHeightForWidth())
+        self.StartAnalysis.setSizePolicy(sizePolicy)
+        self.gridLayout_20 = QGridLayout(self.StartAnalysis)
+        self.gridLayout_20.setSpacing(0)
+        self.gridLayout_20.setObjectName(u"gridLayout_20")
+        self.gridLayout_20.setContentsMargins(0, 0, 0, 0)
+        self.start_analysis = QPushButton(self.StartAnalysis)
+        self.start_analysis.setObjectName(u"start_analysis")
+        self.start_analysis.setMinimumSize(QSize(50, 50))
+        self.start_analysis.setMaximumSize(QSize(50, 50))
+        self.start_analysis.setStyleSheet(u"")
+
+        self.gridLayout_20.addWidget(self.start_analysis, 0, 0, 1, 1)
+
+
+        self.gridLayout_27.addWidget(self.StartAnalysis, 0, 0, 1, 1)
+
+        self.ribbon_analysis.addWidget(self.page_4)
+        self.page_5 = QWidget()
+        self.page_5.setObjectName(u"page_5")
+        self.gridLayout_28 = QGridLayout(self.page_5)
+        self.gridLayout_28.setObjectName(u"gridLayout_28")
+        self.groupBox = QGroupBox(self.page_5)
+        self.groupBox.setObjectName(u"groupBox")
+        self.gridLayout_7 = QGridLayout(self.groupBox)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.run_analysis_functions = QPushButton(self.groupBox)
+        self.run_analysis_functions.setObjectName(u"run_analysis_functions")
+        self.run_analysis_functions.setMinimumSize(QSize(50, 50))
+        self.run_analysis_functions.setMaximumSize(QSize(50, 50))
+        self.run_analysis_functions.setStyleSheet(u"")
+
+        self.gridLayout_7.addWidget(self.run_analysis_functions, 0, 0, 1, 1)
+
+
+        self.gridLayout_28.addWidget(self.groupBox, 0, 0, 1, 1)
+
+        self.ribbon_analysis.addWidget(self.page_5)
+
+        self.gridLayout_13.addWidget(self.ribbon_analysis, 0, 12, 1, 1)
+
         self.groupBox_8 = QGroupBox(self.frame)
         self.groupBox_8.setObjectName(u"groupBox_8")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox_8.sizePolicy().hasHeightForWidth())
         self.groupBox_8.setSizePolicy(sizePolicy)
         self.gridLayout_33 = QGridLayout(self.groupBox_8)
@@ -124,42 +248,6 @@ class Ui_Offline_Analysis(object):
 
 
         self.gridLayout_13.addWidget(self.groupBox_8, 0, 7, 2, 1)
-
-        self.SeriesSelection = QGroupBox(self.frame)
-        self.SeriesSelection.setObjectName(u"SeriesSelection")
-        sizePolicy.setHeightForWidth(self.SeriesSelection.sizePolicy().hasHeightForWidth())
-        self.SeriesSelection.setSizePolicy(sizePolicy)
-        self.SeriesSelection.setMaximumSize(QSize(200, 16777215))
-        self.gridLayout_18 = QGridLayout(self.SeriesSelection)
-        self.gridLayout_18.setObjectName(u"gridLayout_18")
-        self.gridLayout_18.setContentsMargins(3, 1, 3, 1)
-        self.gridLayout_10 = QGridLayout()
-        self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.gridLayout_26 = QGridLayout()
-        self.gridLayout_26.setObjectName(u"gridLayout_26")
-        self.compare_series = QPushButton(self.SeriesSelection)
-        self.compare_series.setObjectName(u"compare_series")
-        self.compare_series.setMinimumSize(QSize(40, 40))
-        self.compare_series.setMaximumSize(QSize(40, 40))
-        self.compare_series.setStyleSheet(u"")
-
-        self.gridLayout_26.addWidget(self.compare_series, 0, 0, 1, 1)
-
-        self.selected_series_combo = QComboBox(self.SeriesSelection)
-        self.selected_series_combo.setObjectName(u"selected_series_combo")
-        self.selected_series_combo.setMinimumSize(QSize(50, 0))
-        self.selected_series_combo.setMaximumSize(QSize(200, 16777215))
-
-        self.gridLayout_26.addWidget(self.selected_series_combo, 0, 1, 1, 1)
-
-
-        self.gridLayout_10.addLayout(self.gridLayout_26, 1, 0, 1, 1)
-
-
-        self.gridLayout_18.addLayout(self.gridLayout_10, 0, 1, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.SeriesSelection, 0, 11, 2, 1)
 
         self.DataGroup = QGroupBox(self.frame)
         self.DataGroup.setObjectName(u"DataGroup")
@@ -405,88 +493,6 @@ class Ui_Offline_Analysis(object):
 
         self.gridLayout_13.addWidget(self.groupBox_2, 0, 0, 2, 1)
 
-        self.StartAnalysis = QGroupBox(self.frame)
-        self.StartAnalysis.setObjectName(u"StartAnalysis")
-        sizePolicy.setHeightForWidth(self.StartAnalysis.sizePolicy().hasHeightForWidth())
-        self.StartAnalysis.setSizePolicy(sizePolicy)
-        self.gridLayout_20 = QGridLayout(self.StartAnalysis)
-        self.gridLayout_20.setObjectName(u"gridLayout_20")
-        self.gridLayout_20.setContentsMargins(3, 1, 3, 1)
-        self.gridLayout_19 = QGridLayout()
-        self.gridLayout_19.setObjectName(u"gridLayout_19")
-        self.analysis_stacked = QStackedWidget(self.StartAnalysis)
-        self.analysis_stacked.setObjectName(u"analysis_stacked")
-        self.page = QWidget()
-        self.page.setObjectName(u"page")
-        self.gridLayout_7 = QGridLayout(self.page)
-        self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.start_analysis = QPushButton(self.page)
-        self.start_analysis.setObjectName(u"start_analysis")
-        self.start_analysis.setMinimumSize(QSize(50, 50))
-        self.start_analysis.setMaximumSize(QSize(50, 50))
-        self.start_analysis.setStyleSheet(u"")
-
-        self.gridLayout_7.addWidget(self.start_analysis, 0, 0, 1, 1)
-
-        self.analysis_stacked.addWidget(self.page)
-        self.page_2 = QWidget()
-        self.page_2.setObjectName(u"page_2")
-        self.gridLayout_29 = QGridLayout(self.page_2)
-        self.gridLayout_29.setObjectName(u"gridLayout_29")
-        self.run_analysis_functions = QPushButton(self.page_2)
-        self.run_analysis_functions.setObjectName(u"run_analysis_functions")
-        self.run_analysis_functions.setMinimumSize(QSize(50, 50))
-        self.run_analysis_functions.setMaximumSize(QSize(50, 50))
-        self.run_analysis_functions.setStyleSheet(u"")
-
-        self.gridLayout_29.addWidget(self.run_analysis_functions, 0, 0, 1, 1)
-
-        self.analysis_stacked.addWidget(self.page_2)
-        self.page_3 = QWidget()
-        self.page_3.setObjectName(u"page_3")
-        self.gridLayout_30 = QGridLayout(self.page_3)
-        self.gridLayout_30.setObjectName(u"gridLayout_30")
-        self.groupBox_7 = QGroupBox(self.page_3)
-        self.groupBox_7.setObjectName(u"groupBox_7")
-        sizePolicy.setHeightForWidth(self.groupBox_7.sizePolicy().hasHeightForWidth())
-        self.groupBox_7.setSizePolicy(sizePolicy)
-        self.groupBox_7.setMinimumSize(QSize(0, 0))
-        self.gridLayout_28 = QGridLayout(self.groupBox_7)
-        self.gridLayout_28.setObjectName(u"gridLayout_28")
-        self.gridLayout_28.setContentsMargins(1, 3, 1, 3)
-        self.gridLayout_27 = QGridLayout()
-        self.gridLayout_27.setObjectName(u"gridLayout_27")
-        self.postgresql_upload = QPushButton(self.groupBox_7)
-        self.postgresql_upload.setObjectName(u"postgresql_upload")
-        self.postgresql_upload.setMinimumSize(QSize(30, 30))
-        self.postgresql_upload.setMaximumSize(QSize(30, 30))
-        self.postgresql_upload.setStyleSheet(u"")
-
-        self.gridLayout_27.addWidget(self.postgresql_upload, 0, 0, 1, 1)
-
-
-        self.gridLayout_28.addLayout(self.gridLayout_27, 0, 0, 1, 1)
-
-
-        self.gridLayout_30.addWidget(self.groupBox_7, 0, 0, 1, 1)
-
-        self.analysis_stacked.addWidget(self.page_3)
-
-        self.gridLayout_19.addWidget(self.analysis_stacked, 0, 0, 1, 1)
-
-
-        self.gridLayout_20.addLayout(self.gridLayout_19, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.StartAnalysis, 0, 12, 2, 1)
-
-        self.line_7 = QFrame(self.frame)
-        self.line_7.setObjectName(u"line_7")
-        self.line_7.setFrameShape(QFrame.VLine)
-        self.line_7.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_13.addWidget(self.line_7, 0, 6, 2, 1)
-
         self.line = QFrame(self.frame)
         self.line.setObjectName(u"line")
         self.line.setFrameShape(QFrame.VLine)
@@ -629,7 +635,8 @@ class Ui_Offline_Analysis(object):
 
         self.retranslateUi(Offline_Analysis)
 
-        self.analysis_stacked.setCurrentIndex(0)
+        self.ribbon_series_normalization.setCurrentIndex(0)
+        self.ribbon_analysis.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.stackedWidget.setCurrentIndex(1)
 
@@ -639,9 +646,27 @@ class Ui_Offline_Analysis(object):
 
     def retranslateUi(self, Offline_Analysis):
         Offline_Analysis.setWindowTitle(QCoreApplication.translate("Offline_Analysis", u"Form", None))
+        self.SeriesSelection.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Series", None))
+#if QT_CONFIG(tooltip)
+        self.compare_series.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Specifiy which Series should be analyzed</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.compare_series.setText("")
+        self.groupBox_3.setTitle(QCoreApplication.translate("Offline_Analysis", u"Normalization", None))
+        self.comboBox.setItemText(0, QCoreApplication.translate("Offline_Analysis", u"None", None))
+        self.comboBox.setItemText(1, QCoreApplication.translate("Offline_Analysis", u"CSlow Auto", None))
+        self.comboBox.setItemText(2, QCoreApplication.translate("Offline_Analysis", u"CSlow Manual", None))
+        self.comboBox.setItemText(3, QCoreApplication.translate("Offline_Analysis", u"Configure", None))
+
+#if QT_CONFIG(accessibility)
+        self.line_7.setAccessibleName(QCoreApplication.translate("Offline_Analysis", u"divline", None))
+#endif // QT_CONFIG(accessibility)
 #if QT_CONFIG(accessibility)
         self.line_2.setAccessibleName(QCoreApplication.translate("Offline_Analysis", u"divline", None))
 #endif // QT_CONFIG(accessibility)
+        self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Analysis Configurator", None))
+        self.start_analysis.setText("")
+        self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Run Analysis", None))
+        self.run_analysis_functions.setText("")
         self.groupBox_8.setTitle(QCoreApplication.translate("Offline_Analysis", u"Treeview Options", None))
 #if QT_CONFIG(tooltip)
         self.clear.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Clean the Treeview", None))
@@ -663,11 +688,6 @@ class Ui_Offline_Analysis(object):
         self.experiment_to_csv.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Download raw data from currently selected experiment from Treeview</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.experiment_to_csv.setText("")
-        self.SeriesSelection.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Series", None))
-#if QT_CONFIG(tooltip)
-        self.compare_series.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Specifiy which Series should be analyzed</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.compare_series.setText("")
         self.DataGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data Options", None))
         self.select_directory_button.setText("")
 #if QT_CONFIG(tooltip)
@@ -678,14 +698,14 @@ class Ui_Offline_Analysis(object):
         self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
 #endif // QT_CONFIG(tooltip)
         self.load_from_database.setText("")
-        self.change_series_name.setText(QCoreApplication.translate("Offline_Analysis", u"", None))
+        self.change_series_name.setText("")
         self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
         self.plot_zoom.setText("")
         self.plot_home.setText("")
         self.plot_meta.setText("")
         self.plot_move.setText("")
-        self.turn_off_grid.setText(QCoreApplication.translate("Offline_Analysis", u"PushButton", None))
-        self.show_pgf_trace.setText(QCoreApplication.translate("Offline_Analysis", u"PushButton", None))
+        self.turn_off_grid.setText("")
+        self.show_pgf_trace.setText("")
         self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
 #if QT_CONFIG(tooltip)
         self.delete_selected.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Delete the selected experiments</p></body></html>", None))
@@ -709,18 +729,8 @@ class Ui_Offline_Analysis(object):
         self.go_back_button.setText("")
         self.fo_forward_button.setText("")
         self.go_home.setText("")
-        self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Analysis", None))
-        self.start_analysis.setText("")
-        self.run_analysis_functions.setText("")
-        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Upload", None))
-        self.postgresql_upload.setText("")
-#if QT_CONFIG(accessibility)
-        self.line_7.setAccessibleName(QCoreApplication.translate("Offline_Analysis", u"divline", None))
-#endif // QT_CONFIG(accessibility)
 #if QT_CONFIG(accessibility)
         self.line.setAccessibleName(QCoreApplication.translate("Offline_Analysis", u"divline", None))
 #endif // QT_CONFIG(accessibility)
         self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
     # retranslateUi
-
-

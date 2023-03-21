@@ -71,7 +71,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.wait_widget = None
         self.ap_timer = None
         self.offline_analysis_widgets.setCurrentIndex(0)
-        # might be set during blank analysis
+        self.offline_analysis_widgets.currentChanged.connect(self.ribbon_bar_handler)        # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
         
@@ -1093,3 +1093,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def extract_first_elements(self,lst):
         return [t[0] for t in lst]
     
+
+    def ribbon_bar_handler(self):
+        if self.offline_analysis_widgets.currentIndex() == 0:
+            self.ribbon_analysis.setCurrentIndex(0)
+            self.ribbon_series_normalization.setCurrentIndex(0)
+
+        if self.offline_analysis_widgets.currentIndex() == 1: 
+            self.ribbon_analysis.setCurrentIndex(1)
+            self.ribbon_series_normalization.setCurrentIndex(1)
