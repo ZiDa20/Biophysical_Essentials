@@ -955,11 +955,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             
 
             # stat recursive function
+            print("starting the recursive function")
+            print(equation_components)
             self.recursive_pop(equation_components,0, 0)
 
             # if everything worked correctly, only the first func to remove should still exist in the analysis functions table
             # the name here needs to be adapted too 
-         
+
+            print("finished recursive function")
 
             q = f'update analysis_functions set function_name = \'{db_text}\' where analysis_function_id == {func_to_remove[0]}'
             self.database_handler.database.execute(q)
@@ -1021,45 +1024,46 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         sub_results = []
         for tbl_1, tbl_2 in zip(data_1_table_names, data_2_table_names):
-                if read_data_1_from_db:
-                    try:
-                        data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
-                        # remove table 1
-                        self.database_handler.database.execute(f'drop table {tbl_1}')
-                    except Exception as e:
-                        print(e)
-                else:
-                    data_1 = tbl_1
-                
-                if read_data_2_from_db:
-                    try:
-                        data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
-                        # remove table 2
-                        self.database_handler.database.execute(f'drop table {tbl_2}')
-                    except Exception as e:
-                        print(e)
-                else:
-                    data_2 = tbl_2
+            print(tbl_1, tbl_2)
+            if read_data_1_from_db:
+                try:
+                    data_1 = self.database_handler.database.execute(f'select * from {tbl_1}').fetchdf()
+                    # remove table 1
+                    self.database_handler.database.execute(f'drop table {tbl_1}')
+                except Exception as e:
+                    print(e)
+            else:
+                data_1 = tbl_1
+            
+            if read_data_2_from_db:
+                try:
+                    data_2 = self.database_handler.database.execute(f'select * from {tbl_2}').fetchdf()
+                    # remove table 2
+                    self.database_handler.database.execute(f'drop table {tbl_2}')
+                except Exception as e:
+                    print(e)
+            else:
+                data_2 = tbl_2
 
-                if operand == "-":
-                    try:
-                        res = data_1["Result"] - data_2["Result"]
-                    except Exception as e:
-                        print(e)
-                if operand == "/":
-                        res = data_1["Result"] / data_2["Result"]
+            if operand == "-":
+                try:
+                    res = data_1["Result"] - data_2["Result"]
+                except Exception as e:
+                    print(e)
+            if operand == "/":
+                    res = data_1["Result"] / data_2["Result"]
 
-                # override table 1 and append for further processing
-                data_1["Result"] = res
-                sub_results.append(data_1)
+            # override table 1 and append for further processing
+            data_1["Result"] = res
+            sub_results.append(data_1)
+            
+            if equation_components == []:
+                # register only if finished, sub results dont need to be stored in the db
+                table_name = tbl_1 #"results_analysis_function_"+str(func_1)+"_"+  #str(data_1["Sweep_Table_Name"].values[0])
                 
-                if equation_components == []:
-                    # register only if finished, sub results dont need to be stored in the db
-                    table_name = "results_analysis_function_"+str(func_1)+"_"+ str(data_1["Sweep_Table_Name"].values[0])
-                    
-                    self.database_handler.database.register(table_name, data_1)
-                    self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {table_name}')
-        
+                self.database_handler.database.register(table_name, data_1)
+                self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {table_name}')
+    
         # delete the id from the analysis functions table
         self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_2}')
 

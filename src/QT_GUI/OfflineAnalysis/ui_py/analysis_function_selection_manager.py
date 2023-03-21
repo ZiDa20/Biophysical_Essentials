@@ -357,11 +357,11 @@ class AnalysisFunctionSelectionManager():
             show_cb_checkbx.setEnabled(True)
             show_cb_checkbx.setChecked(True)
         
-        self.group_box_fullsize()
+        #self.group_box_fullsize()
 
     def hide_stacked_widget(self):
       self.current_tab.analysis_stacked_widget.hide()
-      self.group_box_smallsize()
+      #self.group_box_smallsize()
 
 
     def add_cell_widgets_to_analysis_grid(self, row, col, analysis_table_widget, text):
@@ -547,6 +547,7 @@ class AnalysisFunctionSelectionManager():
                     id = self.database_handler.get_last_inserted_analysis_function_id()
                     print("got id, ", id)
                     multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "func": [func_name],"id": [id], "function_name":[analysis_function] })])
+                    print(multiple_interval_analysis)
 
         print("returning multiple analysis ", multiple_interval_analysis)
 

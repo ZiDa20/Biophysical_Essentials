@@ -84,14 +84,14 @@ class OfflinePlots():
             analysis function id
         """
         result_table_list = tuple(result_table_list)
-        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from ' \
-                f'experiment_series where Sweep_Table_Name IN (select sweep_table_name from results where ' \
-                f'specific_result_table_name IN {result_table_list}))'
+        
+        # this we have do redo
+        q = f'select * from global_meta_data where experiment_name IN (select experiment_name from {result_table_list[0]})'
                 
                 
         self.meta_data = self.database_handler.get_data_from_database(self.database_handler.database, q,fetch_mode = 2)
-        self.meta_data = self.meta_data.replace("None", nan)
         self.meta_data = self.meta_data.dropna(axis='columns', how ='all')
+        self.meta_data = self.meta_data.fillna("None")
     
     def retrieve_analysis_function(self,parent_widget= None, result_table_list = None, switch = None, meta = None):
         """Retrieves the appropriate Analysis Function, sets the parent widget as instance variable
@@ -187,7 +187,7 @@ class OfflinePlots():
                 ax.clear()  
                 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)    
-        pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, self.parent_widget.increment)
+        pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
         self.parent_widget.canvas.draw_idle()        
         self.parent_widget.export_data_frame = pivoted_table
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
@@ -256,7 +256,7 @@ class OfflinePlots():
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
                 
-        self.simple_plot_make(self.parent_widget.holded_dataframe)
+        self.simple_plot_make(self.parent_widget.holded_dataframe, value = "current")
         self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
@@ -381,7 +381,7 @@ class OfflinePlots():
                      ax.cla() 
                      cbar = False
 
-        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
         
        
@@ -435,6 +435,7 @@ class OfflinePlots():
         sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", errorbar=("se", 2), ax = self.parent_widget.ax) 
         self.parent_widget.canvas.draw_idle()
        
+
     def regression_plot(self, result_table_list: list):
         """Draws a Regression line which determines the slope of the 
 
@@ -450,7 +451,7 @@ class OfflinePlots():
             plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
             plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
-            self.hue_regplot(data=plot_dataframe, x='index', y='values', hue='meta_data', ax=self.parent_widget.ax)
+            self.hue_regplot(data=plot_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
             self.parent_widget.holded_dataframe = plot_dataframe
 
 
@@ -458,7 +459,8 @@ class OfflinePlots():
             self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
-            self.hue_regplot(data=self.parent_widget.holded_dataframe, x='index', y='values', hue='meta_data', ax=self.parent_widget.ax)
+
+            self.hue_regplot(data=self.parent_widget.holded_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
             self.parent_widget.canvas.draw_idle()
 
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
@@ -477,13 +479,13 @@ class OfflinePlots():
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear() 
         
-        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)     
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)     
         self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
         self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
   
-    def simple_plot_make(self,plot_dataframe, increment = None):
+    def simple_plot_make(self,plot_dataframe, value = "Voltage", increment = None):
         """Makes either a boxplot if increment is indicating no step protocol
         
 
@@ -494,18 +496,18 @@ class OfflinePlots():
         Returns:
             pd.DataFrame: Pivoted dataframe having columns either as experiment name or as metadata name
         """
-        if increment: # if sweep have different voltage steps indicated by increment in pgf file
+        if increment: # if sweep has no voltage steps --> check naming of thev ariable
             self.comparison_plot(plot_dataframe)
             try: 
-                pivoted_table = pd.pivot_table(plot_dataframe, index = ["index"], columns = ["meta_data"], values = "values")
+                pivoted_table = pd.pivot_table(plot_dataframe, index = ["Sweep_Number"], columns = ["meta_data"], values = "Result")
             except Exception as e:
                 print(e)
                 
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = "Unit", y = "values", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
+            g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
             self.parent_widget.connect_hover(g)
             try:
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = ["Unit"], columns = ["meta_data"], values = "values")
+                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
             except Exception as e:
                 print(e)
         
@@ -535,7 +537,7 @@ class OfflinePlots():
         """
         g = sns.violinplot(data = plot_dataframe, 
                     x="meta_data", 
-                    y = "values",  
+                    y = "Result",  
                     ax = self.parent_widget.ax, 
                     width = 0.5)
 
@@ -549,7 +551,7 @@ class OfflinePlots():
         """
         g = sns.boxplot(data = plot_dataframe, 
                     x="meta_data", 
-                    y = "values",  
+                    y = "Result",  
                     ax = self.parent_widget.ax, 
                     width = 0.5)
 
@@ -587,7 +589,7 @@ class OfflinePlots():
             plot_dataframe (_type_): _description_
         """
         g = sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, errorbar=("se", 2), legend = False)
-        sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax)
+        #sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax)
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.ax.autoscale()
 

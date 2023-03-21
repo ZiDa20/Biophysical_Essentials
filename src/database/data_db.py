@@ -102,11 +102,7 @@ class DuckDBDatabaseHandler():
         try:
             if self.database_architecture == self.duck_db_database:
                 # self.database = duckdb.connect(database=':memory:', read_only=False)
-                path = f'{cew}/src/database/{self.db_file_name}'
-                if sys.platform != "darwin":
-                    path = path.replace("/","\\")
-                else:
-                    path = path.replace("\\","/")
+                path = str(Path(f'./database/{self.db_file_name}'))
                 self.database = duckdb.connect(path, read_only=False)
                 self.logger.info("connection successful")
             else:
@@ -245,7 +241,7 @@ class DuckDBDatabaseHandler():
             database.commit()
             return database
         except Exception as e:
-            print(e)
+            print("error in execute sql command", e)
             self.logger.error("Error in Execute SQL Command: %s", e)            
             raise Exception(e)
             
@@ -524,6 +520,12 @@ class DuckDBDatabaseHandler():
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
+        return res
+
+    def get_experiment_from_sweeptable_series(self, series_name, sweep_table_name):
+        q = f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = '{sweep_table_name}' AND series_name = '{series_name}'"""
+        print(q)
+        res = self.database.execute(q).fetchall()[0][0]
         return res
 
     def get_sweep_table_name(self, experiment_name, series_identifier):
@@ -1431,8 +1433,9 @@ class DuckDBDatabaseHandler():
         self.database.register('df_1', result_data_frame)
         print(result_data_frame)
         q = """insert into  results values (?,?,?,?) """ #set specific_result_table_name = (?) where analysis_id = (?) and analysis_function_id = (?) and sweep_table_name = (?) """
-
+        print("updating results table with new specific result ")
         try:
+            print("inside try")
             # create a new sweep table
             self.database.execute(f'create table {new_specific_result_table_name} as select * from df_1')
 
@@ -1441,6 +1444,7 @@ class DuckDBDatabaseHandler():
             self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,
                              data_table_name, function_analysis_id)
         except Exception as e:
+            print("inside error")
             print("error")
             print(e)
     ###### deprecated ######
