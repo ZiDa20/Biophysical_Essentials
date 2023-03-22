@@ -1501,6 +1501,17 @@ class DuckDBDatabaseHandler():
     def retrieve_selected_meta_data_list(self):
         meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
         return [meta_string]
+    
+    @staticmethod
+    def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
+        """
+        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
+        :param offline_analysis_id:
+        :param data_table_name:
+        :return:
+        :author dz, 08.07.2022
+        """
+        return f"results_analysis_function_{analysis_function_id}_{data_table_name}"
 
     def get_selected_meta_data(self, analysis_function_id):
         # get the meta data table that is stored in the database

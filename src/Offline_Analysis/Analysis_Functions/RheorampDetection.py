@@ -78,7 +78,7 @@ class RheorampDetection(object):
 
                 #print(result_data_frame)
 
-            new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
+            new_specific_result_table_name = cls.database.create_new_specific_result_table_name(cls.analysis_function_id,
                                                                                         "Rheoramp_Number")
 
             print(agg_table)

@@ -114,7 +114,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                         agg_table = pd.concat([agg_table, result_data_frame])
                         break
                
-        new_specific_result_table_name = cls.create_new_specific_result_table_name(
+        new_specific_result_table_name = cls.database.create_new_specific_result_table_name(
                             cls.analysis_function_id, "Rheobase_detection")     
         
         cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id, 
@@ -165,7 +165,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             meaned_rheobase["experiment_name"] = experiment_name
             agg_table = pd.concat([agg_table, meaned_rheobase])
 
-        mean_table_name = cls.create_new_specific_result_table_name(
+        mean_table_name = cls.database.create_new_specific_result_table_name(
                         cls.analysis_function_id, "Rheobase_detection") + "_max"
         
         cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,

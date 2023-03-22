@@ -255,7 +255,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             #print(result_data_frame)
         print("here is the aggregated table")
         print(agg_table)
-        new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
+        new_specific_result_table_name = cls.database.create_new_specific_result_table_name(cls.analysis_function_id,
                                                                                     "AP_Fitting")
         cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
                                                                                 cls.analysis_function_id,
@@ -269,16 +269,6 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         cls.run_late_register_feature()
 
-    @classmethod
-    def create_new_specific_result_table_name(cls, analysis_function_id, data_table_name):
-        """
-        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
-        :param offline_analysis_id:
-        :param data_table_name:
-        :return:
-        :author dz, 08.07.2022
-        """
-        return f"results_analysis_function_{str(analysis_function_id)}_{data_table_name}"
         
     @classmethod
     def specific_calculation(cls,experiment_name, manual_threshold = 10, smoothing_window_length = 19):
