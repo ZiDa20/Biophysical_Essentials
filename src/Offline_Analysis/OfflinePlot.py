@@ -338,7 +338,7 @@ class OfflinePlots():
         param = [self.parent_widget.parameter_combobox.currentText()]
         param.append("meta_data")
         plot_df = self.holded_dataframe[param]
-        plot_df.rename(columns={param[0]:"values"}, inplace=True)
+        plot_df.rename(columns={param[0]:"Result"}, inplace=True)
 
         #drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
         
