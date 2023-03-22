@@ -56,7 +56,7 @@ class OfflineManager():
     def set_status_and_progress_bar(self,status, progress):
         self.statusbar = status
         self.progressbar = progress
-        self.statusbar.setText(f"The Process is beeing set up ... ") 
+        self.statusbar.setText("The Process is beeing set up ... ")
 
     def execute_single_series_analysis(self,series_name, progress_callback):
         """
@@ -64,7 +64,7 @@ class OfflineManager():
         (min_current, mean_current, max_current) for a series called 'IV'.
         Gets  called from offline_analysis_widget_function start_offline_analysis_of_single_series
         @param series_name: name of the single series (e.g. IV) to be analyzed)
-        @author dz, 13.07.2022
+        @author dz/mz, 13.07.2022
         """
 
         # read analysis functions from database
@@ -80,14 +80,15 @@ class OfflineManager():
             progress += progress_value
             progress_callback.emit((progress, str(fn[0])))
             # get the correct class analysis object
-            specific_analysis_class = AnalysisFunctionRegistration().get_registered_analysis_class(fn[0])
+            specific_analysis_class = AnalysisFunctionRegistration().get_registered_analysis_class(fn[0])()
             cursor_bounds = self.database.get_cursor_bounds_of_analysis_function(fn[1], series_name)
 
             # set up the series where the analysis should be applied and the database where the results will be stored
-            specific_analysis_class.series_name = series_name
-            specific_analysis_class.database = self.database
+            # set the cursor bound ->
             specific_analysis_class.lower_bound = cursor_bounds[0][0]
             specific_analysis_class.upper_bound = cursor_bounds[0][1]
+            specific_analysis_class.database = self.database
+            specific_analysis_class.series_name = series_name
             specific_analysis_class.analysis_function_id = fn[1]
 
             # run the calculation which will be also written to the database
@@ -122,8 +123,6 @@ class OfflineManager():
         self.tree_view_manager.meta_data_assignment_list = meta_data_assignment_list
 
         data_list = self.package_list(self._directory_path)
-        print(data_list)
-
         # create a threadpool
         self.threadpool = QThreadPool()
         self.threadpool.setExpiryTimeout(1000)
@@ -273,16 +272,12 @@ class OfflineManager():
         """
         Makes a list of all .dat files in tje specified directory
         @param dat_path:
-        @author dz, 13.07.2022
         """
         abf_file_bundle = {} # list to bundle abf files
-        experiment_names = []
         if isinstance(dat_path, str):
             data_list = os.listdir(dat_path)
             dat_list = [i for i in data_list if ".dat" in i]
-            for i in dat_list:
-                dat_name = i.split(".")[0]
-                experiment_names.append(dat_name)
+            experiment_names = [i.split(".")[0] for i in dat_list]
             abf_list = [i for i in data_list if ".abf" in i]
             # get the list of list for abf files
             for i in abf_list:
@@ -291,42 +286,12 @@ class OfflineManager():
                     experiment_name = "_".join(experiment_name)
                     experiment_names.append(experiment_name)
                     
-                    if experiment_name in abf_file_bundle.keys():
-                        abf_file_bundle[experiment_name].append(i)
-                    else:
+                    if experiment_name not in abf_file_bundle.keys():
                         abf_file_bundle[experiment_name] = []
-                        abf_file_bundle[experiment_name].append(i)
+                    abf_file_bundle[experiment_name].append(i)
                     
-        data = list(abf_file_bundle.values()) + dat_list
-        
-        #create a dummy metadata file set which can be used to write the database
-        #without assigning specifically in the dialog the metadata template
-        #self.dummy_meta_data_list = self.create_dumme_meta_data(experiment_names)
-        #self.options_list_dummy = ["dummy"]
-        return data
-    
-    def create_dumme_meta_data(self, data):
-        """Fix to enable database loading without specifying metadata by creating dummy metadata
+        return list(abf_file_bundle.values()) + dat_list
 
-        Args:
-            data (list): List of Data Files to load
-        
-        returns:
-            dummy_meta (list): metadata dummy file with experiment names and all column set do None   
-        """
-        
-        dummy_meta = [["Experiment_name",
-                         "Experiment_label",
-                         "Species",
-                         "Genotype",
-                         "Sex",
-                         "Condition",
-                         "Individuum_id"]]
-        
-        
-        for i in data:
-            dummy_meta.append([i,"None","None", "None", "None", "None", "None","None"])
-            
-        return dummy_meta
             
         
+ 

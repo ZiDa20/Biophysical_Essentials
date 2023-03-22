@@ -162,20 +162,19 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         @reworked MZ        """
         # get the class object name for this analysis
-        class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)
+        class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)()
         self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
 
         if analysis_function is None:
             #if class_object.database is None:
             #    print("I am setting the database")
-            class_object.database = self.database_handler
-            result_table_names = class_object.visualize_results(parent_widget)
+            result_table_names = class_object.visualize_results(parent_widget, self.database_handler)
             if result_table_names:
                 analysis_function = class_object.plot_type_options[0]
             else:
                 analysis_function = None
         else:
-            result_table_names = class_object.visualize_results(parent_widget)
+            result_table_names = class_object.visualize_results(parent_widget,self.database_handler)
             analysis_function = analysis_function if result_table_names else None
        
         self.offlineplot.set_frontend_axes(parent_widget)
