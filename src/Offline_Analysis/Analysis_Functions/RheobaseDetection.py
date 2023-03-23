@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
 from natsort import natsorted, ns
-from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 
 class RheobaseDetection(SweepWiseAnalysisTemplate):
-    """
-    Analysis Class to detect the minimum current that needs to be injected into a cell to fire action potentials
+    """Analysis Class to detect the minimum current that needs to be injected into a cell to fire action potentials
     :author dz, 13.07.2022
     """
     
@@ -142,8 +141,8 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             mean_voltage_list = []
             series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
             if holding_value is None:
-                    print(f'requesting holding value for table {data_table}')
-                    increment_value = self.database.get_data_from_recording_specific_pgf_table(data_table, "increment", 1)
+                print(f'requesting holding value for table {data_table}')
+                increment_value = self.database.get_data_from_recording_specific_pgf_table(data_table, "increment", 1)
             entire_sweep_table = self.database.get_entire_sweep_table_as_df(data_table)
             number_of_sweeps = len(entire_sweep_table.columns)
             column_names = list(entire_sweep_table.columns)
@@ -151,15 +150,15 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             entire_sweep_table = entire_sweep_table[nat_sorted_columns]
 
             for column in entire_sweep_table:
-                    print(column)
-                    self.data = entire_sweep_table.get(column)
-                    if series_specific_recording_mode != "Voltage Clamp":
-                        y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
-                        self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
+                print(column)
+                self.data = entire_sweep_table.get(column)
+                if series_specific_recording_mode != "Voltage Clamp":
+                    y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+                    self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
-                    mean_voltage_list.append(np.max(self.data))
-                    current_list.append(increment)
-                    increment += increment_value*1000
+                mean_voltage_list.append(np.max(self.data))
+                current_list.append(increment)
+                increment += increment_value*1000
 
             meaned_rheobase = pd.DataFrame()
             meaned_rheobase["current"] = current_list

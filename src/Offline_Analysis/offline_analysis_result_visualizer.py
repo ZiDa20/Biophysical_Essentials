@@ -1,5 +1,4 @@
-import sys
-import os
+
 from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import ResultPlotVisualizer
 from database.data_db import DuckDBDatabaseHandler
 from functools import partial
@@ -24,11 +23,11 @@ class OfflineAnalysisResultVisualizer():
     @author dz, 13.07.2022
     """
 
-    def __init__(self, 
-                 visualization_tab_widget, 
-                 database: DuckDBDatabaseHandler, 
+    def __init__(self,
+                 visualization_tab_widget,
+                 database: DuckDBDatabaseHandler,
                  final_result_holder,
-                 frontend_style, 
+                 frontend_style,
                  plot_meta_button,
                  splitter):
         """_summary_
@@ -46,13 +45,13 @@ class OfflineAnalysisResultVisualizer():
         self.canvas = None
         self.splitter = splitter
         self.offlineplot = OfflinePlots(
-                     self.database_handler, 
-                     self.frontend_style, 
+                     self.database_handler,
+                     self.frontend_style,
                      self.offline_tree,
                      self.final_result_holder)
-        
+
         self.change_meta_data = plot_meta_button
-        
+
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
         """
@@ -64,7 +63,10 @@ class OfflineAnalysisResultVisualizer():
 
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
 
-        print(self.database_handler.database.execute("""select analysis_series_name from analysis_series where analysis_id = 4""").fetchdf())
+        print(self.database_handler.database.execute("""select analysis_series_name
+                                                     from analysis_series
+                                                     where analysis_id = 4""").fetchdf())
+
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
 
@@ -119,14 +121,14 @@ class OfflineAnalysisResultVisualizer():
             print("y pos widget = ", widgte_y_pos)
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
             parent_list.append(custom_plot_widget)
-        
+
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
         return offline_tab
-    
+
     def open_meta_data(self):
-        """_summary_: This opens the meta data from the selected meta data table to 
+        """_summary_: This opens the meta data from the selected meta data table to
         retrieve the the condition columns holding the column string that can be used
         for meta data retrieval in offline plot
         column example: "genotype"
@@ -137,19 +139,19 @@ class OfflineAnalysisResultVisualizer():
         Returns:
             _type_: _description_
         """
-        dialog = SelectMetaDataForTreeviewDialog(self.database_handler, 
-                                                 update_treeview = False, 
+        dialog = SelectMetaDataForTreeviewDialog(self.database_handler,
+                                                 update_treeview = False,
                                                  update_plot = self.offlineplot,
                                                  analysis_function_id = self.visualization_tab_widget.currentItem().parent().data(8, Qt.UserRole))
-        
+
         dialog.setWindowTitle("Available Meta Data Label")
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
-        
+
 
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
-        for parent in parents: 
+        for parent in parents:
             self.offlineplot.retrieve_analysis_function(parent_widget = parent, meta = True)
         return None
 
@@ -176,16 +178,20 @@ class OfflineAnalysisResultVisualizer():
         else:
             result_table_names = class_object.visualize_results(parent_widget,self.database_handler)
             analysis_function = analysis_function if result_table_names else None
-       
+
         self.offlineplot.set_frontend_axes(parent_widget)
         self.offlineplot.set_metadata_table(result_table_names)
-        if switch:
-            self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget, result_table_list = result_table_names, switch = True) 
-        else:  
-            self.offlineplot.retrieve_analysis_function(parent_widget =parent_widget, result_table_list =result_table_names) 
 
+        # switch checks if the current plot type is switched in the combobox within the plot widget
+        if switch:
+            self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget,
+                                                        result_table_list = result_table_names,
+                                                        switch = True)
+        else:
+            self.offlineplot.retrieve_analysis_function(parent_widget =parent_widget,
+                                                        result_table_list =result_table_names)
         return analysis_function
-        
+
     def handle_metadata_click(self):
         """
         Handle the click on the metadata button
@@ -213,7 +219,7 @@ class OfflineAnalysisResultVisualizer():
             self.fig = Figure()
             # create a new plot and insert it into the already exsiting plot layout
             parent_widget.canvas= MyFigureCanvas(self.fig)
-            
+
             #self.canvas.mpl_connect('resize_event', self.handle_canvas_resize)
             self.scroll_area = QScrollArea()
             #self.spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -244,7 +250,7 @@ class OfflineAnalysisResultVisualizer():
 
             # return True to filter the event and prevent it from being propagated
             return True
-        
+
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
         """
         Write the data shown in the plot into a csv file. The data are stored in the export data frame object

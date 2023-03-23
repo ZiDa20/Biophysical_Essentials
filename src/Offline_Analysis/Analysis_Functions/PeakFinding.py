@@ -1,21 +1,14 @@
 import pandas as pd
 from scipy.signal import find_peaks
-from natsort import natsorted, ns
+from natsort import natsorted
 import numpy as np
-from math import nan, isnan
-from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 
 
 
 class PeakFinding(SweepWiseAnalysisTemplate):
-    
-    """_summary_
-
-    Returns:
-        _type_: _description_
+    """Finds the Peaks of all Action Potential Spikes within the selected window or dataframe
     """
-    
-    
     def __init__(self):
         super().__init__()
         self.function_name = "Peak-Detection"
@@ -24,7 +17,8 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         self.AP_THRESHOLD = 0.01
 
     def calculate_results(self):
-            
+        """Calculates the Peak Finding Results
+        """
         series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(
             self.series_name)
 
@@ -34,11 +28,13 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         # get the names of all data tables to be evaluated
         data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
             # set time to non - will be set by the first data frame
-        # should assure that the time and bound setting will be only exeuted once since it is the same all the time
+        # should assure that the time and bound setting will
+        # be only exeuted once since it is the same all the time
         time = None
         agg_table = pd.DataFrame()
         for data_table in data_table_names:
-            experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,data_table)
+            experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,
+                                                                                  data_table)
             if time is None:
                     time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
 
@@ -49,18 +45,20 @@ class PeakFinding(SweepWiseAnalysisTemplate):
 
             for column in entire_sweep_table:
                 data = entire_sweep_table.get(column)
-
                 if series_specific_recording_mode != "Voltage Clamp":
                     y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                     data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
-                
+
                 ap_window = self.specific_calculation(data, time, column)
-            
+
             # write result_data_frame into database
 
             if ap_window:
-                # check if there is 
-                result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window", "AP_Time", "Sweep", "Peak", "AP_Timing"])
+                result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window",
+                                                                       "AP_Time",
+                                                                       "Sweep",
+                                                                       "Peak",
+                                                                       "AP_Timing"])
                 result_data_frame["experiment_name"] = experiment_name
                 agg_table = pd.concat([agg_table, result_data_frame])
 
@@ -94,9 +92,9 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             if len(peaks) > 0
             else None
         )
-    
+
     def extract_ap_potentials(self, data: np.array, time: np.array, peaks:np.array, column:str):
-        """´Function to extract the action potentials using the detected peaks
+        """Function to extract the action potentials using the detected peaks
 
 
         Args:
@@ -117,7 +115,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             ap_window["Peak"].extend([peak_count]*data_window.shape[0])
             ap_window["AP_Timing"].extend(list(range(1, data_window.shape[0]+1)))
         return ap_window
-            
+
     def merge_lists_to_list_of_tuples(self,list1, list2):
         """_summary_
 
@@ -147,7 +145,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             )
         else:
             return None
-        
+
 
     def live_data(self, lower_bound, upper_bound, experiment_name, series_identifier, database_handler, sweep_name=None):
         """
@@ -180,7 +178,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
                                                              parameter_list)
 
         return parameter_list
-    
+
     def live_data_single_trace(self,database_handler,data,data_table_name,column,time, parameter_list):
         """_summary_
 
@@ -206,4 +204,3 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         else:
             # here no peaks should be detected
             return []
-        

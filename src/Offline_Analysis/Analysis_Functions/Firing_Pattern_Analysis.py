@@ -3,23 +3,22 @@ from scipy.signal import find_peaks
 from natsort import natsorted, ns
 import numpy as np
 from math import nan, isnan
-
 import  seaborn as sns
 
 class FiringPatternAnalysis(object):
-    
+
     """_summary_
 
     Returns:
         _type_: _description_
     """
-    
-    
+
+
     def __init__(self):
         super().__init__()
         self.function_name = "Firing-Pattern-Analysis"
         self.plot_type_options = ["Firing-Pattern"]
-        
+
     def calculate_results(self):
 
             print("running firing pattern analysis calculation")
@@ -56,14 +55,14 @@ class FiringPatternAnalysis(object):
                     if series_specific_recording_mode != "Voltage Clamp":
                         y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                         data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
-                      
+
                     # run the peak detection
                     peaks, _ = find_peaks(data, height=0.00, distance=200)
 
                     peak_y = data[peaks]
                     peak_x = self.time[peaks]
 
-                
+
                     sweep_number = column.split("_")
                     sweep_number = int(sweep_number[1])
 
@@ -85,7 +84,7 @@ class FiringPatternAnalysis(object):
                                                                                        result_data_frame)
 
                 print("added %s to database",new_specific_result_table_name)
-                      
+
     def merge_lists_to_list_of_tuples(self,list1, list2):
         """_summary_
 
@@ -97,8 +96,8 @@ class FiringPatternAnalysis(object):
             _type_: _description_
         """
         return [(list1[i], list2[i]) for i in range(len(list1))]
-       
- 
+
+
     def get_list_of_result_tables(self, analysis_id, analysis_function_id):
         '''
         reading all specific result table names from the database

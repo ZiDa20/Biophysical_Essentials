@@ -11,7 +11,6 @@ class SweepWiseAnalysisTemplate(ABC):
 	# Still this is not appropriately implemented --> basically never initalized
 
 	"""
- 
 	def __init__(self):
 		super().__init__()
 		self.data_shape = None
@@ -23,7 +22,7 @@ class SweepWiseAnalysisTemplate(ABC):
 	@property
 	def lower_bounds(self) -> float:
 		""" get the lower and upper bounds 
-    	"""
+		"""
 		print("The lower bound: ")
 		return self._lower_bounds
 
@@ -47,7 +46,7 @@ class SweepWiseAnalysisTemplate(ABC):
 			self._upper_bounds = upper_bound
 		else:
 			raise TypeError("Wrong Input please specificy floats")
-	
+
 	def construct_trace(self):
 		""" construct the trace """
 		try:
@@ -187,7 +186,7 @@ class SweepWiseAnalysisTemplate(ABC):
 
 				inc = (float(increment_list[pgf_segment-1])*1000)
 				volt_val = (float(voltage_list[pgf_segment-1])*1000) + (sweep_number-1)*inc
-	
+
 				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val,res,inc,experiment_name]],columns = column_names)
 				merged_all_results = pd.concat([merged_all_results,new_df])
 
@@ -241,6 +240,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		"""
 		return SweepWiseAnalysisTemplate.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id,database)
 
+
 	@staticmethod
 	def fetch_x_and_y_data(table_name: str,database) -> tuple:
 
@@ -259,40 +259,6 @@ class SweepWiseAnalysisTemplate(ABC):
 		""""""
 		q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
 		result_list = database.get_data_from_database(database.database, q,
-														  [analysis_id, analysis_function_id])
+															[analysis_id, analysis_function_id])
 		result_list = (list(zip(*result_list))[0])
 		return result_list
-
-
-	"""
-	def plot_meta_data_wise(self,canvas, result_list:list, number_of_series:int, meta_data_groups:list):
-		\"""
-        rearrange the plot to color each trace according to it's meta data group.
-
-        :param analysis_specific_plot_widget:
-        :param result_list:
-        :param number_of_series:
-        :param meta_data_groups:
-        :return:
-        \"""
-		print("metadata construction")
-		number_of_sweeps = len(result_list) // number_of_series
-		meta_data_types = list(dict.fromkeys(meta_data_groups))
-
-		x_data, y_data, series_names = SweepWiseAnalysisTemplate.fetch_x_and_y_data(result_list, number_of_sweeps)
-		# analysis_specific_plot_widget.addLegend()
-
-		ax = canvas.figure.subplots()
-
-		# for each data trace ( = a sub list) create the plot in the correct color according to meta data group
-		for a in range(len(x_data)):
-
-			meta_data_group = meta_data_groups[a]
-
-			for m in meta_data_types:
-				if m == meta_data_group:
-					pos = meta_data_types.index(m)
-					ax.plot(x_data[a], y_data[a], self.default_colors[pos], label=series_names[a])
-
-			ax.legend()
-    """

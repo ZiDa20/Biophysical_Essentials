@@ -1,14 +1,18 @@
 import numpy as np
-from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
+from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 
 class TimeToMin(SweepWiseAnalysisTemplate):
-    
-    
+    """ Calculates the Time to the minimum within the selecte cursor bounds
+
+    Args:
+        SweepWiseAnalysisTemplate (SweepWiseAnalysisTemplate)
+    """
     def __init__(self):
+        super().__init__()
         self.plot_type_options = ["No Split", "Split by Meta Data"]
         self.function_name = 'time_to_min'
-        
-    
+
+
     def specific_calculation(self):
         self.cslow_normalization = 0
         index = np.where(self.sliced_volt == np.amin(self.sliced_volt))[0]
@@ -21,7 +25,7 @@ class TimeToMin(SweepWiseAnalysisTemplate):
         if isinstance(min_time, np.ndarray):
             min_time = min_time[0]
         return min_time
-    
+
     def live_data_calculation(self):
         """
         when live plot: draw a horizontal line from the start of a cursor bound to the minimum

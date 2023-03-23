@@ -10,17 +10,17 @@ class OfflineManager():
 
     def __init__(self,):
         """ constructor of the manager class
-        
+
         args:
             progress(QProgressBar): progress bar of the main window
             statusbar(QStatusBar): status bar of the main window
         """
         self.meta_path = None
         self.dat_files = None
-   
+
         self.database_handler = None
 
-       
+
 
         self._directory_path = None
 
@@ -60,8 +60,8 @@ class OfflineManager():
 
     def execute_single_series_analysis(self,series_name, progress_callback):
         """
-        Performs all selected analysis calculations for a specific series name: e.g. all analysis functions
-        (min_current, mean_current, max_current) for a series called 'IV'.
+        Performs all selected analysis calculations for a specific series name: e.g.
+        all analysis functions(min_current, mean_current, max_current) for a series called 'IV'.
         Gets  called from offline_analysis_widget_function start_offline_analysis_of_single_series
         @param series_name: name of the single series (e.g. IV) to be analyzed)
         @author dz/mz, 13.07.2022
@@ -71,10 +71,10 @@ class OfflineManager():
         analysis_function_tuple = self.database.get_series_specific_analysis_functions(series_name)
         #print(analysis_function_tuple)
         print("analysis function tuple ", analysis_function_tuple)
-        
+
         progress_value = 100/len(analysis_function_tuple)
         progress = 0
-        
+
         for fn in analysis_function_tuple:
             print("for loop", fn)
             progress += progress_value
@@ -129,9 +129,9 @@ class OfflineManager():
         threads = self.threadpool.globalInstance().maxThreadCount() # get the number of threads
 
         # start the threadpool running the bundle read in function
-        if len(data_list) < threads: # 
+        if len(data_list) < threads: #
             data_list_final = list(self.chunks(data_list, len(data_list)))
-            for i,t in enumerate(data_list_final): 
+            for i,t in enumerate(data_list_final):
                 # read
                 self.run_bundle_function_in_thread(t)
 
@@ -141,7 +141,7 @@ class OfflineManager():
                 self.run_bundle_function_in_thread(t)
 
         self.bundle_worker.signals.finished.connect(partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste))
-        
+
         return self.tree_view_manager
 
     def run_bundle_function_in_thread(self,bundle_liste):
@@ -155,7 +155,7 @@ class OfflineManager():
         self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
         self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
         self.threadpool.start(self.bundle_worker)
-              
+
     def run_database_threading(self, bundle_liste, abf_list):
         """_summary_
 
@@ -199,7 +199,7 @@ class OfflineManager():
             yield lst[i:i + int(n)]
 
     def progress_fn(self,data):
-        """Checks the progress in the Thread and shows off 
+        """Checks the progress in the Thread and shows off
         percentage in the ProgressBar
 
         Args:
@@ -221,8 +221,8 @@ class OfflineManager():
         self.database.write_analysis_series_types_to_database(series_type_list,self.analysis_id)
 
     def write_analysis_function_to_database(self,function_selection,series_name):
-        """ write the analysis function to the database 
-        
+        """ write the analysis function to the database
+
         args:
             function_selection type(string): name of the function
             series_name type(string): name of the series
@@ -230,19 +230,19 @@ class OfflineManager():
         self.database.write_analysis_function_to_database(function_selection,series_name)
 
     def write_coursor_bounds_to_database(self,left_coursor, right_coursor, series_name):
-        """ write the cursor bounds to the database 
-        
+        """ write the cursor bounds to the database
+
         args:
             left_coursor type(float): left bound of the cursor
             right_coursor type(float): right bound of the cursor
             series_name type(string): name of the series
-            
+
         """
         self.database.write_coursor_bounds_to_database(left_coursor, right_coursor, series_name)
 
     def read_trace_data_and_write_to_database(self,series_name):
-        """ read the trace data from the directory and write it to the database 
-        
+        """ read the trace data from the directory and write it to the database
+
         args:
             series_name type(string): name of the series
         """
@@ -251,7 +251,7 @@ class OfflineManager():
     # deprecated ?
     def calculate_single_series_results_and_write_to_database(self,series_name):
         """ calculate the single series results and write them to the database
-        
+
         args:
             series_name type(string): name of the series
         """
@@ -259,12 +259,12 @@ class OfflineManager():
 
     def read_series_type_specific_analysis_functions_from_database(self,series_name):
         '''function that will return a list of strings with analysis function names
-        
+
         args:
             series_name type(string): name of the series
         returns:
             analysis_function_list type(list): list of strings with analysis function names
-            
+
         '''
         return self.database.read_series_type_specific_analysis_functions_from_database(series_name)
 
@@ -285,13 +285,12 @@ class OfflineManager():
                     experiment_name = i.split("_")[:2]
                     experiment_name = "_".join(experiment_name)
                     experiment_names.append(experiment_name)
-                    
+
                     if experiment_name not in abf_file_bundle.keys():
                         abf_file_bundle[experiment_name] = []
                     abf_file_bundle[experiment_name].append(i)
-                    
+
         return list(abf_file_bundle.values()) + dat_list
 
-            
-        
- 
+
+
