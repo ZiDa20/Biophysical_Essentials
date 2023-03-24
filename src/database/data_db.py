@@ -5,13 +5,14 @@ import datetime
 import re
 import numpy as np
 import io
-import logging
+
 import datetime
 import duckdb
 #from global_meta_data_table import GlobalMetaDataTable
 import re
 from pathlib import Path
 from database.DuckDBInitalizer import DuckDBInitializer
+from database.database_logger import logger
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
@@ -24,14 +25,9 @@ class DuckDBDatabaseHandler():
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
         # logger settings
         self.db_file_name = "duck_db_analysis_database.db"
-        self.logger = logging.getLogger()
+        self.logger = logger
         self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name)
         self.frontend_style = frontend_style
-        file_handler = logging.FileHandler('../Logs/database_manager.log')
-        formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.setLevel(logging.ERROR)
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
         self.database, self.analysis_id = self.duckdb_database.init_database()
