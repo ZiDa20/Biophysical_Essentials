@@ -34,7 +34,6 @@ class DuckDBDatabaseHandler():
         self.logger.setLevel(logging.ERROR)
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
-        self.sq_lite_database = "SQ_Lite"
         self.database, self.analysis_id = self.duckdb_database.init_database()
         self.database_path = None
 
@@ -45,22 +44,6 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """ General database functions                        """
     """---------------------------------------------------"""
-
-      # @todo refactor to write to database
-    def execute_sql_command(self, database, sql_command, values=None):
-        try:
-            if values:
-                database.execute(sql_command, values)
-                # self.logger.info("Execute SQL Command: %s with values %s", sql_command,values)
-            else:
-                database.execute(sql_command)
-                # self.logger.info("Execute SQL Command: %s without values", sql_command)
-            database.commit()
-            return database
-        except Exception as e:
-            print("error in execute sql command", e)
-            self.logger.error("Error in Execute SQL Command: %s", e)
-            raise Exception(e)
 
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
@@ -76,7 +59,6 @@ class DuckDBDatabaseHandler():
                 return database.fetchdf()
         except Exception as e:
             print(e)
-
 
     def open_connection(self, read_only = False):
         """ Opens a connection to the database"""
@@ -97,31 +79,12 @@ class DuckDBDatabaseHandler():
     """--------------------------------------------------------------"""
 
     def create_mapping_between_experiments_and_analysis_id(self, experiment_id):
-        q = f'insert into experiment_analysis_mapping values (?,?)'
+        q = 'insert into experiment_analysis_mapping values (?,?)'
         try:
-            self.database = self.execute_sql_command(self.database, q, (experiment_id, self.analysis_id))
+            self.database = self.database.execute(q, (experiment_id, self.analysis_id))
             self.logger.info("Mapped experiment %s to analysis %i", experiment_id, self.analysis_id)
         except Exception as e:
             self.logger.info("Mapping between experiment %s and analysis %i FAILED", experiment_id, self.analysis_id)
-
-    """---------------------------------------------------"""
-    """ Functions to interact with table offline_analysis """
-    """---------------------------------------------------"""
-
-    def insert_new_analysis(self, user_name):
-        ''' Insert a new analysis id into the table offline_analysis. ID's are unique by sequence and will not be
-        defined manually. Instead, username (role) and date and time of the creation of this new analysis will be
-        stored in the database'''
-
-        time_stamp = datetime.datetime.now()
-        q = f"insert into offline_analysis (date_time, user_name) values ('{time_stamp}','{user_name}')"
-        self.database = self.execute_sql_command(self.database, q)
-        self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
-
-        q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """
-        self.analysis_id = self.get_data_from_database(self.database, q, (time_stamp, user_name))[0][0]
-        self.logger.info("Analysis id for this analysis will be: %s", self.analysis_id)
-        return self.analysis_id
 
     """---------------------------------------------------"""
     """    Functions to interact with table filters       """
@@ -129,8 +92,7 @@ class DuckDBDatabaseHandler():
 
     def write_filter_into_database(self, filter_name, lower_threshold, upper_threshold):
         q = """ insert into filters values (?,?,?,?)"""
-        self.database = self.execute_sql_command(self.database, q,
-                                                 (filter_name, lower_threshold, upper_threshold, self.analysis_id))
+        self.database = self.database.execute(q,(filter_name, lower_threshold, upper_threshold, self.analysis_id))
 
     """---------------------------------------------------"""
     """    Functions to interact with table analysis_series     """
@@ -148,7 +110,7 @@ class DuckDBDatabaseHandler():
             q = """insert into analysis_series (analysis_series_name, recording_mode, analysis_id) values (?,?,?) """
 
             try:
-                self.database = self.execute_sql_command(self.database, q, (n, recording_mode, self.analysis_id))
+                self.database = self.database.execute(q, (n, recording_mode, self.analysis_id))
                 self.logger.info(f'inserting new analysis_series with id  {self.analysis_id}')
             except Exception as e:
                 self.logger.info(f'ERROR while inserting new analysis_series with id  {self.analysis_id}')
@@ -161,19 +123,13 @@ class DuckDBDatabaseHandler():
         :param series_name:
         :return: str Voltage Clamp or Current Clamp
         """
-        print(str(series_name))
-        print(self.analysis_id)
 
         if isinstance(series_name,tuple):
             series_name = series_name[0]
 
-        print(str(series_name))
-
         q = """select experiment_name from experiment_series where series_name=(?) intersect
         (select experiment_name from experiment_analysis_mapping where analysis_id = (?))"""
         experiment_names_list = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
-
-        print(experiment_names_list)
 
         q = """ select meta_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
         self.logger.info(f'select meta_data_table_name from experiment_series where experiment_name = \"{experiment_names_list[0][0]}\" and series_name = \"{series_name}\" ')
@@ -183,11 +139,7 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         x = str(meta_data_dict.get('RecordingMode'))
-        print("recording mode: for this shit!!!!!!!!!!!!!!!!! " + x)
-        if int(x) == 3:
-            return "Voltage Clamp"
-        else:
-            return "Current Clamp"
+        return "Voltage Clamp" if int(x) == 3 else "Current Clamp"
 
     # deprecated dz 22.02.2022
     def write_ms_spaced_time_array_to_analysis_series_table(self, time_np_array, analysis_series_name, analysis_id):
@@ -197,11 +149,11 @@ class DuckDBDatabaseHandler():
         :return:
         """
         q = 'update analysis_series set time = (?) where analysis_series_name = (?) AND analysis_id = (?)'
-        self.database = self.execute_sql_command(self.database, q, (time_np_array, analysis_series_name, analysis_id))
+        self.database = self.database.execute(q, (time_np_array, analysis_series_name, analysis_id))
 
     def write_recording_mode_to_analysis_series_table(self, recording_mode, analysis_series_name, analysis_id):
         q = 'update analysis_series set recording_mode = (?) where analysis_series_name = (?) AND analysis_id = (?)'
-        self.database = self.execute_sql_command(self.database, q, (recording_mode, analysis_series_name, analysis_id))
+        self.database = self.database.execute(q, (recording_mode, analysis_series_name, analysis_id))
 
     def get_recording_mode_from_analysis_series_table(self, analysis_series_name):
         """
@@ -231,8 +183,11 @@ class DuckDBDatabaseHandler():
         x_start = float(meta_data_dict.get('XStart'))
         x_interval = float(meta_data_dict.get('XInterval'))
         number_of_datapoints = int(meta_data_dict.get('DataPoints'))
-        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
-        return time
+        return np.linspace(
+            x_start,
+            x_start + x_interval * (number_of_datapoints - 1) * 1000,
+            number_of_datapoints,
+        )
 
     # used dz 29.06.2022#
     def get_time_in_ms_of_analyzed_series(self, experiment_name, series_identifier):
@@ -249,8 +204,11 @@ class DuckDBDatabaseHandler():
         x_start = float(meta_data_dict.get('XStart'))
         x_interval = float(meta_data_dict.get('XInterval'))
         number_of_datapoints = int(meta_data_dict.get('DataPoints'))
-        time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
-        return time
+        return np.linspace(
+            x_start,
+            x_start + x_interval * (number_of_datapoints - 1) * 1000,
+            number_of_datapoints,
+        )
 
     def get_ymin_from_metadata_by_sweep_table_name(self,table_name,sweep):
         """
@@ -288,14 +246,14 @@ class DuckDBDatabaseHandler():
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
             if meta:
-                q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?) AND series_meta_data = (?)'
+                q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?) AND series_meta_data = (?)'
                 try:
                     r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False, meta))[0][0]
                     sweep_table_names.append(r)
                 except Exception as e:
                     self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
             else:
-                q = f'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
+                q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
                 try:
                     r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
                     sweep_table_names.append(r)
@@ -311,9 +269,9 @@ class DuckDBDatabaseHandler():
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?))"""
-        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name))
-        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
-        return res
+        return self.get_data_from_database(
+            self.database, q, (self.analysis_id, series_name)
+        )
 
     def get_experiments_by_series_name_and_analysis_id_with_meta(self, series_name, meta_data):
         '''
@@ -323,9 +281,9 @@ class DuckDBDatabaseHandler():
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_meta_data = (?))"""
-        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
-        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
-        return res
+        return self.get_data_from_database(
+            self.database, q, (self.analysis_id, series_name, meta_data)
+        )
 
     def get_experiments_by_series_name_and_analysis_id_with_series(self, series_name, meta_data):
         '''
@@ -335,15 +293,14 @@ class DuckDBDatabaseHandler():
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
-        res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
-        # res = self.get_data_from_database(self.database, q, (self.analysis_id))
-        return res
+        return self.get_data_from_database(
+            self.database, q, (self.analysis_id, series_name, meta_data)
+        )
 
     def get_experiment_from_sweeptable_series(self, series_name, sweep_table_name):
         q = f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = '{sweep_table_name}' AND series_name = '{series_name}'"""
         print(q)
-        res = self.database.execute(q).fetchall()[0][0]
-        return res
+        return self.database.execute(q).fetchall()[0][0]
 
     def get_sweep_table_name(self, experiment_name, series_identifier):
         '''
@@ -397,7 +354,7 @@ class DuckDBDatabaseHandler():
         q = f'insert into global_meta_data (analysis_id,experiment_name, experiment_label, species, genotype, sex, celltype, condition, individuum_id) values ' \
             f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' ,\'{meta_data[7]}\')'
         try:
-            self.database = self.execute_sql_command(self.database, q)
+            self.database = self.database.execute(q)
             self.logger.info(meta_data[0], "added succesfully to global_meta_data")
             return 1
         except Exception as e:
@@ -412,9 +369,8 @@ class DuckDBDatabaseHandler():
         return all available label in the database
         @return: a tuple list
         """
-        q = f'select distinct experiment_label from global_meta_data'
-        res = self.get_data_from_database(self.database, q)
-        return res
+        q = 'select distinct experiment_label from global_meta_data'
+        return self.get_data_from_database(self.database, q)
 
     def get_meta_data_group_of_specific_experiment(self, experiment_name):
         """
@@ -438,7 +394,7 @@ class DuckDBDatabaseHandler():
             f'species = \'{meta_data_list[2]}\', genotype = \'{meta_data_list[3]}\', sex = \'{meta_data_list[4]}\', celltype = \'{meta_data_list[5]}\', condition = \'{meta_data_list[6]}\',individuum_id = \'{meta_data_list[7]}\' '\
             f'where experiment_name = \'{meta_data_list[0]}\''
         try:
-            self.database = self.execute_sql_command(self.database, q)
+            self.database = self.database.execute(q)
             self.logger.info(f'Wrote meta data for experiment \'{meta_data_list[0]}\' into database"')
             res = self.database.execute("select * from global_meta_data where experiment_name = \'{meta_data_list[0]}\' ").fetchdf()
             res_II = self.database.execute("select * from global_meta_data").fetchdf()
@@ -491,7 +447,7 @@ class DuckDBDatabaseHandler():
         q = f'insert into experiments (experiment_name) values (\'{experiment_name}\')'
 
         try:
-            self.database = self.execute_sql_command(self.database, q)
+            self.database = self.database.execute(q)
             self.logger.info(f'added experiment {experiment_name} succesfully to experiment table)')
             return 1
         except Exception as e:
@@ -590,7 +546,7 @@ class DuckDBDatabaseHandler():
             series_name, series_identifier, experiment_name)
         try:
             q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data) values (?,?,?,?,?) """
-            self.database = self.execute_sql_command(self.database, q,
+            self.database = self.database.execute(q,
                                                      (experiment_name, series_name, series_identifier, 0,"None"))
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
@@ -634,8 +590,7 @@ class DuckDBDatabaseHandler():
         :author: dz, 22.06.2022
         """
         q = f'select series_name, series_identifier from experiment_series where experiment_name = \'{experiment_name}\' and discarded = \'{discarded}\''
-        r = self.get_data_from_database(self.database,q)
-        return r
+        return self.get_data_from_database(self.database,q)
 
     """----------------------------------------------------------"""
     """    Functions to interact with table analysis_functions   """
@@ -643,8 +598,7 @@ class DuckDBDatabaseHandler():
 
     def get_analysis_function_name_from_id(self,analysis_function_id):
         q= f'select function_name from analysis_functions where analysis_function_id = {analysis_function_id}'
-        r = self.get_data_from_database(self.database, q)
-        if r:
+        if r := self.get_data_from_database(self.database, q):
             return r[0][0]
         else:
             return None
@@ -658,7 +612,7 @@ class DuckDBDatabaseHandler():
                                                                    lower_bound, upper_bound, pgf_segment):
         try:
             q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
-            self.database = self.execute_sql_command(self.database, q, (
+            self.database = self.database.execute(q, (
             analysis_function, analysis_series_name, self.analysis_id, lower_bound, upper_bound, pgf_segment))
             self.logger.info(
                 f'added new row into analysis_function_table: {analysis_function}, {analysis_series_name},{self.analysis_id},{lower_bound},{upper_bound}')
@@ -696,9 +650,9 @@ class DuckDBDatabaseHandler():
         """
 
         q = """select lower_bound, upper_bound from analysis_functions where analysis_function_id = (?) AND analysis_series_name=(?) AND analysis_id = (?)"""
-        r = self.get_data_from_database(self.database, q, (analysis_function_id, series_name, self.analysis_id))
-
-        return r
+        return self.get_data_from_database(
+            self.database, q, (analysis_function_id, series_name, self.analysis_id)
+        )
 
     def get_analysis_functions_for_specific_series(self,series_name):
         print(series_name)
@@ -725,7 +679,7 @@ class DuckDBDatabaseHandler():
     def write_analysis_function_to_database(self, function_list, series_type):
         for f in function_list:
             sql_command = """INSERT INTO analysis_functions (function_name,series_type) VALUES (?,?) """
-            self.database = self.execute_sql_command(self.database, sql_command, (f, series_type))
+            self.database = self.database.execute(sql_command, (f, series_type))
 
     def get_sweep_parent(self, datalist, pos):
         ''' returns experiment name as a string,
@@ -765,18 +719,18 @@ class DuckDBDatabaseHandler():
         if len(r2) == len(r1):
             non_zero_bound = """ select lower_coursor from analysis_functions where function_name= (?)"""
             values = (r2[0][0])
-            zero = self.execute_sql_command(self.database, non_zero_bound, values)
+            zero = self.database.execute(non_zero_bound, values)
 
         if len(r2) > len(r1) or zero:
             for d in r2:
                 q = """insert into analysis_functions(function_name,lower_coursor,upper_coursor) values (?,?,?)"""
                 values = (d, lower_value, upper_value)
-                self.database = self.execute_sql_command(self.database, q, values)
+                self.database = self.database.execute(q, values)
         else:
             q = """update analysis_functions set lower_coursor=(?), upper_coursor=(?) where function_name = (?) """
             for d in r2:
                 values = (lower_value, upper_value, d[0])
-                self.database = self.execute_sql_command(self.database, q, values)
+                self.database = self.database.execute(q, values)
 
         # from database: check if coursor bounds are empty (only when less then 2 duplicates available)
 
@@ -785,92 +739,21 @@ class DuckDBDatabaseHandler():
         q= f'select analysis_series_name from analysis_series where analysis_id = {self.analysis_id}'
         return self.database.execute(q).fetchall()
 
-
-    def calculate_single_series_results_and_write_to_database(self, series_type):
-        q = f'select s.sweep_id, s.data_array from  sweeps s inner join experiments e on  s.experiment_name = e.experiment_name AND e.series_name = \"{series_type}\";'  # [sweep_id, sweep_data_trace]
-        sweeps = self.get_data_from_database(self.database, q)
-
-        q = f'select id,function_name,lower_coursor,upper_coursor from analysis_functions where series_type = \"{series_type}\";'  # [anlysis_id,analysis_function,lower_bound,upper_bound]
-        analysis_functions = self.get_data_from_database(self.database, q)
-
-        q = f'select time from analysis_series where analysis_series_name = \"{series_type}\";'
-        time = self.get_data_from_database(self.database, q)
-        time = self.convert_string_to_array(time[0][0])
-
-        for s in sweeps:
-            data = self.convert_string_to_array(s[1])
-            raw_analysis_class_object = ra.AnalysisRaw(time, data)
-
-            for a in analysis_functions:
-                raw_analysis_class_object.lower_bounds = a[2]
-                raw_analysis_class_object.upper_bounds = a[3]
-
-                raw_analysis_class_object.construct_trace()
-                raw_analysis_class_object.slice_trace()
-
-                res = raw_analysis_class_object.call_function_by_string_name(a[1])
-
-                q = """ insert into results values (?,?,?) """
-                self.write_result_to_database(a[0], s[0], res)
-
     def write_result_to_database(self, analysis_function_id, table_name, sweep_number, result_value):
 
         q = """insert into results values (?,?,?,?,?) """
-        self.database = self.execute_sql_command(self.database, q, (
+        self.database = self.database.execute(q, (
         self.analysis_id, analysis_function_id, table_name, sweep_number, result_value))
 
-    # Still used ?
-    def read_trace_data_and_write_to_database(self, series_type, data_path):
-        ''' function to read data arrays of each sweep and write it to the sweeps table in the database, arrays are represented as strings'''
-
-        q = f'SELECT experiment_name FROM experiments WHERE series_name = \"{series_type}\";'
-        file_names = self.get_data_from_database(self.database, q)
-
-        q = f'select time from analysis_series where analysis_series_name = \"{series_type}\";'
-        time = self.get_data_from_database(self.database, q)
-
-        for f in file_names:
-            q = f'select series_identifier,sweep_number,sweep_id from sweeps where experiment_name = \"{f[0]}\";'
-            sweeps = self.get_data_from_database(self.database, q)
-            file_path = data_path + "/" + f[0]
-            bundle = heka_reader.Bundle(file_path)
-            for s in sweeps:
-                series_name = s[0]
-                sweep_number = s[1]
-                series_number = self.get_sweep_number(
-                    series_name)  # it's just the name of the function that is a little bit confusing - function is doing the right thing
-                data_array = bundle.data[[0, int(series_number) - 1, int(sweep_number) - 1, 0]]
-
-                # when the first data are entered, time will be set once for all sweeps of the sweep table
-                # before this type of time is None
-                if time is None:
-                    time = np.linspace(0, len(data_array) - 1, len(data_array))
-                    string_time = self.convert_array_to_string(time)
-
-                    q = """update analysis_series set time = (?) where analysis_series_name = (?);"""
-                    self.database = self.execute_sql_command(self.database, q, (string_time, series_type))
-
-                # convert data array into comma separated string
-                data_array = self.convert_array_to_string(data_array)
-
-                q = """update sweeps set data_array = (?) where sweep_id = (?);"""
-                self.database = self.execute_sql_command(self.database, q, (data_array, s[2]))
 
     def read_series_type_specific_analysis_functions_from_database(self, series_name):
         q = f'select distinct function_name from analysis_functions where series_type = \"{series_name}\" '
         res_string = self.get_data_from_database(self.database, q)
-        string_list = []
-        for t in res_string:
-            string_list.append(t[0])
-        return string_list
+        return [t[0] for t in res_string]
 
     def convert_string_to_array(self, array_as_string):
         sub_res = array_as_string.split(",")
-        int_array = []
-        for s in sub_res:
-            int_array.append(float(s))
-
-        return int_array
+        return [float(s) for s in sub_res]
 
     def convert_array_to_string(self, data_array):
         output_string = ""
@@ -893,7 +776,7 @@ class DuckDBDatabaseHandler():
             column_names = data_df.columns.tolist()
             part_1 = f'create table {imon_trace_signal_table_name} ('
             query_str = ""
-            for c in range(0,len(column_names)):
+            for c in range(len(column_names)):
                 if c == len(column_names)-1:
                     part_1 = part_1 + column_names[c] + " " + "float"
                     query_str = query_str + column_names[c]
@@ -901,7 +784,7 @@ class DuckDBDatabaseHandler():
                     part_1 = part_1 + column_names[c] + " " + "float,"
                     query_str = query_str + column_names[c] + ","
 
-            part_1 = part_1 + ")"
+            part_1 = f"{part_1})"
 
             print(part_1)
             print(query_str)
@@ -929,7 +812,7 @@ class DuckDBDatabaseHandler():
 
             try:
                 q = """update experiment_series set sweep_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-                self.execute_sql_command(self.database, q, (imon_trace_signal_table_name, experiment_name, series_identifier))
+                self.database.execute(q, (imon_trace_signal_table_name, experiment_name, series_identifier))
             except Exception as e:
                 print("update table failed")
 
@@ -981,7 +864,7 @@ class DuckDBDatabaseHandler():
             print("added meta data df successfully")
 
             q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-            self.execute_sql_command(self.database, q,
+            self.database.execute(q,
                                      (imon_trace_meta_data_table_name, experiment_name, series_identifier))
 
 
@@ -1002,7 +885,7 @@ class DuckDBDatabaseHandler():
         :param series_identifier: text representation of the series identifier (e.g. Series1)
         :return: table name as string
         '''
-        return 'imon_signal_' + experiment_name + '_' + series_identifier
+        return f'imon_signal_{experiment_name}_{series_identifier}'
 
     def create_imon_meta_data_table_name(self, experiment_name, series_identifier):
         '''
@@ -1011,7 +894,7 @@ class DuckDBDatabaseHandler():
         :param series_identifier: text representation of the series identifier (e.g. Series1)
         :return: table name as string
         '''
-        return 'imon_meta_data_' + experiment_name + '_' + series_identifier
+        return f'imon_meta_data_{experiment_name}_{series_identifier}'
 
 
 
@@ -1048,7 +931,7 @@ class DuckDBDatabaseHandler():
 
         # step 1:  get the name of the sweep table for this series: calling the name generator function,
         # a database request would be possible too but might be more time consuming
-        column_name = 'sweep_' + str(sweep_number)
+        column_name = f'sweep_{str(sweep_number)}'
 
         if param == 'trace_signal':
             sweep_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
@@ -1073,7 +956,7 @@ class DuckDBDatabaseHandler():
 
     def change_experiment_series_discarded_state(self, experiment_name, series_identifier, state):
         q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_identifier = (?);"""
-        res = self.execute_sql_command(self.database, q, (state, experiment_name, series_identifier))
+        res = self.database.execute(q, (state, experiment_name, series_identifier))
 
     def get_distinct_non_discarded_series_names(self):
         """
@@ -1109,7 +992,7 @@ class DuckDBDatabaseHandler():
                 # update the series table by inserting the newly created pgf table name
                 q = """update experiment_series set pgf_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
 
-                self.execute_sql_command(self.database, q, (pgf_table_name, experiment_name, series_identifier))
+                self.database.execute(q, (pgf_table_name, experiment_name, series_identifier))
 
                 self.logger.info("Successfully created %s table of series %s in experiment %s", pgf_table_name,
                                  series_identifier, experiment_name)
@@ -1166,8 +1049,7 @@ class DuckDBDatabaseHandler():
         # cast string and return as float value
         return float(val)
 
-
-    def get_data_from_pgf_table(self,series_name,data_name,segment_number):
+    def get_data_from_pgf_table(self, series_name: str, data_name: str, segment_number: int) -> float:
         """
         reads pgf information from the database and returns the requested floa value of the specified segment
         :param series_name:
@@ -1256,7 +1138,7 @@ class DuckDBDatabaseHandler():
             # create a new sweep table
             self.database.execute(f'create table {new_specific_result_table_name} as select * from df_1')
 
-            self.execute_sql_command(self.database, q, (analysis_id, function_analysis_id,data_table_name,new_specific_result_table_name))
+            self.database.execute(q, (analysis_id, function_analysis_id,data_table_name,new_specific_result_table_name))
 
             self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,
                              data_table_name, function_analysis_id)
@@ -1285,7 +1167,7 @@ class DuckDBDatabaseHandler():
                 if "Group" in d[0]:
                     sql_command = """INSERT INTO experiments VALUES (?,?,?)"""
                     values = (d[1], "control", series_type)
-                    self.database = self.execute_sql_command(self.database, sql_command, values)
+                    self.database = self.database.execute(sql_command, values)
 
                 if "Sweep" in d[0]:
                     experiment_number = self.get_sweep_parent(data_list, data_list.index(d))
@@ -1293,7 +1175,7 @@ class DuckDBDatabaseHandler():
 
                     trace_rec_mode = str(data_list[data_list.index(d) + 1][2][0].get_fields()["RecordingMode"])
                     if rec_mode[0][0] is None:
-                        q = f'update series set recording_mode = (?) where name = (?)'
+                        q = 'update series set recording_mode = (?) where name = (?)'
 
                         print("found recording mode")
                         print(trace_rec_mode)
@@ -1305,7 +1187,7 @@ class DuckDBDatabaseHandler():
                             values = ("Current Clamp", series_type)
                             rec_mode[0] = ("Current Clamp",)
 
-                        self.database = self.execute_sql_command(self.database, q, values)
+                        self.database = self.database.execute(q, values)
 
                     series_identifier = self.get_series_identifier(data_list, data_list.index(d))
                     sweep_number = self.get_sweep_number(d[0])
@@ -1313,7 +1195,7 @@ class DuckDBDatabaseHandler():
                     sql_command = "insert into sweeps (experiment_name,series_identifier,sweep_number,meta_data) values(?,?,?,?);"
                     values = (experiment_number, series_identifier, sweep_number, meta_data)
 
-                    self.database = self.execute_sql_command(self.database, sql_command, values)
+                    self.database = self.database.execute(sql_command, values)
 
     def retrieve_selected_meta_data_list(self):
         meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
@@ -1472,7 +1354,7 @@ class DuckDBDatabaseHandler():
 
                 else:
 
-                self.execute_sql_command(self.database, q, (table_name, experiment_name, series_identifier))
+                self.database.execute(q, (table_name, experiment_name, series_identifier))
 
                 self.logger.info("Successfully created %s table %s of series %s in experiment %s",table_type, table_name, series_identifier, experiment_name)
 
@@ -1542,5 +1424,72 @@ class DuckDBDatabaseHandler():
         for t in sweep_id_tuples:
             sweep_id_list.append(t[0])
         return sweep_id_list
+
+
+
+    def calculate_single_series_results_and_write_to_database(self, series_type):
+        q = f'select s.sweep_id, s.data_array from  sweeps s inner join experiments e on  s.experiment_name = e.experiment_name AND e.series_name = \"{series_type}\";'  # [sweep_id, sweep_data_trace]
+        sweeps = self.get_data_from_database(self.database, q)
+
+        q = f'select id,function_name,lower_coursor,upper_coursor from analysis_functions where series_type = \"{series_type}\";'  # [anlysis_id,analysis_function,lower_bound,upper_bound]
+        analysis_functions = self.get_data_from_database(self.database, q)
+
+        q = f'select time from analysis_series where analysis_series_name = \"{series_type}\";'
+        time = self.get_data_from_database(self.database, q)
+        time = self.convert_string_to_array(time[0][0])
+
+        for s in sweeps:
+            data = self.convert_string_to_array(s[1])
+            raw_analysis_class_object = ra.AnalysisRaw(time, data)
+
+            for a in analysis_functions:
+                raw_analysis_class_object.lower_bounds = a[2]
+                raw_analysis_class_object.upper_bounds = a[3]
+
+                raw_analysis_class_object.construct_trace()
+                raw_analysis_class_object.slice_trace()
+
+                res = raw_analysis_class_object.call_function_by_string_name(a[1])
+
+                q = """ insert into results values (?,?,?) """
+                self.write_result_to_database(a[0], s[0], res)
+
+
+       # Still used ?
+    def read_trace_data_and_write_to_database(self, series_type, data_path):
+        \''' function to read data arrays of each sweep and write it to the sweeps table in the database, arrays are represented as strings\'''
+
+        q = f'SELECT experiment_name FROM experiments WHERE series_name = \"{series_type}\";'
+        file_names = self.get_data_from_database(self.database, q)
+
+        q = f'select time from analysis_series where analysis_series_name = \"{series_type}\";'
+        time = self.get_data_from_database(self.database, q)
+
+        for f in file_names:
+            q = f'select series_identifier,sweep_number,sweep_id from sweeps where experiment_name = \"{f[0]}\";'
+            sweeps = self.get_data_from_database(self.database, q)
+            file_path = f"{data_path}/{f[0]}"
+            bundle = heka_reader.Bundle(file_path)
+            for s in sweeps:
+                series_name = s[0]
+                sweep_number = s[1]
+                series_number = self.get_sweep_number(
+                    series_name)  # it's just the name of the function that is a little bit confusing - function is doing the right thing
+                data_array = bundle.data[[0, int(series_number) - 1, int(sweep_number) - 1, 0]]
+
+                # when the first data are entered, time will be set once for all sweeps of the sweep table
+                # before this type of time is None
+                if time is None:
+                    time = np.linspace(0, len(data_array) - 1, len(data_array))
+                    string_time = self.convert_array_to_string(time)
+
+                    q = """update analysis_series set time = (?) where analysis_series_name = (?);"""
+                    self.database = self.database.execute(q, (string_time, series_type))
+
+                # convert data array into comma separated string
+                data_array = self.convert_array_to_string(data_array)
+
+                q = """update sweeps set data_array = (?) where sweep_id = (?);"""
+                self.database = self.database.execute(q, (data_array, s[2]))
 
 '''

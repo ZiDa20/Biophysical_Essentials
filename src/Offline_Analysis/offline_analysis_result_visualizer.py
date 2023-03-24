@@ -152,7 +152,7 @@ class OfflineAnalysisResultVisualizer():
 
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
         for parent in parents:
-            self.offlineplot.retrieve_analysis_function(parent_widget = parent, meta = True)
+            self.offlineplot.retrieve_analysis_function(parent_widget = parent)
         return None
 
     def single_analysis_visualization(self,parent_widget,analysis_function=None, switch = None):
