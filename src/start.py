@@ -1,5 +1,6 @@
 import sys
 import os
+from loggers.start_logger import start_logger
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
@@ -23,33 +24,33 @@ from matplotlib.figure import Figure
 
 
 class MainWindow(QMainWindow, QtStyleTools):
- 
+
     def __init__(self, parent = None):
         """Initialize the MainWindow class for starting the Application
 
         Args:
             parent (QWidget, optional): Can Add a widget here as a parent. Defaults to None.
-        """        
+        """
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setMinimumSize(1600,800)
         wait_widget = QWidget()
         wait_widget_layout = QGridLayout()
-        
+
 
         self.ui.progressBar = QProgressBar()
         self.ui.progressBar.setFixedWidth(250)
         self.ui.progressBar.setAlignment(Qt.AlignLeft)
 
-        
+
         new_label = QLabel()
         new_label.setText("Loading... \n Please Wait, your data is getting prepared ")
         font = QFont()
         font.setPointSize(15)
         new_label.setFont(font)
         new_label.setAlignment(Qt.AlignCenter)
-        
+
         wait_widget_layout.addWidget(new_label,0, 0, 1, 3)
 
         canvas_widget = QWidget()
@@ -61,19 +62,19 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # Create a plot on the figure
         ax = fig.add_subplot(111)
-        
+
         ap = AnimatedAP(ax)
         # Create the animation using the update function and the time points as frames
         anim = animation.FuncAnimation(fig, ap.anim_update, frames=len(ap.time), blit=True)
-        
+
         # Show the plot on the QWidget
         # Create a QTimer
         self.timer = QTimer()
         self.timer.setInterval(50)
-        self.timer.timeout.connect(lambda: anim.event_source.start())        
+        self.timer.timeout.connect(lambda: anim.event_source.start())
         canvas.draw_idle()
 
-        #wait_widget_layout.addWidget(self.ui.progressBar,2,1)  
+        #wait_widget_layout.addWidget(self.ui.progressBar,2,1)
         status_label = QLabel("Staus Default")
         status_label.setAlignment(Qt.AlignCenter)
         font.setPointSize(12)
@@ -82,15 +83,15 @@ class MainWindow(QMainWindow, QtStyleTools):
         wait_widget_layout.addWidget(self.ui.progressBar,2,1)
         wait_widget.setLayout(wait_widget_layout)
         self.ui.offline.animation_layout.addWidget(wait_widget)
-        
+
         #self.ui.notebook.setCurrentIndex(3)
         self.ui.offline.stackedWidget.setCurrentIndex(1)
         #self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
-        # offline analysis 
+        # offline analysis
 
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
-        
- 
+
+
 
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
@@ -100,18 +101,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.offline_manager.set_status_and_progress_bar(status_label, self.ui.progressBar)
 
         # Check if the program is launched to avoid resize event
-        self._not_launched = True 
+        self._not_launched = True
         self.center() #place the MainWindow in the center
         self.setWindowTitle("Biophysical Essentials")
-             
+
         # set the window geometry to the screen size
         self.desktop = self.screen()
         self.screenRect = self.desktop.availableGeometry()
         self.setCentralWidget(self.ui.centralwidget)
         # Logger for the Main function called start
-        self.logger=logging.getLogger() 
-        self.establish_logger()
-        
+        self.logger=start_logger
+
         #darkmode implementation 0 = white, 1 = dark
         self.default_mode = 1
         self.frontend_style = Frontend_Style()
@@ -120,10 +120,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         # whenever the style will be changed, all classes share the same style object and adapt it's appearance
         self.ui.offline.wait_widget = wait_widget
         self.ui.offline.progressbar = self.ui.progressBar
-        
+
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
-        self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style) 
+        self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer
@@ -147,7 +147,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.online.online_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        
+
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
         self.ui.config.ui_notebook = self.ui.notebook
@@ -207,7 +207,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.ui.side_left_menu.hide()
 
- 
+
     def open_analysis(self):
         """_summary_
         """
@@ -215,14 +215,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
         self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
-    
+
     def go_to_offline_analysis(self):
         """_summary_
         """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
         self.ui.notebook.setCurrentIndex(3)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
-        
+
     def start_new_offline_analysis_from_dir(self):
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
         #self.go_to_offline_analysis()
@@ -232,7 +232,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         "start new offline analysis, therefore let the user choose a data from the database"
         self.go_to_offline_analysis()
         self.ui.offline.load_treeview_from_database()
-        
+
     def open_bpe_webside(self):
         """
         open the webside of BPE
@@ -240,16 +240,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         import webbrowser
         url = "https://www.google.com/"
         webbrowser.open(url, new=0, autoraise=True)
-        
-    def establish_logger(self):
-        """Connect and establish the Logging during StartUp Process
-        """
-        file_handler = logging.FileHandler('../Logs/start.log')
-        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s') #Check formatting
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.info('A trial message if the logger is working')
-        self.logger.setLevel(logging.ERROR)
 
     def initialize_database(self):
         """Initialization of the DataBase using the duckdbhandler
@@ -259,20 +249,20 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def center(self):
         """Function to center the application at the start into the middle of the screen
-        """        
+        """
         qr = self.frameGeometry()
         cp = self.screen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    
+
     def transfer_file_to_online(self):
         """Function to transfer the Patchmaster generated .Dat file to the online Analysis
         for further analysis
-        """        
+        """
         file_path = self.ui.config.get_file_path()
-        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text()) 
-        self.ui.online.open_single_dat_file(str(file_path)) 
+        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text())
+        self.ui.online.open_single_dat_file(str(file_path))
 
     def quit_application(self):
         """ Function to quit the app"""
@@ -311,7 +301,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         Args:
             default_mode (int): 0 or 1 for dark or light mode
-        """        
+        """
         self.default_mode = default_mode
 
     def get_darkmode(self):
