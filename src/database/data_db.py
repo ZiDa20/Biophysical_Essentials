@@ -12,7 +12,7 @@ import duckdb
 import re
 from pathlib import Path
 from database.DuckDBInitalizer import DuckDBInitializer
-from database.database_logger import logger
+from database.database_logger import database_logger
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
@@ -25,7 +25,7 @@ class DuckDBDatabaseHandler():
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
         # logger settings
         self.db_file_name = "duck_db_analysis_database.db"
-        self.logger = logger
+        self.logger = database_logger
         self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name)
         self.frontend_style = frontend_style
         self.logger.info('Database Manager Initialized')

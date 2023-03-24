@@ -1,4 +1,4 @@
-import logging
+from loggers.offlineplot_logger import offlineplot_logger
 import pandas as pd
 import seaborn as sns
 import numpy as np
@@ -9,7 +9,6 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalc
 
 class OfflinePlots():
 
-    logger = logging.getLogger(__name__)
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
     Basis Analysis Functions
     """
@@ -57,16 +56,7 @@ class OfflinePlots():
                                 }
 
         # initialize the logger
-        self.set_logger()
-
-    def set_logger(self):
-        """Sets the logger for the Offline Analyiss Plotting
-        """
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler = logging.FileHandler("offline_plots.log")
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
+        self.logger = offlineplot_logger
 
     def set_frontend_axes(self, parent_widget):
         """_summary_: This function should set the axis and teh figure of the canvas
@@ -108,7 +98,7 @@ class OfflinePlots():
             analysis_function (_type_): The analysis function choosen for the specific series
             switch (bool): Should indicate if redraw without
         """
-        self.logger.info("Retrieving analysis function")
+
         # code goes here
 
 
@@ -119,6 +109,7 @@ class OfflinePlots():
 
         analysis_function = self.parent_widget.plot_type_combo_box.currentText()
         analysis_function_id = self.parent_widget.analysis_function_id
+        self.logger.info("Retrieving analysis function: {analysis_function}, {analysis_function_id}")
         # should retrieve the right function based on the selected analysis function
         # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
