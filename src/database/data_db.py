@@ -1,34 +1,31 @@
 import sqlite3
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
-import duckdb
 import os
 import datetime
 import re
-import sys
-import DataReader.heka_reader
 import numpy as np
 import io
 import logging
 import datetime
+import duckdb
 #from global_meta_data_table import GlobalMetaDataTable
 import re
 from pathlib import Path
+from database.DuckDBInitalizer import DuckDBInitializer
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
 
     def __init__(self, frontend_style):
-        #
-        self.database = None
-        self.database_path = None
-        self.analysis_id = None
+
         #@toDO add properties instead of open variable names like analysis_id and database path
         # set up the classes for the main tables
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
-
         # logger settings
+        self.db_file_name = "duck_db_analysis_database.db"
         self.logger = logging.getLogger()
+        self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name)
         self.frontend_style = frontend_style
         file_handler = logging.FileHandler('../Logs/database_manager.log')
         formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
@@ -38,198 +35,18 @@ class DuckDBDatabaseHandler():
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
         self.sq_lite_database = "SQ_Lite"
+        self.database, self.analysis_id = self.duckdb_database.init_database()
+        self.database_path = None
 
         # change manually for now .. maybe to be implemented in settings tabs
-        self.database_architecture = self.duck_db_database  # you can select between 'DUCK_DB' or 'SQ_LITE
-        self.init_database()
-
-    # Database functions
-    def init_database(self):
-        # creates a new analysis database and writes the tables or connects to an existing database
-        if self.create_analysis_database():
-            self.create_database_tables()
-        
-        # inserts new analysis id with default username admin
-        # TODO implement roles admin, user, etc. ..
-        self.analysis_id = self.insert_new_analysis("admin")
+        #self.database_architecture = self.duck_db_database  # you can select between 'DUCK_DB' or 'SQ_LITE
+        #self.init_database()
 
     """---------------------------------------------------"""
     """ General database functions                        """
     """---------------------------------------------------"""
 
-    def adapt_array(self, arr):
-        out = io.BytesIO()
-        np.save(out, arr)
-        out.seek(0)
-        return sqlite3.Binary(out.read())
-
-    def convert_array(self, text):
-        out = io.BytesIO(text)
-        out.seek(0)
-        return np.load(out)
-
-
-    def create_analysis_database(self):
-        '''Creates a new database or connects to an already existing database. Returns True if a new database has been created,
-        returns false if an existing database was connected '''
-
-        if self.database_architecture == self.duck_db_database:
-            self.db_file_name = "duck_db_analysis_database.db"
-        else:
-            self.db_file_name = "analysis_database.db"
-            # Converts np.array to TEXT when inserting
-            sqlite3.register_adapter(np.ndarray, self.adapt_array)
-
-            # Converts TEXT to np.array when selecting
-            sqlite3.register_converter("array", self.convert_array)
-
-
-        cew = os.path.dirname(os.getcwd())
-
-        dir_list = os.listdir(f"{cew}/src/database/")
-
-        return_val = 0
-        if self.db_file_name in dir_list:
-            self.logger.info("Established connection to existing database: %s ", self.db_file_name)
-            print("Established connection to existing database: ", self.db_file_name)
-        else:
-            self.logger.info("A new database will created. Created and Connected to new database: %s",
-                             self.db_file_name)
-            print("A new database will created. Created and Connected to new database: %s",
-                             self.db_file_name)
-            return_val = 1
-
-        try:
-            if self.database_architecture == self.duck_db_database:
-                # self.database = duckdb.connect(database=':memory:', read_only=False)
-                path = str(Path(f'./database/{self.db_file_name}'))
-                self.database = duckdb.connect(path, read_only=False)
-                self.logger.info("connection successful")
-            else:
-                self.database = sqlite3.connect(cew + "\\src\\" + self.db_file_name, detect_types=sqlite3.PARSE_DECLTYPES)
-        except Exception as e:
-            self.logger.error("An error occured during database initialization. Error Message: %s", e)
-
-        return return_val != 0
-
-    def create_database_tables(self):
-        '''function to create the tables needed for the default database'''
-
-        # create a unique sequence analoque to auto increment function
-        create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequence;"""
-        self.database = self.execute_sql_command(self.database, create_unique_offline_analysis_sequence)
-
-        # create all database tables assuming they do not exist'''
-
-        sql_create_mapping_table = """  create table experiment_analysis_mapping(
-                                        experiment_name text,
-                                        analysis_id integer,
-                                        UNIQUE (experiment_name, analysis_id) 
-                                        ); """
-
-        sql_create_global_meta_data_table = """CREATE TABLE global_meta_data(
-                                        analysis_id integer,
-                                        experiment_name text,
-                                        experiment_label text,
-                                        species text,
-                                        genotype text,
-                                        sex text,
-                                        celltype text,
-                                        condition text,
-                                        individuum_id text,
-                                        primary key (analysis_id, experiment_name)
-                                        );"""
-
-        sql_create_offline_analysis_table = """ CREATE TABLE offline_analysis(
-                                                analysis_id integer PRIMARY KEY DEFAULT(nextval ('unique_offline_analysis_sequence')),
-                                                date_time TIMESTAMP,
-                                                user_name TEXT,
-                                                selected_meta_data text); """
-
-        sql_create_experiments_table = """CREATE TABLE experiments(
-                                               experiment_name text PRIMARY KEY,
-                                               labbook_table_name text,
-                                               image_directory text
-                                           );"""
-
-        sql_create_experiment_series_table = """ CREATE TABLE experiment_series(
-                                              experiment_name text,
-                                              series_name text,
-                                              series_identifier text,
-                                              discarded boolean,
-                                              primary key (experiment_name,series_identifier),
-                                              sweep_table_name text,
-                                              meta_data_table_name text,
-                                              pgf_data_table_name text,
-                                              series_meta_data text 
-                                              ); """
-
-        sql_create_series_table = """CREATE TABLE analysis_series(
-                                                   analysis_series_name text,
-                                                   time text,
-                                                   recording_mode text,
-                                                   analysis_id integer,
-                                                   primary key (analysis_series_name, analysis_id)
-                                               ); """
-
-        sql_create_filter_table = """ CREATE TABLE filters(
-                                        filter_criteria_name text primary key,
-                                        lower_threshold float,
-                                        upper_threshold float,
-                                        analysis_id integer
-                                    ); """
-
-        sql_create_analysis_function_table = """ CREATE TABLE analysis_functions(
-                                            analysis_function_id integer PRIMARY KEY DEFAULT(NEXTVAL('unique_offline_analysis_sequence')),
-                                            function_name text,
-                                            lower_bound float,
-                                            upper_bound float,
-                                            analysis_series_name text,
-                                            analysis_id integer,
-                                            pgf_segment integer
-                                            );"""
-
-        sql_create_results_table = """ CREATE TABLE results(
-                                            analysis_id integer,
-                                            analysis_function_id integer,
-                                            sweep_table_name text,
-                                            specific_result_table_name text
-                                            ); """
-
-        sql_create_sweep_meta_data_table ="""CREATE TABLE sweep_meta_data(
-                                                sweep_name text,
-                                                series_identifier text,
-                                                experiment_name text,
-                                                meta_data text,
-                                                primary key (sweep_name,series_identifier, experiment_name)
-                                                ); """
-        
-        sql_create_selected_meta_data_table = """CREATE TABLE selected_meta_data(
-                                                table_name text,
-                                                condition_column text,
-                                                conditions text,
-                                                analysis_function_id integer,
-                                                offline_analysis_id integer
-                                                );"""
-
-        try:
-            self.database = self.execute_sql_command(self.database, sql_create_offline_analysis_table)
-            self.database = self.execute_sql_command(self.database, sql_create_filter_table)
-            self.database = self.execute_sql_command(self.database, sql_create_series_table)
-            self.database = self.execute_sql_command(self.database, sql_create_experiments_table)
-            self.database = self.execute_sql_command(self.database, sql_create_sweep_meta_data_table)
-            self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
-            self.database = self.execute_sql_command(self.database, sql_create_results_table)
-            self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
-            self.database = self.execute_sql_command(self.database, sql_create_mapping_table)
-            self.database = self.execute_sql_command(self.database, sql_create_global_meta_data_table)
-            self.database = self.execute_sql_command(self.database, sql_create_selected_meta_data_table)
-
-            self.logger.info("create_table created all tables successfully")
-        except Exception as e:
-            self.logger.info("create_tables function failed with error %s", e)
-
-    # @todo refactor to write to database
+      # @todo refactor to write to database
     def execute_sql_command(self, database, sql_command, values=None):
         try:
             if values:
@@ -242,9 +59,9 @@ class DuckDBDatabaseHandler():
             return database
         except Exception as e:
             print("error in execute sql command", e)
-            self.logger.error("Error in Execute SQL Command: %s", e)            
+            self.logger.error("Error in Execute SQL Command: %s", e)
             raise Exception(e)
-            
+
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
             if values:
@@ -497,24 +314,24 @@ class DuckDBDatabaseHandler():
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
-    
+
     def get_experiments_by_series_name_and_analysis_id_with_meta(self, series_name, meta_data):
         '''
         Find experiments of the current analysis containing the series specified by the series name.
         :param series_name: name of the series (e.g. Block Pulse, .. )
-        :param meta_data associated 
+        :param meta_data associated
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_meta_data = (?))"""
         res = self.get_data_from_database(self.database, q, (self.analysis_id, series_name, meta_data))
         # res = self.get_data_from_database(self.database, q, (self.analysis_id))
         return res
-    
+
     def get_experiments_by_series_name_and_analysis_id_with_series(self, series_name, meta_data):
         '''
         Find experiments of the current analysis containing the series specified by the series name.
         :param series_name: name of the series (e.g. Block Pulse, .. )
-        :param meta_data associated 
+        :param meta_data associated
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
         q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
@@ -539,7 +356,7 @@ class DuckDBDatabaseHandler():
             raise TypeError(f"expected String type and not {type(experiment_name)}")
         q = f'select sweep_table_name from experiment_series where experiment_name = \'{experiment_name}\' AND series_identifier = \'{series_identifier}\''
         res = self.database.execute(q).fetchdf()
-        
+
         # check if the result is not empty
         if not res.empty:
             return res["sweep_table_name"].tolist()[0]
@@ -811,7 +628,7 @@ class DuckDBDatabaseHandler():
 
     def get_series_names_of_specific_experiment(self,experiment_name,discarded):
         """
-        
+
         :param experiment_name:
         :return: a list of tuples [(series_name, series_identifier), ... ] e.g. [('Block Pulse', 'Series1'), ('IV','Series2'), .. ]
         :author: dz, 22.06.2022
@@ -1067,7 +884,7 @@ class DuckDBDatabaseHandler():
 
     def add_sweep_df_to_database(self,experiment_name, series_identifier,data_df,meta_data_df, dat = True):
         try:
-            
+
             #print(data_df)
             imon_trace_signal_table_name = self.create_imon_signal_table_name(experiment_name, series_identifier)
 
@@ -1107,7 +924,7 @@ class DuckDBDatabaseHandler():
                 print("created tablr succesfully")
             except Exception as e:
                 print("create table failed")
-            
+
             """
 
             try:
@@ -1129,8 +946,8 @@ class DuckDBDatabaseHandler():
 
             '''@todo (dz, 17.08.2022): this hardcoded bugfix allows the use of duck db pre dev 0.4.1.dev1603.
             Max and I  encountered a bug with big data loading - this bug only solves when using duckdb > 0.4.0
-            in dev 0.4.1.dev1603 somehow tinyint-> blob is not implemented yet. 
-            therefore i have replaced all the meta data encoded as b'\x00' with their hexadecimal representation 
+            in dev 0.4.1.dev1603 somehow tinyint-> blob is not implemented yet.
+            therefore i have replaced all the meta data encoded as b'\x00' with their hexadecimal representation
             '''
 
             if dat:
@@ -1282,7 +1099,7 @@ class DuckDBDatabaseHandler():
     def create_series_specific_pgf_table (self, data_frame, pgf_table_name,experiment_name, series_identifier):
         """ adds new pgf table to the database        """
         self.database.register('df_1', data_frame)
-       
+
 
         try:
             # create a new sweep table
@@ -1383,7 +1200,7 @@ class DuckDBDatabaseHandler():
 
         # cast string and return as float value
         return float(val)
-    
+
     def get_pgf_file_selection(self,current_tab):
 
         """Should retrieve the pgf_files for all the files in the current analysis id
@@ -1414,7 +1231,7 @@ class DuckDBDatabaseHandler():
             CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.", self.frontend_style)
             return {"Segments are unequal"}
 
-   
+
     '''-------------------------------------------------------'''
     '''     interaction with  table resutls       '''
     '''-------------------------------------------------------'''
@@ -1501,7 +1318,7 @@ class DuckDBDatabaseHandler():
     def retrieve_selected_meta_data_list(self):
         meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
         return [meta_string]
-    
+
     @staticmethod
     def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
         """
@@ -1516,10 +1333,10 @@ class DuckDBDatabaseHandler():
     def get_selected_meta_data(self, analysis_function_id):
         # get the meta data table that is stored in the database
 		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
-       
+
         q_analysis = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
         q_specific = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
-        
+
         selected_meta_data = self.get_data_from_database(self.database,q_specific, fetch_mode = 2)["condition_column"].tolist()
         if selected_meta_data:
             return selected_meta_data
@@ -1529,11 +1346,11 @@ class DuckDBDatabaseHandler():
                 return selected_meta_data
             else:
                 return None
-            
-    
+
+
         """ @deprecated dz 27.07.2022
         def add_single_sweep_to_database(self, experiment_name, series_identifier, sweep_number, meta_data, data_array):
-        
+
          function to insert a new data array and related meta data information into the database
          :param experiment_name:
          :param series_identifier:
@@ -1541,7 +1358,7 @@ class DuckDBDatabaseHandler():
          :param meta_data:
          :param data_array:
          :return:
-    
+
 
         self.logger.info("Adding sweep %s of series %s of experiment %s into database", str(sweep_number),
                          series_identifier, experiment_name)
@@ -1591,8 +1408,8 @@ class DuckDBDatabaseHandler():
                                                   meta_data_df,"meta_data")
             except Exception as e:
                 print(e)
-        
-        
+
+
             def insert_into_existing_trace_table(self, table_name, sweep_number, data_frame, table_type):
         '''
         Inserts trace signals and meta data information into already existing tables in the database.
@@ -1669,7 +1486,7 @@ class DuckDBDatabaseHandler():
             print(series_identifier)
             print("Error::Couldn't create a new table with error %s", e)
             self.logger.info("Error::Couldn't create a new table with error %s", e)
-        
+
         """
 
 
@@ -1709,16 +1526,16 @@ class DuckDBDatabaseHandler():
         # finally disable pickle again
         np.load.__defaults__ = (None, False, True, 'ASCII')
         return res
-        
+
            def get_sweep_id_list_for_offline_analysis(self,series_name):
         """
         returns a list of id's of sweeps to be analyzed for this sepcific series name and analysis_id
         :param series_name:
         :return:
         """
-        q = """select r.sweep_id from (select s.experiment_name, s.series_identifier, s.sweep_id from sweeps s inner join 
-        experiment_analysis_mapping m where s.experiment_name = m.experiment_name AND m.analysis_id = (?)) r inner join 
-        experiment_series es where r.experiment_name = es.experiment_name AND r.series_identifier = es.series_identifier 
+        q = """select r.sweep_id from (select s.experiment_name, s.series_identifier, s.sweep_id from sweeps s inner join
+        experiment_analysis_mapping m where s.experiment_name = m.experiment_name AND m.analysis_id = (?)) r inner join
+        experiment_series es where r.experiment_name = es.experiment_name AND r.series_identifier = es.series_identifier
         AND es.series_name = (?) ;"""
         sweep_id_tuples = self.get_data_from_database(self.database,q,(self.analysis_id,series_name))
         sweep_id_list = []

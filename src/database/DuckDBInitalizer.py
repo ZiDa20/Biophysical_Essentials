@@ -2,13 +2,14 @@ import duckdb
 import os
 import sys
 from pathlib import Path
+import datetime
 
 
 class DuckDBInitializer:
-    def __init__(self, logger):
+    def __init__(self, logger, data_file):
         """_summary_
         """
-        self.db_file_name = "duck_db_analysis_database.db"
+        self.db_file_name = data_file
         self.logger = logger
         self.current_path = os.path.dirname(os.getcwd())
         self.dir_list = os.listdir(f"{os.path.dirname(os.getcwd())}/src/database/")
@@ -27,7 +28,7 @@ class DuckDBInitializer:
         # inserts new analysis id with default username admin
         # TODO implement roles admin, user, etc. ..
         self.analysis_id = self.insert_new_analysis("admin")
-        return self.database
+        return self.database, self.analysis_id
 
     def connect_database(self):
         '''Creates a new database or connects to an already existing database. Returns True if a new database has been created,
@@ -171,11 +172,10 @@ class DuckDBInitializer:
 
         time_stamp = datetime.datetime.now()
         q = f"insert into offline_analysis (date_time, user_name) values ('{time_stamp}','{user_name}')"
-        self.database = self.self.database.execute(q)
+        self.database = self.database.execute(q)
         self.logger.info("Started new Analysis for user %s at time %s", user_name, time_stamp)
 
         q = """select analysis_id from offline_analysis where date_time = (?) AND user_name = (?) """
-        self.analysis_id = self.database.execute(q, (time_stamp, user_name).fetchall()[0][0]
+        self.analysis_id = self.database.execute(q, (time_stamp, user_name)).fetchall()[0][0]
         self.logger.info("Analysis id for this analysis will be: %s", self.analysis_id)
         return self.analysis_id
-
