@@ -7,21 +7,12 @@ from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtTest import QTest
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
-from CustomWidget.EventSplitter import MySplitter
 from functools import partial
-import logging
 from qt_material import QtStyleTools
-from Backend.self_configuration import *
-from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
-from QT_GUI.Settings.ui_py.settings_dialog import *
 from StyleFrontend.frontend_style import Frontend_Style
 from database.data_db import DuckDBDatabaseHandler
-from StyleFrontend.animated_ap import AnimatedAP
-import matplotlib.animation as animation
-from matplotlib.backends.backend_qtagg import FigureCanvas
-from matplotlib.figure import Figure
-
-
+from StyleFrontend.animated_ap import LoadingAnimation
+import webbrowser
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -35,91 +26,25 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setMinimumSize(1600,800)
-        wait_widget = QWidget()
-        wait_widget_layout = QGridLayout()
+        self.setCentralWidget(self.ui.centralwidget)
+        self.center() #place the MainWindow in the center
+        self.setWindowTitle("BiophysicalEssentials (BPE)")
+        self.logger= start_logger # set the logger
 
-
-        self.ui.progressBar = QProgressBar()
-        self.ui.progressBar.setFixedWidth(250)
-        self.ui.progressBar.setAlignment(Qt.AlignLeft)
-
-
-        new_label = QLabel()
-        new_label.setText("Loading... \n Please Wait, your data is getting prepared ")
-        font = QFont()
-        font.setPointSize(15)
-        new_label.setFont(font)
-        new_label.setAlignment(Qt.AlignCenter)
-
-        wait_widget_layout.addWidget(new_label,0, 0, 1, 3)
-
-        canvas_widget = QWidget()
-        wait_widget_layout.addWidget(canvas_widget,1,1)
-
-        fig = Figure(figsize=(2,2))
-        canvas = FigureCanvas(fig)
-        canvas.setParent(canvas_widget)
-
-        # Create a plot on the figure
-        ax = fig.add_subplot(111)
-
-        ap = AnimatedAP(ax)
         # Create the animation using the update function and the time points as frames
-        anim = animation.FuncAnimation(fig, ap.anim_update, frames=len(ap.time), blit=True)
-
-        # Show the plot on the QWidget
-        # Create a QTimer
-        self.timer = QTimer()
-        self.timer.setInterval(50)
-        self.timer.timeout.connect(lambda: anim.event_source.start())
-        canvas.draw_idle()
-
-        #wait_widget_layout.addWidget(self.ui.progressBar,2,1)
-        status_label = QLabel("Staus Default")
-        status_label.setAlignment(Qt.AlignCenter)
-        font.setPointSize(12)
-        wait_widget_layout.addWidget(status_label,3,1)
-        #wait_widget_layout.addWidget(statusbar,3,0)
-        wait_widget_layout.addWidget(self.ui.progressBar,2,1)
-        wait_widget.setLayout(wait_widget_layout)
-        self.ui.offline.animation_layout.addWidget(wait_widget)
-
-        #self.ui.notebook.setCurrentIndex(3)
+        self.ap = LoadingAnimation()
+        self.ui.offline.animation_layout.addWidget(self.ap.wait_widget)
+        # Create the frontend style for the app
+        self.frontend_style = Frontend_Style(self)
         self.ui.offline.stackedWidget.setCurrentIndex(1)
-        #self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
-        # offline analysis
-
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
-
-
-
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
-        self.ui.offline.ap_timer = self.timer
-        self.ui.offline.status_label = status_label
-
-        self.ui.offline.offline_manager.set_status_and_progress_bar(status_label, self.ui.progressBar)
-
-        # Check if the program is launched to avoid resize event
-        self._not_launched = True
-        self.center() #place the MainWindow in the center
-        self.setWindowTitle("Biophysical Essentials")
-
-        # set the window geometry to the screen size
-        self.desktop = self.screen()
-        self.screenRect = self.desktop.availableGeometry()
-        self.setCentralWidget(self.ui.centralwidget)
-        # Logger for the Main function called start
-        self.logger=start_logger
-
-        #darkmode implementation 0 = white, 1 = dark
-        self.default_mode = 1
-        self.frontend_style = Frontend_Style()
-        self.change_to_lightmode()
-        # distribute this style object to all other classes to be used
-        # whenever the style will be changed, all classes share the same style object and adapt it's appearance
-        self.ui.offline.wait_widget = wait_widget
-        self.ui.offline.progressbar = self.ui.progressBar
+        self.ui.offline.ap_timer = self.ap.timer
+        self.ui.offline.status_label = self.ap.status_label
+        self.ui.offline.offline_manager.set_status_and_progress_bar(self.ap.status_label, self.ap.progress_bar)
+        self.ui.offline.wait_widget = self.ap.wait_widget
+        self.ui.offline.progressbar = self.ap.progress_bar
 
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
@@ -153,7 +78,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.ui_notebook = self.ui.notebook
         self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
 
-    def insert_row_of_buttons(self,grid_layout: QGridLayout):
+    def insert_row_of_buttons(self):
         """
         Function to insert a row of buttons to the start up grid
         """
@@ -171,34 +96,34 @@ class MainWindow(QMainWindow, QtStyleTools):
 
                 if col == 0:
                     new_button.clicked.connect(self.start_new_offline_analysis_from_dir)
-                    if self.default_mode == 1:
+                    if self.frontend_style.default_mode == 1:
                         icon.addFile(u"../QT_GUI/Button/Menu/open_dir.png", QSize(), QIcon.Normal, QIcon.Off)
                     else:
                         icon.addFile(u"../QT_GUI/Button/Menu/open_dir_dark.png", QSize(), QIcon.Normal, QIcon.Off)
                 elif col == 1:
                     new_button.clicked.connect(self.start_new_offline_analysis_from_db)
-                    if self.default_mode == 1:
+                    if self.frontend_style.default_mode == 1:
                         icon.addFile(u"../QT_GUI/Button/Menu/db.png", QSize(), QIcon.Normal, QIcon.Off)
                     else:
                         icon.addFile(u"../QT_GUI/Button/Menu/db_dark.png", QSize(), QIcon.Normal, QIcon.Off)
                 elif col == 2:
                     new_button.clicked.connect(self.open_analysis)
-                    if self.default_mode == 1:
+                    if self.frontend_style.default_mode == 1:
                         icon.addFile(u"../QT_GUI/Button/Menu/open_existing_results.png", QSize(), QIcon.Normal, QIcon.Off)
                     else:
                         icon.addFile(u"../QT_GUI/Button/Menu/open_exisiting_results_dark.png", QSize(), QIcon.Normal, QIcon.Off)
                 elif col == 3:
                     new_button.clicked.connect(self.go_to_offline_analysis)
-                    if self.default_mode == 1:
+                    if self.frontend_style.default_mode == 1:
                         icon.addFile(u"../QT_GUI/Button/light_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
                     else:
                         icon.addFile(u"../QT_GUI/Button/dark_mode/offline_analysis/go_right.png", QSize(), QIcon.Normal, QIcon.Off)
 
-
-                if self.default_mode == 1:
+                if self.frontend_style.default_mode == 1:
                     new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
                 else:
                     new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
+
                 new_button.setIcon(icon)
                 new_button.setIconSize(QSize(200, 200))
                 new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -207,9 +132,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.ui.side_left_menu.hide()
 
-
     def open_analysis(self):
-        """_summary_
+        """Should open a already performed analysis
         """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
@@ -237,7 +161,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         open the webside of BPE
         """
-        import webbrowser
+
         url = "https://www.google.com/"
         webbrowser.open(url, new=0, autoraise=True)
 
@@ -255,7 +179,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-
     def transfer_file_to_online(self):
         """Function to transfer the Patchmaster generated .Dat file to the online Analysis
         for further analysis
@@ -264,52 +187,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text())
         self.ui.online.open_single_dat_file(str(file_path))
 
-    def quit_application(self):
-        """ Function to quit the app"""
-        QCoreApplication.quit()
-
-    def change_to_lightmode(self):
-        """DarkMode LightMode Switch
-        """
-
-        if self.get_darkmode() == 1:
-            self.set_darkmode(0)
-            #self.apply_stylesheet(self, "light_blue.xml", invert_secondary=True)
-            self.apply_stylesheet(self, 'dark_mode.xml', invert_secondary=False)
-            # open the extension from the css file
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button.css") as file:
-                self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-                #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_light())
-                #self.frontend_style.change_canvas_bright()
-            #self.ui.database_viewer_home_2.setIcon(QIcon("../QT_GUI/Button/welcome_page/db_welcome_dark.png"))
-
-        else:
-            self.set_darkmode(1) # set the darkmode back to 1 for the switch
-            self.apply_stylesheet(self, f"{os.getcwd()}/StyleFrontend/white_mode.xml", invert_secondary=False)
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
-                self.setStyleSheet(self.styleSheet() +file.read().format(**os.environ))
-                #self.ui.side_left_menu.setStyleSheet(self.frontend_style.get_sideframe_dark())
-                #self.frontend_style.change_canvas_dark()
-
-        self.ui.config.set_darkmode(self.default_mode)
-        self.ui.config.setting_appearance()
-        #  make sure to have all popups  in the same changed theme color
-        self.frontend_style.current_style=self.default_mode
-
-    def set_darkmode(self, default_mode: bool):
-        """Is important for setting the dark mode and white mode
-
-        Args:
-            default_mode (int): 0 or 1 for dark or light mode
-        """
-        self.default_mode = default_mode
-
-    def get_darkmode(self):
-        "returns the darkmode state"
-        return self.default_mode
-
 if __name__ == "__main__":
     """Main function to start the application"""
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+    os.environ["QT_SCALE_FACTOR"] = '1'
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     #app.setAttribute(Qt.AA_UseHighDpiPixmaps)

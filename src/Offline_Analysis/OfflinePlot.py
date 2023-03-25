@@ -28,7 +28,7 @@ class OfflinePlots():
 
         """
         self.frontend = frontend
-        if self.frontend.current_style == 0:
+        if self.frontend.default_mode == 0:
             self.frontend.set_mpl_style_dark()
         else:
             self.frontend.set_mpl_style_white()
