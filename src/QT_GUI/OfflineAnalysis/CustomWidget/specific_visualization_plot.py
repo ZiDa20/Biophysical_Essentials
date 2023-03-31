@@ -13,7 +13,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from CustomWidget.groupbox_resizing_class import *
 from matplotlib.backends.backend_qtagg import FigureCanvas
-
+from functools import partial
 
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
@@ -183,14 +183,14 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
 
         self.parameter_label.hide()
         self.parameter_combobox.hide()
-                    
+
     def on_click(self, event, annot):
         """Event Detection in the Matplotlib Plot
-        
+
         Args:
             event (mpl_connect_event): Event Connection via hovering motion notify
             annot (ax.annotate): Annotations of the axis
-        
+
         """
         for line in self.ax.lines:
             #check if the selected line is drawn
@@ -203,7 +203,7 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
                 line.set_linewidth(1)
 
             self.canvas.draw_idle()
-    
+
     def update_annot(self, ind: tuple, annot, line):
         """Annotation Update for visualization of the lineplot name
         when hovering
@@ -220,7 +220,7 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
         text = f'{" ".join(list(map(str, ind["ind"])))}, {" ".join([name for _ in ind["ind"]])}'
         annot.set_text(text)
         annot.get_bbox_patch().set_alpha(0.4)
-        
+
     def connect_hover(self, plot):
         """Function to connect the plot with the on_click function
 
@@ -228,21 +228,21 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
             plot (seaborn plot): seaborn plot (g) which should be connected
         """
         self.ax.legend().set_visible(False)
-        
+
         annot = self.ax.annotate("", xy=(0,0), xytext=(-20,20),textcoords="offset points",
                     bbox=dict(boxstyle="round", fc="w"),
                     arrowprops=dict(arrowstyle="->"))
         annot.set_visible(False)
-        
-        self.canvas.mpl_connect("motion_notify_event", 
-                                    lambda event: self.on_click(event, 
+
+        self.canvas.mpl_connect("motion_notify_event",
+                                    lambda event: self.on_click(event,
                                                                 annot
                                                                 ))
         self.canvas.mpl_connect("button_press_event",self.on_pick)
 
     def on_pick(self, event):
         """Event Detection in the Matplotlib Plot to retrieve the Experiment from the TreeView
-        
+
         Args:
             event (mpl_connect_event): Event Connection via button pressing"""
         for line in self.ax.lines:
@@ -254,5 +254,28 @@ class ResultPlotVisualizer(QWidget, Ui_result_plot_visualizer):
                 self.offline_tree.offline_analysis_result_tree_item_clicked()
                 self.offline_tree.click_top_level_tree_item(name)
 
-       
+
+    def add_labels_to_plot(self, plot_type_list: list, visualization_func: callable) -> None:
+        """This function adds the labels to the plot in the combobox to select
+        the appropiate visualization function to be run in the offline plot
+
+        Args:
+            plot_type_list (list): Option List of Visualization Functions
+        """
+        if self.plot_type_combo_box.currentText() not in plot_type_list:
+            self.plot_type_combo_box.addItems(plot_type_list)
+            self.plot_type_combo_box.currentTextChanged.connect(
+                partial(self.plot_type_changed, visualization_func))
+
+
+    def plot_type_changed(self, func, new_text):
+        """
+        Will change the plot type whenever the combo box selected item is changed by the user
+        @param parent_widget: custom widget class ResultPlotVisualizer
+        @param new_text: item text of the new displayed item in the combo boc
+        @author dz, 13.07.2022
+        """
+        func(self,new_text, switch = True)
+
+
 

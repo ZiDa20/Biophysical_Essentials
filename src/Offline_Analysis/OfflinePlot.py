@@ -1,3 +1,4 @@
+from __future__ import annotations
 from loggers.offlineplot_logger import offlineplot_logger
 import pandas as pd
 import seaborn as sns
@@ -64,12 +65,11 @@ class OfflinePlots():
             canvas (Figure Canvas): Matplotlib Figure Canvas holding the plot
         """
 
-        #parent_widget.canvas = canvas
         parent_widget.ax = parent_widget.canvas.figure.subplots()
         self.frontend.ax.append(parent_widget.ax)
         self.frontend.canvas = parent_widget.canvas
 
-    def set_metadata_table(self, result_table_list):
+    def set_metadata_table(self, result_table_list: list) -> None:
         """_summary_: Sets the metadata table retrieved from the result_table_list
 
         Args:
@@ -86,12 +86,12 @@ class OfflinePlots():
         self.meta_data = self.meta_data.dropna(axis='columns', how ='all')
         self.meta_data = self.meta_data.fillna("None")
 
-    def retrieve_analysis_function(self,parent_widget= None, result_table_list = None, switch = None):
+    def retrieve_analysis_function(self,parent_widget= None, result_table_list: list = None, switch: bool = None):
         """Retrieves the appropriate Analysis Function, sets the parent widget as instance variable
         retrieves the analysis function id from from parent widget and also evaluate the swithc
 
         Args:
-            parent_widget (_type_): The Parent Widget to draw in the canvas
+            parent_widget (QTWidget[]): The Parent Widget to draw in the canvas
             result_table_list (_type_): The tables that will be visualized for the specific series
             analysis_function (_type_): The analysis function choosen for the specific series
             switch (bool): Should indicate if redraw without
@@ -120,7 +120,7 @@ class OfflinePlots():
 
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
 
-    def make_boxplot(self,result_table_list: list):
+    def make_boxplot(self,result_table_list: list) -> None:
 
         """Specific Function to draw Boxplots from long table formats
         of different Analysis Function
@@ -148,7 +148,7 @@ class OfflinePlots():
         self.add_data_frame_to_result_dictionary(self.parent_widget.holded_dataframe)
 
 
-    def simple_plot(self, result_table_list:list):
+    def simple_plot(self, result_table_list:list) -> None:
         """
         Plot all data without incorporating meta data groups
         :param result_table_list: the list of result tables for the specific analysis
@@ -171,7 +171,7 @@ class OfflinePlots():
         self.parent_widget.export_data_frame = pivoted_table
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
-    def rheobase_plot(self, result_table_list:list):
+    def rheobase_plot(self, result_table_list:list) -> None:
         """Plotting Function to draw rheobase boxplot into the OfflineAnalysisResultAnalyzer
 
         Args:
@@ -195,7 +195,7 @@ class OfflinePlots():
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
 
-    def merge_meta_plot_and_assign_meta(self, plot_dataframe: pd.DataFrame):
+    def merge_meta_plot_and_assign_meta(self, plot_dataframe: pd.DataFrame) -> None:
         """_summary_
 
         Args:
@@ -241,7 +241,7 @@ class OfflinePlots():
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
 
-    def rheoramp_plot(self, result_table_list: list):
+    def rheoramp_plot(self, result_table_list: list) -> None:
         """Creates Lineplot and boxplot for Rheoramp Protocols
 
         Args:
@@ -267,7 +267,7 @@ class OfflinePlots():
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
-    def initiate_hidden_selection_widgets(self):
+    def initiate_hidden_selection_widgets(self) -> None:
         """
         specific function to show single ap parameter:  therefore, a hidden combobox is made visible
         """
@@ -279,7 +279,7 @@ class OfflinePlots():
         self.parent_widget.parameter_combobox.currentIndexChanged.connect(self.show_single_ap_param_selected_in_combobox)
 
 
-    def single_ap_parameter_plot(self, result_table_list:list):
+    def single_ap_parameter_plot(self, result_table_list:list) -> None:
         """
         creates a boxplot of a single AP parameter, specific ap can be selected by the user
         therefore, a hidden combobox is made visible
@@ -334,7 +334,7 @@ class OfflinePlots():
         # calculate a mean for each column per meta data type
         self.ap_fitting_plot(result_table_list, True)
 
-    def ap_fitting_plot(self, result_table_list: list, agg: bool = False):
+    def ap_fitting_plot(self, result_table_list: list, agg: bool = False) -> None:
         """Should Create the Heatmap for each Fitting Parameter
         calculated by the APFitting Procedure
 
@@ -412,7 +412,7 @@ class OfflinePlots():
         self.parent_widget.canvas.draw_idle()
 
 
-    def regression_plot(self, result_table_list: list):
+    def regression_plot(self, result_table_list: list) -> None:
         """Draws a Regression line which determines the slope of the
 
         Args:
@@ -491,7 +491,7 @@ class OfflinePlots():
         self.parent_widget.canvas.figure.tight_layout()
         return pivoted_table
 
-    def comparison_plot(self, plot_dataframe):
+    def comparison_plot(self, plot_dataframe: pd.DataFrame) -> None:
         """Creates a comparison plot using either boxplots or violin plots
         as selected
 
@@ -504,7 +504,7 @@ class OfflinePlots():
         else:
             self.box_plot_maker(plot_dataframe)
 
-    def violin_plot_maker(self, plot_dataframe):
+    def violin_plot_maker(self, plot_dataframe: pd.DataFrame) -> None:
         """_summary_: Draws a Violin and a Swarmplot from the data
 
         Args:
@@ -518,7 +518,7 @@ class OfflinePlots():
 
         self.swarm_plot(plot_dataframe, 10, g)
 
-    def box_plot_maker(self, plot_dataframe):
+    def box_plot_maker(self, plot_dataframe: pd.DataFrame) -> None:
         """_summary_: Draws a boxplot and a Swarmplot from the data
 
         Args:
@@ -532,7 +532,7 @@ class OfflinePlots():
         self.parent_widget.ax.tick_params(axis='x', rotation=45)
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
-    def swarm_plot(self, plot_dataframe, size, g):
+    def swarm_plot(self, plot_dataframe: pd.DataFrame, size: int, g) -> None:
         z = sns.swarmplot(
             data=plot_dataframe,
             x="meta_data",
@@ -546,8 +546,10 @@ class OfflinePlots():
         self.parent_widget.canvas.figure.tight_layout()
 
 
-    def scatter_plot_make(self, plot_dataframe, explaind_ratios = None):
-        """_summary_: Creates a scatter plot from the data"""
+    def scatter_plot_make(self, plot_dataframe: pd.DataFrame, explaind_ratios:list = None) -> None:
+        """_summary_: Creates a scatter plot from the data
+        plot_dataframe needs to have the columns PC1 and PC2
+        explaind_ratios is a list of the explained ratios of the first two components"""
         sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
         if explaind_ratios:
             self.parent_widget.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
@@ -556,7 +558,7 @@ class OfflinePlots():
         self.parent_widget.canvas.figure.tight_layout()
 
 
-    def line_boxplot(self, plot_dataframe):
+    def line_boxplot(self, plot_dataframe: pd.DataFrame):
         """_summary_: Creates a line plot with boxplots
 
         Args:
@@ -585,7 +587,7 @@ class OfflinePlots():
     # Upload Data Controls
     ################################################################################
 
-    def add_data_frame_to_result_dictionary(self, dataframe: pd.DataFrame):
+    def add_data_frame_to_result_dictionary(self, dataframe: pd.DataFrame) -> None:
         """_summary_ Should add the dataframe to the result dictionary
 
         Args:

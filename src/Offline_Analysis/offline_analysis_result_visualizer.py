@@ -12,6 +12,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler i
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
+from loggers.offlineplot_logger import offlineplot_logger
 
 
 
@@ -49,6 +50,8 @@ class OfflineAnalysisResultVisualizer():
                      self.final_result_holder)
 
         self.change_meta_data = plot_meta_button
+        self.logger = offlineplot_logger
+        self.logger.info("Successfully initialized the Offline Analysis Result Visualizer")
 
 
     def show_results_for_current_analysis(self,analysis_id: int, series_name = None):
@@ -115,8 +118,8 @@ class OfflineAnalysisResultVisualizer():
             widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
             widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
 
-            print("x pos widget = ", widget_x_pos)
-            print("y pos widget = ", widgte_y_pos)
+            self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
+            self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
             parent_list.append(custom_plot_widget)
 
@@ -147,7 +150,6 @@ class OfflineAnalysisResultVisualizer():
         dialog.setWindowModality(Qt.ApplicationModal)
         dialog.exec_()
 
-
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
         for parent in parents:
             self.offlineplot.retrieve_analysis_function(parent_widget = parent)
@@ -166,10 +168,9 @@ class OfflineAnalysisResultVisualizer():
         self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
 
         if analysis_function is None:
-            #if class_object.database is None:
-            #    print("I am setting the database")
             result_table_names = class_object.visualize_results(parent_widget, self.database_handler)
             if result_table_names:
+                self.logger.info("No analysis function specified, retrieving first available analysis function")
                 analysis_function = class_object.plot_type_options[0]
             else:
                 analysis_function = None
@@ -182,6 +183,7 @@ class OfflineAnalysisResultVisualizer():
 
         # switch checks if the current plot type is switched in the combobox within the plot widget
         if switch:
+            self.logger.info("Switching plot type, retrieving analysis function")
             self.offlineplot.retrieve_analysis_function(parent_widget = parent_widget,
                                                         result_table_list = result_table_names,
                                                         switch = True)
@@ -207,36 +209,30 @@ class OfflineAnalysisResultVisualizer():
         @param plot_type_list: list of display options to be displayed in the combo box dropdown, such as boxplot, ...
         @author dz, 13.07.2022
         """
-        try:
-            # print("overriding existing plot widget")
 
-            # remove the old plot if there is one already existing
+            # print("overriding existing plot widget")
+        if isinstance(plot_type_list, list):
+        # remove the old plot if there is one already existing
             for i in reversed(range(parent_widget.plot_layout.count())):
                 parent_widget.plot_layout.itemAt(i).widget().deleteLater()
-            #parent_widget.plot_layout.takeAt(0)
+
             # create a new plot and insert it into the already exsiting plot layout
+            self.logger.info("Creating a new plot widget")
             parent_widget.canvas = FigureCanvas(Figure())
             parent_widget.canvas.setMinimumSize(500, 500)  # set minimum size for the canvas
             parent_widget.canvas.setMaximumSize(1000, 500)
-            #self.canvas.mpl_connect('resize_event', self.handle_canvas_resize)
+
             self.scroll_area = QScrollArea()
             self.scroll_layout = QGridLayout()
             self.scroll_layout.addWidget(parent_widget.canvas)
             self.scroll_area.setWidgetResizable(True)
             self.scroll_area.setWidget(parent_widget.canvas)
             parent_widget.plot_layout.addWidget(self.scroll_area)
+            parent_widget.add_labels_to_plot(plot_type_list, self.single_analysis_visualization)
             # add options only once
-            try:
-                if parent_widget.plot_type_combo_box.currentText() not in plot_type_list:
-                    parent_widget.plot_type_combo_box.addItems(plot_type_list)
-
-                    parent_widget.plot_type_combo_box.currentTextChanged.connect(
-                        partial(self.plot_type_changed, parent_widget))
-            except Exception as e:
-                print(e)
-
-        except Exception as e:
-            print(e)
+        else:
+            self.logger.error(f"""The plot options in the combobox are not of list type but of type {type(plot_type_list)}
+                              Also the plot type list is {plot_type_list}""")
 
 
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
@@ -246,15 +242,16 @@ class OfflineAnalysisResultVisualizer():
         @param parent_widget: custom widget class ResultPlotVisualizer
         @author dz, 13.07.2022
         """
+        self.logger.info("Exporting data started to csv!")
         result_directory = QFileDialog.getExistingDirectory()
         try:
             parent_widget.export_data_frame.to_csv(
                 f"{result_directory}/result_export_analysis_function_id_{str(parent_widget.analysis_function_id)}.csv"
             )
             print("file stored successfully")
+            self.logger.info("Successfully stored results")
         except Exception as e:
-            print("Results were not stored successfully")
-            print(e)
+            self.logger.error(f"Could not store results error message: {str(e)}")
 
     def save_plot_as_image(self,parent_widget:ResultPlotVisualizer):
         """
@@ -262,15 +259,7 @@ class OfflineAnalysisResultVisualizer():
         @param parent_widget: custom widget class ResultPlotVisualizer
         @author dz, 13.07.2022
         """
+        self.logger.info("Saving plot as image")
         result_path = QFileDialog.getSaveFileName()[0]
         parent_widget.canvas.print_figure(result_path)
         #print("saved plot in " + result_path)
-
-    def plot_type_changed(self, parent_widget, new_text):
-        """
-        Will change the plot type whenever the combo box selected item is changed by the user
-        @param parent_widget: custom widget class ResultPlotVisualizer
-        @param new_text: item text of the new displayed item in the combo boc
-        @author dz, 13.07.2022
-        """
-        self.single_analysis_visualization(parent_widget,new_text, switch = True)
