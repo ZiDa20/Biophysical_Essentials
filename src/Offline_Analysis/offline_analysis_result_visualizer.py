@@ -5,7 +5,7 @@ from functools import partial
 from PySide6.QtWidgets import *
 from matplotlib.figure import Figure
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
-from CustomWidget.ResizedFigure import MyFigureCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
 from Offline_Analysis.OfflinePlot import OfflinePlots
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
@@ -214,17 +214,14 @@ class OfflineAnalysisResultVisualizer():
             for i in reversed(range(parent_widget.plot_layout.count())):
                 parent_widget.plot_layout.itemAt(i).widget().deleteLater()
             #parent_widget.plot_layout.takeAt(0)
-            self.fig = Figure()
             # create a new plot and insert it into the already exsiting plot layout
-            parent_widget.canvas= MyFigureCanvas(self.fig)
-
+            parent_widget.canvas = FigureCanvas(Figure())
+            parent_widget.canvas.setMinimumSize(500, 500)  # set minimum size for the canvas
+            parent_widget.canvas.setMaximumSize(1000, 500)
             #self.canvas.mpl_connect('resize_event', self.handle_canvas_resize)
             self.scroll_area = QScrollArea()
-            #self.spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.scroll_layout = QGridLayout()
-            #self.scroll_layout.addItem(self.spacer, 0,0)
             self.scroll_layout.addWidget(parent_widget.canvas)
-            #self.scroll_layout.addItem(self.spacer,0,2)
             self.scroll_area.setWidgetResizable(True)
             self.scroll_area.setWidget(parent_widget.canvas)
             parent_widget.plot_layout.addWidget(self.scroll_area)
@@ -241,13 +238,6 @@ class OfflineAnalysisResultVisualizer():
         except Exception as e:
             print(e)
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.MouseButtonRelease:
-            # do something with the mouse release event here
-            print("Mouse released on splitter")
-
-            # return True to filter the event and prevent it from being propagated
-            return True
 
     def export_plot_data(self,parent_widget:ResultPlotVisualizer):
         """
@@ -265,7 +255,6 @@ class OfflineAnalysisResultVisualizer():
         except Exception as e:
             print("Results were not stored successfully")
             print(e)
-
 
     def save_plot_as_image(self,parent_widget:ResultPlotVisualizer):
         """

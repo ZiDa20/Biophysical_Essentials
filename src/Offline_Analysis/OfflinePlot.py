@@ -5,8 +5,6 @@ import numpy as np
 from matplotlib.cm import get_cmap
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import \
     SpecificAnalysisFunctions
-
-
 class OfflinePlots():
 
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
@@ -100,10 +98,7 @@ class OfflinePlots():
         """
 
         # code goes here
-
-
         self.parent_widget = parent_widget
-
         if switch:
             self.parent_widget.holded_dataframe = None
 
@@ -145,6 +140,7 @@ class OfflinePlots():
                 ax.clear()
 
         self.comparison_plot(self.parent_widget.holded_dataframe)
+
         self.parent_widget.canvas.draw_idle()
         self.logger.info("Created Boxplot successfully")
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
@@ -508,7 +504,6 @@ class OfflinePlots():
         else:
             self.box_plot_maker(plot_dataframe)
 
-
     def violin_plot_maker(self, plot_dataframe):
         """_summary_: Draws a Violin and a Swarmplot from the data
 
@@ -534,8 +529,7 @@ class OfflinePlots():
                     y = "Result",
                     ax = self.parent_widget.ax,
                     width = 0.5)
-
-        #self.swarm_plot(plot_dataframe, 2, g)
+        self.parent_widget.ax.tick_params(axis='x', rotation=45)
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
     def swarm_plot(self, plot_dataframe, size, g):
