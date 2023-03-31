@@ -1,5 +1,5 @@
 
-from QT_GUI.OfflineAnalysis.CustomWidget.specific_visualization_plot import ResultPlotVisualizer
+from Offline_Analysis.ResultPlotVisualizer import ResultPlotVisualizer
 from database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
@@ -13,7 +13,6 @@ from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from loggers.offlineplot_logger import offlineplot_logger
-
 
 
 class OfflineAnalysisResultVisualizer():
