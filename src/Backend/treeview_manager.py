@@ -1,18 +1,11 @@
-import sys
-import os
-
 import numpy as np
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from DataReader.heka_reader import Bundle
 from functools import partial
-import csv
-
 import logging
-from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-from time import sleep
 from database.data_db import *
 import pandas as pd
 from DataReader.ABFclass import AbfReader
@@ -21,21 +14,10 @@ from Backend.cancel_button_delegate import CancelButtonDelegate
 from Offline_Analysis.tree_model_class import TreeModel
 import itertools
 
-
 class TreeViewManager:
-    """ Main class to handle interactions with treeviews. In general two  usages are defined right now:
-    1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
-    2) read a single .dat file without writing to the database.
-
-    Each time a NEW tree view will be needed, a new instance of this class will be generated representing a new treeview
-    object. Objects might be changed in a later request.
-    ---
-
-    This class is splitted into the following subsections:
-    A) Create treeview functions
-    B) Functions to interact with created treeviews
-    C) Helper Functions
-
+    """
+    Manager class to handle actions for given tree view objects. 
+    Tree views are parts of the offline as well as the online analysis
     __author__: dz
     """
 
@@ -58,6 +40,7 @@ class TreeViewManager:
         # frontend style can be set to show all popups in the correct theme and color
         self.frontend_style = None
 
+        """
         self.analysis_mode = 0
         # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
         if self.database_handler is None:
@@ -65,6 +48,7 @@ class TreeViewManager:
         else:
             self.analysis_mode = 1
             print("setting analysis mode 1 (offline analysis)")
+        """
 
         self.threadpool = QThreadPool()
     
@@ -240,13 +224,14 @@ class TreeViewManager:
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
         
         # assign the models to the visible treeview objects
-        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,True)
+        col_count = len(selected_table_view_table["type"].unique())
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
         self.tree_build_widget.selected_tree_view.expandAll()
 
         
-        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,False)       
+        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False,col_count)       #self.discarded_model.header().count()
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()   

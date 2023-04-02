@@ -4,12 +4,13 @@ from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionButton, QPushButt
 
 class CancelButtonDelegate(QStyledItemDelegate):
     
-    def __init__(self, parent=None, delete = True):
+    def __init__(self, parent:QTreeView, delete:bool, col_count:int):
         self.delete = delete
+        self.col_count = col_count
         super(CancelButtonDelegate, self).__init__(parent)
 
     def paint(self, painter, option, index):
-        if index.column() == 2:  # assuming the pixmap will be in the last column
+        if index.column() == self.col_count:  # assuming the pixmap will be in the last column
             if self.delete:
                 pixmap = QPixmap(r"../QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png")
             else:
@@ -31,7 +32,7 @@ class CancelButtonDelegate(QStyledItemDelegate):
             super(CancelButtonDelegate, self).paint(painter, option, index)
 
     def sizeHint(self, option, index):
-        if index.column() == 2:
+        if index.column() == self.col_count:
             return QSize(20, 20)
         else:
             return super(CancelButtonDelegate, self).sizeHint(option, index)
