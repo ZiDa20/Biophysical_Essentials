@@ -34,7 +34,7 @@ class Ui_Form(QWidget):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
         self.groupBox_4.setSizePolicy(sizePolicy1)
-        self.groupBox_4.setMinimumSize(QSize(550, 0))
+        self.groupBox_4.setMinimumSize(QSize(0, 0))
         self.groupBox_4.setMaximumSize(QSize(600, 16777215))
         font = QFont()
         font.setPointSize(14)

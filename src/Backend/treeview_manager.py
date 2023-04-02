@@ -17,6 +17,7 @@ from database.data_db import *
 import pandas as pd
 from DataReader.ABFclass import AbfReader
 from Backend.plot_widget_manager import PlotWidgetManager
+from Backend.cancel_button_delegate import CancelButtonDelegate
 from Offline_Analysis.tree_model_class import TreeModel
 import itertools
 
@@ -236,10 +237,13 @@ class TreeViewManager:
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
 
         # create the models for the selected and discarded tree
+
         self.selected_model = TreeModel(selected_table_view_table)
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
         
-        # assign the models to the visible treeview objects 
+        # assign the models to the visible treeview objects
+        delegate = CancelButtonDelegate(self.tree_build_widget.selected_tree_view) 
+        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate)
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
         self.tree_build_widget.selected_tree_view.expandAll()      
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
