@@ -13,6 +13,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
 
+
 class Ui_Form(QWidget):
     def setupUi(self, Form):
         if not Form.objectName():
@@ -34,7 +35,7 @@ class Ui_Form(QWidget):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
         self.groupBox_4.setSizePolicy(sizePolicy1)
-        self.groupBox_4.setMinimumSize(QSize(0, 0))
+        self.groupBox_4.setMinimumSize(QSize(550, 0))
         self.groupBox_4.setMaximumSize(QSize(600, 16777215))
         font = QFont()
         font.setPointSize(14)
@@ -98,6 +99,18 @@ class Ui_Form(QWidget):
 
         self.gridLayout_2.addWidget(self.discarded_tree_view, 0, 0, 1, 1)
 
+        self.discarded_meta_data_label = QLabel(self.discarded_tab)
+        self.discarded_meta_data_label.setObjectName(u"discarded_meta_data_label")
+
+        self.gridLayout_2.addWidget(self.discarded_meta_data_label, 2, 0, 1, 1)
+
+        self.line_2 = QFrame(self.discarded_tab)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_2.addWidget(self.line_2, 1, 0, 1, 1)
+
         self.directory_tree_widget.addTab(self.discarded_tab, "")
 
         self.gridLayout_5.addWidget(self.directory_tree_widget, 0, 0, 1, 1)
@@ -108,7 +121,7 @@ class Ui_Form(QWidget):
 
         self.retranslateUi(Form)
 
-        self.directory_tree_widget.setCurrentIndex(0)
+        self.directory_tree_widget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -119,9 +132,9 @@ class Ui_Form(QWidget):
         self.groupBox_4.setTitle(QCoreApplication.translate("Form", u"Experiment Hierarchie", None))
         self.descriptive_meta_data_label.setText(QCoreApplication.translate("Form", u"TextLabel", None))
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.selected_tab), QCoreApplication.translate("Form", u"Selected", None))
+        self.discarded_meta_data_label.setText(QCoreApplication.translate("Form", u"TextLabel", None))
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarded_tab), QCoreApplication.translate("Form", u"Discarded", None))
     # retranslateUi
-
 
 class TreeBuild(Ui_Form):
     def __init__(self,parent = None):

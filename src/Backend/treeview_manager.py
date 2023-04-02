@@ -220,15 +220,13 @@ class TreeViewManager:
         selected_table_view_table = self.create_data_frame_for_tree_model(False, self.show_sweeps_radio.isChecked())
         discarded_table_view_table = self.create_data_frame_for_tree_model(True, self.show_sweeps_radio.isChecked())
 
-        label = None
-        for type in selected_table_view_table["type"].unique():
-            cnt = len(selected_table_view_table[selected_table_view_table["type"] == type])
-            if label:
-                label = label + ", " + type + " : " + str(cnt)
-            else:
-                label = type + " : " + str(cnt)
-
-        self.tree_build_widget.descriptive_meta_data_label.setText(label)
+        # set the label below selected and discarded treeview
+        for table,label_object in zip([selected_table_view_table, discarded_table_view_table],[self.tree_build_widget.descriptive_meta_data_label, self.tree_build_widget.discarded_meta_data_label]):
+            unique_types = table["type"].unique()
+            counts = [len(table[table["type"] == type]) for type in unique_types]
+            labels = [f"{type}: {cnt}" for type, cnt in zip(unique_types, counts)]
+            label = ", ".join(labels)
+            label_object.setText(label)
 
         print("new table \n ", selected_table_view_table)
 
@@ -1123,7 +1121,7 @@ class TreeViewManager:
             table_name = table_name["sweep_table_name"].values[0]
             df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
             df.to_csv(file_name)
-        print("hello from the other side")
+        #print("hello from the other side")
 
 
     """
