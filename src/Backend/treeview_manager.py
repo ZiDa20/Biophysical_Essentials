@@ -242,10 +242,14 @@ class TreeViewManager:
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
         
         # assign the models to the visible treeview objects
-        delegate = CancelButtonDelegate(self.tree_build_widget.selected_tree_view) 
-        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate)
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,True)
+        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
-        self.tree_build_widget.selected_tree_view.expandAll()      
+        self.tree_build_widget.selected_tree_view.expandAll()
+
+        
+        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,False)       
+        self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()   
         # display the correct columns according to the selected metadata and sweeps
