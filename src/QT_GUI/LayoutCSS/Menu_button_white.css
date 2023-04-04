@@ -266,9 +266,14 @@ QToolTip[objectName="plot_meta"] {{color: #ffffff; background-color: #000000; bo
 QPushButton[objectName="series_to_csv"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_series.png);}}
 QToolTip[objectName="series_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-
 QPushButton[objectName="experiment_to_csv"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_experiment_save.png);}}
 QToolTip[objectName="experiment_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="transfer_to_offline_analysis"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/upload.png);}}
+QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/open_dir.png);}}
+QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 
 QPushButton[objectName="change_series_name"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/rename.png);}}  

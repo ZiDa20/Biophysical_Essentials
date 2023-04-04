@@ -38,8 +38,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         ##########
         self.canvas_live_plot = FigureCanvas(Figure(figsize=(5, 3)))
-        self.online_analysis_tabs.currentChanged.connect(self.tab_switched)
-        self.verticalLayout_6.addWidget(self.canvas_live_plot)
+        #self.online_analysis_tabs.currentChanged.connect(self.tab_switched)
+        #self.verticalLayout_6.addWidget(self.canvas_live_plot)
         # Connect the buttons, connect the logger
         self.connections_clicked()
         self.logger_connection()
@@ -48,7 +48,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.database_handler = None
         self.online_analysis_plot_manager = None
         self.online_analysis_tree_view_manager = None
-
+        self.labbook_table = None
         self.frontend_style = None
 
     def tab_switched(self, i):
@@ -204,15 +204,15 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             # transfer_into_db_button will be displayed and will call self.transfer_file_and_meta_data_into_db when
             # clicked
 
-
     @Slot()
     def online_analysis_tab_changed(self):
         """handler if the tab is changed, tab 0: online analysis, tab 1: labbook"""
         if self.online_analysis.currentIndex() == 0:
             #self.tree_layouting_change.addWidget(self.tree_tab_widget)
             self.gridLayout_18.addWidget(self.online_treeview)
+            print("yeah")
         if self.online_analysis.currentIndex() == 1:
-            self.gridLayout_6.addWidget(self.online_treeview)
+            #self.gridLayout_6.addWidget(self.online_treeview)
             self.get_columns_data_to_table()
             #self.verticalLayout.addWidget(self.tree_tab_widget)
         if self.online_analysis.currentIndex() == 2:
@@ -230,7 +230,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # open selection and retake users file selection
         self.online_analysis.setCurrentIndex(0)
-        self.online_analysis_tabs.setCurrentIndex(0)
+        #self.online_analysis_tabs.setCurrentIndex(0)
 
         if file_name is False:
             #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]
@@ -457,11 +457,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
     def draw_table(self, data):
         """ draws the table of the .dat metadata as indicated by the .pul Bundle file """
         try:
-            labbook_table = QTableView()
+            if self.labbook_table is None:
+                self.labbook_table = QTableView()
+                self.table_layout.addWidget(self.labbook_table)
+
             table_model = PandasTable(data)
-            labbook_table.setModel(table_model)
-            self.table_layout.addWidget(labbook_table)
-            labbook_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.labbook_table.setModel(table_model)
+            self.labbook_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception as e:
             print(e)
 

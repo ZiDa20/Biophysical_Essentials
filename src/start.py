@@ -70,7 +70,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.online.online_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
 
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
