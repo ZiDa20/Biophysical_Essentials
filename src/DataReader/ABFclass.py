@@ -19,7 +19,6 @@ class AbfReader():
         self.logger = abf_logger
         self.metadata_table = None
         self.data_table = None
-        self.initialize_logger()
         try:
             self.abf_path_id: list = self.abf_path.split("/")[-1].split("_")[:2]
             self.abf_path_id: str = "_".join(self.abf_path_id)

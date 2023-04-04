@@ -6,11 +6,12 @@ import datetime
 
 
 class DuckDBInitializer:
-    def __init__(self, logger, data_file):
+    def __init__(self, logger, data_file, in_memory):
         """_summary_
         """
         self.db_file_name = data_file
         self.logger = logger
+        self.in_memory = in_memory
         self.current_path = os.path.dirname(os.getcwd())
         self.dir_list = os.listdir(f"{os.path.dirname(os.getcwd())}/src/database/")
         self.return_value = False
@@ -42,8 +43,12 @@ class DuckDBInitializer:
         try:
             # self.database = duckdb.connect(database=':memory:', read_only=False)
             path = str(Path(f'./database/{self.db_file_name}'))
-            self.database = duckdb.connect(path, read_only=False)
-            self.logger.info("connection successfull")
+            if self.in_memory:
+                self.database = duckdb.connect(database=':memory:')
+                self.logger.info("connection successfull to online_in_memory_database")
+            else:
+                self.database = duckdb.connect(path, read_only=False)
+                self.logger.info("connection successfull to offline_database")
 
         except Exception as e:
             self.logger.error("An error occured during database initialization. Error Message: %s", e)

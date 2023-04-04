@@ -272,11 +272,17 @@ QToolTip[objectName="experiment_to_csv"] {{color: #ffffff; background-color: #00
 QPushButton[objectName="transfer_to_offline_analysis"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/upload.png);}}
 QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/open_dir.png);}}
+QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="show_pgf_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/pgf.png);}}
+QToolTip[objectName="show_pgf_file"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_plot_online"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_image_exp.png);}}
+QToolTip[objectName="save_plot_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QPushButton[objectName="change_series_name"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/rename.png);}}  
+QToolTip[objectName="change_series_name"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/database_welcome.png);}}
 QToolButton[objectName="online_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_analysis_welcome.png);}}

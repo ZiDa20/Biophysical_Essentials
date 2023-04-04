@@ -49,13 +49,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
+        self.online_database = DuckDBDatabaseHandler(self.frontend_style, 
+                                                    db_file_name = "online_db", 
+                                                    in_memory = True)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
+
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style, self.ui.notebook)
         self.ui.offline.add_splitter()
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
-        self.ui.online.update_database_handler(self.local_database_handler)
+        self.ui.online.update_database_handler(self.online_database, self.local_database_handler)
         self.ui.online.frontend_style = self.frontend_style
         self.ui.config.online_analysis = self.ui.online
 

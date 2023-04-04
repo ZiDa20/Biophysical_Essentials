@@ -18,15 +18,15 @@ class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
 
-    def __init__(self, frontend_style):
+    def __init__(self, frontend_style, db_file_name="duck_db_analysis_database.db", in_memory = False):
 
         #@toDO add properties instead of open variable names like analysis_id and database path
         # set up the classes for the main tables
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
         # logger settings
-        self.db_file_name = "duck_db_analysis_database.db"
+        self.db_file_name = db_file_name
         self.logger = database_logger
-        self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name)
+        self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name, in_memory)
         self.frontend_style = frontend_style
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
