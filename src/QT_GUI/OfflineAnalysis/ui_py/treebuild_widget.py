@@ -13,12 +13,11 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
 
-
 class Ui_Form(QWidget):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(786, 872)
+        Form.resize(550, 872)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -30,13 +29,10 @@ class Ui_Form(QWidget):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.groupBox_4 = QGroupBox(Form)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
-        self.groupBox_4.setSizePolicy(sizePolicy1)
+        sizePolicy.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
+        self.groupBox_4.setSizePolicy(sizePolicy)
         self.groupBox_4.setMinimumSize(QSize(0, 0))
-        self.groupBox_4.setMaximumSize(QSize(1000, 16777215))
+        self.groupBox_4.setMaximumSize(QSize(10000000, 16777215))
         font = QFont()
         font.setPointSize(14)
         self.groupBox_4.setFont(font)
@@ -70,6 +66,8 @@ class Ui_Form(QWidget):
 "}")
         self.selected_tab = QWidget()
         self.selected_tab.setObjectName(u"selected_tab")
+        sizePolicy.setHeightForWidth(self.selected_tab.sizePolicy().hasHeightForWidth())
+        self.selected_tab.setSizePolicy(sizePolicy)
         self.gridLayout_8 = QGridLayout(self.selected_tab)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.selected_tree_view = QTreeView(self.selected_tab)
@@ -79,11 +77,21 @@ class Ui_Form(QWidget):
 
         self.descriptive_meta_data_label = QLabel(self.selected_tab)
         self.descriptive_meta_data_label.setObjectName(u"descriptive_meta_data_label")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.descriptive_meta_data_label.sizePolicy().hasHeightForWidth())
+        self.descriptive_meta_data_label.setSizePolicy(sizePolicy1)
 
         self.gridLayout_8.addWidget(self.descriptive_meta_data_label, 2, 0, 1, 1)
 
         self.line = QFrame(self.selected_tab)
         self.line.setObjectName(u"line")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.line.sizePolicy().hasHeightForWidth())
+        self.line.setSizePolicy(sizePolicy2)
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
 
@@ -92,6 +100,8 @@ class Ui_Form(QWidget):
         self.directory_tree_widget.addTab(self.selected_tab, "")
         self.discarded_tab = QWidget()
         self.discarded_tab.setObjectName(u"discarded_tab")
+        sizePolicy.setHeightForWidth(self.discarded_tab.sizePolicy().hasHeightForWidth())
+        self.discarded_tab.setSizePolicy(sizePolicy)
         self.gridLayout_2 = QGridLayout(self.discarded_tab)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.discarded_tree_view = QTreeView(self.discarded_tab)
@@ -101,6 +111,8 @@ class Ui_Form(QWidget):
 
         self.discarded_meta_data_label = QLabel(self.discarded_tab)
         self.discarded_meta_data_label.setObjectName(u"discarded_meta_data_label")
+        sizePolicy1.setHeightForWidth(self.discarded_meta_data_label.sizePolicy().hasHeightForWidth())
+        self.discarded_meta_data_label.setSizePolicy(sizePolicy1)
 
         self.gridLayout_2.addWidget(self.discarded_meta_data_label, 2, 0, 1, 1)
 
@@ -135,6 +147,7 @@ class Ui_Form(QWidget):
         self.discarded_meta_data_label.setText(QCoreApplication.translate("Form", u"TextLabel", None))
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarded_tab), QCoreApplication.translate("Form", u"Discarded", None))
     # retranslateUi
+
 
 class TreeBuild(Ui_Form):
     def __init__(self,parent = None):
