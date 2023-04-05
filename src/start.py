@@ -322,7 +322,7 @@ if __name__ == "__main__":
     """Main function to start the application"""
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
     window.show()

@@ -404,19 +404,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
                                                                               self.progress_callback)
 
-    """
-    def finished_database_loading(self):
-        The finish signal which is emitted after after treeview filling and database reading
-        
-
-        print("here we finish the database")
-        self.database_handler.open_connection()
-        for experiment in self.blank_analysis_page_1_tree_manager.not_discard_experiments_stored_in_db:
-            self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
-        print("finished loading")
-        # show selected tree_view
-    """
-
     @Slot()
     def experiment_label_dropped(self, item_text):
         print(item_text)

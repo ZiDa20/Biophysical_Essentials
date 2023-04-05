@@ -121,11 +121,22 @@ class DuckDBDatabaseHandler():
 
         # create all database tables assuming they do not exist'''
 
-        sql_create_mapping_table = """  create table experiment_analysis_mapping(
+        sql_create_experiment_mapping_table = """  create table experiment_analysis_mapping(
                                         experiment_name text,
                                         analysis_id integer,
                                         UNIQUE (experiment_name, analysis_id) 
                                         ); """
+
+        sql_create_series_mapping_table = """  create table series_analysis_mapping(
+                                        analysis_id integer,
+                                        experiment_name text,
+                                        series_identifier text,
+                                        series_name text,
+                                        renamed_series_name text,
+                                        analysis_discarded text,
+                                        primary key (analysis_id, experiment_name, series_identifier) 
+                                        ); """
+
 
         sql_create_global_meta_data_table = """CREATE TABLE global_meta_data(
                                         analysis_id integer,
@@ -221,7 +232,8 @@ class DuckDBDatabaseHandler():
             self.database = self.execute_sql_command(self.database, sql_create_analysis_function_table)
             self.database = self.execute_sql_command(self.database, sql_create_results_table)
             self.database = self.execute_sql_command(self.database, sql_create_experiment_series_table)
-            self.database = self.execute_sql_command(self.database, sql_create_mapping_table)
+            self.database = self.execute_sql_command(self.database, sql_create_experiment_mapping_table)
+            self.database = self.execute_sql_command(self.database, sql_create_series_mapping_table)
             self.database = self.execute_sql_command(self.database, sql_create_global_meta_data_table)
             self.database = self.execute_sql_command(self.database, sql_create_selected_meta_data_table)
 
@@ -286,6 +298,27 @@ class DuckDBDatabaseHandler():
             self.logger.info("Mapped experiment %s to analysis %i", experiment_id, self.analysis_id)
         except Exception as e:
             self.logger.info("Mapping between experiment %s and analysis %i FAILED", experiment_id, self.analysis_id)
+
+
+    def create_mapping_between_series_and_analysis_id(self):
+        """
+        create the series mapping table by joining already existing analysis experiment mapping table with the experiment series table.
+        importantly, only the mappings of the current id should be added to the series analysis mapping table.
+        """
+
+        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, analysis_discarded) \
+        SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.discarded\
+        FROM experiment_analysis_mapping\
+        JOIN experiment_series ON \
+        experiment_analysis_mapping.experiment_name = experiment_series.experiment_name\
+        where experiment_analysis_mapping.analysis_id = (?);"
+        
+        try:
+            self.database = self.execute_sql_command(self.database,q,[self.analysis_id])
+            self.logger.info("Series Mapping")
+        except Exception as e:
+            print(e)
+            self.logger.info("Series Mapping Failed")
 
     """---------------------------------------------------"""
     """ Functions to interact with table offline_analysis """

@@ -39,11 +39,9 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
             
             
             if isinstance(dat_file, list):
-                #self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name[0])
                 self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name,"Experiment_label":"None","Species":"None",
                                         "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
             else:
-                #self.database_handler.create_mapping_between_experiments_and_analysis_id(splitted_name)
                 self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
                                         "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
 

@@ -217,6 +217,8 @@ class TreeViewManager:
         # since analysis id is primary key this will only add date when its performed first
         for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
+            
+        self.database_handler.create_mapping_between_series_and_analysis_id()
 
         # create the models for the selected and discarded tree
 
