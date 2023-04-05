@@ -1,3 +1,4 @@
+import os
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
@@ -12,8 +13,11 @@ from Backend.plot_widget_manager import PlotWidgetManager
 from pathlib import Path
 from functools import partial
 from CustomWidget.Pandas_Table import PandasTable
+from QT_GUI.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
 from DataReader.ABFclass import AbfReader
-import os
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
+
+import numpy as np
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self, parent=None):
@@ -35,10 +39,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_video = QGraphicsScene(self)
         self.online_video.addText("Load the Video if recorded from Experiment")
         self.graphicsView.setScene(self.online_video)
-
+        self.online_analysis.setTabEnabled(1, False)
+        self.online_analysis.setTabEnabled(2,False)
         ##########
         self.canvas_live_plot = FigureCanvas(Figure(figsize=(5, 3)))
-        #self.online_analysis_tabs.currentChanged.connect(self.tab_switched)
+        
         #self.verticalLayout_6.addWidget(self.canvas_live_plot)
         # Connect the buttons, connect the logger
         self.connections_clicked()
@@ -51,27 +56,30 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_tree_view_manager = None
         self.labbook_table = None
         self.frontend_style = None
+        self.data_model_list = None
+        self.transferred = False
+        self._experiment_name = None
 
-    def tab_switched(self, i):
-        """ switch the tab of the online analysis """
-        if i == 0:
-            if self.online_analysis_plot_manager:
-                navigation = NavigationToolbar(self.online_analysis_plot_manager.canvas, self)
-                self.plot_move.clicked.connect(navigation.pan)
-                self.plot_zoom.clicked.connect(navigation.zoom)
-                self.plot_home.clicked.connect(navigation.home)
+    @property
+    def experiment_name(self):
+        return self._experiment_name
 
-            else:
-                print("No Canvas yet")
+    @experiment_name.setter
+    def experiment_name(self, value: str):
+        if isinstance(value, str):
+            self._experiment_name = value
         else:
-            if i == 1:
-                navigation = NavigationToolbar(self.canvas_live_plot, self)
-                self.plot_move.clicked.connect(navigation.pan)
-                self.plot_zoom.clicked.connect(navigation.zoom)
-                self.plot_home.clicked.connect(navigation.home)
-            else:
-                print("Canvas not established yet!")
+            self.logger.error(f"Wrong name indicated please use a string ant not {value}")
 
+    def enable_plot_options(self):
+        """ switch the tab of the online analysis """
+        if self.online_analysis_plot_manager:
+            navigation = NavigationToolbar(self.online_analysis_plot_manager.canvas, self)
+            self.plot_move.clicked.connect(navigation.pan)
+            self.plot_zoom.clicked.connect(navigation.zoom)
+            self.plot_home.clicked.connect(navigation.home)
+
+  
     def update_database_handler(self, database_handler, offline_database):
         self.database_handler = database_handler
         self.offline_database = offline_database
@@ -97,82 +105,38 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
 
     def transfer_file_and_meta_data_into_db(self):
-        q = 'select * from global_meta_data'
-        db_experiment_data_frame = self.database_handler.database.execute(q).fetchdf()
-        gui_experiment_data_frame = self.experiment_treeview.model()._data
+        """ This function is responsible from transfering and in memory database
+        to a written local database from duckDB for the offline analysis"""
 
-        # check for the experiment_name to be changed by user input into the gui and therefore update the db
-        if not db_experiment_data_frame["experiment_name"].equals(gui_experiment_data_frame["experiment_name"]):
-            old_experiment_name = db_experiment_data_frame["experiment_name"].values[0]
-            new_experiment_name = gui_experiment_data_frame["experiment_name"].values[0]
+        table_offline = self.offline_database.database.execute("SHOW TABLES").fetchdf()["name"].values
+        table_online = self.database_handler.database.execute("SHOW TABLES").fetchdf()["name"].values
+        non_intersected = [i for i in table_online if i not in table_offline]
+        intersected = [i for i in table_online if i in table_offline]
+        self.add_meta_pgf_data_to_offline(non_intersected, intersected)
+ 
+    def add_meta_pgf_data_to_offline(self, non_intersected, intersected):
 
-            for table in ["global_meta_data", "experiments"]:
-                q = f'update {table} set experiment_name = \'{new_experiment_name}\' where experiment_name = \'{old_experiment_name}\''
-                self.database_handler.database.execute(q)
-
-            q =  f'select * from experiment_series where experiment_name = \'{old_experiment_name}\''
-            experiment_series_df = self.database_handler.database.execute(q).fetchdf()
-
-            for index,row in experiment_series_df.iterrows():
-                new_sweep_table_name = "imon_signal_"+new_experiment_name+"_"+row["series_identifier"]
-                new_meta_data_table_name = "imon_meta_data_"+new_experiment_name+"_"+row["series_identifier"]
-                new_pgf_data_table_name = "pgf_table_"+new_experiment_name+"_"+row["series_identifier"]
-
-                q = f'alter table {row["sweep_table_name"]} rename to {new_sweep_table_name}'
-                self.database_handler.database.execute(q)
-
-                q = f'alter table {row["meta_data_table_name"]} rename to {new_meta_data_table_name}'
-                self.database_handler.database.execute(q)
-
-                q = f'alter table {row["pgf_data_table_name"]} rename to {new_pgf_data_table_name}'
-                self.database_handler.database.execute(q)
-
-                q = f'update experiment_series set sweep_table_name = \'{new_sweep_table_name}\',' \
-                    f' meta_data_table_name = \'{new_meta_data_table_name}\',' \
-                    f' pgf_data_table_name = \'{new_pgf_data_table_name}\', experiment_name = \'{new_experiment_name}\'' \
-                    f' where series_identifier = \'{row["series_identifier"]}\' and ' \
-                    f'experiment_name = \'{old_experiment_name}\' '
-
-                self.database_handler.database.execute(q)
-
-            # update treeviews
-            self.start_db_transfer()
-
-        # check for duplicates and ask the user to change the name
-        for index,row in gui_experiment_data_frame.iterrows():
-            if "copy_" in row["experiment_name"]:
-                dialog = QDialog()
-                dialog_layout = QGridLayout()
-                error_msg = f'An experiment with name {row["experiment_name"]}  already exists in the database. Please rename or discard'
-                dialog_label = QLabel(error_msg)
-                rename_button = QPushButton("Rename")
-                rename_button.clicked.connect(dialog.close)
-                discard_button = QPushButton("Discard")
-                # discard_button.clicked.connect(self.discard_online_analysis_file)
-                dialog_layout.addWidget(dialog_label)
-                dialog_layout.addWidget(rename_button)
-                dialog_layout.addWidget(discard_button)
-                dialog.setLayout(dialog_layout)
-                dialog.exec_()
-            else:
-                q = f'update global_meta_data set ' \
-                    f'experiment_label = \'{row["experiment_label"]}\', species = \'{row["species"]}\', ' \
-                    f'genotype = \'{row["genotype"]}\',' \
-                    f'sex = \'{row["sex"]}\', condition = \'{row["condition"]}\', individuum_id = \'{row["individuum_id"]}\' ' \
-                    f'where experiment_name = \'{row["experiment_name"]}\''
-                self.database_handler.database.execute(q)
-
-                series_data_frame = self.series_treeview.model()._data
-
-                print("writing series into db", series_data_frame)
-
-                for index,series_row in series_data_frame.iterrows():
-                    q = f'update experiment_series set ' \
-                        f'series_meta_data = \'{series_row["series_meta_data"]}\', experiment_name = \'{series_row["experiment_name"]}\' ' \
-                        f'where experiment_name = \'{series_row["experiment_name"]}\' and series_identifier = \'{series_row["series_identifier"]}\' '
-
-        print("Transfer succeeded")
-        self.start_db_transfer()
+        #create the non-intersected tables with a prior step creating the table
+        try:
+            for table, data in zip(["global_meta_data", "experiment_series"], self.data_model_list):
+                self.offline_database.database.append(f"{table}",data._data)
+        except Exception as e:
+            CustomErrorDialog("Something is wrong with duplication", self.frontend_style)
+            return None
+        
+        for tab in non_intersected:
+            if tab != "df_1":
+                table_df = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
+                self.offline_database.database.execute(f"CREATE TABLE {tab} as SELECT * FROM table_df;")
+        # append the intersected table that are same without creating
+        for tab in intersected:
+            if tab not in ["offline_analysis", "global_meta_data", "experiment_series"]:
+                table = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
+                self.offline_database.database.append(f"{tab}", table)
+        
+        
+        self.logger.info("Successfully transferred all the data to the OfflineAnalysis")
+        CustomErrorDialog("Successfully transferred all Data to the Online Analysis",self.frontend_style)
 
     def start_db_transfer(self):
         """
@@ -180,6 +144,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """
         self.online_analysis.setCurrentIndex(2)
 
+        self.data_model_list = []
         # display and update global_meta_data and experiment_series table
         for table in ["global_meta_data", "experiment_series"]:
 
@@ -187,34 +152,24 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 q = "select * from global_meta_data"
                 df = self.database_handler.database.execute(q).fetchdf()
                 template_table_view = self.experiment_treeview
-
-                # overwrite "ONLINE_ANALYSIS" to make sure this label will not be used by the user
-                df["experiment_label"] = "None"
             else:
                 q = "select * from experiment_series"
                 df = self.database_handler.database.execute(q).fetchdf()
                 template_table_view = self.series_treeview
 
             content_model = PandasTable(df)
-
+            self.data_model_list.append(content_model)
             template_table_view.setModel(content_model)
+            content_model.resize_header(template_table_view)
 
             template_table_view.show()
 
-            # transfer_into_db_button will be displayed and will call self.transfer_file_and_meta_data_into_db when
-            # clicked
 
     @Slot()
     def online_analysis_tab_changed(self):
         """handler if the tab is changed, tab 0: online analysis, tab 1: labbook"""
-        if self.online_analysis.currentIndex() == 0:
-            #self.tree_layouting_change.addWidget(self.tree_tab_widget)
-            self.gridLayout_18.addWidget(self.online_treeview)
-            print("yeah")
-        if self.online_analysis.currentIndex() == 1:
-            #self.gridLayout_6.addWidget(self.online_treeview)
-            self.get_columns_data_to_table()
-            #self.verticalLayout.addWidget(self.tree_tab_widget)
+        #if self.online_analysis.currentIndex() == 0:
+        #    self.gridLayout_18.addWidget(self.online_treeview)
         if self.online_analysis.currentIndex() == 2:
             self.start_db_transfer()
 
@@ -251,57 +206,17 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.logger.info("This is the current name of the file: {treeview_name}")
         if not df.empty:
             self.logger.info("file already exists within the offline analysis database, Start redundancy check")
-            dialog = QDialog()
-            self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-            old_file_name = df["experiment_name"].values.tolist()[0]
-            text = f'You have non-transfered experiments from previous online analysis \n ' \
-                f'experiment name: {old_file_name} \n ' \
-                f'Do you want to transfer it to the database or discard ?'
-            dialog_label = QLabel(text)
-            name = QLineEdit()
-            layout = QGridLayout()
-            layout.addWidget(dialog_label)
-            layout.addWidget(name)
-            dialog.setLayout(layout)
-            dialog.exec_()
+            redundant = RedundantDialog(self.offline_database)
+            self.frontend_style.set_pop_up_dialog_style_sheet(redundant)
+            redundant.exec_()
+            treeview_name = redundant.lineEdit.text() + treeview_name
 
-            treeview_name = name.text() + treeview_name
+        self.experiment_name = treeview_name
         self.show_single_file_in_treeview(file_name, treeview_name)
 
-    
     def transfer_experiment_from_previous_online_analysis(self,dialog):
         dialog.close()
         self.start_db_transfer()
-
-    def discard_online_analysis_file(self, old_file_name, treeview_name, file_name, dialog):
-        """
-        remove an experiment by its name and all related entries in global_meta_data, experiments and experiment_series
-        tables
-        """
-        dialog.close()
-        self.remove_table_from_db(old_file_name)
-
-        # load the new file into the database and create a treeview from it
-        self.show_single_file_in_treeview(file_name, treeview_name)
-
-    def remove_table_from_db(self,old_file_name):
-
-        # get the experiment series table since this holds 3 more table names that need to be completely deleted
-        q = """select * 
-                from experiment_series 
-                """
-        experiment_series = self.database_handler.database.execute(q).fetchdf()
-        
-        for column in ["sweep_table_name", "meta_data_table_name", "pgf_data_table_name"]:
-            for table in experiment_series[column].values.tolist():
-                q = f'drop table {table} '
-                self.database_handler.database.execute(q)
-
-        # remove from global_meta_data, experiments, experiment_series
-        names = tuple(experiment_series["experiment_name"].tolist())
-        for table in ["global_meta_data", "experiments", "experiment_series"]:
-            q = f'delete from {table} where experiment_name in {names}'
-            self.database_handler.database.execute(q)
 
     def show_single_file_in_treeview(self, file_name, treeview_name):
         """
@@ -371,15 +286,19 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             dialog.exec()
             print("this file type is not supported yet")
             return
+        
 
-    
         # add the option to also display sweep level for each series
         self.online_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
-
         # only display the one file with experiment_label online analysis.
         self.online_analysis_tree_view_manager.selected_meta_data_list = ["None"]
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
-        print("finished.3")
+        self.logger.info("Finished the loading of the file!")
+        self.online_analysis.setTabEnabled(1,True)
+        self.online_analysis.setTabEnabled(2,True)
+        self.online_analysis_tree_view_manager.click_top_level()
+        self.enable_plot_options()
+        self.get_columns_data_to_table()
 
     def video_show(self):
         """ show the video in the graphics view
@@ -402,40 +321,32 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.video_call = 0
 
     def get_columns_data_to_table(self):
-        #toDO add the documentation here
-        """Should put the labbook with selecte metadata into the 
-        Retrievable Labbook
-        """
-
-        """
-        count = self.treeWidget.topLevelItemCount()
-        list_rows = []
-        final_pandas = pd.DataFrame()
-        for i in range(count):
-            top_item = self.treeWidget.topLevelItem(i)  # toplevel item
-            child_amount = top_item.childCount()
-            trial = top_item.child(i).child(0).data(5, 0)
-            print(trial)
-
-            for t in range(child_amount):
-                list_rows.append(top_item.child(t).text(0))
-                grand_child = top_item.child(t).child(0)
-                data = grand_child.data(5, 0)
-                df = pd.DataFrame(data, index=[0])
-                final_pandas = pd.concat([final_pandas, df])
-                # final_pandas = final_pandas.append(df)
-
-        final_pandas.index = pd.Series(list_rows)
-        """
+        """ This retrieves information from the recording which can 
+        be used in a Labbook like table.
+        In addition a comment section is added where comments to specific experimental conditions 
+        can be made"""
         final_pandas = self.online_treeview.selected_tree_view.model()._data
-        final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
-
+        final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"]).iloc[1:, :]
+        list_cslow = [] # need to change this to support more metadata
+        list_rs = [] # need to change also
+        for i in final_pandas["item_name"].values:
+            cslow, rs = self.retrieve_cslow_rs(i)
+            list_cslow.append(cslow)
+            list_rs.append(rs)
         final_pandas["condition"] = final_pandas.shape[0] * [""]
-        final_pandas["RsValue"] = final_pandas.shape[0] * [""]
-        final_pandas["Cslow"] = final_pandas.shape[0] * [""]
+        final_pandas["RsValue"] = list_rs
+        final_pandas["Cslow"] = list_cslow
         final_pandas["comments"] = final_pandas.shape[0] * [""]
-
+        final_pandas["ids"] = final_pandas.shape[0] * [""]
         self.draw_table(final_pandas)
+
+    def retrieve_cslow_rs(self, series_name):
+        """this returns the searchable metadata parameter that one wants to add to the notebook
+        This function should be added to the database reader"""
+        table_name = self.database_handler.database.execute("Select series_identifier FROM experiment_series WHERE experiment_name = (?) AND series_name = (?)", (self.experiment_name, series_name)).fetchall()[0][0]
+        series_meta_table = self.database_handler.database.execute(f"Select * from imon_meta_data_{self.experiment_name}_{table_name}").fetchdf()
+        series_meta = series_meta_table.set_index("Parameter").T
+        return np.mean(series_meta["CSlow"].astype(float).values), np.mean(series_meta["RsValue"].astype(float).values)
 
     def draw_table(self, data):
         """ draws the table of the .dat metadata as indicated by the .pul Bundle file """
@@ -444,8 +355,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 self.labbook_table = QTableView()
                 self.table_layout.addWidget(self.labbook_table)
 
-            table_model = PandasTable(data)
-            self.labbook_table.setModel(table_model)
+            labbook_model = PandasTable(data)
+            self.labbook_table.setModel(labbook_model)
+            self.tableView.setModel(labbook_model)
+            labbook_model.resize_header(self.labbook_table)
+            labbook_model.resize_header(self.tableView)
+
             self.labbook_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception as e:
             print(e)

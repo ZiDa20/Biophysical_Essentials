@@ -19,6 +19,7 @@ from DataReader.ABFclass import AbfReader
 from Backend.plot_widget_manager import PlotWidgetManager
 from Offline_Analysis.tree_model_class import TreeModel
 import itertools
+from PySide6.QtTest import QTest
 
 
 class TreeViewManager:
@@ -86,6 +87,7 @@ class TreeViewManager:
     """ ############################## Chapter A Create treeview functions ######################################### """
 
 
+    
 
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
@@ -917,6 +919,13 @@ class TreeViewManager:
         dialog.close()
 
     """######################### Chapter B Functions to interact with created treeviews ############################"""
+
+    def click_top_level(self) -> None:
+        """Clicks automatically the top-level item of the selected tree view after tree was ubild to show the plot"""
+        index = self.tree_build_widget.selected_tree_view.model().index(0, 0, self.tree_build_widget.selected_tree_view.model().index(0,0, QModelIndex()))
+        self.tree_build_widget.selected_tree_view.setCurrentIndex(index)
+        rect = self.tree_build_widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(self.tree_build_widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def assign_meta_data_groups_from_list(self, tree, meta_data_group_assignment_list):
         ''' Goes through the final tree and will try the assign the assignments from the tuple list

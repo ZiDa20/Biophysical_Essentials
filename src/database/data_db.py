@@ -847,11 +847,6 @@ class DuckDBDatabaseHandler():
             print("adding meta data --- ")
 
             try:
-                self.database.register('meta_data_df', meta_data_df)
-            except Exception as e:
-                print("meta data register failed")
-
-            try:
                 self.database.execute(f'CREATE TABLE {imon_trace_meta_data_table_name} AS SELECT * FROM meta_data_df')
             except Exception as e:
                 print(e)
