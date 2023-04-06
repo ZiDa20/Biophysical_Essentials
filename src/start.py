@@ -65,22 +65,23 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.ui.side_left_menu.hide()
         # this should be later be triggered by  a button click
+        self.connect_buttons_start()
+        self.ui.config.ui_notebook = self.ui.notebook
+
+    def connect_buttons_start(self):
+        """ Connects all the necessary buttons at the start"""
         self.ui.configuration_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 1))
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
         self.ui.database_viewer_home_2.clicked.connect(self.initialize_database)
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
         self.ui.toolButton_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 5))
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
-
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
-        self.ui.config.ui_notebook = self.ui.notebook
-        self.ui.config.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
 
     def insert_row_of_buttons(self):
         """
@@ -145,7 +146,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
     def go_to_offline_analysis(self):
-        """_summary_
+        """This opens the notebook page that has the Offline Analysis integrated
         """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
         self.ui.notebook.setCurrentIndex(3)
@@ -162,38 +163,26 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.load_treeview_from_database()
 
     def open_bpe_webside(self):
-        """
-        open the webside of BPE
-        """
-
-        url = "https://www.google.com/"
+        """open the webside of BPE"""
+        url = "https://github.com/ZiDa20/Biophysical_Essentials"
         webbrowser.open(url, new=0, autoraise=True)
 
     def initialize_database(self):
-        """Initialization of the DataBase using the duckdbhandler
-        """
+        """Initialization of the DataBase using the duckdbhandler"""
         self.ui.notebook.setCurrentIndex(4)
         self.ui.database.show_basic_tables(self.local_database_handler)
 
     def center(self):
-        """Function to center the application at the start into the middle of the screen
-        """
+        """Function to center the application at the start into the middle of the screen"""
         qr = self.frameGeometry()
         cp = self.screen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def transfer_file_to_online(self):
-        """Function to transfer the Patchmaster generated .Dat file to the online Analysis
-        for further analysis
-        """
-        file_path = self.ui.config.get_file_path()
-        self.ui.config.set_dat_file_name(self.ui.config.experiment_type_desc.text())
-        self.ui.online.open_single_dat_file(str(file_path))
 
 if __name__ == "__main__":
     """Main function to start the application"""
-    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
     os.environ["QT_SCALE_FACTOR"] = '1'
     app = QApplication(sys.argv)
     app.setStyle("Fusion")

@@ -15,9 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QCheckBox, QDialog,
+from PySide6.QtWidgets import (QPushButton, QApplication, QCheckBox, QDialog,
     QDialogButtonBox, QFrame, QGridLayout, QGroupBox,
     QLabel, QLineEdit, QSizePolicy, QWidget)
+
 
 class Ui_RedundantDialog(object):
     def setupUi(self, RedundantDialog):
@@ -53,6 +54,11 @@ class Ui_RedundantDialog(object):
         self.checkBox.setObjectName(u"checkBox")
 
         self.gridLayout_4.addWidget(self.checkBox, 2, 1, 1, 1, Qt.AlignHCenter)
+
+        self.checkName = QPushButton(self.groupBox)
+        self.checkName.setObjectName(u"checkName")
+
+        self.gridLayout_4.addWidget(self.checkName, 1, 2, 1, 1)
 
 
         self.gridLayout_6.addLayout(self.gridLayout_4, 1, 0, 1, 1)
@@ -98,6 +104,7 @@ class Ui_RedundantDialog(object):
         self.groupBox.setTitle(QCoreApplication.translate("RedundantDialog", u"Redundant Data", None))
         self.label_2.setText(QCoreApplication.translate("RedundantDialog", u"Please Rename the File:", None))
         self.checkBox.setText(QCoreApplication.translate("RedundantDialog", u"Permantely discard entry in Offline Analysis", None))
+        self.checkName.setText(QCoreApplication.translate("RedundantDialog", u"Check Name", None))
         self.redundant_label.setText(QCoreApplication.translate("RedundantDialog", u"You have already a file with the same experiment name in the database! \n"
 " This can be because you loaded the same file twice or because of file name duplication !", None))
     # retranslateUi

@@ -972,12 +972,11 @@ class DuckDBDatabaseHandler():
 
     def create_series_specific_pgf_table (self, data_frame, pgf_table_name,experiment_name, series_identifier):
         """ adds new pgf table to the database        """
-        self.database.register('df_1', data_frame)
-
+        #self.database.register('df_1', data_frame)
 
         try:
             # create a new sweep table
-            self.database.execute(f'create table {pgf_table_name} as select * from df_1')
+            self.database.execute(f'create table {pgf_table_name} as select * from data_frame')
 
             try:
                 # update the series table by inserting the newly created pgf table name

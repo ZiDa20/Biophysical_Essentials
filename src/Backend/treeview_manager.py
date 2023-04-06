@@ -1117,7 +1117,9 @@ class TreeViewManager:
             df.to_csv(file_name)
         print("hello from the other side")
 
-
+    def clear_tree(self):
+        self.tree_build_widget.selected_tree_view.setModel(TreeModel(pd.DataFrame()))
+        #self.tree_build_widget.selected_tree_view.reset()
     """
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):

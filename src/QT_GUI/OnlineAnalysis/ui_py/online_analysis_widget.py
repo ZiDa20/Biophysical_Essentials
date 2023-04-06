@@ -2,7 +2,7 @@ import os
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-import logging
+from loggers.online_logger import online_logger
 import pandas as pd
 from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
@@ -16,6 +16,9 @@ from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
 from DataReader.ABFclass import AbfReader
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from database.DuckDBInitalizer import DuckDBInitializer
+from queue import Queue
+from nptyping import NDArray
 
 import numpy as np
 
@@ -31,47 +34,72 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis.setTabPosition(QTabWidget.East)
 
         # check if video matrix is there, image is there and initialize the video calls
-        self.video_mat = None
-        self.image = None
+        self._video_mat = None
+        self._image = None
         self.video_call = 0  # number of frames went through
 
         # set the video Graphic Scence
         self.online_video = QGraphicsScene(self)
         self.online_video.addText("Load the Video if recorded from Experiment")
         self.graphicsView.setScene(self.online_video)
+
         self.online_analysis.setTabEnabled(1, False)
         self.online_analysis.setTabEnabled(2,False)
         ##########
-        self.canvas_live_plot = FigureCanvas(Figure(figsize=(5, 3)))
-        
-        #self.verticalLayout_6.addWidget(self.canvas_live_plot)
+
         # Connect the buttons, connect the logger
+        self.logger = online_logger
         self.connections_clicked()
-        self.logger_connection()
-        self.drawing()
 
         self.database_handler = None
         self.offline_database = None
         self.online_analysis_plot_manager = None
         self.online_analysis_tree_view_manager = None
-        self.labbook_table = None
+        self._labbook_table = None
         self.frontend_style = None
         self.data_model_list = None
         self.transferred = False
         self._experiment_name = None
+        self.file_queue = []
 
     @property
-    def experiment_name(self):
+    def experiment_name(self) -> str:
+        """retrieve the experiment name"""
         return self._experiment_name
 
     @experiment_name.setter
-    def experiment_name(self, value: str):
+    def experiment_name(self, value: str) -> None:
+        """sets the experiment name"""
         if isinstance(value, str):
             self._experiment_name = value
         else:
             self.logger.error(f"Wrong name indicated please use a string ant not {value}")
+    @property
+    def labbook_table(self) -> str:
+        return self._labbook_table
+    
+    @labbook_table.setter
+    def labbook_table(self, value):
+        """This should set a new QTableView to the labbook table"""
+        self._labbook_table = value
 
-    def enable_plot_options(self):
+    @property
+    def image(self):
+        return self._image
+    
+    @image.setter
+    def image(self, value) -> None:
+        self._image = value
+
+    @property
+    def video_mat(self):
+        return self._video_mat
+    
+    @image.setter
+    def video_mat(self, value) -> None:
+        self._video_mat = value
+        
+    def enable_plot_options(self) -> None:
         """ switch the tab of the online analysis """
         if self.online_analysis_plot_manager:
             navigation = NavigationToolbar(self.online_analysis_plot_manager.canvas, self)
@@ -79,12 +107,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.plot_zoom.clicked.connect(navigation.zoom)
             self.plot_home.clicked.connect(navigation.home)
 
-  
-    def update_database_handler(self, database_handler, offline_database):
+    def update_database_handler(self, database_handler, offline_database) -> None:
+        """should update the database handler of the class"""
         self.database_handler = database_handler
         self.offline_database = offline_database
 
-    def connections_clicked(self):
+    def connections_clicked(self) -> None:
         """ connect the buttons to the corresponding functions """
         self.button_select_data_file.clicked.connect(self.open_single_dat_file)
         self.online_analysis.currentChanged.connect(self.online_analysis_tab_changed)
@@ -92,39 +120,42 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.transfer_to_offline_analysis.clicked.connect(self.start_db_transfer)
         self.transfer_into_db_button.clicked.connect(self.transfer_file_and_meta_data_into_db)
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
+        self.classifier_stream.clicked.connect(self.reset_class)
+        self.logger.info("Successfully connected all the appropiates button calls")
 
-    def logger_connection(self):
-        # logger settings
-        self.logger = logging.getLogger()  # introduce the logger
-        self.logger.setLevel(logging.ERROR)
-        #file_handler = logging.FileHandler('../Logs/online_analysis.log')
-        #formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        #file_handler.setFormatter(formatter)
-        #self.logger.addHandler(file_handler)
-        self.logger.debug('Online Analysis Widget Debugger')
-
-
-    def transfer_file_and_meta_data_into_db(self):
+    def transfer_file_and_meta_data_into_db(self) -> None:
         """ This function is responsible from transfering and in memory database
         to a written local database from duckDB for the offline analysis"""
 
+        # write the current labbook table to the online in memory database
+        # here  maybe a sanity check would be worthwhile
+        table_name = self.create_labbook_name(self.experiment_name)
+        labbook_table = self.labbook_model._data
+        self.database_handler.database.execute(f"""UPDATE experiments 
+                                      SET labbook_table_name = (?)
+                                      WHERE experiment_name = (?)
+                                      """, (table_name,self.experiment_name))
+        self.database_handler.database.execute(f"CREATE TABLE {table_name} AS SELECT * FROM labbook_table")
+
+        # Finally retrieve the intersections from the tables between online and offline analysis
         table_offline = self.offline_database.database.execute("SHOW TABLES").fetchdf()["name"].values
         table_online = self.database_handler.database.execute("SHOW TABLES").fetchdf()["name"].values
         non_intersected = [i for i in table_online if i not in table_offline]
         intersected = [i for i in table_online if i in table_offline]
         self.add_meta_pgf_data_to_offline(non_intersected, intersected)
  
-    def add_meta_pgf_data_to_offline(self, non_intersected, intersected):
+    def add_meta_pgf_data_to_offline(self, non_intersected :list, intersected: list) -> None:
 
-        #create the non-intersected tables with a prior step creating the table
         try:
             for table, data in zip(["global_meta_data", "experiment_series"], self.data_model_list):
                 self.offline_database.database.append(f"{table}",data._data)
         except Exception as e:
-            CustomErrorDialog("Something is wrong with duplication", self.frontend_style)
+            CustomErrorDialog("Something is wrong with duplication {e}", self.frontend_style)
+            self.logger.error(f"There were duplicated values found in the database please chec if {table} exist")
             return None
-        
+        # here more error prone processsing need to be operated
         for tab in non_intersected:
+            self.logger.info("Adding the tables that are not similiar between the two databases")
             if tab != "df_1":
                 table_df = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
                 self.offline_database.database.execute(f"CREATE TABLE {tab} as SELECT * FROM table_df;")
@@ -134,16 +165,17 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                 table = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
                 self.offline_database.database.append(f"{tab}", table)
         
-        
         self.logger.info("Successfully transferred all the data to the OfflineAnalysis")
+        self.reset_class()
         CustomErrorDialog("Successfully transferred all Data to the Online Analysis",self.frontend_style)
 
-    def start_db_transfer(self):
+    def start_db_transfer(self) -> None:
         """
         transfer the experiment (must only be one) into the database
         """
         self.online_analysis.setCurrentIndex(2)
-
+        
+       
         self.data_model_list = []
         # display and update global_meta_data and experiment_series table
         for table in ["global_meta_data", "experiment_series"]:
@@ -164,19 +196,21 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
             template_table_view.show()
 
-
+    def create_labbook_name(self, experiment_name: str) -> str:
+        return f"labbook_{experiment_name}"
+    
     @Slot()
-    def online_analysis_tab_changed(self):
+    def online_analysis_tab_changed(self) -> None:
         """handler if the tab is changed, tab 0: online analysis, tab 1: labbook"""
         #if self.online_analysis.currentIndex() == 0:
         #    self.gridLayout_18.addWidget(self.online_treeview)
         if self.online_analysis.currentIndex() == 2:
             self.start_db_transfer()
 
-    def show_sweeps_toggled(self):
+    def show_sweeps_toggled(self) -> None:
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
 
-    def open_single_dat_file(self, file_name=None):
+    def open_single_dat_file(self, file_name: str=None) -> None:
         """ open a single experiment file (.abf or .dat), write it into the database and create a tree view from this
         recording. Since this is online analysis, the experiment is labeled "OFFLINE_ANALYSIS" in the experiment_label
         column in the global meta data table. If the file was not "transfered" to the database, the user will be asked
@@ -200,25 +234,33 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # save the path in the manager class
         self.online_manager._dat_file_name = file_name
         # check if this file is already within the database. if yes, the file name will be renamed copy-
-        q = f'select * from experiments where experiment_name = \'{treeview_name}\''
-        df = self.offline_database.database.execute(q).fetchdf()
-        
-        self.logger.info("This is the current name of the file: {treeview_name}")
-        if not df.empty:
+       
+        if not self.check_if_experiments_exist_online(treeview_name).empty:
             self.logger.info("file already exists within the offline analysis database, Start redundancy check")
-            redundant = RedundantDialog(self.offline_database)
+            redundant = RedundantDialog(self.offline_database, treeview_name)
             self.frontend_style.set_pop_up_dialog_style_sheet(redundant)
-            redundant.exec_()
-            treeview_name = redundant.lineEdit.text() + treeview_name
+            result = redundant.exec_()
+            if result == 0:
+                return None
+            treeview_name = redundant.treeview_name
 
         self.experiment_name = treeview_name
         self.show_single_file_in_treeview(file_name, treeview_name)
 
-    def transfer_experiment_from_previous_online_analysis(self,dialog):
-        dialog.close()
-        self.start_db_transfer()
+    def check_if_experiments_exist_online(self, treeview_name: str) -> pd.DataFrame:
+        """ This should initally check if there is already an exisiting table in the database
+        that is named like the new experiment submitted
+        args:
+            treeview_name (str) -> the inital name of the experiment inferred from the .dat file
+        returns
+            pd.DataFrame -> holding all the experiment that are named equally so we can check for emptyness
+        """
+        q = f'select * from experiments where experiment_name = \'{treeview_name}\''
+        df = self.offline_database.database.execute(q).fetchdf()
+        self.logger.info("This is the current name of the file: {treeview_name}")
+        return df
 
-    def show_single_file_in_treeview(self, file_name, treeview_name):
+    def show_single_file_in_treeview(self, file_name: str, treeview_name: str) -> None:
         """
         load the new file into the database and create a treeview from it
         """
@@ -287,7 +329,6 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             print("this file type is not supported yet")
             return
         
-
         # add the option to also display sweep level for each series
         self.online_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
         # only display the one file with experiment_label online analysis.
@@ -300,7 +341,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.enable_plot_options()
         self.get_columns_data_to_table()
 
-    def video_show(self):
+    def video_show(self) -> None:
         """ show the video in the graphics view
         Generate the Qtimer for the function"""
         if self.video_mat is not None:
@@ -308,7 +349,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.start_video.timeout.connect(self.run_video)  # connect the timer to the start camera function
             self.start_video.start(250)
 
-    def run_video(self):
+    def run_video(self) -> None:
         """Should play the recorded video/gif in the labbook
         """
         self.video_call += 1 
@@ -320,7 +361,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.start_video.stop()
             self.video_call = 0
 
-    def get_columns_data_to_table(self):
+    def get_columns_data_to_table(self) -> None:
         """ This retrieves information from the recording which can 
         be used in a Labbook like table.
         In addition a comment section is added where comments to specific experimental conditions 
@@ -340,7 +381,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         final_pandas["ids"] = final_pandas.shape[0] * [""]
         self.draw_table(final_pandas)
 
-    def retrieve_cslow_rs(self, series_name):
+    def retrieve_cslow_rs(self, series_name: str) -> None:
         """this returns the searchable metadata parameter that one wants to add to the notebook
         This function should be added to the database reader"""
         table_name = self.database_handler.database.execute("Select series_identifier FROM experiment_series WHERE experiment_name = (?) AND series_name = (?)", (self.experiment_name, series_name)).fetchall()[0][0]
@@ -348,68 +389,68 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         series_meta = series_meta_table.set_index("Parameter").T
         return np.mean(series_meta["CSlow"].astype(float).values), np.mean(series_meta["RsValue"].astype(float).values)
 
-    def draw_table(self, data):
+    def draw_table(self, data: pd.DataFrame) -> None:
         """ draws the table of the .dat metadata as indicated by the .pul Bundle file """
         try:
             if self.labbook_table is None:
                 self.labbook_table = QTableView()
                 self.table_layout.addWidget(self.labbook_table)
 
-            labbook_model = PandasTable(data)
-            self.labbook_table.setModel(labbook_model)
-            self.tableView.setModel(labbook_model)
-            labbook_model.resize_header(self.labbook_table)
-            labbook_model.resize_header(self.tableView)
+            self.labbook_model = PandasTable(data)
+            self.labbook_table.setModel(self.labbook_model)
+            self.tableView.setModel(self.labbook_model)
+            self.labbook_model.resize_header(self.labbook_model)
+            self.labbook_model.resize_header(self.tableView)
 
-            self.labbook_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.labbook_model.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception as e:
             print(e)
 
-    def draw_live_plot(self,data_x = None):
-        """ this is necessary to draw the plot which is plotted to the self.configuration window
-        this will further projected to the online-anaysis """
-        print(data_x)
-        # print(data_x[0], print(data_x[1]))
-        self.canvas_live_plot.figure.clf()
-
-        self.drawing()
-        self.ax1.plot(data_x[0], data_x[1], c = "k")
-        # self.pyqt_graph.setData(data_x[0], data_x[1])
-        print("try to give an updated view of the data")
-
-        print("no error occured here but also not drawn")
-        self.canvas_live_plot.draw_idle()
-
-    def drawing(self):
-        """ redraws the graph into online analysis """
-
-        self.ax1 = self.canvas_live_plot.figure.subplots()
-        self.ax1.spines['top'].set_visible(False)
-        self.ax1.spines['right'].set_visible(False)
-
-        # @todo can we get the y unit here ???
-        """      
-        if self.y_unit == "V":
-            self.ax1.set_ylabel('Voltage [mV]')
-            self.ax2.set_ylabel('Current [pA]')
-        else:
-            self.ax1.set_ylabel('Current [nA]')
-            self.ax2.set_ylabel('Voltage [mV]')
-        """
-        # self.canvas_live_plot.draw()
-        print("initialized")
-
-    def draw_scene(self, image):
-
+    def draw_scene(self, image: NDArray) -> None:
         """ draws the image into the self.configuration window
-
         args:
             image type: QImage: the image to be drawn
         returns:
             None
-
         """
         self.online_scence = QGraphicsScene(self)
         self.image_experiment.setScene(self.online_scence)  # set the scene to the image
         item = QGraphicsPixmapItem(image)
         self.image_experiment.scene().addItem(item)  #
+
+    def reset_class(self) -> None:
+        """This should reset the class to the base state so that we can use it for more """
+        try:
+            self.file_queue.pop(0)
+        except IndexError:
+            self.logger.warning("No data was found in the queue list, it was empty")
+
+        self.database_handler.database.close()
+        self.database_handler.database, _ = DuckDBInitializer(self.logger, "online_analysis", in_memory = True).init_database()
+        self.online_analysis_tree_view_manager.clear_tree()
+        self.online_analysis_plot_manager.canvas.figure.clf()
+        self.online_analysis_plot_manager.canvas.draw_idle()
+
+        # reset the variables to the original state
+        self.labbook_table = None
+        self.data_model_list = None
+        self.transferred = False
+        self.experiment_name = None
+        self.video_mat = None
+        self.image = None
+        self.video_call = 0  # number of frames went through
+        #self.graphicsView.clear()
+
+        if self.online_analysis.currentIndex() != 0:
+            self.online_analysis.setCurrentIndex(0)
+        
+        # this disables the labbook tabs as long as the no new analysis is loaded
+        self.online_analysis.setTabEnabled(1, False)
+        self.online_analysis.setTabEnabled(2,False)
+        if self.file_queue:
+            self.logger.info("Updating the View using the next member in the viewing list")
+            self.open_single_dat_file(self.file_queue[0])
+            self.logger.info("Successfully updated the view")
+
+
+

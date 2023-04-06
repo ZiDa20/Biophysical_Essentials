@@ -18,6 +18,8 @@ class TreeModel(QAbstractItemModel):
         self.header = []
         #if not data_df.empty:
         print("data_df", data_df)
+        if data_df.empty:
+            return None
         display_columns = data_df["type"].unique().tolist()
         print(display_columns)
         """
@@ -53,7 +55,10 @@ class TreeModel(QAbstractItemModel):
         if parent.isValid():
             return parent.internalPointer().columnCount()
         else:
-            return self.rootItem.columnCount()
+            try:
+                return self.rootItem.columnCount()
+            except AttributeError:
+                return 0
 
     def data(self, index, role):
         if not index.isValid():
@@ -128,7 +133,10 @@ class TreeModel(QAbstractItemModel):
             return 0
 
         if not parent.isValid():
-            parentItem = self.rootItem
+            try:
+                parentItem = self.rootItem
+            except AttributeError:
+                return 0
         else:
             parentItem = parent.internalPointer()
 

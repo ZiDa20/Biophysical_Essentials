@@ -1,5 +1,6 @@
 import sys
 import os
+from pathlib import Path
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/CustomWidgets")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
 from PySide6.QtCore import *  # type: ignore
@@ -524,7 +525,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def draw_live_plots(self,plot_data = None):
         print(plot_data)
-        self.online_analysis.draw_live_plot(plot_data)
         self.draw_live_plot(plot_data)
 
     def draw_live_plot(self,data_x = None):
@@ -675,6 +675,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # turn the button green if sequence finished succesfully
         #self.progressBar.setValue(100)
         self.transfer_to_online_analysis_button.setEnabled(True)
+        self.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
 
     def set_params(self, params_response):
         """Retrieve the Parameter value and add to the entry boxes
@@ -891,6 +892,18 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             None
         """
         default_mode = self.get_darkmode()
+
+    def transfer_file_to_online(self):
+        """Function to transfer the Patchmaster generated .Dat file to the online Analysis
+        for further analysis
+        """
+        file_path = self.get_file_path()
+        self.set_dat_file_name(self.ui.config.experiment_type_desc.text())
+        self.online_analysis.file_queue.append(str(Path(str(file_path))))
+        if len(self.online_analysis.file_queue) == 1:
+            self.online_analysis.open_single_dat_file(str(file_path))
+        else: 
+            print("Here the data will just be appended to the list and this will be visible in the online analysis function")
 
 class Worker(QRunnable):
     '''
