@@ -173,13 +173,14 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             return None
         # here more error prone processsing need to be operated
         for tab in non_intersected:
-            self.logger.info("Adding the tables that are not similiar between the two databases")
+            self.logger.info(f"Adding {tab} that are not similiar between the two databases")
             if tab != "df_1":
                 table_df = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
                 self.offline_database.database.execute(f"CREATE TABLE {tab} as SELECT * FROM table_df;")
         # append the intersected table that are same without creating
         for tab in intersected:
             if tab not in ["offline_analysis", "global_meta_data", "experiment_series"]:
+                self.logger.info(f"Adding {tab} which is in both databases via appending")
                 table = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
                 self.offline_database.database.append(f"{tab}", table)
         
@@ -191,9 +192,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """
         transfer the experiment (must only be one) into the database
         """
+        self.logger.info("Start database transfer into the offline database by switching notebook sides")
         self.online_analysis.setCurrentIndex(2)
         
-       
         self.data_model_list = []
         # display and update global_meta_data and experiment_series table
         for table in ["global_meta_data", "experiment_series"]:
@@ -243,28 +244,31 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]
             #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.abf")[0]
             file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "")[0]
-
+            self.logger.info(f"Open {file_name}")
             treeview_name = file_name.split("/")
 
             if ".dat" in treeview_name[-1]:
                 treeview_name = treeview_name[-1].split(".")[0]
+                self.logger.info("Open .dat file {file_name}")
             else:
                 treeview_name = "_".join(treeview_name[-1].split("_")[:2])
+                self.logger.info("Open .abf file {file_name}")
         else:
             treeview_name = file_name
 
         # save the path in the manager class
         self.online_manager._dat_file_name = file_name
         # check if this file is already within the database. if yes, the file name will be renamed copy-
-       
         if not self.check_if_experiments_exist_online(treeview_name).empty:
-            self.logger.info("file already exists within the offline analysis database, Start redundancy check")
-            redundant = RedundantDialog(self.offline_database, treeview_name)
+            self.logger.info(f"""file already exists within the offline analysis 
+                                database with name {treeview_name}, Start redundancy check""")
+            redundant = RedundantDialog(self.offline_database, treeview_name, self.logger)
             self.frontend_style.set_pop_up_dialog_style_sheet(redundant)
             result = redundant.exec_()
             if result == 0:
                 return None
-            treeview_name = redundant.treeview_name
+            treeview_name = redundant.new_treeview_name
+            self.logger.info(f"Data was renamed to {treeview_name}")
 
         self.experiment_name = treeview_name
         self.show_single_file_in_treeview(file_name, treeview_name)
@@ -289,11 +293,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # create treeview of this .dat file
         if self.online_analysis_tree_view_manager is None:
             self.online_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.online_treeview)
+            self.logger.info("Successfully loaded the TreeViewManager")
 
         # connect with a new plot manager to handle item clicks within the treeview
         if self.online_analysis_plot_manager is None:
             self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
                                                          False, self.frontend_style)
+            self.logger.info("Successfully loaded the PlotWidgetManager")
 
         # give the experiment (name provided by treeview_name) the experiment_label ONLINE_ANALYSIS to be identified
         self.online_analysis_tree_view_manager.meta_data_assignment_list = [
@@ -312,6 +318,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             bundle = self.online_analysis_tree_view_manager.open_bundle_of_file(file_name)
             pgf_data_frame = self.online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
                                                                                                   None, None)
+            self.logger.info(f"successfully generated pgf_dataframe .dat {pgf_data_frame}")
             # write this file into the database
             self.online_analysis_tree_view_manager.single_file_into_db([], bundle, treeview_name, self.database_handler,
                                                               [0, -1, 0, 0], pgf_data_frame)
@@ -333,6 +340,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                     data_file = abf_file.get_data_table()
                     meta_data = abf_file.get_metadata_table()
                     pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+                    self.logger.info(f"successfully generated pgf_dataframe .abf {pgf_tuple_data_frame}")
                     experiment_name = [self.experiment_name,'None', 'None', 'None', 'None', 'None', 'None', 'None']
                     series_name = abf_file.get_series_name()
                     abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
@@ -364,6 +372,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.set_enabled_button(True)
         self.get_columns_data_to_table()
         self.stackedWidget.setCurrentIndex(0)
+        self.logger.info(f"Successfully transferred to online analysis db the file {self.experiment_name}")
 
     def video_show(self) -> None:
         """ show the video in the graphics view
@@ -390,12 +399,14 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         be used in a Labbook like table.
         In addition a comment section is added where comments to specific experimental conditions 
         can be made"""
+        self.logger.info(f"Creating labbook for file {self.experiment_name}")
         final_pandas = self.online_treeview.selected_tree_view.model()._data
         final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"]).iloc[1:, :]
         list_cslow = [] # need to change this to support more metadata
         list_rs = [] # need to change also
         for i in final_pandas["item_name"].values:
             cslow, rs = self.retrieve_cslow_rs(i)
+            self.logger.info(f"Retrieved Cslow: {cslow}, and Rseries: {rs} for {self.experiment_name}")
             list_cslow.append(cslow)
             list_rs.append(rs)
         final_pandas["condition"] = final_pandas.shape[0] * [""]
@@ -425,8 +436,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.tableView.setModel(self.labbook_model)
             self.labbook_model.resize_header(self.labbook_table)
             self.labbook_model.resize_header(self.tableView)
+            self.logger.info(f"Successfully generated labbook table for {self.experiment_name}")
         except Exception as e:
             print(f"There is an error in draw_table(online_analysis) {e}")
+            self.logger.error(f"""There is an error in draw_table(online_analysis) 
+                                  for the labbook: {e}  for experiment: {self.experiment_name}
+                              """)
 
     def draw_scene(self, image: NDArray) -> None:
         """ draws the image into the self.configuration window
@@ -442,17 +457,21 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
     def reset_class(self) -> None:
         """This should reset the class to the base state so that we can use it for more """
+        self.logger.info(f"Resetting class after submitting {self.experiment_name} to Offline DB")
         try:
             self.file_queue.pop(0)
         except IndexError:
             self.logger.warning("No data was found in the queue list, it was empty")
 
         self.database_handler.database.close()
-        self.database_handler.database, _ = DuckDBInitializer(self.logger, "online_analysis", in_memory = True).init_database()
+        self.database_handler.database, _ = DuckDBInitializer(self.logger, 
+                                                              "online_analysis", 
+                                                              in_memory = True).init_database()
         self.online_analysis_tree_view_manager.clear_tree()
         self.online_analysis_plot_manager.canvas.figure.clf()
         self.online_analysis_plot_manager.canvas.draw_idle()
-
+        for i in reversed(range(self.table_layout.count())):
+                self.table_layout.itemAt(i).widget().deleteLater()
         # reset the variables to the original state
         self.labbook_table = None
         self.data_model_list = None
