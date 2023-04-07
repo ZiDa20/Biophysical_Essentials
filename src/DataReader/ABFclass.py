@@ -72,7 +72,8 @@ class AbfReader():
                           "DataPoints",
                           "Ymin",
                           "Ymax",
-                          "RecordingMode"]
+                          "RecordingMode",
+                          "RsValue"]
 
         meta_data_sweep["Parameters"] = metadata_index
         columns_list = []
@@ -127,6 +128,7 @@ class AbfReader():
         metadata_list.append(np.max(abf_file.sweepY))
 
         metadata_list.append("3" if abf_file.adcUnits[0] == "pA" else "0")
+        metadata_list.append(0) # this is for now until we figured out how to extract putative values for the RsValue
 
         return metadata_list
 

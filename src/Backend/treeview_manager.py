@@ -860,9 +860,11 @@ class TreeViewManager:
 
         print("we try to enter the abf file funciton in treeview manager")
         for series_count, sweep in enumerate(abf_bundle[0], start=1):
+
             database.add_single_series_to_database(
                 abf_bundle[1][0], sweep[3], f"Series{str(series_count)}"
             )
+
             database.add_sweep_df_to_database(
                 abf_bundle[1][0],
                 f"Series{str(series_count)}",
@@ -870,7 +872,7 @@ class TreeViewManager:
                 sweep[1],
                 False,
             )
-
+            
             pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
             database.create_series_specific_pgf_table(
                 sweep[2].set_index("series_name").reset_index(),

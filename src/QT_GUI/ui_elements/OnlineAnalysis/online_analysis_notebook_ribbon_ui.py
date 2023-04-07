@@ -17,8 +17,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsView, QGridLayout,
     QGroupBox, QHeaderView, QLabel, QPushButton,
-    QRadioButton, QSizePolicy, QStackedWidget, QTabWidget,
-    QTableView, QVBoxLayout, QWidget)
+    QRadioButton, QSizePolicy, QTabWidget, QTableView,
+    QVBoxLayout, QWidget)
 
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
 from groupbox_resizing_class import GroupBoxSize
@@ -55,15 +55,9 @@ class Ui_Online_Analysis(object):
         self.groupBox_3.setMaximumSize(QSize(16777215, 16777215))
         self.gridLayout_2 = QGridLayout(self.groupBox_3)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.stackedWidget = QStackedWidget(self.groupBox_3)
-        self.stackedWidget.setObjectName(u"stackedWidget")
-        self.plot_page = QWidget()
-        self.plot_page.setObjectName(u"plot_page")
-        self.gridLayout_9 = QGridLayout(self.plot_page)
-        self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.tree_plot_widget_layout = QVBoxLayout()
         self.tree_plot_widget_layout.setObjectName(u"tree_plot_widget_layout")
-        self.widget = QWidget(self.plot_page)
+        self.widget = QWidget(self.groupBox_3)
         self.widget.setObjectName(u"widget")
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
@@ -79,21 +73,7 @@ class Ui_Online_Analysis(object):
         self.tree_plot_widget_layout.addWidget(self.widget)
 
 
-        self.gridLayout_9.addLayout(self.tree_plot_widget_layout, 0, 0, 1, 1)
-
-        self.stackedWidget.addWidget(self.plot_page)
-        self.animation_page = QWidget()
-        self.animation_page.setObjectName(u"animation_page")
-        self.gridLayout_16 = QGridLayout(self.animation_page)
-        self.gridLayout_16.setObjectName(u"gridLayout_16")
-        self.animation_layout = QGridLayout()
-        self.animation_layout.setObjectName(u"animation_layout")
-
-        self.gridLayout_16.addLayout(self.animation_layout, 0, 0, 1, 1)
-
-        self.stackedWidget.addWidget(self.animation_page)
-
-        self.gridLayout_2.addWidget(self.stackedWidget, 0, 1, 1, 1)
+        self.gridLayout_2.addLayout(self.tree_plot_widget_layout, 1, 3, 1, 1)
 
 
         self.gridLayout_19.addWidget(self.groupBox_3, 0, 1, 1, 1)
@@ -285,10 +265,6 @@ class Ui_Online_Analysis(object):
 "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);\n"
 "  color: skyblue;\n"
 "  text-transform: scale(1.5);\n"
-"}\n"
-"\n"
-"QPushButton:disabled{\n"
-"    opacity: 0.5;\n"
 "}")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
@@ -391,16 +367,16 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_36.addWidget(self.add_metadata_button, 0, 0, 1, 1)
 
-        self.save_image = QPushButton(self.LabbookGroup)
-        self.save_image.setObjectName(u"save_image")
-        sizePolicy3.setHeightForWidth(self.save_image.sizePolicy().hasHeightForWidth())
-        self.save_image.setSizePolicy(sizePolicy3)
-        self.save_image.setMinimumSize(QSize(30, 30))
-        self.save_image.setMaximumSize(QSize(30, 30))
-        self.save_image.setFont(font)
-        self.save_image.setStyleSheet(u"")
+        self.pushButton = QPushButton(self.LabbookGroup)
+        self.pushButton.setObjectName(u"pushButton")
+        sizePolicy3.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
+        self.pushButton.setSizePolicy(sizePolicy3)
+        self.pushButton.setMinimumSize(QSize(30, 30))
+        self.pushButton.setMaximumSize(QSize(30, 30))
+        self.pushButton.setFont(font)
+        self.pushButton.setStyleSheet(u"")
 
-        self.gridLayout_36.addWidget(self.save_image, 0, 2, 1, 1)
+        self.gridLayout_36.addWidget(self.pushButton, 0, 2, 1, 1)
 
         self.start_video_button = QPushButton(self.LabbookGroup)
         self.start_video_button.setObjectName(u"start_video_button")
@@ -434,13 +410,8 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_37.addWidget(self.edit_meta, 0, 0, 1, 1)
 
-        self.label_4 = QLabel(self.groupBox_6)
-        self.label_4.setObjectName(u"label_4")
 
-        self.gridLayout_37.addWidget(self.label_4, 0, 1, 1, 1)
-
-
-        self.gridLayout_25.addLayout(self.gridLayout_37, 0, 1, 1, 1)
+        self.gridLayout_25.addLayout(self.gridLayout_37, 0, 0, 1, 1)
 
 
         self.gridLayout_3.addWidget(self.groupBox_6, 0, 3, 2, 1)
@@ -479,21 +450,43 @@ class Ui_Online_Analysis(object):
         self.gridLayout_22.setObjectName(u"gridLayout_22")
         self.go_home = QPushButton(self.groupBox_7)
         self.go_home.setObjectName(u"go_home")
-        self.go_home.setMinimumSize(QSize(40, 40))
-        self.go_home.setMaximumSize(QSize(40, 40))
+        self.go_home.setMinimumSize(QSize(50, 50))
+        self.go_home.setMaximumSize(QSize(50, 50))
 
         self.gridLayout_22.addWidget(self.go_home, 0, 0, 1, 1)
-
-        self.label_3 = QLabel(self.groupBox_7)
-        self.label_3.setObjectName(u"label_3")
-
-        self.gridLayout_22.addWidget(self.label_3, 0, 1, 1, 1)
 
 
         self.gridLayout_28.addLayout(self.gridLayout_22, 0, 0, 1, 1)
 
 
         self.gridLayout_3.addWidget(self.groupBox_7, 0, 0, 2, 1)
+
+        self.ClassifierGroup = QGroupBox(self.frame)
+        self.ClassifierGroup.setObjectName(u"ClassifierGroup")
+        self.gridLayout_13 = QGridLayout(self.ClassifierGroup)
+        self.gridLayout_13.setObjectName(u"gridLayout_13")
+        self.gridLayout_13.setContentsMargins(1, 3, 1, 3)
+        self.ClassificationOptions = QGridLayout()
+        self.ClassificationOptions.setObjectName(u"ClassificationOptions")
+        self.classifier_stream = QPushButton(self.ClassifierGroup)
+        self.classifier_stream.setObjectName(u"classifier_stream")
+        self.classifier_stream.setMinimumSize(QSize(50, 50))
+        self.classifier_stream.setMaximumSize(QSize(50, 50))
+        self.classifier_stream.setFont(font)
+        self.classifier_stream.setStyleSheet(u"")
+
+        self.ClassificationOptions.addWidget(self.classifier_stream, 0, 0, 1, 1)
+
+        self.label_2 = QLabel(self.ClassifierGroup)
+        self.label_2.setObjectName(u"label_2")
+
+        self.ClassificationOptions.addWidget(self.label_2, 0, 1, 1, 1)
+
+
+        self.gridLayout_13.addLayout(self.ClassificationOptions, 0, 0, 1, 1)
+
+
+        self.gridLayout_3.addWidget(self.ClassifierGroup, 0, 14, 1, 1)
 
         self.groupBox_8 = QGroupBox(self.frame)
         self.groupBox_8.setObjectName(u"groupBox_8")
@@ -504,8 +497,8 @@ class Ui_Online_Analysis(object):
         self.gridLayout_33.setObjectName(u"gridLayout_33")
         self.batch_config = QPushButton(self.groupBox_8)
         self.batch_config.setObjectName(u"batch_config")
-        self.batch_config.setMinimumSize(QSize(30, 30))
-        self.batch_config.setMaximumSize(QSize(30, 30))
+        self.batch_config.setMinimumSize(QSize(50, 50))
+        self.batch_config.setMaximumSize(QSize(50, 50))
 
         self.gridLayout_33.addWidget(self.batch_config, 0, 0, 1, 1)
 
@@ -532,7 +525,7 @@ class Ui_Online_Analysis(object):
         self.line_2.setFrameShape(QFrame.VLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
 
-        self.gridLayout_3.addWidget(self.line_2, 0, 13, 1, 1, Qt.AlignVCenter)
+        self.gridLayout_3.addWidget(self.line_2, 0, 13, 1, 1)
 
         self.DataGroup = QGroupBox(self.frame)
         self.DataGroup.setObjectName(u"DataGroup")
@@ -555,13 +548,13 @@ class Ui_Online_Analysis(object):
 
         self.DataOptions.addWidget(self.button_select_data_file, 0, 0, 1, 1)
 
-        self.renameSeries = QPushButton(self.DataGroup)
-        self.renameSeries.setObjectName(u"renameSeries")
-        self.renameSeries.setMinimumSize(QSize(30, 30))
-        self.renameSeries.setMaximumSize(QSize(30, 30))
-        self.renameSeries.setStyleSheet(u"")
+        self.change_series_name = QPushButton(self.DataGroup)
+        self.change_series_name.setObjectName(u"change_series_name")
+        self.change_series_name.setMinimumSize(QSize(30, 30))
+        self.change_series_name.setMaximumSize(QSize(30, 30))
+        self.change_series_name.setStyleSheet(u"")
 
-        self.DataOptions.addWidget(self.renameSeries, 0, 1, 1, 1)
+        self.DataOptions.addWidget(self.change_series_name, 0, 1, 1, 1)
 
 
         self.gridLayout_11.addLayout(self.DataOptions, 0, 0, 1, 1)
@@ -571,8 +564,6 @@ class Ui_Online_Analysis(object):
 
         self.line_6 = QFrame(self.frame)
         self.line_6.setObjectName(u"line_6")
-        sizePolicy2.setHeightForWidth(self.line_6.sizePolicy().hasHeightForWidth())
-        self.line_6.setSizePolicy(sizePolicy2)
         self.line_6.setFrameShape(QFrame.VLine)
         self.line_6.setFrameShadow(QFrame.Sunken)
 
@@ -596,11 +587,6 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_15.addWidget(self.transfer_to_offline_analysis, 0, 0, 1, 1, Qt.AlignHCenter|Qt.AlignVCenter)
 
-        self.label_5 = QLabel(self.TransferGroup)
-        self.label_5.setObjectName(u"label_5")
-
-        self.gridLayout_15.addWidget(self.label_5, 0, 1, 1, 1)
-
 
         self.gridLayout_21.addLayout(self.gridLayout_15, 0, 0, 1, 1)
 
@@ -621,33 +607,6 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_3.addWidget(self.line_8, 0, 4, 1, 1)
 
-        self.ClassifierGroup = QGroupBox(self.frame)
-        self.ClassifierGroup.setObjectName(u"ClassifierGroup")
-        self.gridLayout_13 = QGridLayout(self.ClassifierGroup)
-        self.gridLayout_13.setObjectName(u"gridLayout_13")
-        self.gridLayout_13.setContentsMargins(1, 3, 1, 3)
-        self.ClassificationOptions = QGridLayout()
-        self.ClassificationOptions.setObjectName(u"ClassificationOptions")
-        self.classifier_stream = QPushButton(self.ClassifierGroup)
-        self.classifier_stream.setObjectName(u"classifier_stream")
-        self.classifier_stream.setMinimumSize(QSize(30, 30))
-        self.classifier_stream.setMaximumSize(QSize(30, 30))
-        self.classifier_stream.setFont(font)
-        self.classifier_stream.setStyleSheet(u"")
-
-        self.ClassificationOptions.addWidget(self.classifier_stream, 0, 0, 1, 1)
-
-        self.label_2 = QLabel(self.ClassifierGroup)
-        self.label_2.setObjectName(u"label_2")
-
-        self.ClassificationOptions.addWidget(self.label_2, 0, 1, 1, 1)
-
-
-        self.gridLayout_13.addLayout(self.ClassificationOptions, 0, 0, 1, 1)
-
-
-        self.gridLayout_3.addWidget(self.ClassifierGroup, 0, 14, 2, 1)
-
 
         self.gridLayout_5.addWidget(self.frame, 0, 0, 1, 1)
 
@@ -655,7 +614,6 @@ class Ui_Online_Analysis(object):
         self.retranslateUi(Online_Analysis)
 
         self.online_analysis.setCurrentIndex(0)
-        self.stackedWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(Online_Analysis)
@@ -676,71 +634,35 @@ class Ui_Online_Analysis(object):
         self.groupBox_9.setTitle(QCoreApplication.translate("Online_Analysis", u"Cell Image", None))
         self.online_analysis.setTabText(self.online_analysis.indexOf(self.Transfer), QCoreApplication.translate("Online_Analysis", u"Transfer", None))
         self.PlotGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Plot Options", None))
-#if QT_CONFIG(tooltip)
-        self.plot_home.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Set the plot back to the original state</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.plot_home.setText("")
-#if QT_CONFIG(tooltip)
-        self.plot_move.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Pan and move the plot</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.plot_move.setText("")
-#if QT_CONFIG(tooltip)
-        self.plot_zoom.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Zoom into the plot</p><p><br/></p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.plot_zoom.setText("")
-#if QT_CONFIG(tooltip)
-        self.save_plot_online.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Save plot as image (.png)</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.save_plot_online.setText("")
-#if QT_CONFIG(tooltip)
-        self.show_pgf_file.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Show or hide the PGF information</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.show_pgf_file.setText("")
         self.LabbookGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Labbook Options", None))
-#if QT_CONFIG(tooltip)
-        self.save_labbook_button.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>save the labbook as .csv</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.save_labbook_button.setText("")
-#if QT_CONFIG(tooltip)
-        self.add_metadata_button.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Add metadata to the labbook</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.add_metadata_button.setText("")
-#if QT_CONFIG(tooltip)
-        self.save_image.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>save image of cell to .png</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.save_image.setText("")
-#if QT_CONFIG(tooltip)
-        self.start_video_button.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>start the gif of the experiment</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
+        self.pushButton.setText("")
         self.start_video_button.setText("")
         self.groupBox_6.setTitle(QCoreApplication.translate("Online_Analysis", u"Edit Metadata", None))
         self.edit_meta.setText("")
-        self.label_4.setText(QCoreApplication.translate("Online_Analysis", u"Edit Data", None))
         self.SweepLevel.setTitle(QCoreApplication.translate("Online_Analysis", u"Sweeps", None))
-        self.show_sweeps_radio.setText(QCoreApplication.translate("Online_Analysis", u"Sweeps", None))
+        self.show_sweeps_radio.setText(QCoreApplication.translate("Online_Analysis", u"Show Sweeps", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("Online_Analysis", u"Home", None))
         self.go_home.setText("")
-        self.label_3.setText(QCoreApplication.translate("Online_Analysis", u"Go Home", None))
+        self.ClassifierGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Classifier Options", None))
+        self.classifier_stream.setText("")
+        self.label_2.setText(QCoreApplication.translate("Online_Analysis", u"Live Classification", None))
         self.groupBox_8.setTitle(QCoreApplication.translate("Online_Analysis", u"Go To", None))
         self.batch_config.setText("")
         self.label.setText(QCoreApplication.translate("Online_Analysis", u"Go To Experimentator", None))
         self.DataGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Data Options", None))
 #if QT_CONFIG(tooltip)
-        self.button_select_data_file.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Open a .dat or .abf file from Directory</p></body></html>", None))
+        self.button_select_data_file.setToolTip(QCoreApplication.translate("Online_Analysis", u"Open File", None))
 #endif // QT_CONFIG(tooltip)
         self.button_select_data_file.setText("")
-#if QT_CONFIG(tooltip)
-        self.renameSeries.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p><span style=\" font-size:6pt;\">Rename a particular series</span></p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.renameSeries.setText("")
+        self.change_series_name.setText("")
         self.TransferGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Transfer Options", None))
-#if QT_CONFIG(tooltip)
-        self.transfer_to_offline_analysis.setToolTip(QCoreApplication.translate("Online_Analysis", u"<html><head/><body><p>Start the Transfer into the Offline DataBase</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
         self.transfer_to_offline_analysis.setText("")
-        self.label_5.setText(QCoreApplication.translate("Online_Analysis", u"Start Transfer", None))
-        self.ClassifierGroup.setTitle(QCoreApplication.translate("Online_Analysis", u"Classifier Options", None))
-        self.classifier_stream.setText("")
-        self.label_2.setText(QCoreApplication.translate("Online_Analysis", u"ML Classifer", None))
     # retranslateUi
 

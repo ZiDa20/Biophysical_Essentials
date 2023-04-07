@@ -30,12 +30,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.center() #place the MainWindow in the center
         self.setWindowTitle("BiophysicalEssentials (BPE)")
         self.logger= start_logger # set the logger
-
-        # Create the animation using the update function and the time points as frames
-        self.ap = LoadingAnimation()
-        self.ui.offline.animation_layout.addWidget(self.ap.wait_widget)
-        # Create the frontend style for the app
         self.frontend_style = Frontend_Style(self)
+        # Create the animation using the update function and the time points as frames
+        self.ap = LoadingAnimation("Data Loading: Please Wait", self.frontend_style, True)
+        self.ap_online = LoadingAnimation("Please choose a Data File To Load from the Data Options", self.frontend_style)
+        self.ui.offline.animation_layout.addWidget(self.ap.wait_widget)
+        self.ui.online.animation_layout.addWidget(self.ap_online.wait_widget)
+        # Create the frontend style for the app
+        
         self.ui.offline.stackedWidget.setCurrentIndex(1)
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
@@ -54,7 +56,6 @@ class MainWindow(QMainWindow, QtStyleTools):
                                                     in_memory = True)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
-
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style, self.ui.notebook)
         self.ui.offline.add_splitter()
@@ -82,6 +83,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
+        
 
     def insert_row_of_buttons(self):
         """

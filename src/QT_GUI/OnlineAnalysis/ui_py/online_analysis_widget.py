@@ -61,6 +61,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.transferred = False
         self._experiment_name = None
         self.file_queue = []
+        
 
     @property
     def experiment_name(self) -> str:
@@ -106,7 +107,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.plot_move.clicked.connect(navigation.pan)
             self.plot_zoom.clicked.connect(navigation.zoom)
             self.plot_home.clicked.connect(navigation.home)
-
+            
     def update_database_handler(self, database_handler, offline_database) -> None:
         """should update the database handler of the class"""
         self.database_handler = database_handler
@@ -116,12 +117,29 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """ connect the buttons to the corresponding functions """
         self.button_select_data_file.clicked.connect(self.open_single_dat_file)
         self.online_analysis.currentChanged.connect(self.online_analysis_tab_changed)
-        self.pushButton_2.clicked.connect(self.video_show)
+        self.start_video_button.clicked.connect(self.video_show)
         self.transfer_to_offline_analysis.clicked.connect(self.start_db_transfer)
         self.transfer_into_db_button.clicked.connect(self.transfer_file_and_meta_data_into_db)
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
         self.classifier_stream.clicked.connect(self.reset_class)
         self.logger.info("Successfully connected all the appropiates button calls")
+        self.set_enabled_button()
+
+    def set_enabled_button(self, enabled: bool = False) -> None:
+        self.plot_move.setEnabled(enabled)
+        self.plot_home.setEnabled(enabled)
+        self.plot_zoom.setEnabled(enabled)
+        self.save_image.setEnabled(enabled)
+        self.classifier_stream.setEnabled(enabled)
+        self.add_metadata_button.setEnabled(enabled)
+        self.save_labbook_button.setEnabled(enabled)
+        self.start_video_button.setEnabled(enabled)
+        self.edit_meta.setEnabled(enabled)
+        self.renameSeries.setEnabled(enabled)
+        self.show_pgf_file.setEnabled(enabled)
+        self.transfer_to_offline_analysis.setEnabled(enabled)
+        self.save_plot_online.setEnabled(enabled)
+
 
     def transfer_file_and_meta_data_into_db(self) -> None:
         """ This function is responsible from transfering and in memory database
@@ -227,7 +245,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "")[0]
 
             treeview_name = file_name.split("/")
-            treeview_name = treeview_name[len(treeview_name) - 1].split(".")[0]
+
+            if ".dat" in treeview_name[-1]:
+                treeview_name = treeview_name[-1].split(".")[0]
+            else:
+                treeview_name = "_".join(treeview_name[-1].split("_")[:2])
         else:
             treeview_name = file_name
 
@@ -311,7 +333,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                     data_file = abf_file.get_data_table()
                     meta_data = abf_file.get_metadata_table()
                     pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                    experiment_name = [abf_file.get_experiment_name(),'None', 'None', 'None', 'None', 'None', 'None', 'None']
+                    experiment_name = [self.experiment_name,'None', 'None', 'None', 'None', 'None', 'None', 'None']
                     series_name = abf_file.get_series_name()
                     abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
             
@@ -339,7 +361,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis.setTabEnabled(2,True)
         self.online_analysis_tree_view_manager.click_top_level()
         self.enable_plot_options()
+        self.set_enabled_button(True)
         self.get_columns_data_to_table()
+        self.stackedWidget.setCurrentIndex(0)
 
     def video_show(self) -> None:
         """ show the video in the graphics view
@@ -399,12 +423,10 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.labbook_model = PandasTable(data)
             self.labbook_table.setModel(self.labbook_model)
             self.tableView.setModel(self.labbook_model)
-            self.labbook_model.resize_header(self.labbook_model)
+            self.labbook_model.resize_header(self.labbook_table)
             self.labbook_model.resize_header(self.tableView)
-
-            self.labbook_model.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception as e:
-            print(e)
+            print(f"There is an error in draw_table(online_analysis) {e}")
 
     def draw_scene(self, image: NDArray) -> None:
         """ draws the image into the self.configuration window
@@ -451,6 +473,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.logger.info("Updating the View using the next member in the viewing list")
             self.open_single_dat_file(self.file_queue[0])
             self.logger.info("Successfully updated the view")
+        else:
+            self.stackedWidget.setCurrentIndex(1)
+            self.set_enabled_button()
 
 
 
