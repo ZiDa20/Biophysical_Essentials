@@ -19,18 +19,23 @@ class RedundantDialog(QDialog, Ui_RedundantDialog):
 
     @property
     def treeview_name(self):
+        """ no way to set the treeview name only getting"""
         return self._treeview_name
     
     @property
     def new_treeview_name(self):
+        """getter new _treeview name"""
         return self._new_treeview_name
     
     @new_treeview_name.setter
-    def new_treeview_name(self, value):
-        self._new_treeview_name = value
+    def new_treeview_name(self, value: str):
+        """ treeview_name setter"""
+        if isinstance(value, str):
+            self._new_treeview_name = value
 
     def check_analysis_in_database(self) -> None:
-        """"""
+        """ This checks if there are duplicated records in the online database and the offline database
+        """
         name = self.lineEdit.text() + f"_{self.treeview_name}"
         q = "select * from experiments where experiment_name = $1"
         df = self.offline_database.database.execute(q, [name]).fetchdf()
@@ -42,17 +47,18 @@ class RedundantDialog(QDialog, Ui_RedundantDialog):
         else:
             self.checkName.setStyleSheet("background: red;")
 
-    def set_discarded_state(self, state) -> None:
-        """ """
+    def set_discarded_state(self, state:int) -> None:
+        """ Sets the discarded state whenever a duplicated records if found and the
+         the Checkbox is selected """
         print(state)
-        if state == 2:
+        if state == 2: # checkbox marked
             self.offline_database.database.execute("""UPDATE experiment_series
                                                         SET discarded = True
                                                         WHERE experiment_name = (?)
                                                     """, [self.treeview_name])
             self.logger.info("Successfully replaced the discarded state by True in Redundant Dialog")
         
-        elif state == 0:
+        elif state == 0: #checkbox unselected
             self.offline_database.database.execute("""UPDATE experiment_series
                                                         SET discarded = False
                                                         WHERE experiment_name = (?)
