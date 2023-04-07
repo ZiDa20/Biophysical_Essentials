@@ -180,6 +180,7 @@ class SeriesItemTreeWidget():
 
 
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
+        
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.selected_tree_view_data_table)

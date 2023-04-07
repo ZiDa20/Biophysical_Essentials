@@ -133,7 +133,7 @@ class Ui_Form(QWidget):
 
         self.retranslateUi(Form)
 
-        self.directory_tree_widget.setCurrentIndex(1)
+        self.directory_tree_widget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Form)

@@ -276,6 +276,14 @@ QToolTip[objectName="turn_off_grid"] {{color: #ffffff; background-color: #000000
 QPushButton[objectName="experiment_to_csv"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_experiment_save.png);}}
 QToolTip[objectName="experiment_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+
+#QPushButton[objectName="select_series_analysis_functions"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/analysis_functions.png);}}
+#QToolTip[objectName="select_series_analysis_functions"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="run_analysis_functions"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/run_calculation.png);}}
+QToolTip[objectName="run_analysis_functions"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
 QPushButton[objectName="change_series_name"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/rename.png);}}  
 
 QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/database_welcome.png);}}

@@ -347,9 +347,21 @@ class TreeViewManager:
         print("selected finished succesful")
         discarded_model = TreeModel(self.discarded_tree_view_data_table, "discarded")
 
+         # assign the models to the visible treeview objects
+        col_count = len(self.selected_tree_view_data_table["type"].unique())
+
+        # workaround .. works around okish -- forces the tree to change its with
+        self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
+
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
+        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
-        self.tree_build_widget.selected_tree_view.expandAll()   
+        self.tree_build_widget.selected_tree_view.expandAll() 
+        
+        self.tree_build_widget.discarded_tree_view.setMaximumWidth(300 + (col_count-2)*100)
+        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, True, col_count) #self.selected_model.header().count()
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
+        self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_discard)
         self.tree_build_widget.discarded_tree_view.expandAll()   
 
         # display the correct columns according to the selected metadata and sweeps

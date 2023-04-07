@@ -164,6 +164,8 @@ class PlotWidgetManager(QRunnable):
                             x_y_tuple = [x_y_tuple[sweep_number-1]]
 
                         if x_y_tuple is not None:
+                                    self.ax1.grid(False)
+                                    self.ax2.grid(False)
                                     for tuple in x_y_tuple:
                                         if isinstance(tuple[1],list):
                                             y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
