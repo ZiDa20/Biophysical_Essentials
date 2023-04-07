@@ -100,6 +100,9 @@ class SeriesItemTreeWidget():
             self.plot_widgets = []
             self.parent_count += 1
 
+            
+            
+
 
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)      
@@ -107,6 +110,7 @@ class SeriesItemTreeWidget():
         offline_stacked_widget.setCurrentIndex(3)
         self.SeriesItems.expandToDepth(2)
         self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
+
 
     def simple_analysis_configuration_clicked(self,parent_stacked:int):
         """
@@ -175,12 +179,14 @@ class SeriesItemTreeWidget():
         #self.navigation_list.append(self.navigation)
         self.current_tab_visualization.append(current_tab_plot_manager)
         
-        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio)
+        # looks like overhead but the current tab holds other information for the second page of the offline analysis compared to the firstpage
+        # while treeviews are equal 
+        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio, current_tab)
         self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
 
 
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
-        
+
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.selected_tree_view_data_table)
@@ -190,12 +196,11 @@ class SeriesItemTreeWidget():
         # slice out all series names that are not related to the specific chosen one
         # at the moment its setting back every plot! @2toDO:MZ 
         current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
+
         navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         self.home.clicked.connect(navigation.home)
         self.zoom.clicked.connect(navigation.zoom)
         self.pan.clicked.connect(navigation.pan) 
-        
-   
 
     def view_table_clicked(self, parent_stacked:int):
         """

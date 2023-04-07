@@ -21,7 +21,7 @@ class TreeViewManager:
     __author__: dz
     """
 
-    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None):
+    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None, specific_analysis_tab = None):
 
         # it's the database handler
         self.database_handler = database
@@ -40,15 +40,8 @@ class TreeViewManager:
         # frontend style can be set to show all popups in the correct theme and color
         self.frontend_style = None
 
-        """
-        self.analysis_mode = 0
-        # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
-        if self.database_handler is None:
-            print("setting analysis mode 0 (online analysis)")
-        else:
-            self.analysis_mode = 1
-            print("setting analysis mode 1 (offline analysis)")
-        """
+        # specific analysis tab needed for the resize actions of the mdi area
+        self.specific_analysis_tab = specific_analysis_tab   
 
         self.threadpool = QThreadPool()
     
@@ -228,18 +221,20 @@ class TreeViewManager:
         # assign the models to the visible treeview objects
         col_count = len(selected_table_view_table["type"].unique())
         # workaround .. works around okish -- forces the tree to change its with
-        self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
+        if self.specific_analysis_tab:
+            self.update_mdi_areas(col_count)
+        else:
+            self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
+
         delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
         self.tree_build_widget.selected_tree_view.expandAll()
         
-        
         delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False,col_count)       #self.discarded_model.header().count()
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()
-
 
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(self.selected_model,self.tree_build_widget.selected_tree_view)
@@ -259,6 +254,11 @@ class TreeViewManager:
 
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
+
+    def update_mdi_areas(self,col_count):
+        self.specific_analysis_tab.subwindow.setMaximumSize(QSize(350 + (col_count-2)*100, 16777215))
+        self.specific_analysis_tab.subwindow.resize(QSize(350 + (col_count-2)*100,  self.specific_analysis_tab.subwindow.height()))
+        self.specific_analysis_tab.show_and_tile()
 
     def set_visible_columns_treeview(self,model,treeview):
         """
@@ -350,25 +350,20 @@ class TreeViewManager:
          # assign the models to the visible treeview objects
         col_count = len(self.selected_tree_view_data_table["type"].unique())
 
-        # workaround .. works around okish -- forces the tree to change its with
-        self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
-
         delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
         self.tree_build_widget.selected_tree_view.expandAll() 
-        
-        self.tree_build_widget.discarded_tree_view.setMaximumWidth(300 + (col_count-2)*100)
-        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, True, col_count) #self.selected_model.header().count()
+
+        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False, col_count) #self.selected_model.header().count()
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_discard)
         self.tree_build_widget.discarded_tree_view.expandAll()   
 
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
-        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)
+        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)      
 
-       
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
             self.tree_build_widget.discarded_tree_view.clicked.disconnect()
