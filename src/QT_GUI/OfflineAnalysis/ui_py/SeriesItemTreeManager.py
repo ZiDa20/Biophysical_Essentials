@@ -202,6 +202,7 @@ class SeriesItemTreeWidget():
         self.zoom.clicked.connect(navigation.zoom)
         self.pan.clicked.connect(navigation.pan) 
 
+
     def view_table_clicked(self, parent_stacked:int):
         """
         specific function to display result tables that are stored within the related plot widget
@@ -490,6 +491,9 @@ class SeriesItemTreeWidget():
             index = model.index(0, 0, selectedIndexes[0])
         rect = current_tab.widget.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+        
+        col_count = len(self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].selected_tree_view_data_table["type"].unique())
+        self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].update_mdi_areas(col_count)
 
 
     def findName(self,model, name, parent=QModelIndex()):

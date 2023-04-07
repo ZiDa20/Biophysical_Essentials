@@ -347,7 +347,7 @@ class TreeViewManager:
         print("selected finished succesful")
         discarded_model = TreeModel(self.discarded_tree_view_data_table, "discarded")
 
-         # assign the models to the visible treeview objects
+        # assign the models to the visible treeview objects
         col_count = len(self.selected_tree_view_data_table["type"].unique())
 
         delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
