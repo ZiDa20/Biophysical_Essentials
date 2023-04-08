@@ -62,10 +62,20 @@ class DuckDBInitializer:
 
         # create all database tables assuming they do not exist'''
 
-        sql_create_mapping_table = """  create table experiment_analysis_mapping(
+        sql_create_experiment_mapping_table = """  create table experiment_analysis_mapping(
                                         experiment_name text,
                                         analysis_id integer,
-                                        UNIQUE (experiment_name, analysis_id)
+                                        UNIQUE (experiment_name, analysis_id) 
+                                        ); """
+
+        sql_create_series_mapping_table = """  create table series_analysis_mapping(
+                                        analysis_id integer,
+                                        experiment_name text,
+                                        series_identifier text,
+                                        series_name text,
+                                        renamed_series_name text,
+                                        analysis_discarded text,
+                                        primary key (analysis_id, experiment_name, series_identifier) 
                                         ); """
 
         sql_create_global_meta_data_table = """CREATE TABLE global_meta_data(
@@ -162,7 +172,8 @@ class DuckDBInitializer:
             self.database.execute(sql_create_analysis_function_table)
             self.database.execute(sql_create_results_table)
             self.database.execute(sql_create_experiment_series_table)
-            self.database.execute(sql_create_mapping_table)
+            self.database.execute(sql_create_experiment_mapping_table)
+            self.database.execute(sql_create_series_mapping_table) 
             self.database.execute(sql_create_global_meta_data_table)
             self.database.execute(sql_create_selected_meta_data_table)
             self.logger.info("create_table created all tables successfully")
