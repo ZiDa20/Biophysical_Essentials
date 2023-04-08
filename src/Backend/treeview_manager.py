@@ -4,7 +4,10 @@ from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from DataReader.heka_reader import Bundle
 from functools import partial
-import logging
+import csv
+
+from loggers.treeview_logger import treeview_logger
+from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
 from database.data_db import *
 import pandas as pd
@@ -13,6 +16,7 @@ from Backend.plot_widget_manager import PlotWidgetManager
 from Backend.cancel_button_delegate import CancelButtonDelegate
 from Offline_Analysis.tree_model_class import TreeModel
 import itertools
+from PySide6.QtTest import QTest
 
 class TreeViewManager:
     """
@@ -44,7 +48,7 @@ class TreeViewManager:
         self.specific_analysis_tab = specific_analysis_tab   
 
         self.threadpool = QThreadPool()
-    
+
         self._node_list_STATE = []
         self._discardet_nodes_STATE = []
         self._pgf_info_STATE = []
@@ -55,7 +59,7 @@ class TreeViewManager:
 
         self._data_view_STATE = 0
 
-        self.configure_logger()
+        self.logger = treeview_logger
         self.configure_default_signals()
 
         # introduce logger
@@ -63,16 +67,8 @@ class TreeViewManager:
 
     """ ############################## Chapter A Create treeview functions ######################################### """
 
-    def configure_logger(self):
-        """
-        Configure the Logger for the Treeview Manager"""
-        self.logger=logging.getLogger()
-        self.logger.setLevel(logging.ERROR)
-        file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
-        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.info('Treeview Manager Initialized')
+
+    
 
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
@@ -81,17 +77,17 @@ class TreeViewManager:
         self.experiment_tree_finished = DataReadFinishedSignal()
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
-        """ read the dat files in a separate thread that reads in through the directory 
+        """ read the dat files in a separate thread that reads in through the directory
         adds the dat.files run through the heka reader to get the data file and pulse generator files
-        
+
         args:
            dat_files type: list of strings - the dat files to be read
            directory_path type: string - the path to the directory where the dat files are located
            progress_callback type: function - the function to be called when the progress changes
-           
+
         returns:
-          bundle_list type: list of tuples - the list of bundles that were read 
-          
+          bundle_list type: list of tuples - the list of bundles that were read
+
         """
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
@@ -104,7 +100,7 @@ class TreeViewManager:
                     bundle = self.open_bundle_of_file(file) # open heka reader
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
-                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
+                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat"))
 
                 if isinstance(i,list):
                     for abf in i:
@@ -444,10 +440,10 @@ class TreeViewManager:
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
-            
+
             plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
-        
+
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Sweep":
             print("sweep clicked")
@@ -496,7 +492,7 @@ class TreeViewManager:
         self.database_handler.open_connection()
         self.logger.info("Database writing thread successfully finished")  #
         # self.database.open_connection() # open the connection to the database in main thread
-        
+
         try:
             df = self.database_handler.database.execute(
                 "SELECT * FROM experiments").fetchall()  # get all the experiments as sanity
@@ -535,7 +531,7 @@ class TreeViewManager:
         df["type"] = "Experiment"
         df["level"] = 0
         df["identifier"] = parent_name_table["experiment_name"].values.tolist()
-        return df       
+        return df
 
     def create_meta_data_combinations(self,meta_data_values: list):
         """
@@ -564,7 +560,7 @@ class TreeViewManager:
         meta_data_table = pandas data frame with columns [table, column, values]
 
         """
-        
+
         # list of lists of meta data tuples per column and table
         meta_data_values = list(set(meta_data_table["conditions"].values))
         combinations = self.create_meta_data_combinations(meta_data_values)
@@ -579,9 +575,9 @@ class TreeViewManager:
 
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
         for c in combinations:
-        
 
-            # Create query strings for each table, always reset them 
+
+            # Create query strings for each table, always reset them
             #experiment_series_query = f' select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where discarded = {discarded_state}'
             global_meta_data_query = f'select experiment_name from {GLOBAL_META_DATA_TABLE} where experiment_label = \'{self.selected_meta_data_list[0]}\''
             #sweep_meta_data_query = f'select experiment_name from {SWEEP_META_DATA_TABLE} where '
@@ -596,7 +592,7 @@ class TreeViewManager:
             for row,index,table in zip(meta_data_table["condition_column"], meta_data_selections, meta_data_table["table_name"]):
 
                 if table ==  GLOBAL_META_DATA_TABLE:
-                    # multiple columns are available for global meta data. 
+                    # multiple columns are available for global meta data.
                     # therefore table can appear in multiple rows and therefore I have to append
                     global_meta_data_query =  global_meta_data_query + f'and {row} = \'{index}\''
                 if table ==  EXPERIMENT_SERIES_TABLE:
@@ -606,10 +602,10 @@ class TreeViewManager:
 
             # check combination of tables
             if list(meta_data_table["table_name"].unique()) == [GLOBAL_META_DATA_TABLE]:
-                experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf() 
+                experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf()
             else:
                 experiment_series_query = experiment_series_query + f' intersect ({global_meta_data_query})'
-                experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf() 
+                experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf()
 
 
             # empty dataframe might be returned when the meta data combinations does not exist
@@ -618,7 +614,7 @@ class TreeViewManager:
                 experiment_names = [tup[0] for tup in experiment_names]
 
                 identifier_list = ["root::" + c + "::" + e for e in experiment_names]
-                new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names), 
+                new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names),
                 "type": ["Experiment"]*len(experiment_names), "level": [1]*len(experiment_names), "identifier": identifier_list})
 
                 df = pd.concat([df, new_item_df])
@@ -628,7 +624,7 @@ class TreeViewManager:
 
     def add_experiments_series_sweeps_to_meta_data_label(self, meta_data_table, discarded_state, series_name = None):
 
-    
+
 
         # get a dataframe with hierarchical strcutured meta data items and exoeriments
         df = self.create_treeview_with_meta_data_parents(meta_data_table)
@@ -636,9 +632,9 @@ class TreeViewManager:
 
         # append series to the experiments
         for index,experiment_row in df[df["type"]=="Experiment"].iterrows():
-            
+
             series_meta_data = None
-            
+
             if "experiment_series" in meta_data_table["table_name"].values.tolist():
 
                 # get the parent
@@ -646,18 +642,18 @@ class TreeViewManager:
                 # split at ::
                 label = label.split("::")
                 series_meta_data = label[meta_data_table["table_name"].values.tolist().index("experiment_series")]
-          
-    
+
+
             df, series_table = self.add_series_to_treeview(df, experiment_row, discarded_state, series_name, series_level, series_meta_data)
 
-            # create sweeps 
+            # create sweeps
             if self.show_sweeps_radio.isChecked():
                 df = self.add_sweeps_to_treeview(df, series_table, series_level, experiment_row["identifier"])
 
         return df
 
     def add_series_to_treeview(self, df, experiment_row, discarded_state, series_name, series_level, series_meta_data=None):
-    
+
 
         experiment_name = experiment_row["item_name"]
         experiment_id = experiment_row["identifier"]
@@ -716,8 +712,8 @@ class TreeViewManager:
 
         #if series_table.empty:
         #    return treeview_df
-                
-        
+
+
         for index, row in series_table.iterrows():
             sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
 
@@ -871,9 +867,11 @@ class TreeViewManager:
 
         print("we try to enter the abf file funciton in treeview manager")
         for series_count, sweep in enumerate(abf_bundle[0], start=1):
+
             database.add_single_series_to_database(
                 abf_bundle[1][0], sweep[3], f"Series{str(series_count)}"
             )
+
             database.add_sweep_df_to_database(
                 abf_bundle[1][0],
                 f"Series{str(series_count)}",
@@ -881,7 +879,7 @@ class TreeViewManager:
                 sweep[1],
                 False,
             )
-
+            
             pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
             database.create_series_specific_pgf_table(
                 sweep[2].set_index("series_name").reset_index(),
@@ -930,6 +928,13 @@ class TreeViewManager:
         dialog.close()
 
     """######################### Chapter B Functions to interact with created treeviews ############################"""
+
+    def click_top_level(self) -> None:
+        """Clicks automatically the top-level item of the selected tree view after tree was ubild to show the plot"""
+        index = self.tree_build_widget.selected_tree_view.model().index(0, 0, self.tree_build_widget.selected_tree_view.model().index(0,0, QModelIndex()))
+        self.tree_build_widget.selected_tree_view.setCurrentIndex(index)
+        rect = self.tree_build_widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(self.tree_build_widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def assign_meta_data_groups_from_list(self, tree, meta_data_group_assignment_list):
         ''' Goes through the final tree and will try the assign the assignments from the tuple list
@@ -1027,9 +1032,9 @@ class TreeViewManager:
 
     # ToDo put this into dictionary instead of parameters for dynamic programming
     def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, series_count = 0,
-                                               holding_potential = None, 
-                                               series_name = None, 
-                                               sweep_number =None, stim_channel = None, 
+                                               holding_potential = None,
+                                               series_name = None,
+                                               sweep_number =None, stim_channel = None,
                                                series_number = None,
                                                children_amount = None,
                                                ):
@@ -1074,8 +1079,8 @@ class TreeViewManager:
                               str(holding_potential),
                               str(duration),
                               str(increment),
-                              str(voltage), 
-                              str(stim_channel), 
+                              str(voltage),
+                              str(stim_channel),
                               str(series_number),
                               str(len(children_amount))])
             series_count = series_count
@@ -1085,14 +1090,14 @@ class TreeViewManager:
                 if node_type == "Pgf":
                     print(i)
                     series_count = i + 1
-                self.read_series_specific_pgf_trace_into_df(index+[i], 
+                self.read_series_specific_pgf_trace_into_df(index+[i],
                                                             bundle,
-                                                            data_list, 
+                                                            data_list,
                                                             series_count,
-                                                            holding_potential, 
+                                                            holding_potential,
                                                             series_name,
-                                                            sweep_number, 
-                                                            stim_channel, 
+                                                            sweep_number,
+                                                            stim_channel,
                                                             series_number,
                                                             children_amount,
                                                             )
@@ -1121,7 +1126,9 @@ class TreeViewManager:
             df.to_csv(file_name)
         #print("hello from the other side")
 
-
+    def clear_tree(self):
+        self.tree_build_widget.selected_tree_view.setModel(TreeModel(pd.DataFrame()))
+        #self.tree_build_widget.selected_tree_view.reset()
     """
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
@@ -1137,14 +1144,14 @@ class TreeViewManager:
 
         # open the pulse generator part of the bundle
         root = bundle.pgf
-        
+
         node = root
         for i in index:
             node = node[i]
 
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
-        
+
         #print("Node type:")
         #print(node_type)
 

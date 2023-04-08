@@ -14,7 +14,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.plot_widget_manager = plot_widget_manager
         self.treeview_manager = treeview_manager
         self.checkbox_list = [self.add_s, self.substract_s, self.divide_s]
-        if self.frontend_style.current_style == 0:
+        if self.frontend_style.default_mode== 0:
             self.frontend_style.set_mpl_style_dark()
         else:
             self.frontend_style.set_mpl_style_white()
@@ -39,7 +39,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.AddDataBase.setEnabled(False)
         self.analysis_dictionary = {}
         self.selectbymetadata.toggled.connect(self.fill_only_metadata_options)
-        
+
     def fill_only_metadata_options(self):
         """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
         """
@@ -47,7 +47,7 @@ class SubstractDialog(Ui_CreateNewSeries):
             self.fill_combobox_with_meta_series()
         else:
             self.fill_combobox_with_series()
-        
+
     def fill_combobox_with_series(self):
         """_summary_: Retrieves the initial experiments and series_names that can be identified for both series
         as identified by the selected analysis_id which is available in the database handler
@@ -73,7 +73,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         """
         if meta:
             return list({f"{i}:{t}" for i, t in zip(series["series_name"],series["series_meta_data"]) if t not in  "None"})
-        
+
         else:
             return sorted(list(
                 {
@@ -85,30 +85,30 @@ class SubstractDialog(Ui_CreateNewSeries):
                     )
                 }
             ))
-            
+
     def fill_combobox_with_meta_series(self):
-        """This fills the combobox only with the series and with the meta data 
-        Here we should add another layer, by providing evidence that this is only working if we 
+        """This fills the combobox only with the series and with the meta data
+        Here we should add another layer, by providing evidence that this is only working if we
         have only one selected series per meta data group per experiment
         """
         self.series_1.clear()
         self.series_2.clear()
         unique_series_meta = self.database_handler.database.execute("Select series_name, series_identifier, series_meta_data from experiment_series ").fetchdf()
         unique_series_meta = self.unique_series_return(unique_series_meta, meta = True)
-        
+
         if unique_series_meta:
             self.series_1.addItems(unique_series_meta)
             self.connected_box(meta = True)
         else:
             CustomErrorDialog("No Metadata found! Please first assign Metadata to each Series!", self.frontend_style)
-            
+
     def select_series_to_be_analized(self):
         """
         executed after all experiment files have been loaded
         :return:
         """
         return self.database_handler.get_distinct_non_discarded_series_names()
-    
+
     def connected_box_series_2(self):
         """_summary_: recheck the overlapping experiment names
         """
@@ -117,36 +117,36 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.ExperimentCombo.clear()
         self.ExperimentCombo.addItems(series_intersection)
         self.retrieve_raw_data_series()
-    
+
     def connected_box(self, meta = False):
         """_summary_: Function that retrieves the experiment names fill the series 2 combobox
         in response to the series that are also present in the experiments where series 1 is preseent
-        
+
         args:
             meta: If metadata is present or not
         """
         experiment_names_1 = self.get_experiment_names(self.series_1)
-        series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data, experiment_name from experiment_series 
+        series_name_2 = self.database_handler.database.execute(f"""Select series_name, series_identifier, series_meta_data, experiment_name from experiment_series
                                                                 WHERE experiment_name IN {tuple(experiment_names_1)}""").fetchdf()
-        
+
         self.experiment_intersect_list = sorted(series_name_2["experiment_name"].unique())
-        if meta is True: 
+        if meta is True:
             #check if meta data was applied
             series_name_2 = self.unique_series_return(series_name_2.iloc[:,:-1], meta = True)
         else:
             series_name_2 = self.unique_series_return(series_name_2.iloc[:,:-1], meta = False)
-            
+
         if series_name_2: # check if there is any existing series in the experiments that connects to the current sereies
             self.ExperimentCombo.clear()
             self.series_2.clear()
             self.ExperimentCombo.addItems(self.experiment_intersect_list)
             self.series_2.addItems(series_name_2)
             self.retrieve_raw_data_series()
-            
+
         else:
             CustomErrorDialog("No experiments found for the second series", self.frontend_style)
             self.series_2.clear()
-            
+
     def get_experiment_names(self, series):
         """_summary_: Should retrieve the experiment names either per with the meta data or with
         the series identifer, metadata only when the radiobutton is checked
@@ -161,17 +161,17 @@ class SubstractDialog(Ui_CreateNewSeries):
             experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_meta(series.currenText().split(":")[0],series.currentText().split(":")[1])]
         else:
             experiment_names_1 = [i[0] for i in self.database_handler.get_experiments_by_series_name_and_analysis_id_with_series(series.currentText().split(":")[0],series.currentText().split(":")[2])]
-        
+
         return experiment_names_1
-    
+
     def retrieve_raw_data_series(self):
         """_summary: Should retrieve the Analysis Functions
         """
-        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
-        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i] 
-        
-        try: 
-            # retrieve the sweep tables 
+        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i]
+        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if self.ExperimentCombo.currentText() in i]
+
+        try:
+            # retrieve the sweep tables
             sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
             sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
             self.draw_plots_series(sweep_table_1, self.ax, self.canvas)
@@ -180,34 +180,34 @@ class SubstractDialog(Ui_CreateNewSeries):
         except Exception as e:
             print(e)
             return None
-        
+
     def draw_plots_series(self, sweep_table, ax, canvas):
         """_summary_: Draw Series Function
 
         Args:
             sweep_table (pd.DataFrame): The dataframe holding the sweep table to draw
-            ax (axes): the axes to draw in 
-            canvas (FigureCanvas): The Figure Canvas to draw in 
+            ax (axes): the axes to draw in
+            canvas (FigureCanvas): The Figure Canvas to draw in
         """
         ax.clear()
         ax.plot(sweep_table)
         canvas.draw_idle()
-        
+
     def retrieve_sweep_table_iterator(self, experiment_name):
         """_summary_ This should retrieve the sweep tables for the selected series_1 and 2
 
         Args:
             experiment_name (str): experiment name that is present for both selected series
-        
+
         Returns:
             tuple(pd.DataFrame): Holding the Sweep Tables for series_1 and 2
         """
-        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if experiment_name in i] 
-        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if experiment_name in i] 
+        sweep_tables_series_name_1 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_1.currentText().split(":")[0], self.series_1.currentText().split(":")[1]) if experiment_name in i]
+        sweep_tables_series_name_2 = [i for i in self.database_handler.get_sweep_table_names_for_offline_analysis(self.series_2.currentText().split(":")[0], self.series_2.currentText().split(":")[1]) if experiment_name in i]
         sweep_table_1 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_1[0])
         sweep_table_2 = self.database_handler.get_entire_sweep_table_as_df(sweep_tables_series_name_2[0])
         return sweep_table_1, sweep_table_2
-        
+
     def initialize_data_merge(self):
         """_summary_
         """
@@ -224,7 +224,7 @@ class SubstractDialog(Ui_CreateNewSeries):
                 items = []
                 for i in range(self.ExperimentCombo.count()):
                     items.append(self.ExperimentCombo.itemText(i))
-                
+
                 for experiment_name in items:
                     sweep_table_1, sweep_table_2 = self.retrieve_sweep_table_iterator(experiment_name)
                     #calculation
@@ -267,9 +267,9 @@ class SubstractDialog(Ui_CreateNewSeries):
                     series_name_table = f"{analysis_option}_{series_name_1}_{series_name_2}_{series_meta_1}_{series_meta_2}"
                     # creates a new specific table name
                     table_name = self.create_new_specific_result_table_name(experiment_name, series_name)
-                    analysis_dictionary_temp[experiment_name + series_name_1 + series_name_2] = (experiment_name,series_name_table, series_name, discarded, table_name, series_meta[0][0], series_meta[0][1],"None", new_table) 
+                    analysis_dictionary_temp[experiment_name + series_name_1 + series_name_2] = (experiment_name,series_name_table, series_name, discarded, table_name, series_meta[0][0], series_meta[0][1],"None", new_table)
                 self.analysis_dictionary.update({analysis_option:analysis_dictionary_temp})
-        
+
         self.AddDataBase.setEnabled(True)
         print("Succesfully substracted series")
         self.switch_to_preview()
@@ -281,7 +281,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.Operations.addItems(self.analysis_dictionary.keys())
         self.Operations.currentIndexChanged.connect(self.show_newly_created_series)
         self.show_newly_created_series()
-        
+
     def show_newly_created_series(self):
         """_summary_: This should draw the newly created series for each experiment
         """
@@ -303,7 +303,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         selected_experiment = self.Experiment.currentText()
         table = operation[selected_experiment][-1]
         self.draw_plots_series(table, self.ax_preview, self.canvas_preview)
-        
+
     def create_new_specific_result_table_name(self,experiment_name, series_number) -> str:
         """
         creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
@@ -313,7 +313,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         :author dz, 08.07.2022
         """
         return f"imon_signal_{experiment_name}_{series_number}"
-    
+
     def write_into_database(self):
         """_summary_: Writes all the substracted data into the dataset and updates the treeview
         so that newly generated series can be used as series!!
@@ -328,7 +328,7 @@ class SubstractDialog(Ui_CreateNewSeries):
         self.treeview_manager.update_treeviews(self.plot_widget_manager)
         self.close()
 
-            
 
 
-        
+
+

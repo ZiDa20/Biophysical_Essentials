@@ -33,10 +33,10 @@ class ExportOfflineAnalysis:
             print("Succesfully generated a new database that should handle the export")
         except Exception as e:
             print(f"This did not work out accordingly: {e}")
-    
+
 
     def add_tables_to_database(self):
-        
+
         # get the analysis_series_name from the duckdb database using a certain analysis_id code
         # this should be a export offline analysis id function that can be shared and used with others using the viewer portion!
         # tables from experiment section
@@ -63,7 +63,8 @@ class ExportOfflineAnalysis:
             self.export_database.execute(f"CREATE TABLE {data} AS SELECT * FROM {data}")
 
         self.export_database.executemany("INSERT INTO offline_analysis (analysis_id, date_time, user_name) VALUES (?, ?, ?)", offline_analysis.iloc[:,:-1].values)
-        self.export_database.executemany("INSERT INTO analysis_functions VALUES (?, ?, ?, ?,?,?)", analysis_functions.values)
+        print(analysis_functions.values.shape)
+        self.export_database.executemany("INSERT INTO analysis_functions VALUES (?, ?, ?, ?,?,?,?)", analysis_functions.values)
 
         self.add_pgf_meta_raw_tables_batch(experiment_series, results)
         self.export_database.close()
@@ -72,7 +73,7 @@ class ExportOfflineAnalysis:
         """_summary_
 
         Args:
-            experiment_series (pd.DataFrame): Holds the experiment series data that also contains information about the pgf table, the meta data table and the raw data 
+            experiment_series (pd.DataFrame): Holds the experiment series data that also contains information about the pgf table, the meta data table and the raw data
             results (pd.DataFrame): this holds information about the final analyzed dataframes
         """
         table_names = ["sweep_table_name", "meta_data_table_name", "pgf_data_table_name"]
@@ -80,14 +81,14 @@ class ExportOfflineAnalysis:
             for table in experiment_series[name]:
                     df_data = self.database_handler.database.execute(f"Select * from {table}").fetchdf()
                     self.export_database.execute(f"CREATE TABLE {table} AS SELECT * FROM df_data")
-        
+
         for result in results["specific_result_table_name"]:
             df_data = self.database_handler.database.execute(f"Select * from {result}").fetchdf()
             self.export_database.execute(f"CREATE TABLE {result} AS SELECT * FROM df_data")
 
 
     def create_table_offline_analysis(self, max_length):
-    
+
         self.export_database.execute(f"CREATE SEQUENCE unique_offline_analysis_sequence START {self.offline_analysis_id + 1};")
         self.export_database.execute(f"CREATE SEQUENCE analysis_function_sequence START {max_length + 1};")
 
@@ -96,14 +97,15 @@ class ExportOfflineAnalysis:
                                                 date_time TIMESTAMP,
                                                 user_name TEXT,
                                                 selected_meta_data text); """
-        
+
         sql_create_analysis_function_table = """ CREATE TABLE analysis_functions(
                                                 analysis_function_id integer PRIMARY KEY DEFAULT(NEXTVAL('analysis_function_sequence')),
                                                 function_name text,
                                                 lower_bound float,
                                                 upper_bound float,
                                                 analysis_series_name text,
-                                                analysis_id integer
+                                                analysis_id integer,
+                                                pgf_segment integer,
                                                 );"""
 
         self.export_database.execute(sql_create_offline_analysis_table)

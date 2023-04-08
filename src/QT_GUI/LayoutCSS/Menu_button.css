@@ -33,10 +33,14 @@ QPushButton{{
     border: 0px;
     color:white;
 }}
+
 QPushButton:hover{{
     background-color: "grey"; 
     border: 0px;
 }}
+
+
+
 
 QLabel{{
     background-color: transparent; 
@@ -47,7 +51,6 @@ QCheckBox{{
     background-color:transparent; 
     color:white;
 }}
-
 
 QRadioButton{{
     background-color:transparent; 
@@ -209,7 +212,7 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/plot_home.png);}}
+QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/online_analysis/dark_mode/home_dark.png);}}
 QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QPushButton[objectName="HomeButton"]{{background-image: url(../QT_GUI/Button/dark_mode/database_viewer/plot_home.png);}}
@@ -257,13 +260,35 @@ QToolTip[objectName="save_plot_button"] {{color: #ffffff; background-color: #000
 QPushButton[objectName="plot_meta"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_plot_meta.png);}}
 QToolTip[objectName="plot_meta"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-
 QPushButton[objectName="series_to_csv"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_series.png);}}
 QToolTip[objectName="series_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-
 QPushButton[objectName="experiment_to_csv"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_experiment_save.png);}}
 QToolTip[objectName="experiment_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="renameSeries"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/rename_dark.png);}}
+QToolTip[objectName="renameSeries"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="add_metadata_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/add_meta_data.png);}}
+QToolTip[objectName="add_metadata_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_labbook_button"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_csv_exp.png);}}
+QToolTip[objectName="save_labbook_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_image"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/dark_mode.png);}}
+QToolTip[objectName="save_image"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="transfer_to_offline_analysis"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/upload.png);}}
+QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="classifier_stream"]{{background-image: url(../QT_GUI/Button/online_analysis/dark_mode/ml_dark.png);}}
+QToolTip[objectName="classifier_stream"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="batch_config"]{{background-image: url(../QT_GUI/Button/online_analysis/dark_mode/exp_dark.png);}}
+QToolTip[objectName="batch_config"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="start_video_button"]{{background-image: url(../QT_GUI/Button/online_analysis/dark_mode/play_video_dark.png);}}
+QToolTip[objectName="start_video_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 
 QToolButton[objectName="database_viewer_home_2"]{{ 

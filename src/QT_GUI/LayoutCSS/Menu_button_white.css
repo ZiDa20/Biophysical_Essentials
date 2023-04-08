@@ -214,7 +214,7 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/plot_home.png);}}
+QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/online_analysis/light_mode/home_light.png);}}
 QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
 
@@ -266,7 +266,6 @@ QToolTip[objectName="plot_meta"] {{color: #ffffff; background-color: #000000; bo
 QPushButton[objectName="series_to_csv"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_series.png);}}
 QToolTip[objectName="series_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-
 QPushButton[objectName="show_pgf_trace"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/pgf.png);}}
 QToolTip[objectName="show_pgf_trace"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
@@ -276,6 +275,17 @@ QToolTip[objectName="turn_off_grid"] {{color: #ffffff; background-color: #000000
 QPushButton[objectName="experiment_to_csv"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_experiment_save.png);}}
 QToolTip[objectName="experiment_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="transfer_to_offline_analysis"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/upload.png);}}
+QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
+QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="show_pgf_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/pgf.png);}}
+QToolTip[objectName="show_pgf_file"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_plot_online"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_image_exp.png);}}
+QToolTip[objectName="save_plot_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 #QPushButton[objectName="select_series_analysis_functions"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/analysis_functions.png);}}
 #QToolTip[objectName="select_series_analysis_functions"] {{color: #ffffff; background-color: #000000; border: 0px; }}
@@ -285,6 +295,28 @@ QToolTip[objectName="run_analysis_functions"] {{color: #ffffff; background-color
 
 
 QPushButton[objectName="change_series_name"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/rename.png);}}  
+QToolTip[objectName="change_series_name"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="add_metadata_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/add_meta_data.png);}}
+QToolTip[objectName="add_metadata_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_labbook_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_csv_exp.png);}}
+QToolTip[objectName="save_labbook_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="start_video_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_csv_exp.png);}}
+QToolTip[objectName="start_video_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="save_image"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_image_exp.png);}}
+QToolTip[objectName="save_image"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="classifier_stream"]{{background-image: url(../QT_GUI/Button/online_analysis/light_mode/ml_light.png);}}
+QToolTip[objectName="classifier_stream"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="batch_config"]{{background-image: url(../QT_GUI/Button/online_analysis/light_mode/exp_light.png);}}
+QToolTip[objectName="batch_config"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="start_video_button"]{{background-image: url(../QT_GUI/Button/online_analysis/light_mode/play_video_light.png);}}
+QToolTip[objectName="start_video_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QToolButton[objectName="database_viewer_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/database_welcome.png);}}
 QToolButton[objectName="online_analysis_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_analysis_welcome.png);}}

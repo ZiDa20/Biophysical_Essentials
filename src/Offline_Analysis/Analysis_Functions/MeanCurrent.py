@@ -8,10 +8,12 @@ class MeanCurrent(SweepWiseAnalysisTemplate):
         SweepWiseAnalysisTemplate (object): _description_
 
     """
-    function_name = 'mean_current'
-    plot_type_options = ["No Split", "Split by Meta Data"]
+    
+    def __init__(self):
+        super().__init__()
+        self.function_name = 'mean_current'
+        self.plot_type_options = ["No Split", "Split by Meta Data"]
 
-    @classmethod
     def specific_calculation(self):
         """mean calculation specifically
 
@@ -19,10 +21,8 @@ class MeanCurrent(SweepWiseAnalysisTemplate):
             float: The mean value for the selected trace within the boundaries
         """
         self.cslow_normalization = 1
-        max_val = np.mean(self.sliced_volt)
-        return max_val
+        return np.mean(self.sliced_volt)
 
-    @classmethod
     def live_data_calculation(self):
         """
         when live plot: draw a horizontal line where the mean value is from the beginning to the end of the cursor bound
@@ -35,7 +35,5 @@ class MeanCurrent(SweepWiseAnalysisTemplate):
         left_bound_pos  = np.argwhere(np.array(self.time)>self.lower_bound)[0][0]
         right_bound_pos  = np.argwhere(np.array(self.time)>self.upper_bound)[0][0]
         x_val = self.time[left_bound_pos:right_bound_pos]
-        y_val = []
-        for i in x_val:
-            y_val.append(mean_val)
-        return tuple((x_val, y_val))
+        y_val = [mean_val for _ in x_val]
+        return x_val, y_val

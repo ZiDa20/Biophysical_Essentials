@@ -16,15 +16,15 @@ from PySide6.QtTest import QTest
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
-    def __init__(self, 
-                 offlinetree, 
-                 plot_buttons, 
-                 frontend_style, 
-                 database_handler, 
-                 offline_manager, 
-                 show_sweeps_radio, 
+    def __init__(self,
+                 offlinetree,
+                 plot_buttons,
+                 frontend_style,
+                 database_handler,
+                 offline_manager,
+                 show_sweeps_radio,
                  blank_analysis_tree):
-        
+
         super().__init__()
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
@@ -53,11 +53,10 @@ class SeriesItemTreeWidget():
         splitter.addWidget(self.analysis_stacked)
 
     def add_analysis_tree_selection(self, index):
-        # retrieve the current tab 
+        # retrieve the current tab
         if index == 0:
             current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
             current_tab.subwindow_calc.show()
-        
 
     def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list, reload = False):
         """
@@ -78,7 +77,7 @@ class SeriesItemTreeWidget():
             index += self.tree_widget_index_count
 
             # Custom designer widget: contains treeview, plot, analysis function table ...
-            
+
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
             new_tab_widget.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
             new_tab_widget.setObjectName(s)
@@ -105,7 +104,7 @@ class SeriesItemTreeWidget():
 
 
         # connect the treewidgetsitems
-        self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)      
+        self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)
         #set the analysis notebook as index
         offline_stacked_widget.setCurrentIndex(3)
         self.SeriesItems.expandToDepth(2)
@@ -158,7 +157,7 @@ class SeriesItemTreeWidget():
                 parent_stacked_widget.addWidget(QWidget())
                 if i in ["Plot", "Tables"]:
                     new_child.setting_data(self.hierachy_stacked)
-                
+
             # overwrite the old stacked widget with the new extended stacked widget
             self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
             if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0:
@@ -173,7 +172,7 @@ class SeriesItemTreeWidget():
         @author dz, 20.07.2021, updated 02.12.2022"""
 
         current_tab = self.tab_list[index]
-    
+
         current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
         #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         #self.navigation_list.append(self.navigation)
@@ -194,13 +193,14 @@ class SeriesItemTreeWidget():
             self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
 
         # slice out all series names that are not related to the specific chosen one
-        # at the moment its setting back every plot! @2toDO:MZ 
+        # at the moment its setting back every plot! @2toDO:MZ
         current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
 
         navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         self.home.clicked.connect(navigation.home)
         self.zoom.clicked.connect(navigation.zoom)
-        self.pan.clicked.connect(navigation.pan) 
+        self.pan.clicked.connect(navigation.pan)
+
 
 
     def view_table_clicked(self, parent_stacked:int):
@@ -219,13 +219,12 @@ class SeriesItemTreeWidget():
         table_tab_widget = QTabWidget()
         # works only    if results are organized row wise
         print("column count =", result_plot_widget.OfflineResultGrid.columnCount())
-       
+
         if result_plot_widget.OfflineResultGrid.columnCount() == 1:
             print("row count =", result_plot_widget.OfflineResultGrid.rowCount())
 
         for r in range(1, result_plot_widget.OfflineResultGrid.rowCount()):
             for t in range(0, result_plot_widget.OfflineResultGrid.columnCount()):
-
                 qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(r, t)
 
                 try:
@@ -245,9 +244,9 @@ class SeriesItemTreeWidget():
                     self.table_view.setModel(self.model)
                     self.model.resize_header(self.table_view)
                     print("setting the model")
-                    
+
                     table_tab_widget.insertTab(1, self.table_view, custom_plot_widget.analysis_name)
-     
+
         self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
 
@@ -283,7 +282,7 @@ class SeriesItemTreeWidget():
                 self.view_table_clicked(parent_stacked)
 
             if self.SeriesItems.currentItem().text(0) == "Statistics":
-                
+
                 # get the qtdesigner created table widget
                 statistics_table_widget = StatisticsTablePromoted()
 
@@ -300,12 +299,12 @@ class SeriesItemTreeWidget():
                 # switch to the statistic tab
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
 
-                # fill the table widget according to created plots 
+                # fill the table widget according to created plots
                 self.autofill_statistics_table_widget(statistics_table_widget.statistics_table_widget,parent_stacked,statistics_table_widget)
-            
+
             if  self.SeriesItems.currentItem().text(0) ==  "t-Test":
                 print("t-test clicked")
-    
+
     def autofill_statistics_table_widget(self,statistics_table_widget,parent_stacked,parentW):
 
         series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")
@@ -319,7 +318,7 @@ class SeriesItemTreeWidget():
             statistics_table_widget.setColumnCount(5)
             statistics_table_widget.setRowCount(len(analysis_functions))
             self.statistics_table_buttons = [0] * len(analysis_functions)
-        
+
         self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
 
         for i in analysis_functions:
@@ -347,12 +346,12 @@ class SeriesItemTreeWidget():
             self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
             result_plot_widget = self.hierachy_stacked_list[parent_stacked].currentWidget()
             self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-            
+
             row = analysis_functions.index(i)
             qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(row, 0)
             qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, 0)
             qwidget_item_2 = result_plot_widget.OfflineResultGrid.itemAtPosition(2, 0)
-            
+
             custom_plot_widget = qwidget_item_1.widget()
             df = custom_plot_widget.statistics
 
@@ -361,14 +360,14 @@ class SeriesItemTreeWidget():
 
             if len(unique_meta_data) == len(df["meta_data"].values):
                 dialog = QDialog()
-                
+
                 dialog.exec()
 
             else:
                 for meta_data in unique_meta_data:
                     statistics_table_widget.setItem(row_to_insert + unique_meta_data.index(meta_data), 2,
                                                                         QTableWidgetItem(str(meta_data)))
-                        
+
                 # show distrib�tion
                 self.data_dist  = QComboBox()
                 self.data_dist.addItems(["Normal Distribution", "Non-Normal Distribution"])
@@ -443,8 +442,8 @@ class SeriesItemTreeWidget():
         # add to the new "t-test child" if it does not exist yet
         t_test_child = QTreeWidgetItem(self.SeriesItems.currentItem())
         t_test_child.setText(0, "t-Test")
-        
-    
+
+
     def get_pairs(self, item_list):
         # Initialize an empty list to store the pairs
         pairs = []
@@ -455,7 +454,7 @@ class SeriesItemTreeWidget():
                 # Add the pair to the list
                 pairs.append((item1, item2))
         return pairs
-    
+
 
     def click_top_level_item(self):
         """Clicks the first top level item in the tree widget.
@@ -470,20 +469,20 @@ class SeriesItemTreeWidget():
         # Get the rect of the index
         rect = current_tab.widget.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
-            
+
 
     def click_top_level_tree_item(self, experiment = False):
         """Should click the toplevel item of the model_view
         """
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         model = current_tab.widget.selected_tree_view.model()
-        
+
         if experiment: # this is applied whenever we supply a name of the exact experiment
             index = self.findName(model, experiment)
-        
-        else:   
+
+        else:
             index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
-           
+
         # Get the rect of the index
         current_tab.widget.selected_tree_view.setCurrentIndex(index)
         if experiment:
