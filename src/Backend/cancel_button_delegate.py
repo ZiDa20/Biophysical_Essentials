@@ -1,9 +1,10 @@
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon, QPixmap, QPainter,QColor, QStyle
+from PySide6.QtCore import *
+from PySide6.QtWidgets import *
+from PySide6.QtGui import *
 from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionButton, QPushButton, QTreeView
 
 class CancelButtonDelegate(QStyledItemDelegate):
-    
+
     def __init__(self, parent:QTreeView, delete:bool, col_count:int, frontend_style:int):
         self.delete = delete
         self.col_count = col_count
@@ -21,7 +22,7 @@ class CancelButtonDelegate(QStyledItemDelegate):
                 pixmap = QPixmap(r"../QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png")
             if self.delete==False & self.frontend_style == 0:
                 pixmap = QPixmap(r"../QT_GUI/Button/dark_mode/offline_analysis/treeview_reinsert.png")
-                
+
             if not pixmap.isNull():
                 size = pixmap.size().scaled(20, 20, Qt.KeepAspectRatio)
                 x = option.rect.x() + (option.rect.width() - size.width()) / 2

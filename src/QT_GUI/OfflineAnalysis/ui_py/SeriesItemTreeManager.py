@@ -99,8 +99,8 @@ class SeriesItemTreeWidget():
             self.plot_widgets = []
             self.parent_count += 1
 
-            
-            
+
+
 
 
         # connect the treewidgetsitems
@@ -177,10 +177,14 @@ class SeriesItemTreeWidget():
         #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         #self.navigation_list.append(self.navigation)
         self.current_tab_visualization.append(current_tab_plot_manager)
-        
+
         # looks like overhead but the current tab holds other information for the second page of the offline analysis compared to the firstpage
-        # while treeviews are equal 
-        current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio, current_tab)
+        # while treeviews are equal
+        current_tab_tree_view_manager = TreeViewManager(self.database_handler,
+                                                        current_tab.widget,
+                                                        self.show_sweeps_radio,
+                                                        current_tab,
+                                                        frontend = self.frontend_style)
         self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
         current_tab.frontend_style = self.frontend_style
 
@@ -490,7 +494,7 @@ class SeriesItemTreeWidget():
             index = model.index(0, 0, selectedIndexes[0])
         rect = current_tab.widget.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
-        
+
         col_count = len(self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].selected_tree_view_data_table["type"].unique())
         self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].update_mdi_areas(col_count)
 

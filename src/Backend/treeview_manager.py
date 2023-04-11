@@ -20,12 +20,12 @@ from PySide6.QtTest import QTest
 
 class TreeViewManager:
     """
-    Manager class to handle actions for given tree view objects. 
+    Manager class to handle actions for given tree view objects.
     Tree views are parts of the offline as well as the online analysis
     __author__: dz
     """
 
-    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None, specific_analysis_tab = None):
+    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None, specific_analysis_tab = None, frontend = None):
 
         # it's the database handler
         self.database_handler = database
@@ -42,10 +42,10 @@ class TreeViewManager:
         self.selected_meta_data_list = None
 
         # frontend style can be set to show all popups in the correct theme and color
-        self.frontend_style = None
+        self.frontend_style = frontend
 
         # specific analysis tab needed for the resize actions of the mdi area
-        self.specific_analysis_tab = specific_analysis_tab   
+        self.specific_analysis_tab = specific_analysis_tab
 
         self.threadpool = QThreadPool()
 
@@ -68,7 +68,7 @@ class TreeViewManager:
     """ ############################## Chapter A Create treeview functions ######################################### """
 
 
-    
+
 
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
@@ -187,6 +187,7 @@ class TreeViewManager:
         do all the frontend handling for treeviews that are managed by the given tree_view_manager
         @param tree_view_manager: treeview manager class object
         @return:
+        @toDO split!!!!
         """
 
         # create two global tables that can be reused for further visualizations and store it within the related tree view manager
@@ -206,14 +207,14 @@ class TreeViewManager:
         # since analysis id is primary key this will only add date when its performed first
         for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
-            
+
         self.database_handler.create_mapping_between_series_and_analysis_id()
 
         # create the models for the selected and discarded tree
 
         self.selected_model = TreeModel(selected_table_view_table)
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
-        
+
         # assign the models to the visible treeview objects
         col_count = len(selected_table_view_table["type"].unique())
         # workaround .. works around okish -- forces the tree to change its with
@@ -222,12 +223,18 @@ class TreeViewManager:
         else:
             self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
 
-        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,
+                                               True,
+                                               col_count,
+                                               self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
-        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
+        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
         self.tree_build_widget.selected_tree_view.expandAll()
-        
-        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False,col_count,self.frontend_style.default_mode)       #self.discarded_model.header().count()
+
+        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view,
+                                                 False,
+                                                 col_count,
+                                                 self.frontend_style.default_mode)       #self.discarded_model.header().count()
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()
@@ -349,16 +356,16 @@ class TreeViewManager:
         delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
-        self.tree_build_widget.selected_tree_view.expandAll() 
+        self.tree_build_widget.selected_tree_view.expandAll()
 
         delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_discard)
-        self.tree_build_widget.discarded_tree_view.expandAll()   
+        self.tree_build_widget.discarded_tree_view.expandAll()
 
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
-        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)      
+        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)
 
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
@@ -879,7 +886,7 @@ class TreeViewManager:
                 sweep[1],
                 False,
             )
-            
+
             pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
             database.create_series_specific_pgf_table(
                 sweep[2].set_index("series_name").reset_index(),
