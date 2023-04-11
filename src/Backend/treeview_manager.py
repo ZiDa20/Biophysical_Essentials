@@ -221,7 +221,8 @@ class TreeViewManager:
         if self.specific_analysis_tab:
             self.update_mdi_areas(col_count)
         else:
-            self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
+            self.tree_build_widget.selected_tree_view.setMinimumWidth(350 + (col_count-2)*100)
+            #self.tree_build_widget.selected_tree_view.setMaximumWidth(350 + (col_count-2)*100)
 
         delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,
                                                True,

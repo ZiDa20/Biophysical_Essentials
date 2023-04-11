@@ -15,6 +15,9 @@ from PySide6.QtWidgets import *  # type: ignore
 from CustomWidget.groupbox_resizing_class import GroupBoxSize
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget import TreeBuild
 
+
+
+
 class Ui_Online_Analysis(object):
     def setupUi(self, Online_Analysis):
         if not Online_Analysis.objectName():
@@ -34,12 +37,13 @@ class Ui_Online_Analysis(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.online_analysis_window.sizePolicy().hasHeightForWidth())
         self.online_analysis_window.setSizePolicy(sizePolicy)
+        self.online_analysis_window.setLayoutDirection(Qt.LeftToRight)
         self.gridLayout_19 = QGridLayout(self.online_analysis_window)
         self.gridLayout_19.setObjectName(u"gridLayout_19")
         self.groupBox_3 = QGroupBox(self.online_analysis_window)
         self.groupBox_3.setObjectName(u"groupBox_3")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setHorizontalStretch(1)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.groupBox_3.sizePolicy().hasHeightForWidth())
         self.groupBox_3.setSizePolicy(sizePolicy1)
@@ -49,8 +53,15 @@ class Ui_Online_Analysis(object):
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.stackedWidget = QStackedWidget(self.groupBox_3)
         self.stackedWidget.setObjectName(u"stackedWidget")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
+        self.stackedWidget.setSizePolicy(sizePolicy2)
         self.plot_page = QWidget()
         self.plot_page.setObjectName(u"plot_page")
+        sizePolicy.setHeightForWidth(self.plot_page.sizePolicy().hasHeightForWidth())
+        self.plot_page.setSizePolicy(sizePolicy)
         self.gridLayout_9 = QGridLayout(self.plot_page)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.tree_plot_widget_layout = QVBoxLayout()
@@ -76,6 +87,8 @@ class Ui_Online_Analysis(object):
         self.stackedWidget.addWidget(self.plot_page)
         self.animation_page = QWidget()
         self.animation_page.setObjectName(u"animation_page")
+        sizePolicy.setHeightForWidth(self.animation_page.sizePolicy().hasHeightForWidth())
+        self.animation_page.setSizePolicy(sizePolicy)
         self.gridLayout_16 = QGridLayout(self.animation_page)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.animation_layout = QGridLayout()
@@ -90,22 +103,14 @@ class Ui_Online_Analysis(object):
 
         self.gridLayout_19.addWidget(self.groupBox_3, 0, 1, 1, 1)
 
-        self.gridLayout_18 = QGridLayout()
-        self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.online_treeview = TreeBuild(self.online_analysis_window)
         self.online_treeview.setObjectName(u"online_treeview")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.online_treeview.sizePolicy().hasHeightForWidth())
-        self.online_treeview.setSizePolicy(sizePolicy2)
-        self.online_treeview.setMinimumSize(QSize(600, 0))
-        self.online_treeview.setMaximumSize(QSize(16777215, 16777215))
+        sizePolicy.setHeightForWidth(self.online_treeview.sizePolicy().hasHeightForWidth())
+        self.online_treeview.setSizePolicy(sizePolicy)
+        self.online_treeview.setMinimumSize(QSize(0, 0))
+        self.online_treeview.setMaximumSize(QSize(600, 16777215))
 
-        self.gridLayout_18.addWidget(self.online_treeview, 0, 0, 1, 1)
-
-
-        self.gridLayout_19.addLayout(self.gridLayout_18, 0, 0, 1, 1)
+        self.gridLayout_19.addWidget(self.online_treeview, 0, 0, 1, 1)
 
         self.online_analysis.addTab(self.online_analysis_window, "")
         self.labbook_window = QWidget()
@@ -182,8 +187,8 @@ class Ui_Online_Analysis(object):
         self.gridLayout_29.setObjectName(u"gridLayout_29")
         self.groupBox_5 = QGroupBox(self.Transfer)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        sizePolicy1.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
-        self.groupBox_5.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
+        self.groupBox_5.setSizePolicy(sizePolicy2)
         self.gridLayout_27 = QGridLayout(self.groupBox_5)
         self.gridLayout_27.setObjectName(u"gridLayout_27")
         self.series_treeview = QTableView(self.groupBox_5)
@@ -209,8 +214,8 @@ class Ui_Online_Analysis(object):
 
         self.groupBox_4 = QGroupBox(self.Transfer)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        sizePolicy1.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
-        self.groupBox_4.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.groupBox_4.sizePolicy().hasHeightForWidth())
+        self.groupBox_4.setSizePolicy(sizePolicy2)
         self.gridLayout_23 = QGridLayout(self.groupBox_4)
         self.gridLayout_23.setObjectName(u"gridLayout_23")
         self.gridLayout_26 = QGridLayout()
@@ -233,8 +238,8 @@ class Ui_Online_Analysis(object):
 
         self.groupBox_9 = QGroupBox(self.Transfer)
         self.groupBox_9.setObjectName(u"groupBox_9")
-        sizePolicy1.setHeightForWidth(self.groupBox_9.sizePolicy().hasHeightForWidth())
-        self.groupBox_9.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHeightForWidth(self.groupBox_9.sizePolicy().hasHeightForWidth())
+        self.groupBox_9.setSizePolicy(sizePolicy2)
         self.groupBox_9.setMaximumSize(QSize(600, 16777215))
         self.gridLayout_6 = QGridLayout(self.groupBox_9)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
@@ -280,8 +285,8 @@ class Ui_Online_Analysis(object):
 "}\n"
 "\n"
 "QPushButton:disabled{\n"
-"    opacity: 0.1;\n"
-"    background-color: rgba(62,75,97,100);"
+"    opacity: 0.5;\n"
+"	background-color:#1c252e; \n"
 "}")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
@@ -564,8 +569,11 @@ class Ui_Online_Analysis(object):
 
         self.line_6 = QFrame(self.frame)
         self.line_6.setObjectName(u"line_6")
-        sizePolicy2.setHeightForWidth(self.line_6.sizePolicy().hasHeightForWidth())
-        self.line_6.setSizePolicy(sizePolicy2)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.line_6.sizePolicy().hasHeightForWidth())
+        self.line_6.setSizePolicy(sizePolicy5)
         self.line_6.setFrameShape(QFrame.VLine)
         self.line_6.setFrameShadow(QFrame.Sunken)
 
