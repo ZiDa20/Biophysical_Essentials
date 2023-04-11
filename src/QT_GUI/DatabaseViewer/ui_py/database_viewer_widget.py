@@ -80,7 +80,14 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         q = """SHOW TABLES"""
         tables_names = self.database.execute(q).fetchall() 
 
-        self.table_dictionary = {"Result Table": [],"Raw signal" : [], "Generator Tables":[], "Meta Table": [],"Selected Meta":[], "Experiment": [], "Analysis Table":[]}
+        self.table_dictionary = {"Result Table": [],
+                                 "Raw signal" : [], 
+                                 "Generator Table":[], 
+                                 "Meta Table": [],
+                                 "Selected Meta":[], 
+                                 "Experiment": [], 
+                                 "Analysis Table":[],
+                                 "Labbook Table": []}
         
         # for each table, create a button in a dropdown list
         # connect the button to a function plotting the table
@@ -103,8 +110,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
                 self.table_dictionary["Analysis Table"].append(table_name)
                 continue
             if "pgf" in table_name:
-                self.table_dictionary["Generator Tables"].append(table_name)
+                self.table_dictionary["Generator Table"].append(table_name)
                 continue
+            if "labbook" in table_name:
+                self.table_dictionary["Labbook Table"].append(table_name)
+
             if "results" in table_name:
                 self.table_dictionary["Result Table"].append(table_name)
                 continue

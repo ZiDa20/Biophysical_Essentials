@@ -1,4 +1,3 @@
-from unittest import result
 import numpy as np
 import pandas as pd
 import math
@@ -7,18 +6,16 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis im
 
 class ActionPotentialFitting(SweepWiseAnalysisTemplate):
     
-    plot_type_options = ["Action_Potential_Fitting", "Mean_Action_Potential_Fitting", "PCA-Plot", "Single_AP_Parameter"]
-    function_name = "Action_Potential_Fitting"
-    data_shape = None
-    database = None
-    time = None
     
+    def __init__(self):
+        super().__init__()
+        self.plot_type_options = ["Action_Potential_Fitting", "Mean_Action_Potential_Fitting", "PCA-Plot", "Single_AP_Parameter"]
+        self.function_name = "Action_Potential_Fitting"
     
     def show_configuration_options(self):
         print("not implemented")
 
-    @classmethod
-    def live_data(cls, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
+    def live_data(self, lower_bound, upper_bound, experiment_name, series_identifier, database_handler,
                   sweep_name=None):
         """
         Will plot 3 points: threshold, max und hyperpolarization, draw bandwith
@@ -40,20 +37,19 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         if sweep_name is not None:
             data = entire_sweep_table.get(sweep_name)
-            parameter_list = cls.live_data_single_trace(database_handler,data,data_table_name,sweep_name,time,
+            parameter_list = self.live_data_single_trace(database_handler,data,data_table_name,sweep_name,time,
                                                          parameter_list)
         else:
             for column in entire_sweep_table:
                 print("column is ", column )
                 data = entire_sweep_table.get(column)
-                parameter_list = cls.live_data_single_trace(database_handler,data,data_table_name,column,time,
+                parameter_list = self.live_data_single_trace(database_handler,data,data_table_name,column,time,
                                                              parameter_list)
 
         return parameter_list
 
 
-    @classmethod
-    def live_data_single_trace(cls,database_handler,data,data_table_name,column,time, parameter_list):
+    def live_data_single_trace(self,database_handler,data,data_table_name,column,time, parameter_list):
         y_min, y_max = database_handler.get_ymin_from_metadata_by_sweep_table_name(data_table_name, column)
         data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
         manual_threshold = 10  # in mV/ms
@@ -167,8 +163,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         return parameter_list
 
 
-    @classmethod
-    def calculate_results(cls):
+    def calculate_results(self):
         """
         iterate through each single sweep of all not discarded series in the database and save the calculated result
         to a new database table.
@@ -176,7 +171,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         """
 
         # @todo get this from the configuration window
-        series_specific_recording_mode = cls.database.get_recording_mode_from_analysis_series_table(cls.series_name)
+        series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
 
         # @todo Discuss - is that the case ?
         try:
@@ -191,24 +186,20 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         data_table_names = []
         # get the names of all data tables to be evaluated
-        data_table_names = cls.database.get_sweep_table_names_for_offline_analysis(cls.series_name)
+        data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
         # set time to non - will be set by the first data frame
         # should assure that the time and bound setting will be only exeuted once since it is the same all the time
-        cls.time = None
-        cls.upper_bounds = None
-        cls.lower_bounds = None
-
-
+        self.time = None
         agg_table = pd.DataFrame()
         for data_table in data_table_names:
-            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
+            experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,data_table)
             # add logger
-            entire_sweep_table = cls.database.get_entire_sweep_table(data_table)
-            experiment_name = cls.database.get_experiment_from_sweeptable_series(cls.series_name,data_table)
+            entire_sweep_table = self.database.get_entire_sweep_table(data_table)
+            experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,data_table)
             key_1 = list(entire_sweep_table.keys())[0]
-            if entire_sweep_table[key_1].shape != cls.data_shape:
-                cls.data_shape = entire_sweep_table[key_1].shape
-                cls.time = cls.database.get_time_in_ms_of_by_sweep_table_name(data_table)
+            if entire_sweep_table[key_1].shape != self.data_shape:
+                self.data_shape = entire_sweep_table[key_1].shape
+                self.time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
             # calculate the time
             # set the lower bound
             # set the upper bound
@@ -220,13 +211,13 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             # we should vectorize this
             for column in entire_sweep_table:
 
-                cls.data = entire_sweep_table.get(column)
+                self.data = entire_sweep_table.get(column)
 
                 if series_specific_recording_mode != "Voltage Clamp":
-                    y_min, y_max = cls.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
-                    cls.data = np.interp(cls.data, (cls.data.min(), cls.data.max()), (y_min, y_max))
+                    y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
+                    self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
-                res = cls.specific_calculation(experiment_name)
+                res = self.specific_calculation(experiment_name)
                 print(res)
                 # res can be none if there is a beat that had no action potential
                 if res is not None:
@@ -235,7 +226,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
                     # should be in the outer loop not in the inner
                     if cslow_normalization:
-                        cslow = cls.database.get_cslow_value_for_sweep_table(data_table)
+                        cslow = self.database.get_cslow_value_for_sweep_table(data_table)
                         res = res / cslow
                         # add logger
                     # get the sweep number
@@ -255,10 +246,10 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             #print(result_data_frame)
         print("here is the aggregated table")
         print(agg_table)
-        new_specific_result_table_name = cls.create_new_specific_result_table_name(cls.analysis_function_id,
+        new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id,
                                                                                     "AP_Fitting")
-        cls.database.update_results_table_with_new_specific_result_table_name(cls.database.analysis_id,
-                                                                                cls.analysis_function_id,
+        self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
+                                                                                self.analysis_function_id,
                                                                                 data_table,
                                                                                 new_specific_result_table_name,
                                                                                 agg_table)
@@ -267,28 +258,17 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
 
-        cls.run_late_register_feature()
+        self.run_late_register_feature()
 
-    @classmethod
-    def create_new_specific_result_table_name(cls, analysis_function_id, data_table_name):
-        """
-        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
-        :param offline_analysis_id:
-        :param data_table_name:
-        :return:
-        :author dz, 08.07.2022
-        """
-        return f"results_analysis_function_{str(analysis_function_id)}_{data_table_name}"
         
-    @classmethod
-    def specific_calculation(cls,experiment_name, manual_threshold = 10, smoothing_window_length = 19):
+    def specific_calculation(self,experiment_name, manual_threshold = 10, smoothing_window_length = 19):
         print("running action potential fitting")
 
         fitting_parameters = {}
         manual_threshold = manual_threshold  # in mV/ms
         smoothing_window_length = smoothing_window_length  # in ms
-        data = np.array(cls.data)*1000 # cast to mV
-        time = cls.time
+        data = np.array(self.data)*1000 # cast to mV
+        time = self.time
         dx = np.diff(time)
         dy = np.diff(data)
         first_derivative = dy / dx
@@ -441,31 +421,30 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         return smoothed_first_derivative
 
  
-    @classmethod
-    def run_late_register_feature(cls):
+    def run_late_register_feature(self):
         print("not implemented")
 
-    @classmethod
-    def visualize_results(cls, parent_widget):
+    @staticmethod
+    def visualize_results(parent_widget, database):
 
         #check if this given analysis id is connected with a result, if not, the concerning
         # Action Potential Fitting id needs to be read from the analysis function table'
 
         q = f"select * from results where analysis_function_id = \'{parent_widget.analysis_function_id}\'"
 
-        if not cls.database.get_data_from_database(cls.database.database, q):
+        if not database.get_data_from_database(database.database, q):
             q = """select analysis_function_id from analysis_functions where analysis_id = (?) and function_name = (?)"""
             
-            apf_id = cls.database.get_data_from_database(cls.database.database, q,
+            apf_id = database.get_data_from_database(database.database, q,
                                                           [parent_widget.analysis_id, "Action_Potential_Fitting"])[0][0]
 
-            result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
-                                                               apf_id)
+            result_table_list = ActionPotentialFitting.get_list_of_result_tables(parent_widget.analysis_id,
+                                                               apf_id, database)
 
         else:
             # series which have to be visualized
-            result_table_list = cls.get_list_of_result_tables(parent_widget.analysis_id,
-                                                               parent_widget.analysis_function_id)
+            result_table_list = ActionPotentialFitting.get_list_of_result_tables(parent_widget.analysis_id,
+                                                               parent_widget.analysis_function_id, database)
 
 
         # go through each result table, calculate the mean for each row, add to the correct meta_data_specific data frame
@@ -473,8 +452,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         return result_table_list
 
 
-    @classmethod
-    def run_late_register_feature(cls):
+    def run_late_register_feature(self):
         """
         late register to make plots for each of these parameters
         @return:
@@ -518,24 +496,8 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_with [ms]', self.series_name,
                                                                                  0, 0)
         """
-    @classmethod
-    def specific_visualisation(cls, queried_data, function_analysis_id):
+    def specific_visualisation(self, queried_data, function_analysis_id):
         print("specific result visualization")
         return 0
 
-    @classmethod
-    def get_list_of_result_tables(cls, analysis_id, analysis_function_id):
-        '''
-        reading all specific result table names from the database
-        '''
-
-
-        q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
-        result_list = cls.database.get_data_from_database(cls.database.database, q,
-                                                           [analysis_id, analysis_function_id])
-        #print(analysis_id)
-        #print(analysis_function_id)
-        #print(q)
-        result_list = (list(zip(*result_list))[0])
-        return result_list
 

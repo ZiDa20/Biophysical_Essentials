@@ -1,24 +1,24 @@
 import pyabf
 import numpy as np
 import pandas as pd
-import logging
+from loggers.abf_logger import abf_logger
 
 #####################################################################################
 #ABFReader class which should Read an ABF file and return a dictionary containing the data
 #####################################################################################
 
 class AbfReader():
-    """ Class to load ABF files from path, path string should be inserted to open 
+    """ Class to load ABF files from path, path string should be inserted to open
     the abf file with pyabf
     """
-    
+
     def __init__(self, abf_path:str):
         """ abf_path: str -> should be file to open """
         self.abf_path: str = abf_path
         self.epochs_dataframe = None
+        self.logger = abf_logger
         self.metadata_table = None
         self.data_table = None
-        self.initialize_logger()
         try:
             self.abf_path_id: list = self.abf_path.split("/")[-1].split("_")[:2]
             self.abf_path_id: str = "_".join(self.abf_path_id)
@@ -26,7 +26,7 @@ class AbfReader():
         except Exception as e:
             self.abt_path_id = None
             self.logger("ABF File is not correctly formated")
-    
+
         self.abf = None
         self.abf_property_dictionary: dict = None
         if self.abf_path:
@@ -35,35 +35,26 @@ class AbfReader():
                 print("abf loaded")
             except Exception as e:
                 print(f"this is the error: {e}")
-        
+
 
         if self.abf:
             self.data_table, self.metadata_table = self.get_data_from_sweep()
             self.build_command_epoch_table()
             self.make_membrane_test()
 
-    def initialize_logger(self):
-        """ initalized the logger module and write the loger file to abf_file_loaging.log"""
-        self.logger = logging.getLogger()
-        file_handler = logging.FileHandler('../Logs/abf_file_loaging.log')
-        formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        #self.logger.setLevel(logging.error)
-
 
     def load_abf(self):
         """ Load the data from the Path and insert into abf object"""
-    
+
         self.abf = pyabf.ABF(self.abf_path)
-       
+
     def get_data_from_sweep(self):
-        """ 
+        """
         Extract the data sweeps as table and save it into pd.DataFrame
         """
         data_sweep = pd.DataFrame()
         meta_data_sweep = pd.DataFrame()
-        metadata_index = ["dacUnits", 
+        metadata_index = ["dacUnits",
                           "dataRate",
                           "dataPointCount",
                           "dataLengthSec",
@@ -80,11 +71,12 @@ class AbfReader():
                           "XInterval",
                           "DataPoints",
                           "Ymin",
-                          "Ymax", 
-                          "RecordingMode"]
+                          "Ymax",
+                          "RecordingMode",
+                          "RsValue"]
 
         meta_data_sweep["Parameters"] = metadata_index
-        columns_list = [] 
+        columns_list = []
 
         # loop through each individual swee and extracts the raw data
         # as well as metadata
@@ -103,7 +95,7 @@ class AbfReader():
         meta_data_sweep.columns = ["Parameter"] + columns_list
         meta_data_sweep = meta_data_sweep.set_index("Parameter")
         return data_sweep, meta_data_sweep
-    
+
     def extract_metadata_parameters(self, abf_file):
         """_summary_
 
@@ -136,9 +128,10 @@ class AbfReader():
         metadata_list.append(np.max(abf_file.sweepY))
 
         metadata_list.append("3" if abf_file.adcUnits[0] == "pA" else "0")
+        metadata_list.append(0) # this is for now until we figured out how to extract putative values for the RsValue
 
         return metadata_list
-            
+
     def build_command_epoch_table(self):
         """Retrieves the PGF Table equivalent to the Dat Files
         """
@@ -182,8 +175,8 @@ class AbfReader():
         self.epochs_dataframe = self.epochs_dataframe.transpose()
         print(self.abf.channelList)
         self.epochs_dataframe["selected_channel"] = str(self.abf.channelList[0] + 1)
-        
-            
+
+
     def get_first_and_last_sweep(self):
         """Get The first and the last sweep from the dac eopchstable since
         these are usually not inserted in the pyABF class
@@ -197,7 +190,7 @@ class AbfReader():
         last_potential = self.abf.sweepEpochs.levels[-1]
         first_time = (self.abf.sweepEpochs.p2s[0] - self.abf.sweepEpochs.p1s[0])/10000
         last_time = (self.abf.sweepEpochs.p2s[-1] - self.abf.sweepEpochs.p1s[-1])/10000
-    
+
         first_command = [series, sweep_number,0,first_potential, first_time, 0, first_potential]
         last_command = [series, sweep_number, 0, last_potential, last_time, 0, last_potential]
         return first_command, last_command
@@ -260,5 +253,4 @@ class AbfReader():
             _type_: _description_
         """
         return self.abf.protocol
-        
-        
+

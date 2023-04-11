@@ -37,7 +37,7 @@ class PlotWidgetManager(QRunnable):
             print(e)
 
         # that the style sheet for the plot class
-        if frontend_style.current_style == 0:
+        if frontend_style.default_mode == 0:
             frontend_style.set_mpl_style_dark()
             self.draw_color = "white"
             self.ax_color = "white"
@@ -60,7 +60,7 @@ class PlotWidgetManager(QRunnable):
 
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
-        
+
         #This can help for changing the dark theme correctly
         # all tuples of left and right bounds that will be plotted .. identified by its row number as a key
         self.coursor_bound_tuple_dict = {}
@@ -70,7 +70,7 @@ class PlotWidgetManager(QRunnable):
         self.analysis_functions_table_widget = None
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
-     
+
         self.live_analysis_info = None
 
 
@@ -81,12 +81,12 @@ class PlotWidgetManager(QRunnable):
 
     """ @deprecated dz 30.11.2022
     def tree_view_click_handler(self, item):
-        
+
         #handle all incoming clicks in the treeview related to plotting
         #@param item: treeviewitem
         #@return:
         #:author: dz, 21.07.2022
-        
+
         print(f'Text of first column in item is {item.text(0)}')
 
         try:
@@ -133,11 +133,11 @@ class PlotWidgetManager(QRunnable):
         print("checking live analysis")
 
         if  self.live_analysis_info is not None:
-            
+
             #self.show_pgf_segment_buttons(experiment_name, identifier)
 
             for index,row in  self.live_analysis_info.iterrows():
-                
+
                 row_nr = row["page"]
                 column = row["col"]
                 fct = row["func_name"]
@@ -149,21 +149,23 @@ class PlotWidgetManager(QRunnable):
                 if cursor_bound:
 
                     self.show_draggable_lines((row_nr,column))
-                    
 
-                    # only show live plot if also cursor bounds were selected                
+
+                    # only show live plot if also cursor bounds were selected
                     if live_plot:
 
                         analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
 
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
-                        
+
                         if sweep_number:
                             sweep_number = sweep_number.split("_")
                             sweep_number = int(sweep_number[1])
                             x_y_tuple = [x_y_tuple[sweep_number-1]]
 
                         if x_y_tuple is not None:
+                                    self.ax1.grid(False)
+                                    self.ax2.grid(False)
                                     for tuple in x_y_tuple:
                                         if isinstance(tuple[1],list):
                                             y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
@@ -177,14 +179,14 @@ class PlotWidgetManager(QRunnable):
 
             """
              if level == "series":
-                       
+
                     else:
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
             """
 
     def show_pgf_segment_buttons(self, experiment_name, series_identifier):
-    
-        
+
+
         # get the upper and most right ax value (lowest y and smallest x at [0])
         current_ax_height = self.ax1.get_ylim()[1]
         current_ax_length = self.ax1.get_xlim()[1]
@@ -196,10 +198,10 @@ class PlotWidgetManager(QRunnable):
         total_duration = 0
         for d in range(len(pgf_table['duration'].values)):
             max_len = float(pgf_table['duration'].values[d]) * 1000
-            
+
             rect = plt.Rectangle((total_duration+1/5*max_len, current_ax_height),  3/5*max_len , 3, facecolor='w', edgecolor='grey', alpha=1,label='Section 1')
             text = self.ax1.text(total_duration+0.5*max_len, current_ax_height + 1.5, f'Seg. {d+1}', fontsize=10, ha='center', va='center')
-            
+
             self.rect_list.append(rect)
             self.text_list.append(text)
 
@@ -209,32 +211,32 @@ class PlotWidgetManager(QRunnable):
         # Variable to keep track of the currently clicked rectangle
         clicked_rect = None
         self.canvas.draw_idle()
-    
+
     def onclick(self,event):
         global clicked_rect
         # Find which rectangle was clicked
         for rect, text in zip(self.rect_list, self.text_list):
 
             if rect.contains(event)[0]:
-               
+
                 # Set the color of the clicked rectangle to red and the others to white
                 for r in self.rect_list:
                     r.set_facecolor('w')
 
                 rect.set_facecolor('red')
-                
+
                 self.canvas.draw_idle()
                 print(f'Clicked on rectangle with label: {text.get_text()}')
                 break
     """
     def sweep_clicked_load_from_dat_file(self,item):
-        
+
         Whenever a sweep is clicked in online analysis, this handler will be executed to plot the selected sweep
         @param item: treeviewitem
         :author: dz, 21.07.2022
         @return:
 
-        
+
         self.time = None
 
         split_view = 1
@@ -288,12 +290,12 @@ class PlotWidgetManager(QRunnable):
     """
     """
     def series_clicked_load_from_dat_file(self,item):
-        
+
         plots trace data and pgf data after a series was clicked in the online analysis
         @param item:
         @return:
         :author: dz, 21.07.2022
-        
+
         print("online analysis %s series was clicked", item.text(0))
         children = item.childCount()
         split_view = 1
@@ -356,12 +358,12 @@ class PlotWidgetManager(QRunnable):
     """
     """
     def series_clicked_load_from_dat_file(self,item):
-        
+
         plots trace data and pgf data after a series was clicked in the online analysis
         @param item:
         @return:
         :author: dz, 21.07.2022
-         
+
         print("online analysis %s series was clicked", item.text(0))
         children = item.childCount()
         split_view = 1
@@ -549,13 +551,13 @@ class PlotWidgetManager(QRunnable):
         pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
 
         protocol_steps = self.plot_pgf_signal(pgf_table,data)
-    
+
         for x in range(0,len(protocol_steps)):
 
             x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
             self.ax1.axvline(x_pos, c = 'tab:gray')
-        
+
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
@@ -574,8 +576,8 @@ class PlotWidgetManager(QRunnable):
             self.ax2 = axes[1]
         else:
             self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()         
- 
+            self.ax2 = self.ax1.twinx()
+
     def handle_plot_visualization(self):
         """
         handle visualizations of the data and pgf plot
@@ -845,7 +847,7 @@ class PlotWidgetManager(QRunnable):
 
         print("creating new dragable lines")
         left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
- 
+
         right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
 
         left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
@@ -858,7 +860,7 @@ class PlotWidgetManager(QRunnable):
         self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
         print(self.coursor_bound_tuple_dict.keys())
 
-    
+
         self.canvas.draw_idle()
 
         return left_val,right_val
@@ -870,10 +872,10 @@ class PlotWidgetManager(QRunnable):
         @return:
         """
 
-        
+
 
         coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
-                
+
         left_val = coursor_tuple[0].XorY
         right_val = coursor_tuple[1].XorY
 
@@ -882,14 +884,14 @@ class PlotWidgetManager(QRunnable):
 
         self.coursor_bound_tuple_dict.pop(row_col_tuple)
         self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
-        
+
         self.canvas.draw_idle()
 
         #self.ax1.draw_artist(self.left_coursor)
         #self.canvas.blit()
         #self.canvas.flush_events()
 
-                
+
     def on_press(self,event):
         self.left_coursor.clickonline(event)
         self.right_coursor.clickonline(event)

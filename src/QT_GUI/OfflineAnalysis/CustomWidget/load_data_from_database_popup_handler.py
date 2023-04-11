@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
-from PySide6.QtCore import * 
+from PySide6.QtCore import *
 from functools import partial
 
 from matplotlib.figure import Figure
@@ -16,7 +16,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         self.database_handler = database_handler
         self.frontend_style = frontend_style
         self.read_label_list()
-        if self.frontend_style.current_style == 0:
+        if self.frontend_style.default_mode == 0:
             self.frontend_style.set_mpl_style_dark()
         else:
             self.frontend_style.set_mpl_style_white()
@@ -48,13 +48,13 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                     cb.setChecked(False)
                 else:
                     checkbox.setChecked(True)
-        
+
         self.create_experiment_specific_visualization(label)
 
     def create_experiment_specific_visualization(self, label):
-        
+
         #Create a figure
-        
+
         self.figure = Figure()
         #manual_colors = ["#FD8A8A","#8b785b","#6e8b5b","#785b8b",] # "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
         manual_colors = ["#FD8A8A", "#F1F7B5", "#A8D1D1", "#9EA1D4", "#316B83", "#6D8299", "#D5BFBF", "#8CA1A5", "#C6D57E", "#D57E7E", "#A2CDCD", "#FFE1AF", "#0b525b", "#144552", "#1b3a4b", "#212f45", "#272640", "#312244", "#3e1f47", "#4d194d"]
@@ -67,7 +67,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         self.canvas = FigureCanvas(self.figure)
         self.canvas.setStyleSheet("background-color: rgba(1,0,0,0);")
         # in case of previous plots: clear the layout first
-        for i in range(self.diagram_grid.count()): 
+        for i in range(self.diagram_grid.count()):
             self.diagram_grid.itemAt(i).widget().deleteLater()
 
         #select the existing layout and add the canvas
@@ -77,7 +77,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         q = f'select * from global_meta_data '
         if label is not "All":
             q = q +  f' where experiment_label = \'{label}\''
-        
+
         meta_data_table = self.database_handler.database.execute(q).fetchdf()
 
         row = 0
@@ -85,15 +85,15 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
         meta_data_columns_to_plot = ["species", "genotype","sex", "celltype", "condition"] #, "individuum_id"]
         for column_name in meta_data_columns_to_plot:
-            
+
             cnt = meta_data_columns_to_plot.index(column_name)
             if cnt>=1:
                 if cnt%3==0:
                     column = 0
-                    row = row +1 
+                    row = row +1
                 else:
                     column = column +1
-            
+
             df = meta_data_table
             total = df[column_name].value_counts().sum()
             print("row=", row, " column= ", column)
@@ -107,7 +107,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             #ax[row, column].pie(df[column_name].value_counts(), autopct=lambda p: f'{df[column_name].unique()} \n {p:.0f}, {p * total / 100}', colors=plot_colors, explode = expl)
             ax[row, column].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             ax[row, column].set_title(column_name)
-        
+
         q = f'select series_meta_data from experiment_series'
         df = self.database_handler.database.execute(q).fetchdf()
         plot_colors = []
@@ -117,7 +117,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                 expl.append(0.1)
         ax[1, 2].pie(df["series_meta_data"].value_counts(), labels=df["series_meta_data"].unique(), autopct=lambda p: '{:.0f}'.format(p * total / 100), colors=plot_colors, explode = expl)
         #ax[1, 2].pie(df["series_meta_data"].value_counts(), colors=plot_colors, explode = expl)
-        
+
         #ax[1, 2].pie(df["series_meta_data"].value_counts(), colors=plot_colors, explode = expl)
         ax[1, 2].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         ax[1, 2].set_title("series_meta_data")

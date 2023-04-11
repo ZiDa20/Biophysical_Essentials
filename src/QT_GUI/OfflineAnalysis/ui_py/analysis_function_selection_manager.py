@@ -452,8 +452,6 @@ class AnalysisFunctionSelectionManager():
 
             self.update_right_common_labels((right_val, row_column_tuple[0], row_column_tuple[1]), table_widget)
 
-
-
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in, table_widget=None):
         self.update_cursor_bound_labels(self.LEFT_CB_GRID_ROW,tuple_in, table_widget)

@@ -477,8 +477,6 @@ class OnlineAnalysisManager:
                 self.meta_list = self.metadata[i][1]
                 return self.meta_list[0].get_fields()[metadata_identifier]
 
-
-
     def get_series_recording_mode(self,item_id):
         '''A recording mode can only be extracted from traces. Therefore the first trace in a series will be evaluated
         and it's recording mode will be returned as the recording mode (string representation) of the entire series

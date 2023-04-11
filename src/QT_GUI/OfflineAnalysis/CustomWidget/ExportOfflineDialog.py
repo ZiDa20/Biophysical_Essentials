@@ -1,16 +1,14 @@
-from PySide6.QtWidgets import *  # type: ignore
-from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_dialog import Ui_MetadataPopup
-from functools import partial
-from CustomWidget.Pandas_Table import PandasTable
 import os
+from PySide6.QtWidgets import QFileDialog, QDialog, QTableView  # type: ignore
+from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_dialog import Ui_MetadataPopup
+from CustomWidget.Pandas_Table import PandasTable
 from database.ExportAnalysis import ExportOfflineAnalysis
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
-
 
 class ExportOfflineDialog(QDialog, Ui_MetadataPopup):
 
     def __init__(self,database_handler, frontend, export = False,  parent=None):
-        """_summary_
+        """BaseClass to export a selected offline analysis id
 
         Args:
             database_handler (_type_): _description_
@@ -25,7 +23,6 @@ class ExportOfflineDialog(QDialog, Ui_MetadataPopup):
         self.gridLayout_3.addWidget(self.tableView_2)
         self.file_name: str = os.getcwd()
         self.database_handler = database_handler
-        
         self.offline_analysis_id = None
         self.popup_stacked.setCurrentIndex(1)
         # show here the appropriate table
@@ -55,6 +52,4 @@ class ExportOfflineDialog(QDialog, Ui_MetadataPopup):
         export.create_new_database()
         export.add_tables_to_database()
         CustomErrorDialog("The Offline Analysis ID was successfully exported!", self.frontend_style)
-        
 
-    

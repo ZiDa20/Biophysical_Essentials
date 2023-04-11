@@ -1,6 +1,3 @@
-import sys
-import os
-
 import numpy as np
 from PySide6.QtGui import *
 from PySide6.QtCore import *
@@ -9,36 +6,26 @@ from DataReader.heka_reader import Bundle
 from functools import partial
 import csv
 
-import logging
+from loggers.treeview_logger import treeview_logger
 from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-from time import sleep
 from database.data_db import *
 import pandas as pd
 from DataReader.ABFclass import AbfReader
 from Backend.plot_widget_manager import PlotWidgetManager
+from Backend.cancel_button_delegate import CancelButtonDelegate
 from Offline_Analysis.tree_model_class import TreeModel
 import itertools
-
+from PySide6.QtTest import QTest
 
 class TreeViewManager:
-    """ Main class to handle interactions with treeviews. In general two  usages are defined right now:
-    1) read multiple .dat files from a directory and create representative treeview + write all the data into a datbase
-    2) read a single .dat file without writing to the database.
-
-    Each time a NEW tree view will be needed, a new instance of this class will be generated representing a new treeview
-    object. Objects might be changed in a later request.
-    ---
-
-    This class is splitted into the following subsections:
-    A) Create treeview functions
-    B) Functions to interact with created treeviews
-    C) Helper Functions
-
+    """
+    Manager class to handle actions for given tree view objects.
+    Tree views are parts of the offline as well as the online analysis
     __author__: dz
     """
 
-    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None):
+    def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None, specific_analysis_tab = None, frontend = None):
 
         # it's the database handler
         self.database_handler = database
@@ -55,18 +42,13 @@ class TreeViewManager:
         self.selected_meta_data_list = None
 
         # frontend style can be set to show all popups in the correct theme and color
-        self.frontend_style = None
+        self.frontend_style = frontend
 
-        self.analysis_mode = 0
-        # analysis mode 0 = online analysis with a single .dat file, analysis mode 1 = offline_analysis with multiple files
-        if self.database_handler is None:
-            print("setting analysis mode 0 (online analysis)")
-        else:
-            self.analysis_mode = 1
-            print("setting analysis mode 1 (offline analysis)")
+        # specific analysis tab needed for the resize actions of the mdi area
+        self.specific_analysis_tab = specific_analysis_tab
 
         self.threadpool = QThreadPool()
-    
+
         self._node_list_STATE = []
         self._discardet_nodes_STATE = []
         self._pgf_info_STATE = []
@@ -77,7 +59,7 @@ class TreeViewManager:
 
         self._data_view_STATE = 0
 
-        self.configure_logger()
+        self.logger = treeview_logger
         self.configure_default_signals()
 
         # introduce logger
@@ -85,16 +67,8 @@ class TreeViewManager:
 
     """ ############################## Chapter A Create treeview functions ######################################### """
 
-    def configure_logger(self):
-        """
-        Configure the Logger for the Treeview Manager"""
-        self.logger=logging.getLogger()
-        self.logger.setLevel(logging.ERROR)
-        file_handler = logging.FileHandler('../Logs/tree_view_manager.log')
-        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.info('Treeview Manager Initialized')
+
+
 
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
@@ -103,17 +77,17 @@ class TreeViewManager:
         self.experiment_tree_finished = DataReadFinishedSignal()
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
-        """ read the dat files in a separate thread that reads in through the directory 
+        """ read the dat files in a separate thread that reads in through the directory
         adds the dat.files run through the heka reader to get the data file and pulse generator files
-        
+
         args:
            dat_files type: list of strings - the dat files to be read
            directory_path type: string - the path to the directory where the dat files are located
            progress_callback type: function - the function to be called when the progress changes
-           
+
         returns:
-          bundle_list type: list of tuples - the list of bundles that were read 
-          
+          bundle_list type: list of tuples - the list of bundles that were read
+
         """
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
@@ -126,7 +100,7 @@ class TreeViewManager:
                     bundle = self.open_bundle_of_file(file) # open heka reader
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
-                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat")) 
+                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat"))
 
                 if isinstance(i,list):
                     for abf in i:
@@ -213,21 +187,20 @@ class TreeViewManager:
         do all the frontend handling for treeviews that are managed by the given tree_view_manager
         @param tree_view_manager: treeview manager class object
         @return:
+        @toDO split!!!!
         """
 
         # create two global tables that can be reused for further visualizations and store it within the related tree view manager
         selected_table_view_table = self.create_data_frame_for_tree_model(False, self.show_sweeps_radio.isChecked())
         discarded_table_view_table = self.create_data_frame_for_tree_model(True, self.show_sweeps_radio.isChecked())
 
-        label = None
-        for type in selected_table_view_table["type"].unique():
-            cnt = len(selected_table_view_table[selected_table_view_table["type"] == type])
-            if label:
-                label = label + ", " + type + " : " + str(cnt)
-            else:
-                label = type + " : " + str(cnt)
-
-        self.tree_build_widget.descriptive_meta_data_label.setText(label)
+        # set the label below selected and discarded treeview
+        for table,label_object in zip([selected_table_view_table, discarded_table_view_table],[self.tree_build_widget.descriptive_meta_data_label, self.tree_build_widget.discarded_meta_data_label]):
+            unique_types = table["type"].unique()
+            counts = [len(table[table["type"] == type]) for type in unique_types]
+            labels = [f"{type}: {cnt}" for type, cnt in zip(unique_types, counts)]
+            label = ", ".join(labels)
+            label_object.setText(label)
 
         print("new table \n ", selected_table_view_table)
 
@@ -235,15 +208,38 @@ class TreeViewManager:
         for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
 
+        self.database_handler.create_mapping_between_series_and_analysis_id()
+
         # create the models for the selected and discarded tree
+
         self.selected_model = TreeModel(selected_table_view_table)
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
-        
-        # assign the models to the visible treeview objects 
-        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
-        self.tree_build_widget.selected_tree_view.expandAll()      
+
+        # assign the models to the visible treeview objects
+        col_count = len(selected_table_view_table["type"].unique())
+        # workaround .. works around okish -- forces the tree to change its with
+        if self.specific_analysis_tab:
+            self.update_mdi_areas(col_count)
+        else:
+            self.tree_build_widget.selected_tree_view.setMinimumWidth(350 + (col_count-2)*100)
+            #self.tree_build_widget.selected_tree_view.setMaximumWidth(350 + (col_count-2)*100)
+
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,
+                                               True,
+                                               col_count,
+                                               self.frontend_style.default_mode) #self.selected_model.header().count()
+        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
+        self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
+        self.tree_build_widget.selected_tree_view.expandAll()
+
+        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view,
+                                                 False,
+                                                 col_count,
+                                                 self.frontend_style.default_mode)       #self.discarded_model.header().count()
+        self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
-        self.tree_build_widget.discarded_tree_view.expandAll()   
+        self.tree_build_widget.discarded_tree_view.expandAll()
+
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(self.selected_model,self.tree_build_widget.selected_tree_view)
         self.set_visible_columns_treeview(self.discarded_model,self.tree_build_widget.discarded_tree_view)
@@ -262,6 +258,11 @@ class TreeViewManager:
 
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
+
+    def update_mdi_areas(self,col_count):
+        self.specific_analysis_tab.subwindow.setMaximumSize(QSize(350 + (col_count-2)*100, 16777215))
+        self.specific_analysis_tab.subwindow.resize(QSize(350 + (col_count-2)*100,  self.specific_analysis_tab.subwindow.height()))
+        self.specific_analysis_tab.show_and_tile()
 
     def set_visible_columns_treeview(self,model,treeview):
         """
@@ -350,16 +351,23 @@ class TreeViewManager:
         print("selected finished succesful")
         discarded_model = TreeModel(self.discarded_tree_view_data_table, "discarded")
 
+        # assign the models to the visible treeview objects
+        col_count = len(self.selected_tree_view_data_table["type"].unique())
+
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
+        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
-        self.tree_build_widget.selected_tree_view.expandAll()   
+        self.tree_build_widget.selected_tree_view.expandAll()
+
+        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
-        self.tree_build_widget.discarded_tree_view.expandAll()   
+        self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_discard)
+        self.tree_build_widget.discarded_tree_view.expandAll()
 
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
         self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)
 
-       
         try:
             self.tree_build_widget.selected_tree_view.clicked.disconnect()
             self.tree_build_widget.discarded_tree_view.clicked.disconnect()
@@ -440,10 +448,10 @@ class TreeViewManager:
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
-            
+
             plot_widget_manager.check_live_analysis_plot(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
-        
+
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Sweep":
             print("sweep clicked")
@@ -492,7 +500,7 @@ class TreeViewManager:
         self.database_handler.open_connection()
         self.logger.info("Database writing thread successfully finished")  #
         # self.database.open_connection() # open the connection to the database in main thread
-        
+
         try:
             df = self.database_handler.database.execute(
                 "SELECT * FROM experiments").fetchall()  # get all the experiments as sanity
@@ -531,7 +539,7 @@ class TreeViewManager:
         df["type"] = "Experiment"
         df["level"] = 0
         df["identifier"] = parent_name_table["experiment_name"].values.tolist()
-        return df       
+        return df
 
     def create_meta_data_combinations(self,meta_data_values: list):
         """
@@ -560,7 +568,7 @@ class TreeViewManager:
         meta_data_table = pandas data frame with columns [table, column, values]
 
         """
-        
+
         # list of lists of meta data tuples per column and table
         meta_data_values = list(set(meta_data_table["conditions"].values))
         combinations = self.create_meta_data_combinations(meta_data_values)
@@ -575,9 +583,9 @@ class TreeViewManager:
 
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
         for c in combinations:
-        
 
-            # Create query strings for each table, always reset them 
+
+            # Create query strings for each table, always reset them
             #experiment_series_query = f' select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where discarded = {discarded_state}'
             global_meta_data_query = f'select experiment_name from {GLOBAL_META_DATA_TABLE} where experiment_label = \'{self.selected_meta_data_list[0]}\''
             #sweep_meta_data_query = f'select experiment_name from {SWEEP_META_DATA_TABLE} where '
@@ -592,7 +600,7 @@ class TreeViewManager:
             for row,index,table in zip(meta_data_table["condition_column"], meta_data_selections, meta_data_table["table_name"]):
 
                 if table ==  GLOBAL_META_DATA_TABLE:
-                    # multiple columns are available for global meta data. 
+                    # multiple columns are available for global meta data.
                     # therefore table can appear in multiple rows and therefore I have to append
                     global_meta_data_query =  global_meta_data_query + f'and {row} = \'{index}\''
                 if table ==  EXPERIMENT_SERIES_TABLE:
@@ -602,10 +610,10 @@ class TreeViewManager:
 
             # check combination of tables
             if list(meta_data_table["table_name"].unique()) == [GLOBAL_META_DATA_TABLE]:
-                experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf() 
+                experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf()
             else:
                 experiment_series_query = experiment_series_query + f' intersect ({global_meta_data_query})'
-                experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf() 
+                experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf()
 
 
             # empty dataframe might be returned when the meta data combinations does not exist
@@ -614,7 +622,7 @@ class TreeViewManager:
                 experiment_names = [tup[0] for tup in experiment_names]
 
                 identifier_list = ["root::" + c + "::" + e for e in experiment_names]
-                new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names), 
+                new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names),
                 "type": ["Experiment"]*len(experiment_names), "level": [1]*len(experiment_names), "identifier": identifier_list})
 
                 df = pd.concat([df, new_item_df])
@@ -624,7 +632,7 @@ class TreeViewManager:
 
     def add_experiments_series_sweeps_to_meta_data_label(self, meta_data_table, discarded_state, series_name = None):
 
-    
+
 
         # get a dataframe with hierarchical strcutured meta data items and exoeriments
         df = self.create_treeview_with_meta_data_parents(meta_data_table)
@@ -632,9 +640,9 @@ class TreeViewManager:
 
         # append series to the experiments
         for index,experiment_row in df[df["type"]=="Experiment"].iterrows():
-            
+
             series_meta_data = None
-            
+
             if "experiment_series" in meta_data_table["table_name"].values.tolist():
 
                 # get the parent
@@ -642,18 +650,18 @@ class TreeViewManager:
                 # split at ::
                 label = label.split("::")
                 series_meta_data = label[meta_data_table["table_name"].values.tolist().index("experiment_series")]
-          
-    
+
+
             df, series_table = self.add_series_to_treeview(df, experiment_row, discarded_state, series_name, series_level, series_meta_data)
 
-            # create sweeps 
+            # create sweeps
             if self.show_sweeps_radio.isChecked():
                 df = self.add_sweeps_to_treeview(df, series_table, series_level, experiment_row["identifier"])
 
         return df
 
     def add_series_to_treeview(self, df, experiment_row, discarded_state, series_name, series_level, series_meta_data=None):
-    
+
 
         experiment_name = experiment_row["item_name"]
         experiment_id = experiment_row["identifier"]
@@ -712,8 +720,8 @@ class TreeViewManager:
 
         #if series_table.empty:
         #    return treeview_df
-                
-        
+
+
         for index, row in series_table.iterrows():
             sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
 
@@ -867,9 +875,11 @@ class TreeViewManager:
 
         print("we try to enter the abf file funciton in treeview manager")
         for series_count, sweep in enumerate(abf_bundle[0], start=1):
+
             database.add_single_series_to_database(
                 abf_bundle[1][0], sweep[3], f"Series{str(series_count)}"
             )
+
             database.add_sweep_df_to_database(
                 abf_bundle[1][0],
                 f"Series{str(series_count)}",
@@ -926,6 +936,13 @@ class TreeViewManager:
         dialog.close()
 
     """######################### Chapter B Functions to interact with created treeviews ############################"""
+
+    def click_top_level(self) -> None:
+        """Clicks automatically the top-level item of the selected tree view after tree was ubild to show the plot"""
+        index = self.tree_build_widget.selected_tree_view.model().index(0, 0, self.tree_build_widget.selected_tree_view.model().index(0,0, QModelIndex()))
+        self.tree_build_widget.selected_tree_view.setCurrentIndex(index)
+        rect = self.tree_build_widget.selected_tree_view.visualRect(index)
+        QTest.mouseClick(self.tree_build_widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def assign_meta_data_groups_from_list(self, tree, meta_data_group_assignment_list):
         ''' Goes through the final tree and will try the assign the assignments from the tuple list
@@ -1023,9 +1040,9 @@ class TreeViewManager:
 
     # ToDo put this into dictionary instead of parameters for dynamic programming
     def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, series_count = 0,
-                                               holding_potential = None, 
-                                               series_name = None, 
-                                               sweep_number =None, stim_channel = None, 
+                                               holding_potential = None,
+                                               series_name = None,
+                                               sweep_number =None, stim_channel = None,
                                                series_number = None,
                                                children_amount = None,
                                                ):
@@ -1070,8 +1087,8 @@ class TreeViewManager:
                               str(holding_potential),
                               str(duration),
                               str(increment),
-                              str(voltage), 
-                              str(stim_channel), 
+                              str(voltage),
+                              str(stim_channel),
                               str(series_number),
                               str(len(children_amount))])
             series_count = series_count
@@ -1081,14 +1098,14 @@ class TreeViewManager:
                 if node_type == "Pgf":
                     print(i)
                     series_count = i + 1
-                self.read_series_specific_pgf_trace_into_df(index+[i], 
+                self.read_series_specific_pgf_trace_into_df(index+[i],
                                                             bundle,
-                                                            data_list, 
+                                                            data_list,
                                                             series_count,
-                                                            holding_potential, 
+                                                            holding_potential,
                                                             series_name,
-                                                            sweep_number, 
-                                                            stim_channel, 
+                                                            sweep_number,
+                                                            stim_channel,
                                                             series_number,
                                                             children_amount,
                                                             )
@@ -1115,9 +1132,11 @@ class TreeViewManager:
             table_name = table_name["sweep_table_name"].values[0]
             df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
             df.to_csv(file_name)
-        print("hello from the other side")
+        #print("hello from the other side")
 
-
+    def clear_tree(self):
+        self.tree_build_widget.selected_tree_view.setModel(TreeModel(pd.DataFrame()))
+        #self.tree_build_widget.selected_tree_view.reset()
     """
     ## outdated .. can be removed .. replaced by read_series_specific_pgf_trace_into_df 09.06.2022 .. dz
     def read_series_specific_pgf_trace(self,index, bundle, pgf_tuple_list,sampling_freq=None, sweep_number = None, vholding=None):
@@ -1133,14 +1152,14 @@ class TreeViewManager:
 
         # open the pulse generator part of the bundle
         root = bundle.pgf
-        
+
         node = root
         for i in index:
             node = node[i]
 
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
-        
+
         #print("Node type:")
         #print(node_type)
 

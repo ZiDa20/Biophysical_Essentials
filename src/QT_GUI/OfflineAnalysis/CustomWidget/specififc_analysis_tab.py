@@ -42,25 +42,31 @@ class Ui_SpecificAnalysisTab(object):
                 self.CameraMDI = QMdiArea(SpecificAnalysisTab)
                 self.CameraMDI.setObjectName(u"CameraMDI")
                 sizePolicy.setHeightForWidth(self.CameraMDI.sizePolicy().hasHeightForWidth())
-                self.CameraMDI.setSizePolicy(sizePolicy)
-                self.CameraMDI.setMinimumSize(QSize(400, 500))
+                #self.CameraMDI.setSizePolicy(sizePolicy)
+                self.CameraMDI.setMinimumSize(QSize(100, 500))
                 self.CameraMDI.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-                self.CameraWindow = QMainWindow()
+
+                self.trial_main = QMainWindow()
+                #self.trial_main.setStatusBar(self.statusBar)
+                self.PlotWindow = QMdiSubWindow()
+                self.PlotWindow.setWidget(self.trial_main)
                 self.statusBar = QStatusBar()
-                self.CameraWindow.setStatusBar(self.statusBar)
-                self.CameraWindow.setObjectName(u"CameraWindow")
-                self.CameraWindow.setMinimumSize(QSize(400,400))
-                #sizePolicy.setHeightForWidth(self.CameraWindow.sizePolicy().hasHeightForWidth())
-                #self.CameraWindow.setSizePolicy(sizePolicy)
-                #self.CameraWindow.setMaximumSize(QSize(16777215, 16777215))
+                
+                self.PlotWindow.setObjectName(u"PlotWindow")
+                self.PlotWindow.setMinimumSize(QSize(16777215,16777215))
+                #sizePolicy.setHeightForWidth(self.PlotWindow.sizePolicy().hasHeightForWidth())
+                self.PlotWindow.setMaximumSize(QSize(16777215, 16777215))
+                #self.PlotWindow.setSizePolicy(sizePolicy)
+                self.PlotWindow.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 self.gridLayout_13 = QGridLayout()
                 self.gridLayout_13.setObjectName(u"gridLayout_13")
-                self.widget = TreeBuild(self.CameraWindow)
+                
+                self.widget = TreeBuild(self.PlotWindow)
                 self.widget.setObjectName(u"widget")
-                self.widget.groupBox_4.setMaximumSize(QSize(16777215, 16777215))
-                #self.widget.setMinimumSize(QSize(500, 600))
+                self.widget.setMinimumSize(QSize(300, 300))
+                #self.widget.groupBox_4.setMaximumSize(QSize(16777215, 16777215))
                 #self.widget.setMaximumSize(QSize(16777215, 16777215))
-                self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                #self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
                 #self.gridLayout_13.addWidget(self.widget, 0, 0, 1, 1)
                 self.subwindow = QMdiSubWindow()
@@ -78,8 +84,10 @@ class Ui_SpecificAnalysisTab(object):
                 self.stackedWidget.setObjectName(u"stackedSub")
                 self.stackedWidget.setAccessibleName("substack")
                 self.subwindow_layout = QVBoxLayout(self.widget.groupBox_4)
-                self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignRight)
-                self.subwindow.setMaximumSize(QSize(550, 16777215))
+                self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignLeft)
+                self.subwindow.setMinimumSize(QSize(0, 0))
+                self.subwindow.setMaximumSize(QSize(350, 16777215))
+                self.subwindow.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 #self.stackedWidget.setMinimumSize(QSize(400,700))
                 #sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
                 #self.stackedWidget.setSizePolicy(sizePolicy)
@@ -178,17 +186,18 @@ class Ui_SpecificAnalysisTab(object):
                 self.analysi_grid.setObjectName(u"analysi_grid")
                 self.analysis_button_grid = QGridLayout()
                 self.analysis_button_grid.setObjectName(u"analysis_button_grid")
-                self.select_series_analysis_functions = QPushButton(self.groupBox)
+                self.select_series_analysis_functions = QPushButton()
                 self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
                 sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
                 sizePolicy4.setHorizontalStretch(0)
                 sizePolicy4.setVerticalStretch(0)
                 sizePolicy4.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
-                self.select_series_analysis_functions.setSizePolicy(sizePolicy4)
-                self.select_series_analysis_functions.setMinimumSize(QSize(150, 150))
-                self.select_series_analysis_functions.setMaximumSize(QSize(150, 150))
+                #self.select_series_analysis_functions.setSizePolicy(sizePolicy4)
+                #self.select_series_analysis_functions.setMinimumSize(QSize(50, 50))
+                #self.select_series_analysis_functions.setMaximumSize(QSize(50, 50))
 
                 self.analysis_button_grid.addWidget(self.select_series_analysis_functions, 0, 0, 1, 1)
+                #self.analysi_grid.addLayout(self.select_series_analysis_functions)
                 self.analysi_grid.addLayout(self.analysis_button_grid, 0, 1, 1, 1)
                 self.analysis_stacked_widget = QStackedWidget(self.groupBox)
                 self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
@@ -203,10 +212,11 @@ class Ui_SpecificAnalysisTab(object):
                 
                 self.gridLayout_9.addLayout(self.analysi_grid, 0, 0, 1, 1)
 
-                self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea,self.dock_widget)
-                self.CameraMDI.addSubWindow(self.CameraWindow)
+                self.trial_main.addDockWidget(Qt.TopDockWidgetArea,self.dock_widget)
+                self.CameraMDI.addSubWindow(self.PlotWindow)
                 self.subwindow.setWidget(self.widget)
                 self.CameraMDI.addSubWindow(self.subwindow)
+                              
                 #self.subwindow_calc.setWidget(self.groupBox)
                 #self.CameraMDI.addSubWindow(self.subwindow_calc)
                 self.gridLayout_2.addWidget(self.groupBox,0,1)
@@ -224,11 +234,12 @@ class Ui_SpecificAnalysisTab(object):
 
         def retranslateUi(self, SpecificAnalysisTab):
                 SpecificAnalysisTab.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Form", None))
-                self.CameraWindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Plot", None))
+                self.PlotWindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Plot", None))
                 self.subwindow.setWindowTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Analysis Tree", None))
                 self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
                 #self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
-                self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
+                #self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
+                self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Functions", None))
         # retranslateUi
 
 
@@ -251,23 +262,40 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.CameraMDI.tileSubWindows()
         self.title_bar_widget = self.dock_widget.titleBarWidget()
         self.dock_widget.setTitleBarWidget(QWidget(self.dock_widget))
-        self.CameraWindow.setWindowFlags(self.CameraWindow.windowFlags() | Qt.WindowMinMaxButtonsHint)
+        self.PlotWindow.setWindowFlags(self.PlotWindow.windowFlags() | Qt.WindowMinMaxButtonsHint)
         self.dock_button.clicked.connect(self.undock_me)
         self.dock_widget.topLevelChanged.connect(self.remove_title_bar_dock)
         self.tile_button.clicked.connect(self.show_and_tile)
         self.floating: bool = False
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
-        #size_grip = QSizeGrip(self.CameraWindow)
-        #size_grip.setAlignment(Qt.AlignBottom | Qt.AlignRight)
-        #self.CameraMDI.set
-        #self.CameraMDI.setTabsMovable(True)
 
-        #self.subwindow_calc.setMinimumSize(QSize(self.analysis_button_grid.sizeHint().width(), 700))
-        #self.subwindow_calc.setMaximumSize(QSize(self.analysis_button_grid.sizeHint().width(), 700))
+        # Set the minimum height of each cell to 50 pixels
+        # Set the vertical size policy of the widgets to Minimum
+        for i in range(self.analysis_button_grid.rowCount()):
+            for j in range(self.analysis_button_grid.columnCount()):
+                widget = self.analysis_button_grid.itemAtPosition(i, j).widget()
+                widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
+        #self.show_and_tile()
+
     def show_and_tile(self):
         """ Should draw subwindows next to each other"""
-        self.CameraMDI.tileSubWindows()
         
+        # Get the size and position of the subwindow
+        subwindow_rect = self.subwindow.frameGeometry()
+        subwindow_pos = subwindow_rect.topRight()
+
+        # Adjust the position of the plot window
+        plotwindow_pos = self.PlotWindow.pos()
+        plotwindow_pos.setX(subwindow_pos.x() + 10)  # Adjust the X position as needed
+
+        # Resize the plot window
+        self.PlotWindow.resize(self.CameraMDI.width()-self.subwindow.width(), self.CameraMDI.height())
+
+        # Move the plot window next to the subwindow
+        self.PlotWindow.move(plotwindow_pos)
+
+        print("Tiling subwindows")
     def undock_me(self):
         """_summary_: This is a handler to dock and undock
         """
@@ -275,7 +303,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
             self.floating = True
             self.dock_widget.setFloating(self.floating)
             self.dock_widget.setTitleBarWidget(self.title_bar_widget)
-            self.CameraWindow.showMinimized()
+            self.PlotWindow.showMinimized()
                     
         else:
             self.floating = False
