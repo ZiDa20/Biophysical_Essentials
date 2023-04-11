@@ -55,6 +55,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+
+        # make he ribbon bar components to attach at the same height
+        self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
+        
         self.progressbar = None
         self.statusbar = None
         self.status_label = None
