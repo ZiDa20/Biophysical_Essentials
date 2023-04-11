@@ -4,17 +4,24 @@ from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionButton, QPushButt
 
 class CancelButtonDelegate(QStyledItemDelegate):
     
-    def __init__(self, parent:QTreeView, delete:bool, col_count:int):
+    def __init__(self, parent:QTreeView, delete:bool, col_count:int, frontend_style:int):
         self.delete = delete
         self.col_count = col_count
+        self.frontend_style = frontend_style
+
         super(CancelButtonDelegate, self).__init__(parent)
 
     def paint(self, painter, option, index):
         if index.column() == self.col_count:  # assuming the pixmap will be in the last column
-            if self.delete:
+            if self.delete & self.frontend_style == 1:
                 pixmap = QPixmap(r"../QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png")
-            else:
+            if self.delete & self.frontend_style == 0:
+                pixmap = QPixmap(r"../QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png")
+            if self.delete==False & self.frontend_style == 1:
                 pixmap = QPixmap(r"../QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png")
+            if self.delete==False & self.frontend_style == 0:
+                pixmap = QPixmap(r"../QT_GUI/Button/dark_mode/offline_analysis/treeview_reinsert.png")
+                
             if not pixmap.isNull():
                 size = pixmap.size().scaled(20, 20, Qt.KeepAspectRatio)
                 x = option.rect.x() + (option.rect.width() - size.width()) / 2

@@ -148,7 +148,6 @@ class Ui_Form(QWidget):
         self.directory_tree_widget.setTabText(self.directory_tree_widget.indexOf(self.discarded_tab), QCoreApplication.translate("Form", u"Discarded", None))
     # retranslateUi
 
-
 class TreeBuild(Ui_Form):
     def __init__(self,parent = None):
         self.parent = parent

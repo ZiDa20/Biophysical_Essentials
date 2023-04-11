@@ -233,6 +233,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style = frontend_style
         self.notebook = notebook
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio)
+        self.blank_analysis_tree_view_manager.frontend_style = self.frontend_style
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
         

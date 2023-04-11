@@ -182,7 +182,7 @@ class SeriesItemTreeWidget():
         # while treeviews are equal 
         current_tab_tree_view_manager = TreeViewManager(self.database_handler, current_tab.widget, self.show_sweeps_radio, current_tab)
         self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
-
+        current_tab.frontend_style = self.frontend_style
 
         current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
 

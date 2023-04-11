@@ -222,12 +222,12 @@ class TreeViewManager:
         else:
             self.tree_build_widget.selected_tree_view.setMinimumWidth(300 + (col_count-2)*100)
 
-        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)  
         self.tree_build_widget.selected_tree_view.expandAll()
         
-        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False,col_count)       #self.discarded_model.header().count()
+        delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False,col_count,self.frontend_style.default_mode)       #self.discarded_model.header().count()
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()
@@ -346,12 +346,12 @@ class TreeViewManager:
         # assign the models to the visible treeview objects
         col_count = len(self.selected_tree_view_data_table["type"].unique())
 
-        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count) #self.selected_model.header().count()
+        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(selected_model)
         self.tree_build_widget.selected_tree_view.expandAll() 
 
-        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False, col_count) #self.selected_model.header().count()
+        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
         self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_discard)
         self.tree_build_widget.discarded_tree_view.expandAll()   
