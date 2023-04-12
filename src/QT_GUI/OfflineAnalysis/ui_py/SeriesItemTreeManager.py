@@ -359,7 +359,6 @@ class SeriesItemTreeWidget():
             custom_plot_widget = qwidget_item_1.widget()
             df = custom_plot_widget.statistics
 
-
             unique_meta_data = list(df["meta_data"].unique())
 
             if len(unique_meta_data) == len(df["meta_data"].values):
@@ -368,9 +367,11 @@ class SeriesItemTreeWidget():
                 dialog.exec()
 
             else:
-                for meta_data in unique_meta_data:
-                    statistics_table_widget.setItem(row_to_insert + unique_meta_data.index(meta_data), 2,
-                                                                        QTableWidgetItem(str(meta_data)))
+                
+                #for meta_data in unique_meta_data:
+                statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data)))
+                                                
+                #unique_meta_data.index(meta_data), 2,QTableWidgetItem(str(meta_data)))
 
                 # show distrib�tion
                 self.data_dist  = QComboBox()
@@ -387,7 +388,7 @@ class SeriesItemTreeWidget():
                 self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
                 statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
 
-                shapiro_test = stats.shapiro(df["values"])
+                shapiro_test = stats.shapiro(df["Result"])
                 print(shapiro_test)
                 cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value = " + str(round(shapiro_test.pvalue,3))),1,0)
                 if shapiro_test.pvalue >= 0.05:
