@@ -156,7 +156,7 @@ class PlotWidgetManager(QRunnable):
 
                         analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
 
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler)
+                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
 
                         if sweep_number:
                             sweep_number = sweep_number.split("_")

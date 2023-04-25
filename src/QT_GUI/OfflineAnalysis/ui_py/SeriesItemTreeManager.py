@@ -432,8 +432,8 @@ class SeriesItemTreeWidget():
                 # result data frame to be displayed
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"])
                 for p in pairs:
-                    group1 = df[df["meta_data"]==p[0]]["values"]
-                    group2 = df[df["meta_data"]==p[1]]["values"]
+                    group1 = df[df["meta_data"]==p[0]]["Result"]
+                    group2 = df[df["meta_data"]==p[1]]["Result"]
                     res =  stats.ttest_ind(group1,group2)
                     tmp = pd.DataFrame({"Group_1":[p[0]], "Group_2":[p[1]], "p_Value":[res.pvalue]})
 
