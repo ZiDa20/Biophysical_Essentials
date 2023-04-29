@@ -61,7 +61,7 @@ class DuckDBInitializer:
         self.database.execute(create_unique_offline_analysis_sequence)
 
         # create all database tables assuming they do not exist'''
-
+        
         sql_create_experiment_mapping_table = """  create table experiment_analysis_mapping(
                                         experiment_name text,
                                         analysis_id integer,

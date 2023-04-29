@@ -90,14 +90,13 @@ class DuckDBDatabaseHandler():
         """
 
         q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, analysis_discarded) \
-        SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.discarded\
-        FROM experiment_analysis_mapping\
-        JOIN experiment_series ON \
-        experiment_analysis_mapping.experiment_name = experiment_series.experiment_name\
-        where experiment_analysis_mapping.analysis_id = (?);"
-        
+                SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.discarded \
+                FROM experiment_analysis_mapping \
+                JOIN experiment_series \
+                ON experiment_analysis_mapping.experiment_name = experiment_series.experiment_name where experiment_analysis_mapping.analysis_id = (?);"
+
         try:
-            self.database = self.execute_sql_command(self.database,q,[self.analysis_id])
+            self.database = self.database.execute(q,[self.analysis_id])
             self.logger.info("Series Mapping")
         except Exception as e:
             print(e)
