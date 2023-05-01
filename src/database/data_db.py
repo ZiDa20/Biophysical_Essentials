@@ -264,16 +264,37 @@ class DuckDBDatabaseHandler():
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
             if meta:
-                q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?) AND series_meta_data = (?)'
+
+                q = 'select sweep_table_name \
+                    from experiment_series as t1\
+                        inner join (\
+                            select * from series_analysis_mapping \
+                            where analysis_id = (?) and analysis_discarded = (?) ) \
+                        as t2\
+                        on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier\
+                        where t1.series_meta_data = (?) and t1.series_name = (?) and t1.experiment_name = (?)'
+
+
+                #q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) ' \
+                #    'AND discarded = (?) AND series_meta_data = (?)'
                 try:
-                    r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False, meta))[0][0]
+                    r = self.get_data_from_database(self.database, q, (self.analysis_id, False, meta, series_name, experiment_tuple[0]))[0][0]
                     sweep_table_names.append(r)
                 except Exception as e:
                     self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
             else:
-                q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
+                #q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
+                
+                q = 'select sweep_table_name \
+                    from experiment_series as t1\
+                        inner join (\
+                            select * from series_analysis_mapping \
+                            where analysis_id = (?) and analysis_discarded = (?) ) \
+                        as t2\
+                        on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier\
+                        where t1.series_name = (?) and t1.experiment_name = (?)'
                 try:
-                    r = self.get_data_from_database(self.database, q, (experiment_tuple[0], series_name, False))[0][0]
+                    r = self.get_data_from_database(self.database, q, (self.analysis_id, False, series_name, experiment_tuple[0]))[0][0]
                     sweep_table_names.append(r)
                 except Exception as e:
                     self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
