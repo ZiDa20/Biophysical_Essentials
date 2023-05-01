@@ -185,6 +185,22 @@ class TreeViewManager:
         self.database_handler.database.close()
         return "database closed"
 
+    def map_data_to_analysis_id(self):
+        """
+        link the selected data to an unique offline analysis id: from this point, all db searches, discardings and reinsertions are based on the mapping tables
+        """
+        q = (f'select distinct experiment_name from experiment_series '\
+             f'intersect (select experiment_name from global_meta_data where '
+             f'experiment_label = \'{self.selected_meta_data_list[0]}\')')
+
+        parent_name_table = self.database_handler.database.execute(q).fetchdf()
+    
+        for experiment in parent_name_table["experiment_name"].values:
+            self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
+
+        # series mapping is based on the previously generated epxeriment mapping table
+        self.database_handler.create_mapping_between_series_and_analysis_id()
+
     def update_treeviews(self, plot_widget_manager: PlotWidgetManager):
         """
         do all the frontend handling for treeviews that are managed by the given tree_view_manager
@@ -207,13 +223,6 @@ class TreeViewManager:
             label_object.setText(label)
 
         print("new table \n ", selected_table_view_table)
-
-        # since analysis id is primary key this will only add date when its performed first
-        for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
-            self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
-
-
-        self.database_handler.create_mapping_between_series_and_analysis_id()
 
         # create the models for the selected and discarded tree
 
@@ -297,6 +306,7 @@ class TreeViewManager:
         series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
 
         experiment_df = experiment_df[experiment_df["item_name"].isin(series_df["parent"].tolist())]
+        
         if show_sweeps:
             all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
             for sweep_table_name in series_table["sweep_table_name"].values.tolist():
@@ -325,16 +335,20 @@ class TreeViewManager:
         return pd.concat([experiment_df, series_df])
 
     def create_series_without_meta_data(self,series_name,discarded_state,experiment_df):
+        """
+        creates the series df needed for treeview visualization
+        """
         if series_name:
-            q = (f'select * from experiment_series where discarded = {discarded_state}  and series_name = \'{series_name }\' and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-            """q = (f'select * from series_analysis_mapping \
+            #q = (f'select * from experiment_series where discarded = {discarded_state}  and series_name = \'{series_name }\' and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
+            q = (f'select * from series_analysis_mapping \
                  where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} \
                  and series_name = \'{series_name }\' and \
                  experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-            """
-        else:
-            q = (f'select * from experiment_series where discarded = {discarded_state} and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
             
+        else:
+            q = (f'select * from series_analysis_mapping \
+                 where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} \
+                 and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')') 
        
         series_table = self.database_handler.database.execute(q).fetchdf()
 
@@ -472,18 +486,20 @@ class TreeViewManager:
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
             # set the related series to discarded
-            discard_query = f'update experiment_series set discarded = {discarded_state} where ' \
-                            f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' ' \
-                            f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\''
+            query = f'update series_analysis_mapping set analysis_discarded = {discarded_state} where '\
+                    f'analysis_id = {self.offline_analysis_id} '\
+                    f'and experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' ' \
+                    f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\''
             #print(discard_query)
-            self.database_handler.database.execute(discard_query)
+            self.database_handler.database.execute(query)
 
             self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
             # set all series of the related series to discarded
-            self.database_handler.database.execute(f'update experiment_series set discarded = {discarded_state} where '
-                                                    f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
+            self.database_handler.database.execute(f'update series_analysis_mapping set analysis_discarded = {discarded_state} where '\
+                                                    f'analysis_id = {self.offline_analysis_id} '\
+                                                    f'and experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
             #print("discarding an experiment")
             #print(series_name)
             self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
@@ -543,8 +559,8 @@ class TreeViewManager:
         @param discarded_state: true or false: decodes experiment discarded state.
         @return df: pandas data frame with columns [item_name, parent, type, level, identifier]
         """
-        q = (f'select distinct experiment_name from experiment_series where '
-             f'discarded = {discarded_state} intersect (select experiment_name from global_meta_data where '
+        q = (f'select distinct experiment_name from series_analysis_mapping where '
+             f'analysis_discarded = {discarded_state} intersect (select experiment_name from global_meta_data where '
              f'experiment_label = \'{self.selected_meta_data_list[0]}\')')
 
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
@@ -594,7 +610,7 @@ class TreeViewManager:
 
         # Define constants for table names
         GLOBAL_META_DATA_TABLE = "global_meta_data"
-        EXPERIMENT_SERIES_TABLE = "experiment_series"
+        EXPERIMENT_SERIES_TABLE = "series_analysis_mapping"
         SWEEP_META_DATA_TABLE = "sweep_meta_data"
 
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
@@ -686,7 +702,7 @@ class TreeViewManager:
             print("found")
 
         # get all series linked with this experiment
-        query = f'select * from experiment_series where experiment_name = \'{experiment_name}\' and discarded = {discarded_state}'
+        query = f'select * from series_analysis_mapping where experiment_name = \'{experiment_name}\' and analysis_discarded = {discarded_state}'
 
         if series_meta_data:
             query = query + f' and series_meta_data = \'{series_meta_data}\' '

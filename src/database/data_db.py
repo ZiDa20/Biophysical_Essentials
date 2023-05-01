@@ -77,8 +77,9 @@ class DuckDBDatabaseHandler():
     def create_mapping_between_experiments_and_analysis_id(self, experiment_id):
         q = 'insert into experiment_analysis_mapping values (?,?)'
         try:
-            self.database = self.database.execute(q, (experiment_id, self.analysis_id))
+            self.database.execute(q, (experiment_id, self.analysis_id))
             self.logger.info("Mapped experiment %s to analysis %i", experiment_id, self.analysis_id)
+            print("Mapped experiment %s to analysis %i", experiment_id, self.analysis_id)
         except Exception as e:
             self.logger.info("Mapping between experiment %s and analysis %i FAILED", experiment_id, self.analysis_id)
 
@@ -97,10 +98,11 @@ class DuckDBDatabaseHandler():
 
         try:
             self.database = self.database.execute(q,[self.analysis_id])
-            self.logger.info("Series Mapping")
+            print("Series Mapping fpr analysis id", self.analysis_id)
+            #self.logger.info("Series Mapping fpr analysis id", self.analysis_id)
         except Exception as e:
             print(e)
-            self.logger.info("Series Mapping Failed")
+            #self.logger.info("Series Mapping Failed")
 
     """---------------------------------------------------"""
     """    Functions to interact with table filters       """
