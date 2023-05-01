@@ -403,12 +403,13 @@ class DuckDBDatabaseHandler():
             else:
                 print("adding experiment to global meta data failed")
 
-    def get_available_experiment_label(self):
+    def get_available_category_groups(self,category):
         """
         return all available label in the database
         @return: a tuple list
         """
-        q = 'select distinct experiment_label from global_meta_data'
+        q = f'select distinct {category} from global_meta_data'
+
         return self.get_data_from_database(self.database, q)
 
     def get_meta_data_group_of_specific_experiment(self, experiment_name):

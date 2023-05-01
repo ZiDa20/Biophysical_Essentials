@@ -185,17 +185,13 @@ class TreeViewManager:
         self.database_handler.database.close()
         return "database closed"
 
-    def map_data_to_analysis_id(self):
+    def map_data_to_analysis_id(self, parent_name_table:list):
         """
         link the selected data to an unique offline analysis id: from this point, all db searches, discardings and reinsertions are based on the mapping tables
         """
-        q = (f'select distinct experiment_name from experiment_series '\
-             f'intersect (select experiment_name from global_meta_data where '
-             f'experiment_label = \'{self.selected_meta_data_list[0]}\')')
 
-        parent_name_table = self.database_handler.database.execute(q).fetchdf()
-    
-        for experiment in parent_name_table["experiment_name"].values:
+        # list of experiment names
+        for experiment in parent_name_table:
             self.database_handler.create_mapping_between_experiments_and_analysis_id(experiment)
 
         # series mapping is based on the previously generated epxeriment mapping table
@@ -346,9 +342,7 @@ class TreeViewManager:
                  experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
             
         else:
-            q = (f'select * from series_analysis_mapping \
-                 where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} \
-                 and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')') 
+            q = f'select * from series_analysis_mapping where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} ' 
        
         series_table = self.database_handler.database.execute(q).fetchdf()
 
@@ -559,9 +553,7 @@ class TreeViewManager:
         @param discarded_state: true or false: decodes experiment discarded state.
         @return df: pandas data frame with columns [item_name, parent, type, level, identifier]
         """
-        q = (f'select distinct experiment_name from series_analysis_mapping where '
-             f'analysis_discarded = {discarded_state} intersect (select experiment_name from global_meta_data where '
-             f'experiment_label = \'{self.selected_meta_data_list[0]}\')')
+        q = f'select distinct experiment_name from series_analysis_mapping where analysis_discarded = {discarded_state} '
 
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
         parent_name_table = self.database_handler.database.execute(q).fetchdf()

@@ -368,19 +368,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         data to be analyzed were selected fro mthe db dashboard dialog
         @return:
         """
-        self.selected_meta_data_list = []
 
-        for cb in self.load_data_from_database_dialog.checkbox_list:
-            if cb.isChecked():
-                pos = self.load_data_from_database_dialog.checkbox_list.index(cb)
-                self.selected_meta_data_list.append(self.load_data_from_database_dialog.available_labels[pos][0])
-
-        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))
-        self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
+        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))      
+        
+        # get the experiment names that were selected by the user within the db dashboard
+        experiment_list = self.load_data_from_database_dialog.get_experiment_names()      
 
         # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
-        # from this point, all db searches, discardings and reinsertions are based on the mapping tables
-        self.blank_analysis_tree_view_manager.map_data_to_analysis_id()
+        # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
+        self.blank_analysis_tree_view_manager.map_data_to_analysis_id(experiment_list)
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager

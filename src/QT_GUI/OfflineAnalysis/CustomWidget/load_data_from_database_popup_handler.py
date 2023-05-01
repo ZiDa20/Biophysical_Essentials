@@ -6,8 +6,10 @@ from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 from CustomWidget.Pandas_Table import PandasTable
+import copy
 
 class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
@@ -16,7 +18,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.database_handler = database_handler
         self.frontend_style = frontend_style
-        self.read_label_list()
+        
         if self.frontend_style.default_mode == 0:
             self.frontend_style.set_mpl_style_dark()
         else:
@@ -26,6 +28,15 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         self.switch_to_manual.clicked.connect(self.show_manual)
         self.switch_to_auto.clicked.connect(self.show_default)
         self.execute_query.clicked.connect(self.request_data_from_query)
+        self.default_categories = ["experiment_label", "species", "genotype","sex", "celltype", "condition"]
+        
+        self.category.currentTextChanged.connect(self.combo_box_change)
+        self.category.addItems(self.default_categories)
+    
+    
+    def combo_box_change(self):
+        self.read_label_list()
+        self.checkbox_list[0].setChecked(True)
 
     def show_default(self):
         # show the default page 0
@@ -41,28 +52,34 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         # read the manual query, process it and display the status and the result
         query = self.query_input.toPlainText()
         try:
-            data = self.database_handler.database.execute(query).fetchdf()
-            model = PandasTable(data)
+            self.table_data = self.database_handler.database.execute(query).fetchdf()
+            model = PandasTable(self.table_data)
             
             # Creating a QTableView
             table_view = QTableView()
             table_view.setModel(model)
             model.resize_header(table_view)
-            table_view.setParent(self.groupBox_2)
-            # Set the size policy of the QTableView to expanding
-            table_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-              # Set the stretch mode of the QHeaderView to stretch
-            #header = table_view.horizontalHeader()
-            #header.setSectionResizeMode(QHeaderView.Stretch)
+
+            # before adding, remove the old tablez:
+            self.clear_layout(self.gridLayout_11)
+            
+            self.gridLayout_11.addWidget(table_view)
             table_view.show()
-            self.query_output.setText("Query OK")
+            if "experiment_name" in self.table_data.columns:
+                self.query_output.setText("Query Succeeded")
+            else:
+                self.query_output.setText("Query Succeeded but column experiment_name is required to continue")
 
         except Exception as e:
             self.query_output.setText(e)
 
     def read_label_list(self):
-
-        self.available_labels = self.database_handler.get_available_experiment_label()
+        
+        """Read the available lable list for the current text category"""
+        self.clear_layout(self.label_grid)
+        self.clear_layout(self.diagram_grid)
+        
+        self.available_labels = self.database_handler.get_available_category_groups(self.category.currentText())
         self.checkbox_list = []
 
         cba = QCheckBox("All")
@@ -76,7 +93,20 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             self.checkbox_list.append(c)
             self.label_grid.addWidget(c, self.available_labels.index(i)+1 , 0)
             c.stateChanged.connect(partial(self.checkbox_checked,c,i[0]))
+
         self.available_labels = [("All",)] + self.available_labels
+
+    def clear_layout(self, layout):
+        """
+        clear a layout from all previous shown widgets and items
+        """
+        for l in range(layout.count()):
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+            else:
+                layout.removeItem(item)
 
     def checkbox_checked(self,checkbox,label,state):
         if state == Qt.Checked:
@@ -112,15 +142,19 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
         # get experiment meta data assigned to this experiment label from the database
         q = f'select * from global_meta_data '
+
         if label is not "All":
-            q = q +  f' where experiment_label = \'{label}\''
+            q = q +  f' where ' + self.category.currentText() + f' = \'{label}\''
 
         meta_data_table = self.database_handler.database.execute(q).fetchdf()
 
         row = 0
         column = 0
 
-        meta_data_columns_to_plot = ["species", "genotype","sex", "celltype", "condition"] #, "individuum_id"]
+        meta_data_columns_to_plot = copy.deepcopy(self.default_categories)
+        print(meta_data_columns_to_plot)
+        print(self.category.currentText())
+        meta_data_columns_to_plot.remove(self.category.currentText())
         for column_name in meta_data_columns_to_plot:
 
             cnt = meta_data_columns_to_plot.index(column_name)
@@ -159,3 +193,25 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         #ax[1, 2].pie(df["series_meta_data"].value_counts(), colors=plot_colors, explode = expl)
         ax[1, 2].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         ax[1, 2].set_title("series_meta_data")
+
+    def get_experiment_names(self):
+        """
+        return a list of experiment names to be linked with a new analysis ID
+        either from the auto combo box menu or the self generated sql query
+        """
+        print(self.stackedWidget.currentIndex())
+        if self.stackedWidget.currentIndex()==0:
+            for cb in self.checkbox_list:
+                if cb.isChecked():
+                    pos = self.checkbox_list.index(cb)
+                    value = self.available_labels[pos][0]
+                    q = f'select experiment_name from global_meta_data where {self.category.currentText()} = \'{value}\' '
+                    return self.database_handler.database.execute(q).fetchdf()["experiment_name"].values
+        else:
+            try:
+                experiment_names = self.table_data["experiment_name"].values
+                return experiment_names
+            except Exception as e:
+                CustomErrorDialog("Your table MUST contain the column experiment_name", self.frontend_style)
+
+                
