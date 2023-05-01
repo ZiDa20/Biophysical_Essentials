@@ -995,17 +995,18 @@ class TreeViewManager:
                 top_level_combo_box.setCurrentText("None")
                 self.logger.error("Could not assign meta data group for " + top_level_item.text(0))
 
+    """ deprecated dz 01.05.2023
     def reinsert_button_clicked(self, item, experiment_tree, discarded_tree,specific_series=None):
-        """ Function to reinsert a given item into the experiment tree via button clicked"""
+         Function to reinsert a given item into the experiment tree via button clicked
         print("reinsert button clicked")
         self.tree_button_clicked(item, discarded_tree, experiment_tree,"reinsert",specific_series)
 
     def discard_button_clicked(self, item, experiment_tree, discarded_tree, specific_series=None):
-        """ Function to discard a given item into the discarded tree via button clicked"""
+       Function to discard a given item into the discarded tree via button clicked
         print("discard button clicked")
         self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard",specific_series)
 
-    """
+    
     def tree_button_clicked(self, item, experiment_tree,discarded_tree,function,specific_series):
         function can be -reinsert- or -discard-
 

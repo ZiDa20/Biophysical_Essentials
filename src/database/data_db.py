@@ -957,34 +957,15 @@ class DuckDBDatabaseHandler():
             sweep_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
             q = f'SELECT Parameter, {column_name} FROM {sweep_table_name}'
             # returns a dict {'key':'value', 'key':'value',...} where keys will be parameter names
-            return {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
-
-    def discard_specific_series(self, experiment_name, series_identifier):
-        """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
-        print("initial tree is calling discard button function with params", experiment_name, series_identifier)
-        self.change_experiment_series_discarded_state(experiment_name, series_identifier, 1)
-
-    def reinsert_specific_series(self, experiment_name, series_identifier):
-        self.change_experiment_series_discarded_state(experiment_name, series_identifier, 0)
-
-    def change_experiment_series_discarded_state(self, experiment_name, series_identifier, state):
-        q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_identifier = (?);"""
-        res = self.database.execute(q, (state, experiment_name, series_identifier))
+            return {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}   
 
     def get_distinct_non_discarded_series_names(self):
         """
-        get all distinct series names from experiments mapped with the current analysis id
+        get all distinct series names from series mapped with the current analysis id
         :return:
         """
-
-        print("distinct_result = ", self.database.execute('select distinct series_name from experiment_series where discarded = False').fetchdf())
-        print(self.analysis_id)
-        q1 = f'select distinct series_name from experiment_series where discarded = False and experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.analysis_id})'
-
-        q = f'select distinct exp.series_name from experiment_series exp inner join experiment_analysis_mapping map ' \
-            f'on exp.experiment_name = map.experiment_name where map.analysis_id = \'{self.analysis_id}\' and exp.discarded = False'
-
-
+        # @todo: why do we need the discarded = False in here ? 
+        q1 = f'select distinct series_name from series_analysis_mapping where analysis_discarded = False and analysis_id = {self.analysis_id}'
 
         return self.get_data_from_database(self.database, q1)
 
@@ -1505,3 +1486,15 @@ class DuckDBDatabaseHandler():
                 self.database = self.database.execute(q, (data_array, s[2]))
 
 '''
+    #def discard_specific_series(self, experiment_name, series_identifier):
+    #    """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
+    #    print("initial tree is calling discard button function with params", experiment_name, series_identifier)
+    #    self.change_experiment_series_discarded_state(experiment_name, series_identifier, 1)
+
+    #def reinsert_specific_series(self, experiment_name, series_identifier):
+    #    self.change_experiment_series_discarded_state(experiment_name, series_identifier, 0)
+
+    
+    #def change_experiment_series_discarded_state(self, experiment_name, series_identifier, state):
+    #    q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_identifier = (?);"""
+    #    res = self.database.execute(q, (state, experiment_name, series_identifier))

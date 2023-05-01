@@ -108,6 +108,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             ax[row, column].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
             ax[row, column].set_title(column_name)
 
+        # move this to series_analysis_mapping table
         q = f'select series_meta_data from experiment_series'
         df = self.database_handler.database.execute(q).fetchdf()
         plot_colors = []

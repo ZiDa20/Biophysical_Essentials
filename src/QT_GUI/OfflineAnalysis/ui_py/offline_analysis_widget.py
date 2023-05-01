@@ -173,7 +173,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                      if len(self.extract_first_elements(occurency_cnts))<2:
 
                         # discard
-                        q = f"update experiment_series set discarded = 1 where experiment_name == \'{experiment_name}\'"
+                        q = f"update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{experiment_name}\'"
                         self.database_handler.database.execute(q).fetchall()
 
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
