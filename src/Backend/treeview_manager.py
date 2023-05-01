@@ -28,8 +28,11 @@ class TreeViewManager:
     def __init__(self,database=None, treebuild_widget =None, show_sweep_radio = None, specific_analysis_tab = None, frontend = None):
 
         # it's the database handler
-        self.database_handler = database
-
+        if database:
+            self.database_handler = database
+            self.offline_analysis_id = self.database_handler.analysis_id
+        else:
+            print("debug here")
         # the promoted tree widget containing a tab widget with selected and discarded tree view
         self.tree_build_widget = treebuild_widget
         self.selected_tree_view_data_table = pd.DataFrame()
@@ -191,6 +194,7 @@ class TreeViewManager:
         """
 
         # create two global tables that can be reused for further visualizations and store it within the related tree view manager
+        # the selected and discarded data will be selected from the global table
         selected_table_view_table = self.create_data_frame_for_tree_model(False, self.show_sweeps_radio.isChecked())
         discarded_table_view_table = self.create_data_frame_for_tree_model(True, self.show_sweeps_radio.isChecked())
 
@@ -207,6 +211,7 @@ class TreeViewManager:
         # since analysis id is primary key this will only add date when its performed first
         for row in selected_table_view_table[selected_table_view_table["type"] == "Experiment"].values.tolist():
             self.database_handler.create_mapping_between_experiments_and_analysis_id(row[0])
+
 
         self.database_handler.create_mapping_between_series_and_analysis_id()
 
@@ -287,6 +292,7 @@ class TreeViewManager:
 
         if not table_name.empty:
             return self.add_experiments_series_sweeps_to_meta_data_label(table_name, discarded_state, series_name)
+        
         experiment_df =  self.create_parents_without_meta_data_parents(discarded_state)
         series_table,  series_df = self.create_series_without_meta_data(series_name, discarded_state, experiment_df)
 
@@ -321,8 +327,15 @@ class TreeViewManager:
     def create_series_without_meta_data(self,series_name,discarded_state,experiment_df):
         if series_name:
             q = (f'select * from experiment_series where discarded = {discarded_state}  and series_name = \'{series_name }\' and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
+            """q = (f'select * from series_analysis_mapping \
+                 where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} \
+                 and series_name = \'{series_name }\' and \
+                 experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
+            """
         else:
-            q = (f'select * from experiment_series where discarded = {discarded_state}  and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
+            q = (f'select * from experiment_series where discarded = {discarded_state} and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
+            
+       
         series_table = self.database_handler.database.execute(q).fetchdf()
 
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
@@ -388,7 +401,9 @@ class TreeViewManager:
         treeview.doubleClicked.emit(index)
 
     def handle_tree_view_click(self, model, plot_widget_manager: PlotWidgetManager, series_name, index):
-
+        """
+        Handler function to handle treeview clicks in online and offline analysis mode.
+        """
         data_pos = model.item_dict
 
         # ["experiment", "series", "remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
@@ -404,43 +419,14 @@ class TreeViewManager:
         i = tree_item_list[1][data_pos["hidden1_identifier"]].split("::")
         tree_item_list[1][data_pos["hidden1_identifier"]] = i[len(i)-1]
 
+        # remove: move and experiment or series from selected to discarded tree and mark it in the database as discarded
         if tree_item_list[0] == "x":
-            print("x clicked")
-            print(series_name)
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
-                # set the related series to discarded
-                discard_query = f'update experiment_series set discarded = True where ' \
-                                f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' ' \
-                                f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\''
-                print(discard_query)
-                self.database_handler.database.execute(discard_query)
-
-                self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
-
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
-                # set all series of the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = True where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
-                print("discarding an experiment")
-                print(series_name)
-                self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
-
+            self.move_tree_view_item(tree_item_list, series_name, data_pos, plot_widget_manager, "True")
+       
+        # reinsert: move and experiment or series from selected to discarded tree and mark it in the database as discarded
         if tree_item_list[0] == "<-":
-            print("<- clicked")
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
-                # set the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = False where '
-                                                       f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' '
-                                                       f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\'')
-
-                self.update_treeviews_after_discard_reinsert(series_name, plot_widget_manager)
-
-            if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
-                # set all series of the related series to discarded
-                self.database_handler.database.execute(f'update experiment_series set discarded = False where '
-                                                           f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
-
-                self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
+            self.move_tree_view_item(tree_item_list, series_name, data_pos, plot_widget_manager, "False")
+    
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
             print("series clicked")
@@ -471,6 +457,36 @@ class TreeViewManager:
                                 tree_item_list[1][data_pos["hidden3_parent"]],
                                 tree_item_list[1][data_pos["Sweep"]])
 
+
+
+    def move_tree_view_item(self, tree_item_list, series_name, data_pos, plot_widget_manager:PlotWidgetManager, discarded_state:str):
+        """
+        Move a single series or an entire experiment:
+             Remove     item(s) from selected to discarded treeview and set discarded_state	= True
+             Reinsert   item(s) from discarded to selected treeview and set discarded = False        
+
+        discarded_state ="True"/"False"
+        """
+        #print("x clicked")
+        #print(series_name)
+
+        if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
+            # set the related series to discarded
+            discard_query = f'update experiment_series set discarded = {discarded_state} where ' \
+                            f'experiment_name = \'{tree_item_list[1][data_pos["hidden3_parent"]]}\' ' \
+                            f'and series_identifier = \'{tree_item_list[1][data_pos["hidden1_identifier"]]}\''
+            #print(discard_query)
+            self.database_handler.database.execute(discard_query)
+
+            self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
+
+        if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
+            # set all series of the related series to discarded
+            self.database_handler.database.execute(f'update experiment_series set discarded = {discarded_state} where '
+                                                    f'experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
+            #print("discarding an experiment")
+            #print(series_name)
+            self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
 
     def update_treeviews_after_discard_reinsert(self,series_name:str, plot_widget_manager:PlotWidgetManager):
         """
@@ -973,8 +989,9 @@ class TreeViewManager:
         print("discard button clicked")
         self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard",specific_series)
 
+    """
     def tree_button_clicked(self, item, experiment_tree,discarded_tree,function,specific_series):
-        """function can be -reinsert- or -discard-"""
+        function can be -reinsert- or -discard-
 
         print("tree button clicked")
         if item.parent():
@@ -1000,7 +1017,7 @@ class TreeViewManager:
             else:
                 self.database.database.execute(
                     f'update experiment_series set discarded = \'True\' where experiment_name = \'{item.text(0)}\';')
-
+    """
     def insert_meta_data_items_into_combo_box(self, combo_box):
         '''
          According to the entries in the global meta data option list, combo box items will be displayed to be selected
