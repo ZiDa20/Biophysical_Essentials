@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
 
+from CustomWidget.Pandas_Table import PandasTable
 
 class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
 
@@ -20,8 +21,44 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
             self.frontend_style.set_mpl_style_dark()
         else:
             self.frontend_style.set_mpl_style_white()
-        #self.setWindowFlags(Qt.FramelessWindowHint)
-        #GlobalBlur(self.winId(), Acrylic=True)
+     
+        self.show_default()
+        self.switch_to_manual.clicked.connect(self.show_manual)
+        self.switch_to_auto.clicked.connect(self.show_default)
+        self.execute_query.clicked.connect(self.request_data_from_query)
+
+    def show_default(self):
+        # show the default page 0
+        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget_2.setCurrentIndex(0)
+
+    def show_manual(self):
+        # show the page for manual queries
+        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget_2.setCurrentIndex(1)
+
+    def request_data_from_query(self):
+        # read the manual query, process it and display the status and the result
+        query = self.query_input.toPlainText()
+        try:
+            data = self.database_handler.database.execute(query).fetchdf()
+            model = PandasTable(data)
+            
+            # Creating a QTableView
+            table_view = QTableView()
+            table_view.setModel(model)
+            model.resize_header(table_view)
+            table_view.setParent(self.groupBox_2)
+            # Set the size policy of the QTableView to expanding
+            table_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+              # Set the stretch mode of the QHeaderView to stretch
+            #header = table_view.horizontalHeader()
+            #header.setSectionResizeMode(QHeaderView.Stretch)
+            table_view.show()
+            self.query_output.setText("Query OK")
+
+        except Exception as e:
+            self.query_output.setText(e)
 
     def read_label_list(self):
 
