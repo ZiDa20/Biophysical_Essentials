@@ -90,8 +90,8 @@ class DuckDBDatabaseHandler():
         importantly, only the mappings of the current id should be added to the series analysis mapping table.
         """
 
-        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, analysis_discarded) \
-                SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.discarded \
+        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, renamed_series_name, analysis_discarded) \
+                SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.series_name, experiment_series.discarded \
                 FROM experiment_analysis_mapping \
                 JOIN experiment_series \
                 ON experiment_analysis_mapping.experiment_name = experiment_series.experiment_name where experiment_analysis_mapping.analysis_id = (?);"

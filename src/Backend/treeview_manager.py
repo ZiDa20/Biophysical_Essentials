@@ -353,7 +353,7 @@ class TreeViewManager:
         series_table = self.database_handler.database.execute(q).fetchdf()
 
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        series_df["item_name"] = series_table["series_name"].values.tolist()
+        series_df["item_name"] = series_table["renamed_series_name"].values.tolist()
         series_df["parent"] = series_table["experiment_name"].values.tolist()
         series_df["type"] = "Series"
         series_df["level"] = experiment_df["level"].max()+1
@@ -721,7 +721,7 @@ class TreeViewManager:
 
         # if series were found they need be appended to the df
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
-        series_names = series_table["series_name"].values.tolist()
+        series_names = series_table["renamed_series_name"].values.tolist()
         series_df["item_name"] = series_names
         series_df["parent"] = [experiment_id]*len(series_names)
         series_df["type"] = ["Series"]*len(series_names)

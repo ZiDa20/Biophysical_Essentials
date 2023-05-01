@@ -26,16 +26,11 @@ class ChangeSeriesName(QDialog, Ui_Dialog):
         if new_name == '':
             print("empty name found")
             return
-        
-        if self.permanent.isChecked():
-            # @todo dz: make all renamed_series_name = series name and call the select_series_to_be_analyted function on
-            # series_analysis mapping table
-            q = f'update series_analysis_mapping set renamed_series_name = \'{new_name}\' where series_name = \'{series_name_to_change}\''
-            self.database_handler.database.execute(q)
 
-        else:
-
-            print("not implemented yet")
-
+        # @todo dz: make all renamed_series_name = series name and call the select_series_to_be_analyted function on
+        # series_analysis mapping table
+        q = f'update series_analysis_mapping set renamed_series_name = \'{new_name}\' where series_name = \'{series_name_to_change}\' and analysis_id = {self.database_handler.analysis_id}'
+        self.database_handler.database.execute(q)
+            
 
 
