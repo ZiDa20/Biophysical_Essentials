@@ -1160,9 +1160,40 @@ class DuckDBDatabaseHandler():
             print("inside error")
             print("error")
             print(e)
-    ###### deprecated ######
+   
+    @staticmethod
+    def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
+        """
+        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
+        :param offline_analysis_id:
+        :param data_table_name:
+        :return:
+        :author dz, 08.07.2022
+        """
+        return f"results_analysis_function_{analysis_function_id}_{data_table_name}"
+
+    def get_selected_meta_data(self, analysis_function_id):
+        # get the meta data table that is stored in the database
+		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
+
+        q_analysis = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
+        q_specific = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
+
+        selected_meta_data = self.get_data_from_database(self.database,q_specific, fetch_mode = 2)["condition_column"].tolist()
+        if selected_meta_data:
+            return selected_meta_data
+        else:
+            selected_meta_data = self.get_data_from_database(self.database,q_analysis, fetch_mode = 2)["condition_column"].tolist()
+            if selected_meta_data:
+                return selected_meta_data
+            else:
+                return None
+            
+
+     ###### deprecated ######
 
     # @todo deprecated ?
+    """
     def fill_database_from_treeview_list(self, data_list, series_type):
         ''' Function to read the list which was created to built the treeview in the frontend - this data list will be reused and
           it's data will be stored into the experiments or sweep table in the database.
@@ -1179,7 +1210,7 @@ class DuckDBDatabaseHandler():
 
             for d in data_list:
                 if "Group" in d[0]:
-                    sql_command = """INSERT INTO experiments VALUES (?,?,?)"""
+                    sql_command = '''INSERT INTO experiments VALUES (?,?,?)'''
                     values = (d[1], "control", series_type)
                     self.database = self.database.execute(sql_command, values)
 
@@ -1210,35 +1241,8 @@ class DuckDBDatabaseHandler():
                     values = (experiment_number, series_identifier, sweep_number, meta_data)
 
                     self.database = self.database.execute(sql_command, values)
-
+    
     def retrieve_selected_meta_data_list(self):
         meta_string = str(self.database.execute(f"Select selected_meta_data from offline_analysis WHERE analysis_id = {self.analysis_id}").fetchall())
         return [meta_string]
-
-    @staticmethod
-    def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
-        """
-        creates a unique name combination for the specific result table name for the specific calculation of a series by a specific function
-        :param offline_analysis_id:
-        :param data_table_name:
-        :return:
-        :author dz, 08.07.2022
-        """
-        return f"results_analysis_function_{analysis_function_id}_{data_table_name}"
-
-    def get_selected_meta_data(self, analysis_function_id):
-        # get the meta data table that is stored in the database
-		# if no meta data were assigned the name will be "None" which needs to be catched as an exception
-
-        q_analysis = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = -1'
-        q_specific = f'select * from selected_meta_data where offline_analysis_id = {self.analysis_id} AND analysis_function_id = {analysis_function_id}'
-
-        selected_meta_data = self.get_data_from_database(self.database,q_specific, fetch_mode = 2)["condition_column"].tolist()
-        if selected_meta_data:
-            return selected_meta_data
-        else:
-            selected_meta_data = self.get_data_from_database(self.database,q_analysis, fetch_mode = 2)["condition_column"].tolist()
-            if selected_meta_data:
-                return selected_meta_data
-            else:
-                return None
+    """
