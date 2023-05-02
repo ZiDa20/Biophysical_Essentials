@@ -1064,39 +1064,6 @@ class DuckDBDatabaseHandler():
         # cast string and return as float value
         return float(val)
 
-    def get_data_from_pgf_table(self, series_name: str, data_name: str, segment_number: int) -> float:
-        """
-        reads pgf information from the database and returns the requested floa value of the specified segment
-        :param series_name:
-        :param data_name: 'holding', 'increment'
-        :param segment_number: int nubmer of the segment, first = 0
-        :return:
-        :author: dz, 21.06.2022
-        """
-        # @todo also check for the correct offline analysis id and only select these exoeriemnts?
-        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
-
-        # take the first element, get the pgf_table_name, extract holding and
-        experiment_name = experiment_names[0][0]
-
-
-        q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?) """
-        pgf_table_names = self.get_data_from_database(self.database, q, (experiment_name, series_name))
-
-        pgf_table_name = pgf_table_names[0][0]
-
-        val = None
-        if data_name == 'holding':
-            q = f'SELECT holding_potential FROM {pgf_table_name}'
-            val = self.get_data_from_database(self.database, q)[segment_number][0]
-
-        if data_name == 'increment':
-            q = f'SELECT increment FROM {pgf_table_name}'
-            val = self.get_data_from_database(self.database, q)[segment_number][0]
-
-
-        # cast string and return as float value
-        return float(val)
 
     def get_pgf_file_selection(self,current_tab):
 
@@ -1190,3 +1157,42 @@ class DuckDBDatabaseHandler():
             else:
                 return None
             
+
+## deprecated ?? 
+
+"""
+    def get_data_from_pgf_table(self, series_name: str, data_name: str, segment_number: int) -> float:
+        
+        reads pgf information from the database and returns the requested floa value of the specified segment
+        :param series_name:
+        :param data_name: 'holding', 'increment'
+        :param segment_number: int nubmer of the segment, first = 0
+        :return:
+        :author: dz, 21.06.2022
+      
+        # @todo also check for the correct offline analysis id and only select these exoeriemnts?
+        experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+
+        # take the first element, get the pgf_table_name, extract holding and
+        experiment_name = experiment_names[0][0]
+
+
+        q = select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?) 
+        pgf_table_names = self.get_data_from_database(self.database, q, (experiment_name, series_name))
+
+        pgf_table_name = pgf_table_names[0][0]
+
+        val = None
+        if data_name == 'holding':
+            q = f'SELECT holding_potential FROM {pgf_table_name}'
+            val = self.get_data_from_database(self.database, q)[segment_number][0]
+
+        if data_name == 'increment':
+            q = f'SELECT increment FROM {pgf_table_name}'
+            val = self.get_data_from_database(self.database, q)[segment_number][0]
+
+
+        # cast string and return as float value
+        return float(val)
+
+"""

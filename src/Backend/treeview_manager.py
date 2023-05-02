@@ -303,6 +303,8 @@ class TreeViewManager:
 
         experiment_df = experiment_df[experiment_df["item_name"].isin(series_df["parent"].tolist())]
         
+
+
         if show_sweeps:
             all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
             for sweep_table_name in series_table["sweep_table_name"].values.tolist():
@@ -342,9 +344,18 @@ class TreeViewManager:
                  experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
             
         else:
-            q = f'select * from series_analysis_mapping where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} ' 
+             q = """select t2.renamed_series_name, t1.experiment_name, t1.series_identifier, t1.sweep_table_name
+                    from experiment_series as t1
+                        inner join (
+                            select * from series_analysis_mapping 
+                            where analysis_id = (?) and analysis_discarded = (?) )
+                        as t2
+                        on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier"""
+
+
+            #q = f'select * from series_analysis_mapping where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} ' 
        
-        series_table = self.database_handler.database.execute(q).fetchdf()
+        series_table = self.database_handler.database.execute(q, (self.offline_analysis_id, discarded_state)).fetchdf()
 
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
         series_df["item_name"] = series_table["renamed_series_name"].values.tolist()
@@ -359,6 +370,7 @@ class TreeViewManager:
             )
         ]
         series_df["identifier"] = identifier_list
+
         return series_table,  series_df
 
     def create_series_specific_tree(self, series_name, plot_widget_manager : PlotWidgetManager):

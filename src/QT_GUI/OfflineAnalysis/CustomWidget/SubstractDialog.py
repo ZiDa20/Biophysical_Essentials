@@ -324,6 +324,8 @@ class SubstractDialog(Ui_CreateNewSeries):
                 imon_table = value[8]
                 self.database_handler.database.execute(f"Create Table {imon_name} AS SELECT * FROM imon_table")
                 self.database_handler.database.execute(f"Insert into experiment_series VALUES ('{value[0]}', '{value[1]}', '{value[2]}', '{value[3]}', '{value[4]}', '{value[5]}', '{value[6]}', '{value[7]}')")
+                
+                self.database_handler.database.execute(f"Insert into series_analysis_mapping VALUES ('{self.database_handler.analysis_id}', '{value[0]}', '{value[1]}', '{value[2]}', '{value[2]}', '{value[3]}')")
 
         self.treeview_manager.update_treeviews(self.plot_widget_manager)
         self.close()
