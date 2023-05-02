@@ -502,9 +502,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print(self.OfflineDialogs.final_series)
         self.offline_tree.built_analysis_specific_tree(self.OfflineDialogs.final_series,
                                                        self.select_analysis_functions,
-                                                       self.offline_analysis_widgets,
-                                                       self.selected_meta_data_list)
-
+                                                       self.offline_analysis_widgets)
+        
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.OfflineDialogs.final_series = []
         self.selected_series_combo.clear()

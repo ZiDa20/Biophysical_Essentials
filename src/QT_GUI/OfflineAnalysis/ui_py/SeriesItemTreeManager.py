@@ -58,7 +58,7 @@ class SeriesItemTreeWidget():
             current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
             current_tab.subwindow_calc.show()
 
-    def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, selected_meta_data_list, reload = False):
+    def built_analysis_specific_tree(self, series_names_list, analysis_function, offline_stacked_widget, reload = False):
         """
         Function to built series name (e.g. IV, 5xRheo) specific tree. Each series get's a parent item for 3 childs:
         1) Plot - Result Visualization).
@@ -83,7 +83,7 @@ class SeriesItemTreeWidget():
             new_tab_widget.setObjectName(s)
 
             self.tab_list.append(new_tab_widget)
-            self.tab_changed(index, s,selected_meta_data_list)
+            self.tab_changed(index, s)
             self.hierachy_stacked = QStackedWidget()
             self.hierachy_stacked.addWidget(QWidget())
             self.analysis_stacked.addWidget(self.hierachy_stacked)
@@ -166,7 +166,7 @@ class SeriesItemTreeWidget():
                 self.SeriesItems.currentItem().parent().setData(8, Qt.UserRole, True)
 
 
-    def tab_changed(self, index, series_name, selected_meta_data_list):
+    def tab_changed(self, index, series_name):
         """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
         changed. Index is the tab number correlating with a global list of tab objects self.tab_list
         @author dz, 20.07.2021, updated 02.12.2022"""
@@ -188,8 +188,7 @@ class SeriesItemTreeWidget():
         self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
         current_tab.frontend_style = self.frontend_style
 
-        current_tab_tree_view_manager.selected_meta_data_list = selected_meta_data_list
-
+        
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.selected_tree_view_data_table)

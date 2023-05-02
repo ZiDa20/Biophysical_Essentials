@@ -337,12 +337,17 @@ class TreeViewManager:
         creates the series df needed for treeview visualization
         """
         if series_name:
-            #q = (f'select * from experiment_series where discarded = {discarded_state}  and series_name = \'{series_name }\' and experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-            q = (f'select * from series_analysis_mapping \
-                 where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} \
-                 and series_name = \'{series_name }\' and \
-                 experiment_name in (select experiment_name from global_meta_data where experiment_label = \'{self.selected_meta_data_list[0]}\')')
-            
+            q = """select t2.renamed_series_name, t1.experiment_name, t1.series_identifier, t1.sweep_table_name
+                    from experiment_series as t1
+                        inner join (
+                            select * from series_analysis_mapping 
+                            where analysis_id = (?) and analysis_discarded = (?) )
+                        as t2
+                        on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier
+                        where t1.series_name = (?)"""
+
+            series_table = self.database_handler.database.execute(q, (self.offline_analysis_id, discarded_state,series_name)).fetchdf()
+
         else:
              q = """select t2.renamed_series_name, t1.experiment_name, t1.series_identifier, t1.sweep_table_name
                     from experiment_series as t1
@@ -351,11 +356,8 @@ class TreeViewManager:
                             where analysis_id = (?) and analysis_discarded = (?) )
                         as t2
                         on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier"""
-
-
-            #q = f'select * from series_analysis_mapping where analysis_id = {self.offline_analysis_id} and analysis_discarded = {discarded_state} ' 
-       
-        series_table = self.database_handler.database.execute(q, (self.offline_analysis_id, discarded_state)).fetchdf()
+            
+             series_table = self.database_handler.database.execute(q, (self.offline_analysis_id, discarded_state)).fetchdf()
 
         series_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
         series_df["item_name"] = series_table["renamed_series_name"].values.tolist()
