@@ -9,12 +9,14 @@ class PandasTable(QAbstractTableModel):
     --> Need to build a table
     """
     data_changed = Signal()
-    def __init__(self, data, sliced_data = None):
+    def __init__(self, data, sliced_data = None, index_uneditable = [1]):
         super().__init__()
         
         self._data = data
         self._full_data = None
         self.unchanged_data = data
+        self.index_uneditable: list = index_uneditable
+
     
     @property    
     def full_data(self):
@@ -40,6 +42,8 @@ class PandasTable(QAbstractTableModel):
             return str(value)
 
     def setData(self, index, value, role):
+        print(isinstance(value,int))
+        
         if role == Qt.EditRole:
             self._data.iloc[index.row(), index.column()] = value
             return True
@@ -54,7 +58,11 @@ class PandasTable(QAbstractTableModel):
                 return str(self._data.index[section])
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
+        print(f"hey yeah flag setting {index.column()} + {index.row()}")
+        if index.column() in self.index_uneditable:
+            return Qt.ItemIsSelectable
+        else:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
     
     def resize_header(self,parent):
         try:

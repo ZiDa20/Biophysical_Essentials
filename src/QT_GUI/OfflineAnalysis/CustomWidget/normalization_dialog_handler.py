@@ -1,5 +1,6 @@
 
 from PySide6.QtWidgets import *  # type: ignore
+from PySide6 import QtGui
 
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog import Ui_Dialog
 
@@ -20,8 +21,9 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         self.treeview_model = treeview_model
         self.database_handler = database_handler
         self.pushButton.clicked.connect(self.close)
-        self.normalization_method.currentTextChanged.connect(self.prepare_data_view)
         self.normalization_method.addItems(["CSlow Auto", "CSlow Manual", "Tau"])
+        self.normalization_method.currentTextChanged.connect(self.prepare_data_view)
+        self.normalization_method.setCurrentText( self.current_tab.analysis_functions.normalization_combo_box.currentText())
     
     def prepare_data_view(self):
 
@@ -29,8 +31,9 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         if input=="CSlow Auto":
             self.stackedWidget.setCurrentIndex(0)
             self.get_cslow_from_db()
-            self.prepare_table_view()
-
+            table_view = self.prepare_table_view() 
+            table_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        
         elif input=="CSlow Manual":
             self.stackedWidget.setCurrentIndex(0)
             self.get_cslow_from_db()
@@ -59,12 +62,18 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
 
 
     def prepare_table_view(self):
-        self.model = PandasTable(self.current_tab.normalization_values)
                  
         # Creating a QTableView
         table_view = QTableView()
+        
+        #delegate = EditableDelegate(table_view)
+        #table_view.setItemDelegateForColumn(3, delegate) # set column number to make editable
+
+
+        self.model = PandasTable(self.current_tab.normalization_values)
+
         table_view.setModel(self.model)
-        #self.model.resize_header(table_view)
+        self.model.resize_header(table_view)
 
         for l in range(self.table_grid_layout.count()):
             item = self.table_grid_layout.takeAt(0)
@@ -75,6 +84,9 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
                 self.table_grid_layout.removeItem(item)
             
         self.table_grid_layout.addWidget(table_view)
+        table_view.show()
+        
+        return table_view
 
     def close_dialog(self):
          self.current_tab.normalization_values =self.model._data
@@ -82,3 +94,12 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
 
         
         
+class EditableDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        if index.column() == 1:  # Set the column number to make editable
+            editor = QStyledItemDelegate.createEditor(self, parent, option, index)
+            editor.setValidator(QtGui.QDoubleValidator()) # set float validator
+            return editor
+        else:
+            return None
+
