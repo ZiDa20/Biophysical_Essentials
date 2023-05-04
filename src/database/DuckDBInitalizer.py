@@ -162,6 +162,14 @@ class DuckDBInitializer:
                                                 analysis_function_id integer,
                                                 offline_analysis_id integer
                                                 );"""
+        
+        sql_create_normalization_value_table = """CREATE TABLE normalization_values (
+                                                    offline_analysis_id integer,
+                                                    function_id integer,
+                                                    sweep_table_name text,
+                                                    normalization_value float,
+                                                    primary key (offline_analysis_id, function_id, sweep_table_name)
+                                                    );"""
 
         try:
             self.database.execute(sql_create_offline_analysis_table)
@@ -176,6 +184,7 @@ class DuckDBInitializer:
             self.database.execute(sql_create_series_mapping_table) 
             self.database.execute(sql_create_global_meta_data_table)
             self.database.execute(sql_create_selected_meta_data_table)
+            self.database.execute(sql_create_normalization_value_table)
             self.logger.info("create_table created all tables successfully")
         except Exception as e:
             self.logger.info("create_tables function failed with error %s", e)

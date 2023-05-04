@@ -336,6 +336,7 @@ class TreeViewManager:
         """
         creates the series df needed for treeview visualization
         """
+        
         if series_name:
             q = """select t2.renamed_series_name, t1.experiment_name, t1.series_identifier, t1.sweep_table_name
                     from experiment_series as t1

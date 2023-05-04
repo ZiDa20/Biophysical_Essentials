@@ -13,12 +13,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QGridLayout, QGroupBox,
+from PySide6.QtWidgets import (QAbstractScrollArea, QComboBox, QGridLayout, QGroupBox,
     QHBoxLayout, QLayout, QMdiArea, QPushButton,
     QSizePolicy, QSpacerItem, QStackedWidget, QVBoxLayout,
     QWidget, QMdiSubWindow, QDockWidget, QMainWindow, QStatusBar, QSizeGrip)
 
-from QT_GUI.OfflineAnalysis.CustomWidget.analysis_function_table_designer import AnalysisFunctionTable
+from QT_GUI.OfflineAnalysis.CustomWidget.analysis_table_widget import Analysis_Function_Table
+
 from QT_GUI.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
 
 
@@ -27,6 +28,7 @@ class Ui_SpecificAnalysisTab(object):
                 if not SpecificAnalysisTab.objectName():
                         SpecificAnalysisTab.setObjectName(u"SpecificAnalysisTab")
                 SpecificAnalysisTab.resize(1282, 955)
+
                 sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 sizePolicy.setHorizontalStretch(0)
                 sizePolicy.setVerticalStretch(0)
@@ -61,9 +63,9 @@ class Ui_SpecificAnalysisTab(object):
                 self.gridLayout_13 = QGridLayout()
                 self.gridLayout_13.setObjectName(u"gridLayout_13")
                 
-                self.widget = TreeBuild(self.PlotWindow)
-                self.widget.setObjectName(u"widget")
-                self.widget.setMinimumSize(QSize(300, 300))
+                self.treebuild= TreeBuild(self.PlotWindow)
+                self.treebuild.setObjectName(u"widget")
+                self.treebuild.setMinimumSize(QSize(300, 300))
                 #self.widget.groupBox_4.setMaximumSize(QSize(16777215, 16777215))
                 #self.widget.setMaximumSize(QSize(16777215, 16777215))
                 #self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -83,7 +85,7 @@ class Ui_SpecificAnalysisTab(object):
                 self.stackedWidget = QStackedWidget()
                 self.stackedWidget.setObjectName(u"stackedSub")
                 self.stackedWidget.setAccessibleName("substack")
-                self.subwindow_layout = QVBoxLayout(self.widget.groupBox_4)
+                self.subwindow_layout = QVBoxLayout(self.treebuild.groupBox_4)
                 self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignLeft)
                 self.subwindow.setMinimumSize(QSize(0, 0))
                 self.subwindow.setMaximumSize(QSize(350, 16777215))
@@ -178,48 +180,34 @@ class Ui_SpecificAnalysisTab(object):
                 self.stackedWidget.addWidget(self.page_2)
 
 
-                self.groupBox = QGroupBox()
-                self.groupBox.setObjectName(u"groupBox")
-                self.gridLayout_9 = QGridLayout(self.groupBox)
-                self.gridLayout_9.setObjectName(u"gridLayout_9")
-                self.analysi_grid = QGridLayout()
-                self.analysi_grid.setObjectName(u"analysi_grid")
-                self.analysis_button_grid = QGridLayout()
-                self.analysis_button_grid.setObjectName(u"analysis_button_grid")
-                self.select_series_analysis_functions = QPushButton()
-                self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
-                sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-                sizePolicy4.setHorizontalStretch(0)
-                sizePolicy4.setVerticalStretch(0)
-                sizePolicy4.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
-                #self.select_series_analysis_functions.setSizePolicy(sizePolicy4)
-                #self.select_series_analysis_functions.setMinimumSize(QSize(50, 50))
-                #self.select_series_analysis_functions.setMaximumSize(QSize(50, 50))
-
-                self.analysis_button_grid.addWidget(self.select_series_analysis_functions, 0, 0, 1, 1)
-                #self.analysi_grid.addLayout(self.select_series_analysis_functions)
-                self.analysi_grid.addLayout(self.analysis_button_grid, 0, 1, 1, 1)
-                self.analysis_stacked_widget = QStackedWidget(self.groupBox)
-                self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
-                self.analysis_stacked_widget.setEnabled(True)
-                self.page_3 = QWidget()
-                self.page_3.setObjectName(u"page_3")
-                self.analysis_stacked_widget.addWidget(self.page_3)
-                self.page_4 = QWidget()
-                self.page_4.setObjectName(u"page_4")
-                self.analysis_stacked_widget.addWidget(self.page_4)
-                self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
+                self.analysis_functions = Analysis_Function_Table(SpecificAnalysisTab)
+                self.analysis_functions.setObjectName(u"analysis_functions")
                 
-                self.gridLayout_9.addLayout(self.analysi_grid, 0, 0, 1, 1)
+
+
+                #self.analysi_grid.addLayout(self.select_series_analysis_functions)
+                #self.analysi_grid.addLayout(self.analysis_button_grid, 0, 1, 1, 1)
+                #self.analysis_stacked_widget = QStackedWidget(self.groupBox)
+                #self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
+                #self.analysis_stacked_widget.setEnabled(True)
+                #self.page_3 = QWidget()
+                #self.page_3.setObjectName(u"page_3")
+                #self.analysis_stacked_widget.addWidget(self.page_3)
+                #self.page_4 = QWidget()
+                #self.page_4.setObjectName(u"page_4")
+                #self.analysis_stacked_widget.addWidget(self.page_4)
+                #self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
+                
+                #self.gridLayout_9.addLayout(self.analysi_grid, 0, 0, 1, 1)
 
                 self.trial_main.addDockWidget(Qt.TopDockWidgetArea,self.dock_widget)
                 self.CameraMDI.addSubWindow(self.PlotWindow)
-                self.subwindow.setWidget(self.widget)
+                self.subwindow.setWidget(self.treebuild)
                 self.CameraMDI.addSubWindow(self.subwindow)
                               
                 #self.subwindow_calc.setWidget(self.groupBox)
                 #self.CameraMDI.addSubWindow(self.subwindow_calc)
-                self.gridLayout_2.addWidget(self.groupBox,0,1)
+                self.gridLayout_2.addWidget(self.analysis_functions,0,1)
 
                 #self.gridLayout_4.addWidget(self.stackedWidget, 0, 0, 1, 1)
 
@@ -239,7 +227,7 @@ class Ui_SpecificAnalysisTab(object):
                 self.groupBox_5.setTitle(QCoreApplication.translate("SpecificAnalysisTab", u"Data View", None))
                 #self.start_analysis_button.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Start Analysis", None))
                 #self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Add New Analysis Functions(s)", None))
-                self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Functions", None))
+                #self.select_series_analysis_functions.setText(QCoreApplication.translate("SpecificAnalysisTab", u"Functions", None))
         # retranslateUi
 
 
@@ -251,9 +239,9 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.setupUi(self)
         #add this to promote 
         self.frontend_style = frontend
-        self.analysis_table_widget = AnalysisFunctionTable()
-        self.analysis_stacked_widget.hide()
-        self.widget.groupBox_4.setStyleSheet("border-radius: 0px;")
+        #self.analysis_table_widget = AnalysisFunctionTable()
+        
+        self.treebuild.groupBox_4.setStyleSheet("border-radius: 0px;")
         #self.subwindow_calc.hide()
         
         # this needs to be added to the stylesheets
@@ -271,11 +259,13 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
 
         # Set the minimum height of each cell to 50 pixels
         # Set the vertical size policy of the widgets to Minimum
-        for i in range(self.analysis_button_grid.rowCount()):
-            for j in range(self.analysis_button_grid.columnCount()):
-                widget = self.analysis_button_grid.itemAtPosition(i, j).widget()
-                widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        #for i in range(1,self.analysis_button_grid.rowCount()):
+        #    for j in range(self.analysis_button_grid.columnCount()):
+        #        widget = self.analysis_button_grid.itemAtPosition(i, j).widget()
+        #        widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
+
+        self.normalization_values = None
         #self.show_and_tile()
 
     def show_and_tile(self):

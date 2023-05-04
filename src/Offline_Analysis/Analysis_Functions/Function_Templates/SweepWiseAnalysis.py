@@ -17,7 +17,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		self.database = None
 		self.analysis_function_id = None
 		self.time = None
-		self.cslow_normalization = 1
+		#self.cslow_normalization = 1
 		
 	@property
 	def lower_bounds(self) -> float:
@@ -130,6 +130,12 @@ class SweepWiseAnalysisTemplate(ABC):
 		"""
 
 		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
+		
+		#get the user defined normalization values -> were safed in the database 
+		normalization_values = self.database.get_normalization_values(self.analysis_function_id)
+		#normalization_values = None
+		print("got normalization values", normalization_values)
+
 		# check here if current or voltage clamp and add the respective name of the unit to the table
 		unit_name = self.get_current_recording_type()
 			# set time to non - will be set by the first data frame
@@ -150,9 +156,15 @@ class SweepWiseAnalysisTemplate(ABC):
 			self.set_current_time_shape(entire_sweep_table,data_table)
 			# pgf table is also just once per data_table and not per sweep
 			pgf_data_frame = self.database.get_entire_pgf_table(data_table)
-			if self.cslow_normalization: # check normalization strategy --> here strategy pattern needs to be implemented!
-					cslow = self.database.get_cslow_value_for_sweep_table(data_table)
+
+			#if self.cslow_normalization: # check normalization strategy --> here strategy pattern needs to be implemented!
+			#		cslow = self.database.get_cslow_value_for_sweep_table(data_table)
 			
+			normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"]
+			#print("old cslow: ", cslow)
+			print("new cslow: ", normalization_value)
+			#print("table_name ", data_table)
+
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
 			for column in entire_sweep_table:
@@ -170,8 +182,8 @@ class SweepWiseAnalysisTemplate(ABC):
 				# normalize if necessary
 				# toDO add logging here
 
-				if self.cslow_normalization:
-					res = res / cslow
+				#if self.cslow_normalization:
+				res = res / normalization_value
 
 				# get the sweep number
 				sweep_number = column.split("_")

@@ -3,96 +3,109 @@
 ################################################################################
 ## Form generated from reading UI file 'analysis_function_table.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.1
+## Created by: Qt User Interface Compiler version 6.3.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QGroupBox,
+    QPushButton, QSizePolicy, QStackedWidget, QWidget)
 
-
-class Ui_AnalysisFunction(object):
-    def setupUi(self, AnalysisFunction):
-        if not AnalysisFunction.objectName():
-            AnalysisFunction.setObjectName(u"AnalysisFunction")
-        AnalysisFunction.resize(967, 874)
-        self.gridLayout = QGridLayout(AnalysisFunction)
+class Ui_Form(object):
+    def setupUi(self, Form):
+        if not Form.objectName():
+            Form.setObjectName(u"Form")
+        Form.resize(468, 801)
+        self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.groupBox = QGroupBox(AnalysisFunction)
+        self.groupBox = QGroupBox(Form)
         self.groupBox.setObjectName(u"groupBox")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
-        self.groupBox.setMaximumSize(QSize(900, 900))
-        self.groupBox.setLayoutDirection(Qt.LeftToRight)
-        self.groupBox.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.analysis_table_widget = QTableWidget(self.groupBox)
-        if (self.analysis_table_widget.columnCount() < 7):
-            self.analysis_table_widget.setColumnCount(7)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        __qtablewidgetitem2 = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
-        __qtablewidgetitem3 = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
-        __qtablewidgetitem4 = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(4, __qtablewidgetitem4)
-        __qtablewidgetitem5 = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(5, __qtablewidgetitem5)
-        __qtablewidgetitem6 = QTableWidgetItem()
-        self.analysis_table_widget.setHorizontalHeaderItem(6, __qtablewidgetitem6)
-        self.analysis_table_widget.setObjectName(u"analysis_table_widget")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy1.setHorizontalStretch(1)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.analysis_table_widget.sizePolicy().hasHeightForWidth())
-        self.analysis_table_widget.setSizePolicy(sizePolicy1)
-        self.analysis_table_widget.setShowGrid(True)
-        self.analysis_table_widget.horizontalHeader().setVisible(True)
-        self.analysis_table_widget.horizontalHeader().setCascadingSectionResizes(False)
-        self.analysis_table_widget.horizontalHeader().setDefaultSectionSize(125)
-        self.analysis_table_widget.horizontalHeader().setProperty("showSortIndicator", False)
-        self.analysis_table_widget.horizontalHeader().setStretchLastSection(False)
-        self.analysis_table_widget.verticalHeader().setStretchLastSection(False)
+        self.gridLayout_9 = QGridLayout(self.groupBox)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.analysi_grid = QGridLayout()
+        self.analysi_grid.setObjectName(u"analysi_grid")
+        self.analysis_stacked_widget = QStackedWidget(self.groupBox)
+        self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
+        self.analysis_stacked_widget.setEnabled(True)
+        self.page_3 = QWidget()
+        self.page_3.setObjectName(u"page_3")
+        self.analysis_stacked_widget.addWidget(self.page_3)
+        self.page_4 = QWidget()
+        self.page_4.setObjectName(u"page_4")
+        self.analysis_stacked_widget.addWidget(self.page_4)
 
-        self.verticalLayout_2.addWidget(self.analysis_table_widget)
+        self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
+
+        self.analysis_button_grid = QGridLayout()
+        self.analysis_button_grid.setObjectName(u"analysis_button_grid")
+        self.select_series_analysis_functions = QPushButton(self.groupBox)
+        self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
+        self.select_series_analysis_functions.setSizePolicy(sizePolicy1)
+        self.select_series_analysis_functions.setMinimumSize(QSize(150, 150))
+        self.select_series_analysis_functions.setMaximumSize(QSize(150, 150))
+
+        self.analysis_button_grid.addWidget(self.select_series_analysis_functions, 2, 0, 1, 1)
+
+
+        self.analysi_grid.addLayout(self.analysis_button_grid, 0, 1, 1, 1)
+
+
+        self.gridLayout_9.addLayout(self.analysi_grid, 1, 0, 1, 1)
+
+        self.normalization_group_box = QGroupBox(self.groupBox)
+        self.normalization_group_box.setObjectName(u"normalization_group_box")
+        self.normalization_group_box.setMaximumSize(QSize(16777215, 100))
+        self.gridLayout_30 = QGridLayout(self.normalization_group_box)
+        self.gridLayout_30.setSpacing(0)
+        self.gridLayout_30.setObjectName(u"gridLayout_30")
+        self.gridLayout_30.setContentsMargins(0, 0, 0, 0)
+        self.normalization_combo_box = QComboBox(self.normalization_group_box)
+        self.normalization_combo_box.addItem("")
+        self.normalization_combo_box.addItem("")
+        self.normalization_combo_box.addItem("")
+        self.normalization_combo_box.setObjectName(u"normalization_combo_box")
+
+        self.gridLayout_30.addWidget(self.normalization_combo_box, 0, 0, 1, 1)
+
+
+        self.gridLayout_9.addWidget(self.normalization_group_box, 0, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
 
 
-        self.retranslateUi(AnalysisFunction)
+        self.retranslateUi(Form)
 
-        QMetaObject.connectSlotsByName(AnalysisFunction)
+        QMetaObject.connectSlotsByName(Form)
     # setupUi
 
-    def retranslateUi(self, AnalysisFunction):
-        AnalysisFunction.setWindowTitle(QCoreApplication.translate("AnalysisFunction", u"Form", None))
-        self.groupBox.setTitle(QCoreApplication.translate("AnalysisFunction", u"Analysis Function Selection", None))
-        ___qtablewidgetitem = self.analysis_table_widget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("AnalysisFunction", u"Type", None));
-        ___qtablewidgetitem1 = self.analysis_table_widget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("AnalysisFunction", u"Cursor", None));
-        ___qtablewidgetitem2 = self.analysis_table_widget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("AnalysisFunction", u"Func", None));
-        ___qtablewidgetitem3 = self.analysis_table_widget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("AnalysisFunction", u"blablabla", None));
-        ___qtablewidgetitem4 = self.analysis_table_widget.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("AnalysisFunction", u"Right", None));
-        ___qtablewidgetitem5 = self.analysis_table_widget.horizontalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("AnalysisFunction", u"PGF Seq", None));
-        ___qtablewidgetitem6 = self.analysis_table_widget.horizontalHeaderItem(6)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("AnalysisFunction", u"Live", None));
+    def retranslateUi(self, Form):
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        self.groupBox.setTitle(QCoreApplication.translate("Form", u"Analysis", None))
+#if QT_CONFIG(accessibility)
+        self.select_series_analysis_functions.setAccessibleName(QCoreApplication.translate("Form", u"analysis_grid_bt", None))
+#endif // QT_CONFIG(accessibility)
+        self.select_series_analysis_functions.setText(QCoreApplication.translate("Form", u"+", None))
+        self.normalization_group_box.setTitle(QCoreApplication.translate("Form", u"Normalization", None))
+        self.normalization_combo_box.setItemText(0, QCoreApplication.translate("Form", u"CSlow Auto", None))
+        self.normalization_combo_box.setItemText(1, QCoreApplication.translate("Form", u"CSlow Manual", None))
+        self.normalization_combo_box.setItemText(2, QCoreApplication.translate("Form", u"Configure", None))
 
-class AnalysisFunctionTable(QWidget, Ui_AnalysisFunction):
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        self.setupUi(self)  
+    # retranslateUi
+

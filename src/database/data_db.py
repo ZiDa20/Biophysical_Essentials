@@ -561,13 +561,33 @@ class DuckDBDatabaseHandler():
         q = f'select experiment_name from experiment_series where sweep_table_name = \'{sweep_table_name}\''
         return self.get_data_from_database(self.database, q)[0][0]
 
+    def get_cslow_value_from_experiment_name_and_series_identifier(self,experiment_name,series_identifier):
+        """
+        implemented to replace the function below
+        """
+
+        q = """select meta_data_table_name, sweep_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        
+        # should return a list with only one tuple with meta_data_name and sweep table name
+        res = self.get_data_from_database(self.database, q, (experiment_name,series_identifier))[0]
+        sweep_table_name = res[1]
+        q = f'SELECT Parameter, sweep_1 FROM {res[0]}'
+        meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
+
+        return float(meta_data_dict.get('CSlow')), sweep_table_name
+    
+    def get_normalization_values(self, function_id):
+        q = f'select sweep_table_name, normalization_value from normalization_values where offline_analysis_id = (?) and function_id = (?)'
+        return self.database.execute(q, (self.analysis_id, function_id)).fetch_df()
+    
+
     def get_cslow_value_for_sweep_table(self, series_name):
         '''
         get the cslow value for a specific sweep
         :param series_name: name of the sweep table in the database
         :return:
         :authored: dz, 29.04.2022
-        '''
+        ''' 
 
         # get meta data table name where experiment series = series_name
         # get cslow value from this specific meta data table name
@@ -579,6 +599,7 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         return float(meta_data_dict.get('CSlow'))
+
 
     def add_single_series_to_database(self, experiment_name, series_name, series_identifier):
         self.logger.info(

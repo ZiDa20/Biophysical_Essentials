@@ -10,6 +10,8 @@ from Backend.treeview_manager import TreeViewManager
 import copy
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
+from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
+
 from scipy import stats
 import pandas as pd
 from PySide6.QtTest import QTest
@@ -79,7 +81,8 @@ class SeriesItemTreeWidget():
             # Custom designer widget: contains treeview, plot, analysis function table ...
 
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
-            new_tab_widget.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
+            new_tab_widget.analysis_functions.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
+            new_tab_widget.analysis_functions.normalization_combo_box.currentTextChanged.connect(self.normalization_value_handler)
             new_tab_widget.setObjectName(s)
 
             self.tab_list.append(new_tab_widget)
@@ -99,16 +102,27 @@ class SeriesItemTreeWidget():
             self.plot_widgets = []
             self.parent_count += 1
 
-
-
-
-
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)
         #set the analysis notebook as index
         offline_stacked_widget.setCurrentIndex(3)
         self.SeriesItems.expandToDepth(2)
         self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
+
+
+    def normalization_value_handler(self):
+        # get the experiment name and series identifier from the treeview model
+        current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        treeview_manager = self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        model_df = treeview_manager.selected_tree_view_data_table
+        print(model_df)
+
+        print(current_tab.analysis_functions.normalization_combo_box.currentText())
+        
+        normalization_dialog = Normalization_Dialog(current_tab, model_df,self.database_handler)
+        self.frontend_style.set_pop_up_dialog_style_sheet(normalization_dialog)
+        print("showing now")
+        normalization_dialog.exec()
 
 
     def simple_analysis_configuration_clicked(self,parent_stacked:int):
@@ -181,7 +195,7 @@ class SeriesItemTreeWidget():
         # looks like overhead but the current tab holds other information for the second page of the offline analysis compared to the firstpage
         # while treeviews are equal
         current_tab_tree_view_manager = TreeViewManager(self.database_handler,
-                                                        current_tab.widget,
+                                                        current_tab.treebuild,
                                                         self.show_sweeps_radio,
                                                         current_tab,
                                                         frontend = self.frontend_style)
@@ -468,32 +482,32 @@ class SeriesItemTreeWidget():
         self.SeriesItems.itemClicked.emit(first_item, 0)
 
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
-        index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
-        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        index =  current_tab.treebuild.selected_tree_view.model().index(0, 0, current_tab.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
+        current_tab.treebuild.selected_tree_view.setCurrentIndex(index)
         # Get the rect of the index
-        rect = current_tab.widget.selected_tree_view.visualRect(index)
-        QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+        rect = current_tab.treebuild.selected_tree_view.visualRect(index)
+        QTest.mouseClick(current_tab.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
 
     def click_top_level_tree_item(self, experiment = False):
         """Should click the toplevel item of the model_view
         """
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
-        model = current_tab.widget.selected_tree_view.model()
+        model = current_tab.treebuild.selected_tree_view.model()
 
         if experiment: # this is applied whenever we supply a name of the exact experiment
             index = self.findName(model, experiment)
 
         else:
-            index =  current_tab.widget.selected_tree_view.model().index(0, 0, current_tab.widget.selected_tree_view.model().index(0,0, QModelIndex()))
+            index =  current_tab.treebuild.selected_tree_view.model().index(0, 0, current_tab.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
 
         # Get the rect of the index
-        current_tab.widget.selected_tree_view.setCurrentIndex(index)
+        current_tab.treebuild.selected_tree_view.setCurrentIndex(index)
         if experiment:
-            selectedIndexes = current_tab.widget.selected_tree_view.selectedIndexes()
+            selectedIndexes = current_tab.treebuild.selected_tree_view.selectedIndexes()
             index = model.index(0, 0, selectedIndexes[0])
-        rect = current_tab.widget.selected_tree_view.visualRect(index)
-        QTest.mouseClick(current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+        rect = current_tab.treebuild.selected_tree_view.visualRect(index)
+        QTest.mouseClick(current_tab.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
         col_count = len(self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].selected_tree_view_data_table["type"].unique())
         self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].update_mdi_areas(col_count)

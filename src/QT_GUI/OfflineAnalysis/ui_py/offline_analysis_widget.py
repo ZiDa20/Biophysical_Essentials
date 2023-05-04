@@ -57,7 +57,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.setupUi(self)
 
         # make he ribbon bar components to attach at the same height
-        self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
+        # self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
         
         self.progressbar = None
         self.statusbar = None
@@ -767,8 +767,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # get the index of the tab (e.g. tabe name might be IV, IV-40)
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.offline_tree.tab_list[current_index]
+        
+        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
         plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
-
+        
+        
+        print("whats going on")
         # all the analysis setup clicks and cursor bound drag and drops will be handled from the analysis function selection manager
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
@@ -805,8 +809,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #self.analysis_function_selection_manager.database_handler = self.database_handler
 
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-
-
+        
         #self.analysis_function_selection_manager.database_handler = self.database_handler
 
         print("finished: ", self.multiple_interval_analysis)
@@ -1084,4 +1087,4 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         if self.offline_analysis_widgets.currentIndex() == 1:
             self.ribbon_analysis.setCurrentIndex(1)
-            self.ribbon_series_normalization.setCurrentIndex(1)
+            self.ribbon_series_normalization.setCurrentIndex(0)
