@@ -160,7 +160,7 @@ class SweepWiseAnalysisTemplate(ABC):
 			#if self.cslow_normalization: # check normalization strategy --> here strategy pattern needs to be implemented!
 			#		cslow = self.database.get_cslow_value_for_sweep_table(data_table)
 			
-			normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"]
+			normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
 			#print("old cslow: ", cslow)
 			print("new cslow: ", normalization_value)
 			#print("table_name ", data_table)
@@ -185,6 +185,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				#if self.cslow_normalization:
 				res = res / normalization_value
 
+				print("result = ", res)
 				# get the sweep number
 				sweep_number = column.split("_")
 				sweep_number = int(sweep_number[1])
@@ -202,7 +203,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val,res,inc,experiment_name]],columns = column_names)
 				merged_all_results = pd.concat([merged_all_results,new_df])
 
-
+				print("sweep wise finished successfully")
 		# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
 		#print(f"This is the analysis function id : {self.analysis_function_id}")
 		new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id, self.function_name)
