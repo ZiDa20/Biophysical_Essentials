@@ -81,8 +81,18 @@ class SeriesItemTreeWidget():
             # Custom designer widget: contains treeview, plot, analysis function table ...
 
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
+            print(s)
+
             new_tab_widget.analysis_functions.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
-            new_tab_widget.analysis_functions.normalization_combo_box.currentTextChanged.connect(self.normalization_value_handler)
+            
+            # show normalization options only in voltage clamp mode to avoid further checks user confusion
+            recording_mode = self.database_handler.query_recording_mode(s)
+            if recording_mode == "Voltage Clamp":
+                new_tab_widget.analysis_functions.normalization_combo_box.currentTextChanged.connect(self.normalization_value_handler)
+            else:
+                new_tab_widget.analysis_functions.normalization_group_box.hide()
+                new_tab_widget.analysis_functions.normalization_combo_box.hide()
+
             new_tab_widget.setObjectName(s)
 
             self.tab_list.append(new_tab_widget)
@@ -111,14 +121,15 @@ class SeriesItemTreeWidget():
 
 
     def normalization_value_handler(self):
+        """show the normalization values to the user and allow to edit the values
+            values will be stored in the current tab and written to db when all other grid values of the current tab
+            are written to the db
+        """
+
         # get the experiment name and series identifier from the treeview model
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         treeview_manager = self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         model_df = treeview_manager.selected_tree_view_data_table
-        print(model_df)
-
-        print(current_tab.analysis_functions.normalization_combo_box.currentText())
-        
         normalization_dialog = Normalization_Dialog(current_tab, model_df,self.database_handler)
         self.frontend_style.set_pop_up_dialog_style_sheet(normalization_dialog)
         print("showing now")
