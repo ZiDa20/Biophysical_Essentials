@@ -9,7 +9,7 @@ class PandasTable(QAbstractTableModel):
     --> Need to build a table
     """
     data_changed = Signal()
-    def __init__(self, data, sliced_data = None, index_uneditable = [1]):
+    def __init__(self, data, index_uneditable = None): #sliced_data = None, 
         super().__init__()
         
         self._data = data
@@ -58,9 +58,10 @@ class PandasTable(QAbstractTableModel):
                 return str(self._data.index[section])
 
     def flags(self, index):
-        print(f"hey yeah flag setting {index.column()} + {index.row()}")
-        if index.column() in self.index_uneditable:
-            return Qt.ItemIsSelectable
+        print(f"hey yeah flag setting {index.column()} + {index.row()} + {self.index_uneditable}")
+        
+        if  self.index_uneditable is not None and index.column() in self.index_uneditable:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled 
         else:
             return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
     

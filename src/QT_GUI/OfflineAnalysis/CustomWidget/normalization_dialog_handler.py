@@ -70,7 +70,7 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         #table_view.setItemDelegateForColumn(3, delegate) # set column number to make editable
 
 
-        self.model = PandasTable(self.current_tab.normalization_values)
+        self.model = PandasTable(self.current_tab.normalization_values, [0,1,2])
 
         table_view.setModel(self.model)
         self.model.resize_header(table_view)
