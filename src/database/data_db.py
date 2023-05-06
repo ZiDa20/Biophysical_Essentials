@@ -580,7 +580,7 @@ class DuckDBDatabaseHandler():
         q = f'select sweep_table_name, normalization_value from normalization_values where offline_analysis_id = (?) and function_id = (?)'
         return self.database.execute(q, (self.analysis_id, function_id)).fetch_df()
     
-
+    """
     def get_cslow_value_for_sweep_table(self, series_name):
         '''
         get the cslow value for a specific sweep
@@ -600,7 +600,8 @@ class DuckDBDatabaseHandler():
 
         return float(meta_data_dict.get('CSlow'))
 
-
+    """
+    
     def add_single_series_to_database(self, experiment_name, series_name, series_identifier):
         self.logger.info(
             "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
