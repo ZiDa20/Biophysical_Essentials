@@ -18,7 +18,6 @@ from DataReader.ABFclass import AbfReader
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from database.DuckDBInitalizer import DuckDBInitializer
 from queue import Queue
-from nptyping import NDArray
 
 import numpy as np
 
@@ -445,7 +444,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                                   for the labbook: {e}  for experiment: {self.experiment_name}
                               """)
 
-    def draw_scene(self, image: NDArray) -> None:
+    def draw_scene(self, image) -> None:
         """ draws the image into the self.configuration window
         args:
             image type: QImage: the image to be drawn

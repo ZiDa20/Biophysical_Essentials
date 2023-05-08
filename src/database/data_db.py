@@ -18,7 +18,7 @@ class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db databaPse.
      @date: 23.06.2021, @author dz'''
 
-    def __init__(self, frontend_style, db_file_name="duck_db_analysis_database.db", in_memory = False):
+    def __init__(self, frontend_style, db_file_name="duck_db_analysis_database.db", in_memory = False, database_path = "./database/"):
 
         #@toDO add properties instead of open variable names like analysis_id and database path
         # set up the classes for the main tables
@@ -26,12 +26,11 @@ class DuckDBDatabaseHandler():
         # logger settings
         self.db_file_name = db_file_name
         self.logger = database_logger
-        self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name, in_memory)
+        self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name, in_memory, database_path)
         self.frontend_style = frontend_style
         self.logger.info('Database Manager Initialized')
         self.duck_db_database = "DUCK_DB"
         self.database, self.analysis_id = self.duckdb_database.init_database()
-        self.database_path = None
 
         # change manually for now .. maybe to be implemented in settings tabs
         #self.database_architecture = self.duck_db_database  # you can select between 'DUCK_DB' or 'SQ_LITE
@@ -40,6 +39,9 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """ General database functions                        """
     """---------------------------------------------------"""
+
+    def open_connection(self, read_only = False):
+        self.database = self.duckdb_database.open_connection(read_only)
 
     def get_data_from_database(self, database, sql_command, values=None, fetch_mode=None):
         try:
@@ -56,19 +58,6 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             print(e)
 
-    def open_connection(self, read_only = False):
-        """ Opens a connection to the database"""
-        print("trials to open connection")
-        try:
-            cew = os.path.dirname(os.getcwd())
-            path = self.database_path or str(Path(f'{cew}/src/database/{self.db_file_name}'))
-            self.database = duckdb.connect(path, read_only=read_only)
-            self.logger.debug("opened connection to database %s", self.db_file_name)
-            print("succeeded")
-
-        except Exception as e:
-            self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
-            print("failed")
 
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """
@@ -95,7 +84,7 @@ class DuckDBDatabaseHandler():
         JOIN experiment_series ON \
         experiment_analysis_mapping.experiment_name = experiment_series.experiment_name\
         where experiment_analysis_mapping.analysis_id = (?);"
-        
+
         try:
             self.database = self.execute_sql_command(self.database,q,[self.analysis_id])
             self.logger.info("Series Mapping")
@@ -372,7 +361,7 @@ class DuckDBDatabaseHandler():
             f'({id},\'{meta_data[0]}\',\'{meta_data[1]}\',\'{meta_data[2]}\',\'{meta_data[3]}\',\'{meta_data[4]}\',\'{meta_data[5]}\',\'{meta_data[6]}\' ,\'{meta_data[7]}\')'
         try:
             self.database = self.database.execute(q)
-            self.logger.info(meta_data[0], "added succesfully to global_meta_data")
+            #self.logger.info(meta_data[0], "added succesfully to global_meta_data")
             return 1
         except Exception as e:
             if "Constraint Error" in str(e):

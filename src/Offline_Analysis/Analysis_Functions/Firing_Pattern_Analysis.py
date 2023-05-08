@@ -12,8 +12,6 @@ class FiringPatternAnalysis(object):
     Returns:
         _type_: _description_
     """
-
-
     def __init__(self):
         super().__init__()
         self.function_name = "Firing-Pattern-Analysis"

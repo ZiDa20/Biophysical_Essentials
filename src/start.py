@@ -16,7 +16,7 @@ import webbrowser
 
 class MainWindow(QMainWindow, QtStyleTools):
 
-    def __init__(self, parent = None):
+    def __init__(self, testing_db = None,  parent = None):
         """Initialize the MainWindow class for starting the Application
 
         Args:
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.animation_layout.addWidget(self.ap.wait_widget)
         self.ui.online.animation_layout.addWidget(self.ap_online.wait_widget)
         # Create the frontend style for the app
-        
+
         self.ui.offline.stackedWidget.setCurrentIndex(1)
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
@@ -50,9 +50,13 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
-        self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
-        self.online_database = DuckDBDatabaseHandler(self.frontend_style, 
-                                                    db_file_name = "online_db", 
+        if testing_db:
+            self.local_database_handler = testing_db
+        else:
+            self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
+
+        self.online_database = DuckDBDatabaseHandler(self.frontend_style,
+                                                    db_file_name = "online_db",
                                                     in_memory = True)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
@@ -80,10 +84,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
-        
+
 
     def insert_row_of_buttons(self):
         """

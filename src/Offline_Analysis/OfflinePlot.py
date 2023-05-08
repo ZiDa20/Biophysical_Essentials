@@ -1,11 +1,11 @@
 from __future__ import annotations
-from loggers.offlineplot_logger import offlineplot_logger
 import pandas as pd
 import seaborn as sns
 import numpy as np
 from matplotlib.cm import get_cmap
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import \
     SpecificAnalysisFunctions
+from loggers.offlineplot_logger import offlineplot_logger
 class OfflinePlots():
 
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
@@ -39,6 +39,7 @@ class OfflinePlots():
         self.database_handler = database_handler
         self.result_holder = final_result_holder.analysis_result_dictionary
         self.color = frontend.get_color_plots()
+        self.holded_dataframe = None
         self.statistics = None
         self.explained_ratio = None # should be the expalined variance ratio of the PCA
         self.plot_dictionary = {"Boxplot": self.make_boxplot,
@@ -380,8 +381,8 @@ class OfflinePlots():
             drawing_data = new_df.T
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
-           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
-           sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
+            drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
+            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
 
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.export_data_frame = self.statistics

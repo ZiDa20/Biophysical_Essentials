@@ -58,7 +58,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.progressbar = None
         self.statusbar = None
         self.status_label = None
-
         self.threadpool = QThreadPool()
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -424,22 +423,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''Opens a filedialog where a user can select a desired directory. After the selection, a dialog will open and ask
         the user to enter meta data groups. The popup will be closed after the user clicked the concerning button.
         The function will be continued in function continue_open_directory
-        '''
-        # open the directory
-        dir_path = QFileDialog.getExistingDirectory()
-        # self.selected_directory.setText(dir_path)
 
-        if dir_path:
+        test_path = is for testing_purposes of the function
+        '''
+        if dir_path := QFileDialog.getExistingDirectory():
             self.select_directory_button.setText("Change")
 
-        # save the path in the manager class
-        self.offline_manager._directory_path = dir_path
+            # save the path in the manager class
+            # calls the offlinedialogs class to open the metadata editing popup
+            self.offline_manager._directory_path = dir_path
+            self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
+                                                        self.make_list)
 
-        # calls the offlinedialogs class to open the metadata editing popup
-        self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
-                                                      self.make_list)
-
-    def continue_open_directory(self, enter_meta_data_dialog, meta_data_group_assignment_list=None):
+    def continue_open_directory(self, meta_data_group_assignment_list=None):
         '''
         Function will continue the function open directory after any continue button in the meta data group dialog has
         been clicked. At first the popup will be closed, all data will be loaded immediately into the databse
@@ -449,7 +445,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         # close the dialog
-        enter_meta_data_dialog.close()
+        print("here we enter this function")
         self.animation_layout.addWidget(QPushButton("Sit tight we are currenly updating the database with your files!"))
         self.notebook.setCurrentIndex(3)
         self.offline_analysis_widgets.setCurrentIndex(0)
@@ -472,7 +468,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def make_list(self,popup,treeview_model):
         m_list = treeview_model.model()._data.values.tolist()
-        self.continue_open_directory(popup,m_list)
+        popup.close()
+        self.continue_open_directory(m_list)
 
     def save_meta_data_to_template_and_continue(self, meta_data_popup):
         '''

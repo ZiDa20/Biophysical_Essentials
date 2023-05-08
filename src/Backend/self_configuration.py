@@ -42,12 +42,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         super(Config_Widget,self).__init__(parent) # initialize the parent class
         # initialize self_config_notebook_widget
         self.setupUi(self) # setup the ui file
-        self.CameraDock.setAllowedAreas(Qt.TopDockWidgetArea)
-        self.CameraWindow.addDockWidget(Qt.TopDockWidgetArea, self.CameraDock)
         # added the Progress Bar to the self-configuration
+        self.experiment_control_stacked.setCurrentIndex(0)
         self.set_buttons_beginning()
-        self.CameraWindow.showMaximized()
-        self.CameraWindow.setWindowFlags(Qt.FramelessWindowHint)
         #select the batch_path
         self.batch_path = None
         self.backend_manager = BackendManager() # initialize the backend manager
@@ -86,7 +83,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def connection_clicked_threading(self):
         """ connect button to the threading"""
-        self.start_experiment_button.clicked.connect(self.make_threading) # spawns the thread
+        self.start_analysis.clicked.connect(self.make_threading) # spawns the thread
         self.stop_experiment_button.clicked.connect(self.terminate_sequence) # terminate sequence to patchmater
 
     def connections_clicked_camera(self):
@@ -97,7 +94,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def connections_clicked_experiment(self):
         """ connect the buttons to the experiment """
-        self.Load_meta_data_experiment_12.clicked.connect(self.meta_open_directory) # retrieve the metadata from txt file
+        self.add_metadata_button.clicked.connect(self.meta_open_directory) # retrieve the metadata from txt file
         self.button_batch_1.clicked.connect(self.set_batch_path) # establish batch_path
         self.establish_connection_button.clicked.connect(self.open_batch_path) # checks if the connection is owrking
         self.button_pgf_set.clicked.connect(self.set_pgf_file) # sets pgf file
@@ -105,9 +102,33 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.button_onl_analysis_set.clicked.connect(self.set_online_file) # sets online analysis file
         self.button_submit_command.clicked.connect(self.get_commands_from_textinput) # submit command for testing
         self.button_clear_window.clicked.connect(self.end_communication_control) # clear the window
-        self.pushButton_10.clicked.connect(self.clear_list) # is cleaning ListViews
+        self.clear_sequence.clicked.connect(self.clear_list) # is cleaning ListViews
         self.switch_to_testing.clicked.connect(self.switch_testing) # switches to the tesing mode
 
+        # connects the experiment selection box to reveal the unique series, experiments protocols and qc checks in the List Views
+        self.series_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(0))
+        self.protocols_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(3))
+        self.modi_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(1))
+        self.labels_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(2))
+
+        # set up page control:
+        self.go_back_button.clicked.connect(self.go_back)
+        self.fo_forward_button.clicked.connect(self.go_forward)
+
+    def go_back(self):
+        index = self.experiment_control_stacked.currentIndex()
+        if index == 1:
+            self.experiment_control_stacked.setCurrentIndex(0)
+            self.go_back_button.setEnabled(False)
+            self.fo_forward_button.setEnabled(True)
+
+    def go_forward(self):
+        index = self.experiment_control_stacked.currentIndex()
+        if index == 0:
+            self.experiment_control_stacked.setCurrentIndex(1)
+            self.go_back_button.setEnabled(True)
+            self.fo_forward_button.setEnabled(False)
+        
     def logger_setup(self):
         # logger added --> ToDO: should be used for developers as well as for users should be disriminated
         print("initialized the logger")
@@ -133,6 +154,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def set_buttons_beginning(self):
         """ set the buttons to the beginning state"""
         self.transfer_to_online_analysis_button.setEnabled(False)
+        self.go_back_button.setEnabled(False)
 
     def meta_open_directory(self):
         '''opens a filedialog where a user can select a desired directory. Once the directory has been choosen,
@@ -331,10 +353,10 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         image_list = self.check_list_lenght(self.image_stack) # self.image_stack is der stack der images generiert
         image_list.insert(0,self.camera_image_recording) # neues image wird an stelle 1 gepusht
         self.snapshot_scence = QGraphicsScene(self) # generate a graphics scence in which the image can be putted
-        self.Taken_Snapshot.setScene(self.snapshot_scence) # set the scene to the taken snapshot
+        #self.Taken_Snapshot.setScene(self.snapshot_scence) # set the scene to the taken snapshot
          # set the scene to the online analysis
-        self.snapshot_scence.addPixmap(self.camera_image_recording) # add the image to the scene
-        self.online_analysis.draw_scene(self.camera_image_recording)
+        #self.snapshot_scence.addPixmap(self.camera_image_recording) # add the image to the scene
+        #self.online_analysis.draw_scene(self.camera_image_recording)
         self.draw_snapshots_on_galery(image_list) # draw into the galery
 
 
@@ -365,7 +387,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             list: Image List of size 5
         """
         try:
-            if len(image_liste) > 4: # if stack overcrowded
+            if len(image_liste) > 1: # if stack overcrowded
                 image_liste.pop() # remove the last image
                 self.logger.info("Stacked is crowded pushing last image out")
                 return image_liste
@@ -382,11 +404,11 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             for i,t in enumerate(image_list):
 
                 label = QPushButton() # we set a label in the layout which should then be filled with the pixmap
-                label.setStyleSheet("height: 150px;background-color: rgba(0,0,0,0); border:1px solid #fff5cc;")
+                label.setStyleSheet("height: 100px;background-color: rgba(0,0,0,0); border:1px solid #fff5cc;")
                 label.clicked.connect(partial(self.online_analysis.draw_scene,t)) # connect the label to the draw scene function
                 label.setIcon(QIcon(t)) # we set the pixmap to the label
-                label.setIconSize(QSize(200,280)) # we set the size of the pixmap
-                label.setFixedWidth(200)
+                label.setIconSize(QSize(100,150)) # we set the size of the pixmap
+                label.setFixedWidth(100)
 
                 self.camera_horizontal.addWidget(label, alignment=Qt.AlignCenter) # add to the layout
 

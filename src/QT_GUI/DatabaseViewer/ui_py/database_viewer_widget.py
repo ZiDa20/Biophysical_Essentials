@@ -74,7 +74,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         :return:
         '''
         #database_handler.database.close()
-        #database_handler.open_connection()
         self.database = database_handler.database
 
         q = """SHOW TABLES"""
