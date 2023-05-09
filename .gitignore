@@ -2,6 +2,7 @@
 *.cpython-39.pyc
 .src/*.pyc
 *.pyc
+.src/.pytest_cache/
 *.csv
 *.db
 *.db.wal
