@@ -30,6 +30,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.center() #place the MainWindow in the center
         self.setWindowTitle("BiophysicalEssentials (BPE)")
         self.logger= start_logger # set the logger
+        self.logger.info("Starting the Biophysical Essentials Program!")
         self.frontend_style = Frontend_Style(self)
         # Create the animation using the update function and the time points as frames
         self.ap = LoadingAnimation("Data Loading: Please Wait", self.frontend_style, True)
