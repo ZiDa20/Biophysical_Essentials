@@ -25,6 +25,7 @@ class DuckDBDatabaseHandler():
         #self.global_meta_data_table = GlobalMetaDataTable(self.database,self.analysis_id)
         # logger settings
         self.db_file_name = db_file_name
+        self.database_path = database_path
         self.logger = database_logger
         self.duckdb_database = DuckDBInitializer(self.logger, self.db_file_name, in_memory, database_path)
         self.frontend_style = frontend_style
@@ -247,6 +248,7 @@ class DuckDBDatabaseHandler():
             experiment_names = self.get_experiments_by_series_name_and_analysis_id_with_meta(series_name, meta)
         else:
             experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
+
         sweep_table_names = []
 
         for experiment_tuple in experiment_names:

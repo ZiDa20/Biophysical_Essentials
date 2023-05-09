@@ -331,7 +331,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
-    def load_treeview_from_database(self):
+    def load_treeview_from_database(self, test = None):
         """_summary_: Should load the treeview from the analysis
 
         Args:
@@ -353,7 +353,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
         self.load_data_from_database_dialog.all_cb.setChecked(True)
 
-        self.load_data_from_database_dialog.exec_()
+        if not test:
+            self.load_data_from_database_dialog.exec_()
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
 
@@ -435,7 +436,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
                                                         self.make_list)
 
-    def continue_open_directory(self, meta_data_group_assignment_list=None):
+    def continue_open_directory(self, meta_data_group_assignment_list=None, test = None):
         '''
         Function will continue the function open directory after any continue button in the meta data group dialog has
         been clicked. At first the popup will be closed, all data will be loaded immediately into the databse
@@ -464,7 +465,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
 
         #self.add_filter_button.setEnabled(True)
-        self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
+        self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(partial(self.load_treeview_from_database, test))
 
     def make_list(self,popup,treeview_model):
         m_list = treeview_model.model()._data.values.tolist()

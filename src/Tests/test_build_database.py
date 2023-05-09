@@ -28,10 +28,11 @@ def test_long_computation(qtbot):
 
     template.map_metadata_to_database()
     app.template_df = template.template_dataframe.values.tolist()
-    app.ui.offline.continue_open_directory(app.template_df)
+    app.ui.offline.continue_open_directory(app.template_df, test = True)
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
-    print(app.database_handler.database.execute("SHOW TABLES;").fetchdf())
-    print("hello")
+    qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
+    tables = app.database_handler.database.execute("SHOW TABLES").fetchdf()
+    assert tables.shape[0] == 63
 
     # Watch for the app.worker.finished signal, then start the worker.
 

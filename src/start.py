@@ -192,7 +192,7 @@ if __name__ == "__main__":
     os.environ["QT_SCALE_FACTOR"] = '1'
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
     window.show()
