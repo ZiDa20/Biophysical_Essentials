@@ -144,7 +144,7 @@ class AnalysisFunctionSelectionManager():
 
             button.clicked.connect(partial(self.show_analysis_grid, row,text, show_cb_checkbx))
             show_cb_checkbx.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
-            show_cb_checkbx.setEnabled(False)
+            show_cb_checkbx.setEnabled(True)
 
             # click the buttons to make sure each analysis function gets assigned with cursor bounds
             # this eliminated the need of further checks for empty cursor bounds

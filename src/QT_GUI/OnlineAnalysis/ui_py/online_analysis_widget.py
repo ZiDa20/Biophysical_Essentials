@@ -402,14 +402,17 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         can be made"""
         self.logger.info(f"Creating labbook for file {self.experiment_name}")
         final_pandas = self.online_treeview.selected_tree_view.model()._data
-        final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"]).iloc[1:, :]
+        final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
+        self.experiment_name  = final_pandas["item_name"].values[0]
         list_cslow = [] # need to change this to support more metadata
         list_rs = [] # need to change also
-        for i in final_pandas["item_name"].values:
+        for i in final_pandas["item_name"].values[1:]:
             cslow, rs = self.retrieve_cslow_rs(i)
             self.logger.info(f"Retrieved Cslow: {cslow}, and Rseries: {rs} for {self.experiment_name}")
             list_cslow.append(cslow)
             list_rs.append(rs)
+        
+        final_pandas = final_pandas.iloc[1:,:]
         final_pandas["condition"] = final_pandas.shape[0] * [""]
         final_pandas["RsValue"] = list_rs
         final_pandas["Cslow"] = list_cslow
@@ -420,10 +423,15 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
     def retrieve_cslow_rs(self, series_name: str) -> None:
         """this returns the searchable metadata parameter that one wants to add to the notebook
         This function should be added to the database reader"""
-        table_name = self.database_handler.database.execute("Select series_identifier FROM experiment_series WHERE experiment_name = (?) AND series_name = (?)", (self.experiment_name, series_name)).fetchall()[0][0]
-        series_meta_table = self.database_handler.database.execute(f"Select * from imon_meta_data_{self.experiment_name}_{table_name}").fetchdf()
-        series_meta = series_meta_table.set_index("Parameter").T
-        return np.mean(series_meta["CSlow"].astype(float).values), np.mean(series_meta["RsValue"].astype(float).values)
+        try: 
+            table = self.database_handler.database.execute("Select * from experiment_series;").fetchdf()
+            print(table)
+            table_name = self.database_handler.database.execute("Select series_identifier FROM experiment_series WHERE experiment_name = (?) AND series_name = (?)", (self.experiment_name, series_name)).fetchall()[0][0]
+            series_meta_table = self.database_handler.database.execute(f"Select * from imon_meta_data_{self.experiment_name}_{table_name}").fetchdf()
+            series_meta = series_meta_table.set_index("Parameter").T
+            return np.mean(series_meta["CSlow"].astype(float).values), np.mean(series_meta["RsValue"].astype(float).values)
+        except Exception as e:
+            print("This is the error!")
 
     def draw_table(self, data: pd.DataFrame) -> None:
         """ draws the table of the .dat metadata as indicated by the .pul Bundle file """

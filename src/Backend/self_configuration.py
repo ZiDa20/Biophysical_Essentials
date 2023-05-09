@@ -61,7 +61,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.check_connection.setText("Warning: \n \nPlease select the PGF, Analysis and Protocol File and set the Batch communication Path!")
         self.experiment_dictionary = {} # create and experiment dictionary with Metadata @toDO replace this by class
         self.submission_count = 2 # each submitte command will increase counts
-
+        self.threadpool = QThreadPool() #
         ## setup pyqtgraph for experiment visualization
         self.graphWidget = pg.PlotWidget()
         self.pyqt_window.addWidget(self.graphWidget)
@@ -169,7 +169,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """set the pgf file that is used for the patchmaster"""
         logging.info("Setted PGF File")
         self.pgf_file = self.meta_open_directory()
-
         self.pg_file_set.setText(self.pgf_file)
 
     def set_protocol_file(self):
@@ -192,7 +191,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             None
         """
         self.name = name + "_" + str(self.data_file_ending) + ".dat"
-        print(self.name)
+        self.logger.info(f"This is the experiment Name: {self.name}")
         self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile new {self.name}" + "\n")
         sleep(0.5)
         self.increment_count() # increment the count for the patch
@@ -483,7 +482,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.make_sequence_labels(protocols, self.protocol_widget) # enter items of protcols into drag and dropable listview
         self.make_general_commands() # add general commands to the general command listview
         self.make_config_commands() # add config commands to the config command listview
-        self.visualization_stacked.setCurrentIndex(1) # set the index to the testing Area
+        self.experiment_control_stacked.setCurrentIndex(1) # set the index to the testing Area
 
     def preprocess_series_protocols(self, sequences_reponses):
         """ preprocess the sequences and protocols from the batch.out response
@@ -537,7 +536,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
     def make_threading(self):
         """ make the threading for the communication with the patchmaster """
         try:
-            self.threadpool = QThreadPool() # create the threadpool
+            print("start worker!")
             self.worker = Worker(self.start_experiment_patch) # create the worker
             self.worker.signals.finished.connect(self.thread_complete) # connect the worker to the thread_complete function
             self.worker.signals.progress.connect(self.draw_live_plots)# connect the worker to the draw_live_plot function
@@ -577,8 +576,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # contains already the full path + file name
         path = file_name.split('"')[1]
 
-        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + f"OpenFile read dummy.dat " + "\n")
-
+        self.backend_manager.send_text_input("+"+f'{self.submission_count}' + "\n" + "OpenFile new dummy.dat" + "\n")
         self.increment_count()
         sleep(0.99)
 
@@ -639,7 +637,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         final_notebook_dataframe = pd.DataFrame() # initialize an empty dataframe which can be appended to
         # goes through the list, when the list is done the transfer to online analysis button will turn green and transfer is possible
         for index in range(view_list.rowCount()):
-
+            print("this is a threading problem!!!!!!!")
             # start the progress bar
             max_value = (len(range(view_list.rowCount()))+1)
             value = (index+1) * (100/max_value)
@@ -696,6 +694,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
         # turn the button green if sequence finished succesfully
         #self.progressBar.setValue(100)
+        print("Went throuhg everything threading related")
         self.transfer_to_online_analysis_button.setEnabled(True)
         self.transfer_to_online_analysis_button.clicked.connect(self.transfer_file_to_online)
 

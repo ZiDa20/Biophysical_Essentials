@@ -656,52 +656,31 @@ class Ui_Config_Widget(object):
         self.gridLayout_18 = QGridLayout()
         self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.gridLayout_18.setVerticalSpacing(20)
-        self.label_6 = QLabel(self.groupBox_6)
-        self.label_6.setObjectName(u"label_6")
-        sizePolicy1.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
-        self.label_6.setSizePolicy(sizePolicy1)
+        self.patched_cells = QLineEdit(self.groupBox_6)
+        self.patched_cells.setObjectName(u"patched_cells")
+        self.patched_cells.setMinimumSize(QSize(0, 30))
+        self.patched_cells.setMaximumSize(QSize(16777215, 30))
 
-        self.gridLayout_18.addWidget(self.label_6, 0, 0, 1, 1, Qt.AlignBottom)
-
-        self.cell_type_desc = QLineEdit(self.groupBox_6)
-        self.cell_type_desc.setObjectName(u"cell_type_desc")
-        self.cell_type_desc.setMinimumSize(QSize(0, 30))
-        self.cell_type_desc.setMaximumSize(QSize(16777215, 30))
-
-        self.gridLayout_18.addWidget(self.cell_type_desc, 3, 0, 1, 1)
-
-        self.experiment_type_desc = QLineEdit(self.groupBox_6)
-        self.experiment_type_desc.setObjectName(u"experiment_type_desc")
-        self.experiment_type_desc.setMinimumSize(QSize(0, 30))
-        self.experiment_type_desc.setMaximumSize(QSize(16777215, 30))
-
-        self.gridLayout_18.addWidget(self.experiment_type_desc, 1, 1, 1, 1)
-
-        self.label_22 = QLabel(self.groupBox_6)
-        self.label_22.setObjectName(u"label_22")
-
-        self.gridLayout_18.addWidget(self.label_22, 0, 1, 1, 1)
-
-        self.ent_date_prep = QLineEdit(self.groupBox_6)
-        self.ent_date_prep.setObjectName(u"ent_date_prep")
-        self.ent_date_prep.setMinimumSize(QSize(0, 30))
-        self.ent_date_prep.setMaximumSize(QSize(16777215, 30))
-
-        self.gridLayout_18.addWidget(self.ent_date_prep, 1, 0, 1, 1)
+        self.gridLayout_18.addWidget(self.patched_cells, 5, 1, 1, 1)
 
         self.label_7 = QLabel(self.groupBox_6)
         self.label_7.setObjectName(u"label_7")
         sizePolicy1.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
         self.label_7.setSizePolicy(sizePolicy1)
 
-        self.gridLayout_18.addWidget(self.label_7, 2, 0, 1, 1, Qt.AlignBottom)
+        self.gridLayout_18.addWidget(self.label_7, 2, 1, 1, 1)
 
-        self.min_number_cells = QLineEdit(self.groupBox_6)
-        self.min_number_cells.setObjectName(u"min_number_cells")
-        self.min_number_cells.setMinimumSize(QSize(0, 30))
-        self.min_number_cells.setMaximumSize(QSize(16777215, 30))
+        self.label_9 = QLabel(self.groupBox_6)
+        self.label_9.setObjectName(u"label_9")
 
-        self.gridLayout_18.addWidget(self.min_number_cells, 5, 0, 1, 1)
+        self.gridLayout_18.addWidget(self.label_9, 4, 1, 1, 1)
+
+        self.cell_type_desc = QLineEdit(self.groupBox_6)
+        self.cell_type_desc.setObjectName(u"cell_type_desc")
+        self.cell_type_desc.setMinimumSize(QSize(0, 30))
+        self.cell_type_desc.setMaximumSize(QSize(16777215, 30))
+
+        self.gridLayout_18.addWidget(self.cell_type_desc, 3, 1, 1, 1)
 
         self.label_8 = QLabel(self.groupBox_6)
         self.label_8.setObjectName(u"label_8")
@@ -710,17 +689,48 @@ class Ui_Config_Widget(object):
 
         self.gridLayout_18.addWidget(self.label_8, 4, 0, 1, 1)
 
-        self.patched_cells = QLineEdit(self.groupBox_6)
-        self.patched_cells.setObjectName(u"patched_cells")
-        self.patched_cells.setMinimumSize(QSize(0, 30))
-        self.patched_cells.setMaximumSize(QSize(16777215, 30))
+        self.label_22 = QLabel(self.groupBox_6)
+        self.label_22.setObjectName(u"label_22")
 
-        self.gridLayout_18.addWidget(self.patched_cells, 5, 1, 1, 1)
+        self.gridLayout_18.addWidget(self.label_22, 2, 0, 1, 1)
 
-        self.label_9 = QLabel(self.groupBox_6)
-        self.label_9.setObjectName(u"label_9")
+        self.ent_date_prep = QLineEdit(self.groupBox_6)
+        self.ent_date_prep.setObjectName(u"ent_date_prep")
+        self.ent_date_prep.setMinimumSize(QSize(0, 30))
+        self.ent_date_prep.setMaximumSize(QSize(16777215, 30))
 
-        self.gridLayout_18.addWidget(self.label_9, 4, 1, 1, 1)
+        self.gridLayout_18.addWidget(self.ent_date_prep, 3, 0, 1, 1)
+
+        self.min_number_cells = QLineEdit(self.groupBox_6)
+        self.min_number_cells.setObjectName(u"min_number_cells")
+        self.min_number_cells.setMinimumSize(QSize(0, 30))
+        self.min_number_cells.setMaximumSize(QSize(16777215, 30))
+
+        self.gridLayout_18.addWidget(self.min_number_cells, 5, 0, 1, 1)
+
+        self.experiment_type_desc = QLineEdit(self.groupBox_6)
+        self.experiment_type_desc.setObjectName(u"experiment_type_desc")
+        self.experiment_type_desc.setMinimumSize(QSize(0, 30))
+        self.experiment_type_desc.setMaximumSize(QSize(16777215, 30))
+
+        self.gridLayout_18.addWidget(self.experiment_type_desc, 1, 1, 1, 1)
+
+        self.label_6 = QLabel(self.groupBox_6)
+        self.label_6.setObjectName(u"label_6")
+        sizePolicy1.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
+        self.label_6.setSizePolicy(sizePolicy1)
+
+        self.gridLayout_18.addWidget(self.label_6, 0, 1, 1, 1)
+
+        self.lineEdit_7 = QLineEdit(self.groupBox_6)
+        self.lineEdit_7.setObjectName(u"lineEdit_7")
+
+        self.gridLayout_18.addWidget(self.lineEdit_7, 1, 0, 1, 1)
+
+        self.label_24 = QLabel(self.groupBox_6)
+        self.label_24.setObjectName(u"label_24")
+
+        self.gridLayout_18.addWidget(self.label_24, 0, 0, 1, 1)
 
 
         self.gridLayout_7.addLayout(self.gridLayout_18, 1, 0, 1, 1)
@@ -1394,7 +1404,7 @@ class Ui_Config_Widget(object):
 
         self.retranslateUi(Config_Widget)
 
-        self.experiment_control_stacked.setCurrentIndex(1)
+        self.experiment_control_stacked.setCurrentIndex(0)
         self.exp_stacked.setCurrentIndex(3)
         self.visualization_stacked.setCurrentIndex(1)
 
@@ -1454,12 +1464,13 @@ class Ui_Config_Widget(object):
         self.label_20.setText(QCoreApplication.translate("Config_Widget", u"Celltype", None))
         self.label_21.setText(QCoreApplication.translate("Config_Widget", u"Individium ID", None))
         self.groupBox_6.setTitle(QCoreApplication.translate("Config_Widget", u"Experiment Metadata", None))
-        self.label_6.setText(QCoreApplication.translate("Config_Widget", u"Experiment Type", None))
+        self.label_7.setText(QCoreApplication.translate("Config_Widget", u"Cell Type", None))
+        self.label_9.setText(QCoreApplication.translate("Config_Widget", u" # of Cells patched", None))
+        self.label_8.setText(QCoreApplication.translate("Config_Widget", u"Min # of Cells", None))
         self.label_22.setText(QCoreApplication.translate("Config_Widget", u"Date of Preparation", None))
         self.ent_date_prep.setText("")
-        self.label_7.setText(QCoreApplication.translate("Config_Widget", u"Cell Type", None))
-        self.label_8.setText(QCoreApplication.translate("Config_Widget", u"Min # of Cells", None))
-        self.label_9.setText(QCoreApplication.translate("Config_Widget", u" # of Cells patched", None))
+        self.label_6.setText(QCoreApplication.translate("Config_Widget", u"Experiment Name", None))
+        self.label_24.setText(QCoreApplication.translate("Config_Widget", u"Experiment Label", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("Config_Widget", u"Connection Overview", None))
         self.ProtocolBox.setTitle(QCoreApplication.translate("Config_Widget", u"Protocol Sequence Generator", None))
         self.label_10.setText(QCoreApplication.translate("Config_Widget", u"Patch Sequence", None))
