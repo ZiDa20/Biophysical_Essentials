@@ -130,7 +130,7 @@ class SeriesItemTreeWidget():
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         treeview_manager = self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         model_df = treeview_manager.selected_tree_view_data_table
-        normalization_dialog = Normalization_Dialog(current_tab, model_df,self.database_handler)
+        normalization_dialog = Normalization_Dialog(current_tab, self.database_handler, model_df)
         self.frontend_style.set_pop_up_dialog_style_sheet(normalization_dialog)
         print("showing now")
         normalization_dialog.exec()

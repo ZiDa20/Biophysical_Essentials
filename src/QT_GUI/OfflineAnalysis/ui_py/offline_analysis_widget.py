@@ -774,7 +774,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         print("whats going on")
         # all the analysis setup clicks and cursor bound drag and drops will be handled from the analysis function selection manager
-        self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
+        self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
         self.analysis_function_selection_manager.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
@@ -806,15 +806,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
         self.database_handler.open_connection()
-        #self.analysis_function_selection_manager.database_handler = self.database_handler
-
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-        
-        #self.analysis_function_selection_manager.database_handler = self.database_handler
+
+       
 
         print("finished: ", self.multiple_interval_analysis)
-
-        # self.write_function_grid_values_into_database(current_tab)
         print("executing single series analysis")
 
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)

@@ -14,7 +14,7 @@ import pandas as pd
 class Normalization_Dialog(QDialog, Ui_Dialog):
 
     
-    def __init__(self, current_tab, treeview_model,database_handler, parent=None):
+    def __init__(self, current_tab, database_handler, treeview_model, parent=None):
         super().__init__(parent)
         self.setupUi(self)
         self.current_tab = current_tab
@@ -43,9 +43,7 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         elif input=="Tau":        
             self.stackedWidget.setCurrentIndex(1)
 
-    def get_cslow_from_db(self):
-
-        
+    def get_cslow_from_db(self):       
 
         # get the series level and extract the identifier which is unique as experiment::series_identifier
         identifier = self.treeview_model[self.treeview_model["type"]=="Series"]["identifier"].values
@@ -83,6 +81,7 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         table_view.show()
         
         return table_view
+
 
     def close_dialog(self):
          self.current_tab.normalization_values =self.model._data

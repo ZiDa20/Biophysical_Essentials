@@ -9,7 +9,10 @@ from PySide6.QtTest import QTest
 from functools import partial
 
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
 
+from database.data_db import DuckDBDatabaseHandler
+from Backend.treeview_manager import TreeViewManager
 
 import pandas as pd
 
@@ -25,13 +28,15 @@ class AnalysisFunctionSelectionManager():
 
 
     def __init__(self, 
-                 database_handler, 
+                 database_handler:DuckDBDatabaseHandler,
+                 treeview_manager:TreeViewManager,
                  plot_widget_manager, 
                  current_tab, 
                  analysis_functions, 
                  frontend):
         
         self.plot_widget_manager = plot_widget_manager
+        self.treeview_manager = treeview_manager
         self.database_handler = database_handler
         self.current_tab = current_tab
         self.frontend_style = frontend
@@ -515,9 +520,19 @@ class AnalysisFunctionSelectionManager():
         # -2 because of the add button at the beginning and the run button at the end
         max_page = int((self.current_tab.analysis_functions.analysis_button_grid.count()-2)/2)+1
 
-        if self.current_tab.normalization_values is None:
-            # choose the selected auto-cslow and retrieve the values
-            print("debig")
+        # get the recording mode and if voltage clamp, check the normalization
+        recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(self.current_tab.objectName())
+        print("Recording mode in write to table", recording_mode)
+        if recording_mode == "Voltage Clamp" and self.current_tab.normalization_values is None:
+            
+            print("before filling", self.current_tab.normalization_values)
+            Normalization_Dialog(self.current_tab, self.database_handler, self.treeview_manager.selected_tree_view_data_table).get_cslow_from_db()
+            
+            if self.current_tab.analysis_functions.normalization_combo_box.currentText() =="CSlow Manual":
+                self.current_tab.normalization_values["cslow"]=1
+
+            print("after filling", self.current_tab.normalization_values)
+
         for page in range(1,max_page):
 
             print("reading page " , str(page))
@@ -546,16 +561,14 @@ class AnalysisFunctionSelectionManager():
                     multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "func": [func_name],"id": [id], "function_name":[analysis_function] })])
                     print(multiple_interval_analysis)
 
-                # write the normalization values for each function
-                self.current_tab.normalization_values["offline_analysis_id"]= self.database_handler.analysis_id
-                self.current_tab.normalization_values["function_id"]= self.database_handler.get_last_inserted_analysis_function_id()
-                
-                
-                df_new = self.current_tab.normalization_values
-                
-                print("adding to database", df_new)
-                q = "insert into normalization_values select * from df_new"
-                self.database_handler.database.execute(q)
+                if recording_mode == "Voltage Clamp":
+                    # write the normalization values for each function
+                    self.current_tab.normalization_values["offline_analysis_id"]= self.database_handler.analysis_id
+                    self.current_tab.normalization_values["function_id"]= self.database_handler.get_last_inserted_analysis_function_id()
+                    df_new = self.current_tab.normalization_values
+                    print("adding to database", df_new)
+                    q = "insert into normalization_values select * from df_new"
+                    self.database_handler.database.execute(q)
 
 
 
