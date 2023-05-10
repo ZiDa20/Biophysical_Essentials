@@ -16,17 +16,33 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QHeaderView,
-    QSizePolicy, QTableWidget, QTableWidgetItem, QVBoxLayout,
-    QWidget)
+    QLabel, QSizePolicy, QTabWidget, QTableWidget,
+    QTableWidgetItem, QVBoxLayout, QWidget)
 
 class Ui_StatisticsTable(object):
     def setupUi(self, StatisticsTable):
         if not StatisticsTable.objectName():
             StatisticsTable.setObjectName(u"StatisticsTable")
-        StatisticsTable.resize(779, 356)
+        StatisticsTable.resize(1152, 711)
         self.gridLayout = QGridLayout(StatisticsTable)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.groupBox = QGroupBox(StatisticsTable)
+        self.tabWidget = QTabWidget(StatisticsTable)
+        self.tabWidget.setObjectName(u"tabWidget")
+        self.tab = QWidget()
+        self.tab.setObjectName(u"tab")
+        self.gridLayout_2 = QGridLayout(self.tab)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.label = QLabel(self.tab)
+        self.label.setObjectName(u"label")
+        self.label.setMaximumSize(QSize(16777215, 50))
+        font = QFont()
+        font.setPointSize(12)
+        self.label.setFont(font)
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
+
+        self.groupBox = QGroupBox(self.tab)
         self.groupBox.setObjectName(u"groupBox")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -66,16 +82,34 @@ class Ui_StatisticsTable(object):
         self.verticalLayout_2.addWidget(self.statistics_table_widget)
 
 
-        self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.groupBox, 3, 0, 1, 1)
+
+        self.label_2 = QLabel(self.tab)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMaximumSize(QSize(16777215, 100))
+        self.label_2.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QWidget()
+        self.tab_2.setObjectName(u"tab_2")
+        self.tabWidget.addTab(self.tab_2, "")
+
+        self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
 
 
         self.retranslateUi(StatisticsTable)
+
+        self.tabWidget.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(StatisticsTable)
     # setupUi
 
     def retranslateUi(self, StatisticsTable):
         StatisticsTable.setWindowTitle(QCoreApplication.translate("StatisticsTable", u"Form", None))
+        self.label.setText(QCoreApplication.translate("StatisticsTable", u"WELCOME TO THE STATISTICS FEATURE", None))
         self.groupBox.setTitle(QCoreApplication.translate("StatisticsTable", u"Analysis Function Selection", None))
         ___qtablewidgetitem = self.statistics_table_widget.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("StatisticsTable", u"Select", None));
@@ -87,6 +121,12 @@ class Ui_StatisticsTable(object):
         ___qtablewidgetitem3.setText(QCoreApplication.translate("StatisticsTable", u"Data Distribution", None));
         ___qtablewidgetitem4 = self.statistics_table_widget.horizontalHeaderItem(4)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("StatisticsTable", u"Statistical Model", None));
+        self.label_2.setText(QCoreApplication.translate("StatisticsTable", u" We have scanned your analysis functions and meta data selection and entered the data in the table below. \n"
+" We have also analyzed the data distribution by running the Shapiro Wilk test and suggest you the test selected in the combo box. \n"
+" Select the checkbox for each analysis function that you want to analyze statistically. \n"
+"", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("StatisticsTable", u"Configuration", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("StatisticsTable", u"Tab 2", None))
     # retranslateUi
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):

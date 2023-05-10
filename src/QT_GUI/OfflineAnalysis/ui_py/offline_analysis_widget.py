@@ -287,12 +287,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         id_ = dialog.offline_analysis_id # change this to a new name
         dialog.close()
-
-        self.load_treeview_from_database()
-
-        #loading_dialog = LoadingDialog(self.wait_widget, self.frontend_style)
+        
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
+
+        self.load_page_1_tree_view(id_)
+
+        #loading_dialog = LoadingDialog(self.wait_widget, self.frontend_style)
+        
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
@@ -304,7 +306,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.built_analysis_specific_tree(series_names_list,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets,
-                                                       self.selected_meta_data_list,
+                                                     
                                                        reload = True)
 
         #print("displaying to analysis results: ", self.database_handler.analysis_id)
@@ -350,6 +352,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
         # the dialog handler has further implementations to handle displayed lists etc
+
+
         self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler, self.frontend_style)
         # set light or dark mode
         self.frontend_style.set_pop_up_dialog_style_sheet(self.load_data_from_database_dialog)
@@ -362,7 +366,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
 
-    def load_page_1_tree_view(self):
+    def load_page_1_tree_view(self, existing_id = None):
         """
         this function will be executed when the button 'load selection' was clicked after 
         data to be analyzed were selected fro mthe db dashboard dialog
@@ -371,12 +375,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))      
         
-        # get the experiment names that were selected by the user within the db dashboard
-        experiment_list = self.load_data_from_database_dialog.get_experiment_names()      
+        # load an exsiting analysis from a given id
+        if existing_id:
+            q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
+            experiment_list = self.database_handler.database.execute(q).fetchdf()
+            experiment_list = experiment_list["experiment_name"].values
+            print(self.database_handler.analysis_id)
+            
+            
+        else:
+            # get the experiment names that were selected by the user within the db dashboard
+            experiment_list = self.load_data_from_database_dialog.get_experiment_names()   
+            self.load_data_from_database_dialog.close()   
 
-        # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
-        # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
-        self.blank_analysis_tree_view_manager.map_data_to_analysis_id(experiment_list)
+            # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
+            # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
+            self.blank_analysis_tree_view_manager.map_data_to_analysis_id(experiment_list)
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
@@ -390,7 +404,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
         self.stackedWidget.setCurrentIndex(0)
-        self.load_data_from_database_dialog.close()
+        
 
 
     def load_recordings(self, progress_callback):
