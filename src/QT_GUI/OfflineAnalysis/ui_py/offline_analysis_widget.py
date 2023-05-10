@@ -48,7 +48,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Set
 
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 
-
+from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -107,6 +107,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
 
+        self.logger = offline_analysis_widget_logger
+        self.logger.info("init finished")
 
     def open_change_series_name_dialog(self):
         dialog = ChangeSeriesName(self.database_handler)
@@ -277,7 +279,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
     def show_open_analysis_dialog(self):
-        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
+        ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
 
     @Slot()
     def open_analysis_results(self, dialog):
@@ -285,7 +287,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Open an existing analysis from the database
         :return:
         """
+        
         id_ = dialog.offline_analysis_id # change this to a new name
+        self.logger.info("opening existing analysis from database. requested id = ", id_)
         dialog.close()
         
         # static offline analysis number
@@ -312,7 +316,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #print("displaying to analysis results: ", self.database_handler.analysis_id)
         #print(self.offline_tree.SeriesItems.topLevelItemCount())
 
-        # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
+        #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
 
         for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
 
@@ -380,7 +384,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
             experiment_list = self.database_handler.database.execute(q).fetchdf()
             experiment_list = experiment_list["experiment_name"].values
-            print(self.database_handler.analysis_id)
+            self.logger.info("experiment list found for analysis id ", self.database_handler.analysis_id)
             
             
         else:
