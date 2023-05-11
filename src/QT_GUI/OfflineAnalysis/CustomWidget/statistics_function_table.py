@@ -293,19 +293,37 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                     res_df = pd.concat([res_df, tmp])
 
                 print(res_df)
-                self.show_statistic_results(res_df)
+                self.show_statistic_results(df, res_df, pairs)
 
             else:
                 print("not implemented yet")
 
-    def show_statistic_results(self, statistics_df):
+    def show_statistic_results(self, df, statistics_df, pairs):
         # plot the df as table
-        
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        from matplotlib.backends.backend_qtagg import FigureCanvas
+        from matplotlib.figure import Figure
+        from statannotations.Annotator import Annotator
+
         statistics_table_view = QTableView()
         model = PandasTable(statistics_df)
         statistics_table_view.setModel(model)
         self.statistics_result_grid.addWidget(statistics_table_view)
         statistics_table_view.show()
+
+        
+        # Create a FigureCanvasQTAgg from the Figure object returned by Seaborn
+        
+        fig = plt.Figure()
+        ax = fig.add_subplot(111)
+        sns.boxplot(data=df,x ="meta_data" ,y = "Result", ax=ax)
+        annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = "Result")
+        annotator.configure(test='Mann-Whitney', text_format='star', loc='inside')
+        annotator.apply_and_annotate()
+        canvas = FigureCanvas(fig)
+        self.statistics_result_grid.addWidget(canvas)
+
         self.tabWidget.widget(1).show()
         self.tabWidget.setCurrentIndex(1)
         # make the seaborn plot
