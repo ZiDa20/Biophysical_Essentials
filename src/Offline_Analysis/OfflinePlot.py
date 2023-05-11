@@ -564,7 +564,10 @@ class OfflinePlots():
         Args:
             plot_dataframe (_type_): _description_
         """
-        sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, errorbar=("se", 2), legend = False)        #sns.boxplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax)
+        sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, legend = False)
+        # @todo: statannotations requires a seaborn version < 0.12 but <0.12 does not have the errobar function
+        #errorbar=("se", 2), 
+        
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.ax.autoscale()
 

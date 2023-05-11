@@ -131,13 +131,16 @@ class SweepWiseAnalysisTemplate(ABC):
 
 		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
 		
-		#get the user defined normalization values -> were safed in the database 
-		normalization_values = self.database.get_normalization_values(self.analysis_function_id)
-		#normalization_values = None
-		print("got normalization values", normalization_values)
+		unit_name = self.get_current_recording_type()
+
+		if unit_name == "Voltage":
+			#get the user defined normalization values -> were safed in the database 
+			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
+			#normalization_values = None
+			print("got normalization values", normalization_values)
 
 		# check here if current or voltage clamp and add the respective name of the unit to the table
-		unit_name = self.get_current_recording_type()
+		
 			# set time to non - will be set by the first data frame
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
 		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Result", "Increment","experiment_name"]
@@ -162,7 +165,7 @@ class SweepWiseAnalysisTemplate(ABC):
 			
 			normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
 			#print("old cslow: ", cslow)
-			print("new cslow: ", normalization_value)
+			#print("new cslow: ", normalization_value)
 			#print("table_name ", data_table)
 
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
@@ -185,7 +188,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				#if self.cslow_normalization:
 				res = res / normalization_value
 
-				print("result = ", res)
+				# print("result = ", res)
 				# get the sweep number
 				sweep_number = column.split("_")
 				sweep_number = int(sweep_number[1])
@@ -203,7 +206,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val,res,inc,experiment_name]],columns = column_names)
 				merged_all_results = pd.concat([merged_all_results,new_df])
 
-				print("sweep wise finished successfully")
+				#print("sweep wise finished successfully")
 		# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
 		#print(f"This is the analysis function id : {self.analysis_function_id}")
 		new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id, self.function_name)

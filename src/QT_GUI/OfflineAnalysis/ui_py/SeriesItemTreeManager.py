@@ -9,7 +9,7 @@ from Backend.plot_widget_manager import PlotWidgetManager
 from Backend.treeview_manager import TreeViewManager
 import copy
 from CustomWidget.Pandas_Table import PandasTable
-from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
+from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
 
 
