@@ -5,6 +5,7 @@ from functools import partial
 import pandas as pd
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
+import itertools
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
     def __init__(self, parent_stacked, analysis_stacked, hierachy_stacked_list, SeriesItems, database_handler, parent=None):
@@ -29,8 +30,9 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         based on the analysis function data are scanned and prepared for the statistical analysis
         """
         
-        series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")
-        analysis_functions = self.database_handler.get_analysis_functions_for_specific_series(series_name[0])
+        
+        self.series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")[0]
+        analysis_functions = self.database_handler.get_analysis_functions_for_specific_series(self.series_name)
 
         #initiate the table in case there are no rows yet
         existing_row_numbers = self.statistics_table_widget.rowCount()
@@ -78,6 +80,9 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             df = custom_plot_widget.statistics
 
             unique_meta_data = list(df["meta_data"].unique())
+
+
+
 
             if len(unique_meta_data) == len(df["meta_data"].values):
                 dialog = QDialog()
@@ -129,6 +134,8 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
     def calculate_statistics(self,df):
 
+
+
         for row in range(self.statistics_table_widget.rowCount()):
 
             # get the test to be performed from the combo box (position 4)
@@ -136,32 +143,63 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
             #meta_data = statistics_table.cellWidget(row,2).currentText()
 
+            # get unique meta data groups to compare
+            unique_groups  = list(df["meta_data"].unique())
 
-            if test_type == "t-Test":
+            # get a list of tuples for pairwise comparison
+            pairs = self.get_pairs(unique_groups)
+            
+            # test if the table has column "voltage" - this means voltage steps and requieres to make pairs per voltage step (e.g. KO_80mV vs CTRL_80mV)
+            # test if the table has column "????"
 
-                print("executing t test")
-
-                # get unique meta data groups to compare
-                unique_groups  = list(df["meta_data"].unique())
-
-                # get a list of tuples for pairwise comparison
-                pairs = self.get_pairs(unique_groups)
+            if "Voltage" in df.columns:
+                voltage_steps = list(df["Voltage"].unique())
 
                 # result data frame to be displayed
-                res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"])
+                res_df = pd.DataFrame(columns=["Voltage", "Group_1", "Group_2", "p_Value"])
+                for v in voltage_steps:
+                
+                    for p in pairs:
+                        group1 = df[(df["meta_data"]==p[0]) & (df["Voltage"]==v)]["Result"]
+                        group2 = df[(df["meta_data"]==p[1]) & (df["Voltage"]==v)]["Result"]
+
+                        if len(group2)>=len(group1):
+                            group2 = group2[0:len(group1)]
+                        else:
+                            group1 = group1[0:len(group2)]
+
+                        if test_type == "t-Test":
+                            res =  stats.ttest_ind(group1,group2)
+                        else:
+                            res = stats.wilcoxon(group1,group2)
+                        tmp = pd.DataFrame({"Voltage":v, "Group_1":[p[0]], "Group_2":[p[1]], "p_Value":[res.pvalue]})
+
+                        res_df = pd.concat([res_df, tmp])
+
+                        # print each voltage step seperately
+                        self.show_statistic_results(df[df["Voltage"]==v][:], tmp, pairs)
+
+                self.tabWidget.widget(1).show()
+                self.tabWidget.setCurrentIndex(1)
+            elif "Step" in df.columns:
+                print("not implemented yet")
+
+            else: # simple boxplots for each meta data group to be compared
+                
+                res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
                 for p in pairs:
                     group1 = df[df["meta_data"]==p[0]]["Result"]
                     group2 = df[df["meta_data"]==p[1]]["Result"]
-                    res =  stats.ttest_ind(group1,group2)
+                    if test_type == "t-Test":
+                        res =  stats.ttest_ind(group1,group2)
+                    else:
+                        print("not implemented yet")
                     tmp = pd.DataFrame({"Group_1":[p[0]], "Group_2":[p[1]], "p_Value":[res.pvalue]})
-
                     res_df = pd.concat([res_df, tmp])
 
-                print(res_df)
                 self.show_statistic_results(df, res_df, pairs)
-
-            else:
-                print("not implemented yet")
+                self.tabWidget.widget(1).show()
+                self.tabWidget.setCurrentIndex(1)
 
     def show_statistic_results(self, df, statistics_df, pairs):
         # plot the df as table
@@ -189,8 +227,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         canvas = FigureCanvas(fig)
         self.statistics_result_grid.addWidget(canvas)
 
-        self.tabWidget.widget(1).show()
-        self.tabWidget.setCurrentIndex(1)
+        
         # make the seaborn plot
 
 

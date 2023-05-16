@@ -480,7 +480,8 @@ class OfflinePlots():
                 print(e)
 
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax,  errorbar=("se", 2))
+            g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+            # errorbar=("se", 2) not working with the current seaborn version
             self.parent_widget.connect_hover(g)
             try:
                 pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
