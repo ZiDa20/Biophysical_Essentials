@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QHeaderView,
-    QLabel, QSizePolicy, QTabWidget, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget)
+    QLabel, QScrollArea, QSizePolicy, QTabWidget,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
 
 class Ui_StatisticsTable(object):
     def setupUi(self, StatisticsTable):
@@ -96,10 +96,22 @@ class Ui_StatisticsTable(object):
         self.tab_2.setObjectName(u"tab_2")
         self.gridLayout_4 = QGridLayout(self.tab_2)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.scrollArea = QScrollArea(self.tab_2)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1108, 644))
+        self.gridLayout_3 = QGridLayout(self.scrollAreaWidgetContents)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.statistics_result_grid = QGridLayout()
         self.statistics_result_grid.setObjectName(u"statistics_result_grid")
 
-        self.gridLayout_4.addLayout(self.statistics_result_grid, 0, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.statistics_result_grid, 0, 0, 1, 1)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        self.gridLayout_4.addWidget(self.scrollArea, 0, 0, 1, 1)
 
         self.tabWidget.addTab(self.tab_2, "")
 
@@ -135,5 +147,4 @@ class Ui_StatisticsTable(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("StatisticsTable", u"Configuration", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("StatisticsTable", u"Results", None))
     # retranslateUi
-
 

@@ -138,6 +138,8 @@ class SweepWiseAnalysisTemplate(ABC):
 			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
 			#normalization_values = None
 			print("got normalization values", normalization_values)
+		else:
+			print("No normalization because of current clamp")
 
 		# check here if current or voltage clamp and add the respective name of the unit to the table
 		
@@ -160,14 +162,6 @@ class SweepWiseAnalysisTemplate(ABC):
 			# pgf table is also just once per data_table and not per sweep
 			pgf_data_frame = self.database.get_entire_pgf_table(data_table)
 
-			#if self.cslow_normalization: # check normalization strategy --> here strategy pattern needs to be implemented!
-			#		cslow = self.database.get_cslow_value_for_sweep_table(data_table)
-			
-			normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
-			#print("old cslow: ", cslow)
-			#print("new cslow: ", normalization_value)
-			#print("table_name ", data_table)
-
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
 			for column in entire_sweep_table:
@@ -185,8 +179,9 @@ class SweepWiseAnalysisTemplate(ABC):
 				# normalize if necessary
 				# toDO add logging here
 
-				#if self.cslow_normalization:
-				res = res / normalization_value
+				if unit_name == "Voltage":
+					normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
+					res = res / normalization_value
 
 				# print("result = ", res)
 				# get the sweep number

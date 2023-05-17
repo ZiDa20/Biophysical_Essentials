@@ -83,7 +83,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
 
 
-
+            # @todo whats this if needed for ??? dz 17.05.2023
             if len(unique_meta_data) == len(df["meta_data"].values):
                 dialog = QDialog()
 
@@ -108,7 +108,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
                 # show test
                 self.stat_test = QComboBox()
-                self.stat_test.addItems(["t-Test", "Wilcoxon Test", "GLM"])
+                self.stat_test.addItems(["Independent t-test","Welchs t-test", "Paired t-test", "Wilcoxon Signed-Rank test", "Kruskal Wallis test", "Brunner-Munzel test"])
                 self.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
 
                 shapiro_test = stats.shapiro(df["Result"])
@@ -121,7 +121,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 else:
                     # no evidence that data comes from normal distribution
                     self.data_dist.setCurrentIndex(1)
-                    self.stat_test.setCurrentIndex(1)
+                    self.stat_test.setCurrentIndex(3)
 
                 #self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
                 
@@ -177,10 +177,16 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                         res_df = pd.concat([res_df, tmp])
 
                         # print each voltage step seperately
-                        self.show_statistic_results(df[df["Voltage"]==v][:], tmp, pairs)
+                    
+                statistics_table_view = QTableView()
+                model = PandasTable(res_df)
+                statistics_table_view.setModel(model)
+                self.statistics_result_grid.addWidget(statistics_table_view)
+                statistics_table_view.show()
 
                 self.tabWidget.widget(1).show()
                 self.tabWidget.setCurrentIndex(1)
+
             elif "Step" in df.columns:
                 print("not implemented yet")
 
@@ -222,11 +228,12 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         ax = fig.add_subplot(111)
         sns.boxplot(data=df,x ="meta_data" ,y = "Result", ax=ax)
         annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = "Result")
-        annotator.configure(test='Mann-Whitney', text_format='star', loc='inside')
+        # t-test_ind, t-test_welch, t-test_paired, Mann-Whitney, Mann-Whitney-gt, Mann-Whitney-ls, Levene, Wilcoxon, Kruskal, Brunner-Munzel.
+        annotator.configure(test='t-test_ind', text_format='star', loc='inside') #Mann-Whitney
         annotator.apply_and_annotate()
         canvas = FigureCanvas(fig)
         self.statistics_result_grid.addWidget(canvas)
-
+        canvas.draw_idle()
         
         # make the seaborn plot
 
