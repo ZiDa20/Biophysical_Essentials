@@ -42,6 +42,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
+        self.ui.offline.ap_animation = self.ap
         self.ui.offline.ap_timer = self.ap.timer
         self.ui.offline.status_label = self.ap.status_label
         self.ui.offline.offline_manager.set_status_and_progress_bar(self.ap.status_label, self.ap.progress_bar)

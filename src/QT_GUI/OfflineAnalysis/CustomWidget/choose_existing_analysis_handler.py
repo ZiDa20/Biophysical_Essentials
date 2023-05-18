@@ -7,7 +7,7 @@ from pathlib import Path
 from natsort import natsorted
 class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
 
-    def __init__(self,database_handler, frontend, function_call,  parent=None):
+    def __init__(self,database_handler, frontend,  parent=None):
         super().__init__(parent)
         self.setupUi(self)
         self.frontend_style = frontend
@@ -21,12 +21,12 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         self.table_model = PandasTable(data)
         self.tableView.setModel(self.table_model)
         self.table_model.resize_header(self.tableView)
-        self.submit.clicked.connect(partial(function_call, self))
+
+
+
         self.SelectDB.clicked.connect(self.open_path_dialog)
         self.OfflineAnalysisID.setMinimumWidth(100)
         self.OfflineAnalysisID.activated.connect(self.change_current_offline_analysis_id)
-        self.exec()
-
 
     def change_current_offline_analysis_id(self):
         self.offline_analysis_id = int(self.OfflineAnalysisID.currentText())

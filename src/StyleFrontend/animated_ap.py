@@ -7,14 +7,17 @@ from matplotlib.figure import Figure
 import matplotlib.animation as animation
 
 class LoadingAnimation:
-    def __init__(self, message, frontend_style, progress_bar_enabled = False):
+    def __init__(self, message, frontend_style, progress_bar_enabled = False, parent = None):
         """_summary_
         """
         self.progress_bar = QProgressBar()
         self.progress_bar.setFixedWidth(250)
         self.progress_bar.setAlignment(Qt.AlignLeft)
         self.wait_widget = QWidget()
-        self.wait_widget_layout = QGridLayout()
+        if parent:
+            self.wait_widget_layout = QGridLayout(parent)
+        else:
+            self.wait_widget_layout = QGridLayout()
         self.new_label = QLabel()
         self.new_label.setText(message)
         self.font = QFont()
@@ -32,7 +35,7 @@ class LoadingAnimation:
             self.ax_color = "white"
         else:
             frontend_style.set_mpl_style_white()
-            self.draw_color = "maroon"
+            self.draw_color = "black"
             self.ax_color = "black"
 
         #self.wait_widget_layout.setAlignment(Qt.AlignCenter)
@@ -67,7 +70,7 @@ class LoadingAnimation:
         # Create a figure and axis
         #self.fig, self.ax = plt.subplots()
         # Initialize a line plot showing the action potential over time
-        self.line, = self.ax.plot(self.time, self.potential, self.draw_color)
+        self.line, = self.ax.plot(self.time, self.potential, "green") #self.draw_color
         self.ax.plot(self.time, self.potential)
         self.ax.axis('off')
         #self.fig.set_facecolor('#54545a')

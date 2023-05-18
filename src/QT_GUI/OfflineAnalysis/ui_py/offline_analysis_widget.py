@@ -49,6 +49,8 @@ from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Set
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 
 from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
+
+
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -74,6 +76,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.selected_series_combo.view().setFixedWidth(100)
         self.wait_widget = None
         self.ap_timer = None
+        self.ap_animation = None
         self.offline_analysis_widgets.setCurrentIndex(0)
         self.offline_analysis_widgets.currentChanged.connect(self.ribbon_bar_handler)        # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
@@ -279,26 +282,32 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
     def show_open_analysis_dialog(self):
-        ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
+        d = ChooseExistingAnalysis(self.database_handler, self.frontend_style)
+        d.submit.clicked.connect(partial(self.open_analysis_results,d))
+        d.exec()
 
     @Slot()
-    def open_analysis_results(self, dialog):
+    def open_analysis_results(self, dialog:ChooseExistingAnalysis):
         """
         Open an existing analysis from the database
         :return:
         """
-        
+
+        dialog.gridLayout_11.addWidget(self.ap_animation.wait_widget)
+        dialog.popup_stacked.setCurrentIndex(1)
+
+        # Process events to allow the update
+        QCoreApplication.processEvents()
+
         id_ = dialog.offline_analysis_id # change this to a new name
         self.logger.info("opening existing analysis from database. requested id = ", id_)
-        dialog.close()
         
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
 
+        
         self.load_page_1_tree_view(id_)
 
-        #loading_dialog = LoadingDialog(self.wait_widget, self.frontend_style)
-        
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         print(series_names_list)
 
@@ -330,6 +339,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
+        
+        # Process events to allow the update
+        QCoreApplication.processEvents()
+
+        dialog.close()
+  
 
     @Slot()
     def start_blank_analysis(self):
@@ -819,9 +834,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
         print("writing analysis to database")
-        #current_tab.stackedWidget.setCurrentIndex(1)
-        #current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
+        current_tab.stackedWidget.setCurrentIndex(1)
+        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
 
+        # Process events to allow the update
+        QCoreApplication.processEvents()
 
         self.database_handler.open_connection()
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
@@ -836,7 +853,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("finished single series analysis")
         self.database_handler.database.close()
 
-        #@todo remove the widget from the layout
+        # Process events to allow the update
+        QCoreApplication.processEvents()
+
+        #@todo remove the widget from the layout in case of rerun 
         current_tab.stackedWidget.setCurrentIndex(0)
 
     def progress_bar_update_analysis(self, data):
