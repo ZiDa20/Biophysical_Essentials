@@ -5,10 +5,12 @@ from functools import partial
 import pandas as pd
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
+
 import itertools
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
-    def __init__(self, parent_stacked, analysis_stacked, hierachy_stacked_list, SeriesItems, database_handler, parent=None):
+    def __init__(self, parent_stacked, analysis_stacked, hierachy_stacked_list, SeriesItems, database_handler, frontend_style, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         
@@ -16,15 +18,44 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.statistics_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.statistics_table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
         
+        self.frontend_style = frontend_style
         self.parent_stacked = parent_stacked
         self.analysis_stacked = analysis_stacked
         self.hierachy_stacked_list = hierachy_stacked_list
         self.SeriesItems = SeriesItems
         self.database_handler = database_handler
-        
+        self.check_meta_data_selected()
         self.autofill_statistics_table_widget()   
 
     
+    def check_meta_data_selected(self):
+        """
+        statistics  can be only applied between meta data groups and therefore the user must select meta data groups before.
+        other wise each cell is displayed solely and statistics wont work
+        """
+
+        # get the meta data from the plot widget
+        # @todo better get them from the database
+        self.analysis_stacked.setCurrentIndex(self.parent_stacked)
+        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(1)
+        result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
+        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
+
+        # get the table widget that holds the dataframe -- can this be removed then ?? 
+        qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, 0)
+        custom_plot_widget = qwidget_item_1.widget()
+        df = custom_plot_widget.statistics
+
+        # Compare the two columns for equality
+        are_equal = df["experiment_name"] == df["meta_data"]
+
+        if are_equal.all():
+            d = CustomErrorDialog("You have not set any meta data. Go back to the plots, select your meta data and come back to statistics", self.frontend_style)
+            d.exec_()
+        else:
+            return
+
+
     def autofill_statistics_table_widget(self):
         """
         based on the analysis function data are scanned and prepared for the statistical analysis
@@ -71,11 +102,8 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
             self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
 
-            row = analysis_functions.index(i)
-            qwidget_item = result_plot_widget.OfflineResultGrid.itemAtPosition(row, 0)
+            # get the table widget that holds the dataframe -- can this be removed then ?? 
             qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, 0)
-            qwidget_item_2 = result_plot_widget.OfflineResultGrid.itemAtPosition(2, 0)
-
             custom_plot_widget = qwidget_item_1.widget()
             df = custom_plot_widget.statistics
 
