@@ -104,7 +104,7 @@ class Ui_StatisticsTable(object):
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1108, 644))
         self.gridLayout_3 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.statistics_result_grid = QGridLayout()
+        self.statistics_result_grid = QVBoxLayout()
         self.statistics_result_grid.setObjectName(u"statistics_result_grid")
 
         self.gridLayout_3.addLayout(self.statistics_result_grid, 0, 0, 1, 1)

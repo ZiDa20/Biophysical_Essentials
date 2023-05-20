@@ -24,6 +24,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.hierachy_stacked_list = hierachy_stacked_list
         self.SeriesItems = SeriesItems
         self.database_handler = database_handler
+
         self.check_meta_data_selected()
         self.autofill_statistics_table_widget()   
 
@@ -34,17 +35,8 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         other wise each cell is displayed solely and statistics wont work
         """
 
-        # get the meta data from the plot widget
-        # @todo better get them from the database
-        self.analysis_stacked.setCurrentIndex(self.parent_stacked)
-        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(1)
-        result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
-        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
-
-        # get the table widget that holds the dataframe -- can this be removed then ?? 
-        qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, 0)
-        custom_plot_widget = qwidget_item_1.widget()
-        df = custom_plot_widget.statistics
+        # request the first table since all will have the same meta data for now
+        df = self.get_analysis_specific_statistics_df(0)
 
         # Compare the two columns for equality
         are_equal = df["experiment_name"] == df["meta_data"]
@@ -76,12 +68,12 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
         self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
 
-        for i in analysis_functions:
+        for i in range(len(analysis_functions)):
 
             # prepare a row for each analysis
-            analysis_function = i[0]
+            analysis_function = analysis_functions[i][0]
             print(analysis_function)
-            row_to_insert = analysis_functions.index(i) + existing_row_numbers
+            row_to_insert = i + existing_row_numbers
 
             # add a checkbox in column 0
             self.select_checkbox = QCheckBox()
@@ -95,17 +87,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Change")
             self.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_add_meta_data_buttons[row_to_insert])
 
-            # get the meta data from the plot widget
-            # @todo better get them from the database
-            self.analysis_stacked.setCurrentIndex(self.parent_stacked)
-            self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(1)
-            result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
-            self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
-
-            # get the table widget that holds the dataframe -- can this be removed then ?? 
-            qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, 0)
-            custom_plot_widget = qwidget_item_1.widget()
-            df = custom_plot_widget.statistics
+            df = self.get_analysis_specific_statistics_df(i)
 
             unique_meta_data = list(df["meta_data"].unique())
 
@@ -141,7 +123,11 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
                 shapiro_test = stats.shapiro(df["Result"])
                 print(shapiro_test)
-                cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value = " + str(round(shapiro_test.pvalue,3))),1,0)
+                test_res = str(round(shapiro_test.pvalue,3))
+                if test_res == "0.0":
+                    cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value < 0.001 "),1,0)
+                else:
+                    cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value = " + shapiro_test),1,0)
                 if shapiro_test.pvalue >= 0.05:
                     # evidence that data comes from normal distribution
                     self.data_dist.setCurrentIndex(0)
@@ -158,13 +144,32 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         start_statistics = QPushButton("Run Statistic Test")
         self.verticalLayout_2.addWidget(start_statistics)
 
-        start_statistics.clicked.connect(partial(self.calculate_statistics,df))
+        start_statistics.clicked.connect(partial(self.calculate_statistics))
 
-    def calculate_statistics(self,df):
+    def get_analysis_specific_statistics_df(self, widget_position):
+        """
+        function to retrieve the correct statistics df.
+        based on the shown plot widget order which is indeitified by widget position (row in the plot view and tab in the table tabwidget)
+        """
+        # get the meta data from the plot widget
+        # @todo better get them from the database
+        self.analysis_stacked.setCurrentIndex(self.parent_stacked)
+        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(1)
+        result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
+        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
 
+        # get the table widget that holds the dataframe -- can this be removed then ?? 
+        qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, widget_position)
+        custom_plot_widget = qwidget_item_1.widget()
+        return custom_plot_widget.statistics
 
-
+    def calculate_statistics(self):
+        """
+        calculate statistics for all the plot widgets
+        """
         for row in range(self.statistics_table_widget.rowCount()):
+
+            df = self.get_analysis_specific_statistics_df(row)
 
             # get the test to be performed from the combo box (position 4)
             test_type = self.statistics_table_widget.cellWidget(row,4).currentText()
@@ -196,23 +201,45 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                         else:
                             group1 = group1[0:len(group2)]
 
-                        if test_type == "t-Test":
-                            res =  stats.ttest_ind(group1,group2)
-                        else:
-                            res = stats.wilcoxon(group1,group2)
-                        tmp = pd.DataFrame({"Voltage":v, "Group_1":[p[0]], "Group_2":[p[1]], "p_Value":[res.pvalue]})
+                        try:
+                            if test_type == "t-Test":
+                                res =  stats.ttest_ind(group1,group2)
+                            else:
+                                res = stats.wilcoxon(group1,group2)
+                            tmp = pd.DataFrame({"Voltage":v, "Group_1":[p[0]], "Group_2":[p[1]], "p_Value":[res.pvalue]})
+                        except Exception as e:
+                            #@todo better handling ? DZ
+                            print("Error in statistics", e)
+                            tmp = pd.DataFrame({"Voltage":v, "Group_1":[p[0]], "Group_2":[p[1]], "p_Value":"Error"})
+                       
 
                         res_df = pd.concat([res_df, tmp])
 
-                        # print each voltage step seperately
-                    
+                row_layout = QVBoxLayout()
+
+                label = QLabel("Statistics of " + self.statistics_table_widget.item(row,1).text())
+                #label.setAlignment(Qt.AlignCenter)
+                label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+                row_layout.addWidget(label)
+
+                label = QLabel("Performed Statistics:" + test_type)
+                #label.setAlignment(Qt.AlignCenter)
+                label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+                row_layout.addWidget(label)
+
                 statistics_table_view = QTableView()
+                #statistics_table_view.setAlignment(Qt.AlignCenter)
                 model = PandasTable(res_df)
                 statistics_table_view.setModel(model)
-                self.statistics_result_grid.addWidget(statistics_table_view)
-                statistics_table_view.show()
+                row_layout.addWidget(statistics_table_view)
+                
+                statistics_table_view.setSizeAdjustPolicy(QTableView.AdjustToContents)
 
-                self.tabWidget.widget(1).show()
+                # Set the size policy of the QTableView and its parent widget to MinimumExpanding
+                statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+                statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+
+                self.statistics_result_grid.addLayout(row_layout)
                 self.tabWidget.setCurrentIndex(1)
 
             elif "Step" in df.columns:
