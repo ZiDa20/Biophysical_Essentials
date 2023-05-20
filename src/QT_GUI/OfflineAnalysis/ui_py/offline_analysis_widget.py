@@ -377,6 +377,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # set light or dark mode
         self.frontend_style.set_pop_up_dialog_style_sheet(self.load_data_from_database_dialog)
         self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
+        self.load_data_from_database_dialog.load_data_2.clicked.connect(self.load_page_1_tree_view)
+        
 
         #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
         self.load_data_from_database_dialog.all_cb.setChecked(True)

@@ -44,7 +44,7 @@ class LoadingAnimation:
         self.canvas.setParent(self.canvas_widget)
         self.time = None
         self.potential = None
-        self.status_label = QLabel("The File is currently not loaded")
+        self.status_label = QLabel("Processing ...") #The File is currently not loaded
         self.status_label.setAlignment(Qt.AlignCenter)
         self.font.setPointSize(12)
         self.wait_widget_layout.addWidget(self.status_label,3,1)
@@ -54,6 +54,7 @@ class LoadingAnimation:
         self.wait_widget.setLayout(self.wait_widget_layout)
         self.create_ap_line_out()
         self.start_animation_timer()
+    
 
     def create_ap_line_out(self):
         """Creates the outline of the action potential based on some artifical
@@ -91,12 +92,13 @@ class LoadingAnimation:
     def start_animation_timer(self):
         """Starts the animation timer for the AP animation!
         """
-        anim = animation.FuncAnimation(self.fig, self.anim_update, frames=len(self.time), blit=True)
+        self.anim = animation.FuncAnimation(self.fig, self.anim_update, frames=len(self.time), blit=True)
         # Show the plot on the QWidget
         # Create a QTimer
         self.timer = QTimer()
         self.timer.setInterval(50)
-        self.timer.timeout.connect(lambda: anim.event_source.start())
+        self.timer.timeout.connect(lambda: self.anim.event_source.start())
         self.canvas.draw_idle()
 
-
+    def stop_animation(self):
+        self.anim.event_source.stop()

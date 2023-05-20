@@ -11,7 +11,8 @@ import copy
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
-
+from CustomWidget.LoadingDialogHandler import LoadingDialog
+from StyleFrontend.animated_ap import LoadingAnimation
 
 import pandas as pd
 from PySide6.QtTest import QTest
@@ -69,7 +70,16 @@ class SeriesItemTreeWidget():
         @param series_names_list:
         @return:
         """
-        # add selection to database
+
+        
+        ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style, True)
+        d = QDialog() #LoadingDialog(self,self.frontend_style)
+        qgrid = QGridLayout(d)
+        qgrid.addWidget(ap.wait_widget)
+        d.show()
+        # Process events to allow the update
+        QCoreApplication.processEvents()
+
 
         if not reload:
             self.database_handler.write_analysis_series_types_to_database(series_names_list)
@@ -119,6 +129,10 @@ class SeriesItemTreeWidget():
         self.SeriesItems.expandToDepth(2)
         self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
 
+        # Process events to allow the update
+        QCoreApplication.processEvents()
+        ap.stop_animation()
+        d.accept()
 
     def normalization_value_handler(self):
         """show the normalization values to the user and allow to edit the values
