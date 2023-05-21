@@ -386,6 +386,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             fitting_parameters['dt t_min-t_max [ms]'] = t_min_1st_derivative_amplitude - t_max_1st_derivative_amplitude
             fitting_parameters['AP_with [ms]'] = half_width
             fitting_parameters["experiment_name"] = experiment_name
+            #fitting_parameters["meta_data"] = experiment_name
 
             return fitting_parameters
 
@@ -451,51 +452,6 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         return result_table_list
 
-
-    def run_late_register_feature(self):
-        """
-        late register to make plots for each of these parameters
-        @return:
-        """
-        print("yoho")
-        """
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Vmem [mV]', self.series_name,
-                                                                                 0, 0)                                                                                                                                                      
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('Threshold_Amplitude [mV]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_Threshold [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_t_threshold [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('passive_repolarization [mV]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_Amplitude [mV]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AP_Amplitude [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_ap_threshold [mV]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('delta_t_ap_threshold [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AHP_Amplitude [mV]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_AHP [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_threshold_ahp [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('max_first_derivate [mV/ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_max_1st_derivative [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('min_first_derivate [mV/ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('t_min_1st_derivative [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('dt t_min-t_max [ms]', self.series_name,
-                                                                                 0, 0)
-        self.database.write_analysis_function_name_and_cursor_bounds_to_database('AP_with [ms]', self.series_name,
-                                                                                 0, 0)
-        """
     def specific_visualisation(self, queried_data, function_analysis_id):
         print("specific result visualization")
         return 0

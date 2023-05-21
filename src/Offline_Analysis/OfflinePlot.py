@@ -360,6 +360,9 @@ class OfflinePlots():
                     cbar = False
 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
+        
+        self.statistics["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
+
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
 
 
@@ -370,7 +373,7 @@ class OfflinePlots():
                 subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
                 subset.dropna(axis = 0, inplace = True)
                 tmp_dict = {}
-                for c in  self.statistics.columns[0:-1]: # get rid of the last since this is the experiment name
+                for c in  self.statistics.columns[0:-2]: # get rid of the last since this is the experiment name and meta data
                     tmp_dict[c] = [np.mean(subset[c].values)]
                 #print(tmp_dict)
                 tmp_df = pd.DataFrame(tmp_dict)
@@ -380,7 +383,7 @@ class OfflinePlots():
             drawing_data = new_df.T
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
-           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
+           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-2]].T
            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
 
         self.parent_widget.canvas.figure.tight_layout()
@@ -408,7 +411,8 @@ class OfflinePlots():
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
-        sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", errorbar=("se", 2), ax = self.parent_widget.ax)
+        sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", ax = self.parent_widget.ax)
+        # errorbar=("se", 2), 
         self.parent_widget.canvas.draw_idle()
 
 

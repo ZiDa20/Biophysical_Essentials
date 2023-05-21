@@ -10,6 +10,9 @@ from Offline_Analysis.error_dialog_class import CustomErrorDialog
 import itertools
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
+    """
+    Statisics Module
+    """
     def __init__(self, parent_stacked, analysis_stacked, hierachy_stacked_list, SeriesItems, database_handler, frontend_style, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -17,32 +20,25 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.tabWidget.widget(1).hide()
         self.statistics_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.statistics_table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        
         self.frontend_style = frontend_style
         self.parent_stacked = parent_stacked
         self.analysis_stacked = analysis_stacked
         self.hierachy_stacked_list = hierachy_stacked_list
         self.SeriesItems = SeriesItems
         self.database_handler = database_handler
-
         self.check_meta_data_selected()
         self.autofill_statistics_table_widget()   
 
     
     def check_meta_data_selected(self):
         """
-        statistics  can be only applied between meta data groups and therefore the user must select meta data groups before.
-        other wise each cell is displayed solely and statistics wont work
+        statistics  can be only applied between meta data groups and therefore the user must select meta data groups before,
+        otherwise each cell is displayed solely and statistics wont work.
         """
-
-        # request the first table since all will have the same meta data for now
-        df = self.get_analysis_specific_statistics_df(0)
-
-        # Compare the two columns for equality
-        are_equal = df["experiment_name"] == df["meta_data"]
-
+        df = self.get_analysis_specific_statistics_df(0) # request the first table since all will have the same meta data for now
+        are_equal = df["experiment_name"] == df["meta_data"] # Compare the two columns for equality
         if are_equal.all():
-            d = CustomErrorDialog("Before running any statistics, setting meta data is required. Go back to the plots, select your meta data and come back to statistics", self.frontend_style)
+            d = CustomErrorDialog("To run statistics, you have to choose meta data first. Please open the meta-data selection from the ribbon bar above.", self.frontend_style)
             d.exec_()
         else:
             return
@@ -52,97 +48,118 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         """
         based on the analysis function data are scanned and prepared for the statistical analysis
         """
-        
-        
         self.series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")[0]
-        analysis_functions = self.database_handler.get_analysis_functions_for_specific_series(self.series_name)
+        tuple_list = self.database_handler.get_analysis_functions_for_specific_series(self.series_name) # list of tuples
+        self.analysis_functions = [item[0] for item in tuple_list]
 
-        #initiate the table in case there are no rows yet
-        existing_row_numbers = self.statistics_table_widget.rowCount()
+        existing_row_numbers = self.statistics_table_widget.rowCount() #initiate the table in case there are no rows yet
 
         if  existing_row_numbers == 0:
-            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
+            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT ;) !
             self.statistics_table_widget.setColumnCount(5)
-            self.statistics_table_widget.setRowCount(len(analysis_functions))
-            self.statistics_table_buttons = [0] * len(analysis_functions)
-
-        self.statistics_add_meta_data_buttons = [0]*len(analysis_functions)
-
-        for i in range(len(analysis_functions)):
-
-            # prepare a row for each analysis
-            analysis_function = analysis_functions[i][0]
-            print(analysis_function)
-            row_to_insert = i + existing_row_numbers
-
-            # add a checkbox in column 0
-            self.select_checkbox = QCheckBox()
-            self.statistics_table_widget.setCellWidget(row_to_insert, 0,self.select_checkbox)
-
-            #add the analysis function to column 1
-            self.statistics_table_widget.setItem(row_to_insert, 1,
-                                                                    QTableWidgetItem(str(analysis_function)))
-
-            # add meta data change button to column2
-            self.statistics_add_meta_data_buttons[row_to_insert] =  QPushButton("Change")
-            self.statistics_table_widget.setCellWidget(row_to_insert, 2, self.statistics_add_meta_data_buttons[row_to_insert])
-
-            df = self.get_analysis_specific_statistics_df(i)
-
-            unique_meta_data = list(df["meta_data"].unique())
-                
-            #for meta_data in unique_meta_data:
-            self.statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data)))
-                                            
-            #unique_meta_data.index(meta_data), 2,QTableWidgetItem(str(meta_data)))
-
-            # show distrib�tion
-            self.data_dist  = QComboBox()
-            self.data_dist.addItems(["Normal Distribution", "Non-Normal Distribution"])
-            # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution"
-
-            cell_widget = QWidget()
-            cell_widget_layout = QGridLayout()
-            cell_widget.setLayout(cell_widget_layout)
-            cell_widget_layout.addWidget(self.data_dist,0,0)
-            self.statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
-
-            # show test
-            self.stat_test = QComboBox()
-            self.stat_test.addItems(["Independent t-test","Welchs t-test", "Paired t-test", "Wilcoxon Signed-Rank test", "Kruskal Wallis test", "Brunner-Munzel test"])
-            self.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
-
-            if "Result" in df.columns:
-                shapiro_test = stats.shapiro(df["Result"])
-                print(shapiro_test)
-                test_res = str(round(shapiro_test.pvalue,3))
-            elif "Rheoramp" in df.columns:
-                shapiro_test = stats.shapiro(df["Number AP"])
-                print(shapiro_test)
-                test_res = str(round(shapiro_test.pvalue,3))
-            
-            
-            if test_res == "0.0":
-                cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value < 0.001 "),1,0)
+            if "Action_Potential_Fitting" in self.analysis_functions:
+                #@todo: dynamically ? dz
+                self.statistics_table_widget.setRowCount(18+ len(self.analysis_functions)-1) # -1 to remove the AP Fitting
             else:
-                cell_widget_layout.addWidget(QLabel("Shapiro Wilk Test \n p-Value = " + test_res),1,0)
-            if shapiro_test.pvalue >= 0.05:
-                # evidence that data comes from normal distribution
-                self.data_dist.setCurrentIndex(0)
-                self.stat_test.setCurrentIndex(0)
+                self.statistics_table_widget.setRowCount(len(self.analysis_functions))
+            self.statistics_table_buttons = [0] * len(self.analysis_functions)
+            self.statistics_table_widget.resizeRowsToContents()   
+
+        self.statistics_add_meta_data_buttons = [0]*len(self.analysis_functions)
+
+        for i in range(len(self.analysis_functions)):
+
+            if self.analysis_functions[i] == "Action_Potential_Fitting":
+                df = self.get_analysis_specific_statistics_df(i)
+                self.autofill_ap_fitting(df,existing_row_numbers)
             else:
-                # no evidence that data comes from normal distribution
-                self.data_dist.setCurrentIndex(1)
-                self.stat_test.setCurrentIndex(3)
-
-            #self.statistics_add_meta_data_buttons[row_to_insert].clicked.connect(partial(self.select_statistics_meta_data, statistics_table_widget, row_to_insert))
-            
-            self.statistics_table_widget.show()
-
+               self.autofill_by_analysis_function(i, self.analysis_functions,existing_row_numbers)
+        
+        self.statistics_table_widget.resizeRowsToContents()   
         start_statistics = QPushButton("Run Statistic Test")
         self.verticalLayout_2.addWidget(start_statistics)
-
         start_statistics.clicked.connect(partial(self.calculate_statistics))
+
+    def autofill_ap_fitting(self,df,row_count):
+        """prepare a row for each ap fitting column"""
+        unique_meta_data = list(df["meta_data"].unique())
+        for c in range(len(df.columns[0:-2])):
+            row_to_insert = row_count+c
+            self.statistics_table_widget.setItem(row_to_insert,1, QTableWidgetItem(str(df.columns[c])))
+            self.statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data)))
+            cell_widget_layout = self.insert_data_distribution(row_to_insert)
+            self.insert_statistical_test(row_to_insert)
+            #self.get_and_set_data_distribution(df[df.columns[c]],cell_widget_layout)
+            self.statistics_table_widget.setRowHeight(row_to_insert, 100)
+            print("inserting into" + str(row_to_insert) + df.columns[c])
+
+    def autofill_by_analysis_function(self, function_pos:int, analysis_functions:list, row_count:int):
+        """prepare a row for each analysis function and fill the columns appropriately """
+        
+        analysis_function = analysis_functions[function_pos]
+        row_to_insert = function_pos + row_count
+
+        #add the analysis function to column 1
+        self.statistics_table_widget.setItem(row_to_insert, 1, QTableWidgetItem(str(analysis_function)))
+
+        df = self.get_analysis_specific_statistics_df(function_pos)
+        unique_meta_data = list(df["meta_data"].unique())
+        self.statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data))) #insert selected meta data as labels
+        self.insert_statistical_test(row_to_insert)
+        cell_widget_layout = self.insert_data_distribution(row_to_insert)
+        self.get_and_set_data_distribution(df,cell_widget_layout)
+
+
+    def insert_statistical_test(self,row_to_insert):
+        # show test
+        self.stat_test = QComboBox()
+        self.stat_test.addItems(["Independent t-test","Welchs t-test", "Paired t-test", "Wilcoxon Signed-Rank test", "Kruskal Wallis test", "Brunner-Munzel test"])
+        self.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
+
+    def insert_data_distribution(self,row_to_insert):
+        """
+        Insert a combobox to select between normal distribution and non-normal distribution.
+        Shapiro Wilk test will be executed to determine data distribution and the combo box will be set to the apropriate distribution
+        """
+       
+        self.data_dist  = QComboBox()
+        self.data_dist.addItems(["Normal Distribution", "Non-Normal Distribution"])  # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution"
+        cell_widget = QWidget()
+        cell_widget_layout = QGridLayout()
+        cell_widget.setLayout(cell_widget_layout)
+        cell_widget_layout.addWidget(self.data_dist,0,0)
+        self.statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
+        return cell_widget_layout
+
+    def get_and_set_data_distribution(self,df,cell_widget_layout):
+        "performs shapiro wil test and sets up the data distribution accordingly"
+
+        if isinstance(df, pd.Series): # AP fittign case, only a single column in the df
+            shapiro_test = stats.shapiro(df.tolist())
+        else:
+            if "Result" in df.columns:
+                shapiro_test = stats.shapiro(df["Result"])
+            elif "Rheoramp" in df.columns:
+                shapiro_test = stats.shapiro(df["Number AP"])
+            
+
+        print(shapiro_test)
+        test_res = str(round(shapiro_test.pvalue,3))
+        
+        
+        if test_res == "0.0":
+            cell_widget_layout.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p< 0.001"),1,0)
+        else:
+            cell_widget_layout.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p=" + test_res),1,0)
+        if shapiro_test.pvalue >= 0.05:
+            # evidence that data comes from normal distribution
+            self.data_dist.setCurrentIndex(0)
+            self.stat_test.setCurrentIndex(0)
+        else:
+            # no evidence that data comes from normal distribution
+            self.data_dist.setCurrentIndex(1)
+            self.stat_test.setCurrentIndex(3)
+
 
     def get_analysis_specific_statistics_df(self, widget_position):
         """
@@ -166,8 +183,13 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         calculate statistics for all the plot widgets
         """
         for row in range(self.statistics_table_widget.rowCount()):
-
-            df = self.get_analysis_specific_statistics_df(row)
+        #for row in range(len(self.analysis_functions)):
+            
+            print("AP_Amplitude [mV]" in self.analysis_functions)
+            if "Action_Potential_Fitting" in self.analysis_functions:
+                df = self.get_analysis_specific_statistics_df(0)
+            else:
+                df = self.get_analysis_specific_statistics_df(row)
             test_type = self.statistics_table_widget.cellWidget(row,4).currentText()  # get the test to be performed from the combo box (position 4)
             unique_groups  = list(df["meta_data"].unique()) # get unique meta data groups to compare
             pairs = self.get_pairs(unique_groups) # get a list of tuples for pairwise comparison
@@ -203,6 +225,18 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
                 self.create_statistics_for_steps(row, test_type,res_df)
 
+            elif "AP_Amplitude [mV]" in df.columns:
+
+                c_name = df.columns[row]
+                res_df = pd.DataFrame(columns=["Parameter", "Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
+                for p in pairs:
+                    group1 = df[df["meta_data"]==p[0]][c_name]
+                    group2 = df[df["meta_data"]==p[1]][c_name]
+                    tmp = self.apply_stats_test(test_type,group1,group2, p, c_name, "AP-Fitting")
+                    res_df = pd.concat([res_df, tmp])
+                    
+                self.create_statistics_for_steps(row, test_type,res_df)
+
             else: # simple boxplots for each meta data group to be compared
                 
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
@@ -218,6 +252,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
     def create_statistics_for_steps(self, row:int, test_type:str, res_df:pd.DataFrame):
         """
+        frontend handling to show tables for the statistics results
         """
         
           
@@ -225,11 +260,13 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
         label = QLabel("Statistics of " + self.statistics_table_widget.item(row,1).text())
         #label.setAlignment(Qt.AlignCenter)
+        label.setMaximumSize(200, 50)  # Set the maximum width and height as desired
         label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         row_layout.addWidget(label)
 
         label = QLabel("Performed Statistics:" + test_type)
         #label.setAlignment(Qt.AlignCenter)
+        label.setMaximumSize(200, 50)  # Set the maximum width and height as desired
         label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         row_layout.addWidget(label)
 
