@@ -12,6 +12,7 @@ import itertools
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
     """
     Statisics Module
+    
     """
     def __init__(self, parent_stacked, analysis_stacked, hierachy_stacked_list, SeriesItems, database_handler, frontend_style, parent=None):
         QWidget.__init__(self, parent)
