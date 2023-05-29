@@ -328,7 +328,7 @@ QToolTip[objectName="stop_experiment_button"] {{color: #ffffff; background-color
 QPushButton[objectName="clear_sequence"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/clear_dark.png);}}
 QToolTip[objectName="clear_sequence"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="transfer_to_online_analysis_button"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/transfer_dark.png);}}
+QPushButton[objectName="transfer_to_online_analysis_button"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/finish_experiment_dark.png);}}
 QToolTip[objectName="transfer_to_online_analysis_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QPushButton[objectName="button_start_camera"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/play_dark.png);}}
@@ -345,3 +345,9 @@ QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #00
 
 QPushButton[objectName="transfer_snapshot"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/transfer_dark.png);}}
 QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="download_notebook"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/download_batch_dark.png);}}
+QToolTip[objectName="download_notebook"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="metadata_table"]{{background-image: url(../QT_GUI/Button/Experimentator/dark_mode/grid.png);}}
+QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #000000; border: 0px; }}

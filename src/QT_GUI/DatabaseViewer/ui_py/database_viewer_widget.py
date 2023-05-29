@@ -35,8 +35,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.database_table.itemClicked.connect(self.pull_table_from_database)
         self.frontend_style = None
         self.SearchTable.clicked.connect(self.search_database_table)
-        
-        
+
+
     def update_database_handler(self,database_handler, frontend_style):
         self.database_handler = database_handler
         self.frontend_style = frontend_style
@@ -54,20 +54,6 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         else:
             print("No Table to export")
 
-    """
-    @Slot()
-    def open_database(self):
-        #@todo: find a way to anyhow access the already opened database object from offline analysis
-        \"""open a dropdown menu and connect to a database selected by the user\"""
-        cew = os.path.dirname(os.getcwd())
-        self.db_file_name = "duck_db_analysis_database.db"
-        try:
-            self.database = duckdb.connect(cew + '/src/' + self.db_file_name, read_only=True)
-            self.show_basic_tables(True)
-        except Exception as e:
-            print(e)
-    """     
-
     def show_basic_tables(self,database_handler):
         '''
         Request available tables and plot the content
@@ -77,45 +63,46 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.database = database_handler.database
 
         q = """SHOW TABLES"""
-        tables_names = self.database.execute(q).fetchall() 
+        tables_names = [i[0] for i in self.database.execute(q).fetchall()]
 
         self.table_dictionary = {"Result Table": [],
-                                 "Raw signal" : [], 
-                                 "Generator Table":[], 
+                                 "Raw signal" : [],
+                                 "Generator Table":[],
                                  "Meta Table": [],
-                                 "Selected Meta":[], 
-                                 "Experiment": [], 
+                                 "Selected Meta":[],
+                                 "Experiment": [],
                                  "Analysis Table":[],
-                                 "Labbook Table": []}
-        
+                                 "Labbook Table": [],
+                                 "Solutions": []}
+
         # for each table, create a button in a dropdown list
         # connect the button to a function plotting the table
-        for l in range (len(tables_names)):
-            table_name = tables_names[l][0]
-
+        for table_name in tables_names:
             if "imon_signal" in table_name:
                 self.table_dictionary["Raw signal"].append(table_name)
                 continue
-            if "imon_meta" in table_name:
+            elif "imon_meta" in table_name:
                 self.table_dictionary["Meta Table"].append(table_name)
                 continue
-            if "meta_data" in table_name:
+            elif "meta_data" in table_name:
                 self.table_dictionary["Selected Meta"].append(table_name)
                 continue
-            if ("experiment" in table_name) or ("global" in table_name):
+            elif ("experiment" in table_name) or ("global" in table_name):
                 self.table_dictionary["Experiment"].append(table_name)
                 continue
-            if "analysis" in table_name and "result" not in table_name:
+            elif "analysis" in table_name and "result" not in table_name:
                 self.table_dictionary["Analysis Table"].append(table_name)
                 continue
-            if "pgf" in table_name:
+            elif "pgf" in table_name:
                 self.table_dictionary["Generator Table"].append(table_name)
                 continue
-            if "labbook" in table_name:
+            elif "labbook" in table_name:
                 self.table_dictionary["Labbook Table"].append(table_name)
-
-            if "results" in table_name:
+            elif "results" in table_name:
                 self.table_dictionary["Result Table"].append(table_name)
+                continue
+            elif "solution" in table_name:
+                self.table_dictionary["Solutions"].append(table_name)
                 continue
 
         # create a button for each table
@@ -126,8 +113,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
 
     def retrieve_tables(self, manual_table, manual = None):
-        """ 
-        When button clicked then we should retrieve the associated tables to structure the 
+        """
+        When button clicked then we should retrieve the associated tables to structure the
         Tables better
         Args:
             manual_table type: str Name of the table to be retrieved
@@ -140,7 +127,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.database_table.addItems(retrieved_tables)
         if manual:
             self.pull_table_from_database(None,"offline_analysis")
-            
+
     @Slot(str)
     def pull_table_from_database(self, event = None,  text_query = None):
         '''
@@ -165,16 +152,14 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         Create a QTABLE Widget from a given input dict
         Args:
             table_dict: dict with keys = column names, values = array = single rows for the table
-
         '''
-   
         # create the table from dict
         print("called")
         self.pandas_frame = pd.DataFrame(table_dict)
 
         if self.pandas_frame.shape[0] > 500:
             view_frame = self.pandas_frame.head(100)
-        
+
         else:
             view_frame = self.pandas_frame
 
@@ -197,7 +182,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
         self.viewing_model.resize_header(self.data_base_content)
-        #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
+        #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_layout.addWidget(scroll_area)
         self.data_base_content.setGeometry(20, 20, 691, 581)
 
@@ -224,14 +209,14 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             #@TODO: add a dialog box to show the error if tables are not found
             print("Error: %s", e)
 
-    
+
     def retrieve_column(self, index):
-        """ 
+        """
         Here we can retrieve the data of the the selected columns
-        
+
         args:
             index type: QModelIndex Index of the selected row
-            
+
         returns:None
         """
 
@@ -249,10 +234,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
     def draw_table(self, floating_numbers):
         """
-        Draws the selected column if it contains numbers 
+        Draws the selected column if it contains numbers
         The data amount is using only every 10th point to reduce
         slowness of the matplotlib plot
-        
+
         args:
             floating_numbers type(np.array): list of numbers
             """
@@ -262,17 +247,17 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         # this should show the sliced array
         if self.canvas:
             self.canvas.deleteLater()
-    
+
         sliced_array = floating_numbers[::10]
         self.raw_database_signal_plot(sliced_array)
-       
+
         # draw the figure
     def raw_database_signal_plot(self, sliced_array):
         """
         Draws the raw signal of the selected column
         in the DataBase Viewer
         Args:
-            sliced_array (_type_): array of data, where only every 10th point 
+            sliced_array (_type_): array of data, where only every 10th point
             is used to reduce the overhead
         """
         # creates the Canvase
@@ -281,8 +266,8 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         #add the buttons for the plot navigation
         self.plot_option_connection()
         #draws the figure
-        self.draw_figure(sliced_array)
-    
+        self.draw_figure()
+
     def plot_option_connection(self):
         """
         Plot Control Options mapped to the ribbon bar buttons
@@ -292,7 +277,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.plot_move.clicked.connect(self.navigation.pan)
         self.save_plot_online.clicked.connect(self.save_image)
 
-    def draw_figure(self, sliced_array):
+    def draw_figure(self):
         """
         Draws the figure in the canvas
         @ToDO add this to the frontend class
@@ -328,5 +313,4 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
 
     def export_offline_analysis_id(self):
         database_export = ExportOfflineDialog(self.database_handler, self.frontend_style)
-        
-        
+

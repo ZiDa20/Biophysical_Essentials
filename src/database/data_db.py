@@ -59,11 +59,14 @@ class DuckDBDatabaseHandler():
         except Exception as e:
             print(e)
 
-
+    def get_tables(self):
+        tables = self.get_data_from_database(self.database, "SHOW TABLES;", fetch_mode=2)
+        return tables
+    
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """
     """--------------------------------------------------------------"""
-
+    
     def create_mapping_between_experiments_and_analysis_id(self, experiment_id):
         q = 'insert into experiment_analysis_mapping values (?,?)'
         try:

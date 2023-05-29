@@ -19,6 +19,7 @@ import pyqtgraph as pg
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
 from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import *
+from QT_GUI.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
 import traceback, sys
 from functools import partial
 from matplotlib.figure import Figure
@@ -43,6 +44,10 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # initialize self_config_notebook_widget
         self.setupUi(self) # setup the ui file
         # added the Progress Bar to the self-configuration
+        self.database_handler = None
+        self.frontend_style = None
+
+        #
         self.experiment_control_stacked.setCurrentIndex(0)
         self.set_buttons_beginning()
         #select the batch_path
@@ -52,27 +57,34 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.ui_notebook = None
         # Experiment Section
         ## pathes for the pgf files
-        self.pgf_file = None
-        self.pro_file = None
-        self.onl_file = None
-        self.data_file_ending = 1
-        self.general_commands_list = ["GetEpcParam-1 Rseries", "GetEpcParam-1 Cfast", "GetEpcParam-1 Rcomp","GetEpcParam-1 Cslow","Setup","Seal","Whole-cell"]
-        self.config_list_changes = ["Whole Cell", "Current Clamp"]
+        self.pgf_file: str = None
+        self.pro_file: str = None
+        self.onl_file: str = None
+        self.data_file_ending: int = 1
+        self.general_commands_list: list = ["GetEpcParam-1 Rseries", 
+                                            "GetEpcParam-1 Cfast", 
+                                            "GetEpcParam-1 Rcomp",
+                                            "GetEpcParam-1 Cslow",
+                                            "Setup","Seal",
+                                            "Whole-cell"
+                                            ]
+        self.config_list_changes: list = ["Whole Cell", "Current Clamp"]
         self.check_connection.setText("Warning: \n \nPlease select the PGF, Analysis and Protocol File and set the Batch communication Path!")
-        self.experiment_dictionary = {} # create and experiment dictionary with Metadata @toDO replace this by class
-        self.submission_count = 2 # each submitte command will increase counts
+        self.experiment_dictionary: dict = {} # create and experiment dictionary with Metadata @toDO replace this by class
+        self.submission_count: int = 2 # each submitte command will increase counts
         self.threadpool = QThreadPool() #
         ## setup pyqtgraph for experiment visualization
         self.graphWidget = pg.PlotWidget()
         self.pyqt_window.addWidget(self.graphWidget)
         # Camera Section
-        self.image_stack = [] # stack of images
-        self.image_list = []
-        self._image_count = 0
+        self.image_stack: list = [] # stack of images
+        self.image_list: list = []
+        self._image_count: int = 0
         #darkmode
-        self.default_mode = 1
+        self.default_mode: int = 1
         # check if session is implemeted
-        self.check_session = None
+        self.check_session: bool = None
+
         # Initialize the connections
         self.logger_setup()
         self.initialize_camera()
@@ -110,10 +122,20 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.protocols_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(3))
         self.modi_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(1))
         self.labels_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(2))
+        self.change_solutions.clicked.connect(lambda: SolutionsDialog(self.database_handler))
 
         # set up page control:
         self.go_back_button.clicked.connect(self.go_back)
         self.fo_forward_button.clicked.connect(self.go_forward)
+
+    def update_database_handler(self, database, frontend):
+        """updates the database handler
+        Args:
+            database: DuckDBHandler -> database handler
+            frontend: FrontendStyle -> handles the frontend
+        """
+        self.database_handler = database
+        self.frontend_style = frontend
 
     def go_back(self):
         index = self.experiment_control_stacked.currentIndex()

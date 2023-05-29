@@ -16,18 +16,18 @@ class DuckDBInitializer:
         self.dir_list = os.listdir(self.database_path)
         self._return_value: bool = False
         self.database = None
-        
+
     @property
     def return_value(self):
         return self._return_value
-    
+
     @return_value.setter
     def return_value(self, value: bool):
         if isinstance(value, bool):
             self._return_value = value
         else:
             raise TypeError(f"self._return_value should be of type Bool and not of type {type(value)}")
-        
+
 
     def init_database(self):
         # creates a new analysis database and writes the tables or connects to an existing database
@@ -69,7 +69,9 @@ class DuckDBInitializer:
 
         # create a unique sequence analoque to auto increment function
         create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequence;"""
+        create_solution_sequence = """CREATE SEQUENCE solution_sequence;"""
         self.database.execute(create_unique_offline_analysis_sequence)
+        self.database.execute(create_solution_sequence)
 
         # create all database tables assuming they do not exist'''
 
@@ -174,6 +176,11 @@ class DuckDBInitializer:
                                                 offline_analysis_id integer
                                                 );"""
 
+        sql_solutions_table = """CREATE TABLE solution(
+                                                solution_id integer PRIMARY KEY DEFAULT(nextval ('solution_sequence')),
+                                                solutions text
+                                                );"""
+
         try:
             self.database.execute(sql_create_offline_analysis_table)
             self.database.execute(sql_create_filter_table)
@@ -187,6 +194,7 @@ class DuckDBInitializer:
             self.database.execute(sql_create_series_mapping_table)
             self.database.execute(sql_create_global_meta_data_table)
             self.database.execute(sql_create_selected_meta_data_table)
+            self.database.execute(sql_solutions_table)
             self.logger.info("create_table created all tables successfully")
         except Exception as e:
             self.logger.info("create_tables function failed with error %s", e)
