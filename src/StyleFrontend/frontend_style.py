@@ -12,7 +12,7 @@ class Frontend_Style():
         self.canvas = []
         self.app = app
         self.ax = []
-        self._default_mode = 0
+        self._default_mode = 1
         self.change_to_lightmode()
 
     @property

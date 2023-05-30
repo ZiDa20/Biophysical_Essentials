@@ -73,37 +73,34 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
                                  "Experiment": [],
                                  "Analysis Table":[],
                                  "Labbook Table": [],
-                                 "Solutions": []}
+                                 "Solutions": [],
+                                 "Other Tables": []}
 
         # for each table, create a button in a dropdown list
         # connect the button to a function plotting the table
         for table_name in tables_names:
             if "imon_signal" in table_name:
                 self.table_dictionary["Raw signal"].append(table_name)
-                continue
             elif "imon_meta" in table_name:
                 self.table_dictionary["Meta Table"].append(table_name)
-                continue
             elif "meta_data" in table_name:
                 self.table_dictionary["Selected Meta"].append(table_name)
-                continue
             elif ("experiment" in table_name) or ("global" in table_name):
                 self.table_dictionary["Experiment"].append(table_name)
-                continue
             elif "analysis" in table_name and "result" not in table_name:
                 self.table_dictionary["Analysis Table"].append(table_name)
-                continue
             elif "pgf" in table_name:
                 self.table_dictionary["Generator Table"].append(table_name)
-                continue
             elif "labbook" in table_name:
                 self.table_dictionary["Labbook Table"].append(table_name)
             elif "results" in table_name:
                 self.table_dictionary["Result Table"].append(table_name)
-                continue
             elif "solution" in table_name:
                 self.table_dictionary["Solutions"].append(table_name)
-                continue
+            else:
+                self.table_dictionary["Other Tables"].append(table_name)
+                
+                
 
         # create a button for each table
         self.retrieve_tables("Analysis Table", True)

@@ -178,7 +178,8 @@ class DuckDBInitializer:
 
         sql_solutions_table = """CREATE TABLE solution(
                                                 solution_id integer PRIMARY KEY DEFAULT(nextval ('solution_sequence')),
-                                                solutions text
+                                                solutions text,
+                                                type text
                                                 );"""
 
         try:

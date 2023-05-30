@@ -65,8 +65,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style, self.ui.notebook)
         self.ui.offline.add_splitter()
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
-        self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
-        self.ui.config.update_database_handler(self.online_database, self.local_database_handler)
+        self.ui.config.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.frontend_style = self.frontend_style
         self.ui.config.online_analysis = self.ui.online
 

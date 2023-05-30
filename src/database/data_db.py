@@ -5,6 +5,7 @@ import datetime
 import re
 import numpy as np
 import io
+import pandas as pd
 
 import datetime
 import duckdb
@@ -66,6 +67,20 @@ class DuckDBDatabaseHandler():
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """
     """--------------------------------------------------------------"""
+    def create_table_for_database(self, table: pd.DataFrame , table_name: str) -> None:
+        new_df = table
+        self.database.execute(f"CREATE TABLE {table_name} as SELECT * FROM new_df;")
+        trial = self.database.execute(f"Select * from {table_name};").fetch_df()
+        self.logger.info(f"Created Solution Table {table_name}")
+        
+    def add_solution_table_to_mapping(self, table_name: str, solution_type: str) -> None:
+        """_summary_: Adds a solution table to the database
+
+        Args:
+            table_name (str): The name of the solution table to add
+        """
+        self.database.execute("INSERT INTO solution (solutions, type) VALUES (?,?);", [table_name, solution_type])
+        self.logger.info(f"Added Solution Table {table_name} to mapping")
     
     def create_mapping_between_experiments_and_analysis_id(self, experiment_id):
         q = 'insert into experiment_analysis_mapping values (?,?)'
@@ -330,6 +345,24 @@ class DuckDBDatabaseHandler():
             return res["sweep_table_name"].tolist()[0]
         else:
             return None
+        
+    def get_extracellular_solutions(self) -> list:
+        """_summary_: Retrieves all extracellular solutions from the database.
+
+        Returns:
+            list: Names of the extracellular solutions.
+        """
+        ecs = self.database.execute('select * from solution').fetchdf()
+        return ecs[ecs["type"] == "Extracellular"]["solutions"].tolist()
+    
+    def get_intracellular_solutions(self) -> list:
+        """_summary_: Retrieves all intracellular solutions from the database.
+
+        Returns:
+            list: Names of the intracellular solutions.
+        """
+        ics = self.database.execute('select * from solution').fetchdf()
+        return ics[ics["type"] == "Intracellular"]["solutions"].tolist()
 
     def get_entire_sweep_table(self, table_name, fetchmode = 1):
         '''

@@ -91,7 +91,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.connections_clicked_experiment()
         self.connections_clicked_camera()
         self.connection_clicked_threading()
-        self.set_solutions()
+        
 
     def connection_clicked_threading(self):
         """ connect button to the threading"""
@@ -122,7 +122,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.protocols_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(3))
         self.modi_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(1))
         self.labels_select.clicked.connect(lambda x: self.exp_stacked.setCurrentIndex(2))
-        self.change_solutions.clicked.connect(lambda: SolutionsDialog(self.database_handler))
+        self.change_solutions.clicked.connect(self.solution_dialog)
 
         # set up page control:
         self.go_back_button.clicked.connect(self.go_back)
@@ -136,7 +136,11 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         """
         self.database_handler = database
         self.frontend_style = frontend
-
+        self.set_solutions()
+        
+    def solution_dialog(self):
+        solution = SolutionsDialog(database = self.database_handler, frontend = self.frontend_style)
+    
     def go_back(self):
         index = self.experiment_control_stacked.currentIndex()
         if index == 1:
@@ -164,8 +168,8 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def set_solutions(self):
         """ set solutions that you can use for the experiment"""
-        extracellular_solutions = ["ECS Standard","ECS Standard new","Sodium ECS", "Potassium ECS","Calcium ECS","aCSF","NMDG Solution", "low-calcium ECS"]
-        intracellular_solutions = ["Pipette XX","Pipette XXneu"]
+        extracellular_solutions = self.database_handler.get_extracellular_solutions()
+        intracellular_solutions = self.database_handler.get_intracellular_solutions()
 
         for i in extracellular_solutions:
             self.extracellular_sol_com_1.addItem(i)
