@@ -6,8 +6,13 @@ import pandas as pd
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
-
 import itertools
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import FigureCanvas
+from matplotlib.figure import Figure
+from statannotations.Annotator import Annotator
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
     """
@@ -28,7 +33,8 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.SeriesItems = SeriesItems
         self.database_handler = database_handler
         self.check_meta_data_selected()
-        self.autofill_statistics_table_widget()   
+        self.autofill_statistics_table_widget()
+        self.tabWidget.setTabVisible(1,False)   
 
     
     def check_meta_data_selected(self):
@@ -183,14 +189,14 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         """
         calculate statistics for all the plot widgets
         """
-        for row in range(self.statistics_table_widget.rowCount()):
-        #for row in range(len(self.analysis_functions)):
+        for row in range(self.statistics_table_widget.rowCount()):   
             
-            print("AP_Amplitude [mV]" in self.analysis_functions)
-            if "Action_Potential_Fitting" in self.analysis_functions:
+            if "Action_Potential_Fitting" in self.analysis_functions: # ap fitting is one function but i want to show each parameter already
                 df = self.get_analysis_specific_statistics_df(0)
             else:
                 df = self.get_analysis_specific_statistics_df(row)
+
+            
             test_type = self.statistics_table_widget.cellWidget(row,4).currentText()  # get the test to be performed from the combo box (position 4)
             unique_groups  = list(df["meta_data"].unique()) # get unique meta data groups to compare
             pairs = self.get_pairs(unique_groups) # get a list of tuples for pairwise comparison
@@ -228,16 +234,22 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
             elif "AP_Amplitude [mV]" in df.columns:
 
-                c_name = df.columns[row]
+                c_name = df.columns[row] # get the current name of the parameter
                 res_df = pd.DataFrame(columns=["Parameter", "Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
                 for p in pairs:
                     group1 = df[df["meta_data"]==p[0]][c_name]
                     group2 = df[df["meta_data"]==p[1]][c_name]
-                    tmp = self.apply_stats_test(test_type,group1,group2, p, c_name, "AP-Fitting")
+                    tmp = self.apply_stats_test(test_type,group1,group2, p)
                     res_df = pd.concat([res_df, tmp])
-                    
-                self.create_statistics_for_steps(row, test_type,res_df)
+                res_df["Parameter"] = c_name
 
+                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
+                        
+                #canvas= self.show_statistic_results(df, pairs,test_type, c_name) # data to visualize are in the column that is named according the current parameter name
+
+                #row_layout.addWidget(canvas)
+                #canvas.draw_idle()
+               
             else: # simple boxplots for each meta data group to be compared
                 
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
@@ -247,27 +259,34 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                     tmp = self.apply_stats_test(test_type,group1,group2, p)
                     res_df = pd.concat([res_df, tmp])
 
-                self.show_statistic_results(df, res_df, pairs,test_type)
-                self.tabWidget.widget(1).show()
+                statistics_table_view = QTableView()
+                model = PandasTable(res_df)
+                statistics_table_view.setModel(model)
+                self.statistics_result_grid.addWidget(statistics_table_view)
+                statistics_table_view.show()    
+
+                canvas = self.show_statistic_results(df, pairs,test_type, "Result") # data to visualize are in column "results"
+                self.statistics_result_grid.addWidget(canvas)
+                canvas.draw_idle()
+                self.tabWidget.setTabVisible(1,True)
+                #self.tabWidget.widget(1).show()   
                 self.tabWidget.setCurrentIndex(1)
 
     def create_statistics_for_steps(self, row:int, test_type:str, res_df:pd.DataFrame):
         """
         frontend handling to show tables for the statistics results
         """
-        
-          
         row_layout = QVBoxLayout()
 
         label = QLabel("Statistics of " + self.statistics_table_widget.item(row,1).text())
         #label.setAlignment(Qt.AlignCenter)
-        label.setMaximumSize(200, 50)  # Set the maximum width and height as desired
+        label.setMaximumSize(400, 50)  # Set the maximum width and height as desired
         label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         row_layout.addWidget(label)
 
         label = QLabel("Performed Statistics:" + test_type)
         #label.setAlignment(Qt.AlignCenter)
-        label.setMaximumSize(200, 50)  # Set the maximum width and height as desired
+        label.setMaximumSize(400, 50)  # Set the maximum width and height as desired
         label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         row_layout.addWidget(label)
 
@@ -275,6 +294,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         #statistics_table_view.setAlignment(Qt.AlignCenter)
         model = PandasTable(res_df)
         statistics_table_view.setModel(model)
+        model.resize_header(statistics_table_view)
         row_layout.addWidget(statistics_table_view)
         
         statistics_table_view.setSizeAdjustPolicy(QTableView.AdjustToContents)
@@ -282,31 +302,28 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         # Set the size policy of the QTableView and its parent widget to MinimumExpanding
         statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        
+        #statistics_table_view.resizeColumnsToContents()
 
         self.statistics_result_grid.addLayout(row_layout)
+        
+        self.tabWidget.setTabVisible(1,True)   
         self.tabWidget.setCurrentIndex(1)
 
-    def show_statistic_results(self, df, statistics_df, pairs,test_type):
-        # plot the df as table
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        from matplotlib.backends.backend_qtagg import FigureCanvas
-        from matplotlib.figure import Figure
-        from statannotations.Annotator import Annotator
+        return row_layout
 
-        statistics_table_view = QTableView()
-        model = PandasTable(statistics_df)
-        statistics_table_view.setModel(model)
-        self.statistics_result_grid.addWidget(statistics_table_view)
-        statistics_table_view.show()
 
-        
+    def show_statistic_results(self, df, pairs, test_type, y_column):
+        """
+        create a plot of the data
+        """
+
         # Create a FigureCanvasQTAgg from the Figure object returned by Seaborn
         
         fig = plt.Figure()
         ax = fig.add_subplot(111)
-        sns.boxplot(data=df,x ="meta_data" ,y = "Result", ax=ax)
-        annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = "Result")
+        sns.boxplot(data=df,x ="meta_data" ,y = y_column, ax=ax)
+        annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = y_column)
         test_identifier= {"Independent t-test": "t-test_ind",
                           "Welchs t-test":"t-test_welch", 
                           "Paired t-test":"test_paired",
@@ -317,10 +334,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         annotator.configure(test=test_identifier[test_type], text_format='star', loc='inside') #Mann-Whitney
         annotator.apply_and_annotate()
         canvas = FigureCanvas(fig)
-        self.statistics_result_grid.addWidget(canvas)
-        canvas.draw_idle()
-        
-        # make the seaborn plot
+        return canvas
 
     def apply_stats_test(self,test_type,group1,group2, group_pair, data_type=None, voltage=None):
         """
@@ -338,9 +352,9 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 res = stats.wilcoxon(group1,group2)
             
             if data_type: # for all voltage clamp recordings
-                tmp = pd.DataFrame({str(data_type):voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[res.pvalue]})
+                tmp = pd.DataFrame({str(data_type):voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
             else:
-                tmp = pd.DataFrame({"Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[res.pvalue]})
+                tmp = pd.DataFrame({"Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
 
         except Exception as e:
             #@todo better handling ? DZ

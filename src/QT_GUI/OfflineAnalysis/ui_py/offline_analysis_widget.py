@@ -191,7 +191,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.filter_dialog.close()
 
-    def update_gui_treeviews(self,signal=None):
+    def update_gui_treeviews(self,signal= None, meta=None):
         """toDO add Docstrings!
 
         Args:
@@ -200,11 +200,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         print("update treeviewsd for index" , self.offline_analysis_widgets.currentIndex())
         try:
             if self.offline_analysis_widgets.currentIndex()==0:
-                self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+                
+                if meta: 
+                    self.OfflineDialogs.select_tree_view_meta_data(self.blank_analysis_tree_view_manager, self.blank_analysis_plot_manager)
+                else:
+                    self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+
             if self.offline_analysis_widgets.currentIndex() ==1: #@toDO check toggle notebook ind
-                 current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-                 plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
-                 self.offline_tree.current_tab_tree_view_manager[current_index].update_treeviews(plot_widget_manager)
+                current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+                plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+                current_tree = self.offline_tree.current_tab_tree_view_manager[current_index]
+                 
+                if meta:
+                    self.OfflineDialogs.select_tree_view_meta_data(current_tree, plot_widget_manager)
+                else:
+                    current_tree.update_treeviews(plot_widget_manager)
 
         except Exception as e:
            print(e)
@@ -268,6 +278,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                  self.object_splitter)
 
         self.plot_meta.clicked.connect(self.result_visualizer.open_meta_data)
+
         self.OfflineDialogs = OfflineDialogs(self.database_handler,
                                              self.offline_manager,
                                              self.frontend_style,
@@ -277,7 +288,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
         self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
         self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
-        self.add_meta_data_to_treeview.clicked.connect(self.OfflineDialogs.select_tree_view_meta_data)
+        self.add_meta_data_to_treeview.clicked.connect(partial(self.update_gui_treeviews, None, True)) 
         self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
@@ -427,13 +438,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.stackedWidget.setCurrentIndex(0)
         
 
-
+    """  deprecated
     def load_recordings(self, progress_callback):
-        """_summary_
+        _summary_
 
         Args:
             progress_callback (_type_): _description_
-        """
+        
 
         self.progress_callback = progress_callback
         self.database_handler.open_connection(read_only=True)
@@ -442,7 +453,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.selected_meta_data_list = self.selected_meta_data_list
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
                                                                               self.progress_callback)
-
+    """
     @Slot()
     def experiment_label_dropped(self, item_text):
         print(item_text)

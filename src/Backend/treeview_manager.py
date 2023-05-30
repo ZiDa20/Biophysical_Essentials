@@ -620,51 +620,33 @@ class TreeViewManager:
         EXPERIMENT_SERIES_TABLE = "series_analysis_mapping"
         SWEEP_META_DATA_TABLE = "sweep_meta_data"
 
+        f'select * from selected meta_data '
+
+        
+        global_meta_data_query = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.offline_analysis_id})'
+        global_meta_data = self.database_handler.database.execute(global_meta_data_query).fetchdf()
+        
+        global_meta_data["agg"] = global_meta_data[meta_data_table["condition_column"]].agg('::'.join, axis=1)
+        global_meta_data["root"] = "root"
+        global_meta_data["agg_experiment_names"] =global_meta_data[["root", "agg","experiment_name"]].agg('::'.join, axis=1)
+        
+
+      
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
-        for c in combinations:
-
-
-            # Create query strings for each table, always reset them
-            #experiment_series_query = f' select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where discarded = {discarded_state}'
-            global_meta_data_query = f'select experiment_name from {GLOBAL_META_DATA_TABLE} where experiment_label = \'{self.selected_meta_data_list[0]}\''
-            #sweep_meta_data_query = f'select experiment_name from {SWEEP_META_DATA_TABLE} where '
-
+        for c in global_meta_data["agg"].unique():
+            
             # add the label as parent
             new_item_df = pd.DataFrame( {"item_name": [c], "parent": "root", "type": "Label", "level": 0, "identifier": ["root::" + c]})
             df = pd.concat([df, new_item_df])
 
-            # add meta data related experiments as childs
-            meta_data_selections = c.split("::")
 
-            for row,index,table in zip(meta_data_table["condition_column"], meta_data_selections, meta_data_table["table_name"]):
+            identifier_list =  global_meta_data.loc[global_meta_data["agg"]==c,"agg_experiment_names"]
+            experiment_names = global_meta_data.loc[global_meta_data["agg"]==c,"experiment_name"].values
 
-                if table ==  GLOBAL_META_DATA_TABLE:
-                    # multiple columns are available for global meta data.
-                    # therefore table can appear in multiple rows and therefore I have to append
-                    global_meta_data_query =  global_meta_data_query + f'and {row} = \'{index}\''
-                if table ==  EXPERIMENT_SERIES_TABLE:
-                    # only one column is available
-                    # can only appear once
-                    experiment_series_query = f'select distinct experiment_name from {EXPERIMENT_SERIES_TABLE} where {row} = \'{index}\''
+            new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names),
+            "type": ["Experiment"]*len(experiment_names), "level": [1]*len(experiment_names), "identifier": identifier_list})
 
-            # check combination of tables
-            if list(meta_data_table["table_name"].unique()) == [GLOBAL_META_DATA_TABLE]:
-                experiment_names = self.database_handler.database.execute(global_meta_data_query).fetchdf()
-            else:
-                experiment_series_query = experiment_series_query + f' intersect ({global_meta_data_query})'
-                experiment_names = self.database_handler.database.execute(experiment_series_query).fetchdf()
-
-
-            # empty dataframe might be returned when the meta data combinations does not exist
-            if not experiment_names.empty:
-                experiment_names = experiment_names.values.tolist()
-                experiment_names = [tup[0] for tup in experiment_names]
-
-                identifier_list = ["root::" + c + "::" + e for e in experiment_names]
-                new_item_df = pd.DataFrame( {"item_name": experiment_names, "parent": ["root::" + c]*len(experiment_names),
-                "type": ["Experiment"]*len(experiment_names), "level": [1]*len(experiment_names), "identifier": identifier_list})
-
-                df = pd.concat([df, new_item_df])
+            df = pd.concat([df, new_item_df])
 
 
         return df
