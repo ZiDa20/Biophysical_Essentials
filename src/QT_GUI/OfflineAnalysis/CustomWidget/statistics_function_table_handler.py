@@ -245,11 +245,12 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
                 row_layout = self.create_statistics_for_steps(row, test_type,res_df)
                         
-                #canvas= self.show_statistic_results(df, pairs,test_type, c_name) # data to visualize are in the column that is named according the current parameter name
+                canvas= self.show_statistic_results(df, pairs,test_type, c_name) # data to visualize are in the column that is named according the current parameter name
 
-                #row_layout.addWidget(canvas)
-                #canvas.draw_idle()
-               
+                row_layout.addWidget(canvas,0, 1, 3, 1)
+                
+                canvas.draw_idle()
+                  
             else: # simple boxplots for each meta data group to be compared
                 
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
@@ -263,11 +264,12 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 model = PandasTable(res_df)
                 statistics_table_view.setModel(model)
                 self.statistics_result_grid.addWidget(statistics_table_view)
-                statistics_table_view.show()    
+                #statistics_table_view.show()    
 
                 canvas = self.show_statistic_results(df, pairs,test_type, "Result") # data to visualize are in column "results"
                 self.statistics_result_grid.addWidget(canvas)
                 canvas.draw_idle()
+
                 self.tabWidget.setTabVisible(1,True)
                 #self.tabWidget.widget(1).show()   
                 self.tabWidget.setCurrentIndex(1)
@@ -276,26 +278,27 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         """
         frontend handling to show tables for the statistics results
         """
-        row_layout = QVBoxLayout()
-
+        layout  = QVBoxLayout()
+        row_layout  = QGridLayout()
+        
         label = QLabel("Statistics of " + self.statistics_table_widget.item(row,1).text())
         #label.setAlignment(Qt.AlignCenter)
         label.setMaximumSize(400, 50)  # Set the maximum width and height as desired
         label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        row_layout.addWidget(label)
+        row_layout.addWidget(label,0,0)
 
         label = QLabel("Performed Statistics:" + test_type)
         #label.setAlignment(Qt.AlignCenter)
         label.setMaximumSize(400, 50)  # Set the maximum width and height as desired
         label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        row_layout.addWidget(label)
+        row_layout.addWidget(label,1,0)
 
         statistics_table_view = QTableView()
         #statistics_table_view.setAlignment(Qt.AlignCenter)
         model = PandasTable(res_df)
         statistics_table_view.setModel(model)
         model.resize_header(statistics_table_view)
-        row_layout.addWidget(statistics_table_view)
+        row_layout.addWidget(statistics_table_view,2,0)
         
         statistics_table_view.setSizeAdjustPolicy(QTableView.AdjustToContents)
 
@@ -305,8 +308,11 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         
         #statistics_table_view.resizeColumnsToContents()
 
-        self.statistics_result_grid.addLayout(row_layout)
-        
+        #self.statistics_result_grid.addLayout(row_layout)
+        grid_widget = QWidget()
+        grid_widget.setLayout(row_layout)
+        layout.addWidget(grid_widget)
+        self.statistics_result_grid.addLayout(layout)
         self.tabWidget.setTabVisible(1,True)   
         self.tabWidget.setCurrentIndex(1)
 
@@ -322,6 +328,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         
         fig = plt.Figure()
         ax = fig.add_subplot(111)
+
         sns.boxplot(data=df,x ="meta_data" ,y = y_column, ax=ax)
         annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = y_column)
         test_identifier= {"Independent t-test": "t-test_ind",
@@ -334,6 +341,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         annotator.configure(test=test_identifier[test_type], text_format='star', loc='inside') #Mann-Whitney
         annotator.apply_and_annotate()
         canvas = FigureCanvas(fig)
+        print("returning filled canvas")
         return canvas
 
     def apply_stats_test(self,test_type,group1,group2, group_pair, data_type=None, voltage=None):
