@@ -17,6 +17,7 @@ from Backend.cancel_button_delegate import CancelButtonDelegate
 from Offline_Analysis.tree_model_class import TreeModel
 import itertools
 from PySide6.QtTest import QTest
+import time
 
 class TreeViewManager:
     """
@@ -653,52 +654,70 @@ class TreeViewManager:
 
     def add_experiments_series_sweeps_to_meta_data_label(self, meta_data_table, discarded_state, series_name = None):
 
-
+        """
+        creating the df for a treeview which is splitted by given meta data and holds sweeps too
+        meta_data_table: Pandas DataFrame with columns: table_name, condition_column, conditions (list)
+        """
 
         # get a dataframe with hierarchical strcutured meta data items and exoeriments
+        # thsi dataframe will have 2 levels: meta data label a parent and the experiment names
         df = self.create_treeview_with_meta_data_parents(meta_data_table)
         series_level = df["level"].max() + 1
 
-        # append series to the experiments
-        for index,experiment_row in df[df["type"]=="Experiment"].iterrows():
+        experiments_only = df[df["type"]=="Experiment"]
 
+        experiment_name = experiments_only["item_name"].values
+        experiment_id =  experiments_only["identifier"].values
+        #experiment_label = df[df["item_name"]].values
+
+        # append series to the experiments
+        for name,id  in zip(experiment_name,experiment_id) : # index
+
+            print("experiment = ", name)
             series_meta_data = None
 
-            if "experiment_series" in meta_data_table["table_name"].values.tolist():
+            # if there was a selection of series meta data -- 
+            #if "experiment_series" in meta_data_table["table_name"].values.tolist():
 
-                # get the parent
-                label = df[df.identifier == experiment_row["parent"]]["item_name"].values[0]
-                # split at ::
-                label = label.split("::")
-                series_meta_data = label[meta_data_table["table_name"].values.tolist().index("experiment_series")]
+            #    # get the parent
+            #    label = df[df.identifier == experiment_row["parent"]]["item_name"].values[0]
+            #    # split at ::
+            #    label = label.split("::")
+            #    series_meta_data = label[meta_data_table["table_name"].values.tolist().index("experiment_series")]
 
-
-            df, series_table = self.add_series_to_treeview(df, experiment_row, discarded_state, series_name, series_level, series_meta_data)
-
+            df, series_table = self.add_series_to_treeview(df, name, id , discarded_state, series_name, series_level, series_meta_data)
+           
+            print(series_table["experiment_name"].unique)
+            
             # create sweeps
             if self.show_sweeps_radio.isChecked():
-                df = self.add_sweeps_to_treeview(df, series_table, series_level, experiment_row["identifier"])
+                dfs= self.add_sweeps_to_treeview(series_table) #, series_level, experiment_row["identifier"])
+                if dfs:
+                    dfs.append(df)
+                    df = pd.concat(dfs)
+        return df.sort_values(by=["level"])
+     
+      
 
-        return df
-
-    def add_series_to_treeview(self, df, experiment_row, discarded_state, series_name, series_level, series_meta_data=None):
 
 
-        experiment_name = experiment_row["item_name"]
-        experiment_id = experiment_row["identifier"]
 
-        if experiment_name == "220318_03":
-            print("found")
+
+
+
+
+    def add_series_to_treeview(self, df, experiment_name,experiment_id, discarded_state, series_name, series_level, series_meta_data=None):
+
 
         # get all series linked with this experiment
-        query = f'select * from series_analysis_mapping where experiment_name = \'{experiment_name}\' and analysis_discarded = {discarded_state}'
+        query = f'SELECT t1.*, t2.sweep_table_name FROM series_analysis_mapping as t1 JOIN experiment_series as t2 ON t1.experiment_name = t2.experiment_name AND t1.series_identifier = t2.series_identifier where t1.experiment_name = \'{experiment_name}\' and t1.analysis_discarded = {discarded_state} and t1.analysis_id = {self.offline_analysis_id}'
 
         if series_meta_data:
-            query = query + f' and series_meta_data = \'{series_meta_data}\' '
+            query = query + f' and t1.series_meta_data = \'{series_meta_data}\' '
 
         # if specified, get only specific series names
         if series_name is not None:
-            query = query + f' and series_name = \'{series_name}\''
+            query = query + f' and t1.series_name = \'{series_name}\''
 
         # get the series table from db
         series_table = self.database_handler.database.execute(query).fetchdf()
@@ -719,12 +738,14 @@ class TreeViewManager:
             experiment_id + "::" + s for s in series_table["series_identifier"]
         ]
         series_df["identifier"] = series_ids
+        series_table["identifier"] = series_ids
+
         df = pd.concat([df, series_df])
 
         return df, series_table
 
 
-    def add_sweeps_to_treeview(self, treeview_df, series_table, series_level, identifier):
+    def add_sweeps_to_treeview(self, series_table): #, series_level, identifier):
 
         """
         Add sweeps to a treeview DataFrame.
@@ -739,26 +760,40 @@ class TreeViewManager:
             pandas.DataFrame: The modified treeview DataFrame with sweeps added.
         """
 
-        #if series_table.empty:
-        #    return treeview_df
+        print("adding sweeps")
+        # Prepare a list to store the generated DataFrames
+        dfs = []
+        try:
+            table_names = series_table["sweep_table_name"].values
+            parent_names = series_table["identifier"].values
+        except Exception as e:
+            print(e)
+            return []
+        
+        for s,sweep_parent in zip(table_names,parent_names):
 
+            # Fetch the sweep table data in bulk
+            sweep_table = self.database_handler.database.execute(f'select * from {s}').fetchdf()
 
-        for index, row in series_table.iterrows():
-            sweep_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
+            # Get column names and generate identifiers
+            item_names = sweep_table.columns
+            sweep_ids = [sweep_parent + "::" + c_name for c_name in item_names]
 
-            sweep_parent = identifier + "::"  + row["series_identifier"]
-            sweep_table = self.database_handler.database.execute(f'select * from {row["sweep_table_name"]}').fetchdf()
+            # Create a sweep DataFrame using vectorized operations
+            sweep_df = pd.DataFrame({
+                "item_name": item_names,
+                "parent": np.repeat(sweep_parent, len(item_names)),
+                "type": np.repeat("Sweep", len(item_names)),
+                "level": np.repeat(3, len(item_names)),
+                "identifier": sweep_ids
+            })
 
-            sweep_df["item_name"] = sweep_table.columns
-            sweep_df["parent"] = [sweep_parent] * len(sweep_table.columns)
-            sweep_df["type"] = ["Sweep"] * len(sweep_table.columns)
-            sweep_df["level"] = [series_level + 1] * len(sweep_table.columns)
-            sweep_ids = [sweep_parent + "::" + c_name for c_name in sweep_table.columns]
-            sweep_df["identifier"] = sweep_ids
+            # Append the sweep DataFrame to the list
+            dfs.append(sweep_df)
 
-            treeview_df = pd.concat([treeview_df, sweep_df])
+        # Concatenate all the DataFrames in the list
+        return  dfs
 
-        return treeview_df
 
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 

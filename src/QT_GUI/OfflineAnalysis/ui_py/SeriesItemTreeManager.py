@@ -11,7 +11,6 @@ import copy
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
-from CustomWidget.LoadingDialogHandler import LoadingDialog
 from StyleFrontend.animated_ap import LoadingAnimation
 
 import pandas as pd
@@ -74,6 +73,7 @@ class SeriesItemTreeWidget():
         
         ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style, True)
         d = QDialog() #LoadingDialog(self,self.frontend_style)
+        self.frontend_style.set_pop_up_dialog_style_sheet(d)
         qgrid = QGridLayout(d)
         qgrid.addWidget(ap.wait_widget)
         d.show()

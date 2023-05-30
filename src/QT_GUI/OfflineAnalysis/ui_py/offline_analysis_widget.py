@@ -49,7 +49,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Set
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 
 from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
-
+from StyleFrontend.animated_ap import LoadingAnimation
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -198,6 +198,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             signal (_type_): _description_
         """
         print("update treeviewsd for index" , self.offline_analysis_widgets.currentIndex())
+
+        ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style, True)
+        d = QDialog() #LoadingDialog(self,self.frontend_style)
+        self.frontend_style.set_pop_up_dialog_style_sheet(d)
+        qgrid = QGridLayout(d)
+        qgrid.addWidget(ap.wait_widget)
+        d.show()
+        # Process events to allow the update
+        QCoreApplication.processEvents()
+
         try:
             if self.offline_analysis_widgets.currentIndex()==0:
                 
@@ -219,6 +229,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         except Exception as e:
            print(e)
            CustomErrorDialog("Please select load an Experiment First", self.frontend_style)
+
+
+        ap.stop_animation()
+        d.accept()
 
     def load_and_assign_meta_data(self):
         """
