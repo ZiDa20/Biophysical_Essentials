@@ -70,8 +70,8 @@ class Ui_StatisticsTable(object):
         self.verticalLayout_2 = QVBoxLayout(self.groupBox)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.statistics_table_widget = QTableWidget(self.groupBox)
-        if (self.statistics_table_widget.columnCount() < 5):
-            self.statistics_table_widget.setColumnCount(5)
+        if (self.statistics_table_widget.columnCount() < 7):
+            self.statistics_table_widget.setColumnCount(7)
         __qtablewidgetitem = QTableWidgetItem()
         self.statistics_table_widget.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
@@ -82,6 +82,10 @@ class Ui_StatisticsTable(object):
         self.statistics_table_widget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
         __qtablewidgetitem4 = QTableWidgetItem()
         self.statistics_table_widget.setHorizontalHeaderItem(4, __qtablewidgetitem4)
+        __qtablewidgetitem5 = QTableWidgetItem()
+        self.statistics_table_widget.setHorizontalHeaderItem(5, __qtablewidgetitem5)
+        __qtablewidgetitem6 = QTableWidgetItem()
+        self.statistics_table_widget.setHorizontalHeaderItem(6, __qtablewidgetitem6)
         self.statistics_table_widget.setObjectName(u"statistics_table_widget")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy1.setHorizontalStretch(1)
@@ -114,7 +118,7 @@ class Ui_StatisticsTable(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1108, 644))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 98, 28))
         self.gridLayout_3 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.statistics_result_grid = QVBoxLayout()
@@ -178,9 +182,13 @@ class Ui_StatisticsTable(object):
         ___qtablewidgetitem2 = self.statistics_table_widget.horizontalHeaderItem(2)
         ___qtablewidgetitem2.setText(QCoreApplication.translate("StatisticsTable", u"Meta Data Selection", None));
         ___qtablewidgetitem3 = self.statistics_table_widget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("StatisticsTable", u"Data Distribution", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("StatisticsTable", u"Data Dependency", None));
         ___qtablewidgetitem4 = self.statistics_table_widget.horizontalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("StatisticsTable", u"Statistical Model", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("StatisticsTable", u"Data Distribution", None));
+        ___qtablewidgetitem5 = self.statistics_table_widget.horizontalHeaderItem(5)
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("StatisticsTable", u"Variance", None));
+        ___qtablewidgetitem6 = self.statistics_table_widget.horizontalHeaderItem(6)
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("StatisticsTable", u"Statistical Model", None));
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("StatisticsTable", u"Basic Tests", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("StatisticsTable", u"Results", None))
         self.label_4.setText(QCoreApplication.translate("StatisticsTable", u"Select the model type first", None))

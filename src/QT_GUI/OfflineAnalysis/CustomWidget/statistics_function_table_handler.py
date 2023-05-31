@@ -63,7 +63,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
         if  existing_row_numbers == 0:
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT ;) !
-            self.statistics_table_widget.setColumnCount(5)
+            self.statistics_table_widget.setColumnCount(7)
             if "Action_Potential_Fitting" in self.analysis_functions:
                 #@todo: dynamically ? dz
                 self.statistics_table_widget.setRowCount(18+ len(self.analysis_functions)-1) # -1 to remove the AP Fitting
@@ -113,7 +113,10 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         unique_meta_data = list(df["meta_data"].unique())
         self.statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data))) #insert selected meta data as labels
         self.insert_statistical_test(row_to_insert)
+        self.insert_dependency(row_to_insert)
+        self.insert_variance(row_to_insert)
         cell_widget_layout = self.insert_data_distribution(row_to_insert)
+        
         self.get_and_set_data_distribution(df,cell_widget_layout)
 
 
@@ -121,7 +124,22 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         # show test
         self.stat_test = QComboBox()
         self.stat_test.addItems(["Independent t-test","Welchs t-test", "Paired t-test", "Wilcoxon Signed-Rank test", "Kruskal Wallis test", "Brunner-Munzel test"])
-        self.statistics_table_widget.setCellWidget(row_to_insert, 4, self.stat_test)
+        self.statistics_table_widget.setCellWidget(row_to_insert, 6, self.stat_test)
+
+    def insert_variance(self,row_to_insert):
+        """
+        Insert a combobox to select between normal distribution and non-normal distribution.
+        Shapiro Wilk test will be executed to determine data distribution and the combo box will be set to the apropriate distribution
+        """
+        
+        self.data_var  = QComboBox()
+        self.data_var.addItems(["Equal", "Non-Equal"])  # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution"
+        cell_widget = QWidget()
+        cell_widget_layout = QGridLayout()
+        cell_widget.setLayout(cell_widget_layout)
+        cell_widget_layout.addWidget(self.data_var,0,0)
+        self.statistics_table_widget.setCellWidget(row_to_insert, 5, cell_widget)
+        return cell_widget_layout
 
     def insert_data_distribution(self,row_to_insert):
         """
@@ -135,24 +153,49 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         cell_widget_layout = QGridLayout()
         cell_widget.setLayout(cell_widget_layout)
         cell_widget_layout.addWidget(self.data_dist,0,0)
-        self.statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
+        self.statistics_table_widget.setCellWidget(row_to_insert, 4, cell_widget)
         return cell_widget_layout
 
+    def insert_dependency(self,row_to_insert):
+        """
+        Insert a combobox to select between normal distribution and non-normal distribution.
+        Shapiro Wilk test will be executed to determine data distribution and the combo box will be set to the apropriate distribution
+        """
+        
+        self.data_dependency  = QComboBox()
+        self.data_dependency.addItems(["Independent", "Dependent"])  # "Bernoulli Distribution", "Binomial Distribution", "Poisson Distribution"
+        cell_widget = QWidget()
+        cell_widget_layout = QGridLayout()
+        cell_widget.setLayout(cell_widget_layout)
+        cell_widget_layout.addWidget(self.data_dependency,0,0)
+        self.statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
+        return cell_widget_layout
+    
     def get_and_set_data_distribution(self,df,cell_widget_layout):
-        "performs shapiro wil test and sets up the data distribution accordingly"
+        """performs shapiro wilk test and to identify the correct data distribution and set it in the frontend.
+           performs levene test to identify variance and set it correctly 
+        """
+
+
 
         if isinstance(df, pd.Series): # AP fittign case, only a single column in the df
             shapiro_test = stats.shapiro(df.tolist())
+            levene_test = stats.levene(df.tolist())
         else:
             if "Result" in df.columns:
                 shapiro_test = stats.shapiro(df["Result"])
+                
+                grouped_data = df.groupby('meta_data')['Result']
+                y_lists = [group.values.tolist() for _, group in grouped_data]# Create lists of y values per metadata group
+                levene_test = stats.levene(*y_lists) ## Unpack the sublists and pass them as separate arguments to levene function
             elif "Rheoramp" in df.columns:
                 shapiro_test = stats.shapiro(df["Number AP"])
-            
+                levens_p = stats.levene(df["Number AP"])
 
         print(shapiro_test)
+        print(levene_test)
         test_res = str(round(shapiro_test.pvalue,3))
-        
+        levene_tres = str(round(levene_test.pvalue,3))
         
         if test_res == "0.0":
             cell_widget_layout.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p< 0.001"),1,0)

@@ -424,7 +424,7 @@ class TreeViewManager:
         treeview.clicked.emit(index)
         treeview.doubleClicked.emit(index)
     """
-    
+
     def handle_tree_view_click(self, model, plot_widget_manager: PlotWidgetManager, series_name, index):
         """
         Handler function to handle treeview clicks in online and offline analysis mode.
@@ -698,17 +698,10 @@ class TreeViewManager:
                     df = pd.concat(dfs)
         return df.sort_values(by=["level"])
      
-      
-
-
-
-
-
-
-
-
     def add_series_to_treeview(self, df, experiment_name,experiment_id, discarded_state, series_name, series_level, series_meta_data=None):
-
+        """
+        function to query series for a givn experiment and to create unqiue identifiers which is required for the treeeview representation
+        """
 
         # get all series linked with this experiment
         query = f'SELECT t1.*, t2.sweep_table_name FROM series_analysis_mapping as t1 JOIN experiment_series as t2 ON t1.experiment_name = t2.experiment_name AND t1.series_identifier = t2.series_identifier where t1.experiment_name = \'{experiment_name}\' and t1.analysis_discarded = {discarded_state} and t1.analysis_id = {self.offline_analysis_id}'
