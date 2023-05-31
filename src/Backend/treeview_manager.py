@@ -198,7 +198,7 @@ class TreeViewManager:
         # series mapping is based on the previously generated epxeriment mapping table
         self.database_handler.create_mapping_between_series_and_analysis_id()
 
-    def update_treeviews(self, plot_widget_manager: PlotWidgetManager):
+    def update_treeviews(self, plot_widget_manager: PlotWidgetManager, series_name = None):
         """
         do all the frontend handling for treeviews that are managed by the given tree_view_manager
         @param tree_view_manager: treeview manager class object
@@ -208,8 +208,8 @@ class TreeViewManager:
 
         # create two global tables that can be reused for further visualizations and store it within the related tree view manager
         # the selected and discarded data will be selected from the global table
-        selected_table_view_table = self.create_data_frame_for_tree_model(False, self.show_sweeps_radio.isChecked())
-        discarded_table_view_table = self.create_data_frame_for_tree_model(True, self.show_sweeps_radio.isChecked())
+        selected_table_view_table = self.create_data_frame_for_tree_model(False, self.show_sweeps_radio.isChecked(),series_name)
+        discarded_table_view_table = self.create_data_frame_for_tree_model(True, self.show_sweeps_radio.isChecked(),series_name)
 
         # set the label below selected and discarded treeview
         for table,label_object in zip([selected_table_view_table, discarded_table_view_table],[self.tree_build_widget.descriptive_meta_data_label, self.tree_build_widget.discarded_meta_data_label]):

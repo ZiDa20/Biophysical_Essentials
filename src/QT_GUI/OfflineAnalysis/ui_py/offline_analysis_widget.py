@@ -220,11 +220,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
                 plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
                 current_tree = self.offline_tree.current_tab_tree_view_manager[current_index]
+                series_name = self.offline_tree.tab_list[current_index].objectName()
                  
                 if meta:
-                    self.OfflineDialogs.select_tree_view_meta_data(current_tree, plot_widget_manager)
+                    self.OfflineDialogs.select_tree_view_meta_data(current_tree, plot_widget_manager,series_name)
                 else:
-                    current_tree.update_treeviews(plot_widget_manager)
+                    current_tree.update_treeviews(plot_widget_manager,series_name)
 
         except Exception as e:
            print(e)

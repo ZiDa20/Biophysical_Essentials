@@ -19,7 +19,8 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                  update_treeview = True, 
                  update_plot = None,
                  analysis_function_id = -1,
-                 frontend = None):
+                 frontend = None, 
+                 series_name = None):
         
         super().__init__(parent)
         self.setupUi(self)
@@ -35,6 +36,7 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         self.setWindowModality(Qt.ApplicationModal)
         if self.frontend_style:
             self.frontend_style.set_pop_up_dialog_style_sheet(self)
+        self.series_name = series_name
         self.load_content()
         
 
@@ -187,4 +189,4 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                 # no need to update again
 
         if self.update_treeview:
-            self.treeview_manager.update_treeviews(self.plot_widget_manager)
+            self.treeview_manager.update_treeviews(self.plot_widget_manager,self.series_name)
