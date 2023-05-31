@@ -50,8 +50,9 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         # request the cslow value for it
         df_list = []
         for i in identifier:
-            s = i.split("::")
-            cslow, sweep_table_name = self.database_handler.get_cslow_value_from_experiment_name_and_series_identifier(s[0],s[1])
+            s = i.split("::") # s can be of different length according to selected meta data, e.g. ['root', 'WT', 'cell_13', 'Series1']
+            pos_0 = len(s)-2
+            cslow, sweep_table_name = self.database_handler.get_cslow_value_from_experiment_name_and_series_identifier(s[pos_0],s[pos_0+1])
             df_list.append([0,0,sweep_table_name,cslow])
 
         db_df = pd.DataFrame(df_list,columns=["offline_analysis_id", "function_id","sweep_table_name", "cslow"])        

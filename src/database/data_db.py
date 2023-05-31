@@ -1111,7 +1111,12 @@ class DuckDBDatabaseHandler():
         pgf_files_amount = {pgf_index[1] for pgf_index in pgf_file_dict.values()}
 
         if len(pgf_files_amount) <= 1:
-            return list(pgf_files_amount)
+            trial = pgf_file_dict.get(experiment_name[0][0])[0]
+            cnts = trial["selected_channel"].value_counts()
+            seg_list = []
+            for i in range(1,cnts[0]+1):
+                seg_list.append(str(i))
+            return seg_list
 
         else:
             CustomErrorDialog("The number of segments is not the same for all experiments. Please check your data.", self.frontend_style)

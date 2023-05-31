@@ -165,6 +165,7 @@ class SeriesItemTreeWidget():
 
         self.analysis_stacked.setCurrentIndex(parent_stacked)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(0)
+
         self.click_top_level_tree_item()
 
     def add_new_analysis_tree_children(self):
@@ -237,6 +238,7 @@ class SeriesItemTreeWidget():
         # slice out all series names that are not related to the specific chosen one
         # at the moment its setting back every plot! @2toDO:MZ
         current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
+
 
         navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         self.home.clicked.connect(navigation.home)
@@ -350,25 +352,29 @@ class SeriesItemTreeWidget():
     def click_top_level_tree_item(self, experiment = False):
         """Should click the toplevel item of the model_view
         """
-        current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        pos = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        print(pos)
+        current_tab = self.tab_list[pos]
         model = current_tab.treebuild.selected_tree_view.model()
+
 
         if experiment: # this is applied whenever we supply a name of the exact experiment
             index = self.findName(model, experiment)
-
         else:
-            index =  current_tab.treebuild.selected_tree_view.model().index(0, 0, current_tab.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
-
+            model_df = current_tab.treebuild.selected_tree_view.model()._data 
+            if "Label" in model_df["type"].unique():
+                parent_index =  current_tab.treebuild.selected_tree_view.model().index(0, 0, current_tab.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
+                index = current_tab.treebuild.selected_tree_view.model().index(0,2,parent_index)
+            else:
+                index =  current_tab.treebuild.selected_tree_view.model().index(0, 0, current_tab.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
+ 
         # Get the rect of the index
-        current_tab.treebuild.selected_tree_view.setCurrentIndex(index)
-        if experiment:
-            selectedIndexes = current_tab.treebuild.selected_tree_view.selectedIndexes()
-            index = model.index(0, 0, selectedIndexes[0])
+        # current_tab.treebuild.selected_tree_view.setCurrentIndex(index)
         rect = current_tab.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
-
-        col_count = len(self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].selected_tree_view_data_table["type"].unique())
-        self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)].update_mdi_areas(col_count)
+      
+        col_count = len(self.current_tab_tree_view_manager[pos].selected_tree_view_data_table["type"].unique())
+        self.current_tab_tree_view_manager[pos].update_mdi_areas(col_count)
 
 
     def findName(self,model, name, parent=QModelIndex()):

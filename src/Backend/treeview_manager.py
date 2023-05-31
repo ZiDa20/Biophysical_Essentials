@@ -415,7 +415,7 @@ class TreeViewManager:
             partial(self.handle_tree_view_click, selected_model, plot_widget_manager, series_name))
         self.tree_build_widget.discarded_tree_view.clicked.connect(
             partial(self.handle_tree_view_click, discarded_model, plot_widget_manager, series_name))
-
+    """
     def click_qtreeview_cell(self,treeview, index):
         "click on a specific cell"
         model = treeview.model()
@@ -423,7 +423,8 @@ class TreeViewManager:
         treeview.setCurrentIndex(index)
         treeview.clicked.emit(index)
         treeview.doubleClicked.emit(index)
-
+    """
+    
     def handle_tree_view_click(self, model, plot_widget_manager: PlotWidgetManager, series_name, index):
         """
         Handler function to handle treeview clicks in online and offline analysis mode.

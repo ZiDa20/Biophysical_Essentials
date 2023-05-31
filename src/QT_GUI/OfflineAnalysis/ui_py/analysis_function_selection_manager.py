@@ -85,7 +85,8 @@ class AnalysisFunctionSelectionManager():
         Add a button for each of the selected analysis functions to the layout.
         """
         layout = self.current_tab.analysis_functions.analysis_button_grid
-        self.pgf_files_amount = ["1","2","3"] #self.database_handler.get_pgf_file_selection(self.current_tab)
+        self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
+        #self.pgf_files_amount = ["1","2","3"] #
         self.clear_analysis_widgets(layout)
 
         

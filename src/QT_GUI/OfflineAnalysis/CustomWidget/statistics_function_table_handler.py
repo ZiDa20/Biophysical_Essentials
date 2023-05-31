@@ -180,8 +180,14 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
         self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
 
-        # get the table widget that holds the dataframe -- can this be removed then ?? 
-        qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(1, widget_position)
+        # get the table widget that holds the dataframe
+        # two widgets are aligned per row -> r1,c0 = w1, r1,c1 = w2, r2,c0 = w3, r2,c1 = w4
+        row = 1 + widget_position//2
+        if widget_position%2 == 0:
+            col = 0
+        else:
+            col = 1
+        qwidget_item_1 = result_plot_widget.OfflineResultGrid.itemAtPosition(row, col)
         custom_plot_widget = qwidget_item_1.widget()
         return custom_plot_widget.statistics
 
@@ -268,7 +274,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
                 canvas = self.show_statistic_results(df, pairs,test_type, "Result") # data to visualize are in column "results"
                 self.statistics_result_grid.addWidget(canvas)
-                canvas.draw_idle()
+                #canvas.draw_idle()
 
                 self.tabWidget.setTabVisible(1,True)
                 #self.tabWidget.widget(1).show()   

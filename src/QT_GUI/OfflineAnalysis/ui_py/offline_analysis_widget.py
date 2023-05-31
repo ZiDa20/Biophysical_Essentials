@@ -445,11 +445,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(0)
+
+        # click the first row, first column item in the selected treeview of page 1
         index =  self.treebuild.selected_tree_view.model().index(0, 0, self.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
         self.treebuild.selected_tree_view.setCurrentIndex(index)
         # Get the rect of the index
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+
         self.stackedWidget.setCurrentIndex(0)
         
 

@@ -17,6 +17,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		self.database = None
 		self.analysis_function_id = None
 		self.time = None
+		self.logger = None
 		#self.cslow_normalization = 1
 		
 	@property
@@ -149,7 +150,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		merged_all_results = pd.DataFrame(columns = column_names)
 		# get the pgf segment whic hwas selected by the user and stored in the db
 		pgf_segment = self.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {self.analysis_function_id}').fetchall()[0][0]
-		
+
 		for data_table in data_table_names:
 
 			# retrieves the experiment name
@@ -170,7 +171,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				if unit_name != "Voltage":
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
-
+				
 				# slice trace according to coursor bounds
 				self.construct_trace()
 				self.slice_trace()
@@ -189,11 +190,17 @@ class SweepWiseAnalysisTemplate(ABC):
 				sweep_number = int(sweep_number[1])
 
 				# get the related pgf value
-				#	therefore get the pgf table for this series first
+				#therefore get the pgf table for this series first
 				
 				# 	from the coursor bounds indentify the correct segment
 				increment_list = pgf_data_frame["increment"].values
 				voltage_list = pgf_data_frame["voltage"].values
+
+				print("increment")
+				print(pgf_data_frame)
+				print(increment_list)
+				print(voltage_list)
+				print(pgf_segment)
 
 				inc = (float(increment_list[pgf_segment-1])*1000)
 				volt_val = (float(voltage_list[pgf_segment-1])*1000) + (sweep_number-1)*inc
@@ -271,5 +278,9 @@ class SweepWiseAnalysisTemplate(ABC):
 		q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
 		result_list = database.get_data_from_database(database.database, q,
 															[analysis_id, analysis_function_id])
+		print("debug query: " + q )
+		print(analysis_id)
+		print(analysis_function_id)
+
 		result_list = (list(zip(*result_list))[0])
 		return result_list

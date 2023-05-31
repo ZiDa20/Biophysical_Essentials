@@ -71,7 +71,7 @@ class OfflineDialogs:
         meta_data_popup.continue_loading.clicked.connect(partial(make,meta_data_popup,template_table_view))
         meta_data_popup.exec_()
         
-    def select_tree_view_meta_data(self, tree_view, plot_widget_manager,series_name):
+    def select_tree_view_meta_data(self, tree_view, plot_widget_manager,series_name=None):
         """_summary_
         """
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
