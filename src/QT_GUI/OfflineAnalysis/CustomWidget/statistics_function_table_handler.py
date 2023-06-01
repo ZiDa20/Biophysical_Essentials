@@ -32,10 +32,18 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.hierachy_stacked_list = hierachy_stacked_list
         self.SeriesItems = SeriesItems
         self.database_handler = database_handler
+        self.available_tests = {"Independent t-test":0,
+                       "Welchs t-test":1,
+                       "Mann-Whitney-U test":2, 
+                       "Paired t-test":3, 
+                       "Wilcoxon Signed-Rank test":4, 
+                       "Kruskal Wallis test":5, 
+                       "ANOVA":6}
+        self.available_multi_group_test = ["Kruskal Wallis test", "ANOVA"]
         self.check_meta_data_selected()
         self.autofill_statistics_table_widget()
         self.tabWidget.setTabVisible(1,False)   
-
+      
     
     def check_meta_data_selected(self):
         """
@@ -114,16 +122,17 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data))) #insert selected meta data as labels
         self.insert_statistical_test(row_to_insert)
         self.insert_dependency(row_to_insert)
-        self.insert_variance(row_to_insert)
-        cell_widget_layout = self.insert_data_distribution(row_to_insert)
+        cell_widget_layout_variance = self.insert_variance(row_to_insert)
+        cell_widget_layout_distribution = self.insert_data_distribution(row_to_insert)
         
-        self.get_and_set_data_distribution(df,cell_widget_layout)
+        self.get_and_set_data_distribution(df,cell_widget_layout_distribution, cell_widget_layout_variance)
 
 
     def insert_statistical_test(self,row_to_insert):
         # show test
+
         self.stat_test = QComboBox()
-        self.stat_test.addItems(["Independent t-test","Welchs t-test", "Paired t-test", "Wilcoxon Signed-Rank test", "Kruskal Wallis test", "Brunner-Munzel test"])
+        self.stat_test.addItems(list(self.available_tests.keys()))
         self.statistics_table_widget.setCellWidget(row_to_insert, 6, self.stat_test)
 
     def insert_variance(self,row_to_insert):
@@ -171,44 +180,94 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
         return cell_widget_layout
     
-    def get_and_set_data_distribution(self,df,cell_widget_layout):
+    def get_and_set_data_distribution(self,df,cell_widget_layout_distribution, cell_widget_layout_variance):
         """performs shapiro wilk test and to identify the correct data distribution and set it in the frontend.
            performs levene test to identify variance and set it correctly 
         """
 
-
+        data_dependency = "independent"
+        data_distribution = "normal"
+        data_variance = "equal"
+        different_groups  = 2
 
         if isinstance(df, pd.Series): # AP fittign case, only a single column in the df
             shapiro_test = stats.shapiro(df.tolist())
             levene_test = stats.levene(df.tolist())
         else:
             if "Result" in df.columns:
-                shapiro_test = stats.shapiro(df["Result"])
-                
-                grouped_data = df.groupby('meta_data')['Result']
-                y_lists = [group.values.tolist() for _, group in grouped_data]# Create lists of y values per metadata group
-                levene_test = stats.levene(*y_lists) ## Unpack the sublists and pass them as separate arguments to levene function
+                result_column = "Result"
+            elif  "AP_Window" in df.columns:
+                result_column = "AP_Window"
             elif "Rheoramp" in df.columns:
-                shapiro_test = stats.shapiro(df["Number AP"])
-                levens_p = stats.levene(df["Number AP"])
+                result_column = "Number AP" 
+
+            shapiro_test = stats.shapiro(df[result_column])
+            grouped_data = df.groupby('meta_data')[result_column]
+            y_lists = [group.values.tolist() for _, group in grouped_data]# Create lists of y values per metadata group
+
+            if all(len(sublist)==len(y_lists[0]) for sublist in y_lists):
+                data_dependency = "dependent"
+            
+            different_groups = len(y_lists)
+            levene_test = stats.levene(*y_lists) ## Unpack the sublists and pass them as separate arguments to levene function
+
 
         print(shapiro_test)
         print(levene_test)
-        test_res = str(round(shapiro_test.pvalue,3))
-        levene_tres = str(round(levene_test.pvalue,3))
         
-        if test_res == "0.0":
-            cell_widget_layout.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p< 0.001"),1,0)
-        else:
-            cell_widget_layout.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p=" + test_res),1,0)
-        if shapiro_test.pvalue >= 0.05:
-            # evidence that data comes from normal distribution
-            self.data_dist.setCurrentIndex(0)
-            self.stat_test.setCurrentIndex(0)
-        else:
-            # no evidence that data comes from normal distribution
+        if shapiro_test.pvalue < 0.05: # no normal distribution
+            data_distribution = "non-normal"
             self.data_dist.setCurrentIndex(1)
-            self.stat_test.setCurrentIndex(3)
+        else:
+            self.data_dist.setCurrentIndex(0)
+
+        test_res = str(round(shapiro_test.pvalue,3))
+        if test_res == "0.0":
+            cell_widget_layout_distribution.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p< 0.001"),1,0)
+        else:
+            cell_widget_layout_distribution.addWidget(QLabel("Test-Performed: Shapiro Wilk\n Result: p=" + test_res),1,0)
+        
+        if levene_test.pvalue < 0.05: # unequal variance
+            data_variance = "unequal"
+            self.data_var.setCurrentIndex(1)
+        else:
+            self.data_var.setCurrentIndex(0)
+
+        levene_res = str(round(levene_test.pvalue,3))
+        if levene_res == "0.0":
+            cell_widget_layout_variance.addWidget(QLabel("Test-Performed: Levene Test\n Result: p< 0.001"),1,0)
+        else:
+            cell_widget_layout_variance.addWidget(QLabel("Test-Performed: Levene Test\n Result: p=" + levene_res),1,0)
+        
+        if (data_distribution =="normal") and (data_variance =="equal") and (data_dependency =="independent") and (different_groups <= 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("Independent t-test")) # independent t test
+        
+        elif (data_distribution =="normal") and (data_variance =="unequal") and (data_dependency =="independent") and (different_groups <= 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("Welchs t-test")) # welchs test 
+
+        elif (data_distribution =="non-normal") and (data_dependency =="independent") and (different_groups <= 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("Mann-Whitney-U test"))
+
+        elif (data_distribution =="normal") and (data_variance =="equal") and (data_dependency =="dependent") and (different_groups <= 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("Paired t-test"))# dependent t test
+
+        elif (data_distribution =="non-normal")  and (data_dependency =="dependent") and (different_groups <= 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("Wilcoxon Signed-Rank test"))# wilcoxon signed rank test .. works for equal and non equal variance
+        
+        elif (data_distribution =="non-normal") and (different_groups > 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("Kruskal Wallis test")) # one way anova
+         
+        elif (data_distribution =="normal") and (different_groups > 2):
+            self.stat_test.setCurrentIndex(self.available_tests.get("ANOVA")) # one way anova
+
+        else:
+            print("this was not expected")
+        
+
+
+        
+        
+  
 
 
     def get_analysis_specific_statistics_df(self, widget_position):
@@ -246,7 +305,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 df = self.get_analysis_specific_statistics_df(row)
 
             
-            test_type = self.statistics_table_widget.cellWidget(row,4).currentText()  # get the test to be performed from the combo box (position 4)
+            test_type = self.statistics_table_widget.cellWidget(row,6).currentText()  # get the test to be performed from the combo box (position 4)
             unique_groups  = list(df["meta_data"].unique()) # get unique meta data groups to compare
             pairs = self.get_pairs(unique_groups) # get a list of tuples for pairwise comparison
             
@@ -258,15 +317,26 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 voltage_steps = list(df["Voltage"].unique())
                 res_df = pd.DataFrame(columns=["Voltage", "Group_1", "Group_2", "p_Value"])
                 for v in voltage_steps:
-                
-                    for p in pairs:
-                        group1 = df[(df["meta_data"]==p[0]) & (df["Voltage"]==v)]["Result"]
-                        group2 = df[(df["meta_data"]==p[1]) & (df["Voltage"]==v)]["Result"]
-                        tmp = self.apply_stats_test(test_type,group1,group2, p, "Voltage", v)
-                        res_df = pd.concat([res_df, tmp])
+                    if test_type in self.available_multi_group_test:
+                            res_df = self.apply_stats_test_for_multiple(test_type,df,"Result")
+                    else:
+                        for p in pairs:
+                            group1 = df[(df["meta_data"]==p[0]) & (df["Voltage"]==v)]["Result"]
+                            group2 = df[(df["meta_data"]==p[1]) & (df["Voltage"]==v)]["Result"]
+                            tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p, "Voltage", v)
+                            res_df = pd.concat([res_df, tmp])
 
-                self.create_statistics_for_steps(row, test_type,res_df)
-                
+                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
+
+                if not test_type in self.available_multi_group_test:
+                    c_box  = QComboBox()
+                    row_layout.addWidget(c_box, 2,1,1,1)
+                    c_box.currentTextChanged.connect(partial(self.c_box_changed, df, pairs,test_type, "Result", "Voltage", row_layout))
+                    voltage_steps_str = []
+                    for i in voltage_steps:
+                        voltage_steps_str.append(str(i))
+                    c_box.addItems(voltage_steps_str)
+                    c_box.setCurrentText(voltage_steps_str[1])
 
             elif "Rheoramp" in df.columns:
                 ramp_steps = list(df["Rheoramp"].unique())
@@ -276,10 +346,20 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                     for p in pairs:
                         group1 = df[(df["meta_data"]==p[0]) & (df["Rheoramp"]==v)]["Number AP"]
                         group2 = df[(df["meta_data"]==p[1]) & (df["Rheoramp"]==v)]["Number AP"]
-                        tmp = self.apply_stats_test(test_type,group1,group2, p, "Rheoramp", v)
+                        tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p, "Rheoramp", v)
                         res_df = pd.concat([res_df, tmp])
 
-                self.create_statistics_for_steps(row, test_type,res_df)
+                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
+
+                if not test_type in self.available_multi_group_test:
+                    c_box  = QComboBox()
+                    row_layout.addWidget(c_box, 2,1,1,1)
+                    c_box.currentTextChanged.connect(partial(self.c_box_changed, df, pairs,test_type, "Number AP", "Rheoramp", row_layout))
+                    steps = []
+                    for i in ramp_steps:
+                        steps.append(str(i))
+                    c_box.addItems(steps)
+                    c_box.setCurrentText(steps[1])
 
             elif "AP_Amplitude [mV]" in df.columns:
 
@@ -288,40 +368,35 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 for p in pairs:
                     group1 = df[df["meta_data"]==p[0]][c_name]
                     group2 = df[df["meta_data"]==p[1]][c_name]
-                    tmp = self.apply_stats_test(test_type,group1,group2, p)
+                    tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
                     res_df = pd.concat([res_df, tmp])
                 res_df["Parameter"] = c_name
 
                 row_layout = self.create_statistics_for_steps(row, test_type,res_df)
-                        
-                canvas= self.show_statistic_results(df, pairs,test_type, c_name) # data to visualize are in the column that is named according the current parameter name
-
+                canvas= self.show_statistic_results(df, pairs,test_type, c_name) # data to visualize are in the column that is named according the current parameter nam
                 row_layout.addWidget(canvas,0, 1, 3, 1)
-                
-                canvas.draw_idle()
                   
             else: # simple boxplots for each meta data group to be compared
                 
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
+                
                 for p in pairs:
                     group1 = df[df["meta_data"]==p[0]]["Result"]
                     group2 = df[df["meta_data"]==p[1]]["Result"]
-                    tmp = self.apply_stats_test(test_type,group1,group2, p)
+                    tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
                     res_df = pd.concat([res_df, tmp])
 
-                statistics_table_view = QTableView()
-                model = PandasTable(res_df)
-                statistics_table_view.setModel(model)
-                self.statistics_result_grid.addWidget(statistics_table_view)
-                #statistics_table_view.show()    
-
+                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
                 canvas = self.show_statistic_results(df, pairs,test_type, "Result") # data to visualize are in column "results"
-                self.statistics_result_grid.addWidget(canvas)
-                #canvas.draw_idle()
+                row_layout.addWidget(canvas,0, 1, 3, 1)
 
-                self.tabWidget.setTabVisible(1,True)
+                #self.tabWidget.setTabVisible(1,True)
                 #self.tabWidget.widget(1).show()   
-                self.tabWidget.setCurrentIndex(1)
+                #self.tabWidget.setCurrentIndex(1)
+
+    def c_box_changed(self,df, pairs,test_type, result_column_name, step_column_name, row_layout, new_text):
+        canvas= self.show_statistic_results(df, pairs,test_type, result_column_name,step_column_name, float(new_text))
+        row_layout.addWidget(canvas,3, 1, 1, 1)
 
     def create_statistics_for_steps(self, row:int, test_type:str, res_df:pd.DataFrame):
         """
@@ -329,12 +404,6 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         """
         layout  = QVBoxLayout()
         row_layout  = QGridLayout()
-        
-        label = QLabel("Statistics of " + self.statistics_table_widget.item(row,1).text())
-        #label.setAlignment(Qt.AlignCenter)
-        label.setMaximumSize(400, 50)  # Set the maximum width and height as desired
-        label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        row_layout.addWidget(label,0,0)
 
         label = QLabel("Performed Statistics:" + test_type)
         #label.setAlignment(Qt.AlignCenter)
@@ -347,7 +416,10 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         model = PandasTable(res_df)
         statistics_table_view.setModel(model)
         model.resize_header(statistics_table_view)
-        row_layout.addWidget(statistics_table_view,2,0)
+        row_span = len(res_df. index)//5
+        if row_span<=1:
+            row_span = 1
+        row_layout.addWidget(statistics_table_view,2,0,row_span,1)
         
         statistics_table_view.setSizeAdjustPolicy(QTableView.AdjustToContents)
 
@@ -361,53 +433,91 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         grid_widget = QWidget()
         grid_widget.setLayout(row_layout)
         layout.addWidget(grid_widget)
-        self.statistics_result_grid.addLayout(layout)
+
+        gb = QGroupBox()
+        gb.setTitle("Statistics of " + self.statistics_table_widget.item(row,1).text())
+        gb.setLayout(layout)
+        self.statistics_result_grid.addWidget(gb) #addLayout(layout)
         self.tabWidget.setTabVisible(1,True)   
         self.tabWidget.setCurrentIndex(1)
 
         return row_layout
 
 
-    def show_statistic_results(self, df, pairs, test_type, y_column):
+    def show_statistic_results(self, df, pairs, test_type, y_column, step_column = None, step_value = None):
         """
         create a plot of the data
         """
 
         # Create a FigureCanvasQTAgg from the Figure object returned by Seaborn
-        
+        #figsize=(6,3)
         fig = plt.Figure()
         ax = fig.add_subplot(111)
+        if step_column:
+            df = df[df[step_column]==step_value]
 
         sns.boxplot(data=df,x ="meta_data" ,y = y_column, ax=ax)
         annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = y_column)
         test_identifier= {"Independent t-test": "t-test_ind",
                           "Welchs t-test":"t-test_welch", 
                           "Paired t-test":"test_paired",
-                           "Wilcoxon Signed-Rank test":"Wilcoxon", 
-                           "Kruskal Wallis test":"Kruskal"}
+                          "Mann-Whitney-U test":"Mann-Whitney",
+                          "Wilcoxon Signed-Rank test":"Wilcoxon", 
+                          "Kruskal Wallis test":"Kruskal"}
         # t-test_ind, t-test_welch, t-test_paired, Mann-Whitney, Mann-Whitney-gt, Mann-Whitney-ls, Levene, Wilcoxon, Kruskal, Brunner-Munzel.
-
+                
         annotator.configure(test=test_identifier[test_type], text_format='star', loc='inside') #Mann-Whitney
         annotator.apply_and_annotate()
         canvas = FigureCanvas(fig)
         print("returning filled canvas")
         return canvas
 
-    def apply_stats_test(self,test_type,group1,group2, group_pair, data_type=None, voltage=None):
+    def apply_stats_test_for_multiple(self,test_type, df,res_column,data_type=None, voltage=None):
+        #        self.available_multi_group_test = ["Kruskal Wallis test", "ANOVA"]
+        try:
+            grouped_data = df.groupby('meta_data')[res_column]
+
+            # Extract the groups as separate arguments
+            groups = [group.values for _, group in grouped_data]
+
+            # Perform Kruskal-Wallis test
+
+            if test_type == "Kruskal Wallis test":
+                        res = stats.kruskal(*groups)
+            elif test_type == "ANOVA":
+                        res = stats.f_oneway(*groups)
+            else:
+                print("this was not expected")
+
+            print("result = ", res)
+            if data_type: # for all voltage clamp recordings
+                tmp = pd.DataFrame({str(data_type):voltage, "Groups":[df["meta_data"].unique()], "p_Value":[round(res.pvalue,4)]})
+            else:
+                tmp = pd.DataFrame({"Groups":[df["meta_data"].unique()], "p_Value":[round(res.pvalue,4)]})
+            return tmp
+        except Exception as e:
+            print(e)
+
+    def apply_stats_test_for_pairs(self,test_type,group1,group2, group_pair, data_type=None, voltage=None):
         """
         apply a specific test to the specified data in group1 and group2
         """
-        if len(group2)>=len(group1):
-            group2 = group2[0:len(group1)]
-        else:
-            group1 = group1[0:len(group2)]
+        #if len(group2)>=len(group1):
+        #    group2 = group2[0:len(group1)]
+        #else:
+        #    group1 = group1[0:len(group2)]
     
         try:
             if test_type == "Independent t-test":
                 res =  stats.ttest_ind(group1,group2)
+            elif test_type == "Welch's t-test":
+                res = stats.ttest_ind(group1,group2,equal_var = False)
+            elif test_type ==  "Mann-Whitney-U test":
+                res = stats.mannwhitneyu(group1,group2)
             elif test_type == "Wilcoxon Signed-Rank test":
                 res = stats.wilcoxon(group1,group2)
-            
+ 
+
             if data_type: # for all voltage clamp recordings
                 tmp = pd.DataFrame({str(data_type):voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
             else:
