@@ -3,16 +3,11 @@ from PySide6.QtWidgets import *  # type: ignore
 from scipy import stats
 from functools import partial
 import pandas as pd
-from CustomWidget.Pandas_Table import PandasTable
+
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
+from QT_GUI.OfflineAnalysis.CustomWidget.statistics_result_template_handler import StatisticsResultTemplate
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 import itertools
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qtagg import FigureCanvas
-from matplotlib.figure import Figure
-from statannotations.Annotator import Annotator
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
     """
@@ -43,7 +38,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.check_meta_data_selected()
         self.autofill_statistics_table_widget()
         self.tabWidget.setTabVisible(1,False)   
-      
+        #self.logger = logger
     
     def check_meta_data_selected(self):
         """
@@ -262,14 +257,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
         else:
             print("this was not expected")
-        
-
-
-        
-        
   
-
-
     def get_analysis_specific_statistics_df(self, widget_position):
         """
         function to retrieve the correct statistics df.
@@ -297,6 +285,9 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         """
         calculate statistics for all the plot widgets
         """
+
+        c_boxes = []
+
         for row in range(self.statistics_table_widget.rowCount()):   
             
             if "Action_Potential_Fitting" in self.analysis_functions: # ap fitting is one function but i want to show each parameter already
@@ -326,17 +317,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                             tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p, "Voltage", v)
                             res_df = pd.concat([res_df, tmp])
 
-                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
-
-                if not test_type in self.available_multi_group_test:
-                    c_box  = QComboBox()
-                    row_layout.addWidget(c_box, 2,1,1,1)
-                    c_box.currentTextChanged.connect(partial(self.c_box_changed, df, pairs,test_type, "Result", "Voltage", row_layout))
-                    voltage_steps_str = []
-                    for i in voltage_steps:
-                        voltage_steps_str.append(str(i))
-                    c_box.addItems(voltage_steps_str)
-                    c_box.setCurrentText(voltage_steps_str[1])
+                self.set_up_frontend(test_type,row,df,res_df,pairs,"Result", "Voltage", voltage_steps)
 
             elif "Rheoramp" in df.columns:
                 ramp_steps = list(df["Rheoramp"].unique())
@@ -349,17 +330,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                         tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p, "Rheoramp", v)
                         res_df = pd.concat([res_df, tmp])
 
-                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
-
-                if not test_type in self.available_multi_group_test:
-                    c_box  = QComboBox()
-                    row_layout.addWidget(c_box, 2,1,1,1)
-                    c_box.currentTextChanged.connect(partial(self.c_box_changed, df, pairs,test_type, "Number AP", "Rheoramp", row_layout))
-                    steps = []
-                    for i in ramp_steps:
-                        steps.append(str(i))
-                    c_box.addItems(steps)
-                    c_box.setCurrentText(steps[1])
+                self.set_up_frontend(test_type,row,df,res_df,pairs,"Number AP", "Rheoramp",ramp_steps)
 
             elif "AP_Amplitude [mV]" in df.columns:
 
@@ -371,11 +342,11 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                     tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
                     res_df = pd.concat([res_df, tmp])
                 res_df["Parameter"] = c_name
+                
+                # data to visualize are in the column that is named according the current parameter name
+                self.set_up_frontend(test_type,row,df,res_df,pairs,c_name)
 
-                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
-                canvas= self.show_statistic_results(df, pairs,test_type, c_name) # data to visualize are in the column that is named according the current parameter nam
-                row_layout.addWidget(canvas,0, 1, 3, 1)
-                  
+        
             else: # simple boxplots for each meta data group to be compared
                 
                 res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
@@ -386,94 +357,36 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                     tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
                     res_df = pd.concat([res_df, tmp])
 
-                row_layout = self.create_statistics_for_steps(row, test_type,res_df)
-                canvas = self.show_statistic_results(df, pairs,test_type, "Result") # data to visualize are in column "results"
-                row_layout.addWidget(canvas,0, 1, 3, 1)
+                self.set_up_frontend(test_type,row,df,res_df,pairs,"Result")
 
-                #self.tabWidget.setTabVisible(1,True)
-                #self.tabWidget.widget(1).show()   
-                #self.tabWidget.setCurrentIndex(1)
+    def set_up_frontend(self,test_type,row,df,res_df,pairs, result_column_name:str, step_column_name:str= None, voltage_steps=None):
+         
+        if test_type in self.available_multi_group_test:
+            result_widget = StatisticsResultTemplate(self.statistics_table_widget.item(row,1).text(), test_type, df, res_df, pairs, result_column_name)
+            result_widget.statistics_table_view.resizeColumnsToContents()
+            
+        else:
+            result_widget = StatisticsResultTemplate(self.statistics_table_widget.item(row,1).text(), test_type, df, res_df, pairs, result_column_name, step_column_name, voltage_steps)
 
-    def c_box_changed(self,df, pairs,test_type, result_column_name, step_column_name, row_layout, new_text):
-        canvas= self.show_statistic_results(df, pairs,test_type, result_column_name,step_column_name, float(new_text))
-        row_layout.addWidget(canvas,3, 1, 1, 1)
-
-    def create_statistics_for_steps(self, row:int, test_type:str, res_df:pd.DataFrame):
-        """
-        frontend handling to show tables for the statistics results
-        """
-        layout  = QVBoxLayout()
-        row_layout  = QGridLayout()
-
-        label = QLabel("Performed Statistics:" + test_type)
-        #label.setAlignment(Qt.AlignCenter)
-        label.setMaximumSize(400, 50)  # Set the maximum width and height as desired
-        label.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        row_layout.addWidget(label,1,0)
-
-        statistics_table_view = QTableView()
-        #statistics_table_view.setAlignment(Qt.AlignCenter)
-        model = PandasTable(res_df)
-        statistics_table_view.setModel(model)
-        model.resize_header(statistics_table_view)
-        row_span = len(res_df. index)//5
-        if row_span<=1:
-            row_span = 1
-        row_layout.addWidget(statistics_table_view,2,0,row_span,1)
-        
-        statistics_table_view.setSizeAdjustPolicy(QTableView.AdjustToContents)
-
-        # Set the size policy of the QTableView and its parent widget to MinimumExpanding
-        statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        
-        #statistics_table_view.resizeColumnsToContents()
-
-        #self.statistics_result_grid.addLayout(row_layout)
-        grid_widget = QWidget()
-        grid_widget.setLayout(row_layout)
-        layout.addWidget(grid_widget)
-
-        gb = QGroupBox()
-        gb.setTitle("Statistics of " + self.statistics_table_widget.item(row,1).text())
-        gb.setLayout(layout)
-        self.statistics_result_grid.addWidget(gb) #addLayout(layout)
+        self.statistics_result_grid.addWidget(result_widget)
         self.tabWidget.setTabVisible(1,True)   
         self.tabWidget.setCurrentIndex(1)
 
-        return row_layout
+    def apply_stats_test_for_multiple(self,test_type:str, df:pd.DataFrame,res_column:str,data_type:str=None, voltage:float=None):
+        """_summary_
 
+        Args:
+            test_type (str): _description_
+            df (pd.DataFrame): _description_
+            res_column (str): _description_
+            data_type (str, optional): _description_. Defaults to None.
+            voltage (float, optional): _description_. Defaults to None.
 
-    def show_statistic_results(self, df, pairs, test_type, y_column, step_column = None, step_value = None):
+        Returns:
+            _type_: _description_
         """
-        create a plot of the data
-        """
 
-        # Create a FigureCanvasQTAgg from the Figure object returned by Seaborn
-        #figsize=(6,3)
-        fig = plt.Figure()
-        ax = fig.add_subplot(111)
-        if step_column:
-            df = df[df[step_column]==step_value]
-
-        sns.boxplot(data=df,x ="meta_data" ,y = y_column, ax=ax)
-        annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = y_column)
-        test_identifier= {"Independent t-test": "t-test_ind",
-                          "Welchs t-test":"t-test_welch", 
-                          "Paired t-test":"test_paired",
-                          "Mann-Whitney-U test":"Mann-Whitney",
-                          "Wilcoxon Signed-Rank test":"Wilcoxon", 
-                          "Kruskal Wallis test":"Kruskal"}
-        # t-test_ind, t-test_welch, t-test_paired, Mann-Whitney, Mann-Whitney-gt, Mann-Whitney-ls, Levene, Wilcoxon, Kruskal, Brunner-Munzel.
-                
-        annotator.configure(test=test_identifier[test_type], text_format='star', loc='inside') #Mann-Whitney
-        annotator.apply_and_annotate()
-        canvas = FigureCanvas(fig)
-        print("returning filled canvas")
-        return canvas
-
-    def apply_stats_test_for_multiple(self,test_type, df,res_column,data_type=None, voltage=None):
-        #        self.available_multi_group_test = ["Kruskal Wallis test", "ANOVA"]
+        #self.available_multi_group_test = ["Kruskal Wallis test", "ANOVA"]
         try:
             grouped_data = df.groupby('meta_data')[res_column]
 
@@ -497,16 +410,24 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             return tmp
         except Exception as e:
             print(e)
+        
 
-    def apply_stats_test_for_pairs(self,test_type,group1,group2, group_pair, data_type=None, voltage=None):
+    def apply_stats_test_for_pairs(self,test_type:str,group1:list[float],group2:list[float], group_pair:tuple[str,str], data_type:str=None, voltage:float=None):
+        """Apply statistical test for a specific pair of meta data
+
+        Args:
+            test_type (str): name of the test to be executed
+            group1 (list): values belonging to meber 1 of pair
+            group2 (list): values belonging to meber 2 of pair
+            group_pair (tuple): tuple of the two 
+            data_type (str, optional): _description_. Defaults to None.
+            voltage (float, optional): _description_. Defaults to None.
+
+
+        Returns:
+            pandas data frame: _description_
         """
-        apply a specific test to the specified data in group1 and group2
-        """
-        #if len(group2)>=len(group1):
-        #    group2 = group2[0:len(group1)]
-        #else:
-        #    group1 = group1[0:len(group2)]
-    
+
         try:
             if test_type == "Independent t-test":
                 res =  stats.ttest_ind(group1,group2)
@@ -516,15 +437,13 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 res = stats.mannwhitneyu(group1,group2)
             elif test_type == "Wilcoxon Signed-Rank test":
                 res = stats.wilcoxon(group1,group2)
- 
 
-            if data_type: # for all voltage clamp recordings
-                tmp = pd.DataFrame({str(data_type):voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
+            if data_type: # for all voltage clamp recordings and other step protocols, such as the rheoramp (ramp1,2,... )
+                tmp = pd.DataFrame({data_type:voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
             else:
                 tmp = pd.DataFrame({"Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
 
         except Exception as e:
-            #@todo better handling ? DZ
             print("Error in statistics", e)
             if data_type == "Voltage":
                 tmp = pd.DataFrame({"Voltage":voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":["Error"]})
@@ -532,15 +451,18 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 tmp = pd.DataFrame({"Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":["Error"]})
 
         return tmp
+
+    def get_pairs(self, item_list:list):
+        """create pairs of meta data labels to be compared 
+
+        Args:
+            item_list (list): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        pairs = [(item1, item2) for i, item1 in enumerate(item_list) for item2 in item_list[i+1:]]
+        return pairs
     
 
-    def get_pairs(self, item_list):
-        # Initialize an empty list to store the pairs
-        pairs = []
-        # Iterate over the items in the list
-        for i, item1 in enumerate(item_list):
-            # Iterate over the remaining items in the list
-            for item2 in item_list[i+1:]:
-                # Add the pair to the list
-                pairs.append((item1, item2))
-        return pairs
+    
