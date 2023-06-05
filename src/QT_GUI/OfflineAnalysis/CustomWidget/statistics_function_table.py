@@ -94,7 +94,7 @@ class Ui_StatisticsTable(object):
         self.statistics_table_widget.setSizePolicy(sizePolicy1)
         self.statistics_table_widget.horizontalHeader().setVisible(True)
         self.statistics_table_widget.horizontalHeader().setCascadingSectionResizes(False)
-        self.statistics_table_widget.horizontalHeader().setDefaultSectionSize(125)
+        self.statistics_table_widget.horizontalHeader().setDefaultSectionSize(30)
         self.statistics_table_widget.horizontalHeader().setProperty("showSortIndicator", False)
         self.statistics_table_widget.horizontalHeader().setStretchLastSection(False)
         self.statistics_table_widget.verticalHeader().setStretchLastSection(False)

@@ -53,17 +53,23 @@ class StatisticsResultTemplate(QWidget, Ui_Form):
         self.statistics_table_view.setModel(model)
         model.resize_header(self.statistics_table_view)
         
+        # Set the section resize mode to stretch for all columns
+        horizontal_header = self.statistics_table_view.horizontalHeader()
+        horizontal_header.setSectionResizeMode(QHeaderView.Stretch)
+
         row_span = len(res_df.index)//10
         # to avoid that the plot is stretched to much for long tables
         if row_span < 2:
             row_span = 2
+
         self.gridLayout_2.addWidget(self.statistics_table_view,1,0,row_span,1)
+
         
         self.statistics_table_view.setSizeAdjustPolicy(QTableView.AdjustToContents)
 
         # Set the size policy of the QTableView and its parent widget to MinimumExpanding
-        self.statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-        self.statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.statistics_table_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        #self.statistics_table_view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         self.groupBox.setTitle("Statistics of " + function_name)
 
@@ -132,7 +138,8 @@ class StatisticsResultTemplate(QWidget, Ui_Form):
             _type_: _description_
         """
         # Create a FigureCanvasQTAgg from the Figure object returned by Seaborn
-        fig = plt.Figure(figsize = (8,8))   #figsize=(6,3)
+        fig = plt.Figure(figsize = (6,6))   #figsize=(6,3)
+
         ax = fig.add_subplot(111)
         if step_column:
             df = df[df[step_column]==step_value]
@@ -147,9 +154,12 @@ class StatisticsResultTemplate(QWidget, Ui_Form):
                           "Wilcoxon Signed-Rank test":"Wilcoxon", 
                           "Kruskal Wallis test":"Kruskal"}
         # t-test_ind, t-test_welch, t-test_paired, Mann-Whitney, Mann-Whitney-gt, Mann-Whitney-ls, Levene, Wilcoxon, Kruskal, Brunner-Munzel.
-                
-        annotator.configure(test=test_identifier[test_type], text_format='star', loc='inside') #Mann-Whitney
-        annotator.apply_and_annotate()
+        if test_type not in ["Kruskal Wallis test", "ANOVA"]:
+            annotator.configure(test=test_identifier[test_type], text_format='star', loc='inside') #Mann-Whitney
+            annotator.apply_and_annotate()
+        
+        # Call tight_layout to adjust the layout
+        fig.tight_layout()
         canvas = FigureCanvas(fig)
 
         print("returning filled canvas")

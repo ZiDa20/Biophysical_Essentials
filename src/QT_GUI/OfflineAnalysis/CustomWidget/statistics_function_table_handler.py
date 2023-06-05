@@ -64,6 +64,8 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
         existing_row_numbers = self.statistics_table_widget.rowCount() #initiate the table in case there are no rows yet
 
+
+
         if  existing_row_numbers == 0:
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT ;) !
             self.statistics_table_widget.setColumnCount(7)
@@ -72,10 +74,30 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 self.statistics_table_widget.setRowCount(18+ len(self.analysis_functions)-1) # -1 to remove the AP Fitting
             else:
                 self.statistics_table_widget.setRowCount(len(self.analysis_functions))
+
             self.statistics_table_buttons = [0] * len(self.analysis_functions)
-            self.statistics_table_widget.resizeRowsToContents()   
+            #self.statistics_table_widget.resizeRowsToContents()   
+            # Set the row height in pixels
+            row_height_px = 200  # Desired row height in pixels
+            self.statistics_table_widget.setMaximumHeight(self.statistics_table_widget.rowCount() *row_height_px)
+            self.groupBox.setMaximumHeight((self.statistics_table_widget.rowCount()+1) *row_height_px)
+            self.scrollArea_2.setMaximumHeight((self.statistics_table_widget.rowCount()+2) *row_height_px)
 
         self.statistics_add_meta_data_buttons = [0]*len(self.analysis_functions)
+
+
+         # Create a scroll area widget fpr the results tab
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.statistics_result_grid.addWidget(scroll_area)
+    
+        self.scroll_area_container_widget = QWidget()
+        self.scroll_area_container_layout = QVBoxLayout()
+        
+        
+        self.scroll_area_container_widget.setLayout(self.scroll_area_container_layout)
+        scroll_area.setWidget(self.scroll_area_container_widget)
+
 
         for i in range(len(self.analysis_functions)):
 
@@ -100,7 +122,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             cell_widget_layout = self.insert_data_distribution(row_to_insert)
             self.insert_statistical_test(row_to_insert)
             #self.get_and_set_data_distribution(df[df.columns[c]],cell_widget_layout)
-            self.statistics_table_widget.setRowHeight(row_to_insert, 100)
+            #self.statistics_table_widget.setRowHeight(row_to_insert, 100)
             print("inserting into" + str(row_to_insert) + df.columns[c])
 
     def autofill_by_analysis_function(self, function_pos:int, analysis_functions:list, row_count:int):
@@ -116,11 +138,11 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         unique_meta_data = list(df["meta_data"].unique())
         self.statistics_table_widget.setItem(row_to_insert,2, QTableWidgetItem('\n'.join(unique_meta_data))) #insert selected meta data as labels
         self.insert_statistical_test(row_to_insert)
-        self.insert_dependency(row_to_insert)
+        cell_widget_layout_dependency = self.insert_dependency(row_to_insert)
         cell_widget_layout_variance = self.insert_variance(row_to_insert)
         cell_widget_layout_distribution = self.insert_data_distribution(row_to_insert)
         
-        self.get_and_set_data_distribution(df,cell_widget_layout_distribution, cell_widget_layout_variance)
+        self.get_and_set_data_distribution(df,cell_widget_layout_distribution, cell_widget_layout_variance, cell_widget_layout_dependency)
 
 
     def insert_statistical_test(self,row_to_insert):
@@ -175,7 +197,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.statistics_table_widget.setCellWidget(row_to_insert, 3, cell_widget)
         return cell_widget_layout
     
-    def get_and_set_data_distribution(self,df,cell_widget_layout_distribution, cell_widget_layout_variance):
+    def get_and_set_data_distribution(self,df,cell_widget_layout_distribution, cell_widget_layout_variance,cell_widget_layout_dependency):
         """performs shapiro wilk test and to identify the correct data distribution and set it in the frontend.
            performs levene test to identify variance and set it correctly 
         """
@@ -209,7 +231,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
         print(shapiro_test)
         print(levene_test)
-        
+
         if shapiro_test.pvalue < 0.05: # no normal distribution
             data_distribution = "non-normal"
             self.data_dist.setCurrentIndex(1)
@@ -233,6 +255,8 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             cell_widget_layout_variance.addWidget(QLabel("Test-Performed: Levene Test\n Result: p< 0.001"),1,0)
         else:
             cell_widget_layout_variance.addWidget(QLabel("Test-Performed: Levene Test\n Result: p=" + levene_res),1,0)
+        
+        cell_widget_layout_dependency.addWidget(QLabel(" \n "),1,0)
         
         if (data_distribution =="normal") and (data_variance =="equal") and (data_dependency =="independent") and (different_groups <= 2):
             self.stat_test.setCurrentIndex(self.available_tests.get("Independent t-test")) # independent t test
@@ -286,8 +310,6 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         calculate statistics for all the plot widgets
         """
 
-        c_boxes = []
-
         for row in range(self.statistics_table_widget.rowCount()):   
             
             if "Action_Potential_Fitting" in self.analysis_functions: # ap fitting is one function but i want to show each parameter already
@@ -306,11 +328,15 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
             if "Voltage" in df.columns:
                 voltage_steps = list(df["Voltage"].unique())
-                res_df = pd.DataFrame(columns=["Voltage", "Group_1", "Group_2", "p_Value"])
+                
                 for v in voltage_steps:
+                    res_df = pd.DataFrame(columns=["Voltage", "Groups", "p_Value"])
                     if test_type in self.available_multi_group_test:
-                            res_df = self.apply_stats_test_for_multiple(test_type,df,"Result")
+                            tmp = self.apply_stats_test_for_multiple(test_type,df[df["Voltage"]==v],"Result","Voltage",v)
+                            res_df = pd.concat([res_df, tmp])
+
                     else:
+                        res_df = pd.DataFrame(columns=["Voltage", "Group_1", "Group_2", "p_Value"])
                         for p in pairs:
                             group1 = df[(df["meta_data"]==p[0]) & (df["Voltage"]==v)]["Result"]
                             group2 = df[(df["meta_data"]==p[1]) & (df["Voltage"]==v)]["Result"]
@@ -349,13 +375,16 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         
             else: # simple boxplots for each meta data group to be compared
                 
-                res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
-                
-                for p in pairs:
-                    group1 = df[df["meta_data"]==p[0]]["Result"]
-                    group2 = df[df["meta_data"]==p[1]]["Result"]
-                    tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
-                    res_df = pd.concat([res_df, tmp])
+               
+                if test_type in self.available_multi_group_test:
+                            res_df = self.apply_stats_test_for_multiple(test_type,df,"Result")
+                else:
+                    res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
+                    for p in pairs:
+                        group1 = df[df["meta_data"]==p[0]]["Result"]
+                        group2 = df[df["meta_data"]==p[1]]["Result"]
+                        tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
+                        res_df = pd.concat([res_df, tmp])
 
                 self.set_up_frontend(test_type,row,df,res_df,pairs,"Result")
 
@@ -367,9 +396,20 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             
         else:
             result_widget = StatisticsResultTemplate(self.statistics_table_widget.item(row,1).text(), test_type, df, res_df, pairs, result_column_name, step_column_name, voltage_steps)
+        
+        # Set the minimum height of the result widget
+        result_widget.setMinimumHeight(400)
 
-        self.statistics_result_grid.addWidget(result_widget)
-        self.tabWidget.setTabVisible(1,True)   
+       
+        
+        self.scroll_area_container_layout.addWidget(result_widget)
+        # Set the result widget as the scroll area's widget
+        # scroll_area.setWidget(result_widget)
+
+        # Add the scroll area to the grid layout
+        
+
+        self.tabWidget.setTabVisible(1, True)
         self.tabWidget.setCurrentIndex(1)
 
     def apply_stats_test_for_multiple(self,test_type:str, df:pd.DataFrame,res_column:str,data_type:str=None, voltage:float=None):
@@ -404,7 +444,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
 
             print("result = ", res)
             if data_type: # for all voltage clamp recordings
-                tmp = pd.DataFrame({str(data_type):voltage, "Groups":[df["meta_data"].unique()], "p_Value":[round(res.pvalue,4)]})
+                tmp = pd.DataFrame({data_type:str(voltage), "Groups":[df["meta_data"].unique()], "p_Value":[round(res.pvalue,4)]})
             else:
                 tmp = pd.DataFrame({"Groups":[df["meta_data"].unique()], "p_Value":[round(res.pvalue,4)]})
             return tmp
