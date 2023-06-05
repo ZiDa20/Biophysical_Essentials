@@ -3,8 +3,7 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 from matplotlib.cm import get_cmap
-from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import \
-    SpecificAnalysisFunctions
+from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 from loggers.offlineplot_logger import offlineplot_logger
 class OfflinePlots():
 
@@ -384,13 +383,8 @@ class OfflinePlots():
             drawing_data = new_df.T
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
-<<<<<<< HEAD
            drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-2]].T
            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
-=======
-            drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-1]].T
-            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
->>>>>>> origin/type_hints_adding
 
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.export_data_frame = self.statistics
