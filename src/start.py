@@ -16,7 +16,7 @@ import webbrowser
 
 class MainWindow(QMainWindow, QtStyleTools):
 
-    def __init__(self, parent = None):
+    def __init__(self, testing_db = None,  parent = None):
         """Initialize the MainWindow class for starting the Application
 
         Args:
@@ -30,6 +30,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.center() #place the MainWindow in the center
         self.setWindowTitle("BiophysicalEssentials (BPE)")
         self.logger= start_logger # set the logger
+        self.logger.info("Starting the Biophysical Essentials Program!")
         self.frontend_style = Frontend_Style(self)
         # Create the animation using the update function and the time points as frames
         self.ap = LoadingAnimation("Data Loading: Please Wait", self.frontend_style, True)
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.animation_layout.addWidget(self.ap.wait_widget)
         self.ui.online.animation_layout.addWidget(self.ap_online.wait_widget)
         # Create the frontend style for the app
-        
+
         self.ui.offline.stackedWidget.setCurrentIndex(1)
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
@@ -51,9 +52,13 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
-        self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
-        self.online_database = DuckDBDatabaseHandler(self.frontend_style, 
-                                                    db_file_name = "online_db", 
+        if testing_db:
+            self.local_database_handler = testing_db
+        else:
+            self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
+
+        self.online_database = DuckDBDatabaseHandler(self.frontend_style,
+                                                    db_file_name = "online_db",
                                                     in_memory = True)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
@@ -61,7 +66,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style, self.ui.notebook)
         self.ui.offline.add_splitter()
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
-        self.ui.online.update_database_handler(self.online_database, self.local_database_handler)
+        self.ui.config.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.frontend_style = self.frontend_style
         self.ui.config.online_analysis = self.ui.online
 
@@ -81,10 +86,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.config.config_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
-        
+
 
     def insert_row_of_buttons(self):
         """
@@ -189,7 +194,7 @@ if __name__ == "__main__":
     os.environ["QT_SCALE_FACTOR"] = '1'
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
     window.show()

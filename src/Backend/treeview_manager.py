@@ -1,23 +1,24 @@
-import numpy as np
-from PySide6.QtGui import *
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
-from DataReader.heka_reader import Bundle
-from functools import partial
+#TreeView Manager class to handle actions for given tree view objects.
 import csv
-
-from loggers.treeview_logger import treeview_logger
-from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import Add_New_Meta_Data_Group_Pop_Up_Handler
-from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-from database.data_db import *
-import pandas as pd
-from DataReader.ABFclass import AbfReader
-from Backend.plot_widget_manager import PlotWidgetManager
-from Backend.cancel_button_delegate import CancelButtonDelegate
-from Offline_Analysis.tree_model_class import TreeModel
 import itertools
+from functools import partial
+import numpy as np
+import pandas as pd
+from PySide6.QtCore import *
+from PySide6.QtGui import *
 from PySide6.QtTest import QTest
-import time
+from PySide6.QtWidgets import *
+from Backend.cancel_button_delegate import CancelButtonDelegate
+from Backend.plot_widget_manager import PlotWidgetManager
+from database.data_db import *
+from DataReader.ABFclass import AbfReader
+from DataReader.heka_reader import Bundle
+from loggers.treeview_logger import treeview_logger
+from Offline_Analysis.tree_model_class import TreeModel
+from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import \
+    Add_New_Meta_Data_Group_Pop_Up_Handler
+from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
+
 
 class TreeViewManager:
     """
@@ -57,6 +58,8 @@ class TreeViewManager:
         self._discardet_nodes_STATE = []
         self._pgf_info_STATE = []
 
+        self.meta_data_group_column = None
+
         self.stimulation_count = 0
         self.channel_count = 0
         self.stim_channel_count = 0
@@ -64,15 +67,12 @@ class TreeViewManager:
         self._data_view_STATE = 0
 
         self.logger = treeview_logger
+        self.meta_data_assignment_list = None
         self.configure_default_signals()
 
         # introduce logger
 
-
     """ ############################## Chapter A Create treeview functions ######################################### """
-
-
-
 
     def configure_default_signals(self):
         """Configure the Default Signals which are used for Thread Safe communication"""
@@ -132,7 +132,7 @@ class TreeViewManager:
         print(bundle_list)
         return bundle_list, abf_list
 
-    def write_directory_into_database(self,database, dat_files, abf_files, progress_callback):
+    def write_directory_into_database(self, dat_files, abf_files, progress_callback):
         """ writes the bundle files as well as the pgf files and meta data files into the
         database in a separate Threads. This is done to avoid blocking the GUI.
         Tedious task with long running time, since only one connection can be opened at a time
@@ -150,21 +150,31 @@ class TreeViewManager:
         #Progress Bar setup
         max_value = len(dat_files)
         progress_value = 0
-        database.open_connection()
+
+        self.database_handler.open_connection()
+        print()
         ################################################################################################################
         for i in dat_files:
             # loop through the dat files and read them in
+            print("this is the data file i ", i)
             try:
                 increment = 100/max_value
                 progress_value = progress_value + increment
-                self.single_file_into_db([], i[0],  i[1], database, [0, -1, 0, 0], i[2])
-                progress_callback.emit((progress_value,i))
+                print("running dat file and this i ", i)
+                self.single_file_into_db([], i[0],  i[1], self.database_handler, [0, -1, 0, 0], i[2])
+                #progress_callback.emit((progress_value,i))
             except Exception as e:
+                print(
+                    f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
+                )
                 self.logger.error(
                     f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
                 )
-                progress_callback.emit((progress_value,i))
-                database.database.close() # we close the database connection and emit an error message
+                try:
+                    progress_callback.emit((progress_value,i))
+                except Exception as es:
+                    print(es)
+                    self.database_handler.database.close() # we close the database connection and emit an error message
 
 
         for i in abf_files:
@@ -172,7 +182,7 @@ class TreeViewManager:
             try:
                 #increment = 100/max_value
                 #progress_value = progress_value + increment
-                self.single_abf_file_into_db(i, database)
+                self.single_abf_file_into_db(i, self.database_handler)
                 #progress_callback.emit((progress_value,i))
 
             except Exception as e:
@@ -180,7 +190,7 @@ class TreeViewManager:
                 self.logger.error(
                     f"The ABF file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
                 )
-                database.database.close() # we close the database connection and emit an error message
+                self.database_handler.database.close() # we close the database connection and emit an error message
 
         # trial to see if the database opens correctly
         self.database_handler.database.close()
@@ -542,8 +552,7 @@ class TreeViewManager:
            None"""
         self.database_handler.open_connection()
         self.logger.info("Database writing thread successfully finished")  #
-        # self.database.open_connection() # open the connection to the database in main thread
-
+     
         try:
             df = self.database_handler.database.execute(
                 "SELECT * FROM experiments").fetchall()  # get all the experiments as sanity
@@ -1040,17 +1049,17 @@ class TreeViewManager:
 
             #if self.database is not None:
             if function == "reinsert":
-                    self.database.reinsert_specific_series(experiment_name,series_identifier)
+                    self.database_handler.reinsert_specific_series(experiment_name,series_identifier)
             else:
-                    self.database.discard_specific_series(experiment_name,series_identifier)
+                    self.database_handler.discard_specific_series(experiment_name,series_identifier)
         else:
             # @todo needs to be eddited for group in online_analysis
             self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function,specific_series)
             if function == "reinsert":
-                self.database.database.execute(
+                self.database_handler.database.execute(
                     f'update experiment_series set discarded = \'False\' where experiment_name = \'{item.text(0)}\';')
             else:
-                self.database.database.execute(
+                self.database_handler.database.execute(
                     f'update experiment_series set discarded = \'True\' where experiment_name = \'{item.text(0)}\';')
     """
     def insert_meta_data_items_into_combo_box(self, combo_box):

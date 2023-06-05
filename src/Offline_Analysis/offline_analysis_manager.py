@@ -131,6 +131,7 @@ class OfflineManager():
         # start the threadpool running the bundle read in function
         if len(data_list) < threads: #
             data_list_final = list(self.chunks(data_list, len(data_list)))
+            print(f"this is the data_list final: {data_list_final} ")
             for i,t in enumerate(data_list_final):
                 # read
                 self.run_bundle_function_in_thread(t)
@@ -140,7 +141,8 @@ class OfflineManager():
             for i,t in enumerate(data_list_final):
                 self.run_bundle_function_in_thread(t)
 
-        self.bundle_worker.signals.finished.connect(partial(self.run_database_threading, self.bundle_liste, self.abf_bundle_liste))
+        print("finished analysis using the database manager")
+        self.bundle_worker.signals.finished.connect(self.run_database_threading)
 
         return self.tree_view_manager
 
@@ -156,7 +158,7 @@ class OfflineManager():
         self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
         self.threadpool.start(self.bundle_worker)
 
-    def run_database_threading(self, bundle_liste, abf_list):
+    def run_database_threading(self):
         """_summary_
 
         Args:
@@ -165,12 +167,13 @@ class OfflineManager():
         """
         self.threadpool.clear()
         self.database.database.close()
-        worker = Worker(self.tree_view_manager.write_directory_into_database, self.database, bundle_liste, abf_list)
-        worker.signals.progress.connect(self.progress_fn)
+        print("here we go into thte run database threading")
+        self.worker = Worker(self.tree_view_manager.write_directory_into_database, self.bundle_liste, self.abf_bundle_liste)
+        self.worker.signals.progress.connect(self.progress_fn)
         #worker.signals.result.connect(self.set_database)
-        worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
+        self.worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
         # signal to update progress bar
-        self.threadpool.start(worker) # start the thread
+        self.threadpool.start(self.worker) # start the thread
 
     def bundle_to_instance_list(self, result):
         """Should append the created bundled list for abf and dat files
