@@ -133,18 +133,17 @@ class DuckDBDatabaseHandler():
             self.logger.info("Mapping between experiment %s and analysis %i FAILED", experiment_id, self.analysis_id)
 
 
-    def create_mapping_between_series_and_analysis_id(self) -> None:
+    def create_mapping_between_series_and_analysis_id(self):
         """
         create the series mapping table by joining already existing analysis experiment mapping table with the experiment series table.
         importantly, only the mappings of the current id should be added to the series analysis mapping table.
         """
 
-        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, analysis_discarded) \
-        SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.discarded\
-        FROM experiment_analysis_mapping\
-        JOIN experiment_series ON \
-        experiment_analysis_mapping.experiment_name = experiment_series.experiment_name\
-        where experiment_analysis_mapping.analysis_id = (?);"
+        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, renamed_series_name, analysis_discarded) \
+                SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.series_name, experiment_series.discarded \
+                FROM experiment_analysis_mapping \
+                JOIN experiment_series \
+                ON experiment_analysis_mapping.experiment_name = experiment_series.experiment_name where experiment_analysis_mapping.analysis_id = (?);"
 
         try:
             self.database = self.database.execute(q,[self.analysis_id])
