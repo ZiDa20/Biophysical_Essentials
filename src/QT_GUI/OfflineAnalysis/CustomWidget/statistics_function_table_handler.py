@@ -305,90 +305,115 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         custom_plot_widget = qwidget_item_1.widget()
         return custom_plot_widget.statistics
 
-    def calculate_statistics(self):
-        """
-        calculate statistics for all the plot widgets
-        """
 
+    def calculate_statistics(self) -> None:
+        
         for row in range(self.statistics_table_widget.rowCount()):   
-            
-            if "Action_Potential_Fitting" in self.analysis_functions: # ap fitting is one function but i want to show each parameter already
+
+            if "Action_Potential_Fitting" in self.analysis_functions:
                 df = self.get_analysis_specific_statistics_df(0)
             else:
                 df = self.get_analysis_specific_statistics_df(row)
 
-            
-            test_type = self.statistics_table_widget.cellWidget(row,6).currentText()  # get the test to be performed from the combo box (position 4)
-            unique_groups  = list(df["meta_data"].unique()) # get unique meta data groups to compare
-            pairs = self.get_pairs(unique_groups) # get a list of tuples for pairwise comparison
-            
-            # tables from voltage clamp analysis have a column "Voltage" to identify voltage step (e.g. KO_80mV vs CTRL_80mV)
-            # tables from rheoramp analysis will have a column "Rheoramp" to identify the rheoramp number
-            # 
+            test_type = self.statistics_table_widget.cellWidget(row, 6).currentText()
+            unique_groups = list(df["meta_data"].unique())
+            pairs = self.get_pairs(unique_groups)
 
             if "Voltage" in df.columns:
-                voltage_steps = list(df["Voltage"].unique())
-                
-                for v in voltage_steps:
-                    res_df = pd.DataFrame(columns=["Voltage", "Groups", "p_Value"])
-                    if test_type in self.available_multi_group_test:
-                            tmp = self.apply_stats_test_for_multiple(test_type,df[df["Voltage"]==v],"Result","Voltage",v)
-                            res_df = pd.concat([res_df, tmp])
-
-                    else:
-                        res_df = pd.DataFrame(columns=["Voltage", "Group_1", "Group_2", "p_Value"])
-                        for p in pairs:
-                            group1 = df[(df["meta_data"]==p[0]) & (df["Voltage"]==v)]["Result"]
-                            group2 = df[(df["meta_data"]==p[1]) & (df["Voltage"]==v)]["Result"]
-                            tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p, "Voltage", v)
-                            res_df = pd.concat([res_df, tmp])
-
-                self.set_up_frontend(test_type,row,df,res_df,pairs,"Result", "Voltage", voltage_steps)
-
+                self.calculate_voltage_statistics(test_type, row, df, pairs)
             elif "Rheoramp" in df.columns:
-                ramp_steps = list(df["Rheoramp"].unique())
-                res_df = pd.DataFrame(columns=["Rheoramp", "Group_1", "Group_2", "p_Value"])
-                for v in ramp_steps:
-                
-                    for p in pairs:
-                        group1 = df[(df["meta_data"]==p[0]) & (df["Rheoramp"]==v)]["Number AP"]
-                        group2 = df[(df["meta_data"]==p[1]) & (df["Rheoramp"]==v)]["Number AP"]
-                        tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p, "Rheoramp", v)
-                        res_df = pd.concat([res_df, tmp])
-
-                self.set_up_frontend(test_type,row,df,res_df,pairs,"Number AP", "Rheoramp",ramp_steps)
-
+                self.calculate_rheoramp_statistics(test_type, row, df, pairs)
             elif "AP_Amplitude [mV]" in df.columns:
+                self.calculate_ap_amplitude_statistics(test_type, row, df, pairs)
+            else:
+                self.calculate_simple_statistics(test_type, row, df, pairs)
 
-                c_name = df.columns[row] # get the current name of the parameter
-                res_df = pd.DataFrame(columns=["Parameter", "Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
+    def calculate_voltage_statistics(self, test_type: str, row: int, df: pd.DataFrame, pairs: list[str]) -> None:
+        voltage_steps = list(df["Voltage"].unique())
+        res_df = pd.DataFrame(columns=["Voltage", "Groups", "p_Value"])
+
+        if test_type in self.available_multi_group_test:
+            for v in voltage_steps:
+                tmp = self.apply_stats_test_for_multiple(test_type, df[df["Voltage"] == v], "Result", "Voltage", v)
+                res_df = pd.concat([res_df, tmp])
+        else:
+            res_df = pd.DataFrame(columns=["Voltage", "Group_1", "Group_2", "p_Value"])
+            for v in voltage_steps:
                 for p in pairs:
-                    group1 = df[df["meta_data"]==p[0]][c_name]
-                    group2 = df[df["meta_data"]==p[1]][c_name]
-                    tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
+                    group1 = df[(df["meta_data"] == p[0]) & (df["Voltage"] == v)]["Result"]
+                    group2 = df[(df["meta_data"] == p[1]) & (df["Voltage"] == v)]["Result"]
+                    tmp = self.apply_stats_test_for_pairs(test_type, group1, group2, p, "Voltage", v)
                     res_df = pd.concat([res_df, tmp])
-                res_df["Parameter"] = c_name
-                
-                # data to visualize are in the column that is named according the current parameter name
-                self.set_up_frontend(test_type,row,df,res_df,pairs,c_name)
 
-        
-            else: # simple boxplots for each meta data group to be compared
-                
-               
-                if test_type in self.available_multi_group_test:
-                            res_df = self.apply_stats_test_for_multiple(test_type,df,"Result")
-                else:
-                    res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"]) # result data frame to be displayed
-                    for p in pairs:
-                        group1 = df[df["meta_data"]==p[0]]["Result"]
-                        group2 = df[df["meta_data"]==p[1]]["Result"]
-                        tmp = self.apply_stats_test_for_pairs(test_type,group1,group2, p)
-                        res_df = pd.concat([res_df, tmp])
+        self.set_up_results_in_frontend(test_type, row, df, res_df, pairs, "Result", "Voltage", voltage_steps)
 
-                self.set_up_frontend(test_type,row,df,res_df,pairs,"Result")
+    def calculate_rheoramp_statistics(self, test_type: str, row: int, df: pd.DataFrame, pairs: list[str]) -> None:
+        ramp_steps = list(df["Rheoramp"].unique())
+        res_df = pd.DataFrame(columns=["Rheoramp", "Group_1", "Group_2", "p_Value"])
+        for v in ramp_steps:
+            for p in pairs:
+                group1 = df[(df["meta_data"] == p[0]) & (df["Rheoramp"] == v)]["Number AP"]
+                group2 = df[(df["meta_data"] == p[1]) & (df["Rheoramp"] == v)]["Number AP"]
+                tmp = self.apply_stats_test_for_pairs(test_type, group1, group2, p, "Rheoramp", v)
+                res_df = pd.concat([res_df, tmp])
 
-    def set_up_frontend(self,test_type,row,df,res_df,pairs, result_column_name:str, step_column_name:str= None, voltage_steps=None):
+        self.set_up_results_in_frontend(test_type, row, df, res_df, pairs, "Number AP", "Rheoramp", ramp_steps)
+
+    def calculate_ap_amplitude_statistics(self, test_type: str, row: int, df: pd.DataFrame, pairs: list[str]) -> None:
+        """_summary_
+
+        Args:
+            test_type (str): _description_
+            row (int): _description_
+            df (pd.DataFrame): _description_
+            pairs (list[str]): _description_
+        """
+        c_name = df.columns[row]
+        res_df = pd.DataFrame(columns=["Parameter", "Group_1", "Group_2", "p_Value"])
+        for p in pairs:
+            group1 = df[df["meta_data"] == p[0]][c_name]
+            group2 = df[df["meta_data"] == p[1]][c_name]
+            tmp = self.apply_stats_test_for_pairs(test_type, group1, group2, p)
+            res_df = pd.concat([res_df, tmp])
+        res_df["Parameter"] = c_name
+
+        self.set_up_results_in_frontend(test_type, row, df, res_df, pairs, c_name)
+
+    def calculate_simple_statistics(self, test_type: str, row: int, df: pd.DataFrame, pairs: list[str]) -> None:
+        """_summary_
+
+        Args:
+            test_type (str): _description_
+            row (int): _description_
+            df (pd.DataFrame): _description_
+            pairs (list[str]): _description_
+        """
+        if test_type in self.available_multi_group_test:
+            res_df = self.apply_stats_test_for_multiple(test_type, df, "Result")
+        else:
+            res_df = pd.DataFrame(columns=["Group_1", "Group_2", "p_Value"])
+            for p in pairs:
+                group1 = df[df["meta_data"] == p[0]]["Result"]
+                group2 = df[df["meta_data"] == p[1]]["Result"]
+                tmp = self.apply_stats_test_for_pairs(test_type, group1, group2, p)
+                res_df = pd.concat([res_df, tmp])
+
+        self.set_up_results_in_frontend(test_type, row, df, res_df, pairs, "Result")
+
+
+    def set_up_results_in_frontend(self,test_type:str,row,df:pd.DataFrame,res_df:pd.DataFrame,pairs:list[tuple[str,str]], result_column_name:str, step_column_name:str= None, voltage_steps=None):
+        """_summary_
+
+        Args:
+            test_type (str): _description_
+            row (_type_): _description_
+            df (pd.DataFrame): _description_
+            res_df (pd.DataFrame): _description_
+            pairs (list[tuple[str,str]]): _description_
+            result_column_name (str): _description_
+            step_column_name (str, optional): _description_. Defaults to None.
+            voltage_steps (_type_, optional): _description_. Defaults to None.
+        """
          
         if test_type in self.available_multi_group_test:
             result_widget = StatisticsResultTemplate(self.statistics_table_widget.item(row,1).text(), test_type, df, res_df, pairs, result_column_name)
@@ -399,16 +424,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         
         # Set the minimum height of the result widget
         result_widget.setMinimumHeight(400)
-
-       
-        
         self.scroll_area_container_layout.addWidget(result_widget)
-        # Set the result widget as the scroll area's widget
-        # scroll_area.setWidget(result_widget)
-
-        # Add the scroll area to the grid layout
-        
-
         self.tabWidget.setTabVisible(1, True)
         self.tabWidget.setCurrentIndex(1)
 
