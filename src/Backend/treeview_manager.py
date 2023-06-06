@@ -618,11 +618,6 @@ class TreeViewManager:
         meta_data_table = pandas data frame with columns [table, column, values]
 
         """
-
-        # list of lists of meta data tuples per column and table
-        meta_data_values = list(set(meta_data_table["conditions"].values))
-        combinations = self.create_meta_data_combinations(meta_data_values)
-
         # Create an empty DataFrame with the necessary columns
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
 
@@ -630,10 +625,7 @@ class TreeViewManager:
         GLOBAL_META_DATA_TABLE = "global_meta_data"
         EXPERIMENT_SERIES_TABLE = "series_analysis_mapping"
         SWEEP_META_DATA_TABLE = "sweep_meta_data"
-
-        f'select * from selected meta_data '
-
-        
+       
         global_meta_data_query = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.offline_analysis_id})'
         global_meta_data = self.database_handler.database.execute(global_meta_data_query).fetchdf()
         
@@ -641,8 +633,6 @@ class TreeViewManager:
         global_meta_data["root"] = "root"
         global_meta_data["agg_experiment_names"] =global_meta_data[["root", "agg","experiment_name"]].agg('::'.join, axis=1)
         
-
-      
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
         for c in global_meta_data["agg"].unique():
             

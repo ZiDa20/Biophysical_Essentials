@@ -118,13 +118,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.exec_()
 
-
     def update_after_series_change(self,dialog):
         dialog.excecute_rename()
         self.update_gui_treeviews()
         dialog.close()
-
-
 
     def open_filter_dialog(self):
         """
@@ -256,7 +253,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
          self.offline_tree.add_widget_to_splitter(self.object_splitter)
 
 
-    def update_database_handler_object(self, updated_object, frontend_style, notebook):
+    def update_database_handler_object(self, updated_object, frontend_style, notebook, reconnect = None):
         """_summary_: This function updates the object connections to the offline analysis widget
 
 
@@ -299,11 +296,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                              self.blank_analysis_plot_manager,
                                              self.blank_analysis_tree_view_manager)
 
-        self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
-        self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
-        self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
-        self.add_meta_data_to_treeview.clicked.connect(partial(self.update_gui_treeviews, None, True)) 
-        self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
+        # for the second connection
+        if not reconnect:
+
+            self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
+            self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
+            self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
+            self.add_meta_data_to_treeview.clicked.connect(partial(self.update_gui_treeviews, None, True)) 
+            self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
     def show_open_analysis_dialog(self):
@@ -329,13 +329,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
-
+        self.blank_analysis_tree_view_manager.offline_analysis_id = int(id_)
         
         self.load_page_1_tree_view(id_)
 
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
-        print(series_names_list)
-
         for i in range(len(series_names_list)):
             series_names_list[i] = series_names_list[i][0]
         #    self.result_visualizer.show_results_for_current_analysis(9,name)
@@ -344,7 +342,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.built_analysis_specific_tree(series_names_list,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets,
-                                                     
                                                        reload = True)
 
         #print("displaying to analysis results: ", self.database_handler.analysis_id)
@@ -389,6 +386,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             reload (bool, optional): _description_. If this is a reloaded offline analysis or a newly created
         """
         # already initialized in in updated_data_object
+        
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, None)
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)
@@ -413,6 +411,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
 
+        return True
     def load_page_1_tree_view(self, existing_id = None):
         """
         this function will be executed when the button 'load selection' was clicked after 
@@ -1151,3 +1150,33 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         if self.offline_analysis_widgets.currentIndex() == 1:
             self.ribbon_analysis.setCurrentIndex(1)
             self.ribbon_series_normalization.setCurrentIndex(0)
+
+
+    def reset_class(self):
+        """resets the class to its orignal point and adds a new 
+        offline analysis id"""
+        #reset the complete offline_stages
+
+        # reset the objects interacting with the offline_widget_class
+        
+            
+        self.final_result_holder = ResultHolder()
+        self.offline_manager = OfflineManager()
+        self.offline_tree.hierachy_stacked.deleteLater()
+        self.offline_tree.analysis_stacked.deleteLater()
+        self.update_database_handler_object(self.database_handler, self.frontend_style, self.notebook, reconnect = True)
+        self.add_splitter()
+        self.blank_analysis_tree_view_manager.clear_tree()
+        self.blank_analysis_plot_manager.canvas.figure.clf()
+        self.blank_analysis_plot_manager.canvas.draw_idle()
+        
+        #reset the variables to the default value
+        self.tree_widget_index_count = 0
+        self.final_series = []
+        self.filter_dialog = None
+
+    
+        
+
+
+

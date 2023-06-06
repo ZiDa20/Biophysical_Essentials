@@ -92,8 +92,7 @@ class OfflineDialogs:
         Args:
             seleced_series_combo (QTCombobox): Combobox holding the individual selected series for the analysis
         """
-        self.series_dialog = SeriesDialog(self.database_handler, self.frontend_style)
-        self.series_dialog.setup_ui(selected_series_combo, self.final_series)
+        self.series_dialog = SeriesDialog(self.database_handler, self.frontend_style, selected_series_combo, self.final_series)
 
     def add_filter_to_offline_analysis(self):
         """_summary_: Will be called when the filter button is clicked and should open a popup to filter for certain parameters derived from the sweep metadata table

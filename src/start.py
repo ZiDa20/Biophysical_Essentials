@@ -49,6 +49,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.offline_manager.set_status_and_progress_bar(self.ap.status_label, self.ap.progress_bar)
         self.ui.offline.wait_widget = self.ap.wait_widget
         self.ui.offline.progressbar = self.ap.progress_bar
+        self.check_already_executed  = None
 
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
@@ -167,8 +168,12 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def start_new_offline_analysis_from_db(self):
         "start new offline analysis, therefore let the user choose a data from the database"
+        
+        if self.check_already_executed:
+            self.ui.offline.reset_class()
+        self.check_already_executed = self.ui.offline.load_treeview_from_database()
         self.go_to_offline_analysis()
-        self.ui.offline.load_treeview_from_database()
+        
 
     def open_bpe_webside(self):
         """open the webside of BPE"""

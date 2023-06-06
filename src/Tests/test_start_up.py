@@ -67,14 +67,14 @@ class TestFrontPage(unittest.TestCase):
         
     def test_writing_database(self):
         data = self.database_handler.database.execute("Show Tables;").fetchdf()
-        self.assertEqual(data.shape[0], 64, "nope not true")
+        self.assertEqual(data.shape[0], 65, "nope not true")
 
     def test_check_database_initiated(self):
         """ Check if database if properly assigned constructed"""
         show_tables = self.database_handler.database.execute("Select * from offline_analysis;").fetchdf()
         all_tables = self.database_handler.database.execute("SHOW TABLES;").fetchdf()
         self.assertEqual(show_tables.shape[0], 3 , "no database")
-        self.assertEqual(all_tables.shape[0], 64 , "no database")
+        self.assertEqual(all_tables.shape[0], 65 , "no database")
         # should be a property of the database_hanlder instead of a open variable
 
     def test_get_sweep_table_return(self):

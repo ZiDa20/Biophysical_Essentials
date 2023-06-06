@@ -48,8 +48,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         df = self.get_analysis_specific_statistics_df(0) # request the first table since all will have the same meta data for now
         are_equal = df["experiment_name"] == df["meta_data"] # Compare the two columns for equality
         if are_equal.all():
-            d = CustomErrorDialog("To run statistics, you have to choose meta data first. Please open the meta-data selection from the ribbon bar above.", self.frontend_style)
-            d.exec_()
+            CustomErrorDialog("To run statistics, you have to choose meta data first. Please open the meta-data selection from the ribbon bar above.", self.frontend_style)
         else:
             return
 

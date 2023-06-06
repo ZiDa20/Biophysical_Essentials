@@ -4,10 +4,11 @@ from functools import partial
 
 class SeriesDialog(QDialog):
     
-    def __init__(self,database_handler, frontend_style, parent=None) -> None:
+    def __init__(self,database_handler, frontend_style, series_combo, final_series, parent=None) -> None:
         super().__init__(parent)
         self.database_handler = database_handler
         self.frontend_style = frontend_style
+        self.setup_ui(series_combo, final_series)
         
         
     def setup_ui(self, series_combo, final_series):

@@ -34,7 +34,7 @@ def test_long_computation(qtbot):
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
     qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = app.database_handler.database.execute("SHOW TABLES").fetchdf()
-    assert tables.shape[0] == 64
+    assert tables.shape[0] == 65
 
     # Watch for the app.worker.finished signal, then start the worker.
 
