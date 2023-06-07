@@ -154,6 +154,8 @@ class MainWindow(QMainWindow, QtStyleTools):
     def open_analysis(self):
         """Should open a already performed analysis
         """
+        if self.check_already_executed:
+            self.ui.offline.reset_class()
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
         self.ui.offline.show_open_analysis_dialog()
@@ -169,6 +171,8 @@ class MainWindow(QMainWindow, QtStyleTools):
     def start_new_offline_analysis_from_dir(self):
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
         #self.go_to_offline_analysis()
+        if self.check_already_executed:
+            self.ui.offline.reset_class()
         self.ui.offline.open_directory()
 
     def start_new_offline_analysis_from_db(self):
