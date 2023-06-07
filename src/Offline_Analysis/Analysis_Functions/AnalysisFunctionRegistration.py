@@ -23,7 +23,7 @@ class AnalysisFunctionRegistration():
         "time_to_max": TimeToMax,
         "mean_voltage": MeanVoltage,
         "Action_Potential_Fitting": ActionPotentialFitting,
-        "Input_Resistance": InputResistance,
+        "InputResistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
         "Peak-Detection": PeakFinding
@@ -79,4 +79,4 @@ class AnalysisFunctionRegistration():
             return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["mean_voltage",  "Action_Potential_Fitting",
-                    "Rheobase-Detection", "RheoRamp-Detection", "Input_Resistance", "Peak-Detection"] # "Cluster",
+                    "Rheobase-Detection", "RheoRamp-Detection", "InputResistance", "Peak-Detection"] # "Cluster",

@@ -176,7 +176,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				self.construct_trace()
 				self.slice_trace()
 				res = self.specific_calculation()
-
+				print(f"this is the inputresistance: {res}")
 				# normalize if necessary
 				# toDO add logging here
 
@@ -258,7 +258,6 @@ class SweepWiseAnalysisTemplate(ABC):
 		"""
 		return SweepWiseAnalysisTemplate.get_list_of_result_tables(parent_widget.analysis_id, parent_widget.analysis_function_id,database)
 
-
 	@staticmethod
 	def fetch_x_and_y_data(table_name: str,database) -> tuple:
 
@@ -267,10 +266,14 @@ class SweepWiseAnalysisTemplate(ABC):
 		# @toDO MZ check this function!
 		# query data are quadruples of ("Sweep_Table_Name", "Sweep_Number", "Voltage", "Result")
 		# therefore make lists of each tuple "column"
-		q = f'select Sweep_Table_Name, Sweep_Number, Voltage, Result, Increment, experiment_name from {table_name[0]}'
+		q = f'select * from {table_name[0]}'
 		query_data = database.get_data_from_database(database.database, q, fetch_mode = 2)
 		increment = None if (query_data["Increment"] > 0).any() else 1
-		return query_data[["Sweep_Number","Voltage","Result","experiment_name"]], increment
+
+		if "Voltage" in query_data.columns:
+			return query_data[["Sweep_Number","Voltage","Result","experiment_name"]], increment
+		else:
+			return query_data[["Sweep_Number","Current","Result","experiment_name"]], increment
 
 	@staticmethod
 	def get_list_of_result_tables(analysis_id, analysis_function_id, database)-> list:

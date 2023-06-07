@@ -98,7 +98,7 @@ class TestFrontPage(unittest.TestCase):
     def test_get_cslow_value(self):
         """_summary_
         """
-        cslow = self.database_handler.get_cslow_value_for_sweep_table("imon_signal_220315_02_Series2")
+        cslow, _ = self.database_handler.get_cslow_value_from_experiment_name_and_series_identifier("220315_02","Series2")
         self.assertEqual(cslow, 1.4535422426504894e-11 , "not true")
         self.assertIsInstance(cslow, float, "wrong type returned")
 

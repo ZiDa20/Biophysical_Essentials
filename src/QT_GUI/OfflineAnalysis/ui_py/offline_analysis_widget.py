@@ -1166,9 +1166,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """resets the class to its orignal point and adds a new 
         offline analysis id"""
         #reset the complete offline_stages
-
         # reset the objects interacting with the offline_widget_class
-        
         #reset the variables to the default value
         self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
         self.blank_analysis_tree_view_manager.clear_tree()

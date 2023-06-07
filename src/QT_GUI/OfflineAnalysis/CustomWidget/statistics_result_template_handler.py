@@ -148,7 +148,7 @@ class StatisticsResultTemplate(QWidget, Ui_Form):
         ax.grid=False
         annotator = Annotator(ax, pairs, data=df, x ="meta_data" ,y = y_column)
         test_identifier= {"Independent t-test": "t-test_ind",
-                          "Welchs t-test":"t-test_welch", 
+                          "Welch's t-test":"t-test_welch", 
                           "Paired t-test":"test_paired",
                           "Mann-Whitney-U test":"Mann-Whitney",
                           "Wilcoxon Signed-Rank test":"Wilcoxon", 

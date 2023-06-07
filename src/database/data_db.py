@@ -631,9 +631,9 @@ class DuckDBDatabaseHandler():
         """
         implemented to replace the function below
         """
-
+        print(experiment_name, series_identifier)
         q = """select meta_data_table_name, sweep_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
-        
+        print(q)
         # should return a list with only one tuple with meta_data_name and sweep table name
         res = self.get_data_from_database(self.database, q, (experiment_name,series_identifier))[0]
         sweep_table_name = res[1]
@@ -1240,6 +1240,7 @@ class DuckDBDatabaseHandler():
         series_name = current_tab.objectName()
         experiment_name = self.database.execute(f"SELECT experiment_name FROM experiment_analysis_mapping WHERE analysis_id = {analysis_id};").fetchall()
         pgf_file_dict = {}
+        ref_elem_exp = None
         for experiment in experiment_name:
             try:
                 q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
@@ -1247,7 +1248,7 @@ class DuckDBDatabaseHandler():
                 pgf_table = self.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
                 pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
                 pgf_file_dict[experiment[0]] = (pgf_table, pgf_table.shape[0])
-
+                ref_elem_exp = experiment[0]
             except IndexError:
                 print(f"The error is at the experiment: {experiment[0]}")
                 continue
@@ -1255,7 +1256,7 @@ class DuckDBDatabaseHandler():
         pgf_files_amount = {pgf_index[1] for pgf_index in pgf_file_dict.values()}
 
         if len(pgf_files_amount) <= 1:
-            trial = pgf_file_dict.get(experiment_name[0][0])[0]
+            trial = pgf_file_dict.get(ref_elem_exp)[0]
             cnts = trial["selected_channel"].value_counts()
             seg_list = []
             for i in range(1,cnts[0]+1):

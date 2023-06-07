@@ -28,7 +28,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.SeriesItems = SeriesItems
         self.database_handler = database_handler
         self.available_tests = {"Independent t-test":0,
-                       "Welchs t-test":1,
+                       "Welch's t-test":1,
                        "Mann-Whitney-U test":2, 
                        "Paired t-test":3, 
                        "Wilcoxon Signed-Rank test":4, 
@@ -51,7 +51,6 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             CustomErrorDialog("To run statistics, you have to choose meta data first. Please open the meta-data selection from the ribbon bar above.", self.frontend_style)
         else:
             return
-
 
     def autofill_statistics_table_widget(self):
         """
@@ -261,7 +260,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             self.stat_test.setCurrentIndex(self.available_tests.get("Independent t-test")) # independent t test
         
         elif (data_distribution =="normal") and (data_variance =="unequal") and (data_dependency =="independent") and (different_groups <= 2):
-            self.stat_test.setCurrentIndex(self.available_tests.get("Welchs t-test")) # welchs test 
+            self.stat_test.setCurrentIndex(self.available_tests.get("Welch's t-test")) # welchs test 
 
         elif (data_distribution =="non-normal") and (data_dependency =="independent") and (different_groups <= 2):
             self.stat_test.setCurrentIndex(self.available_tests.get("Mann-Whitney-U test"))
