@@ -12,6 +12,7 @@ from Backend.treeview_manager import TreeViewManager
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from Backend.treeview_manager import TreeViewManager
 from Backend.plot_widget_manager import PlotWidgetManager
+from database.data_db import DuckDBDatabaseHandler
 
 import numpy as np
 from Threading.Worker import Worker
@@ -57,7 +58,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-
+        self.added_stacked_layout = QGridLayout()
+        self.added_stacked_layout.setContentsMargins(0, 0, 0, 0)
+        self.add_stacked_widget = QWidget()
+        self.add_stacked_widget.setLayout(self.added_stacked_layout)
         # make he ribbon bar components to attach at the same height
         # self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
         
@@ -87,7 +91,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
         # animation of the side dataframe
-        self.final_series = []
         self.notebook = None # variable for hodling the main stacked widget describing the program
         #self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
         # blank analysis menu
@@ -108,7 +111,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.filter_dialog = None
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
-
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
 
@@ -250,7 +252,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             csv_file.close()
 
     def add_splitter(self):
-         self.offline_tree.add_widget_to_splitter(self.object_splitter)
+         self.object_splitter.addWidget(self.add_stacked_widget)
+         self.offline_tree.add_widget_to_splitter(self.added_stacked_layout)
 
 
     def update_database_handler_object(self, updated_object, frontend_style, notebook, reconnect = None):
@@ -263,11 +266,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler = updated_object
         self.frontend_style = frontend_style
         self.notebook = notebook
-        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout, self.database_handler, None, False,  self.frontend_style)
+        if not reconnect:
+            self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout, self.database_handler, None, False,  self.frontend_style)
+        else:
+            self.blank_analysis_plot_manager.database_handler = self.database_handler
+            self.edit_meta.clicked.disconnect()
+            self.edit_series_meta_data.clicked.disconnect()
+            self.append.clicked.disconnect()
+            self.add_meta_data_to_treeview.clicked.disconnect() 
+            self.compare_series.clicked.disconnect()
+            
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2,
                                                  [self.plot_home, self.plot_zoom, self.plot_move],
                                                  self.frontend_style,
@@ -296,14 +308,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                              self.blank_analysis_plot_manager,
                                              self.blank_analysis_tree_view_manager)
 
-        # for the second connection
-        if not reconnect:
-
-            self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
-            self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
-            self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
-            self.add_meta_data_to_treeview.clicked.connect(partial(self.update_gui_treeviews, None, True)) 
-            self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
+        # this handling is important to avoid that we are dealing with the wrong object
+        
+        
+        self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
+        self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
+        self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
+        self.add_meta_data_to_treeview.clicked.connect(partial(self.update_gui_treeviews, None, True)) 
+        self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
     def show_open_analysis_dialog(self):
@@ -556,11 +568,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         m_list = data_frame.values.tolist()
         self.continue_open_directory(meta_data_popup,m_list)
 
-
     def start_analysis_offline(self):
         """Starts the analysis of the selected series"""
-
-        print(self.OfflineDialogs.final_series)
+        self.logger.info(f"Series to be analyzed: {self.OfflineDialogs.final_series}")
         self.offline_tree.built_analysis_specific_tree(self.OfflineDialogs.final_series,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets)
@@ -1159,21 +1169,26 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # reset the objects interacting with the offline_widget_class
         
-            
-        self.final_result_holder = ResultHolder()
-        self.offline_manager = OfflineManager()
-        self.offline_tree.hierachy_stacked.deleteLater()
-        self.offline_tree.analysis_stacked.deleteLater()
-        self.update_database_handler_object(self.database_handler, self.frontend_style, self.notebook, reconnect = True)
-        self.add_splitter()
+        #reset the variables to the default value
+        self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
         self.blank_analysis_tree_view_manager.clear_tree()
         self.blank_analysis_plot_manager.canvas.figure.clf()
         self.blank_analysis_plot_manager.canvas.draw_idle()
-        
-        #reset the variables to the default value
         self.tree_widget_index_count = 0
-        self.final_series = []
         self.filter_dialog = None
+        self.final_result_holder = ResultHolder()
+        self.offline_manager = OfflineManager()
+        try: # important if initial loading did not work out properly
+            self.offline_tree.hierachy_stacked.deleteLater()
+            self.offline_tree.analysis_stacked.deleteLater()
+        #    self.add_splitter()
+        except AttributeError:
+            self.logger.info("No hierachy widget yet defined")
+          
+        self.update_database_handler_object(self.database_handler, self.frontend_style, self.notebook, reconnect = True)
+        self.add_splitter()  
+        
+        
 
     
         

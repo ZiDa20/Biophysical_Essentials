@@ -43,6 +43,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
+
+        
+        
+
         self.ui.offline.ap_animation = self.ap
         self.ui.offline.ap_timer = self.ap.timer
         self.ui.offline.status_label = self.ap.status_label
@@ -65,6 +69,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer
         self.ui.offline.update_database_handler_object(self.local_database_handler, self.frontend_style, self.ui.notebook)
+        self.ui.online.update_database_handler(self.online_database, self.local_database_handler)
         self.ui.offline.add_splitter()
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.config.update_database_handler(self.local_database_handler, self.frontend_style)

@@ -51,8 +51,8 @@ class SeriesItemTreeWidget():
         self.zoom = plot_buttons[1]
         self.pan = plot_buttons[2]
 
-    def add_widget_to_splitter(self, splitter):
-        splitter.addWidget(self.analysis_stacked)
+    def add_widget_to_splitter(self, layout):
+        layout.addWidget(self.analysis_stacked)
 
     def add_analysis_tree_selection(self, index):
         # retrieve the current tab
