@@ -64,7 +64,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.online_database = DuckDBDatabaseHandler(self.frontend_style,
                                                     db_file_name = "online_db",
-                                                    in_memory = True)
+                                                    in_memory = False)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer

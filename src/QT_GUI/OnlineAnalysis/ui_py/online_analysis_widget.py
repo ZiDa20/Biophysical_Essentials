@@ -50,8 +50,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.logger = online_logger
         self.connections_clicked()
 
-        self.database_handler = None
-        self.offline_database = None
+        self.database_handler = None # online db
+        self.offline_database = None # offline db
         self.online_analysis_plot_manager = None
         self.online_analysis_tree_view_manager = None
         self._labbook_table = None
@@ -364,6 +364,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_tree_view_manager.show_sweeps_radio = self.show_sweeps_radio
         # only display the one file with experiment_label online analysis.
         self.online_analysis_tree_view_manager.selected_meta_data_list = ["None"]
+        self.online_analysis_tree_view_manager.map_data_to_analysis_id([self.experiment_name])
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
         self.logger.info("Finished the loading of the file!")
         self.online_analysis.setTabEnabled(1,True)
@@ -401,7 +402,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         In addition a comment section is added where comments to specific experimental conditions
         can be made"""
         self.logger.info(f"Creating labbook for file {self.experiment_name}")
-        final_pandas = self.online_treeview.selected_tree_view.model()._data
+        final_pandas = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data
         final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
         self.experiment_name  = final_pandas["item_name"].values[0]
         list_cslow = [] # need to change this to support more metadata
