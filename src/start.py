@@ -43,10 +43,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
-
-        
-        
-
         self.ui.offline.ap_animation = self.ap
         self.ui.offline.ap_timer = self.ap.timer
         self.ui.offline.status_label = self.ap.status_label
@@ -64,7 +60,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.online_database = DuckDBDatabaseHandler(self.frontend_style,
                                                     db_file_name = "online_db",
-                                                    in_memory = False)
+                                                    in_memory = True)
         if self.local_database_handler:
             self.statusBar().showMessage("Database Connection Loaded")
         # share the object with offline analysis and database viewer
@@ -81,7 +77,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.connect_buttons_start()
         self.ui.config.ui_notebook = self.ui.notebook
 
-    def connect_buttons_start(self):
+    def connect_buttons_start(self) -> None:
         """ Connects all the necessary buttons at the start"""
         self.ui.configuration_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 1))
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
@@ -97,7 +93,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
 
 
-    def insert_row_of_buttons(self):
+    def insert_row_of_buttons(self) -> None:
         """
         Function to insert a row of buttons to the start up grid
         """
@@ -151,7 +147,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             self.ui.side_left_menu.hide()
 
-    def open_analysis(self):
+    def open_analysis(self) -> None:
         """Should open a already performed analysis
         """
         if self.check_already_executed:
@@ -161,21 +157,21 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    def go_to_offline_analysis(self):
+    def go_to_offline_analysis(self) -> None:
         """This opens the notebook page that has the Offline Analysis integrated
         """
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
         self.ui.notebook.setCurrentIndex(3)
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    def start_new_offline_analysis_from_dir(self):
+    def start_new_offline_analysis_from_dir(self)-> None:
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
         #self.go_to_offline_analysis()
         if self.check_already_executed:
             self.ui.offline.reset_class()
         self.ui.offline.open_directory()
 
-    def start_new_offline_analysis_from_db(self):
+    def start_new_offline_analysis_from_db(self)-> None:
         "start new offline analysis, therefore let the user choose a data from the database"
         
         if self.check_already_executed:
@@ -183,18 +179,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.check_already_executed = self.ui.offline.load_treeview_from_database()
         self.go_to_offline_analysis()
         
-
-    def open_bpe_webside(self):
+    def open_bpe_webside(self)-> None:
         """open the webside of BPE"""
         url = "https://github.com/ZiDa20/Biophysical_Essentials"
         webbrowser.open(url, new=0, autoraise=True)
 
-    def initialize_database(self):
+    def initialize_database(self)-> None:
         """Initialization of the DataBase using the duckdbhandler"""
         self.ui.notebook.setCurrentIndex(4)
         self.ui.database.show_basic_tables(self.local_database_handler)
 
-    def center(self):
+    def center(self)-> None:
         """Function to center the application at the start into the middle of the screen"""
         qr = self.frameGeometry()
         cp = self.screen().availableGeometry().center()

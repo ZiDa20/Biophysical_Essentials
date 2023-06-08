@@ -1,37 +1,49 @@
-import DataReader.heka_reader
 import numpy as np
+from DataReader.heka_reader import Bundle
+
 class OnlineAnalysisManager:
     def __init__(self):
         self.bundle = None
-        self.metadata = []
-        self._dat_file_name = ""
-        self.meta_data_identifiers = ["CSlow"]
+        self.metadata : list = []
+        self._dat_file_name : str = ""
+        self.meta_data_identifiers : list = ["CSlow"]
 
         ''' Once a file has been read in live mode, it's content will be safed as a STATE in the variable _node_list_state. 
         The STATE will be updated as long as the experiment is running and new series recordings will be appendet. 
         Additionally the discarded series will be safed to provide any later re-selection'''
 
-        self._node_list_STATE = []
-        self._discardet_nodes_STATE = []
-        self._pgf_info_STATE= []
+        self._node_list_STATE: list = []
+        self._discardet_nodes_STATE: list = []
+        self._pgf_info_STATE: list= []
 
-        self.stimulation_count = 0
-        self.channel_count = 0
-        self.stim_channel_count = 0
+        self.stimulation_count: int = 0
+        self.channel_count: int = 0
+        self.stim_channel_count: int = 0
 
-        self._data_view_STATE = 0
+        self._data_view_STATE: int = 0
 
 
     @property
     def data_view_STATE(self):
+        """The data_view_STATE property getter"""
         return self._data_view_STATE
 
     @data_view_STATE.setter
-    def data_view_STATE(self, val):
+    def data_view_STATE(self, val: int):
+        """_summary_: data_view_STATE setter
+
+        Args:
+            val (int): 0 or 1
+        """
         self._data_view_STATE = val
 
     @property
     def node_list_STATE(self):
+        """_summary_: node_list_STATE getter
+
+        Returns:
+            int:node_list state either 0 or 1 
+        """
         return self._node_list_STATE
 
     @node_list_STATE.setter
@@ -49,9 +61,8 @@ class OnlineAnalysisManager:
 
     # @todo this is a new function to replace deprecated function read_data_from_dat_file
     def get_sweep_data_array_from_dat_file(self,request_array):
-        data_bundle = heka_reader.Bundle(self._dat_file_name)
+        data_bundle = Bundle(self._dat_file_name)
         data = data_bundle.data[request_array]
-        #self.time = np.linspace(0,len(self.data)-1, len(self.data))
         return data
 
     def read_dat_tree_structure(self,treeview,mode):
@@ -172,8 +183,6 @@ class OnlineAnalysisManager:
         return ret_val
 
 
-
-
     def get_parent(self,stack,current):
         '''function to identify the parent node by it's id:
         each node will gt an unique id, structure is well known yet: each group has many series, a series has many Sweeps, a sweep has 2 traces'''
@@ -269,18 +278,18 @@ class OnlineAnalysisManager:
             if ("Channel" in previous_node_type) & ("Stimulation" in node_type):
                 self.channel_count = 0
         try:
-            node_type += str(getattr(node, node_type + 'Count'))  # is not provided in the pgf structure
+            node_type += str(getattr(node, f'{node_type}Count'))
         except AttributeError:
             if node_type == "Stimulation":
                 self.stimulation_count = self.stimulation_count + 1
-                node_type = "Stimulation" + str(self.stimulation_count)
+                node_type = f"Stimulation{str(self.stimulation_count)}"
             if node_type == "Channel":
                 self.channel_count = self.channel_count + 1
-                node_type = "Channel" + str(self.channel_count)
+                node_type = f"Channel{str(self.channel_count)}"
             if node_type == "StimChannel":
                 self.stim_channel_count = self.stim_channel_count + 1
                 node_type = "StimChannel" + str(self.stim_channel_count)
-            pass
+            
         try:
             node_label = node.EntryName
         except AttributeError:

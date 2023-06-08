@@ -476,7 +476,8 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.database_handler.database.close()
         self.database_handler.database, _ = DuckDBInitializer(self.logger,
                                                               "online_analysis",
-                                                              in_memory = True).init_database()
+                                                              in_memory = True,
+                                                              database_path = "./database/").init_database()
         self.online_analysis_tree_view_manager.clear_tree()
         self.online_analysis_plot_manager.canvas.figure.clf()
         self.online_analysis_plot_manager.canvas.draw_idle()

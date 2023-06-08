@@ -1,7 +1,7 @@
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionButton, QPushButton, QTreeView
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QStyledItemDelegate, QTreeView, QStyle
+from PySide6.QtGui import QPixmap, QColor, Qt
+from PySide6.QtCore import QSize
 
 class CancelButtonDelegate(QStyledItemDelegate):
 

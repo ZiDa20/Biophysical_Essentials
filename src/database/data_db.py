@@ -1,15 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Union
-import sqlite3
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
-import os
-import datetime
 import re
 import numpy as np
-import io
 import pandas as pd
 
-import datetime
 import duckdb
 #from global_meta_data_table import GlobalMetaDataTable
 import re
@@ -22,10 +17,8 @@ if TYPE_CHECKING:
     from StyleFrontend.frontend_style import Frontend_Style
     
 
-    
-
 class DuckDBDatabaseHandler():
-    ''' A class to handle all data in a duck db databaPse.
+    ''' A class to handle all data in a duck db database.
      @date: 23.06.2021, @author dz'''
 
     def __init__(self, frontend_style, db_file_name="duck_db_analysis_database.db", in_memory = False, database_path = "./database/"):

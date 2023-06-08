@@ -1,5 +1,6 @@
 import sys
 import os
+from typing import Optional
 from pathlib import Path
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/CustomWidgets")
 sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
@@ -11,19 +12,18 @@ from PIL import ImageQt ,Image
 from Backend.backend_manager import *
 import os.path
 import logging
-#from dragable_label import Dr
 from DeviceAPI.tkinter_camera import *
 from time import sleep
 import pandas as pd
 import pyqtgraph as pg
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
-from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import *
+from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import Ui_Config_Widget
 from QT_GUI.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
 import traceback, sys
 from functools import partial
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+
+
 import shutil
 from PySide6.QtTest import QTest
 
@@ -57,9 +57,9 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.ui_notebook = None
         # Experiment Section
         ## pathes for the pgf files
-        self.pgf_file: str = None
-        self.pro_file: str = None
-        self.onl_file: str = None
+        self.pgf_file: Optional[str] = None
+        self.pro_file: Optional[str] = None
+        self.onl_file: Optional[str] = None
         self.data_file_ending: int = 1
         self.general_commands_list: list = ["GetEpcParam-1 Rseries", 
                                             "GetEpcParam-1 Cfast", 

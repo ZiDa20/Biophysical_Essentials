@@ -1,22 +1,16 @@
 #TreeView Manager class to handle actions for given tree view objects.
-import csv
 import itertools
 from functools import partial
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+from PySide6.QtCore import QObject, Signal, QThreadPool, Qt, QModelIndex, QSize
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import *
 from Backend.cancel_button_delegate import CancelButtonDelegate
 from Backend.plot_widget_manager import PlotWidgetManager
-from database.data_db import *
 from DataReader.ABFclass import AbfReader
 from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
-from QT_GUI.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up_handler import \
-    Add_New_Meta_Data_Group_Pop_Up_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
 
 
@@ -162,7 +156,7 @@ class TreeViewManager:
                 progress_value = progress_value + increment
                 print("running dat file and this i ", i)
                 self.single_file_into_db([], i[0],  i[1], self.database_handler, [0, -1, 0, 0], i[2])
-                #progress_callback.emit((progress_value,i))
+                progress_callback.emit((progress_value,i))
             except Exception as e:
                 print(
                     f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"

@@ -224,8 +224,12 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                 data_dependency = "dependent"
             
             different_groups = len(y_lists)
-            levene_test = stats.levene(*y_lists) ## Unpack the sublists and pass them as separate arguments to levene function
-
+            
+            try: 
+                levene_test = stats.levene(*y_lists) ## Unpack the sublists and pass them as separate arguments to levene function
+            except ValueError:
+                CustomErrorDialog("Levene Test failed due to unequal group sizes. Please make sure that all groups have the same size.",
+                                  self.frontend_style)
 
         print(shapiro_test)
         print(levene_test)
