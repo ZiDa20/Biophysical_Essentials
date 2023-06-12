@@ -19,7 +19,7 @@ import pandas as pd
 from pytestqt import qtbot
 from database.data_db import DuckDBDatabaseHandler
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-
+from pathlib import Path
 
 class TestFrontPage(unittest.TestCase):
     """ Author MZ --> test the Start Page for validity and for functionality using unittests
@@ -42,9 +42,11 @@ class TestFrontPage(unittest.TestCase):
     def set_database(cls):
         """_summary_: Sets up the database for the testing purpose!
         """
+        path_db = os.getcwd() + "/Tests/"
+        path_db = str(Path(path_db)) 
         return DuckDBDatabaseHandler(None,
                                     db_file_name = "test_db.db",
-                                    database_path = "./Tests/",
+                                    database_path = path_db,
                                     in_memory = False)
     @classmethod
     def tearDownClass(cls):

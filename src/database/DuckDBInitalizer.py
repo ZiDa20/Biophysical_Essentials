@@ -12,7 +12,7 @@ class DuckDBInitializer:
         self.logger = logger
         self.in_memory = in_memory
         self.database_path: str = database_path
-        self.path = str(Path(f'{self.database_path}{self.db_file_name}'))
+        self.path = str(Path(f'{self.database_path}/{self.db_file_name}'))
         self.dir_list = os.listdir(self.database_path)
         self._return_value: bool = False
         self.database = None

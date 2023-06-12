@@ -16,7 +16,7 @@ import pytest
 import shutil
 from database.data_db import DuckDBDatabaseHandler
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-
+from pathlib import Path
 
 def test_long_computation(qtbot):
 
@@ -34,7 +34,9 @@ def test_long_computation(qtbot):
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
     qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = app.database_handler.database.execute("SHOW TABLES").fetchdf()
+    app.local_database_handler.database.close()
     assert tables.shape[0] == 65
+    
 
     # Watch for the app.worker.finished signal, then start the worker.
 
@@ -42,7 +44,9 @@ def test_long_computation(qtbot):
 def set_database():
         """_summary_: Sets up the database for the testing purpose!
         """
+        path_db = os.getcwd() + "/Tests/"
+        path_db = str(Path(path_db)) 
         return DuckDBDatabaseHandler(None,
                                     db_file_name = "test_db.db",
-                                    database_path = "./Tests/",
+                                    database_path = path_db,
                                     in_memory = False)

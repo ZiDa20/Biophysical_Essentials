@@ -12,6 +12,7 @@ from PySide6.QtTest import QTest
 import duckdb
 import io
 import qbstyles
+from pathlib import Path
 
 
 class TestFrontPage(unittest.TestCase):
@@ -35,9 +36,11 @@ class TestFrontPage(unittest.TestCase):
 
         # constructor of the mainwindow
         testing_db = cls.set_database()
+        
         cls.ui = MainWindow(testing_db=testing_db)
         cls.database_handler = cls.ui.local_database_handler
-        
+        df = cls.database_handler.database.execute("SHOW TABLES;").fetch_df()
+
         cls.configuration = cls.ui.ui.configuration_home_2 #check the 
         cls.online_analysis = cls.ui.ui.online_analysis_home_2
         cls.database_viewer = cls.ui.ui.database_viewer_home_2
@@ -47,15 +50,19 @@ class TestFrontPage(unittest.TestCase):
     def set_database(cls):
         """_summary_: Sets up the database for the testing purpose!
         """
+        path_db = os.getcwd() + "/Tests/"
+        path_db = str(Path(path_db)) 
         return DuckDBDatabaseHandler(None,
                                     db_file_name = "test_db.db",
-                                    database_path = "./Tests/",
+                                    database_path = path_db,
                                     in_memory = False)
     
     @classmethod
     def tearDownClass(cls):
         """Close the App later"""
+        cls.database_handler.database.close()
         cls.app.deleteLater()
+        
 
 
     def test_menu_buttons(self):
