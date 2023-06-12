@@ -1,4 +1,4 @@
-#from pypylon import pylon
+from pypylon import pylon
 #Switched to pyqt
 from typing import Optional, Union
 import numpy as np
@@ -9,7 +9,7 @@ class BayerCamera():
 
     def __init__(self):
         """ establish the connection to the camera"""
-        self.camera = None
+        self.camera: Optional[] = None
         self.cancel = None
 
 
@@ -35,7 +35,7 @@ class BayerCamera():
             else None is returned
         """
 
-        NUMBER = 1
+        NUMBER: int = 1
         self.camera.StartGrabbingMax(NUMBER)
 
         self.grabResult = self.camera.RetrieveResult(6000, pylon.TimeoutHandling_ThrowException)
@@ -46,7 +46,7 @@ class BayerCamera():
         self.img = self.grabResult.Array
         return self.img
 
-    def save_fig(self):
+    def save_fig(self) -> None:
         """
         Should set the last taken image into the online analysis for furture use
         and savefig options """
