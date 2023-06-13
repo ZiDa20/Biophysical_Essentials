@@ -1,4 +1,4 @@
-from pypylon import pylon
+#from pypylon import pylon
 #Switched to pyqt
 from typing import Optional, Union
 import numpy as np
@@ -9,7 +9,7 @@ class BayerCamera():
 
     def __init__(self):
         """ establish the connection to the camera"""
-        self.camera: Optional[] = None
+        self.camera: Optional[pylon.InstantCamera] = None
         self.cancel = None
 
 
