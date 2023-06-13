@@ -32,23 +32,15 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.logger= start_logger # set the logger
         self.logger.info("Starting the Biophysical Essentials Program!")
         self.frontend_style = Frontend_Style(self)
-        # Create the animation using the update function and the time points as frames
-        self.ap = LoadingAnimation("Data Loading: Please Wait", self.frontend_style, True)
-        self.ap_online = LoadingAnimation("Please choose a Data File To Load from the Data Options", self.frontend_style)
-        self.ui.offline.animation_layout.addWidget(self.ap.wait_widget)
-        self.ui.online.animation_layout.addWidget(self.ap_online.wait_widget)
+
         # Create the frontend style for the app
 
         self.ui.offline.stackedWidget.setCurrentIndex(1)
         self.ui.offline.object_splitter = QSplitter(Qt.Horizontal)
         self.ui.offline.gridLayout.addWidget(self.ui.offline.object_splitter)
         self.ui.offline.object_splitter.addWidget(self.ui.offline.SeriesItems_2)
-        self.ui.offline.ap_animation = self.ap
-        self.ui.offline.ap_timer = self.ap.timer
-        self.ui.offline.status_label = self.ap.status_label
-        self.ui.offline.offline_manager.set_status_and_progress_bar(self.ap.status_label, self.ap.progress_bar)
-        self.ui.offline.wait_widget = self.ap.wait_widget
-        self.ui.offline.progressbar = self.ap.progress_bar
+
+    
         self.check_already_executed  = None
 
         # handler functions for the database and the database itself
@@ -150,11 +142,9 @@ class MainWindow(QMainWindow, QtStyleTools):
     def open_analysis(self) -> None:
         """Should open a already performed analysis
         """
-        if self.check_already_executed:
-            self.ui.offline.reset_class()
         self.ui.offline.offline_analysis_widgets.setCurrentIndex(2)
         # here we need a new dialog pop up that shows the offline analysis table and a select box to select the
-        self.ui.offline.show_open_analysis_dialog()
+        self.check_already_executed = self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
     def go_to_offline_analysis(self) -> None:

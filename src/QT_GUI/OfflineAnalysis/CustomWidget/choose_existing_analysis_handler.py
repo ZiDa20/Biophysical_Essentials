@@ -14,6 +14,7 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         self.database_handler = database_handler
         self.tableView = QTableView()
         self.final_table_layout.addWidget(self.tableView)
+        self.loaded_function_run = None
         
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
         self.popup_stacked.setCurrentIndex(0)

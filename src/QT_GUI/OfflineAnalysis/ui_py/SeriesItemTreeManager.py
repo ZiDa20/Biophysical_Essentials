@@ -71,15 +71,8 @@ class SeriesItemTreeWidget():
         """
 
         
-        ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style, True)
-        d = QDialog() #LoadingDialog(self,self.frontend_style)
-        self.frontend_style.set_pop_up_dialog_style_sheet(d)
-        qgrid = QGridLayout(d)
-        qgrid.addWidget(ap.wait_widget)
-        d.show()
-        # Process events to allow the update
-        QCoreApplication.processEvents()
-
+        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+        self.ap.make_widget()
 
         if not reload:
             self.database_handler.write_analysis_series_types_to_database(series_names_list)
@@ -129,10 +122,7 @@ class SeriesItemTreeWidget():
         self.SeriesItems.expandToDepth(2)
         self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
 
-        # Process events to allow the update
-        QCoreApplication.processEvents()
-        ap.stop_animation()
-        d.accept()
+        self.ap.stop_and_close_animation()
 
     def normalization_value_handler(self):
         """show the normalization values to the user and allow to edit the values

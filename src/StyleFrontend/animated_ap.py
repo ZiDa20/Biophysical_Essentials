@@ -6,55 +6,68 @@ from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 
-class LoadingAnimation:
-    def __init__(self, message, frontend_style, progress_bar_enabled = False, parent = None):
+class LoadingAnimation(QDialog):
+
+    def __init__(self, message, frontend_style, parent = None):
         """_summary_
         """
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setFixedWidth(250)
-        self.progress_bar.setAlignment(Qt.AlignLeft)
-        self.wait_widget = QWidget()
-        if parent:
-            self.wait_widget_layout = QGridLayout(parent)
-        else:
-            self.wait_widget_layout = QGridLayout()
-        self.new_label = QLabel()
-        self.new_label.setText(message)
-        self.font = QFont()
-        self.font.setPointSize(25)
-        self.new_label.setFont(self.font)
-        self.new_label.setAlignment(Qt.AlignCenter)
-        self.wait_widget_layout.addWidget(self.new_label,0, 0, 1, 3)
-        self.canvas_widget = QWidget()
-        self.wait_widget_layout.addWidget(self.canvas_widget,1,1)
-        # that the style sheet for the plot class
-
-        if frontend_style.default_mode == 0:
-            frontend_style.set_mpl_style_dark()
+        super().__init__(parent)
+        self.message: str = message
+        self.setup_ui()
+        self.frontend_style = frontend_style
+        self.call_frontend_style()
+        self.time = None
+        self.potential = None
+        self.setWindowTitle("Processing ...")
+        
+        # Set the fixed size of the dialog
+        self.setFixedSize(800, 500)
+        
+    def call_frontend_style(self):
+        if self.frontend_style.default_mode == 0:
+            self.frontend_style.set_mpl_style_dark()
             self.draw_color = "white"
             self.ax_color = "white"
         else:
-            frontend_style.set_mpl_style_white()
+            self.frontend_style.set_mpl_style_white()
             self.draw_color = "black"
             self.ax_color = "black"
+        
+        self.frontend_style.set_pop_up_dialog_style_sheet(self)
 
-        #self.wait_widget_layout.setAlignment(Qt.AlignCenter)
-        self.fig = Figure(figsize=(2,2))
+    def setup_ui(self):
+        self.progress_bar = QProgressBar()
+        #self.progress_bar.setFixedWidth(250)
+        self.progress_bar.setAlignment(Qt.AlignLeft)
+        self.status_bar = QLabel()
+        self.animated_canvas = QWidget()
+        self.grid_animated = QVBoxLayout(self)
+        self.label_description = QLabel(self.message)
+        self.font = QFont()
+        self.font.setPointSize(25)
+        self.label_description.setFont(self.font)
+        self.label_description.setAlignment(Qt.AlignCenter)
+
+        self.grid_animated.addWidget(self.label_description)
+        self.fig = Figure(figsize=(4,4))
         self.canvas = FigureCanvas(self.fig)
-        self.canvas.setParent(self.canvas_widget)
-        self.time = None
-        self.potential = None
-        self.status_label = QLabel("Processing ...") #The File is currently not loaded
-        self.status_label.setAlignment(Qt.AlignCenter)
-        self.font.setPointSize(12)
-        self.wait_widget_layout.addWidget(self.status_label,3,1)
-        #wait_widget_layout.addWidget(statusbar,3,0)
-        if progress_bar_enabled:
-            self.wait_widget_layout.addWidget(self.progress_bar,2,1)
-        self.wait_widget.setLayout(self.wait_widget_layout)
+        #self.canvas.setParent(self.animated_canvas)
+        self.grid_animated.addWidget(self.canvas)
+        self.grid_animated.addWidget(self.progress_bar)
+        self.grid_animated.addWidget(self.status_bar)
+        
+    def make_widget(self):
         self.create_ap_line_out()
         self.start_animation_timer()
+        self.show_dialog()
     
+    def stop_and_close_animation(self):
+        self.stop_animation()
+        self.accept()
+
+    def show_dialog(self):
+        self.show()
+        QCoreApplication.processEvents()
 
     def create_ap_line_out(self):
         """Creates the outline of the action potential based on some artifical
@@ -71,7 +84,7 @@ class LoadingAnimation:
         # Create a figure and axis
         #self.fig, self.ax = plt.subplots()
         # Initialize a line plot showing the action potential over time
-        self.line, = self.ax.plot(self.time, self.potential, "green") #self.draw_color
+        self.line, = self.ax.plot(self.time, self.potential, self.draw_color)
         self.ax.plot(self.time, self.potential)
         self.ax.axis('off')
         #self.fig.set_facecolor('#54545a')
@@ -99,6 +112,15 @@ class LoadingAnimation:
         self.timer.setInterval(50)
         self.timer.timeout.connect(lambda: self.anim.event_source.start())
         self.canvas.draw_idle()
+
+    def progress_bar_update_analysis(self, data):
+        """ This function will update the progress bar in the analysis tab
+        :param data:
+
+        """
+        self.progress_bar.setValue(data[0])
+        #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
+        self.status_bar.setText(f"Current Progress: {str(data[0])}%")
 
     def stop_animation(self):
         self.anim.event_source.stop()

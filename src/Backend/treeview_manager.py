@@ -142,21 +142,21 @@ class TreeViewManager:
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
         ################################################################################################################
         #Progress Bar setup
-        max_value = len(dat_files)
+        max_value = len(self.meta_data_assigned_experiment_names)
+    
+    
         progress_value = 0
-
-        self.database_handler.open_connection()
-        print()
+        increment = 100/max_value
+        self.database_handler.open_connection()     
         ################################################################################################################
         for i in dat_files:
             # loop through the dat files and read them in
             print("this is the data file i ", i)
             try:
-                increment = 100/max_value
                 progress_value = progress_value + increment
                 print("running dat file and this i ", i)
                 self.single_file_into_db([], i[0],  i[1], self.database_handler, [0, -1, 0, 0], i[2])
-                progress_callback.emit((progress_value,i))
+                progress_callback.emit((round(progress_value,2),i))
             except Exception as e:
                 print(
                     f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
@@ -174,10 +174,9 @@ class TreeViewManager:
         for i in abf_files:
             print("running abf file and this i ", i)
             try:
-                #increment = 100/max_value
-                #progress_value = progress_value + increment
+                progress_value = progress_value + increment
                 self.single_abf_file_into_db(i, self.database_handler)
-                #progress_callback.emit((progress_value,i))
+                progress_callback.emit((round(progress_value,i)))
 
             except Exception as e:
                 print(e)

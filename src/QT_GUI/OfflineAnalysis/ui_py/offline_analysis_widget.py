@@ -65,9 +65,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # make he ribbon bar components to attach at the same height
         # self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
         
-        self.progressbar = None
-        self.statusbar = None
+       
         self.status_label = None
+        self.loaded_function_run: bool = False
         self.threadpool = QThreadPool()
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -77,13 +77,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
         self.selected_series_combo.view().setFixedWidth(100)
-        self.wait_widget = None
-        self.ap_timer = None
-        self.ap_animation = None
+     
         self.offline_analysis_widgets.setCurrentIndex(0)
         self.offline_analysis_widgets.currentChanged.connect(self.ribbon_bar_handler)        # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
+        self.ap = None 
 
         self.parent_count = 0
         #self.offline_tree.current_tab_visualization = self.offline_tree.current_tab_visualization
@@ -197,14 +196,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         print("update treeviewsd for index" , self.offline_analysis_widgets.currentIndex())
 
-        ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style, True)
-        d = QDialog() #LoadingDialog(self,self.frontend_style)
-        self.frontend_style.set_pop_up_dialog_style_sheet(d)
-        qgrid = QGridLayout(d)
-        qgrid.addWidget(ap.wait_widget)
-        d.show()
-        # Process events to allow the update
-        QCoreApplication.processEvents()
+        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+        self.ap.make_widget()
+        
 
         try:
             if self.offline_analysis_widgets.currentIndex()==0:
@@ -229,10 +223,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
            print(e)
            CustomErrorDialog("Please select load an Experiment First", self.frontend_style)
 
-
-        ap.stop_animation()
-        d.accept()
-
+        self.ap.stop_and_close_animation()
+ 
     def load_and_assign_meta_data(self):
         """
         To play around with the data you may want to load or assign new meta data - here one can do this
@@ -322,6 +314,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         d = ChooseExistingAnalysis(self.database_handler, self.frontend_style)
         d.submit.clicked.connect(partial(self.open_analysis_results,d))
         d.exec()
+        return d.loaded_function_run
 
     @Slot()
     def open_analysis_results(self, dialog:ChooseExistingAnalysis):
@@ -329,7 +322,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Open an existing analysis from the database
         :return:
         """
-
+        if self.loaded_function_run:
+            self.reset_class(new_analysis = False)
         dialog.gridLayout_11.addWidget(self.ap_animation.wait_widget)
         dialog.popup_stacked.setCurrentIndex(1)
 
@@ -360,7 +354,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #print(self.offline_tree.SeriesItems.topLevelItemCount())
 
         #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-
         for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
 
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
@@ -378,6 +371,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QCoreApplication.processEvents()
 
         dialog.close()
+        dialog.loaded_function_run = True
+        self.loaded_function_run = True
   
 
     @Slot()
@@ -419,10 +414,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.load_data_from_database_dialog.all_cb.setChecked(True)
 
         if not test:
+            if self.ap: 
+                self.ap.stop_and_close_animation()
             self.load_data_from_database_dialog.exec_()
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
-
+        self.notebook.setCurrentIndex(3)
+        
         return True
     def load_page_1_tree_view(self, existing_id = None):
         """
@@ -526,10 +524,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # close the dialog
         print("here we enter this function")
         self.animation_layout.addWidget(QPushButton("Sit tight we are currenly updating the database with your files!"))
-        self.notebook.setCurrentIndex(3)
+        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+        self.ap.make_widget()
+
         self.offline_analysis_widgets.setCurrentIndex(0)
 
         # read the directory data into the database
+        self.offline_manager.ap = self.ap
         self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)
 
         # assign meta data
@@ -544,6 +545,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.add_filter_button.setEnabled(True)
         self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(partial(self.load_treeview_from_database, test))
+        #ap.stop_and_close_animation()
 
     def make_list(self,popup,treeview_model):
         m_list = treeview_model.model()._data.values.tolist()
@@ -587,7 +589,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.worker = Worker(partial(PostSqlHandler, self.database_handler))
         #self.worker.signals.finished.connect(self.finished_result_thread)
-        self.worker.signals.progress.connect(self.progress_bar_update_analysis)
+        self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
 
     def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
@@ -860,7 +862,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler.database.close()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
-        self.worker.signals.progress.connect(self.progress_bar_update_analysis)
+        self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
 
 
@@ -897,14 +899,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         #@todo remove the widget from the layout in case of rerun 
         current_tab.stackedWidget.setCurrentIndex(0)
 
-    def progress_bar_update_analysis(self, data):
-        """ This function will update the progress bar in the analysis tab
-        :param data:
-
-        """
-        self.progressbar.setValue(data[0])
-        #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
-        self.status_label.setText(f"Analyzing: {str(data[1])}%")
 
     def solve_calculation(self, equation_components):
         """
@@ -925,9 +919,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Once all the reuslt have been calculated, an offline tab is created.
         This tab visualizes all calculated results.
         Therefore, a new plot child is inserted to the related series name analysis.
-        Furthermore, a table, a statistics and an advanced analysis child are added for further processing steps
+        Furthermore, a table, a  statistics and an advanced analysis child are added for further processing steps
         @return:
         """
+
+        try:
+            #@todo fallback to make sure its always closed, otherwise open connection might fail
+            self.database_handler.database.close()
+        except Exception as e:
+            pass
 
         self.database_handler.open_connection()
 
@@ -1162,13 +1162,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.ribbon_series_normalization.setCurrentIndex(0)
 
 
-    def reset_class(self):
+    def reset_class(self, new_analysis = True):
         """resets the class to its orignal point and adds a new 
         offline analysis id"""
         #reset the complete offline_stages
         # reset the objects interacting with the offline_widget_class
         #reset the variables to the default value
-        self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
+     
+        if new_analysis: 
+            self.database_handler.database.close()
+            self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
         self.blank_analysis_tree_view_manager.clear_tree()
         self.blank_analysis_plot_manager.canvas.figure.clf()
         self.blank_analysis_plot_manager.canvas.draw_idle()
@@ -1176,17 +1179,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.filter_dialog = None
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
-        try: # important if initial loading did not work out properly
+        try: # important if initial loading did not wo  rk out properly
             self.offline_tree.hierachy_stacked.deleteLater()
             self.offline_tree.analysis_stacked.deleteLater()
         #    self.add_splitter()
         except AttributeError:
             self.logger.info("No hierachy widget yet defined")
-          
+    
         self.update_database_handler_object(self.database_handler, self.frontend_style, self.notebook, reconnect = True)
-        self.add_splitter()  
+        self.add_splitter()
+        self.loaded_function_run = True
         
-        
+      
 
     
         

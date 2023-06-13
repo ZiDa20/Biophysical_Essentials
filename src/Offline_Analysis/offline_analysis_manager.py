@@ -19,7 +19,7 @@ class OfflineManager():
         """
         self.meta_path: Optional[str] = None
         self.dat_files: Optional[list] = None
-
+        self.ap = None
         self._directory_path: Optional[str] = None
         # nodelist for the treeview
         self.directory_content_list: list = [['','','']]
@@ -173,7 +173,7 @@ class OfflineManager():
         self.database.database.close()
         print("here we go into thte run database threading")
         self.worker = Worker(self.tree_view_manager.write_directory_into_database, self.bundle_liste, self.abf_bundle_list)
-        self.worker.signals.progress.connect(self.progress_fn)
+        self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         #worker.signals.result.connect(self.set_database)
         self.worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
         # signal to update progress bar
