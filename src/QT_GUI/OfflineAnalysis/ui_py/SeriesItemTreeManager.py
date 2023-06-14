@@ -69,25 +69,21 @@ class SeriesItemTreeWidget():
         @param series_names_list:
         @return:
         """
-
-        
-        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
-        self.ap.make_widget()
-
         if not reload:
+            self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+            self.ap.make_widget()
             self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         # make new tree parent elements and realted childs for ech specific series
         for index, s in enumerate(series_names_list):
+
+            QApplication.processEvents()
+            
             index += self.tree_widget_index_count
-
             # Custom designer widget: contains treeview, plot, analysis function table ...
-
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
             print(s)
-
             new_tab_widget.analysis_functions.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
-            
             # show normalization options only in voltage clamp mode to avoid further checks user confusion
             recording_mode = self.database_handler.query_recording_mode(s)
             if recording_mode == "Voltage Clamp":
@@ -97,9 +93,11 @@ class SeriesItemTreeWidget():
                 new_tab_widget.analysis_functions.normalization_combo_box.hide()
 
             new_tab_widget.setObjectName(s)
-
             self.tab_list.append(new_tab_widget)
             self.tab_changed(index, s)
+
+            QApplication.processEvents()
+
             self.hierachy_stacked = QStackedWidget()
             self.hierachy_stacked.addWidget(QWidget())
             self.analysis_stacked.addWidget(self.hierachy_stacked)
@@ -109,12 +107,17 @@ class SeriesItemTreeWidget():
             # set the child items of the widget
             configurator = SideBarConfiguratorItem(parent, "Analysis Configurator")
             configurator.setting_data(new_tab_widget, self.hierachy_stacked, self.parent_count, index)
+            
+            QApplication.processEvents()
+        
             self.series_list.append(s)
             # child stacked notebook per parent node
             self.hierachy_stacked_list.append(self.hierachy_stacked)
             self.plot_widgets = []
             self.parent_count += 1
 
+            QApplication.processEvents()
+        
         # connect the treewidgetsitems
         self.SeriesItems.itemClicked.connect(self.offline_analysis_result_tree_item_clicked)
         #set the analysis notebook as index
@@ -122,7 +125,10 @@ class SeriesItemTreeWidget():
         self.SeriesItems.expandToDepth(2)
         self.tree_widget_index_count = self.tree_widget_index_count + len(series_names_list)
 
-        self.ap.stop_and_close_animation()
+        QApplication.processEvents()
+        
+        if not reload:
+            self.ap.stop_and_close_animation()
 
     def normalization_value_handler(self):
         """show the normalization values to the user and allow to edit the values

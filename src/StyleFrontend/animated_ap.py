@@ -58,16 +58,27 @@ class LoadingAnimation(QDialog):
         
     def make_widget(self):
         self.create_ap_line_out()
-        self.start_animation_timer()
+        
         self.show_dialog()
+         
+      
     
     def stop_and_close_animation(self):
+        
         self.stop_animation()
         self.accept()
+        
 
     def show_dialog(self):
         self.show()
         QCoreApplication.processEvents()
+        self.start_animation_timer()
+        QCoreApplication.processEvents()
+        #self.raise_()
+        #self.activateWindow()
+        #self.qt_timer = QBasicTimer()
+        #self.qt_timer.start(100,self)
+    	
 
     def create_ap_line_out(self):
         """Creates the outline of the action potential based on some artifical
@@ -110,8 +121,11 @@ class LoadingAnimation(QDialog):
         # Create a QTimer
         self.timer = QTimer()
         self.timer.setInterval(50)
-        self.timer.timeout.connect(lambda: self.anim.event_source.start())
-        self.canvas.draw_idle()
+        self.timer.timeout.connect(self.start_start)
+     
+    def start_start(self):
+        self.anim.event_source.start()
+        self.canvas.draw_idle() 
 
     def progress_bar_update_analysis(self, data):
         """ This function will update the progress bar in the analysis tab

@@ -270,7 +270,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.append.clicked.disconnect()
             self.add_meta_data_to_treeview.clicked.disconnect() 
             self.compare_series.clicked.disconnect()
-            
+            self.series_to_csv.clicked.disconnect()
+
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2,
                                                  [self.plot_home, self.plot_zoom, self.plot_move],
@@ -310,6 +311,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
+        # csv files can be written from treeview when this button is clicked. the frontend style is set in update_database_handler function
+        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))   
+
     def show_open_analysis_dialog(self):
         d = ChooseExistingAnalysis(self.database_handler, self.frontend_style)
         d.submit.clicked.connect(partial(self.open_analysis_results,d))
@@ -322,51 +326,59 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Open an existing analysis from the database
         :return:
         """
+        
+
         if self.loaded_function_run:
             self.reset_class(new_analysis = False)
-        
+     
+        dialog.close()
+
+        self.ap.make_widget()
+
+        # deprecated ? 
+        dialog.loaded_function_run = True
+        self.loaded_function_run = True
 
         id_ = dialog.offline_analysis_id # change this to a new name
         self.logger.info("opening existing analysis from database. requested id = ", id_)
-        self.ap.make_widget()
+   
+ 
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
         self.blank_analysis_tree_view_manager.offline_analysis_id = int(id_)
-        
+     
+        QApplication.processEvents()
         self.load_page_1_tree_view(id_)
-
+        QApplication.processEvents()
+        
+        #@todo THREADING
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
         for i in range(len(series_names_list)):
+            QApplication.processEvents()
             series_names_list[i] = series_names_list[i][0]
-        #    self.result_visualizer.show_results_for_current_analysis(9,name)
-        #self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
-
+        
         self.offline_tree.built_analysis_specific_tree(series_names_list,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets,
                                                        reload = True)
-
-        #print("displaying to analysis results: ", self.database_handler.analysis_id)
-        #print(self.offline_tree.SeriesItems.topLevelItemCount())
-
+        QApplication.processEvents()
+       
         #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
         for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
-
+           
+            QApplication.processEvents()
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
             self.offline_tree.offline_analysis_result_tree_item_clicked()
 
             # should check if an analysis exist if not than skip addition of the treeview elements
             if not self.database_handler.get_series_specific_analysis_functions(series_n):
                 continue
-            self.finished_result_thread()
+            self.finished_result_thread(reload=True)
 
+        self.ap.stop_and_close_animation()
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
         
-        dialog.close()
-        dialog.loaded_function_run = True
-        self.loaded_function_run = True
-  
 
     @Slot()
     def start_blank_analysis(self):
@@ -421,8 +433,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         data to be analyzed were selected fro mthe db dashboard dialog
         @return:
         """
-
-        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))      
+        
+        
         
         # load an exsiting analysis from a given id
         if existing_id:
@@ -892,7 +904,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 r_brack_pos.append(i)
 
 
-    def finished_result_thread(self, write_data = True):
+    def finished_result_thread(self, write_data = True, reload=False):
         """
         Once all the reuslt have been calculated, an offline tab is created.
         This tab visualizes all calculated results.
@@ -900,8 +912,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Furthermore, a table, a  statistics and an advanced analysis child are added for further processing steps
         @return:
         """
+        if not reload:
+            self.ap.stop_and_close_animation()
 
-        self.ap.stop_and_close_animation()
         try:
             #@todo fallback to make sure its always closed, otherwise open connection might fail
             self.database_handler.database.close()

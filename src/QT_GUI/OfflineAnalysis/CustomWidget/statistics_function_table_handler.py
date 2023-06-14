@@ -56,7 +56,18 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         """
         based on the analysis function data are scanned and prepared for the statistical analysis
         """
-        self.series_name = self.SeriesItems.currentItem().parent().text(0).split(" ")[0]
+
+        raw  = self.SeriesItems.currentItem().parent().text(0).split(" ")
+
+        # each string will end with a whitespace followed by the word analysis 
+        word_analysis_index = raw.index("Analysis")
+        self.series_name=''
+
+        for i in range(0, word_analysis_index):
+            self.series_name = self.series_name + raw[i]
+            if i != word_analysis_index-1:
+                self.series_name = self.series_name + " "
+        
         tuple_list = self.database_handler.get_analysis_functions_for_specific_series(self.series_name) # list of tuples
         self.analysis_functions = [item[0] for item in tuple_list]
 
