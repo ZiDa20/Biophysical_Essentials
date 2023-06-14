@@ -1,6 +1,7 @@
 import pyabf
 import numpy as np
 import pandas as pd
+from typing import Optional
 from loggers.abf_logger import abf_logger
 
 #####################################################################################
@@ -15,16 +16,16 @@ class AbfReader():
     def __init__(self, abf_path:str):
         """ abf_path: str -> should be file to open """
         self.abf_path: str = abf_path
-        self.epochs_dataframe = None
+        self.epochs_dataframe : Optional[pd.DataFrame] = None
         self.logger = abf_logger
-        self.metadata_table = None
-        self.data_table = None
+        self.metadata_table: Optional[pd.DataFrame] = None
+        self.data_table: Optional[pd.DataFrame] = None
         try:
             self.abf_path_id: list = self.abf_path.split("/")[-1].split("_")[:2]
             self.abf_path_id: str = "_".join(self.abf_path_id)
 
         except Exception as e:
-            self.abt_path_id = None
+            self.abt_path_id: Optional[str] = None
             self.logger("ABF File is not correctly formated")
 
         self.abf = None
@@ -43,12 +44,12 @@ class AbfReader():
             self.make_membrane_test()
 
 
-    def load_abf(self):
+    def load_abf(self) -> None:
         """ Load the data from the Path and insert into abf object"""
 
         self.abf = pyabf.ABF(self.abf_path)
 
-    def get_data_from_sweep(self):
+    def get_data_from_sweep(self) -> tuple:
         """
         Extract the data sweeps as table and save it into pd.DataFrame
         """
@@ -96,7 +97,7 @@ class AbfReader():
         meta_data_sweep = meta_data_sweep.set_index("Parameter")
         return data_sweep, meta_data_sweep
 
-    def extract_metadata_parameters(self, abf_file):
+    def extract_metadata_parameters(self, abf_file: pyabf.ABF) -> list:
         """_summary_
 
         Args:
@@ -132,7 +133,7 @@ class AbfReader():
 
         return metadata_list
 
-    def build_command_epoch_table(self):
+    def build_command_epoch_table(self) -> None:
         """Retrieves the PGF Table equivalent to the Dat Files
         """
         columns_list = ["series_name",
@@ -195,7 +196,7 @@ class AbfReader():
         last_command = [series, sweep_number, 0, last_potential, last_time, 0, last_potential]
         return first_command, last_command
 
-    def make_membrane_test(self):
+    def make_membrane_test(self) -> None:
         """ Dysfunctional for most recording, should record the membrane properties
         But not working for most of the recordings"""
         try:
@@ -204,7 +205,7 @@ class AbfReader():
         except Exception as e:
             self.logger.error("currently not working for the data")
 
-    def get_data_table(self):
+    def get_data_table(self) -> pd.DataFrame:
         """Getter for the sweep raw data table
 
         Returns:
@@ -212,7 +213,7 @@ class AbfReader():
         """
         return self.data_table
 
-    def get_metadata_table(self):
+    def get_metadata_table(self) -> pd.DataFrame:
         """Gets the Metadata table from the amplifier
 
         Returns:
@@ -220,7 +221,7 @@ class AbfReader():
         """
         return self.metadata_table
 
-    def get_command_epoch_table(self):
+    def get_command_epoch_table(self) -> pd.DataFrame:
         """PGF File Getter from ABF File
 
         Returns:
@@ -228,7 +229,7 @@ class AbfReader():
         """
         return self.epochs_dataframe
 
-    def get_memtest(self):
+    def get_memtest(self) -> dict:
         """Can be used to run a membrane test retrieving the capacitance
 
         Returns:
@@ -237,7 +238,7 @@ class AbfReader():
         if self.abf_property_dictionary:
             return self.abf_property_dictionary["memtest"]
 
-    def get_experiment_name(self):
+    def get_experiment_name(self) -> int:
         """Get The Current Experiment Name using the path IDD
 
         Returns:
@@ -246,7 +247,7 @@ class AbfReader():
         if self.abf_path_id:
             return self.abf_path_id
 
-    def get_series_name(self):
+    def get_series_name(self) -> str:
         """Get the Current Series Name
 
         Returns:

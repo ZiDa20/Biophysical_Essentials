@@ -826,7 +826,7 @@ class DuckDBDatabaseHandler():
 
         return np.array(data)
 
-    def write_analysis_function_to_database(self, function_list: list, series_type: str):
+    def write_analysis_function_to_database(self, function_list: list, series_type: str) -> None:
         """_summary_: This function writes the analysis functions to the database
         Args:
             function_list (list): List of analysis functions
@@ -901,7 +901,7 @@ class DuckDBDatabaseHandler():
                                  analysis_function_id: int, 
                                  table_name: str, 
                                  sweep_number: str, 
-                                 result_value: float):
+                                 result_value: float) -> None:
 
         q = """insert into results values (?,?,?,?,?) """
         self.database = self.database.execute(q, (
@@ -1115,19 +1115,19 @@ class DuckDBDatabaseHandler():
             # returns a dict {'key':'value', 'key':'value',...} where keys will be parameter names
             return {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
-    def discard_specific_series(self, experiment_name: str, series_identifier: str)-> None:
+    def discard_specific_series(self, experiment_name: str, series_identifier: str) -> None:
         """Change the column valid for a specifc series from 0 (valid) to 1 (discarded, in-valid)"""
         print("initial tree is calling discard button function with params", experiment_name, series_identifier)
         self.change_experiment_series_discarded_state(experiment_name, series_identifier, 1)
 
-    def reinsert_specific_series(self, experiment_name: str, series_identifier: str)-> None:
+    def reinsert_specific_series(self, experiment_name: str, series_identifier: str) -> None:
         self.change_experiment_series_discarded_state(experiment_name, series_identifier, 0)
 
     def change_experiment_series_discarded_state(self, experiment_name: str, series_identifier: str, state: str) -> None:
         q = """update experiment_series set discarded = (?) where experiment_name = (?) AND series_identifier = (?);"""
         self.database.execute(q, (state, experiment_name, series_identifier))
 
-    def get_distinct_non_discarded_series_names(self):
+    def get_distinct_non_discarded_series_names(self) -> None:
         """
         get all distinct series names from series mapped with the current analysis id
         :return:
