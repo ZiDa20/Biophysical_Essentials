@@ -194,12 +194,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Args:
             signal (_type_): _description_
         """
-        print("update treeviewsd for index" , self.offline_analysis_widgets.currentIndex())
-
-        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+    
         self.ap.make_widget()
-        
-
         try:
             if self.offline_analysis_widgets.currentIndex()==0:
                 
@@ -261,8 +257,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
 
+
+
         if not reconnect:
             self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout, self.database_handler, None, False,  self.frontend_style)
+            self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+
         else:
             self.blank_analysis_plot_manager.database_handler = self.database_handler
             self.edit_meta.clicked.disconnect()
@@ -324,15 +324,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         if self.loaded_function_run:
             self.reset_class(new_analysis = False)
-        dialog.gridLayout_11.addWidget(self.ap_animation.wait_widget)
-        dialog.popup_stacked.setCurrentIndex(1)
-
-        # Process events to allow the update
-        QCoreApplication.processEvents()
+        
 
         id_ = dialog.offline_analysis_id # change this to a new name
         self.logger.info("opening existing analysis from database. requested id = ", id_)
-        
+        self.ap.make_widget()
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
         self.blank_analysis_tree_view_manager.offline_analysis_id = int(id_)
@@ -367,9 +363,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
         
-        # Process events to allow the update
-        QCoreApplication.processEvents()
-
         dialog.close()
         dialog.loaded_function_run = True
         self.loaded_function_run = True
@@ -393,7 +386,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             reload (bool, optional): _description_. If this is a reloaded offline analysis or a newly created
         """
         # already initialized in in updated_data_object
-        
+        self.ap.make_widget()
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, None)
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)
@@ -521,12 +514,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-        # close the dialog
-        print("here we enter this function")
-        self.animation_layout.addWidget(QPushButton("Sit tight we are currenly updating the database with your files!"))
-        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
-        self.ap.make_widget()
 
+        self.ap.make_widget() # shows the AP Animation Waiting Dialog
         self.offline_analysis_widgets.setCurrentIndex(0)
 
         # read the directory data into the database
@@ -860,6 +849,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''
 
         self.database_handler.database.close()
+        self.ap.make_widget()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
         self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
@@ -873,29 +863,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param progress_callback:
         """
 
-        print("writing analysis to database")
-        current_tab.stackedWidget.setCurrentIndex(1)
-        current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
-
-        # Process events to allow the update
-        QCoreApplication.processEvents()
-
+        
         self.database_handler.open_connection()
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-
-       
-
-        print("finished: ", self.multiple_interval_analysis)
-        print("executing single series analysis")
-
+        self.logger.info("finished: ", self.multiple_interval_analysis)
+        self.logger.info(f"executing single series analysis: {current_tab.objectName()}")
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
 
-        print("finished single series analysis")
+        self.logger.info(f"Finished the Series {current_tab.objectName()}")
         self.database_handler.database.close()
 
         # Process events to allow the update
-        QCoreApplication.processEvents()
-
         #@todo remove the widget from the layout in case of rerun 
         current_tab.stackedWidget.setCurrentIndex(0)
 
@@ -923,6 +901,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         @return:
         """
 
+        self.ap.stop_and_close_animation()
         try:
             #@todo fallback to make sure its always closed, otherwise open connection might fail
             self.database_handler.database.close()

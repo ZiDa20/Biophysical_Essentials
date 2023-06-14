@@ -177,6 +177,7 @@ class MainWindow(QMainWindow, QtStyleTools):
     def initialize_database(self)-> None:
         """Initialization of the DataBase using the duckdbhandler"""
         self.ui.notebook.setCurrentIndex(4)
+        #self.local_database_handler.open_connection()
         self.ui.database.show_basic_tables(self.local_database_handler)
 
     def center(self)-> None:

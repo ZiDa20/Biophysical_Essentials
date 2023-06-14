@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
 from QT_GUI.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
+import duckdb
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -35,7 +36,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.database_table.itemClicked.connect(self.pull_table_from_database)
         self.frontend_style = None
         self.SearchTable.clicked.connect(self.search_database_table)
-
+        self.select_table.currentTextChanged.connect(self.retrieve_tables)
 
     def update_database_handler(self,database_handler, frontend_style):
         self.database_handler = database_handler
@@ -60,10 +61,15 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         :return:
         '''
         #database_handler.database.close()
-        self.database = database_handler.database
+        #self.database = database_handler.database
 
         q = """SHOW TABLES"""
-        tables_names = [i[0] for i in self.database.execute(q).fetchall()]
+        try: 
+            tables_names = [i[0] for i in self.database_handler.database.execute(q).fetchall()]
+        except duckdb.ConnectionException:
+            print("open database since it is closed")
+            self.database_handler.open_connection()
+            tables_names = [i[0] for i in self.database_handler.database.execute(q).fetchall()]
 
         self.table_dictionary = {"Result Table": [],
                                  "Raw signal" : [],
@@ -106,10 +112,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.retrieve_tables("Analysis Table", True)
         self.select_table.clear()
         self.select_table.addItems(list(self.table_dictionary.keys()))
-        self.select_table.currentTextChanged.connect(self.retrieve_tables)
+        
 
-
-    def retrieve_tables(self, manual_table, manual = None):
+    def retrieve_tables(self, manual_table = None, manual = None):
         """
         When button clicked then we should retrieve the associated tables to structure the
         Tables better
@@ -117,7 +122,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             manual_table type: str Name of the table to be retrieved
             manual type: bool if true then we are in manual mode
         """
+        
+        if manual_table == "":
+            manual_table = "Result Table"
         retrieved_tables = sorted(self.table_dictionary[manual_table])
+    
         self.database_table.clear()
 
         # add each item to the listview
@@ -138,7 +147,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         try:
             # returns a dict, keys = column names, values = array = single rows
 
-            table_dict = self.database.execute(q).fetchnumpy()
+            table_dict = self.database_handler.database.execute(q).fetchnumpy()
             self.create_table_from_dict(table_dict)
         except Exception as e:
             print(f"failed{str(e)}")
@@ -200,7 +209,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         else:
             query = self.query_line_edit.text()
         try:
-            result_dict = self.database.execute(query).fetchnumpy()
+            result_dict = self.database_handler.database.execute(query).fetchnumpy()
             self.create_table_from_dict(result_dict)
         except Exception as e:
             #@TODO: add a dialog box to show the error if tables are not found

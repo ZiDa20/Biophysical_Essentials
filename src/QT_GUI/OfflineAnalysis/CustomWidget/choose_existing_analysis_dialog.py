@@ -243,7 +243,7 @@ class Ui_MetadataPopup(object):
 
         self.retranslateUi(MetadataPopup)
 
-        self.popup_stacked.setCurrentIndex(1)
+        self.popup_stacked.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MetadataPopup)

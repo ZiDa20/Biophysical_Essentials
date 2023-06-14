@@ -124,3 +124,4 @@ class LoadingAnimation(QDialog):
 
     def stop_animation(self):
         self.anim.event_source.stop()
+        self.timer.stop()
