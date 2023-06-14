@@ -1,0 +1,2 @@
+ cd /home/data-science/Dropbox/Biophysical_Essentials/src ; /usr/bin/env /home/data-science/miniconda3/envs/biophys_311/bin/python /home/data-science/.vscode/extensions/ms-python.python-2023.8.0/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 42937 -- start.py 
+
