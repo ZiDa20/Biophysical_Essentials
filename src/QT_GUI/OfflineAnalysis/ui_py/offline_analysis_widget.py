@@ -1161,7 +1161,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         try: # important if initial loading did not wo  rk out properly
             self.offline_tree.hierachy_stacked.deleteLater()
             self.offline_tree.analysis_stacked.deleteLater()
-        #    self.add_splitter()
         except AttributeError:
             self.logger.info("No hierachy widget yet defined")
     
