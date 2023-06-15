@@ -205,12 +205,14 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                 if cb.isChecked():
                     pos = self.checkbox_list.index(cb)
                     value = self.available_labels[pos][0]
-                    q = f'select experiment_name from global_meta_data where {self.category.currentText()} = \'{value}\' '
+                    if value == "All":
+                        q = 'select experiment_name from global_meta_data'
+                    else:
+                        q = f'select experiment_name from global_meta_data where {self.category.currentText()} = \'{value}\' '
                     return self.database_handler.database.execute(q).fetchdf()["experiment_name"].values
         else:
             try:
-                experiment_names = self.table_data["experiment_name"].values
-                return experiment_names
+                return self.table_data["experiment_name"].values
             except Exception as e:
                 CustomErrorDialog("Your table MUST contain the column experiment_name", self.frontend_style)
 
