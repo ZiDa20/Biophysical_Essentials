@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
 # inheritage from qobject required for use of signal
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
+
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
 
