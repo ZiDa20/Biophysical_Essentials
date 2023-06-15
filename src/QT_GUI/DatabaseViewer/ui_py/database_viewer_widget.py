@@ -11,6 +11,12 @@ from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
 from QT_GUI.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
 import duckdb
+from loggers.database_viewer_logging import database_viewer_logger
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from database.data_db import DuckDBDatabaseHandler
+    from StyleFrontend.frontend_style import Frontend_Style
 
 
 class Database_Viewer(QWidget, Ui_Database_Viewer):
@@ -19,22 +25,23 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
     def __init__(self,parent=None):
         QWidget.__init__(self,parent)
         self.setupUi(self)
+        self.logger = database_viewer_logger
         #self.data_base_stacked_widget.setCurrentIndex(0)
         self.data_base_stacked_widget.setCurrentIndex(0)
         #self.connect_to_database.clicked.connect(self.show_basic_tables)
-        self.execute_dialog = ExecuteDialog()
+        self.execute_dialog: QDialog = ExecuteDialog()
         self.execute_dialog.pushButton.clicked.connect(partial(self.query_data,True))
         self.execute_dialog.pushButton_2.clicked.connect(self.execute_dialog.close)
         self.complex_query.clicked.connect(self.execute_dialog.show)
-        self.database_handler = None
+        self.database_handler: Optional[DuckDBDatabaseHandler] = None
         self.query_execute.clicked.connect(self.query_data)
-        self.data_base_content = None
+        self.data_base_content: Optional[QTableView] = None
         self.plot = None
-        self.canvas = None
+        self.canvas: Optional[FigureCanvas] = None
         self.export_table.clicked.connect(self.export_table_to_csv)
         self.select_columns.clicked.connect(self.export_offline_analysis_id)
         self.database_table.itemClicked.connect(self.pull_table_from_database)
-        self.frontend_style = None
+        self.frontend_style: Frontend_Style = None
         self.SearchTable.clicked.connect(self.search_database_table)
         self.select_table.currentTextChanged.connect(self.retrieve_tables)
 
@@ -53,21 +60,20 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             response = QFileDialog.getSaveFileName(self, "Save File", "", "CSV(*.csv)")
             self.pandas_frame.to_csv(response[0])
         else:
-            print("No Table to export")
+            self.logger.info("NO Table to export here")
 
     def show_basic_tables(self,database_handler):
         '''
         Request available tables and plot the content
         :return:
         '''
-        #database_handler.database.close()
-        #self.database = database_handler.database
-
+       
         q = """SHOW TABLES"""
+        
         try: 
             tables_names = [i[0] for i in self.database_handler.database.execute(q).fetchall()]
         except duckdb.ConnectionException:
-            print("open database since it is closed")
+            self.logger.error("There is no connection to the database achieved yet in the database viewer")
             self.database_handler.open_connection()
             tables_names = [i[0] for i in self.database_handler.database.execute(q).fetchall()]
 
@@ -128,6 +134,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         retrieved_tables = sorted(self.table_dictionary[manual_table])
     
         self.database_table.clear()
+        self.logger.info("clearing database table")
 
         # add each item to the listview
         self.database_table.addItems(retrieved_tables)
@@ -146,11 +153,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         q = f'SELECT * from {table_name}'
         try:
             # returns a dict, keys = column names, values = array = single rows
-
+            self.logger.info(f"Retrieving the table {table_name} with the following query: {q}")
             table_dict = self.database_handler.database.execute(q).fetchnumpy()
             self.create_table_from_dict(table_dict)
         except Exception as e:
-            print(f"failed{str(e)}")
+            self.logger.error(f"""Table was not found failed with the following error: 
+                              {e} in the pull_table_from_database_function""")
+
 
 
     def create_table_from_dict(self,table_dict):
@@ -160,10 +169,10 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             table_dict: dict with keys = column names, values = array = single rows for the table
         '''
         # create the table from dict
-        print("called")
         self.pandas_frame = pd.DataFrame(table_dict)
 
         if self.pandas_frame.shape[0] > 500:
+            # This is to prevent laggy gui
             view_frame = self.pandas_frame.head(100)
 
         else:
@@ -191,15 +200,11 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         
         if self.pandas_frame.shape[1] < 6:
             self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_layout.addWidget(scroll_area)
         self.data_base_content.setGeometry(20, 20, 691, 581)
 
         # show and retrieve the selected columns
         self.data_base_content.show()
-        # at the moment this is slow and instable and therefor is not implemented
-        #self.data_base_content.clicked.connect(self.retrieve_column)
-
 
     @Slot()
     def query_data(self, multi_line = None):
@@ -216,7 +221,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             self.create_table_from_dict(result_dict)
         except Exception as e:
             #@TODO: add a dialog box to show the error if tables are not found
-            print("Error: %s", e)
+            self.logger.error(f"The following error occured when queriying the database {e}")
 
 
     def retrieve_column(self, index):
@@ -241,85 +246,13 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
             print(f"The Error is: {e}" )
 
 
-    def draw_table(self, floating_numbers):
-        """
-        Draws the selected column if it contains numbers
-        The data amount is using only every 10th point to reduce
-        slowness of the matplotlib plot
-
-        args:
-            floating_numbers type(np.array): list of numbers
-            """
-        if self.plot:
-            for i in reversed(range(self.gridLayout_10.count())):
-                self.gridLayout_10.itemAt(i).widget().deleteLater()
-        # this should show the sliced array
-        if self.canvas:
-            self.canvas.deleteLater()
-
-        sliced_array = floating_numbers[::10]
-        self.raw_database_signal_plot(sliced_array)
-
-        # draw the figure
-    def raw_database_signal_plot(self, sliced_array):
-        """
-        Draws the raw signal of the selected column
-        in the DataBase Viewer
-        Args:
-            sliced_array (_type_): array of data, where only every 10th point
-            is used to reduce the overhead
-        """
-        # creates the Canvase
-        self.canvas = FigureCanvas(Figure(figsize=(5,3)))
-        self.navigation = NavigationToolbar(self.canvas, self)
-        #add the buttons for the plot navigation
-        self.plot_option_connection()
-        #draws the figure
-        self.draw_figure()
-
-    def plot_option_connection(self):
-        """
-        Plot Control Options mapped to the ribbon bar buttons
-        """
-        self.plot_zoom.clicked.connect(self.navigation.zoom)
-        self.plot_home.clicked.connect(self.navigation.home)
-        self.plot_move.clicked.connect(self.navigation.pan)
-        self.save_plot_online.clicked.connect(self.save_image)
-
-    def draw_figure(self):
-        """
-        Draws the figure in the canvas
-        @ToDO add this to the frontend class
-        args:
-            fig type: matplotlib.figure.Figure
-        returns:
-            None"""
-        fig = self.canvas.figure
-        ax = fig.add_subplot(111)
-        fig.tight_layout()
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Unit [A]|[V]")
-        self.gridLayout_10.addWidget(self.canvas)
-
-    def save_image(self):
-        """
-        Saves the current plot as png file
-        """
-        if self.canvas:
-            response = QFileDialog.getSaveFileName(self, "Save Image", "", "PNG(*.png)")
-            self.canvas.figure.savefig(response[0])
-            response.close()
-        else:
-            raise AttributeError("No Plot selected here")
-            # add here a QDialog that opens with error message
-
-    def search_database_table(self):
+    def search_database_table(self) -> None:
         # this needs to be implemented
         text = self.lineEdit.text()
         table = self.database_handler.database.execute(f"Select * from {text}").fetchdf()
         table = table.iloc[:100,]
         self.data_base_content_model.update_data(table)
 
-    def export_offline_analysis_id(self):
+    def export_offline_analysis_id(self) -> None:
         database_export = ExportOfflineDialog(self.database_handler, self.frontend_style)
 
