@@ -188,6 +188,9 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.data_base_content_model = PandasTable(view_frame)
         self.data_base_content.setModel(self.data_base_content_model)
         self.viewing_model.resize_header(self.data_base_content)
+        
+        if self.pandas_frame.shape[1] < 6:
+            self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_layout.addWidget(scroll_area)
         self.data_base_content.setGeometry(20, 20, 691, 581)

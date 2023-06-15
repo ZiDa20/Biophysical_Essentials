@@ -123,13 +123,14 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         #Create a figure
 
         self.figure = Figure()
-        #manual_colors = ["#FD8A8A","#8b785b","#6e8b5b","#785b8b",] # "#9ca8b9", "#adb6c5", "#c0c0c0"].reverse()
-        manual_colors = ["#FD8A8A", "#F1F7B5", "#A8D1D1", "#9EA1D4", "#316B83", "#6D8299", "#D5BFBF", "#8CA1A5", "#C6D57E", "#D57E7E", "#A2CDCD", "#FFE1AF", "#0b525b", "#144552", "#1b3a4b", "#212f45", "#272640", "#312244", "#3e1f47", "#4d194d"]
+        manual_colors = ["#FD8A8A", "#F1F7B5", "#A8D1D1", "#9EA1D4",
+                         "#316B83", "#6D8299", "#D5BFBF", "#8CA1A5",
+                         "#C6D57E", "#D57E7E", "#A2CDCD", "#FFE1AF",
+                         "#0b525b", "#144552", "#1b3a4b", "#212f45",
+                         "#272640", "#312244", "#3e1f47", "#4d194d"]
 
         # Set the figure size and create the subplots
         ax = self.figure.subplots(2, 3)
-
-
         # Create a canvas to display the figure
         self.canvas = FigureCanvas(self.figure)
         self.canvas.setStyleSheet("background-color: rgba(1,0,0,0);")
@@ -144,7 +145,7 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
         q = f'select * from global_meta_data '
 
         if label is not "All":
-            q = q +  f' where ' + self.category.currentText() + f' = \'{label}\''
+            q = f'{q} where {self.category.currentText()}' + f" = \'{label}\'"
 
         meta_data_table = self.database_handler.database.execute(q).fetchdf()
 
