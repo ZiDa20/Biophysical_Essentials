@@ -40,8 +40,6 @@ QPushButton:hover{{
 }}
 
 
-
-
 QLabel{{
     background-color: transparent; 
     color: "#ffffff";
@@ -64,7 +62,12 @@ QComboBox{{
  }}
 
 QListView::item {{
-    background-color:#1f2933;;
+    background-color: "#121212";;
+}}
+
+QListView::item:hover{{
+    background-color: "grey"; 
+    border: 0px;
 }}
 
 QProgressBar{{
@@ -119,7 +122,7 @@ QTreeView{{
 }}
 
 QTreeView::item:selected:focus {{
-    background-color: "#121212";
+    background-color: "#1f2933";
     color: #ffffff; /* For Windows */
   }}
   
@@ -146,6 +149,12 @@ QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton
 }}
 
 QFrame[accessibleName="divline"]{{
+    background-color: "#1f2933";
+}}
+
+QHeaderView::section{{background-color: "#1f2933"; color:white;}}
+
+QTreeView::item:hover {{
     background-color: "#1f2933";
 }}
 

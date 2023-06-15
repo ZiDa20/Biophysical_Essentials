@@ -17,6 +17,7 @@ QTabWidget{{background-color: "#e6e6e6";}}
 
 QWidget[accessibleName="additional_function_menu"]{{background-color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
+
 QPushButton{{background-color: white; border: 2px solid #9394a5; color:black; border-radius: 5px;}}
 QPushButton:hover{{background-color: #9394a5; border: 2px solid white;}}
 
@@ -29,6 +30,9 @@ QLabel{{
 QCheckBox{{background-color:transparent; color:black; }}
 
 QComboBox{{background-color:"{QTMATERIAL_SECONDARYCOLOR}"; color:black; }}
+
+
+QComboBox[accessibleName="qcombo"]{{background-color:white; color:black; }}
 
 
 QRadioButton{{background-color:transparent; color:black; border:black; }}
