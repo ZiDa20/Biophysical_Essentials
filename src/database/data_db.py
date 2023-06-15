@@ -190,6 +190,7 @@ class DuckDBDatabaseHandler():
     def query_recording_mode(self, series_name: str) -> str:
         """
         Get the recording mode from the meta data table of a (by-name-) specified series
+        selects only the first
         :param series_name:
         :return: str Voltage Clamp or Current Clamp
         """
@@ -197,13 +198,11 @@ class DuckDBDatabaseHandler():
         if isinstance(series_name,tuple):
             series_name = series_name[0]
 
-        q = """select experiment_name from experiment_series where series_name=(?) intersect
-        (select experiment_name from experiment_analysis_mapping where analysis_id = (?))"""
-        experiment_names_list = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
+        q = """select experiment_name, series_identifier from series_analysis_mapping where renamed_series_name=(?) and analysis_id = (?)"""
+        res = self.get_data_from_database(self.database, q, (series_name, self.analysis_id))
 
-        q = """ select meta_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
-        self.logger.info(f'select meta_data_table_name from experiment_series where experiment_name = \"{experiment_names_list[0][0]}\" and series_name = \"{series_name}\" ')
-        name = self.get_data_from_database(self.database, q, (experiment_names_list[0][0], series_name))[0][0]
+        q = """ select meta_data_table_name from experiment_series where experiment_name = (?) and series_identifier = (?)"""
+        name = self.get_data_from_database(self.database, q, (res[0][0], res[0][1]))[0][0]
 
         q = f'SELECT Parameter, sweep_1 FROM {name}'
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
@@ -316,7 +315,7 @@ class DuckDBDatabaseHandler():
                             where analysis_id = (?) and analysis_discarded = (?) ) \
                         as t2\
                         on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier\
-                        where t1.series_meta_data = (?) and t1.series_name = (?) and t1.experiment_name = (?)'
+                        where t1.series_meta_data = (?) and t2.renamed_series_name = (?) and t1.experiment_name = (?)'
 
 
                 #q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) ' \
@@ -336,7 +335,7 @@ class DuckDBDatabaseHandler():
                             where analysis_id = (?) and analysis_discarded = (?) ) \
                         as t2\
                         on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier\
-                        where t1.series_name = (?) and t1.experiment_name = (?)'
+                        where t2.renamed_series_name = (?) and t1.experiment_name = (?)'
                 try:
                     r = self.get_data_from_database(self.database, q, (self.analysis_id, False, series_name, experiment_tuple[0]))[0][0]
                     sweep_table_names.append(r)
@@ -351,9 +350,9 @@ class DuckDBDatabaseHandler():
         :param series_name: name of the series (e.g. Block Pulse, .. )
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
-        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?))"""
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from series_analysis_mapping where renamed_series_name = (?) and analysis_id = (?))"""
         return self.get_data_from_database(
-            self.database, q, (self.analysis_id, series_name)
+            self.database, q, (self.analysis_id, series_name,self.analysis_id)
         )
 
     def get_experiments_by_series_name_and_analysis_id_with_meta(self, series_name, meta_data):
@@ -363,9 +362,9 @@ class DuckDBDatabaseHandler():
         :param meta_data associated
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
-        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_meta_data = (?))"""
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from series_analysis_mapping where renamed_series_name = (?) AND series_meta_data = (?) and analysis_id = (?))"""
         return self.get_data_from_database(
-            self.database, q, (self.analysis_id, series_name, meta_data)
+            self.database, q, (self.analysis_id, series_name, meta_data,self.analysis_id)
         )
 
     def get_experiments_by_series_name_and_analysis_id_with_series(self, series_name, meta_data):
@@ -375,13 +374,13 @@ class DuckDBDatabaseHandler():
         :param meta_data associated
         :return: list of tuples of experimentnames (e.g. [(experiment_1,),(experiment_2,)]
         '''
-        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from experiment_series where series_name = (?) AND series_identifier = (?))"""
+        q = """select experiment_name from experiment_analysis_mapping where analysis_id = (?) intersect (select experiment_name from series_analysis_mapping where renamed_series_name = (?) AND series_identifier = (?) and analysis_id = (?))"""
         return self.get_data_from_database(
-            self.database, q, (self.analysis_id, series_name, meta_data)
+            self.database, q, (self.analysis_id, series_name, meta_data,self.analysis_id)
         )
 
     def get_experiment_from_sweeptable_series(self, series_name, sweep_table_name):
-        q = f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = '{sweep_table_name}' AND series_name = '{series_name}'"""
+        q = f"""SELECT experiment_name FROM experiment_series WHERE sweep_table_name = '{sweep_table_name}'""" #AND series_name = '{series_name}
         print(q)
         return self.database.execute(q).fetchall()[0][0]
 
@@ -1133,7 +1132,7 @@ class DuckDBDatabaseHandler():
         :return:
         """
         # @todo: why do we need the discarded = False in here ? 
-        q1 = f'select distinct series_name from series_analysis_mapping where analysis_discarded = False and analysis_id = {self.analysis_id}'
+        q1 = f'select distinct renamed_series_name from series_analysis_mapping where analysis_discarded = False and analysis_id = {self.analysis_id}'
 
         return self.get_data_from_database(self.database, q1)
 

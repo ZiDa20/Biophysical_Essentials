@@ -307,8 +307,6 @@ class TreeViewManager:
 
         experiment_df = experiment_df[experiment_df["item_name"].isin(series_df["parent"].tolist())]
         
-
-
         if show_sweeps:
             all_sweeps_df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
             for sweep_table_name in series_table["sweep_table_name"].values.tolist():
@@ -349,7 +347,7 @@ class TreeViewManager:
                             where analysis_id = (?) and analysis_discarded = (?) )
                         as t2
                         on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier
-                        where t1.series_name = (?)"""
+                        where t2.renamed_series_name = (?)"""
 
             series_table = self.database_handler.database.execute(q, (self.offline_analysis_id, discarded_state,series_name)).fetchdf()
 
@@ -703,7 +701,7 @@ class TreeViewManager:
 
         # if specified, get only specific series names
         if series_name is not None:
-            query = query + f' and t1.series_name = \'{series_name}\''
+            query = query + f' and t1.renamed_series_name = \'{series_name}\''
 
         # get the series table from db
         series_table = self.database_handler.database.execute(query).fetchdf()

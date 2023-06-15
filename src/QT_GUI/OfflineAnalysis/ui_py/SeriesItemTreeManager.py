@@ -221,6 +221,8 @@ class SeriesItemTreeWidget():
                                                         self.show_sweeps_radio,
                                                         current_tab,
                                                         frontend = self.frontend_style)
+        
+        
         self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
         current_tab.frontend_style = self.frontend_style
 
