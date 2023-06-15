@@ -12,7 +12,7 @@ from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-
+import debugpy
 
 class TreeViewManager:
     """
@@ -87,6 +87,7 @@ class TreeViewManager:
           bundle_list type: list of tuples - the list of bundles that were read
 
         """
+        debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
         for i in dat_files:
@@ -1112,7 +1113,7 @@ class TreeViewManager:
         if node_type == "Channel":
             # Holding
             holding_potential = node.Holding
-            stim_channel = node.LinkedChannel
+            stim_channel = node.DacChannel
             children_amount = node.children
 
         elif node_type == "Stimulation":

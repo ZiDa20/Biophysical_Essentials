@@ -1,5 +1,6 @@
 import numpy as np
 from DataReader.heka_reader import Bundle
+import debugpy
 
 class OnlineAnalysisManager:
     def __init__(self):

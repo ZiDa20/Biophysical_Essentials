@@ -156,7 +156,7 @@ class PlotWidgetManager(QRunnable):
         current_ax_length = self.ax1.get_xlim()[1]
 
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
+        pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
         self.rect_list = []
         self.text_list = []
         total_duration = 0
@@ -316,7 +316,7 @@ class PlotWidgetManager(QRunnable):
         # finally also the pgf file needs to be added to the plot
         # load the table
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"]
+        pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
 
         protocol_steps = self.plot_pgf_signal(pgf_table,data)
 
