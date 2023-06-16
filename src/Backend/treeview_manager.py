@@ -435,9 +435,10 @@ class TreeViewManager:
 
         # ["experiment", "series", "remove", "hidden1_identifier", "hidden2_type", "hidden3_parent"]
         tree_item_list = model.get_data_row(index, Qt.DisplayRole)
-        print("click", tree_item_list)
-        print(data_pos)
-        print(tree_item_list)
+        #print("click", tree_item_list)
+        #print(data_pos)
+        #print(tree_item_list)
+        print("tree clicked")
         tree_item_list = list(tree_item_list)
 
         p  = tree_item_list[1][data_pos["hidden3_parent"]].split("::")
@@ -457,7 +458,7 @@ class TreeViewManager:
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Series":
             print("series clicked")
-            print(tree_item_list)
+            #print(tree_item_list)
             plot_widget_manager.table_view_series_clicked_load_from_database(tree_item_list[1][data_pos["hidden3_parent"]],
                                                               tree_item_list[1][data_pos["hidden1_identifier"]])
 
@@ -468,14 +469,14 @@ class TreeViewManager:
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Sweep":
             print("sweep clicked")
-            print(tree_item_list)
+            #print(tree_item_list)
 
             parent_data = model.get_parent_data(index)
-            print(parent_data)
-            print(parent_data[data_pos["hidden3_parent"]])
-            print(parent_data[data_pos["hidden1_identifier"]])
-            print(data_pos)
-            print(tree_item_list[1][data_pos["Sweep"]])
+            #print(parent_data)
+            #print(parent_data[data_pos["hidden3_parent"]])
+            #print(parent_data[data_pos["hidden1_identifier"]])
+            #print(data_pos)
+            #print(tree_item_list[1][data_pos["Sweep"]])
             plot_widget_manager.table_view_sweep_clicked_load_from_database(parent_data[data_pos["hidden3_parent"]],
                                                                             parent_data[data_pos["hidden1_identifier"]],
                                                                             tree_item_list[1][data_pos["Sweep"]])
