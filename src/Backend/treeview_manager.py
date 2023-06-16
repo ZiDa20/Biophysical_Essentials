@@ -666,7 +666,7 @@ class TreeViewManager:
         # append series to the experiments
         for name,id  in zip(experiment_name,experiment_id) : # index
 
-            print("experiment = ", name)
+            #print("experiment = ", name)
             series_meta_data = None
 
             # if there was a selection of series meta data -- 
@@ -680,7 +680,7 @@ class TreeViewManager:
 
             df, series_table = self.add_series_to_treeview(df, name, id , discarded_state, series_name, series_level, series_meta_data)
            
-            print(series_table["experiment_name"].unique)
+            #print(series_table["experiment_name"].unique)
             
             # create sweeps
             if self.show_sweeps_radio.isChecked():
