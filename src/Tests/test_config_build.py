@@ -36,7 +36,6 @@ class TestFrontPage(unittest.TestCase):
 
         # constructor of the mainwindow
         testing_db = cls.set_database()
-        
         cls.ui = MainWindow(testing_db=testing_db)
         cls.database_handler = cls.ui.local_database_handler
         df = cls.database_handler.database.execute("SHOW TABLES;").fetch_df()
@@ -50,8 +49,8 @@ class TestFrontPage(unittest.TestCase):
     def set_database(cls):
         """_summary_: Sets up the database for the testing purpose!
         """
-        path_db = os.getcwd() + "/Tests/"
-        path_db = str(Path(path_db)) 
+        path_db = f"{os.getcwd()}/Tests/"
+        path_db = str(Path(path_db))
         return DuckDBDatabaseHandler(None,
                                     db_file_name = "test_db.db",
                                     database_path = path_db,
@@ -63,13 +62,8 @@ class TestFrontPage(unittest.TestCase):
         cls.database_handler.database.close()
         cls.app.deleteLater()
         
-
-
     def test_menu_buttons(self):
         """Check if the buttons are clickable in the menu and if the notebook is switching appropriately"""
-        
-        # we should add the statistics window here too 
-        print(f"current index of the notebook: {self.ui.ui.notebook.currentIndex()}")
         QTest.mouseClick(self.configuration, Qt.LeftButton)
         self.assertEqual(self.ui.ui.notebook.currentIndex(), 1, "Windows are not properly attached")
         QTest.mouseClick(self.online_analysis, Qt.LeftButton)
@@ -108,4 +102,47 @@ class TestFrontPage(unittest.TestCase):
         "Checks that the right page is loaded at the beginning in the experimentator"
         self.assertEqual(self.ui.ui.config.experiment_control_stacked.currentIndex(), 0, "Wrong page loaded pls check the files")
     
+    def test_dataviewer_tables(self):
+        # Checks if data tables are initialized properly and also shown in the 
+        # QtableView
+        self.ui.initialize_database()
+        table = self.ui.ui.database.data_base_content_model._data
+        list_len = self.ui.ui.database.List.database_table.count()
+        self.assertEqual(self.ui.ui.notebook.currentIndex(), 4, "Wrong Notebook Side opened")
+        self.assertEqual(table.shape[1], 4, "wrong number of columns in the table")
+        self.assertEqual(list_len, 1, "the wrong side is shown")
+        
+    def test_query_dataviewer_table(self):
+        # Checks if query system is working
+        self.ui.ui.database.query_line_edit.setText("SELECT * FROM global_meta_data")
+        
+        self.ui.ui.database.query_execute.click()
+        table = self.ui.ui.database.data_base_content_model._data
+        self.assertEqual(table.shape[0], 2, "wrong number of columns in the table")
+        
+    def test_multi_line_query(self):
+        # Checks if the multiline query is working perfectly
+        self.ui.ui.database.execute_dialog.textEdit.setText("SELECT * FROM global_meta_data")
+        self.ui.ui.database.execute_dialog.pushButton.click()
+        table = self.ui.ui.database.data_base_content_model._data
+        self.assertEqual(table.shape[0], 2, "wrong number of columns in the table")
+        
+    def test_dataviewer_variables(self):
+        # Check if the important variables are all initialized correctly
+        self.ui.initialize_database()
+        self.assertIsNotNone(self.ui.ui.database.database_handler, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.frontend_style, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.data_base_content, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.logger, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.data_base_content_model, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.suggestions, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.Table, "database handler not initialized")
+        self.assertIsNotNone(self.ui.ui.database.List, "database handler not initialized")
+        self.assertEqual(len(self.ui.ui.database.suggestions), 65, "database handler not initialized")
+
+        
+    
+        
+        
+        
     

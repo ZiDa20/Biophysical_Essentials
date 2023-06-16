@@ -18,7 +18,6 @@ class PandasTable(QAbstractTableModel):
         self.unchanged_data = data
         self.index_uneditable: list = index_uneditable
 
-    
     @property    
     def full_data(self):
         return self._full_data

@@ -175,7 +175,7 @@ class AbfReader():
 
         self.epochs_dataframe = self.epochs_dataframe.transpose()
         print(self.abf.channelList)
-        self.epochs_dataframe["selected_channel"] = str(self.abf.channelList[0] + 1)
+        self.epochs_dataframe["selected_channel"] = str(self.abf.channelList[0] + 3)
 
 
     def get_first_and_last_sweep(self):
