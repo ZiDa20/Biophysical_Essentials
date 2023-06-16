@@ -176,7 +176,7 @@ class SweepWiseAnalysisTemplate(ABC):
 				self.construct_trace()
 				self.slice_trace()
 				res = self.specific_calculation()
-				print(f"this is the inputresistance: {res}")
+				
 				# normalize if necessary
 				# toDO add logging here
 
