@@ -46,6 +46,9 @@ class PlotWidgetManager(QRunnable):
             self.draw_color = "black"
             self.ax_color = "black"
 
+        self.show_pgf_plot_button = None
+        self.shift_sweeps = None
+
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
         self.vertical_layout = vertical_layout_widget
 
@@ -275,11 +278,8 @@ class PlotWidgetManager(QRunnable):
 
 
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
-
-        #print("requested series dataframe")
-        #print(series_df)
-
-        #self.time = db.get_time_in_ms_of_analyzed_series(data_request_information[0],data_request_information[1])
+        series_name = self.database_handler.database.execute(f"select renamed_series_name from series_analysis_mapping where experiment_name = '{experiment_name}' and series_identifier = '{series_identifier}' and analysis_id = {self.database_handler.analysis_id} ").fetchdf()
+        series_name = series_name["renamed_series_name"].unique()[0]
 
         # get the meta data to correctly display y values of traces
         meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
@@ -289,6 +289,9 @@ class PlotWidgetManager(QRunnable):
         column_names = series_df.columns.values.tolist()
 
         self.create_new_subplots(split_view)
+
+        plot_offset = 0
+        time_offset = 0
 
         # plot for each sweep
         for name in column_names:
@@ -304,7 +307,13 @@ class PlotWidgetManager(QRunnable):
                 # data scaling to nA
                 self.plot_scaling_factor = 1e9
 
-            self.ax1.plot(self.time, data * self.plot_scaling_factor, self.draw_color)
+            if series_name == 'Rheoramp' or series_name == '5xRheo' or series_name == 'Rheobase':
+                data = data * self.plot_scaling_factor
+                self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
+                plot_offset += max(data) - min(data) # get the total distance
+                time_offset += len(self.time)*0.005 # empirically determined
+            else:
+                self.ax1.plot(self.time, data * self.plot_scaling_factor, self.draw_color)
 
             """
             if self.detection_mode:
