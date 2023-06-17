@@ -317,7 +317,10 @@ class PlotWidgetManager(QRunnable):
         # finally also the pgf file needs to be added to the plot
         # load the table
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
+        if pgf_table[pgf_table["selected_channel"] == "3"].empty:
+            pgf_table =  pgf_table[pgf_table["selected_channel"] == "2"]
+        else:
+            pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
 
         protocol_steps = self.plot_pgf_signal(pgf_table,data)
 
@@ -405,8 +408,13 @@ class PlotWidgetManager(QRunnable):
 
         if np.all(increments ==0):
             return self.plot_pgf_simple_protocol(pgf_table_df,data)
+        elif "Rheoramp" in pgf_table_df['series_name'].unique():
+            return self.plot_pgf_ramp_protocol(pgf_table_df,data,sweep_number)            
         else:
             return self.plot_pgf_step_protocol(pgf_table_df,data,sweep_number)
+    def plot_pgf_ramp_protocol(self,pgf_table_df,data, sweep_number_of_interest = None):
+         
+         return self.plot_pgf_step_protocol(pgf_table_df,data,sweep_number_of_interest)
 
     def plot_pgf_step_protocol(self,pgf_table_df,data, sweep_number_of_interest = None):
         """
