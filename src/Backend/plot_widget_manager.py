@@ -408,13 +408,10 @@ class PlotWidgetManager(QRunnable):
 
         if np.all(increments ==0):
             return self.plot_pgf_simple_protocol(pgf_table_df,data)
-        elif "Rheoramp" in pgf_table_df['series_name'].unique():
-            return self.plot_pgf_ramp_protocol(pgf_table_df,data,sweep_number)            
+        
         else:
             return self.plot_pgf_step_protocol(pgf_table_df,data,sweep_number)
-    def plot_pgf_ramp_protocol(self,pgf_table_df,data, sweep_number_of_interest = None):
-         
-         return self.plot_pgf_step_protocol(pgf_table_df,data,sweep_number_of_interest)
+ 
 
     def plot_pgf_step_protocol(self,pgf_table_df,data, sweep_number_of_interest = None):
         """
@@ -444,6 +441,7 @@ class PlotWidgetManager(QRunnable):
 
         number_of_sweeps = pgf_table_df['sweep_number'].values.tolist()
 
+        # create a singal for each sweep
         for sweep_number in range(0,int(number_of_sweeps[0])):
 
             pgf_signal = np.zeros(len(data))
@@ -451,8 +449,9 @@ class PlotWidgetManager(QRunnable):
             start_pos = 0
             protocol_steps = []
 
+            # create signal over all blocks to cover the entire duration
             for n in range(0, len(durations)):
-                #  nothign changes in the duration
+                
                 d = 1000 * float(durations[n])
                 total_duration += d
                 protocol_steps.append(d)
@@ -462,14 +461,19 @@ class PlotWidgetManager(QRunnable):
                     # print("index error")
                     end_pos = len(data)
 
-                #print(n)
-                #print(start_pos)
-                #print(end_pos)
-
-                if increments[n]!=0:
-                    #print(1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n]))
-                    pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n])
-                else:
+                if increments[n]!=0: # if the current block has no steps
+                    max_val  =1000 * float(voltages[n]) + sweep_number *  1000 * float(increments[n])
+                    #@todo read from the pgf table whether its a ramp or not 
+                    if "Rheoramp" in pgf_table_df['series_name'].unique(): # here we have to create a ramp signal
+                            starting_value = pgf_signal[1] 
+                            x_steps = end_pos - start_pos
+                            y_steps = max_val-starting_value
+                            step_size = y_steps/x_steps
+                            for n in range(start_pos,end_pos+1):
+                                pgf_signal[n]=starting_value+(n-start_pos)*step_size    
+                    else:
+                            pgf_signal[start_pos:end_pos] = max_val
+                else: # if the current block has no steps
                     if float(voltages[n]) == 0:
                         pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
                         #print(1000 * float(holding[n]))
