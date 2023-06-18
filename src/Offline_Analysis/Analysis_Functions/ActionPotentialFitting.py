@@ -111,7 +111,9 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         max_amplitude_pos = np.argmax(data >= max_amplitude)
         t_max_amplitude = time[max_amplitude_pos]
         print(max_amplitude)
-        parameter_list.append((t_max_amplitude, max_amplitude/1e9))
+        #parameter_list.append((t_max_amplitude, max_amplitude/1e9))
+        parameter_list.append((t_max_amplitude, max_amplitude/1e3))
+
 
         ###### calc afterhyperpolarization #####
 

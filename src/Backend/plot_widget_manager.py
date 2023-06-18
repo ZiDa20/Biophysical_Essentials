@@ -124,7 +124,7 @@ class PlotWidgetManager(QRunnable):
 
                         analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
 
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
+                        x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
 
                         if sweep_number:
                             sweep_number = sweep_number.split("_")
@@ -139,6 +139,7 @@ class PlotWidgetManager(QRunnable):
                                             y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
                                             self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
                                         else:
+                                            res  =tuple[1]*self.plot_scaling_factor
                                             self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row_nr+column], marker="o")
                         else:
                                     print("Tuple was None: is live plot function for", fct, " already implemented ? ")
@@ -310,8 +311,8 @@ class PlotWidgetManager(QRunnable):
             if series_name == 'Rheoramp' or series_name == '5xRheo' or series_name == 'Rheobase':
                 data = data * self.plot_scaling_factor
                 self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
-                plot_offset += max(data) - min(data) # get the total distance
-                time_offset += len(self.time)*0.005 # empirically determined
+                ##plot_offset += max(data) - min(data) # get the total distance
+                #time_offset += len(self.time)*0.005 # empirically determined
             else:
                 self.ax1.plot(self.time, data * self.plot_scaling_factor, self.draw_color)
 
@@ -326,10 +327,10 @@ class PlotWidgetManager(QRunnable):
         # finally also the pgf file needs to be added to the plot
         # load the table
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        if pgf_table[pgf_table["selected_channel"] == "3"].empty:
-            pgf_table =  pgf_table[pgf_table["selected_channel"] == "2"]
+        if pgf_table[pgf_table["selected_channel"] == "2"].empty:
+            pgf_table =  pgf_table[pgf_table["selected_channel"] == "3"]
         else:
-            pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
+            pgf_table = pgf_table[pgf_table["selected_channel"] == "2"]
 
         protocol_steps = self.plot_pgf_signal(pgf_table,data)
 
