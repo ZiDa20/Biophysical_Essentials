@@ -267,9 +267,9 @@ class TreeViewManager:
             print(e)
 
         self.tree_build_widget.selected_tree_view.clicked.connect(
-            partial(self.handle_tree_view_click, self.selected_model, plot_widget_manager,None))
+            partial(self.handle_tree_view_click, self.selected_model, plot_widget_manager,series_name))
         self.tree_build_widget.discarded_tree_view.clicked.connect(
-            partial(self.handle_tree_view_click, self.discarded_model, plot_widget_manager,None))
+            partial(self.handle_tree_view_click, self.discarded_model, plot_widget_manager,series_name))
 
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table

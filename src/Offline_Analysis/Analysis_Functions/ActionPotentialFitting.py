@@ -105,7 +105,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         t_threshold = time[threshold_pos]
         v_threshold = data[threshold_pos]
-        parameter_list.append((t_threshold,v_threshold/1e9))
+        parameter_list.append((t_threshold,v_threshold/1e3))
         ####### calc max amplitude ####
         max_amplitude = np.max(data)
         max_amplitude_pos = np.argmax(data >= max_amplitude)
@@ -122,7 +122,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
         hyperpol_pos = hyperpol_pos + pos_dev_1_min
 
-        parameter_list.append((time[hyperpol_pos],data[hyperpol_pos]/1e9))
+        parameter_list.append((time[hyperpol_pos],data[hyperpol_pos]/1e3))
 
         ######## first derivate to get repolarization speed ########
 
@@ -160,7 +160,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         x = time[left_hw_pos:right_hw_pos]
         y = []
         for t in x:
-            y.append(half_width_amplitude/1e9)
+            y.append(half_width_amplitude/1e3)
         parameter_list.append((x,y))
         return parameter_list
 
