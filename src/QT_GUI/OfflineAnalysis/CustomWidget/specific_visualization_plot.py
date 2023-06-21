@@ -16,7 +16,7 @@ class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
         if not result_plot_visualizer.objectName():
             result_plot_visualizer.setObjectName(u"result_plot_visualizer")
-        result_plot_visualizer.resize(757, 588)
+        result_plot_visualizer.resize(757, 757)
         self.gridLayout = QGridLayout(result_plot_visualizer)
         self.gridLayout.setObjectName(u"gridLayout")
         self.specific_plot_box = QGroupBox(result_plot_visualizer)
@@ -26,7 +26,7 @@ class Ui_result_plot_visualizer(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.specific_plot_box.sizePolicy().hasHeightForWidth())
         self.specific_plot_box.setSizePolicy(sizePolicy)
-        self.specific_plot_box.setMaximumSize(QSize(16777215, 600))
+        self.specific_plot_box.setMaximumSize(QSize(16777215,900))
         self.gridLayout_2 = QGridLayout(self.specific_plot_box)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_4 = QGridLayout()

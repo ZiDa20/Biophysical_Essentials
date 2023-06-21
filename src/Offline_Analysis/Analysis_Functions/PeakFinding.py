@@ -2,6 +2,9 @@ import pandas as pd
 from scipy.signal import find_peaks
 from natsort import natsorted
 import numpy as np
+from scipy import interpolate
+import math
+
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 
 
@@ -13,7 +16,11 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         super().__init__()
         self.function_name = "Peak-Detection"
         self.plot_type_options = ["AP-Overlay","Time-AP-Relationship"]
+
+        # must be consideres regarding the sampling frequency
+
         self.AP_WINDOW = 100
+        
         self.AP_THRESHOLD = 0.01
 
     def calculate_results(self):
@@ -27,10 +34,8 @@ class PeakFinding(SweepWiseAnalysisTemplate):
 
         # get the names of all data tables to be evaluated
         data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
-            # set time to non - will be set by the first data frame
-        # should assure that the time and bound setting will
-        # be only exeuted once since it is the same all the time
-        time = None
+        
+  
         agg_table = pd.DataFrame()
         for data_table in data_table_names:
             experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,
@@ -43,6 +48,19 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             nat_sorted_columns = list(natsorted(column_names, key=lambda y: y.lower()))
             entire_sweep_table = entire_sweep_table[nat_sorted_columns]
 
+            sampling_frequency = math.ceil(1 / (time[1] - time[0]))
+            print("sampling frequency: ", sampling_frequency)
+            print(sampling_frequency)
+            n = 1
+            cutoff_freq = 40
+            if sampling_frequency > cutoff_freq: # in khZ
+                print("downsampling frequency")
+                n = int(sampling_frequency /cutoff_freq)
+                print("downsampling by n=", str(n))
+                downsampled_indices = np.linspace(0, len(time) - 1, num=len(time)//n, dtype=int)
+                downsampled_time = interpolate.interp1d(np.arange(len(time)), time)(downsampled_indices)
+                time = downsampled_time
+            
             for column in entire_sweep_table:
                 data = entire_sweep_table.get(column)
                 if series_specific_recording_mode != "Voltage Clamp":
@@ -50,6 +68,18 @@ class PeakFinding(SweepWiseAnalysisTemplate):
                     data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
 
                 print(f"starting to calculate ap window for {data_table}")
+                print("length time= ", len(time))
+                print("length data=", len(data))
+
+                if sampling_frequency > cutoff_freq: # in khZ
+                    print("downsampling data")
+                    print("downsampling by n=", str(n))
+                    downsampled_indices = np.linspace(0, len(data) - 1, num=len(data)//n, dtype=int)
+                    downsampled_data = interpolate.interp1d(np.arange(len(data)), data)(downsampled_indices)
+                    print("length downsampled=", len(downsampled_data))
+                    data = downsampled_data
+
+
                 ap_window = self.specific_calculation(data, time, column)
                
             # write result_data_frame into database
@@ -101,7 +131,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         Returns:
             _type_: _description_
         """
-        peaks, _ = find_peaks(data, height=0.00, distance=200)
+        peaks, _ = find_peaks(data, height=0.00, distance=400)
         return (
             self.extract_ap_potentials(data, time, peaks, column)
             if len(peaks) > 0
@@ -122,11 +152,27 @@ class PeakFinding(SweepWiseAnalysisTemplate):
 
         """
         ap_window = {"AP_Window": [], "AP_Time":[], "Sweep": [], "Peak": [], "AP_Timing": []}
+        print("extracting ap potenions")
         for peak_count, peak in enumerate(list(peaks), start=1):
-            data_window = data[peak - self.AP_WINDOW:peak + self.AP_WINDOW+50]
-           
+            
+            peak_pos = peak
+
+            min_time = time[peak_pos]-2 # ms ? 
+            min_time_pos = next((i for i, item in enumerate(time) if item > min_time), None)
+            max_time = time[peak_pos]+2
+            max_time_pos = next((i for i, item in enumerate(time) if item > max_time), None)
+
+            print(min_time)
+            print(max_time)
+            print(min_time_pos)
+            print(max_time_pos)
+            #data_window = data[peak - self.AP_WINDOW:peak + self.AP_WINDOW+50]           
+            #ap_window["AP_Window"].extend(data_window)
+            #ap_window["AP_Time"].extend(time[peak - self.AP_WINDOW:peak + self.AP_WINDOW+50])
+            data_window = data[min_time_pos:max_time_pos]           
             ap_window["AP_Window"].extend(data_window)
-            ap_window["AP_Time"].extend(time[peak - self.AP_WINDOW:peak + self.AP_WINDOW+50])
+            ap_window["AP_Time"].extend(time[min_time_pos:max_time_pos]-min_time) # start all at 0
+            
             ap_window["Sweep"].extend([column] *data_window.shape[0] )
             ap_window["Peak"].extend([peak_count]*data_window.shape[0])
             ap_window["AP_Timing"].extend(list(range(1, data_window.shape[0]+1)))

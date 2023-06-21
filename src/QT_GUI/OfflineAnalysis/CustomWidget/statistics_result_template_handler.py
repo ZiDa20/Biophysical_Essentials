@@ -138,7 +138,7 @@ class StatisticsResultTemplate(QWidget, Ui_Form):
             _type_: _description_
         """
         # Create a FigureCanvasQTAgg from the Figure object returned by Seaborn
-        fig = plt.Figure(figsize = (6,6))   #figsize=(6,3)
+        fig = Figure(figsize = (6,6))   #figsize=(6,3)
 
         ax = fig.add_subplot(111)
         if step_column:
