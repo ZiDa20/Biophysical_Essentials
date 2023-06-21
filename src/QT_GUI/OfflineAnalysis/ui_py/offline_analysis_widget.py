@@ -273,6 +273,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.series_to_csv.clicked.disconnect()
 
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
+        
+
+
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2,
                                                  [self.plot_home, self.plot_zoom, self.plot_move],
                                                  self.frontend_style,
@@ -311,8 +314,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
+        
         # csv files can be written from treeview when this button is clicked. the frontend style is set in update_database_handler function
         self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))   
+
+
 
     def show_open_analysis_dialog(self):
         d = ChooseExistingAnalysis(self.database_handler, self.frontend_style)
@@ -425,7 +431,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
         self.notebook.setCurrentIndex(3)
-        
+       
+
         return True
     def load_page_1_tree_view(self, existing_id = None):
         """
@@ -446,12 +453,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             
         else:
             # get the experiment names that were selected by the user within the db dashboard
+             # 
             experiment_list = self.load_data_from_database_dialog.get_experiment_names()   
             self.load_data_from_database_dialog.close()   
 
             # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
             # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
             self.blank_analysis_tree_view_manager.map_data_to_analysis_id(experiment_list)
+            self.database_handler.update_discarded_selected_series(77, self.database_handler.analysis_id)
 
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
@@ -467,6 +476,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
+
+        
         self.stackedWidget.setCurrentIndex(0)
         
 

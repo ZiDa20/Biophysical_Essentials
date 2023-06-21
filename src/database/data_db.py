@@ -146,6 +146,26 @@ class DuckDBDatabaseHandler():
             print(e)
             #self.logger.info("Series Mapping Failed")
 
+
+    """---------------------------------------------------"""
+    """    Functions to interact with treeview              """
+    """---------------------------------------------------"""
+
+    def update_discarded_selected_series(self, old_id, new_id):
+        """update the current analysis with previous selected and discarded experiments"""
+
+        template_df = self.database.execute(f'select * from series_analysis_mapping where analysis_id = {old_id} ').fetchdf() 
+
+        template_df = template_df[template_df["analysis_discarded"]=="true"] # per default all are false, so better just update the trues to reduce time
+        for name, identifier, val in zip(template_df["experiment_name"].values, template_df["series_identifier"].values, template_df["analysis_discarded"].values):
+            self.database.execute(f'update series_analysis_mapping set analysis_discarded = \'{val}\' where experiment_name = \'{name}\' and series_identifier = \'{identifier}\' and analysis_id = {new_id}')
+
+        # might be helpful for debug 
+        #print("fetching updated")
+        #print(self.database.execute(f'select * from series_analysis_mapping where analysis_id == {new_id} and experiment_name = \'{"cell_10"}\' ').fetchdf())
+
+
+
     """---------------------------------------------------"""
     """    Functions to interact with table filters       """
     """---------------------------------------------------"""

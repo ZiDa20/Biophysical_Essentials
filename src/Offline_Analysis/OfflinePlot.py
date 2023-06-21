@@ -56,6 +56,7 @@ class OfflinePlots():
 
         # initialize the logger
         self.logger = offlineplot_logger
+        sns.set_palette("Set2")
 
     def set_frontend_axes(self, parent_widget):
         """_summary_: This function should set the axis and teh figure of the canvas
@@ -555,6 +556,7 @@ class OfflinePlots():
         """_summary_: Creates a scatter plot from the data
         plot_dataframe needs to have the columns PC1 and PC2
         explaind_ratios is a list of the explained ratios of the first two components"""
+
         sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
         if explaind_ratios:
             self.parent_widget.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
