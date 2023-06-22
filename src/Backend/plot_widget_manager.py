@@ -361,7 +361,7 @@ class PlotWidgetManager(QRunnable):
             self.ax2 = self.ax1.twinx()
 
     def handle_plot_visualization(self):
-        """
+        """git s
         handle visualizations of the data and pgf plot
         @return:
         @author: dz, 21.07.2022
