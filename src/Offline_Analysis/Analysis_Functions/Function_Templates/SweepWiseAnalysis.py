@@ -5,6 +5,7 @@ from statistics import mean
 import logging
 from abc import ABC, abstractmethod
 import debugpy
+from typing import Optional
 
 
 class SweepWiseAnalysisTemplate(ABC):
@@ -17,10 +18,11 @@ class SweepWiseAnalysisTemplate(ABC):
 		super().__init__()
 		self.data_shape = None
 		self.database = None
-		self.analysis_function_id = None
-		self.time = None
-		self.logger = None
-		self.not_normalize = False
+		self.analysis_function_id: Optional[int] = None
+		self.time: Optional[np.ndarray] = None
+		self.logger: logging.Logger = None
+		self.not_normalize: bool = False
+		self.duration_list: Optional[list] = None
 		#self.cslow_normalization = 1
 
 	@property
@@ -95,7 +97,6 @@ class SweepWiseAnalysisTemplate(ABC):
 		@author: dz, 29.09.2022
 		"""
 		plot_data = []
-
 		for column in entire_sweep_table:
 			data = entire_sweep_table.get(column)
 			plot_data.append((self.live_data_for_single_sweep(data)))
@@ -132,22 +133,14 @@ class SweepWiseAnalysisTemplate(ABC):
 		to a new database table.
 		:return:
 		"""
-		debugpy.debug_this_thread()
+		#debugpy.debug_this_thread()
 		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
 
 		unit_name = self.get_current_recording_type()
-
 		if unit_name == "Voltage":
 			#get the user defined normalization values -> were safed in the database
 			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
-			#normalization_values = None
-			print("got normalization values", normalization_values)
-		else:
-			print("No normalization because of current clamp")
-
-		# check here if current or voltage clamp and add the respective name of the unit to the table
-
-		# set time to non - will be set by the first data frame
+	
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
 		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Duration", "Result", "Increment","experiment_name"]
 		merged_all_results = pd.DataFrame(columns = column_names)
@@ -155,8 +148,6 @@ class SweepWiseAnalysisTemplate(ABC):
 		self.pgf_segment = self.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {self.analysis_function_id}').fetchall()[0][0]
 
 		for data_table in data_table_names:
-
-			# retrieves the experiment name
 			experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,data_table)
 			entire_sweep_table = self.database.get_entire_sweep_table(data_table)
 			if self.time is None:
@@ -170,6 +161,8 @@ class SweepWiseAnalysisTemplate(ABC):
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
 			for column in entire_sweep_table:
 				self.data = entire_sweep_table.get(column)
+				sweep_number = column.split("_")
+				sweep_number = int(sweep_number[1])
 				# This is the hickup why we have to use
 				if unit_name != "Voltage":
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
@@ -178,46 +171,64 @@ class SweepWiseAnalysisTemplate(ABC):
 				# slice trace according to coursor bounds
 				self.construct_trace()
 				self.slice_trace()
-				self.duration_list = pgf_data_frame["duration"].values
+				self.duration_list, inc, volt_val, duration_value = self.get_pgf_time_segment(pgf_data_frame, sweep_number)
 				res = self.specific_calculation()
-
-				# normalize if necessary
-				# toDO add logging here
-
-				if (unit_name == "Voltage") and not self.not_normalize:
-					normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
-					res = res / normalization_value
-
-				# print("result = ", res)
-				# get the sweep number
-				sweep_number = column.split("_")
-				sweep_number = int(sweep_number[1])
-
-				# get the related pgf value
-				#therefore get the pgf table for this series first
-
-				# 	from the coursor bounds indentify the correct segment
-				increment_list = pgf_data_frame["increment"].values
-				voltage_list = pgf_data_frame["voltage"].values
-
-
-				inc = (float(increment_list[self.pgf_segment-1])*1000)
-				volt_val = (float(voltage_list[self.pgf_segment-1])*1000) + (sweep_number-1)*inc
-				duration_value = float(self.duration_list[self.pgf_segment-1]) * 1000
+				res = self.normalize_data(unit_name, normalization_values, data_table, res)
 				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val, duration_value, res,inc,experiment_name]],columns = column_names)
 				merged_all_results = pd.concat([merged_all_results,new_df])
+    
+		# initalize the writing of the new table
+		self.write_and_update_database_with_result(data_table, merged_all_results)
+		
+  
+	def write_and_update_database_with_result(self, data_table: str, merged_all_results: pd.DataFrame):
+		"""_summary_
 
-				#print("sweep wise finished successfully")
-		# write the result dataframe into database -> therefore create a new table with the results and insert the name into the results table
-		#print(f"This is the analysis function id : {self.analysis_function_id}")
-		new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id, self.function_name)
+		Args:
+			data_table (str): _description_
+			merged_all_results (pd.DataFrame): _description_
+		"""
+		new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id, 
+                                                                                       self.function_name)
 		self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
 																				self.analysis_function_id,
 																				data_table,
 																				new_specific_result_table_name,
 																				merged_all_results)
+  
+  
+	def get_pgf_time_segment(self, pgf_dataframe: pd.DataFrame, sweep_number: int):
+		"""_summary_: Function that returns the pgf time segment that was selected by the user
 
-		#print(f'Successfully calculated results and wrote specific result table {new_specific_result_table_name} ')
+		Returns:
+			durations, inc, volt_val, duration_value (int): The pgf segment that was selected by the user
+		"""
+  
+		durations = pgf_dataframe["duration"].tolist()
+		increment_list = pgf_dataframe["increment"].values
+		voltage_list = pgf_dataframe["voltage"].values
+		if pgf_dataframe["start_time"].tolist()[0] != 0:
+			durations[0] = float(durations[0]) - float(pgf_dataframe["start_time"].tolist()[0])
+            
+        # gets the timings here
+		inc = (float(increment_list[self.pgf_segment-1])*1000)
+		volt_val = (float(voltage_list[self.pgf_segment-1])*1000) + (sweep_number-1)*inc
+		duration_value = float(durations[self.pgf_segment-1]) * 1000
+		return durations, inc, volt_val, duration_value
+
+
+	def normalize_data(self, 
+                    unit_name: str, 
+                    normalization_values: pd.DataFrame, 
+                    data_table: str, 
+                    res: Optional[np.ndarray|float]):
+		"""_summary_: Function that normalizes the data according to the unit"""
+  
+		if (unit_name == "Voltage") and not self.not_normalize:
+			normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
+			res = res / normalization_value
+		return res
+
 	def get_current_recording_type(self):
 		"""_summary_: Should return the current recording mode
 

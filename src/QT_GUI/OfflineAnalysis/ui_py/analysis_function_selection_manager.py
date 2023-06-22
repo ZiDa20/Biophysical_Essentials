@@ -50,7 +50,8 @@ class AnalysisFunctionSelectionManager():
         self.LEFT_CB_GRID_ROW = 2
         self.RIGHT_CB_GRID_ROW = 3
         self.PGF_SEQ_GRID_ROW = 4
-        self.LIVE_GRID_ROW = 5      
+        self.LIVE_GRID_ROW = 5  
+        self.checkbox_list = []    
 
         # add a button for each selected analysis function
         self.add_buttons_to_layout(analysis_functions)
@@ -88,7 +89,6 @@ class AnalysisFunctionSelectionManager():
         try:
             layout = self.current_tab.analysis_functions.analysis_button_grid
             self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
-            #self.pgf_files_amount = ["1","2","3"] #
             self.clear_analysis_widgets(layout)
 
             
@@ -121,20 +121,20 @@ class AnalysisFunctionSelectionManager():
             button = QPushButton(text)
 
 
-            show_cb_checkbx = QCheckBox()
+            self.show_checkbox = QCheckBox()
             sizePolicy4.setHeightForWidth(button.sizePolicy().hasHeightForWidth())
             button.setSizePolicy(sizePolicy4)
             button.setMinimumSize(QSize(150, 150))
             button.setMaximumSize(QSize(150, 150))
             button.setAccessibleName(QCoreApplication.translate("SpecificAnalysisTab", u"analysis_grid_bt", None))
 
-            sizePolicy4.setHeightForWidth(show_cb_checkbx.sizePolicy().hasHeightForWidth())
-            show_cb_checkbx.setSizePolicy(sizePolicy4)
+            sizePolicy4.setHeightForWidth(self.show_checkbox.sizePolicy().hasHeightForWidth())
+            self.show_checkbox.setSizePolicy(sizePolicy4)
             #button.setMinimumSize(QSize(150, 150))
             #button.setMaximumSize(QSize(150, 150))
 
             layout.addWidget(button, row, col)
-            layout.addWidget(show_cb_checkbx, row, col+1) 
+            layout.addWidget(self.show_checkbox, row, col+1) 
 
             button_width = button.sizeHint().width()
             if button_width > 150:
@@ -145,18 +145,19 @@ class AnalysisFunctionSelectionManager():
                         line_text = line_text + word + " \n "
 
                 layout.removeWidget(button)
-                layout.removeWidget(show_cb_checkbx)
+                layout.removeWidget(self.show_checkbox)
 
                 button.setText(line_text)
                 button.setMaximumSize(QSize(150, 150))
-                show_cb_checkbx.setMaximumSize(QSize(150, 150))
+                self.show_checkbox.setMaximumSize(QSize(150, 150))
                 
                 layout.addWidget(button, row, col)
-                layout.addWidget(show_cb_checkbx, row, col+1)
+                layout.addWidget(self.show_checkbox, row, col+1)
 
-            button.clicked.connect(partial(self.show_analysis_grid, row,text, show_cb_checkbx))
-            show_cb_checkbx.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
-            show_cb_checkbx.setEnabled(True)
+            button.clicked.connect(partial(self.show_analysis_grid, row,text, self.show_checkbox))
+            self.show_checkbox.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
+            self.show_checkbox.setEnabled(True)
+            self.checkbox_list.append(self.show_checkbox)
 
             # click the buttons to make sure each analysis function gets assigned with cursor bounds
             # this eliminated the need of further checks for empty cursor bounds
@@ -216,7 +217,7 @@ class AnalysisFunctionSelectionManager():
                     
         # very important: dont forget to update the plot widget manager object !
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
-        self.reclick_tree_view_item()
+        #self.reclick_tree_view_item()
 
     def group_box_fullsize(self):
         tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_functions.analysis_stacked_widget.sizeHint().width()
@@ -299,7 +300,7 @@ class AnalysisFunctionSelectionManager():
         # Set the width of the stacked widget
         stacked_widget.setFixedWidth(table_width)
 
-    def show_analysis_grid(self, row,text, show_cb_checkbx):
+    def show_analysis_grid(self, row,text, show_checkbox):
         
         print("stacked widget page ", row, " requested")      
         stacked_widget = self.current_tab.analysis_functions.analysis_stacked_widget
@@ -360,8 +361,8 @@ class AnalysisFunctionSelectionManager():
             analysis_table_widget.show()
             stacked_widget.show()
             # will draw the cursor bounds             
-            show_cb_checkbx.setEnabled(True)
-            show_cb_checkbx.setChecked(True)
+            self.show_checkbox.setEnabled(True)
+            self.show_checkbox.setChecked(True)
         
         #self.group_box_fullsize()
 

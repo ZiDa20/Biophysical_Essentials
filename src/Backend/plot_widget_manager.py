@@ -82,7 +82,6 @@ class PlotWidgetManager(QRunnable):
         print("table widget was set")
 
 
-
     def update_live_analysis_info(self,live_analysis_info):
         """
         update from extern functions and classes, such as analysis function seletion manager
@@ -162,6 +161,7 @@ class PlotWidgetManager(QRunnable):
 
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
         pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
+        
         self.rect_list = []
         self.text_list = []
         total_duration = 0
@@ -328,8 +328,8 @@ class PlotWidgetManager(QRunnable):
         # load the table
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
         pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
+        
         protocol_steps = self.plot_pgf_signal(pgf_table,data)
-
         for x in range(0,len(protocol_steps)):
 
             x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
@@ -441,6 +441,8 @@ class PlotWidgetManager(QRunnable):
         increment_interval_amount = len(increment_intervals)
 
         durations = pgf_table_df['duration'].values.tolist()
+        if pgf_table_df["start_time"].tolist()[0] != 0:
+            durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
         voltages = pgf_table_df['voltage'].values.tolist()
         holding = pgf_table_df['holding_potential'].values.tolist()
 
@@ -518,6 +520,8 @@ class PlotWidgetManager(QRunnable):
             # create traces
 
             durations = pgf_table_df['duration'].values.tolist()
+            if pgf_table_df["start_time"].tolist()[0] != 0:
+                durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
             voltages = pgf_table_df['voltage'].values.tolist()
             holding = pgf_table_df['holding_potential'].values.tolist()
             total_duration = 0
@@ -620,13 +624,9 @@ class PlotWidgetManager(QRunnable):
 
         bandwidth = meta_data_frame['Parameter'].tolist().index('Bandwidth')
         
-        
         x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
         x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
         number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
-    
-        
-        
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
         print("Xinterval = %d", x_start)
         print("Xinterval = %d", x_interval)
