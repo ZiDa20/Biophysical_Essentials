@@ -14,8 +14,8 @@ class CapacitanceMeasurements(SweepWiseAnalysisTemplate):
         self.plot_type_options = ["Capacitance Plot"]
         self.function_name = "CapacitanceMeasurements"
         self.database = None
-        self.PREWINDOW = 100 # this should be the window before the pgf segment
-        self.POSTWINDOW = 200 # this should be the window after the pgf segment
+        self.PREWINDOW = 400 # this should be the window before the pgf segment
+        self.POSTWINDOW = 400 # this should be the window after the pgf segment
         self.LAGWINDOW = 50 # this should be the window after the pgf segment
         self.duration_list = None
         self.pgf_segment = None
@@ -31,7 +31,7 @@ class CapacitanceMeasurements(SweepWiseAnalysisTemplate):
         times = self.get_time_per_segment(upper_bound, lower_bound)
         upper_mean = np.mean(self.sliced_volt[times[2]:times[3]])
         lower_mean = np.mean(self.sliced_volt[times[0]:times[1]])
-        return upper_mean/lower_mean
+        return upper_mean-lower_mean
 
     def get_time_per_segment(self, upper_bound: float, lower_bound: float):
         """
@@ -45,8 +45,8 @@ class CapacitanceMeasurements(SweepWiseAnalysisTemplate):
         # we should make the widget more configurable through the analysis function
 
         try:
-            time_lower = np.argmax(self.time > lower_bound - self.PREWINDOW)
-            time_lower_end = np.argmax(self.time >= lower_bound)
+            time_lower = 0
+            time_lower_end = np.argmax(self.time >= self.PREWINDOW)
             time_upper = np.argmax(self.time >= upper_bound + self.LAGWINDOW)
             time_upper_end = np.argmax(self.time >= upper_bound + self.LAGWINDOW + self.POSTWINDOW)
             return time_lower, time_lower_end, time_upper, time_upper_end
