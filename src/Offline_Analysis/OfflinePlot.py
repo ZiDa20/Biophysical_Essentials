@@ -51,7 +51,8 @@ class OfflinePlots():
                                 "Mean_Action_Potential_Fitting": self.mean_ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
                                 "PCA-Plot": self.pca_plot,
-                                "AP-Overlay": self.ap_overlay
+                                "AP-Overlay": self.ap_overlay,
+                                "Capacitance Plot": self.capacitance_plot
                                 }
 
         # initialize the logger
@@ -170,6 +171,31 @@ class OfflinePlots():
         pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
         self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = pivoted_table
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+
+
+    def capacitance_plot(self, result_table_list:list) -> None:
+        """
+        Plot all data without incorporating meta data groups
+        :param result_table_list: the list of result tables for the specific analysis
+        """
+        if not self.parent_widget.selected_meta_data:
+            self.parent_widget.selected_meta_data = ["experiment_name"]
+
+        if self.parent_widget.holded_dataframe is None:
+            # retrieve the plot_dataframe
+            plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
+            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            self.parent_widget.increment = increment
+            
+        else:
+            for ax in self.parent_widget.canvas.figure.axes:
+                ax.clear()
+
+        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+        self.plot_capacitance(self.parent_widget.holded_dataframe)
+        self.parent_widget.canvas.draw_idle()
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
 
     def rheobase_plot(self, result_table_list:list) -> None:
@@ -361,7 +387,7 @@ class OfflinePlots():
                     cbar = False
 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
-        
+
         self.statistics["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
 
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
@@ -413,7 +439,7 @@ class OfflinePlots():
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
         sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", ax = self.parent_widget.ax)
-        # errorbar=("se", 2), 
+        # errorbar=("se", 2),
         self.parent_widget.canvas.draw_idle()
 
 
@@ -496,6 +522,19 @@ class OfflinePlots():
         self.parent_widget.ax.autoscale()
         self.parent_widget.canvas.figure.tight_layout()
         return pivoted_table
+    
+    def plot_capacitance(self, plot_dataframe: pd.DataFrame) -> None:
+        """_summary_: Plots the capacitance of the cell
+
+        Args:
+            plot_dataframe (pd.DataFrame): DataFrame long format holding result data
+        """
+        # check if violin parameter is set then use the violin plots
+        #sns.lineplot(data = plot_dataframe, x = "Duration", y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+        if self.parent_widget.selected_meta_data == ["experiment_name"]:
+            sns.boxplot(data = plot_dataframe, x = "Duration", y = "Result", ax = self.parent_widget.ax)
+        else:
+            sns.boxplot(data = plot_dataframe, x = "Duration", y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
 
     def comparison_plot(self, plot_dataframe: pd.DataFrame) -> None:
         """Creates a comparison plot using either boxplots or violin plots
@@ -573,8 +612,8 @@ class OfflinePlots():
         """
         sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, legend = False)
         # @todo: statannotations requires a seaborn version < 0.12 but <0.12 does not have the errobar function
-        #errorbar=("se", 2), 
-        
+        #errorbar=("se", 2),
+
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.ax.autoscale()
 

@@ -4,6 +4,8 @@ import seaborn as sns
 from statistics import mean
 import logging
 from abc import ABC, abstractmethod
+import debugpy
+
 
 class SweepWiseAnalysisTemplate(ABC):
 	"""
@@ -18,11 +20,12 @@ class SweepWiseAnalysisTemplate(ABC):
 		self.analysis_function_id = None
 		self.time = None
 		self.logger = None
+		self.not_normalize = False
 		#self.cslow_normalization = 1
-		
+
 	@property
 	def lower_bounds(self) -> float:
-		""" get the lower and upper bounds 
+		""" get the lower and upper bounds
 		"""
 		print("The lower bound: ")
 		return self._lower_bounds
@@ -129,13 +132,13 @@ class SweepWiseAnalysisTemplate(ABC):
 		to a new database table.
 		:return:
 		"""
-
+		debugpy.debug_this_thread()
 		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
-		
+
 		unit_name = self.get_current_recording_type()
 
 		if unit_name == "Voltage":
-			#get the user defined normalization values -> were safed in the database 
+			#get the user defined normalization values -> were safed in the database
 			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
 			#normalization_values = None
 			print("got normalization values", normalization_values)
@@ -143,13 +146,13 @@ class SweepWiseAnalysisTemplate(ABC):
 			print("No normalization because of current clamp")
 
 		# check here if current or voltage clamp and add the respective name of the unit to the table
-		
-			# set time to non - will be set by the first data frame
+
+		# set time to non - will be set by the first data frame
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
-		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Result", "Increment","experiment_name"]
+		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Duration", "Result", "Increment","experiment_name"]
 		merged_all_results = pd.DataFrame(columns = column_names)
 		# get the pgf segment whic hwas selected by the user and stored in the db
-		pgf_segment = self.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {self.analysis_function_id}').fetchall()[0][0]
+		self.pgf_segment = self.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {self.analysis_function_id}').fetchall()[0][0]
 
 		for data_table in data_table_names:
 
@@ -167,20 +170,21 @@ class SweepWiseAnalysisTemplate(ABC):
 			# adding the name would increase readibility of the database ut also add a lot of redundant information
 			for column in entire_sweep_table:
 				self.data = entire_sweep_table.get(column)
-				# This is the hickup why we have to use 
+				# This is the hickup why we have to use
 				if unit_name != "Voltage":
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
-				
+
 				# slice trace according to coursor bounds
 				self.construct_trace()
 				self.slice_trace()
+				self.duration_list = pgf_data_frame["duration"].values
 				res = self.specific_calculation()
-				
+
 				# normalize if necessary
 				# toDO add logging here
 
-				if unit_name == "Voltage":
+				if (unit_name == "Voltage") and not self.not_normalize:
 					normalization_value = normalization_values[normalization_values["sweep_table_name"]==data_table]["normalization_value"].values[0]
 					res = res / normalization_value
 
@@ -191,21 +195,16 @@ class SweepWiseAnalysisTemplate(ABC):
 
 				# get the related pgf value
 				#therefore get the pgf table for this series first
-				
+
 				# 	from the coursor bounds indentify the correct segment
 				increment_list = pgf_data_frame["increment"].values
 				voltage_list = pgf_data_frame["voltage"].values
 
-				print("increment")
-				print(pgf_data_frame)
-				print(increment_list)
-				print(voltage_list)
-				print(pgf_segment)
 
-				inc = (float(increment_list[pgf_segment-1])*1000)
-				volt_val = (float(voltage_list[pgf_segment-1])*1000) + (sweep_number-1)*inc
-
-				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val,res,inc,experiment_name]],columns = column_names)
+				inc = (float(increment_list[self.pgf_segment-1])*1000)
+				volt_val = (float(voltage_list[self.pgf_segment-1])*1000) + (sweep_number-1)*inc
+				duration_value = float(self.duration_list[self.pgf_segment-1]) * 1000
+				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val, duration_value, res,inc,experiment_name]],columns = column_names)
 				merged_all_results = pd.concat([merged_all_results,new_df])
 
 				#print("sweep wise finished successfully")
@@ -251,7 +250,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		"""Function to retrieve the list result tables for the function analysis id
 
 		Args:
-			parent_widget (OfflineResultVisualizer): Widget to put the Analysis in 
+			parent_widget (OfflineResultVisualizer): Widget to put the Analysis in
 
 		Returns:
 			list: list of funciton id related tables
@@ -271,9 +270,9 @@ class SweepWiseAnalysisTemplate(ABC):
 		increment = None if (query_data["Increment"] > 0).any() else 1
 
 		if "Voltage" in query_data.columns:
-			return query_data[["Sweep_Number","Voltage","Result","experiment_name"]], increment
+			return query_data[["Sweep_Number","Duration","Voltage","Result","experiment_name"]], increment
 		else:
-			return query_data[["Sweep_Number","Current","Result","experiment_name"]], increment
+			return query_data[["Sweep_Number","Duration","Current","Result","experiment_name"]], increment
 
 	@staticmethod
 	def get_list_of_result_tables(analysis_id, analysis_function_id, database)-> list:

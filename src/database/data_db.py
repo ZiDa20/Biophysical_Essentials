@@ -15,7 +15,7 @@ from database.database_logger import database_logger
 if TYPE_CHECKING:
     import logging
     from StyleFrontend.frontend_style import Frontend_Style
-    
+
 
 class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db database.
@@ -53,9 +53,9 @@ class DuckDBDatabaseHandler():
         """
         self.database = self.duckdb_database.open_connection(read_only)
 
-    def get_data_from_database(self, database: duckdb.DuckDBPyConnection, 
-                               sql_command: str, 
-                               values: Optional[int]=None, 
+    def get_data_from_database(self, database: duckdb.DuckDBPyConnection,
+                               sql_command: str,
+                               values: Optional[int]=None,
                                fetch_mode: Optional[int]=None):
         """_summary_
 
@@ -85,11 +85,11 @@ class DuckDBDatabaseHandler():
     def get_tables(self) -> None:
         """_summary_: Returns all tables in the database"""
         return self.get_data_from_database(self.database, "SHOW TABLES;", fetch_mode=2)
-        
+
     """--------------------------------------------------------------"""
     """ Functions to interact with table experiment_analysis_mapping """
     """--------------------------------------------------------------"""
-    
+
     def create_table_for_database(self, table: pd.DataFrame , table_name: str) -> None:
         """_summary_: Creates a table in the database
 
@@ -101,7 +101,7 @@ class DuckDBDatabaseHandler():
         self.database.execute(f"CREATE TABLE {table_name} as SELECT * FROM new_df;")
         trial = self.database.execute(f"Select * from {table_name};").fetch_df()
         self.logger.info(f"Created Solution Table {table_name}")
-        
+
     def add_solution_table_to_mapping(self, table_name: str, solution_type: str) -> None:
         """_summary_: Adds a solution table to the database
 
@@ -110,7 +110,7 @@ class DuckDBDatabaseHandler():
         """
         self.database.execute("INSERT INTO solution (solutions, type) VALUES (?,?);", [table_name, solution_type])
         self.logger.info(f"Added Solution Table {table_name} to mapping")
-    
+
     def create_mapping_between_experiments_and_analysis_id(self, experiment_id: int) -> None:
         """_summary_: Creates a mapping between an experiment and the current analysis id
 
@@ -154,13 +154,13 @@ class DuckDBDatabaseHandler():
     def update_discarded_selected_series(self, old_id, new_id):
         """update the current analysis with previous selected and discarded experiments"""
 
-        template_df = self.database.execute(f'select * from series_analysis_mapping where analysis_id = {old_id} ').fetchdf() 
+        template_df = self.database.execute(f'select * from series_analysis_mapping where analysis_id = {old_id} ').fetchdf()
 
         template_df = template_df[template_df["analysis_discarded"]=="true"] # per default all are false, so better just update the trues to reduce time
         for name, identifier, val in zip(template_df["experiment_name"].values, template_df["series_identifier"].values, template_df["analysis_discarded"].values):
             self.database.execute(f'update series_analysis_mapping set analysis_discarded = \'{val}\' where experiment_name = \'{name}\' and series_identifier = \'{identifier}\' and analysis_id = {new_id}')
 
-        # might be helpful for debug 
+        # might be helpful for debug
         #print("fetching updated")
         #print(self.database.execute(f'select * from series_analysis_mapping where analysis_id == {new_id} and experiment_name = \'{"cell_10"}\' ').fetchdf())
 
@@ -170,17 +170,17 @@ class DuckDBDatabaseHandler():
     """    Functions to interact with table filters       """
     """---------------------------------------------------"""
 
-    def write_filter_into_database(self, filter_name: str, 
+    def write_filter_into_database(self, filter_name: str,
                                    lower_threshold: float,
                                    upper_threshold: float):
         """_summary_: Writes a filter into the database
-        
+
         Args:
             filter_name (str): The name of the filter
             lower_threshold (float): The lower threshold
             upper_threshold (float): The upper threshold
         """
-        
+
         q = """ insert into filters values (?,?,?,?)"""
         self.database = self.database.execute(q,(filter_name, lower_threshold, upper_threshold, self.analysis_id))
 
@@ -341,13 +341,13 @@ class DuckDBDatabaseHandler():
                 #q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) ' \
                 #    'AND discarded = (?) AND series_meta_data = (?)'
                 try:
-                    r = self.get_data_from_database(self.database, q, (self.analysis_id, False, meta, series_name, experiment_tuple[0]))[0][0]
-                    sweep_table_names.append(r)
+                    r = self.get_data_from_database(self.database, q, (self.analysis_id, False, meta, series_name, experiment_tuple[0]))[0]
+                    sweep_table_names.extend(r)
                 except Exception as e:
                     self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
             else:
                 #q = 'select sweep_table_name from experiment_series where experiment_name = (?) AND series_name = (?) AND discarded = (?)'
-                
+
                 q = 'select sweep_table_name \
                     from experiment_series as t1\
                         inner join (\
@@ -357,8 +357,8 @@ class DuckDBDatabaseHandler():
                         on t1.experiment_name = t2.experiment_name and t1.series_identifier = t2.series_identifier\
                         where t2.renamed_series_name = (?) and t1.experiment_name = (?)'
                 try:
-                    r = self.get_data_from_database(self.database, q, (self.analysis_id, False, series_name, experiment_tuple[0]))[0][0]
-                    sweep_table_names.append(r)
+                    r = self.get_data_from_database(self.database, q, (self.analysis_id, False, series_name, experiment_tuple[0]), fetch_mode = 2)["sweep_table_name"].tolist()
+                    sweep_table_names.extend(r)
                 except Exception as e:
                     self.logger.error(f"Error in get_sweep_table_names_for_offline_analysis: {e}")
 
@@ -418,7 +418,7 @@ class DuckDBDatabaseHandler():
 
         # check if the result is not empty
         return res["sweep_table_name"].tolist()[0] if not res.empty else None
-        
+
     def get_extracellular_solutions(self) -> list:
         """_summary_: Retrieves all extracellular solutions from the database.
 
@@ -427,7 +427,7 @@ class DuckDBDatabaseHandler():
         """
         ecs = self.database.execute('select * from solution').fetchdf()
         return ecs[ecs["type"] == "Extracellular"]["solutions"].tolist()
-    
+
     def get_intracellular_solutions(self) -> list:
         """_summary_: Retrieves all intracellular solutions from the database.
 
@@ -653,11 +653,11 @@ class DuckDBDatabaseHandler():
         meta_data_dict = {x[0]: x[1] for x in self.database.execute(q).fetchdf().itertuples(index=False)}
 
         return float(meta_data_dict.get('CSlow')), sweep_table_name
-    
+
     def get_normalization_values(self, function_id):
         q = f'select sweep_table_name, normalization_value from normalization_values where offline_analysis_id = (?) and function_id = (?)'
         return self.database.execute(q, (self.analysis_id, function_id)).fetch_df()
-    
+
     """
     def get_cslow_value_for_sweep_table(self, series_name: str) -> float:
         '''
@@ -665,7 +665,7 @@ class DuckDBDatabaseHandler():
         :param series_name: name of the sweep table in the database
         :return:
         :authored: dz, 29.04.2022
-        ''' 
+        '''
 
         # get meta data table name where experiment series = series_name
         # get cslow value from this specific meta data table name
@@ -682,7 +682,7 @@ class DuckDBDatabaseHandler():
 
     def add_single_series_to_database(self, experiment_name: str, series_name:str, series_identifier: str) -> None:
         """ Adds a single series to the database. This function is used when a new series is added to an existing experiment
-        
+
         Args:
             experiment_name (str): name of the experiment
             series_name (str): name of the series
@@ -755,7 +755,7 @@ class DuckDBDatabaseHandler():
 
     def get_analysis_series_name_by_analysis_function_id(self,analysis_function_id:str) -> str:
         """_summary_: This function returns the name of the analysis series for a given analysis function id
-        
+
         Args:
             analysis_function_id (str): The Analysis function id
         Returns:
@@ -765,13 +765,13 @@ class DuckDBDatabaseHandler():
         r = self.get_data_from_database(self.database, q)
         return r[0][0]
 
-    def write_analysis_function_name_and_cursor_bounds_to_database(self, 
+    def write_analysis_function_name_and_cursor_bounds_to_database(self,
                                                                     analysis_function: str,
                                                                     analysis_series_name: str,
-                                                                    lower_bound: float, 
-                                                                    upper_bound: float, 
+                                                                    lower_bound: float,
+                                                                    upper_bound: float,
                                                                     pgf_segment: int) -> None:
-                                                        
+
         try:
             q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
             self.database = self.database.execute(q, (
@@ -824,7 +824,7 @@ class DuckDBDatabaseHandler():
         Returns:
             list: List of analysis function names
         """
-    
+
         q = f'select function_name from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
         return self.database.execute(q).fetchall()
 
@@ -880,8 +880,8 @@ class DuckDBDatabaseHandler():
         res = splitted_string.groups()
         return (res[1])
 
-    def write_coursor_bounds_to_database(self, 
-                                         lower_value: float, 
+    def write_coursor_bounds_to_database(self,
+                                         lower_value: float,
                                          upper_value: float,
                                          series_name: str):
         '''adds the two 2 incoming values to all functions in the table.'''
@@ -916,10 +916,10 @@ class DuckDBDatabaseHandler():
         q= f'select analysis_series_name from analysis_series where analysis_id = {self.analysis_id}'
         return self.database.execute(q).fetchall()
 
-    def write_result_to_database(self, 
-                                 analysis_function_id: int, 
-                                 table_name: str, 
-                                 sweep_number: str, 
+    def write_result_to_database(self,
+                                 analysis_function_id: int,
+                                 table_name: str,
+                                 sweep_number: str,
                                  result_value: float) -> None:
 
         q = """insert into results values (?,?,?,?,?) """
@@ -936,7 +936,7 @@ class DuckDBDatabaseHandler():
         """_summary_: This function converts a string to an array
 
         Args:
-            array_as_string (str): This is a string that should be converted to 
+            array_as_string (str): This is a string that should be converted to
             an array
 
         Returns:
@@ -955,7 +955,7 @@ class DuckDBDatabaseHandler():
 
         return output_string
 
-    def add_sweep_df_to_database(self,experiment_name: str, 
+    def add_sweep_df_to_database(self,experiment_name: str,
                                  series_identifier: str,
                                  data_df: pd.DataFrame,
                                  meta_data_df: pd.DataFrame,
@@ -963,7 +963,7 @@ class DuckDBDatabaseHandler():
 
         """_summary_: This function adds a sweep dataframe to the database
         holding all the necessary sweep information for a series
-        
+
         Args:
             series_identifier (str): This is the series identifier such as IV
             data_df (pd.DataFrame): This is the data frame holding the data for the series holding the sweeps
@@ -1151,7 +1151,7 @@ class DuckDBDatabaseHandler():
         get all distinct series names from series mapped with the current analysis id
         :return:
         """
-        # @todo: why do we need the discarded = False in here ? 
+        # @todo: why do we need the discarded = False in here ?
         q1 = f'select distinct renamed_series_name from series_analysis_mapping where analysis_discarded = False and analysis_id = {self.analysis_id}'
 
         return self.get_data_from_database(self.database, q1)
@@ -1160,10 +1160,10 @@ class DuckDBDatabaseHandler():
     '''     create series specific pgf trace table            '''
     '''-------------------------------------------------------'''
 
-    def create_series_specific_pgf_table (self, 
-                                          data_frame: pd.DataFrame, 
+    def create_series_specific_pgf_table (self,
+                                          data_frame: pd.DataFrame,
                                           pgf_table_name: pd.DataFrame,
-                                          experiment_name: str, 
+                                          experiment_name: str,
                                           series_identifier: str) -> None:
         """ adds new pgf table to the database        """
         #self.database.register('df_1', data_frame)
@@ -1319,7 +1319,7 @@ class DuckDBDatabaseHandler():
             print("inside error")
             print("error")
             print(e)
-   
+
     @staticmethod
     def create_new_specific_result_table_name(analysis_function_id:int, data_table_name:str) -> str:
         """
@@ -1347,7 +1347,7 @@ class DuckDBDatabaseHandler():
                 return selected_meta_data
             else:
                 return None
-            
+
     ######################################
     # deprecated  Sections:
     ######################################
@@ -1361,18 +1361,18 @@ class DuckDBDatabaseHandler():
         self.database = self.database.execute(q, (time_np_array, analysis_series_name, analysis_id))
 
 
-## deprecated ?? 
+## deprecated ??
 
 """
     def get_data_from_pgf_table(self, series_name: str, data_name: str, segment_number: int) -> float:
-        
+
         reads pgf information from the database and returns the requested floa value of the specified segment
         :param series_name:
         :param data_name: 'holding', 'increment'
         :param segment_number: int nubmer of the segment, first = 0
         :return:
         :author: dz, 21.06.2022
-      
+
         # @todo also check for the correct offline analysis id and only select these exoeriemnts?
         experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
 
@@ -1380,7 +1380,7 @@ class DuckDBDatabaseHandler():
         experiment_name = experiment_names[0][0]
 
 
-        q = select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?) 
+        q = select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)
         pgf_table_names = self.get_data_from_database(self.database, q, (experiment_name, series_name))
 
         pgf_table_name = pgf_table_names[0][0]
@@ -1432,4 +1432,4 @@ class DuckDBDatabaseHandler():
                 self.database = self.database.execute(q, (data_array, s[2]))
         """
 
-    
+

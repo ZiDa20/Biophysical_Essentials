@@ -161,7 +161,7 @@ class PlotWidgetManager(QRunnable):
         current_ax_length = self.ax1.get_xlim()[1]
 
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
+        pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
         self.rect_list = []
         self.text_list = []
         total_duration = 0
@@ -327,11 +327,7 @@ class PlotWidgetManager(QRunnable):
         # finally also the pgf file needs to be added to the plot
         # load the table
         pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        if pgf_table[pgf_table["selected_channel"] == "2"].empty:
-            pgf_table =  pgf_table[pgf_table["selected_channel"] == "3"]
-        else:
-            pgf_table = pgf_table[pgf_table["selected_channel"] == "2"]
-
+        pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
         protocol_steps = self.plot_pgf_signal(pgf_table,data)
 
         for x in range(0,len(protocol_steps)):
@@ -622,10 +618,15 @@ class PlotWidgetManager(QRunnable):
 
         number_of_points_pos = meta_data_frame['Parameter'].tolist().index('DataPoints')
 
-
+        bandwidth = meta_data_frame['Parameter'].tolist().index('Bandwidth')
+        
+        
         x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
         x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
         number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
+    
+        
+        
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
         print("Xinterval = %d", x_start)
         print("Xinterval = %d", x_interval)

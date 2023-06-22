@@ -12,7 +12,7 @@ from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-#import debugpy
+import debugpy
 
 class TreeViewManager:
     """
@@ -87,7 +87,7 @@ class TreeViewManager:
           bundle_list type: list of tuples - the list of bundles that were read
 
         """
-        #debugpy.debug_this_thread()
+        debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
         for i in dat_files:
@@ -783,6 +783,7 @@ class TreeViewManager:
 
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 
+        debugpy.debug_this_thread()
         if database is None:
             database = self.database_handler
 
@@ -813,6 +814,9 @@ class TreeViewManager:
 
         if "Pulsed" in node_type:
             parent = ""
+            
+        if "Amplifier" in node_type:
+            print("yes")
 
         if "Group" in node_type:
 
@@ -825,7 +829,6 @@ class TreeViewManager:
             print(experiment_name)
             self.logger.info(experiment_name)
             database.add_experiment_to_experiment_table(experiment_name)
-
             group_name = None
             try:
                 print("adding experiment", experiment_name)
@@ -1086,7 +1089,10 @@ class TreeViewManager:
     def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, series_count = 0,
                                                holding_potential = None,
                                                series_name = None,
-                                               sweep_number =None, stim_channel = None,
+                                               sweep_number =None, 
+                                               stim_channel = None,
+                                               start_time = None,
+                                               start_segment = None,
                                                series_number = None,
                                                children_amount = None,
                                                ):
@@ -1118,6 +1124,8 @@ class TreeViewManager:
         elif node_type == "Stimulation":
             series_name = node.EntryName
             sweep_number = node.NumberSweeps
+            start_time = node.DataStartTime
+            start_segment = node.DataStartSegment
 
         if node_type == "StimChannel":
             duration = node.Duration
@@ -1126,6 +1134,8 @@ class TreeViewManager:
             series_number = f"Series{str(series_count)}"
 
             data_list.append([series_name,
+                              str(start_time),
+                              str(start_segment),
                               str(sweep_number),
                               node_type,
                               str(holding_potential),
@@ -1150,14 +1160,16 @@ class TreeViewManager:
                                                             series_name,
                                                             sweep_number,
                                                             stim_channel,
+                                                            start_time,
+                                                            start_segment,
                                                             series_number,
-                                                            children_amount,
+                                                            children_amount
                                                             )
         except Exception as e:
             print(f"Error in PGF-file generation: {e}")
 
 
-        return pd.DataFrame(data_list,columns = ["series_name", "sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id", "children_amount"])
+        return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id", "children_amount"])
 
 
     def write_series_to_csv(self, frontend_style):

@@ -9,6 +9,7 @@ from Offline_Analysis.Analysis_Functions.TimeToMin import *
 from Offline_Analysis.Analysis_Functions.TimeToMax import *
 from Offline_Analysis.Analysis_Functions.InputResistance import *
 from Offline_Analysis.Analysis_Functions.PeakFinding import *
+from Offline_Analysis.Analysis_Functions.CapacitanceMeasure import CapacitanceMeasurements
 
 class AnalysisFunctionRegistration():
     """
@@ -26,7 +27,8 @@ class AnalysisFunctionRegistration():
         "InputResistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
-        "Peak-Detection": PeakFinding
+        "Peak-Detection": PeakFinding,
+        "CapacitanceMeasurements": CapacitanceMeasurements
     }
 
     @classmethod
@@ -81,7 +83,7 @@ class AnalysisFunctionRegistration():
             _type_: _description_
         """
         if recording_mode == "Voltage Clamp":
-            return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
+            return ["max_current","min_current","mean_current", "time_to_min", "time_to_max", "CapacitanceMeasurements"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["mean_voltage",  "Action_Potential_Fitting",
                     "Rheobase-Detection", "RheoRamp-Detection", "InputResistance", "Peak-Detection"] # "Cluster",
