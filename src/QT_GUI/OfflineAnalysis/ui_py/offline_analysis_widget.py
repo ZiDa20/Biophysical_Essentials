@@ -994,7 +994,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # split string into list, e.g. max_current - min_current
             # @todo: can this be done better ?
             equation_components = related_intervals["func"].values[0].split(" \n ")
-            equation_components.remove("")
+            
+            try:
+                equation_components.remove("")
+            except Exception as e:
+                print(e)
+                
 
             #reconstrcut the text before pop
             db_text = ""

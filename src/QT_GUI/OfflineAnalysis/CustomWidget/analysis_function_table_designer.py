@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'analysis_function_table.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.1
+## Created by: Qt User Interface Compiler version 6.4.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -15,8 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QGroupBox,
-    QPushButton, QSizePolicy, QStackedWidget, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
+    QGroupBox, QLabel, QPushButton, QSizePolicy,
+    QTabWidget, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -36,55 +37,64 @@ class Ui_Form(object):
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.analysi_grid = QGridLayout()
         self.analysi_grid.setObjectName(u"analysi_grid")
-        self.analysis_stacked_widget = QStackedWidget(self.groupBox)
+        self.analysis_stacked_widget = QTabWidget(self.groupBox)
         self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
-        self.analysis_stacked_widget.setEnabled(True)
-        self.page_3 = QWidget()
-        self.page_3.setObjectName(u"page_3")
-        self.analysis_stacked_widget.addWidget(self.page_3)
-        self.page_4 = QWidget()
-        self.page_4.setObjectName(u"page_4")
-        self.analysis_stacked_widget.addWidget(self.page_4)
+        self.analysis_stacked_widget.setTabPosition(QTabWidget.East)
 
         self.analysi_grid.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
 
-        self.analysis_button_grid = QGridLayout()
-        self.analysis_button_grid.setObjectName(u"analysis_button_grid")
+
+        self.gridLayout_9.addLayout(self.analysi_grid, 2, 0, 1, 1)
+
+        self.gridLayout_2 = QGridLayout()
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.label_2 = QLabel(self.groupBox)
+        self.label_2.setObjectName(u"label_2")
+
+        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+
         self.select_series_analysis_functions = QPushButton(self.groupBox)
         self.select_series_analysis_functions.setObjectName(u"select_series_analysis_functions")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
         self.select_series_analysis_functions.setSizePolicy(sizePolicy1)
-        self.select_series_analysis_functions.setMinimumSize(QSize(150, 150))
-        self.select_series_analysis_functions.setMaximumSize(QSize(150, 150))
+        self.select_series_analysis_functions.setMinimumSize(QSize(0, 0))
+        self.select_series_analysis_functions.setMaximumSize(QSize(16777215, 16777215))
 
-        self.analysis_button_grid.addWidget(self.select_series_analysis_functions, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.select_series_analysis_functions, 0, 1, 1, 1)
 
+        self.label = QLabel(self.groupBox)
+        self.label.setObjectName(u"label")
 
-        self.analysi_grid.addLayout(self.analysis_button_grid, 0, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
 
-
-        self.gridLayout_9.addLayout(self.analysi_grid, 1, 0, 1, 1)
-
-        self.normalization_group_box = QGroupBox(self.groupBox)
-        self.normalization_group_box.setObjectName(u"normalization_group_box")
-        self.normalization_group_box.setMaximumSize(QSize(16777215, 100))
-        self.gridLayout_30 = QGridLayout(self.normalization_group_box)
-        self.gridLayout_30.setSpacing(0)
-        self.gridLayout_30.setObjectName(u"gridLayout_30")
-        self.gridLayout_30.setContentsMargins(0, 0, 0, 0)
-        self.normalization_combo_box = QComboBox(self.normalization_group_box)
+        self.normalization_combo_box = QComboBox(self.groupBox)
         self.normalization_combo_box.addItem("")
         self.normalization_combo_box.addItem("")
         self.normalization_combo_box.addItem("")
         self.normalization_combo_box.setObjectName(u"normalization_combo_box")
 
-        self.gridLayout_30.addWidget(self.normalization_combo_box, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.normalization_combo_box, 1, 1, 1, 1)
+
+        self.checkBox = QCheckBox(self.groupBox)
+        self.checkBox.setObjectName(u"checkBox")
+
+        self.gridLayout_2.addWidget(self.checkBox, 2, 1, 1, 1)
+
+        self.label_3 = QLabel(self.groupBox)
+        self.label_3.setObjectName(u"label_3")
+
+        self.gridLayout_2.addWidget(self.label_3, 2, 0, 1, 1)
 
 
-        self.gridLayout_9.addWidget(self.normalization_group_box, 0, 0, 1, 1)
+        self.gridLayout_9.addLayout(self.gridLayout_2, 0, 0, 1, 1)
+
+        self.button_grid = QGridLayout()
+        self.button_grid.setObjectName(u"button_grid")
+
+        self.gridLayout_9.addLayout(self.button_grid, 3, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
@@ -92,20 +102,26 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
+        self.analysis_stacked_widget.setCurrentIndex(-1)
+
+
         QMetaObject.connectSlotsByName(Form)
     # setupUi
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.groupBox.setTitle(QCoreApplication.translate("Form", u"Analysis", None))
+        self.label_2.setText(QCoreApplication.translate("Form", u"How to normalize", None))
 #if QT_CONFIG(accessibility)
         self.select_series_analysis_functions.setAccessibleName(QCoreApplication.translate("Form", u"analysis_grid_bt", None))
 #endif // QT_CONFIG(accessibility)
-        self.select_series_analysis_functions.setText(QCoreApplication.translate("Form", u"+", None))
-        self.normalization_group_box.setTitle(QCoreApplication.translate("Form", u"Normalization", None))
+        self.select_series_analysis_functions.setText(QCoreApplication.translate("Form", u"Analysis Function", None))
+        self.label.setText(QCoreApplication.translate("Form", u"Select the Analysis Function", None))
         self.normalization_combo_box.setItemText(0, QCoreApplication.translate("Form", u"CSlow Auto", None))
         self.normalization_combo_box.setItemText(1, QCoreApplication.translate("Form", u"CSlow Manual", None))
         self.normalization_combo_box.setItemText(2, QCoreApplication.translate("Form", u"Configure", None))
 
+        self.checkBox.setText(QCoreApplication.translate("Form", u"On", None))
+        self.label_3.setText(QCoreApplication.translate("Form", u"Cursor Bounds", None))
     # retranslateUi
 

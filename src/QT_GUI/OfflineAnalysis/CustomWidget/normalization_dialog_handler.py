@@ -58,8 +58,6 @@ class Normalization_Dialog(QDialog, Ui_Dialog):
         db_df = pd.DataFrame(df_list,columns=["offline_analysis_id", "function_id","sweep_table_name", "cslow"])        
         self.current_tab.normalization_values = db_df
 
-
-
     def prepare_table_view(self):
                  
         # Creating a QTableView
