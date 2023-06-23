@@ -121,20 +121,20 @@ class AnalysisFunctionSelectionManager():
             button = QPushButton(text)
 
 
-            self.show_checkbox = QCheckBox()
+            show_checkbox = QCheckBox()
             sizePolicy4.setHeightForWidth(button.sizePolicy().hasHeightForWidth())
             button.setSizePolicy(sizePolicy4)
             button.setMinimumSize(QSize(150, 150))
             button.setMaximumSize(QSize(150, 150))
             button.setAccessibleName(QCoreApplication.translate("SpecificAnalysisTab", u"analysis_grid_bt", None))
 
-            sizePolicy4.setHeightForWidth(self.show_checkbox.sizePolicy().hasHeightForWidth())
-            self.show_checkbox.setSizePolicy(sizePolicy4)
+            sizePolicy4.setHeightForWidth(show_checkbox.sizePolicy().hasHeightForWidth())
+            show_checkbox.setSizePolicy(sizePolicy4)
             #button.setMinimumSize(QSize(150, 150))
             #button.setMaximumSize(QSize(150, 150))
 
             layout.addWidget(button, row, col)
-            layout.addWidget(self.show_checkbox, row, col+1) 
+            layout.addWidget(show_checkbox, row, col+1) 
 
             button_width = button.sizeHint().width()
             if button_width > 150:
@@ -145,19 +145,18 @@ class AnalysisFunctionSelectionManager():
                         line_text = line_text + word + " \n "
 
                 layout.removeWidget(button)
-                layout.removeWidget(self.show_checkbox)
+                layout.removeWidget(show_checkbox)
 
                 button.setText(line_text)
                 button.setMaximumSize(QSize(150, 150))
-                self.show_checkbox.setMaximumSize(QSize(150, 150))
+                show_checkbox.setMaximumSize(QSize(150, 150))
                 
                 layout.addWidget(button, row, col)
-                layout.addWidget(self.show_checkbox, row, col+1)
+                layout.addWidget(show_checkbox, row, col+1)
 
-            button.clicked.connect(partial(self.show_analysis_grid, row,text, self.show_checkbox))
-            self.show_checkbox.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
-            self.show_checkbox.setEnabled(True)
-            self.checkbox_list.append(self.show_checkbox)
+            button.clicked.connect(partial(self.show_analysis_grid, row,text, show_checkbox))
+            show_checkbox.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
+            show_checkbox.setEnabled(True)
 
             # click the buttons to make sure each analysis function gets assigned with cursor bounds
             # this eliminated the need of further checks for empty cursor bounds
@@ -361,8 +360,8 @@ class AnalysisFunctionSelectionManager():
             analysis_table_widget.show()
             stacked_widget.show()
             # will draw the cursor bounds             
-            self.show_checkbox.setEnabled(True)
-            self.show_checkbox.setChecked(True)
+            show_checkbox.setEnabled(True)
+            show_checkbox.setChecked(True)
         
         #self.group_box_fullsize()
 
@@ -403,7 +402,7 @@ class AnalysisFunctionSelectionManager():
         """
 
         table_widget = self.current_tab.analysis_functions.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-        if state == Qt.Checked:
+        if state == Qt.Checked or state == 2:
             # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
             try:
                 # table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()

@@ -137,10 +137,12 @@ class SweepWiseAnalysisTemplate(ABC):
 		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
 
 		unit_name = self.get_current_recording_type()
+		normalization_values = None
 		if unit_name == "Voltage":
 			#get the user defined normalization values -> were safed in the database
 			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
 	
+
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
 		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Duration", "Result", "Increment","experiment_name"]
 		merged_all_results = pd.DataFrame(columns = column_names)

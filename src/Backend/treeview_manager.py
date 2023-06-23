@@ -13,6 +13,7 @@ from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
 import debugpy
+from DataReader.SegmentENUM import EnumSegmentTypes
 
 class TreeViewManager:
     """
@@ -33,7 +34,6 @@ class TreeViewManager:
         self.tree_build_widget = treebuild_widget
         self.selected_tree_view_data_table = pd.DataFrame()
         self.discarded_tree_view_data_table = pd.DataFrame()
-
         # qradio button which can be checked or not
         self.show_sweeps_radio = show_sweep_radio
 
@@ -87,7 +87,7 @@ class TreeViewManager:
           bundle_list type: list of tuples - the list of bundles that were read
 
         """
-        #debugpy.debug_this_thread()
+        debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
         for i in dat_files:
@@ -783,7 +783,7 @@ class TreeViewManager:
 
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
 
-        #debugpy.debug_this_thread()
+        debugpy.debug_this_thread()
         if database is None:
             database = self.database_handler
 
@@ -1095,6 +1095,8 @@ class TreeViewManager:
                                                start_segment = None,
                                                series_number = None,
                                                children_amount = None,
+                                               sine_amplitude = None,
+                                               sine_cycle = None,
                                                ):
 
         # open the pulse generator part of the bundle
@@ -1120,22 +1122,30 @@ class TreeViewManager:
             holding_potential = node.Holding
             stim_channel = node.DacChannel
             children_amount = node.children
+            sine_amplitude = node.Sine_Amplitude
+            sine_cycle = node.Sine_Cycle
 
         elif node_type == "Stimulation":
             series_name = node.EntryName
             sweep_number = node.NumberSweeps
             start_time = node.DataStartTime
             start_segment = node.DataStartSegment
-
+            
         if node_type == "StimChannel":
             duration = node.Duration
             increment = node.DeltaVIncrement
             voltage = node.Voltage
             series_number = f"Series{str(series_count)}"
+            segment_class = EnumSegmentTypes(node.Class.decode("ascii")).name
+            if segment_class != "SINE":
+                sine_amplitude = "None"
+                sine_cycle = "None"
+                
 
             data_list.append([series_name,
                               str(start_time),
                               str(start_segment),
+                              segment_class,
                               str(sweep_number),
                               node_type,
                               str(holding_potential),
@@ -1144,8 +1154,14 @@ class TreeViewManager:
                               str(voltage),
                               str(stim_channel),
                               str(series_number),
-                              str(len(children_amount))])
+                              str(len(children_amount)),
+                              str(sine_cycle),
+                              str(sine_amplitude)
+                              ]
+                              )
             series_count = series_count
+            start_time = "None"
+            start_segment = "None"
 
         try:
             for i in range(len(node.children)):
@@ -1163,13 +1179,18 @@ class TreeViewManager:
                                                             start_time,
                                                             start_segment,
                                                             series_number,
-                                                            children_amount
+                                                            children_amount,
+                                                            sine_amplitude,
+                                                            sine_cycle
                                                             )
         except Exception as e:
             print(f"Error in PGF-file generation: {e}")
 
 
-        return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","sweep_number","node_type", "holding_potential", "duration", "increment", "voltage", "selected_channel", "series_id", "children_amount"])
+        return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","segment_class",
+                                                 "sweep_number","node_type", "holding_potential", "duration", 
+                                                 "increment", "voltage", "selected_channel", "series_id", "children_amount",
+                                                 "sine_amplitude","sine_cycle"])
 
 
     def write_series_to_csv(self, frontend_style):
