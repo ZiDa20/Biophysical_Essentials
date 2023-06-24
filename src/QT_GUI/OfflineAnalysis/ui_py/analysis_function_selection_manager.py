@@ -100,36 +100,32 @@ class AnalysisFunctionSelectionManager():
             self.layout_tab.addWidget(analysis_table_widget)
             self.current_tab.analysis_functions.analysis_stacked_widget.addTab(self.trial_tab, text)
             self.current_tab.data_table.append(analysis_table_widget)
-            self.on_checkbox_state_changed(index, add_cursor = True)
+            self.on_checkbox_state_changed(index, None)
         
-        
-        for i in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
-            self.plot_widget_manager.remove_dragable_lines(i)
-        self.current_tab.analysis_functions.analysis_stacked_widget.currentChanged.connect(self.on_checkbox_state_changed)            
+        self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed)            
         
         self.current_tab.analysis_functions.analysis_stacked_widget.show()
         self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
 
-    def on_checkbox_state_changed(self, row, add_cursor = None):
+    def on_checkbox_state_changed(self, row, add_cursor = True):
         """
         Handles checkboxes next to the analysis function button.
         Enables or disables all additional drawings ( cursor bounds and live plot) 
         which are related to this analysis function
         """
-        print(f"This is the row: {row}")
-        self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(row)
+        print("row = ", row)
         table_widget = self.current_tab.data_table[row]
         #table_widget  = table_widget.layout().itemAt(0).widget()
-       
+        
         # if checked show cursor bounds and also (if checked) live plot
         for col in range(table_widget.columnCount()):
 
-            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected
-            
+            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
             self.add_coursor_bounds((row,col), self.current_tab, table_widget)
-                
+
             condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
             filtered_df = self.live_plot_info[condition]
+            
             # if cursor bounds were created, they will be added to the live plot info dataframe
             if filtered_df.empty:
                 
@@ -144,8 +140,17 @@ class AnalysisFunctionSelectionManager():
                 self.live_plot_info.reset_index(drop = True, inplace=True)
             else:
                 self.update_grid_data_frame(row,col,"cursor_bound",True)
-                
-            
+                    
+        # there should be an easy bugfix for this
+        if add_cursor:
+            for i in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
+                    # @todo improve: merge the  two for loops
+                if i != row:
+                    self.plot_widget_manager.remove_dragable_lines(i)
+                    for col in self.live_plot_info[self.live_plot_info['page'] == i]["col"].values:
+                        self.update_grid_data_frame(i,col,"cursor_bound",False)
+                    
+        # very important: dont forget to update the plot widget manager object !
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
 

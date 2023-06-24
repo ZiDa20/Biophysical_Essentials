@@ -702,8 +702,8 @@ class PlotWidgetManager(QRunnable):
             for t in tuples_to_remove:
 
                 coursor_tuple = self.coursor_bound_tuple_dict.get(t)
-                self.ax1.lines.remove(coursor_tuple[0].line)
-                self.ax1.lines.remove(coursor_tuple[1].line)
+                self.ax1.get_lines().remove(coursor_tuple[0].line)
+                self.ax1.get_lines().remove(coursor_tuple[1].line)
                 #self.coursor_bound_tuple_dict.pop(t)
 
             self.canvas.draw_idle()
