@@ -56,13 +56,11 @@ class AnalysisFunctionSelectionManager():
         self.live_plot_info = None
         self.add_buttons_to_layout(analysis_functions)
 
-    def clear_analysis_widgets(self,layout):
+    def clear_analysis_widgets(self):
         """
         clears all pages and layouts from previous widgets 
         """
         # at 0 there is the "add" button which shouldn't be deleted
-        for i in range(1,layout.count()):
-            layout.itemAt(i).widget().deleteLater()
 
         stacked_widget = self.current_tab.analysis_functions.analysis_stacked_widget
         pages = stacked_widget.count()
@@ -78,9 +76,8 @@ class AnalysisFunctionSelectionManager():
         Add a button for each of the selected analysis functions to the layout.
         """
         try:
-            layout = self.current_tab.analysis_functions.button_grid
             self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
-            self.clear_analysis_widgets(layout)
+            self.clear_analysis_widgets()
     
         except Exception as e:
              CustomErrorDialog(f"Error in analysis function selection manager: {e}",self.frontend_style)
@@ -97,19 +94,23 @@ class AnalysisFunctionSelectionManager():
                 except Exception as e:
                     print(e)
         
-            trial_tab = QWidget()
-            layout_tab = QGridLayout(trial_tab)
-            self.current_tab.analysis_functions.analysis_stacked_widget.addTab(trial_tab, text)
-            self.show_analysis_grid(text, layout_tab, index)
-            self.on_checkbox_state_changed(index)
-            
+            self.trial_tab = QWidget()
+            self.layout_tab = QGridLayout(self.trial_tab)
+            analysis_table_widget = self.show_analysis_grid(text, index)
+            self.layout_tab.addWidget(analysis_table_widget)
+            self.current_tab.analysis_functions.analysis_stacked_widget.addTab(self.trial_tab, text)
+            self.current_tab.data_table.append(analysis_table_widget)
+            self.on_checkbox_state_changed(index, add_cursor = True)
+        
+        
+        for i in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
+            self.plot_widget_manager.remove_dragable_lines(i)
         self.current_tab.analysis_functions.analysis_stacked_widget.currentChanged.connect(self.on_checkbox_state_changed)            
         
-        self.run_analysis_functions = QPushButton("Run")
-        layout.addWidget(self.run_analysis_functions)
         self.current_tab.analysis_functions.analysis_stacked_widget.show()
+        self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
 
-    def on_checkbox_state_changed(self, row):
+    def on_checkbox_state_changed(self, row, add_cursor = None):
         """
         Handles checkboxes next to the analysis function button.
         Enables or disables all additional drawings ( cursor bounds and live plot) 
@@ -117,18 +118,18 @@ class AnalysisFunctionSelectionManager():
         """
         print(f"This is the row: {row}")
         self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(row)
-        table_widget = self.current_tab.analysis_functions.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+        table_widget = self.current_tab.data_table[row]
         #table_widget  = table_widget.layout().itemAt(0).widget()
        
-            # if checked show cursor bounds and also (if checked) live plot
+        # if checked show cursor bounds and also (if checked) live plot
         for col in range(table_widget.columnCount()):
 
-            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
+            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected
+            
             self.add_coursor_bounds((row,col), self.current_tab, table_widget)
-
+                
             condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
             filtered_df = self.live_plot_info[condition]
-            
             # if cursor bounds were created, they will be added to the live plot info dataframe
             if filtered_df.empty:
                 
@@ -144,10 +145,9 @@ class AnalysisFunctionSelectionManager():
             else:
                 self.update_grid_data_frame(row,col,"cursor_bound",True)
                 
-        
-        # very important: dont forget to update the plot widget manager object !
+            
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
-        #self.reclick_tree_view_item()
+        self.reclick_tree_view_item()
 
     def group_box_fullsize(self):
         tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_functions.analysis_stacked_widget.sizeHint().width()
@@ -221,7 +221,7 @@ class AnalysisFunctionSelectionManager():
 
         return table_widget
 
-    def show_analysis_grid(self, text, layout_tab, index_number):
+    def show_analysis_grid(self, text, index_number):
         
         col = 0
         if len(text.split())>1:
@@ -231,8 +231,7 @@ class AnalysisFunctionSelectionManager():
         else:
             col = 1
                 
-        analysis_table_widget =  self.create_qtablewidget(col,6)
-        layout_tab.addWidget(analysis_table_widget)
+        analysis_table_widget = self.create_qtablewidget(col,6)
         
         # fill the table          
         col = 0
@@ -243,7 +242,8 @@ class AnalysisFunctionSelectionManager():
                     col+=1
         else:   
             self.add_cell_widgets_to_analysis_grid(index_number, col, analysis_table_widget, text)
-        analysis_table_widget.show()
+        #analysis_table_widget.show()
+        return analysis_table_widget
   
 
     def add_cell_widgets_to_analysis_grid(self, row, col, analysis_table_widget, text):
@@ -276,7 +276,8 @@ class AnalysisFunctionSelectionManager():
         @author: dz, 02.2023
         """
 
-        table_widget = self.current_tab.analysis_functions.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+        table_index = self.current_tab.analysis_functions.analysis_stacked_widget.currentIndex()
+        table_widget = self.current_tab.data_table[table_index]
         if state == Qt.Checked or state == 2:
             # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
             try:
@@ -408,19 +409,24 @@ class AnalysisFunctionSelectionManager():
 
             print("after filling", self.current_tab.normalization_values)
 
+    
+    
         for page in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
 
+            stacked = self.current_tab.analysis_functions.analysis_stacked_widget
             self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(page)
-            table_widget = self.current_tab.analysis_functions.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-
+            table_widget = self.current_tab.data_table[page]
             for col in range(table_widget.columnCount()):
+                
                 print("writing col" , col)
+                
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
                 lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
                 pgf_segment = int(table_widget.cellWidget(self.PGF_SEQ_GRID_ROW, col).currentText())
                 analysis_series_name = self.current_tab.objectName()
-                func_name = self.current_tab.analysis_functions.analysis_stacked_widget.tabText(page)
+                current_index = self.current_tab.analysis_functions.analysis_stacked_widget.currentIndex()
+                func_name = self.current_tab.analysis_functions.analysis_stacked_widget.tabText(current_index)
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
                                                                                                lower_bound, upper_bound, pgf_segment)

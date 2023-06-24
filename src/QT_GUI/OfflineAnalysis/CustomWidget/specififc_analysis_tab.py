@@ -240,7 +240,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         #add this to promote 
         self.frontend_style = frontend
         #self.analysis_table_widget = AnalysisFunctionTable()
-        
+        self.data_table = []
         self.treebuild.groupBox_4.setStyleSheet("border-radius: 0px;")
         #self.subwindow_calc.hide()
         

@@ -861,7 +861,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # all the analysis setup clicks and cursor bound drag and drops will be handled from the analysis function selection manager
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
-        self.analysis_function_selection_manager.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
+        self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
@@ -993,7 +993,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             # split string into list, e.g. max_current - min_current
             # @todo: can this be done better ?
-            equation_components = related_intervals["func"].values[0].split(" \n ")
+            equation_components = related_intervals["func"].values[0].split(" ")
             
             try:
                 equation_components.remove("")
