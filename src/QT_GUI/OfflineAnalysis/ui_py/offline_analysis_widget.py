@@ -851,15 +851,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # get the index of the tab (e.g. tabe name might be IV, IV-40)
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.offline_tree.tab_list[current_index]
-        
         current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
         plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
+        # this needs to be performed to ensure only one connection nper analysis
         try:
             self.run_analysis_functions.clicked.disconnect()#
         except Exception as e:
-            print("yeah, no disconnecting needed here")
+            self.logger.info("No connection to disconnect here, probably the first connect")
             
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
