@@ -825,7 +825,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if index == 2:
                 self.fo_forward_button.setEnabled(True)
 
-
     @Slot()
     def select_analysis_functions(self, series_name):
         """ open a popup dialog for the user to select available analysis functions """
@@ -855,12 +854,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
         plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
-        
-        
-        print("whats going on")
-        # all the analysis setup clicks and cursor bound drag and drops will be handled from the analysis function selection manager
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
+        try:
+            self.run_analysis_functions.clicked.disconnect()#
+        except Exception as e:
+            print("yeah, no disconnecting needed here")
+            
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
     def start_offline_analysis_of_single_series(self, current_tab):

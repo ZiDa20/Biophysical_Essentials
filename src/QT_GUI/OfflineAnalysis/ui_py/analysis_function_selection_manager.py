@@ -42,6 +42,7 @@ class AnalysisFunctionSelectionManager():
         self.database_handler = database_handler
         self.current_tab = current_tab
         self.frontend_style = frontend
+        self.current_tab.first_add = True
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.operands =  ["+", "-", "*", "/", "(", ")"]
@@ -61,13 +62,6 @@ class AnalysisFunctionSelectionManager():
         clears all pages and layouts from previous widgets 
         """
         # at 0 there is the "add" button which shouldn't be deleted
-
-        stacked_widget = self.current_tab.analysis_functions.analysis_stacked_widget
-        pages = stacked_widget.count()
-        for _ in range(pages):
-            # allways delete page 0
-            stacked_widget.removeTab(stacked_widget.widget(0))
-
         self.plot_widget_manager.coursor_bound_tuple_dict = {}
         self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"])
 
@@ -75,6 +69,7 @@ class AnalysisFunctionSelectionManager():
         """
         Add a button for each of the selected analysis functions to the layout.
         """
+        
         try:
             self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
             self.clear_analysis_widgets()
@@ -102,10 +97,11 @@ class AnalysisFunctionSelectionManager():
             self.current_tab.data_table.append(analysis_table_widget)
             self.on_checkbox_state_changed(index, None)
         
-        self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed)            
-        
-        self.current_tab.analysis_functions.analysis_stacked_widget.show()
-        self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
+        if self.current_tab.first_add:
+            self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed)            
+            self.current_tab.analysis_functions.analysis_stacked_widget.show()
+            self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
+            
 
     def on_checkbox_state_changed(self, row, add_cursor = True):
         """
@@ -256,7 +252,7 @@ class AnalysisFunctionSelectionManager():
         adds cell widgets for a specific column of a an analysis table widget
         """
         color_button = QPushButton("")
-        color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
+        color_button.setStyleSheet("background-color: " + self.default_colors[len(self.current_tab.data_table)])
         analysis_table_widget.setCellWidget(0, col, color_button)
         func_item = QTableWidgetItem(text)
         func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
@@ -414,8 +410,7 @@ class AnalysisFunctionSelectionManager():
 
             print("after filling", self.current_tab.normalization_values)
 
-    
-    
+
         for page in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
 
             stacked = self.current_tab.analysis_functions.analysis_stacked_widget
@@ -460,6 +455,7 @@ class AnalysisFunctionSelectionManager():
         print("returning multiple analysis ", multiple_interval_analysis)
 
         return multiple_interval_analysis
+
 
 
    
