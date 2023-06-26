@@ -98,10 +98,15 @@ class AnalysisFunctionSelectionManager():
             self.on_checkbox_state_changed(index, None)
         
         if self.current_tab.first_add:
-            self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed)            
+            self.current_tab.analysis_functions.analysis_stacked_widget.setTabsClosable(True)
+            self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed) 
+            self.current_tab.analysis_functions.analysis_stacked_widget.tabCloseRequested.connect(self.close_tab)           
             self.current_tab.analysis_functions.analysis_stacked_widget.show()
             self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
-            
+         
+    def close_tab(self, index):
+        self.current_tab.analysis_functions.analysis_stacked_widget.removeTab(index)
+        self.current_tab.data_table.pop(index)   
 
     def on_checkbox_state_changed(self, row, add_cursor = True):
         """
@@ -216,9 +221,10 @@ class AnalysisFunctionSelectionManager():
 
         # Resize the columns to fit the contents
         table_widget.resizeColumnsToContents()
+        table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # Set the row height to be equal to the column width (for square cells)
-        table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
+        #table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
 
         return table_widget
 
