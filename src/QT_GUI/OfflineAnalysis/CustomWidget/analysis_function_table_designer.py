@@ -15,18 +15,18 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
-    QGroupBox, QLabel, QPushButton, QSizePolicy,
-    QTabWidget, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QGridLayout, QGroupBox,
+    QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
+    QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(468, 739)
+        Form.resize(465, 739)
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setContentsMargins(10, 0, 0, 0)
         self.groupBox = QGroupBox(Form)
         self.groupBox.setObjectName(u"groupBox")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
@@ -34,9 +34,10 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
+        self.groupBox.setMinimumSize(QSize(20, 0))
         self.gridLayout_9 = QGridLayout(self.groupBox)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.gridLayout_9.setContentsMargins(0, 2, 0, 2)
+        self.gridLayout_9.setContentsMargins(10, 2, 0, 2)
         self.gridLayout_2 = QGridLayout()
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.select_series_analysis_functions = QPushButton(self.groupBox)
@@ -47,55 +48,46 @@ class Ui_Form(object):
         sizePolicy1.setHeightForWidth(self.select_series_analysis_functions.sizePolicy().hasHeightForWidth())
         self.select_series_analysis_functions.setSizePolicy(sizePolicy1)
         self.select_series_analysis_functions.setMinimumSize(QSize(0, 0))
-        self.select_series_analysis_functions.setMaximumSize(QSize(16777215, 16777215))
+        self.select_series_analysis_functions.setMaximumSize(QSize(50, 16777215))
 
-        self.gridLayout_2.addWidget(self.select_series_analysis_functions, 0, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.select_series_analysis_functions, 1, 0, 1, 1)
 
-        self.label_3 = QLabel(self.groupBox)
-        self.label_3.setObjectName(u"label_3")
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_2.addWidget(self.label_3, 2, 0, 1, 1)
-
-        self.checkBox = QCheckBox(self.groupBox)
-        self.checkBox.setObjectName(u"checkBox")
-
-        self.gridLayout_2.addWidget(self.checkBox, 2, 1, 1, 1)
+        self.gridLayout_2.addItem(self.verticalSpacer, 4, 0, 1, 1)
 
         self.normalization_combo_box = QComboBox(self.groupBox)
-        self.normalization_combo_box.addItem("")
+        icon = QIcon()
+        icon.addFile(u"../QT_GUI/Button/dark_mode/offline_analysis/light_series.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.normalization_combo_box.addItem(icon, "")
+        icon1 = QIcon()
+        icon1.addFile(u"../QT_GUI/Button/dark_mode/offline_analysis/edit_meta.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.normalization_combo_box.addItem(icon1, "")
         self.normalization_combo_box.addItem("")
         self.normalization_combo_box.addItem("")
         self.normalization_combo_box.setObjectName(u"normalization_combo_box")
+        self.normalization_combo_box.setMaximumSize(QSize(50, 16777215))
 
-        self.gridLayout_2.addWidget(self.normalization_combo_box, 1, 1, 1, 1)
-
-        self.label = QLabel(self.groupBox)
-        self.label.setObjectName(u"label")
-
-        self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
-
-        self.label_2 = QLabel(self.groupBox)
-        self.label_2.setObjectName(u"label_2")
-
-        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.normalization_combo_box, 2, 0, 1, 1)
 
         self.pushButton = QPushButton(self.groupBox)
         self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setMaximumSize(QSize(50, 16777215))
 
-        self.gridLayout_2.addWidget(self.pushButton, 3, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.pushButton, 3, 0, 1, 1)
 
 
-        self.gridLayout_9.addLayout(self.gridLayout_2, 0, 0, 1, 1)
+        self.gridLayout_9.addLayout(self.gridLayout_2, 0, 1, 1, 1)
 
         self.analysis_stacked_widget = QTabWidget(self.groupBox)
         self.analysis_stacked_widget.setObjectName(u"analysis_stacked_widget")
         self.analysis_stacked_widget.setTabPosition(QTabWidget.East)
         self.analysis_stacked_widget.setTabsClosable(True)
 
-        self.gridLayout_9.addWidget(self.analysis_stacked_widget, 1, 0, 1, 1)
+        self.gridLayout_9.addWidget(self.analysis_stacked_widget, 0, 0, 1, 1)
 
 
-        self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.groupBox, 0, 1, 1, 1)
 
 
         self.retranslateUi(Form)
@@ -112,15 +104,12 @@ class Ui_Form(object):
 #if QT_CONFIG(accessibility)
         self.select_series_analysis_functions.setAccessibleName(QCoreApplication.translate("Form", u"analysis_grid_bt", None))
 #endif // QT_CONFIG(accessibility)
-        self.select_series_analysis_functions.setText(QCoreApplication.translate("Form", u"Analysis Function", None))
-        self.label_3.setText(QCoreApplication.translate("Form", u"Cursor Bounds:", None))
-        self.checkBox.setText(QCoreApplication.translate("Form", u"All cursor bound", None))
-        self.normalization_combo_box.setItemText(0, QCoreApplication.translate("Form", u"CSlow Auto", None))
-        self.normalization_combo_box.setItemText(1, QCoreApplication.translate("Form", u"CSlow Manual", None))
-        self.normalization_combo_box.setItemText(2, QCoreApplication.translate("Form", u"Configure", None))
+        self.select_series_analysis_functions.setText(QCoreApplication.translate("Form", u"S", None))
+        self.normalization_combo_box.setItemText(0, QCoreApplication.translate("Form", u"Norm", None))
+        self.normalization_combo_box.setItemText(1, QCoreApplication.translate("Form", u"CSlow Auto", None))
+        self.normalization_combo_box.setItemText(2, QCoreApplication.translate("Form", u"CSlow Manual", None))
+        self.normalization_combo_box.setItemText(3, QCoreApplication.translate("Form", u"Configure", None))
 
-        self.label.setText(QCoreApplication.translate("Form", u"Select the Analysis Function", None))
-        self.label_2.setText(QCoreApplication.translate("Form", u"How to normalize?", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"Remove Cursor Bounds", None))
     # retranslateUi
 

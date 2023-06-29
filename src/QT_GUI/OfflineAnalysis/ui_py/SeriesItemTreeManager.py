@@ -12,7 +12,6 @@ from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
 from StyleFrontend.animated_ap import LoadingAnimation
-
 import pandas as pd
 from PySide6.QtTest import QTest
 
@@ -54,10 +53,14 @@ class SeriesItemTreeWidget():
         self.multi_series_item = None
         
     def create_top_level_items(self):
+        """_summary_: This creates the two top level items for the tree widget
+        """
+        
         self.single_series_item = SideBarParentItem(self.SeriesItems)
         self.single_series_item.set_text("Single Series Analysis:")
         self.SeriesItems.addTopLevelItem(self.single_series_item)
-        
+
+        # creates a top level item that is used for the multi series analysis
         self.multi_series_item = SideBarParentItem(self.SeriesItems)
         self.multi_series_item.set_text("Multi-Series Analysis:")
         self.SeriesItems.addTopLevelItem(self.multi_series_item)
@@ -112,7 +115,7 @@ class SeriesItemTreeWidget():
 
             self.hierachy_stacked = QStackedWidget()
             self.hierachy_stacked.addWidget(QWidget())
-            self.analysis_stacked.addWidget(self.hierachy_stacked)
+            self.analysis_stacked.addWidget(self.hierachy_stacked) # analysis stacked is the original stacked widget
             # fill the treetabwidgetitems
             parent = SideBarParentItem(self.SeriesItems, parent_widget = self.single_series_item)
             parent.setting_data(s, new_tab_widget, self.hierachy_stacked, index, False)
@@ -147,7 +150,6 @@ class SeriesItemTreeWidget():
             values will be stored in the current tab and written to db when all other grid values of the current tab
             are written to the db
         """
-
         # get the experiment name and series identifier from the treeview model
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
         treeview_manager = self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
@@ -303,7 +305,6 @@ class SeriesItemTreeWidget():
 
         self.hierachy_stacked_list[parent_stacked].insertWidget(2, table_tab_widget)
         self.hierachy_stacked_list[parent_stacked].setCurrentIndex(2)
-
 
     def offline_analysis_result_tree_item_clicked(self):
         """
