@@ -7,7 +7,7 @@ class SideBarParentItem(QTreeWidgetItem):
     """Should Create the SideBarParentItem and 
     should set the data accordingly
     """
-    def __init__(self, treeview_widget):
+    def __init__(self, treeview_widget, parent_widget = None):
         """_summary_
 
         Args:
@@ -15,6 +15,7 @@ class SideBarParentItem(QTreeWidgetItem):
         """
         super().__init__()
         self.treeview_widget = treeview_widget
+        self.parent_widget = parent_widget
         
     def setting_data(self, series_name, tab_widget, stacked_widget, index, appended_childs):
         """Should set the Data necessary to retrieve information about 
@@ -35,10 +36,15 @@ class SideBarParentItem(QTreeWidgetItem):
         self.setData(6, Qt.UserRole, series_name)  # specific series name
         self.setData(7, Qt.UserRole, index)  # save the index
         self.setData(8, Qt.UserRole, appended_childs)  # data to check if additional childs like plot ect are already drawn
-        self.treeview_widget.addTopLevelItem(self)
+        #self.treeview_widget.addTopLevelItem(self)
+        if self.parent_widget:
+            self.parent_widget.addChild(self)
         
     def __str__(self) -> str:
         return self.series_name
+    
+    def set_text(self, text):
+        self.setText(0, text)
               
 class SideBarConfiguratorItem(QTreeWidgetItem):
     """Should create the Child Items for the Series Parents holding

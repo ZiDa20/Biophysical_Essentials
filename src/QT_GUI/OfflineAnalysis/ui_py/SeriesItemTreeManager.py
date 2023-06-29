@@ -39,9 +39,9 @@ class SeriesItemTreeWidget():
         self.hierachy_stacked_list = []
         self.series_list = []
         self.analysis_stacked = QStackedWidget()
+        self.trial_stacked = QStackedWidget()
         self.tree_widget_index_count = 0
         self.show_sweeps_radio = show_sweeps_radio
-        self.offline_manager = offline_manager
         self.navigation_list = []
         self.current_tab_visualization = []
         self.blank_analysis_tree_view_manager = blank_analysis_tree
@@ -50,6 +50,17 @@ class SeriesItemTreeWidget():
         self.home = plot_buttons[0]
         self.zoom = plot_buttons[1]
         self.pan = plot_buttons[2]
+        self.single_series_item = None
+        self.multi_series_item = None
+        
+    def create_top_level_items(self):
+        self.single_series_item = SideBarParentItem(self.SeriesItems)
+        self.single_series_item.set_text("Single Series Analysis:")
+        self.SeriesItems.addTopLevelItem(self.single_series_item)
+        
+        self.multi_series_item = SideBarParentItem(self.SeriesItems)
+        self.multi_series_item.set_text("Multi-Series Analysis:")
+        self.SeriesItems.addTopLevelItem(self.multi_series_item)
 
     def add_widget_to_splitter(self, layout):
         layout.addWidget(self.analysis_stacked)
@@ -75,6 +86,7 @@ class SeriesItemTreeWidget():
             self.database_handler.write_analysis_series_types_to_database(series_names_list)
 
         # make new tree parent elements and realted childs for ech specific series
+        
         for index, s in enumerate(series_names_list):
 
             QApplication.processEvents()
@@ -102,7 +114,7 @@ class SeriesItemTreeWidget():
             self.hierachy_stacked.addWidget(QWidget())
             self.analysis_stacked.addWidget(self.hierachy_stacked)
             # fill the treetabwidgetitems
-            parent = SideBarParentItem(self.SeriesItems)
+            parent = SideBarParentItem(self.SeriesItems, parent_widget = self.single_series_item)
             parent.setting_data(s, new_tab_widget, self.hierachy_stacked, index, False)
             # set the child items of the widget
             configurator = SideBarConfiguratorItem(parent, "Analysis Configurator")

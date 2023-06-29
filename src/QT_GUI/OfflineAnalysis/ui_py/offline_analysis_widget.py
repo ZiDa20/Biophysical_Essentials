@@ -286,6 +286,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
         self.offline_tree.SeriesItems.clear()
+        self.offline_tree.create_top_level_items()
 
         #self.delete_selected.clicked.connect(partial(self.offline_tree.add_analysis_tree_selection, self.offline_analysis_widgets.currentIndex()))
 
