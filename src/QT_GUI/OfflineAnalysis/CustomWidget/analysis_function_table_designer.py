@@ -34,7 +34,7 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
-        self.groupBox.setMinimumSize(QSize(20, 0))
+        self.groupBox.setMinimumSize(QSize(200, 0))
         self.gridLayout_9 = QGridLayout(self.groupBox)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.gridLayout_9.setContentsMargins(10, 2, 0, 2)
