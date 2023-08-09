@@ -8,7 +8,7 @@ from PySide6.QtGui import QFont, QFontMetrics, QTransform
 
 from PySide6.QtTest import QTest
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from Backend.treeview_manager import TreeViewManager
+
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from Backend.treeview_manager import TreeViewManager
 from Backend.plot_widget_manager import PlotWidgetManager
@@ -32,7 +32,7 @@ from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
-#from QT_GUI.OfflineAnalysis.CustomWidget.analysis_table_widget import Analysis_Table_Widget
+from QT_GUI.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_handler import LoadPreviousDiscardedFlagsHandler
 
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
@@ -96,6 +96,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.select_directory_button.clicked.connect(self.open_directory)
         self.load_from_database.clicked.connect(self.load_treeview_from_database)
 
+        # open a dialog to select discarded flag experiments and series from previous analysis 
+        self.load_selected_discarded.clicked.connect(self.load_discarded_selected_from_database)
         # forward and backward button
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
@@ -113,6 +115,27 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
 
+    def load_discarded_selected_from_database(self):
+        dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler)
+        dialog.apply_selection.clicked.connect(partial(self.update_treeview_with_previous_selection,dialog))
+        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
+        dialog.exec_()
+
+    def update_treeview_with_previous_selection(self,dialog):
+        """_summary_
+
+        Args:
+            dialog (_type_): _description_
+        """
+        new_id = dialog.selected_id
+
+        if new_id:
+            self.database_handler.update_discarded_selected_series(new_id,self.database_handler.analysis_id)
+        else:
+            print("nothing to update here")
+        dialog.close()
+        self.update_gui_treeviews()
+                                            
     def open_change_series_name_dialog(self):
         dialog = ChangeSeriesName(self.database_handler)
         dialog.apply.clicked.connect(partial(self.update_after_series_change,dialog))
@@ -432,9 +455,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
         self.notebook.setCurrentIndex(3)
-       
-
         return True
+    
+    
     def load_page_1_tree_view(self, existing_id = None):
         """
         this function will be executed when the button 'load selection' was clicked after 
@@ -461,8 +484,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
             # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
             self.blank_analysis_tree_view_manager.map_data_to_analysis_id(experiment_list)
-            self.database_handler.update_discarded_selected_series(77, self.database_handler.analysis_id)
-
+        
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
         self.OfflineDialogs.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
@@ -866,7 +888,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
-        Performs analysis according to the selected criteria.
+        Performs analysis according to the selected analysis functions, cursor bounds, pgf segment and normalization method.
         Before the analysis starts, the selected criteria will be stored in the database
         :param current_tab:
         :return:

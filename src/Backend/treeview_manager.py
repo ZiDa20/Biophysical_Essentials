@@ -12,7 +12,7 @@ from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-import debugpy
+#import debugpy
 from DataReader.SegmentENUM import EnumSegmentTypes
 
 class TreeViewManager:
@@ -201,6 +201,32 @@ class TreeViewManager:
 
         # series mapping is based on the previously generated epxeriment mapping table
         self.database_handler.create_mapping_between_series_and_analysis_id()
+
+    def show_discarded_flag_dialog_trees(self,selected_tree_view,discarded_tree_view):
+        """_summary_: creates the treeviews for the dialog to load discarded flagged items from previous analysis
+
+        Args:
+            selected_tree_view (_type_): _description_
+            discarded_tree_view (_type_): _description_
+        """
+
+        selected_data = self.create_data_frame_for_tree_model(False, False, None) # no sweeps, no specific series
+        discarded_data = self.create_data_frame_for_tree_model(True, False, None) # no sweeps, no specific series
+        
+        selected_model = TreeModel(selected_data)
+        discarded_model = TreeModel(discarded_data, "discarded")
+        
+        selected_tree_view.setModel(selected_model)
+        discarded_tree_view.setModel(discarded_model)
+        
+        #selected_tree_view.expandAll()
+        #discarded_tree_view.expandAll()
+
+        # display the correct columns according to the selected metadata and sweeps
+        self.set_visible_columns_treeview(selected_model,selected_tree_view)
+        self.set_visible_columns_treeview(discarded_model,discarded_tree_view)
+
+
 
     def update_treeviews(self, plot_widget_manager: PlotWidgetManager, series_name = None):
         """

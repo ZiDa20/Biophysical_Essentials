@@ -218,8 +218,18 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="load_selected_discarded"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/load_discarded_flags.png);}}
+QToolTip[objectName="load_selected_discarded"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
+
 QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/online_analysis/light_mode/home_light.png);}}
 QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
+
+
+
 
 
 QPushButton[objectName="HomeButton"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/plot_home.png);}}
@@ -371,3 +381,4 @@ QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #00
 
 QPushButton[objectName="metadata_table"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/grid.png);}}
 QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
