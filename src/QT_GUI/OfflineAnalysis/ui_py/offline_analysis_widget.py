@@ -116,8 +116,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger.info("init finished")
 
     def load_discarded_selected_from_database(self):
-        dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler)
+        dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler,self.frontend_style)
         dialog.apply_selection.clicked.connect(partial(self.update_treeview_with_previous_selection,dialog))
+
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.exec_()
 
@@ -127,12 +128,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         Args:
             dialog (_type_): _description_
         """
-        new_id = dialog.selected_id
-
-        if new_id:
-            self.database_handler.update_discarded_selected_series(new_id,self.database_handler.analysis_id)
-        else:
-            print("nothing to update here")
         dialog.close()
         self.update_gui_treeviews()
                                             

@@ -24,7 +24,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(949, 793)
+        Dialog.resize(955, 605)
         self.verticalLayout = QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.label_2 = QLabel(Dialog)
@@ -34,6 +34,7 @@ class Ui_Dialog(object):
         font.setPointSize(20)
         self.label_2.setFont(font)
         self.label_2.setAlignment(Qt.AlignCenter)
+        self.label_2.setMargin(10)
 
         self.verticalLayout.addWidget(self.label_2)
 
@@ -41,10 +42,17 @@ class Ui_Dialog(object):
         self.label.setObjectName(u"label")
         self.label.setMaximumSize(QSize(16777215, 100))
         self.label.setAlignment(Qt.AlignCenter)
+        self.label.setMargin(10)
 
         self.verticalLayout.addWidget(self.label)
 
-        self.comboBox = QComboBox(Dialog)
+        self.groupBox_3 = QGroupBox(Dialog)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.gridLayout_5 = QGridLayout(self.groupBox_3)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.gridLayout_4 = QGridLayout()
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.comboBox = QComboBox(self.groupBox_3)
         self.comboBox.addItem("")
         self.comboBox.setObjectName(u"comboBox")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
@@ -56,12 +64,37 @@ class Ui_Dialog(object):
         self.comboBox.setMaxVisibleItems(3)
         self.comboBox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
-        self.verticalLayout.addWidget(self.comboBox)
+        self.gridLayout_4.addWidget(self.comboBox, 1, 0, 1, 1)
+
+        self.id_to_show = QLabel(self.groupBox_3)
+        self.id_to_show.setObjectName(u"id_to_show")
+        self.id_to_show.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_4.addWidget(self.id_to_show, 1, 1, 1, 1)
+
+        self.label_6 = QLabel(self.groupBox_3)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_4.addWidget(self.label_6, 0, 1, 1, 1)
+
+        self.label_3 = QLabel(self.groupBox_3)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_4.addWidget(self.label_3, 0, 0, 1, 1)
+
+
+        self.gridLayout_5.addLayout(self.gridLayout_4, 0, 0, 1, 1)
+
+
+        self.verticalLayout.addWidget(self.groupBox_3)
 
         self.label_5 = QLabel(Dialog)
         self.label_5.setObjectName(u"label_5")
         self.label_5.setMaximumSize(QSize(16777215, 50))
         self.label_5.setAlignment(Qt.AlignCenter)
+        self.label_5.setMargin(10)
 
         self.verticalLayout.addWidget(self.label_5)
 
@@ -103,10 +136,10 @@ class Ui_Dialog(object):
 
         self.horizontalLayout.addWidget(self.apply_selection)
 
-        self.pushButton = QPushButton(Dialog)
-        self.pushButton.setObjectName(u"pushButton")
+        self.cancel_button = QPushButton(Dialog)
+        self.cancel_button.setObjectName(u"cancel_button")
 
-        self.horizontalLayout.addWidget(self.pushButton)
+        self.horizontalLayout.addWidget(self.cancel_button)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -121,12 +154,16 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Load Discarded Flags", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"In the dropdown below, select the Analysis ID you would like to load the information about discarded data from !", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("Dialog", u"Select", None))
         self.comboBox.setItemText(0, QCoreApplication.translate("Dialog", u"Default", None))
 
+        self.id_to_show.setText(QCoreApplication.translate("Dialog", u"TextLabel", None))
+        self.label_6.setText(QCoreApplication.translate("Dialog", u"Current Analysis ID", None))
+        self.label_3.setText(QCoreApplication.translate("Dialog", u"Previous Analysis", None))
         self.label_5.setText(QCoreApplication.translate("Dialog", u"Data Preview", None))
         self.groupBox.setTitle(QCoreApplication.translate("Dialog", u"Selected Data", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Dialog", u"Discarded Data", None))
         self.apply_selection.setText(QCoreApplication.translate("Dialog", u"Apply Selection", None))
-        self.pushButton.setText(QCoreApplication.translate("Dialog", u"Cancel", None))
+        self.cancel_button.setText(QCoreApplication.translate("Dialog", u"Cancel", None))
     # retranslateUi
 

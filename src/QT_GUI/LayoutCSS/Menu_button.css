@@ -299,6 +299,10 @@ QToolTip[objectName="transfer_to_offline_analysis"] {{color: #ffffff; background
 QPushButton[objectName="transfer_to_online_analysis"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/upload.png);}}
 QToolTip[objectName="transfer_to_online_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="load_selected_discarded"]{{background-image: url(../QT_GUI/Button/dark_mode/offline_analysis/load_discarded_flags.png);}}
+QToolTip[objectName="load_selected_discarded"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
 QPushButton[objectName="classifier_stream"]{{background-image: url(../QT_GUI/Button/online_analysis/dark_mode/ml_dark.png);}}
 QToolTip[objectName="classifier_stream"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 

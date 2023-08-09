@@ -210,8 +210,13 @@ class TreeViewManager:
             discarded_tree_view (_type_): _description_
         """
 
+
         selected_data = self.create_data_frame_for_tree_model(False, False, None) # no sweeps, no specific series
         discarded_data = self.create_data_frame_for_tree_model(True, False, None) # no sweeps, no specific series
+        
+        if discarded_data.empty:
+            discarded_data = pd.DataFrame(columns = selected_data.columns)
+            discarded_data.loc[0] = ["Empty", "root", "Experiment","0","Empty"]
         
         selected_model = TreeModel(selected_data)
         discarded_model = TreeModel(discarded_data, "discarded")
@@ -222,10 +227,12 @@ class TreeViewManager:
         #selected_tree_view.expandAll()
         #discarded_tree_view.expandAll()
 
-        # display the correct columns according to the selected metadata and sweeps
-        self.set_visible_columns_treeview(selected_model,selected_tree_view)
-        self.set_visible_columns_treeview(discarded_model,discarded_tree_view)
-
+        for m,v in zip([selected_model, discarded_model],[selected_tree_view,discarded_tree_view]):
+            for i in range(len(m.header)):
+                    if m.header[i] == "Series" or m.header[i] =="Experiment":
+                        v.setColumnHidden(i, False)
+                    else:
+                        v.setColumnHidden(i, True)
 
 
     def update_treeviews(self, plot_widget_manager: PlotWidgetManager, series_name = None):
