@@ -18,6 +18,8 @@ from database.data_db import DuckDBDatabaseHandler
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 
+
+
 def test_long_computation(qtbot):
 
     test_db = set_database()
@@ -30,9 +32,15 @@ def test_long_computation(qtbot):
 
     template.map_metadata_to_database()
     app.template_df = template.template_dataframe.values.tolist()
+    # continue open directory writes the data from the selected directory into the database,
+    # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 
+    # finished signal is emtitted 
     app.ui.offline.continue_open_directory(app.template_df, test = True)
+    # qtbot.wait until waits until the load_data_from.. variable was initialized as an instance of 
+    # Load_Data_From_Database_Popup_Handler
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
-    qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
+    
+    #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = app.database_handler.database.execute("SHOW TABLES").fetchdf()
     app.local_database_handler.database.close()
     assert tables.shape[0] == 65

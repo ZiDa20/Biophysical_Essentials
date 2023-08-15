@@ -133,7 +133,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		to a new database table.
 		:return:
 		"""
-		debugpy.debug_this_thread()
+		#debugpy.debug_this_thread()
 		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
 
 		unit_name = self.get_current_recording_type()

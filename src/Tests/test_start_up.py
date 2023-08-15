@@ -69,7 +69,9 @@ class TestFrontPage(unittest.TestCase):
         
     def test_writing_database(self):
         data = self.database_handler.database.execute("Show Tables;").fetchdf()
+        # @todo: why should this be 65 ? we have to add a comment and a brief description if the test cases
         self.assertEqual(data.shape[0], 65, "nope not true")
+
 
     def test_check_database_initiated(self):
         """ Check if database if properly assigned constructed"""
@@ -144,10 +146,6 @@ class TestFrontPage(unittest.TestCase):
         solution = self.database_handler.database.execute("SELECT * from solution").fetchdf()
         self.assertEqual(solution.shape[0], 0)
         
-    
-
-        
-    
         
 if __name__ == '__main__':
     unittest.main()

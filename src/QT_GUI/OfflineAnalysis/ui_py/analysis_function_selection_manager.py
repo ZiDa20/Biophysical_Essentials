@@ -399,7 +399,7 @@ class AnalysisFunctionSelectionManager():
         """
          iterates through each tab of the stacked widget and writes each column as a new row to the database
         """
-        debugpy.debug_this_thread()
+        #debugpy.debug_this_thread()
         #initial_index = self.current_tab.analysis_stacked_widget.currentIndex()
         multiple_interval_analysis = pd.DataFrame(columns=["page", "func", "id", "function"])
      
