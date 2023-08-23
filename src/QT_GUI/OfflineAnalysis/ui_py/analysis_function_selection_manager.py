@@ -15,7 +15,7 @@ from database.data_db import DuckDBDatabaseHandler
 from Backend.treeview_manager import TreeViewManager
 
 import pandas as pd
-import debugpy
+#import debugpy
 
 
 class AnalysisFunctionSelectionManager():

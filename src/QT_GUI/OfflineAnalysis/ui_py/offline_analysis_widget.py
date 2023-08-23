@@ -459,17 +459,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         data to be analyzed were selected fro mthe db dashboard dialog
         @return:
         """
-        
-        
-        
+
         # load an exsiting analysis from a given id
         if existing_id:
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
             experiment_list = self.database_handler.database.execute(q).fetchdf()
             experiment_list = experiment_list["experiment_name"].values
             self.logger.info("experiment list found for analysis id ", self.database_handler.analysis_id)
-            
-            
+              
         else:
             # get the experiment names that were selected by the user within the db dashboard
              # 
@@ -493,9 +490,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # Get the rect of the index
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
-
-
-        
         self.stackedWidget.setCurrentIndex(0)
         
 

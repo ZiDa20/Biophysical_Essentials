@@ -49,6 +49,7 @@ def test_long_computation(qtbot):
     # Watch for the app.worker.finished signal, then start the worker.
 
 
+
 def set_database():
         """_summary_: Sets up the database for the testing purpose!
         """

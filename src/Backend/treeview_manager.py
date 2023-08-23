@@ -12,7 +12,7 @@ from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
-import debugpy
+#import debugpy
 from DataReader.SegmentENUM import EnumSegmentTypes
 
 class TreeViewManager:
