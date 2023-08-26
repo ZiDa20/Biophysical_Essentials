@@ -1173,14 +1173,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
     def ribbon_bar_handler(self):
-        if self.offline_analysis_widgets.currentIndex() == 0:
-            self.ribbon_analysis.setCurrentIndex(0)
-            self.ribbon_series_normalization.setCurrentIndex(0)
+        """Handler for the last two fields of the ribbon bar. Specific functions for each analysis step are provided.
+        """
 
-        if self.offline_analysis_widgets.currentIndex() == 1:
-            self.ribbon_analysis.setCurrentIndex(1)
-            self.ribbon_series_normalization.setCurrentIndex(0)
-
+        # current index can be either 0 (blank start), 1 (selectded sereis to be analyzed) and 2 (results panel)
+        current_index = self.offline_analysis_widgets.currentIndex()
+        # update the stacked widget to show the correct button
+        self.ribbon_analysis.setCurrentIndex(current_index)
+        self.ribbon_series_normalization.setCurrentIndex(current_index)
 
     def reset_class(self, new_analysis = True):
         """resets the class to its orignal point and adds a new 

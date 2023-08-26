@@ -99,6 +99,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     assert res == valid_types #,"the expected types in the treeview are not correct ")
    
     test_db.database.close()
+
 # def test meta data 
 #def test sweeps AND meta data
 
