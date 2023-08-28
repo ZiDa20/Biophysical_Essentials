@@ -24,7 +24,8 @@ class SeriesItemTreeWidget():
                  database_handler,
                  offline_manager,
                  show_sweeps_radio,
-                 blank_analysis_tree):
+                 blank_analysis_tree,
+                 ribbon_bar):
 
         super().__init__()
         self.offline_tree = offlinetree
@@ -51,6 +52,7 @@ class SeriesItemTreeWidget():
         self.pan = plot_buttons[2]
         self.single_series_item = None
         self.multi_series_item = None
+        self.ribbon_bar = ribbon_bar
         
     def create_top_level_items(self):
         """_summary_: This creates the two top level items for the tree widget
@@ -104,7 +106,7 @@ class SeriesItemTreeWidget():
             if recording_mode == "Voltage Clamp":
                 new_tab_widget.analysis_functions.normalization_combo_box.currentTextChanged.connect(self.normalization_value_handler)
             else:
-                new_tab_widget.analysis_functions.normalization_group_box.hide()
+                #new_tab_widget.analysis_functions.normalization_group_box.hide()
                 new_tab_widget.analysis_functions.normalization_combo_box.hide()
 
             new_tab_widget.setObjectName(s)
@@ -202,7 +204,7 @@ class SeriesItemTreeWidget():
         print(parent_tree_item.data(8, Qt.UserRole))
         if parent_tree_item.data(8, Qt.UserRole) is False:
             # add new children within the tree:
-            for i in ["Plot", "Tables", "Statistics", "Advanced Analysis"]:
+            for i in ["Plot", "Tables", "Statistics",]: # "Advanced Analysis"]:
                 new_child = SideBarAnalysisItem(i, parent_tree_item)
                 parent_stacked_widget.addWidget(QWidget())
                 if i in ["Plot", "Tables"]:
@@ -328,13 +330,16 @@ class SeriesItemTreeWidget():
             if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
                 self.simple_analysis_configuration_clicked(parent_stacked)
                 self.parent_stacked = parent_stacked
+                self.set_ribbon_bar_page(1)
 
             if self.SeriesItems.currentItem().text(0) == "Plot":
                 self.analysis_stacked.setCurrentIndex(parent_stacked)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+                self.set_ribbon_bar_page(2)
 
             if self.SeriesItems.currentItem().text(0) == "Tables":
                 self.view_table_clicked(parent_stacked)
+                self.set_ribbon_bar_page(2)
 
             if self.SeriesItems.currentItem().text(0) == "Statistics":
 
@@ -344,6 +349,27 @@ class SeriesItemTreeWidget():
                 # add it to the statistic child in the tree
                 self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
                 self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
+                self.set_ribbon_bar_page(2)
+
+
+    def set_ribbon_bar_page(self,page_index):
+        self.find_ribbon_bar_object_by_name(QStackedWidget,"ribbon_series_normalization").setCurrentIndex(page_index)
+        self.find_ribbon_bar_object_by_name(QStackedWidget,"ribbon_analysis").setCurrentIndex(page_index)
+        
+    def find_ribbon_bar_object_by_name(self,instance, name):
+        """
+        The ribbon bar is given as qframe and requires identification and extraction of the corect item
+        Args:
+            instance (_type_): QStackedWidget, QPushButton ... anything like this
+            name (_type_): name of the object
+        Returns:
+            _type_: QStackedWidget, QPushButton ... anything like this
+        """
+        for child in self.ribbon_bar.children():
+            if isinstance(child, instance) and child.objectName() == name:
+                return child
+        return None
+
 
     def click_top_level_item(self):
         """Clicks the first top level item in the tree widget.

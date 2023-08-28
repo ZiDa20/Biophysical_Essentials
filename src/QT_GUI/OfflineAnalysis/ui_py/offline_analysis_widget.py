@@ -300,7 +300,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                  self.database_handler,
                                                  self.offline_manager,
                                                  self.show_sweeps_radio,
-                                                 self.blank_analysis_tree_view_manager)
+                                                 self.blank_analysis_tree_view_manager,
+                                                 self.frame)
 
 
         self.offline_tree.SeriesItems.clear()

@@ -57,99 +57,19 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_13.setObjectName(u"gridLayout_13")
         self.gridLayout_13.setHorizontalSpacing(5)
         self.gridLayout_13.setContentsMargins(2, 2, 2, 2)
-        self.groupBox_8 = QGroupBox(self.frame)
-        self.groupBox_8.setObjectName(u"groupBox_8")
+        self.ribbon_data_options = QStackedWidget(self.frame)
+        self.ribbon_data_options.setObjectName(u"ribbon_data_options")
+        self.page_15 = QWidget()
+        self.page_15.setObjectName(u"page_15")
+        self.gridLayout_41 = QGridLayout(self.page_15)
+        self.gridLayout_41.setSpacing(0)
+        self.gridLayout_41.setObjectName(u"gridLayout_41")
+        self.gridLayout_41.setContentsMargins(0, 0, 0, 0)
+        self.DataGroup = QGroupBox(self.page_15)
+        self.DataGroup.setObjectName(u"DataGroup")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBox_8.sizePolicy().hasHeightForWidth())
-        self.groupBox_8.setSizePolicy(sizePolicy)
-        self.gridLayout_33 = QGridLayout(self.groupBox_8)
-        self.gridLayout_33.setObjectName(u"gridLayout_33")
-        self.gridLayout_33.setContentsMargins(1, 3, 1, 3)
-        self.gridLayout_34 = QGridLayout()
-        self.gridLayout_34.setObjectName(u"gridLayout_34")
-        self.clear = QPushButton(self.groupBox_8)
-        self.clear.setObjectName(u"clear")
-        self.clear.setMinimumSize(QSize(30, 30))
-        self.clear.setMaximumSize(QSize(30, 30))
-        self.clear.setStyleSheet(u"")
-
-        self.gridLayout_34.addWidget(self.clear, 0, 0, 1, 1)
-
-        self.show_sweeps_radio = QRadioButton(self.groupBox_8)
-        self.show_sweeps_radio.setObjectName(u"show_sweeps_radio")
-
-        self.gridLayout_34.addWidget(self.show_sweeps_radio, 0, 5, 1, 1)
-
-        self.add_meta_data_to_treeview = QPushButton(self.groupBox_8)
-        self.add_meta_data_to_treeview.setObjectName(u"add_meta_data_to_treeview")
-        self.add_meta_data_to_treeview.setMinimumSize(QSize(30, 30))
-        self.add_meta_data_to_treeview.setMaximumSize(QSize(30, 30))
-        self.add_meta_data_to_treeview.setStyleSheet(u"")
-
-        self.gridLayout_34.addWidget(self.add_meta_data_to_treeview, 0, 1, 1, 1)
-
-        self.line_3 = QFrame(self.groupBox_8)
-        self.line_3.setObjectName(u"line_3")
-        self.line_3.setFrameShape(QFrame.VLine)
-        self.line_3.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_34.addWidget(self.line_3, 0, 4, 1, 1)
-
-        self.series_to_csv = QPushButton(self.groupBox_8)
-        self.series_to_csv.setObjectName(u"series_to_csv")
-        self.series_to_csv.setMinimumSize(QSize(30, 30))
-        self.series_to_csv.setMaximumSize(QSize(30, 30))
-
-        self.gridLayout_34.addWidget(self.series_to_csv, 0, 2, 1, 1)
-
-        self.experiment_to_csv = QPushButton(self.groupBox_8)
-        self.experiment_to_csv.setObjectName(u"experiment_to_csv")
-        self.experiment_to_csv.setMinimumSize(QSize(30, 30))
-        self.experiment_to_csv.setMaximumSize(QSize(30, 30))
-
-        self.gridLayout_34.addWidget(self.experiment_to_csv, 0, 3, 1, 1)
-
-
-        self.gridLayout_33.addLayout(self.gridLayout_34, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.groupBox_8, 0, 5, 2, 1)
-
-        self.FilterOptions = QGroupBox(self.frame)
-        self.FilterOptions.setObjectName(u"FilterOptions")
-        sizePolicy.setHeightForWidth(self.FilterOptions.sizePolicy().hasHeightForWidth())
-        self.FilterOptions.setSizePolicy(sizePolicy)
-        self.gridLayout_17 = QGridLayout(self.FilterOptions)
-        self.gridLayout_17.setObjectName(u"gridLayout_17")
-        self.gridLayout_17.setContentsMargins(1, 3, 1, 3)
-        self.gridLayout_23 = QGridLayout()
-        self.gridLayout_23.setObjectName(u"gridLayout_23")
-        self.delete_selected = QPushButton(self.FilterOptions)
-        self.delete_selected.setObjectName(u"delete_selected")
-        self.delete_selected.setMinimumSize(QSize(30, 30))
-        self.delete_selected.setMaximumSize(QSize(30, 30))
-        self.delete_selected.setStyleSheet(u"")
-
-        self.gridLayout_23.addWidget(self.delete_selected, 0, 1, 1, 1)
-
-        self.add_filter_button = QPushButton(self.FilterOptions)
-        self.add_filter_button.setObjectName(u"add_filter_button")
-        self.add_filter_button.setMinimumSize(QSize(30, 30))
-        self.add_filter_button.setMaximumSize(QSize(30, 30))
-        self.add_filter_button.setStyleSheet(u"")
-
-        self.gridLayout_23.addWidget(self.add_filter_button, 0, 0, 1, 1)
-
-
-        self.gridLayout_17.addLayout(self.gridLayout_23, 3, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.FilterOptions, 0, 4, 2, 1)
-
-        self.DataGroup = QGroupBox(self.frame)
-        self.DataGroup.setObjectName(u"DataGroup")
         sizePolicy.setHeightForWidth(self.DataGroup.sizePolicy().hasHeightForWidth())
         self.DataGroup.setSizePolicy(sizePolicy)
         self.gridLayout_15 = QGridLayout(self.DataGroup)
@@ -212,91 +132,23 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_15.addLayout(self.DataOptions, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.DataGroup, 0, 1, 2, 1)
+        self.gridLayout_41.addWidget(self.DataGroup, 0, 0, 1, 1)
 
-        self.groupBox_6 = QGroupBox(self.frame)
-        self.groupBox_6.setObjectName(u"groupBox_6")
-        sizePolicy.setHeightForWidth(self.groupBox_6.sizePolicy().hasHeightForWidth())
-        self.groupBox_6.setSizePolicy(sizePolicy)
-        self.gridLayout_25 = QGridLayout(self.groupBox_6)
-        self.gridLayout_25.setObjectName(u"gridLayout_25")
-        self.gridLayout_25.setContentsMargins(1, 3, 1, 3)
-        self.gridLayout_24 = QGridLayout()
-        self.gridLayout_24.setObjectName(u"gridLayout_24")
-        self.edit_meta = QPushButton(self.groupBox_6)
-        self.edit_meta.setObjectName(u"edit_meta")
-        self.edit_meta.setMinimumSize(QSize(30, 30))
-        self.edit_meta.setMaximumSize(QSize(30, 30))
-        self.edit_meta.setStyleSheet(u"")
+        self.ribbon_data_options.addWidget(self.page_15)
+        self.page_16 = QWidget()
+        self.page_16.setObjectName(u"page_16")
+        self.ribbon_data_options.addWidget(self.page_16)
 
-        self.gridLayout_24.addWidget(self.edit_meta, 0, 0, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_data_options, 0, 3, 1, 1)
 
-        self.edit_series_meta_data = QPushButton(self.groupBox_6)
-        self.edit_series_meta_data.setObjectName(u"edit_series_meta_data")
-        self.edit_series_meta_data.setMinimumSize(QSize(30, 30))
-        self.edit_series_meta_data.setMaximumSize(QSize(30, 30))
-        self.edit_series_meta_data.setStyleSheet(u"")
-
-        self.gridLayout_24.addWidget(self.edit_series_meta_data, 0, 1, 1, 1)
-
-        self.merge_series = QPushButton(self.groupBox_6)
-        self.merge_series.setObjectName(u"merge_series")
-        self.merge_series.setMinimumSize(QSize(30, 30))
-        self.merge_series.setMaximumSize(QSize(30, 30))
-        self.merge_series.setStyleSheet(u"")
-
-        self.gridLayout_24.addWidget(self.merge_series, 0, 2, 1, 1)
-
-
-        self.gridLayout_25.addLayout(self.gridLayout_24, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.groupBox_6, 0, 3, 2, 1)
-
-        self.groupBox_2 = QGroupBox(self.frame)
-        self.groupBox_2.setObjectName(u"groupBox_2")
-        sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
-        self.groupBox_2.setSizePolicy(sizePolicy)
-        self.gridLayout_21 = QGridLayout(self.groupBox_2)
-        self.gridLayout_21.setObjectName(u"gridLayout_21")
-        self.gridLayout_21.setContentsMargins(2, 2, 2, 2)
-        self.gridLayout_11 = QGridLayout()
-        self.gridLayout_11.setObjectName(u"gridLayout_11")
-        self.go_back_button = QPushButton(self.groupBox_2)
-        self.go_back_button.setObjectName(u"go_back_button")
-        self.go_back_button.setMinimumSize(QSize(40, 40))
-        self.go_back_button.setMaximumSize(QSize(50, 503))
-        self.go_back_button.setStyleSheet(u"")
-
-        self.gridLayout_11.addWidget(self.go_back_button, 0, 2, 1, 1)
-
-        self.fo_forward_button = QPushButton(self.groupBox_2)
-        self.fo_forward_button.setObjectName(u"fo_forward_button")
-        self.fo_forward_button.setMinimumSize(QSize(40, 40))
-        self.fo_forward_button.setStyleSheet(u"")
-
-        self.gridLayout_11.addWidget(self.fo_forward_button, 0, 3, 1, 1)
-
-        self.go_home = QPushButton(self.groupBox_2)
-        self.go_home.setObjectName(u"go_home")
-        self.go_home.setMinimumSize(QSize(40, 40))
-
-        self.gridLayout_11.addWidget(self.go_home, 0, 0, 1, 1)
-
-        self.line_8 = QFrame(self.groupBox_2)
-        self.line_8.setObjectName(u"line_8")
-        self.line_8.setFrameShape(QFrame.VLine)
-        self.line_8.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_11.addWidget(self.line_8, 0, 1, 1, 1)
-
-
-        self.gridLayout_21.addLayout(self.gridLayout_11, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.groupBox_2, 0, 0, 2, 1)
-
-        self.PlotGroup = QGroupBox(self.frame)
+        self.ribbon_plot_options = QStackedWidget(self.frame)
+        self.ribbon_plot_options.setObjectName(u"ribbon_plot_options")
+        self.page_7 = QWidget()
+        self.page_7.setObjectName(u"page_7")
+        self.gridLayout_37 = QGridLayout(self.page_7)
+        self.gridLayout_37.setObjectName(u"gridLayout_37")
+        self.gridLayout_37.setContentsMargins(0, 0, 0, 0)
+        self.PlotGroup = QGroupBox(self.page_7)
         self.PlotGroup.setObjectName(u"PlotGroup")
         sizePolicy.setHeightForWidth(self.PlotGroup.sizePolicy().hasHeightForWidth())
         self.PlotGroup.setSizePolicy(sizePolicy)
@@ -366,7 +218,67 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_16.addLayout(self.PlotOptions, 0, 0, 1, 1)
 
 
-        self.gridLayout_13.addWidget(self.PlotGroup, 0, 6, 2, 1)
+        self.gridLayout_37.addWidget(self.PlotGroup, 0, 0, 1, 1)
+
+        self.ribbon_plot_options.addWidget(self.page_7)
+        self.page_8 = QWidget()
+        self.page_8.setObjectName(u"page_8")
+        self.ribbon_plot_options.addWidget(self.page_8)
+
+        self.gridLayout_13.addWidget(self.ribbon_plot_options, 0, 8, 1, 1)
+
+        self.ribbon_meta_data = QStackedWidget(self.frame)
+        self.ribbon_meta_data.setObjectName(u"ribbon_meta_data")
+        self.page_13 = QWidget()
+        self.page_13.setObjectName(u"page_13")
+        self.gridLayout_40 = QGridLayout(self.page_13)
+        self.gridLayout_40.setObjectName(u"gridLayout_40")
+        self.gridLayout_40.setContentsMargins(0, 0, 0, 0)
+        self.groupBox_6 = QGroupBox(self.page_13)
+        self.groupBox_6.setObjectName(u"groupBox_6")
+        sizePolicy.setHeightForWidth(self.groupBox_6.sizePolicy().hasHeightForWidth())
+        self.groupBox_6.setSizePolicy(sizePolicy)
+        self.gridLayout_25 = QGridLayout(self.groupBox_6)
+        self.gridLayout_25.setObjectName(u"gridLayout_25")
+        self.gridLayout_25.setContentsMargins(1, 3, 1, 3)
+        self.gridLayout_24 = QGridLayout()
+        self.gridLayout_24.setObjectName(u"gridLayout_24")
+        self.edit_meta = QPushButton(self.groupBox_6)
+        self.edit_meta.setObjectName(u"edit_meta")
+        self.edit_meta.setMinimumSize(QSize(30, 30))
+        self.edit_meta.setMaximumSize(QSize(30, 30))
+        self.edit_meta.setStyleSheet(u"")
+
+        self.gridLayout_24.addWidget(self.edit_meta, 0, 0, 1, 1)
+
+        self.edit_series_meta_data = QPushButton(self.groupBox_6)
+        self.edit_series_meta_data.setObjectName(u"edit_series_meta_data")
+        self.edit_series_meta_data.setMinimumSize(QSize(30, 30))
+        self.edit_series_meta_data.setMaximumSize(QSize(30, 30))
+        self.edit_series_meta_data.setStyleSheet(u"")
+
+        self.gridLayout_24.addWidget(self.edit_series_meta_data, 0, 1, 1, 1)
+
+        self.merge_series = QPushButton(self.groupBox_6)
+        self.merge_series.setObjectName(u"merge_series")
+        self.merge_series.setMinimumSize(QSize(30, 30))
+        self.merge_series.setMaximumSize(QSize(30, 30))
+        self.merge_series.setStyleSheet(u"")
+
+        self.gridLayout_24.addWidget(self.merge_series, 0, 2, 1, 1)
+
+
+        self.gridLayout_25.addLayout(self.gridLayout_24, 0, 0, 1, 1)
+
+
+        self.gridLayout_40.addWidget(self.groupBox_6, 0, 0, 1, 1)
+
+        self.ribbon_meta_data.addWidget(self.page_13)
+        self.page_14 = QWidget()
+        self.page_14.setObjectName(u"page_14")
+        self.ribbon_meta_data.addWidget(self.page_14)
+
+        self.gridLayout_13.addWidget(self.ribbon_meta_data, 0, 5, 1, 1)
 
         self.ribbon_series_normalization = QStackedWidget(self.frame)
         self.ribbon_series_normalization.setObjectName(u"ribbon_series_normalization")
@@ -456,7 +368,7 @@ class Ui_Offline_Analysis(object):
 
         self.ribbon_series_normalization.addWidget(self.page_3)
 
-        self.gridLayout_13.addWidget(self.ribbon_series_normalization, 0, 8, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_series_normalization, 0, 9, 1, 1)
 
         self.ribbon_analysis = QStackedWidget(self.frame)
         self.ribbon_analysis.setObjectName(u"ribbon_analysis")
@@ -545,7 +457,208 @@ class Ui_Offline_Analysis(object):
 
         self.ribbon_analysis.addWidget(self.page_6)
 
-        self.gridLayout_13.addWidget(self.ribbon_analysis, 0, 9, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_analysis, 0, 10, 1, 1)
+
+        self.ribbon_filter_options = QStackedWidget(self.frame)
+        self.ribbon_filter_options.setObjectName(u"ribbon_filter_options")
+        self.page_11 = QWidget()
+        self.page_11.setObjectName(u"page_11")
+        self.gridLayout_39 = QGridLayout(self.page_11)
+        self.gridLayout_39.setObjectName(u"gridLayout_39")
+        self.gridLayout_39.setContentsMargins(0, 0, 0, 0)
+        self.FilterOptions = QGroupBox(self.page_11)
+        self.FilterOptions.setObjectName(u"FilterOptions")
+        sizePolicy.setHeightForWidth(self.FilterOptions.sizePolicy().hasHeightForWidth())
+        self.FilterOptions.setSizePolicy(sizePolicy)
+        self.gridLayout_17 = QGridLayout(self.FilterOptions)
+        self.gridLayout_17.setObjectName(u"gridLayout_17")
+        self.gridLayout_17.setContentsMargins(1, 3, 1, 3)
+        self.gridLayout_23 = QGridLayout()
+        self.gridLayout_23.setObjectName(u"gridLayout_23")
+        self.delete_selected = QPushButton(self.FilterOptions)
+        self.delete_selected.setObjectName(u"delete_selected")
+        self.delete_selected.setMinimumSize(QSize(30, 30))
+        self.delete_selected.setMaximumSize(QSize(30, 30))
+        self.delete_selected.setStyleSheet(u"")
+
+        self.gridLayout_23.addWidget(self.delete_selected, 0, 1, 1, 1)
+
+        self.add_filter_button = QPushButton(self.FilterOptions)
+        self.add_filter_button.setObjectName(u"add_filter_button")
+        self.add_filter_button.setMinimumSize(QSize(30, 30))
+        self.add_filter_button.setMaximumSize(QSize(30, 30))
+        self.add_filter_button.setStyleSheet(u"")
+
+        self.gridLayout_23.addWidget(self.add_filter_button, 0, 0, 1, 1)
+
+
+        self.gridLayout_17.addLayout(self.gridLayout_23, 3, 0, 1, 1)
+
+
+        self.gridLayout_39.addWidget(self.FilterOptions, 0, 0, 1, 1)
+
+        self.ribbon_filter_options.addWidget(self.page_11)
+        self.page_12 = QWidget()
+        self.page_12.setObjectName(u"page_12")
+        self.ribbon_filter_options.addWidget(self.page_12)
+
+        self.gridLayout_13.addWidget(self.ribbon_filter_options, 0, 6, 1, 1)
+
+        self.ribbon_treeview_options = QStackedWidget(self.frame)
+        self.ribbon_treeview_options.setObjectName(u"ribbon_treeview_options")
+        self.page_9 = QWidget()
+        self.page_9.setObjectName(u"page_9")
+        self.gridLayout_38 = QGridLayout(self.page_9)
+        self.gridLayout_38.setObjectName(u"gridLayout_38")
+        self.gridLayout_38.setContentsMargins(0, 0, 0, 0)
+        self.groupBox_8 = QGroupBox(self.page_9)
+        self.groupBox_8.setObjectName(u"groupBox_8")
+        sizePolicy.setHeightForWidth(self.groupBox_8.sizePolicy().hasHeightForWidth())
+        self.groupBox_8.setSizePolicy(sizePolicy)
+        self.gridLayout_33 = QGridLayout(self.groupBox_8)
+        self.gridLayout_33.setObjectName(u"gridLayout_33")
+        self.gridLayout_33.setContentsMargins(1, 3, 1, 3)
+        self.gridLayout_34 = QGridLayout()
+        self.gridLayout_34.setObjectName(u"gridLayout_34")
+        self.clear = QPushButton(self.groupBox_8)
+        self.clear.setObjectName(u"clear")
+        self.clear.setMinimumSize(QSize(30, 30))
+        self.clear.setMaximumSize(QSize(30, 30))
+        self.clear.setStyleSheet(u"")
+
+        self.gridLayout_34.addWidget(self.clear, 0, 0, 1, 1)
+
+        self.show_sweeps_radio = QRadioButton(self.groupBox_8)
+        self.show_sweeps_radio.setObjectName(u"show_sweeps_radio")
+
+        self.gridLayout_34.addWidget(self.show_sweeps_radio, 0, 5, 1, 1)
+
+        self.add_meta_data_to_treeview = QPushButton(self.groupBox_8)
+        self.add_meta_data_to_treeview.setObjectName(u"add_meta_data_to_treeview")
+        self.add_meta_data_to_treeview.setMinimumSize(QSize(30, 30))
+        self.add_meta_data_to_treeview.setMaximumSize(QSize(30, 30))
+        self.add_meta_data_to_treeview.setStyleSheet(u"")
+
+        self.gridLayout_34.addWidget(self.add_meta_data_to_treeview, 0, 1, 1, 1)
+
+        self.line_3 = QFrame(self.groupBox_8)
+        self.line_3.setObjectName(u"line_3")
+        self.line_3.setFrameShape(QFrame.VLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_34.addWidget(self.line_3, 0, 4, 1, 1)
+
+        self.series_to_csv = QPushButton(self.groupBox_8)
+        self.series_to_csv.setObjectName(u"series_to_csv")
+        self.series_to_csv.setMinimumSize(QSize(30, 30))
+        self.series_to_csv.setMaximumSize(QSize(30, 30))
+
+        self.gridLayout_34.addWidget(self.series_to_csv, 0, 2, 1, 1)
+
+        self.experiment_to_csv = QPushButton(self.groupBox_8)
+        self.experiment_to_csv.setObjectName(u"experiment_to_csv")
+        self.experiment_to_csv.setMinimumSize(QSize(30, 30))
+        self.experiment_to_csv.setMaximumSize(QSize(30, 30))
+
+        self.gridLayout_34.addWidget(self.experiment_to_csv, 0, 3, 1, 1)
+
+
+        self.gridLayout_33.addLayout(self.gridLayout_34, 0, 0, 1, 1)
+
+
+        self.gridLayout_38.addWidget(self.groupBox_8, 0, 0, 1, 1)
+
+        self.ribbon_treeview_options.addWidget(self.page_9)
+        self.page_10 = QWidget()
+        self.page_10.setObjectName(u"page_10")
+        self.ribbon_treeview_options.addWidget(self.page_10)
+
+        self.gridLayout_13.addWidget(self.ribbon_treeview_options, 0, 7, 1, 1)
+
+        self.ribbon_home = QStackedWidget(self.frame)
+        self.ribbon_home.setObjectName(u"ribbon_home")
+        self.page_21 = QWidget()
+        self.page_21.setObjectName(u"page_21")
+        self.gridLayout_43 = QGridLayout(self.page_21)
+        self.gridLayout_43.setObjectName(u"gridLayout_43")
+        self.gridLayout_43.setContentsMargins(0, 0, 0, 0)
+        self.ribbon_home.addWidget(self.page_21)
+        self.page_22 = QWidget()
+        self.page_22.setObjectName(u"page_22")
+        self.ribbon_home.addWidget(self.page_22)
+
+        self.gridLayout_13.addWidget(self.ribbon_home, 0, 2, 1, 1)
+
+        self.ribbon_page_control = QStackedWidget(self.frame)
+        self.ribbon_page_control.setObjectName(u"ribbon_page_control")
+        self.page_17 = QWidget()
+        self.page_17.setObjectName(u"page_17")
+        self.gridLayout_42 = QGridLayout(self.page_17)
+        self.gridLayout_42.setObjectName(u"gridLayout_42")
+        self.gridLayout_42.setContentsMargins(0, 0, 0, 0)
+        self.groupBox_2 = QGroupBox(self.page_17)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
+        self.groupBox_2.setSizePolicy(sizePolicy)
+        self.gridLayout_21 = QGridLayout(self.groupBox_2)
+        self.gridLayout_21.setObjectName(u"gridLayout_21")
+        self.gridLayout_21.setContentsMargins(2, 2, 2, 2)
+        self.gridLayout_11 = QGridLayout()
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+        self.go_back_button = QPushButton(self.groupBox_2)
+        self.go_back_button.setObjectName(u"go_back_button")
+        self.go_back_button.setMinimumSize(QSize(40, 40))
+        self.go_back_button.setMaximumSize(QSize(50, 503))
+        self.go_back_button.setStyleSheet(u"")
+
+        self.gridLayout_11.addWidget(self.go_back_button, 0, 2, 1, 1)
+
+        self.fo_forward_button = QPushButton(self.groupBox_2)
+        self.fo_forward_button.setObjectName(u"fo_forward_button")
+        self.fo_forward_button.setMinimumSize(QSize(40, 40))
+        self.fo_forward_button.setStyleSheet(u"")
+
+        self.gridLayout_11.addWidget(self.fo_forward_button, 0, 3, 1, 1)
+
+        self.go_home = QPushButton(self.groupBox_2)
+        self.go_home.setObjectName(u"go_home")
+        self.go_home.setMinimumSize(QSize(40, 40))
+
+        self.gridLayout_11.addWidget(self.go_home, 0, 0, 1, 1)
+
+        self.line_8 = QFrame(self.groupBox_2)
+        self.line_8.setObjectName(u"line_8")
+        self.line_8.setFrameShape(QFrame.VLine)
+        self.line_8.setFrameShadow(QFrame.Sunken)
+
+        self.gridLayout_11.addWidget(self.line_8, 0, 1, 1, 1)
+
+
+        self.gridLayout_21.addLayout(self.gridLayout_11, 0, 0, 1, 1)
+
+
+        self.gridLayout_42.addWidget(self.groupBox_2, 0, 0, 1, 1)
+
+        self.ribbon_page_control.addWidget(self.page_17)
+        self.page_18 = QWidget()
+        self.page_18.setObjectName(u"page_18")
+        self.ribbon_page_control.addWidget(self.page_18)
+
+        self.gridLayout_13.addWidget(self.ribbon_page_control, 0, 1, 1, 1)
+
+        self.groupBox_9 = QGroupBox(self.frame)
+        self.groupBox_9.setObjectName(u"groupBox_9")
+        self.gridLayout_44 = QGridLayout(self.groupBox_9)
+        self.gridLayout_44.setObjectName(u"gridLayout_44")
+        self.home_button = QPushButton(self.groupBox_9)
+        self.home_button.setObjectName(u"home_button")
+        self.home_button.setMinimumSize(QSize(75, 65))
+        self.home_button.setMaximumSize(QSize(75, 65))
+
+        self.gridLayout_44.addWidget(self.home_button, 0, 0, 1, 1)
+
+
+        self.gridLayout_13.addWidget(self.groupBox_9, 0, 0, 1, 1)
 
 
         self.gridLayout_8.addWidget(self.frame, 0, 0, 1, 1)
@@ -699,6 +812,65 @@ class Ui_Offline_Analysis(object):
 
     def retranslateUi(self, Offline_Analysis):
         Offline_Analysis.setWindowTitle(QCoreApplication.translate("Offline_Analysis", u"Form", None))
+        self.DataGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data Options", None))
+#if QT_CONFIG(tooltip)
+        self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
+#endif // QT_CONFIG(tooltip)
+        self.load_from_database.setText("")
+#if QT_CONFIG(tooltip)
+        self.append.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Series can be merged and aggregations performed creating a new series</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.append.setText("")
+#if QT_CONFIG(tooltip)
+        self.change_series_name.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Rename Series</span></p><p>Change the name of a series</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.change_series_name.setText("")
+        self.select_directory_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.load_selected_discarded.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Load Discarded Flags </span></p><p>Apply already performed selection of discarded and selected data from a previous analysis</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.load_selected_discarded.setText("")
+        self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
+        self.plot_zoom.setText("")
+        self.plot_home.setText("")
+        self.plot_meta.setText("")
+        self.plot_move.setText("")
+        self.turn_off_grid.setText("")
+        self.show_pgf_trace.setText("")
+        self.groupBox_6.setTitle(QCoreApplication.translate("Offline_Analysis", u"Edit Metadata", None))
+#if QT_CONFIG(tooltip)
+        self.edit_meta.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Experiment Meta Data", None))
+#endif // QT_CONFIG(tooltip)
+        self.edit_meta.setText("")
+#if QT_CONFIG(tooltip)
+        self.edit_series_meta_data.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Series Meta Data", None))
+#endif // QT_CONFIG(tooltip)
+        self.edit_series_meta_data.setText("")
+        self.merge_series.setText("")
+        self.SeriesSelection.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Series", None))
+#if QT_CONFIG(tooltip)
+        self.compare_series.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Specifiy which Series should be analyzed</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.compare_series.setText("")
+        self.groupBox_3.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Analysis", None))
+        self.select_analysis_fct.setText("")
+        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Configure Report", None))
+        self.configure_report_button.setText("")
+        self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Set Up Analysis", None))
+        self.start_analysis.setText("")
+        self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Run Analysis", None))
+        self.run_analysis_functions.setText("")
+        self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Create Report", None))
+        self.create_report_button.setText("")
+        self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
+#if QT_CONFIG(tooltip)
+        self.delete_selected.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Delete the selected experiments</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.delete_selected.setText("")
+#if QT_CONFIG(tooltip)
+        self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.add_filter_button.setText("")
         self.groupBox_8.setTitle(QCoreApplication.translate("Offline_Analysis", u"Treeview Options", None))
 #if QT_CONFIG(tooltip)
         self.clear.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Clean the Treeview", None))
@@ -720,69 +892,12 @@ class Ui_Offline_Analysis(object):
         self.experiment_to_csv.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Download raw data from currently selected experiment from Treeview</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.experiment_to_csv.setText("")
-        self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
-#if QT_CONFIG(tooltip)
-        self.delete_selected.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Delete the selected experiments</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.delete_selected.setText("")
-#if QT_CONFIG(tooltip)
-        self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.add_filter_button.setText("")
-        self.DataGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data Options", None))
-#if QT_CONFIG(tooltip)
-        self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
-#endif // QT_CONFIG(tooltip)
-        self.load_from_database.setText("")
-#if QT_CONFIG(tooltip)
-        self.append.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Series can be merged and aggregations performed creating a new series</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.append.setText("")
-#if QT_CONFIG(tooltip)
-        self.change_series_name.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Rename Series</span></p><p>Change the name of a series</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.change_series_name.setText("")
-        self.select_directory_button.setText("")
-#if QT_CONFIG(tooltip)
-        self.load_selected_discarded.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Load Discarded Flags </span></p><p>Apply already performed selection of discarded and selected data from a previous analysis</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.load_selected_discarded.setText("")
-        self.groupBox_6.setTitle(QCoreApplication.translate("Offline_Analysis", u"Edit Metadata", None))
-#if QT_CONFIG(tooltip)
-        self.edit_meta.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Experiment Meta Data", None))
-#endif // QT_CONFIG(tooltip)
-        self.edit_meta.setText("")
-#if QT_CONFIG(tooltip)
-        self.edit_series_meta_data.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Series Meta Data", None))
-#endif // QT_CONFIG(tooltip)
-        self.edit_series_meta_data.setText("")
-        self.merge_series.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Page Control", None))
         self.go_back_button.setText("")
         self.fo_forward_button.setText("")
         self.go_home.setText("")
-        self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
-        self.plot_zoom.setText("")
-        self.plot_home.setText("")
-        self.plot_meta.setText("")
-        self.plot_move.setText("")
-        self.turn_off_grid.setText("")
-        self.show_pgf_trace.setText("")
-        self.SeriesSelection.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Series", None))
-#if QT_CONFIG(tooltip)
-        self.compare_series.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Specifiy which Series should be analyzed</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.compare_series.setText("")
-        self.groupBox_3.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Analysis", None))
-        self.select_analysis_fct.setText("")
-        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Configure Report", None))
-        self.configure_report_button.setText("")
-        self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Set Up Analysis", None))
-        self.start_analysis.setText("")
-        self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Run Analysis", None))
-        self.run_analysis_functions.setText("")
-        self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Create Report", None))
-        self.create_report_button.setText("")
+        self.groupBox_9.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))
+        self.home_button.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
     # retranslateUi
 
