@@ -86,7 +86,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
         self.ui.toolButton_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 5))
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
-        self.ui.offline.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.offline.home_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
@@ -197,10 +197,13 @@ class MainWindow(QMainWindow, QtStyleTools):
 
 if __name__ == "__main__":
     """Main function to start the application"""
-    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
     os.environ["QT_SCALE_FACTOR"] = '1'
+    #os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+    
     #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()

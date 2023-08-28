@@ -316,7 +316,7 @@ QToolTip[objectName="configure_report_button"] {{color: #ffffff; background-colo
 QPushButton[objectName="create_report_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/print_report.png);}}
 QToolTip[objectName="create_report_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="home_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png);}}
+QPushButton[objectName="home_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png); height: 60px; margin-bottom: 30px}}
 QToolTip[objectName="home_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QPushButton[objectName="change_series_name"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/rename.png);}}  
