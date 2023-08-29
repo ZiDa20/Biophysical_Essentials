@@ -204,7 +204,9 @@ class Ui_SpecificAnalysisTab(object):
                 self.CameraMDI.addSubWindow(self.PlotWindow)
                 self.subwindow.setWidget(self.treebuild)
                 self.CameraMDI.addSubWindow(self.subwindow)
-                              
+
+                
+
                 #self.subwindow_calc.setWidget(self.groupBox)
                 #self.CameraMDI.addSubWindow(self.subwindow_calc)
                 self.gridLayout_2.addWidget(self.analysis_functions,0,1)

@@ -99,6 +99,13 @@ class SeriesItemTreeWidget():
             index += self.tree_widget_index_count
             # Custom designer widget: contains treeview, plot, analysis function table ...
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
+
+            #custom_icon = QIcon(r'C:\Users\davee\Desktop\SP\Biophysical_Essentials\QT_GUI\Button\light_mode\offline_analysis\mdi_structure20.png')
+            custom_icon = QIcon(r'../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+            new_tab_widget.subwindow.setWindowIcon(custom_icon)
+            #custom_icon = QIcon(r'C:\Users\davee\Desktop\SP\Biophysical_Essentials\QT_GUI\Button\light_mode\offline_analysis\mdi_data20.png')
+            new_tab_widget.PlotWindow.setWindowIcon(custom_icon)
+
             print(s)
             new_tab_widget.analysis_functions.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
             # show normalization options only in voltage clamp mode to avoid further checks user confusion

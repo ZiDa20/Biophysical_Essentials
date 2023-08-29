@@ -62,89 +62,24 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_13.setObjectName(u"gridLayout_13")
         self.gridLayout_13.setHorizontalSpacing(5)
         self.gridLayout_13.setContentsMargins(2, 2, 2, 2)
-        self.ribbon_data_options = QStackedWidget(self.frame)
-        self.ribbon_data_options.setObjectName(u"ribbon_data_options")
-        self.page_15 = QWidget()
-        self.page_15.setObjectName(u"page_15")
-        self.gridLayout_41 = QGridLayout(self.page_15)
-        self.gridLayout_41.setSpacing(0)
-        self.gridLayout_41.setObjectName(u"gridLayout_41")
-        self.gridLayout_41.setContentsMargins(0, 0, 0, 0)
-        self.DataGroup = QGroupBox(self.page_15)
-        self.DataGroup.setObjectName(u"DataGroup")
+        self.groupBox_9 = QGroupBox(self.frame)
+        self.groupBox_9.setObjectName(u"groupBox_9")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.DataGroup.sizePolicy().hasHeightForWidth())
-        self.DataGroup.setSizePolicy(sizePolicy1)
-        self.gridLayout_15 = QGridLayout(self.DataGroup)
-        self.gridLayout_15.setObjectName(u"gridLayout_15")
-        self.gridLayout_15.setContentsMargins(1, 3, 1, 3)
-        self.DataOptions = QGridLayout()
-        self.DataOptions.setObjectName(u"DataOptions")
-        self.load_from_database = QPushButton(self.DataGroup)
-        self.load_from_database.setObjectName(u"load_from_database")
-        self.load_from_database.setMinimumSize(QSize(30, 30))
-        self.load_from_database.setMaximumSize(QSize(30, 30))
-        self.load_from_database.setStyleSheet(u"")
+        sizePolicy1.setHeightForWidth(self.groupBox_9.sizePolicy().hasHeightForWidth())
+        self.groupBox_9.setSizePolicy(sizePolicy1)
+        self.gridLayout_44 = QGridLayout(self.groupBox_9)
+        self.gridLayout_44.setObjectName(u"gridLayout_44")
+        self.home_button = QPushButton(self.groupBox_9)
+        self.home_button.setObjectName(u"home_button")
+        self.home_button.setMinimumSize(QSize(75, 65))
+        self.home_button.setMaximumSize(QSize(75, 65))
 
-        self.DataOptions.addWidget(self.load_from_database, 0, 1, 1, 1)
-
-        self.append = QPushButton(self.DataGroup)
-        self.append.setObjectName(u"append")
-        self.append.setMinimumSize(QSize(30, 30))
-        self.append.setMaximumSize(QSize(30, 30))
-        self.append.setStyleSheet(u"")
-
-        self.DataOptions.addWidget(self.append, 0, 2, 1, 1)
-
-        self.change_series_name = QPushButton(self.DataGroup)
-        self.change_series_name.setObjectName(u"change_series_name")
-        self.change_series_name.setMinimumSize(QSize(30, 30))
-        self.change_series_name.setMaximumSize(QSize(30, 30))
-
-        self.DataOptions.addWidget(self.change_series_name, 0, 3, 1, 1)
-
-        self.select_directory_button = QPushButton(self.DataGroup)
-        self.select_directory_button.setObjectName(u"select_directory_button")
-        self.select_directory_button.setMinimumSize(QSize(30, 30))
-        self.select_directory_button.setMaximumSize(QSize(30, 30))
-#if QT_CONFIG(tooltip)
-        self.select_directory_button.setToolTip(u"Load data from directory into database")
-#endif // QT_CONFIG(tooltip)
-#if QT_CONFIG(statustip)
-        self.select_directory_button.setStatusTip(u"")
-#endif // QT_CONFIG(statustip)
-#if QT_CONFIG(whatsthis)
-        self.select_directory_button.setWhatsThis(u"")
-#endif // QT_CONFIG(whatsthis)
-#if QT_CONFIG(accessibility)
-        self.select_directory_button.setAccessibleName(u"")
-#endif // QT_CONFIG(accessibility)
-        self.select_directory_button.setAutoFillBackground(False)
-        self.select_directory_button.setStyleSheet(u"")
-
-        self.DataOptions.addWidget(self.select_directory_button, 0, 0, 1, 1)
-
-        self.load_selected_discarded = QPushButton(self.DataGroup)
-        self.load_selected_discarded.setObjectName(u"load_selected_discarded")
-        self.load_selected_discarded.setMinimumSize(QSize(30, 30))
-        self.load_selected_discarded.setMaximumSize(QSize(30, 30))
-
-        self.DataOptions.addWidget(self.load_selected_discarded, 0, 4, 1, 1)
+        self.gridLayout_44.addWidget(self.home_button, 0, 0, 1, 1)
 
 
-        self.gridLayout_15.addLayout(self.DataOptions, 0, 0, 1, 1)
-
-
-        self.gridLayout_41.addWidget(self.DataGroup, 0, 0, 1, 1)
-
-        self.ribbon_data_options.addWidget(self.page_15)
-        self.page_16 = QWidget()
-        self.page_16.setObjectName(u"page_16")
-        self.ribbon_data_options.addWidget(self.page_16)
-
-        self.gridLayout_13.addWidget(self.ribbon_data_options, 0, 3, 1, 1)
+        self.gridLayout_13.addWidget(self.groupBox_9, 0, 0, 1, 1)
 
         self.ribbon_plot_options = QStackedWidget(self.frame)
         self.ribbon_plot_options.setObjectName(u"ribbon_plot_options")
@@ -230,10 +165,138 @@ class Ui_Offline_Analysis(object):
         self.page_8.setObjectName(u"page_8")
         self.ribbon_plot_options.addWidget(self.page_8)
 
-        self.gridLayout_13.addWidget(self.ribbon_plot_options, 0, 8, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_plot_options, 0, 7, 1, 1)
+
+        self.ribbon_data_options = QStackedWidget(self.frame)
+        self.ribbon_data_options.setObjectName(u"ribbon_data_options")
+        self.page_15 = QWidget()
+        self.page_15.setObjectName(u"page_15")
+        self.gridLayout_41 = QGridLayout(self.page_15)
+        self.gridLayout_41.setSpacing(0)
+        self.gridLayout_41.setObjectName(u"gridLayout_41")
+        self.gridLayout_41.setContentsMargins(0, 0, 0, 0)
+        self.DataGroup = QGroupBox(self.page_15)
+        self.DataGroup.setObjectName(u"DataGroup")
+        sizePolicy1.setHeightForWidth(self.DataGroup.sizePolicy().hasHeightForWidth())
+        self.DataGroup.setSizePolicy(sizePolicy1)
+        self.gridLayout_15 = QGridLayout(self.DataGroup)
+        self.gridLayout_15.setObjectName(u"gridLayout_15")
+        self.gridLayout_15.setContentsMargins(1, 3, 1, 3)
+        self.DataOptions = QGridLayout()
+        self.DataOptions.setObjectName(u"DataOptions")
+        self.load_from_database = QPushButton(self.DataGroup)
+        self.load_from_database.setObjectName(u"load_from_database")
+        self.load_from_database.setMinimumSize(QSize(30, 30))
+        self.load_from_database.setMaximumSize(QSize(30, 30))
+        self.load_from_database.setStyleSheet(u"")
+
+        self.DataOptions.addWidget(self.load_from_database, 0, 1, 1, 1)
+
+        self.append = QPushButton(self.DataGroup)
+        self.append.setObjectName(u"append")
+        self.append.setMinimumSize(QSize(30, 30))
+        self.append.setMaximumSize(QSize(30, 30))
+        self.append.setStyleSheet(u"")
+
+        self.DataOptions.addWidget(self.append, 0, 2, 1, 1)
+
+        self.change_series_name = QPushButton(self.DataGroup)
+        self.change_series_name.setObjectName(u"change_series_name")
+        self.change_series_name.setMinimumSize(QSize(30, 30))
+        self.change_series_name.setMaximumSize(QSize(30, 30))
+
+        self.DataOptions.addWidget(self.change_series_name, 0, 3, 1, 1)
+
+        self.select_directory_button = QPushButton(self.DataGroup)
+        self.select_directory_button.setObjectName(u"select_directory_button")
+        self.select_directory_button.setMinimumSize(QSize(30, 30))
+        self.select_directory_button.setMaximumSize(QSize(30, 30))
+#if QT_CONFIG(tooltip)
+        self.select_directory_button.setToolTip(u"Load data from directory into database")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(statustip)
+        self.select_directory_button.setStatusTip(u"")
+#endif // QT_CONFIG(statustip)
+#if QT_CONFIG(whatsthis)
+        self.select_directory_button.setWhatsThis(u"")
+#endif // QT_CONFIG(whatsthis)
+#if QT_CONFIG(accessibility)
+        self.select_directory_button.setAccessibleName(u"")
+#endif // QT_CONFIG(accessibility)
+        self.select_directory_button.setAutoFillBackground(False)
+        self.select_directory_button.setStyleSheet(u"")
+
+        self.DataOptions.addWidget(self.select_directory_button, 0, 0, 1, 1)
+
+        self.load_selected_discarded = QPushButton(self.DataGroup)
+        self.load_selected_discarded.setObjectName(u"load_selected_discarded")
+        self.load_selected_discarded.setMinimumSize(QSize(30, 30))
+        self.load_selected_discarded.setMaximumSize(QSize(30, 30))
+
+        self.DataOptions.addWidget(self.load_selected_discarded, 0, 4, 1, 1)
+
+
+        self.gridLayout_15.addLayout(self.DataOptions, 0, 0, 1, 1)
+
+
+        self.gridLayout_41.addWidget(self.DataGroup, 0, 0, 1, 1)
+
+        self.ribbon_data_options.addWidget(self.page_15)
+        self.page_16 = QWidget()
+        self.page_16.setObjectName(u"page_16")
+        self.ribbon_data_options.addWidget(self.page_16)
+
+        self.gridLayout_13.addWidget(self.ribbon_data_options, 0, 2, 1, 1)
+
+        self.ribbon_filter_options = QStackedWidget(self.frame)
+        self.ribbon_filter_options.setObjectName(u"ribbon_filter_options")
+        self.page_11 = QWidget()
+        self.page_11.setObjectName(u"page_11")
+        self.gridLayout_39 = QGridLayout(self.page_11)
+        self.gridLayout_39.setObjectName(u"gridLayout_39")
+        self.gridLayout_39.setContentsMargins(0, 0, 0, 0)
+        self.FilterOptions = QGroupBox(self.page_11)
+        self.FilterOptions.setObjectName(u"FilterOptions")
+        sizePolicy1.setHeightForWidth(self.FilterOptions.sizePolicy().hasHeightForWidth())
+        self.FilterOptions.setSizePolicy(sizePolicy1)
+        self.gridLayout_17 = QGridLayout(self.FilterOptions)
+        self.gridLayout_17.setObjectName(u"gridLayout_17")
+        self.gridLayout_17.setContentsMargins(1, 3, 1, 3)
+        self.gridLayout_23 = QGridLayout()
+        self.gridLayout_23.setObjectName(u"gridLayout_23")
+        self.delete_selected = QPushButton(self.FilterOptions)
+        self.delete_selected.setObjectName(u"delete_selected")
+        self.delete_selected.setMinimumSize(QSize(30, 30))
+        self.delete_selected.setMaximumSize(QSize(30, 30))
+        self.delete_selected.setStyleSheet(u"")
+
+        self.gridLayout_23.addWidget(self.delete_selected, 0, 1, 1, 1)
+
+        self.add_filter_button = QPushButton(self.FilterOptions)
+        self.add_filter_button.setObjectName(u"add_filter_button")
+        self.add_filter_button.setMinimumSize(QSize(30, 30))
+        self.add_filter_button.setMaximumSize(QSize(30, 30))
+        self.add_filter_button.setStyleSheet(u"")
+
+        self.gridLayout_23.addWidget(self.add_filter_button, 0, 0, 1, 1)
+
+
+        self.gridLayout_17.addLayout(self.gridLayout_23, 3, 0, 1, 1)
+
+
+        self.gridLayout_39.addWidget(self.FilterOptions, 0, 0, 1, 1)
+
+        self.ribbon_filter_options.addWidget(self.page_11)
+        self.page_12 = QWidget()
+        self.page_12.setObjectName(u"page_12")
+        self.ribbon_filter_options.addWidget(self.page_12)
+
+        self.gridLayout_13.addWidget(self.ribbon_filter_options, 0, 5, 1, 1)
 
         self.ribbon_meta_data = QStackedWidget(self.frame)
         self.ribbon_meta_data.setObjectName(u"ribbon_meta_data")
+        sizePolicy1.setHeightForWidth(self.ribbon_meta_data.sizePolicy().hasHeightForWidth())
+        self.ribbon_meta_data.setSizePolicy(sizePolicy1)
         self.page_13 = QWidget()
         self.page_13.setObjectName(u"page_13")
         self.gridLayout_40 = QGridLayout(self.page_13)
@@ -283,7 +346,7 @@ class Ui_Offline_Analysis(object):
         self.page_14.setObjectName(u"page_14")
         self.ribbon_meta_data.addWidget(self.page_14)
 
-        self.gridLayout_13.addWidget(self.ribbon_meta_data, 0, 5, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_meta_data, 0, 4, 1, 1)
 
         self.ribbon_series_normalization = QStackedWidget(self.frame)
         self.ribbon_series_normalization.setObjectName(u"ribbon_series_normalization")
@@ -373,7 +436,7 @@ class Ui_Offline_Analysis(object):
 
         self.ribbon_series_normalization.addWidget(self.page_3)
 
-        self.gridLayout_13.addWidget(self.ribbon_series_normalization, 0, 9, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_series_normalization, 0, 8, 1, 1)
 
         self.ribbon_analysis = QStackedWidget(self.frame)
         self.ribbon_analysis.setObjectName(u"ribbon_analysis")
@@ -462,52 +525,7 @@ class Ui_Offline_Analysis(object):
 
         self.ribbon_analysis.addWidget(self.page_6)
 
-        self.gridLayout_13.addWidget(self.ribbon_analysis, 0, 10, 1, 1)
-
-        self.ribbon_filter_options = QStackedWidget(self.frame)
-        self.ribbon_filter_options.setObjectName(u"ribbon_filter_options")
-        self.page_11 = QWidget()
-        self.page_11.setObjectName(u"page_11")
-        self.gridLayout_39 = QGridLayout(self.page_11)
-        self.gridLayout_39.setObjectName(u"gridLayout_39")
-        self.gridLayout_39.setContentsMargins(0, 0, 0, 0)
-        self.FilterOptions = QGroupBox(self.page_11)
-        self.FilterOptions.setObjectName(u"FilterOptions")
-        sizePolicy1.setHeightForWidth(self.FilterOptions.sizePolicy().hasHeightForWidth())
-        self.FilterOptions.setSizePolicy(sizePolicy1)
-        self.gridLayout_17 = QGridLayout(self.FilterOptions)
-        self.gridLayout_17.setObjectName(u"gridLayout_17")
-        self.gridLayout_17.setContentsMargins(1, 3, 1, 3)
-        self.gridLayout_23 = QGridLayout()
-        self.gridLayout_23.setObjectName(u"gridLayout_23")
-        self.delete_selected = QPushButton(self.FilterOptions)
-        self.delete_selected.setObjectName(u"delete_selected")
-        self.delete_selected.setMinimumSize(QSize(30, 30))
-        self.delete_selected.setMaximumSize(QSize(30, 30))
-        self.delete_selected.setStyleSheet(u"")
-
-        self.gridLayout_23.addWidget(self.delete_selected, 0, 1, 1, 1)
-
-        self.add_filter_button = QPushButton(self.FilterOptions)
-        self.add_filter_button.setObjectName(u"add_filter_button")
-        self.add_filter_button.setMinimumSize(QSize(30, 30))
-        self.add_filter_button.setMaximumSize(QSize(30, 30))
-        self.add_filter_button.setStyleSheet(u"")
-
-        self.gridLayout_23.addWidget(self.add_filter_button, 0, 0, 1, 1)
-
-
-        self.gridLayout_17.addLayout(self.gridLayout_23, 3, 0, 1, 1)
-
-
-        self.gridLayout_39.addWidget(self.FilterOptions, 0, 0, 1, 1)
-
-        self.ribbon_filter_options.addWidget(self.page_11)
-        self.page_12 = QWidget()
-        self.page_12.setObjectName(u"page_12")
-        self.ribbon_filter_options.addWidget(self.page_12)
-
-        self.gridLayout_13.addWidget(self.ribbon_filter_options, 0, 6, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_analysis, 0, 9, 1, 1)
 
         self.ribbon_treeview_options = QStackedWidget(self.frame)
         self.ribbon_treeview_options.setObjectName(u"ribbon_treeview_options")
@@ -578,21 +596,7 @@ class Ui_Offline_Analysis(object):
         self.page_10.setObjectName(u"page_10")
         self.ribbon_treeview_options.addWidget(self.page_10)
 
-        self.gridLayout_13.addWidget(self.ribbon_treeview_options, 0, 7, 1, 1)
-
-        self.ribbon_home = QStackedWidget(self.frame)
-        self.ribbon_home.setObjectName(u"ribbon_home")
-        self.page_21 = QWidget()
-        self.page_21.setObjectName(u"page_21")
-        self.gridLayout_43 = QGridLayout(self.page_21)
-        self.gridLayout_43.setObjectName(u"gridLayout_43")
-        self.gridLayout_43.setContentsMargins(0, 0, 0, 0)
-        self.ribbon_home.addWidget(self.page_21)
-        self.page_22 = QWidget()
-        self.page_22.setObjectName(u"page_22")
-        self.ribbon_home.addWidget(self.page_22)
-
-        self.gridLayout_13.addWidget(self.ribbon_home, 0, 2, 1, 1)
+        self.gridLayout_13.addWidget(self.ribbon_treeview_options, 0, 6, 1, 1)
 
         self.ribbon_page_control = QStackedWidget(self.frame)
         self.ribbon_page_control.setObjectName(u"ribbon_page_control")
@@ -616,27 +620,14 @@ class Ui_Offline_Analysis(object):
         self.go_back_button.setMaximumSize(QSize(50, 503))
         self.go_back_button.setStyleSheet(u"")
 
-        self.gridLayout_11.addWidget(self.go_back_button, 0, 2, 1, 1)
+        self.gridLayout_11.addWidget(self.go_back_button, 0, 0, 1, 1)
 
         self.fo_forward_button = QPushButton(self.groupBox_2)
         self.fo_forward_button.setObjectName(u"fo_forward_button")
         self.fo_forward_button.setMinimumSize(QSize(40, 40))
         self.fo_forward_button.setStyleSheet(u"")
 
-        self.gridLayout_11.addWidget(self.fo_forward_button, 0, 3, 1, 1)
-
-        self.go_home = QPushButton(self.groupBox_2)
-        self.go_home.setObjectName(u"go_home")
-        self.go_home.setMinimumSize(QSize(40, 40))
-
-        self.gridLayout_11.addWidget(self.go_home, 0, 0, 1, 1)
-
-        self.line_8 = QFrame(self.groupBox_2)
-        self.line_8.setObjectName(u"line_8")
-        self.line_8.setFrameShape(QFrame.VLine)
-        self.line_8.setFrameShadow(QFrame.Sunken)
-
-        self.gridLayout_11.addWidget(self.line_8, 0, 1, 1, 1)
+        self.gridLayout_11.addWidget(self.fo_forward_button, 0, 1, 1, 1)
 
 
         self.gridLayout_21.addLayout(self.gridLayout_11, 0, 0, 1, 1)
@@ -650,20 +641,6 @@ class Ui_Offline_Analysis(object):
         self.ribbon_page_control.addWidget(self.page_18)
 
         self.gridLayout_13.addWidget(self.ribbon_page_control, 0, 1, 1, 1)
-
-        self.groupBox_9 = QGroupBox(self.frame)
-        self.groupBox_9.setObjectName(u"groupBox_9")
-        self.gridLayout_44 = QGridLayout(self.groupBox_9)
-        self.gridLayout_44.setObjectName(u"gridLayout_44")
-        self.home_button = QPushButton(self.groupBox_9)
-        self.home_button.setObjectName(u"home_button")
-        self.home_button.setMinimumSize(QSize(75, 65))
-        self.home_button.setMaximumSize(QSize(75, 65))
-
-        self.gridLayout_44.addWidget(self.home_button, 0, 0, 1, 1)
-
-
-        self.gridLayout_13.addWidget(self.groupBox_9, 0, 0, 1, 1)
 
 
         self.gridLayout_8.addWidget(self.frame, 0, 0, 1, 1)
@@ -814,6 +791,18 @@ class Ui_Offline_Analysis(object):
 
     def retranslateUi(self, Offline_Analysis):
         Offline_Analysis.setWindowTitle(QCoreApplication.translate("Offline_Analysis", u"Form", None))
+        self.groupBox_9.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))
+#if QT_CONFIG(tooltip)
+        self.home_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Go back to the start up window</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.home_button.setText("")
+        self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
+        self.plot_zoom.setText("")
+        self.plot_home.setText("")
+        self.plot_meta.setText("")
+        self.plot_move.setText("")
+        self.turn_off_grid.setText("")
+        self.show_pgf_trace.setText("")
         self.DataGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data Options", None))
 #if QT_CONFIG(tooltip)
         self.load_from_database.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Load data from the database", None))
@@ -832,13 +821,15 @@ class Ui_Offline_Analysis(object):
         self.load_selected_discarded.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Load Discarded Flags </span></p><p>Apply already performed selection of discarded and selected data from a previous analysis</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.load_selected_discarded.setText("")
-        self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
-        self.plot_zoom.setText("")
-        self.plot_home.setText("")
-        self.plot_meta.setText("")
-        self.plot_move.setText("")
-        self.turn_off_grid.setText("")
-        self.show_pgf_trace.setText("")
+        self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
+#if QT_CONFIG(tooltip)
+        self.delete_selected.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Delete the selected experiments</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.delete_selected.setText("")
+#if QT_CONFIG(tooltip)
+        self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.add_filter_button.setText("")
         self.groupBox_6.setTitle(QCoreApplication.translate("Offline_Analysis", u"Edit Metadata", None))
 #if QT_CONFIG(tooltip)
         self.edit_meta.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Modify Experiment Meta Data", None))
@@ -859,20 +850,14 @@ class Ui_Offline_Analysis(object):
         self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Configure Report", None))
         self.configure_report_button.setText("")
         self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Set Up Analysis", None))
+#if QT_CONFIG(tooltip)
+        self.start_analysis.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" text-decoration: underline;\">Continue Analysis</span></p><p>Configure specific analysis functions for the selected series</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.start_analysis.setText("")
         self.groupBox.setTitle(QCoreApplication.translate("Offline_Analysis", u"Run Analysis", None))
         self.run_analysis_functions.setText("")
         self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Create Report", None))
         self.create_report_button.setText("")
-        self.FilterOptions.setTitle(QCoreApplication.translate("Offline_Analysis", u"Filter Options", None))
-#if QT_CONFIG(tooltip)
-        self.delete_selected.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Delete the selected experiments</p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.delete_selected.setText("")
-#if QT_CONFIG(tooltip)
-        self.add_filter_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Add Filters </p></body></html>", None))
-#endif // QT_CONFIG(tooltip)
-        self.add_filter_button.setText("")
         self.groupBox_8.setTitle(QCoreApplication.translate("Offline_Analysis", u"Treeview Options", None))
 #if QT_CONFIG(tooltip)
         self.clear.setToolTip(QCoreApplication.translate("Offline_Analysis", u"Clean the Treeview", None))
@@ -895,11 +880,14 @@ class Ui_Offline_Analysis(object):
 #endif // QT_CONFIG(tooltip)
         self.experiment_to_csv.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("Offline_Analysis", u"Page Control", None))
+#if QT_CONFIG(tooltip)
+        self.go_back_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Go one step back</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.go_back_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.fo_forward_button.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p>Go one step further</p><p><br/></p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.fo_forward_button.setText("")
-        self.go_home.setText("")
-        self.groupBox_9.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))
-        self.home_button.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("Offline_Analysis", u"Data View", None))
     # retranslateUi
 

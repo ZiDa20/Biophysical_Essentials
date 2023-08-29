@@ -31,7 +31,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.frontend_style = Frontend_Style(self)
         # Create the frontend style for the app
         self.check_already_executed: bool  = None
-
+        # set the custom app icon
+        custom_icon = QIcon(r'../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+        self.setWindowIcon(custom_icon)
+  
         # handler functions for the database and the database itself
         # only one handler with one database will be used in this entire program
         if testing_db:
@@ -204,6 +207,12 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
+    import ctypes
+    import time
+    myappid = 'mycompany.myproduct.subproduct.version' 
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    time.sleep(1)
+
     #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
     window = MainWindow()
