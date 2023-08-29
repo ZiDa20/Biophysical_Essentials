@@ -56,7 +56,8 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.coursor_bound_tuple_dict = None
         self.live_plot_info = None
         self.add_buttons_to_layout(analysis_functions)
-
+        self.col_count = 0
+        
     def clear_analysis_widgets(self):
         """
         clears all pages and layouts from previous widgets 
@@ -237,7 +238,8 @@ class AnalysisFunctionSelectionManager():
                     col+=1
         else:
             col = 1
-                
+
+        self.col_count = col       
         analysis_table_widget = self.create_qtablewidget(col,6)
         
         # fill the table          

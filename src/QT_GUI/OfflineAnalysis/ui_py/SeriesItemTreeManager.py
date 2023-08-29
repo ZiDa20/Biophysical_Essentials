@@ -92,6 +92,10 @@ class SeriesItemTreeWidget():
 
         # make new tree parent elements and realted childs for ech specific series
         
+        # get the select analysis function button from the ribbon bar and only connect if once
+        b = self.find_widget_by_name(self.ribbon_bar,"select_analysis_fct")
+        b.clicked.connect(partial(analysis_function))
+
         for index, s in enumerate(series_names_list):
 
             QApplication.processEvents()
@@ -99,15 +103,17 @@ class SeriesItemTreeWidget():
             index += self.tree_widget_index_count
             # Custom designer widget: contains treeview, plot, analysis function table ...
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
+            new_tab_widget.analysis_functions.groupBox.hide()
 
-            #custom_icon = QIcon(r'C:\Users\davee\Desktop\SP\Biophysical_Essentials\QT_GUI\Button\light_mode\offline_analysis\mdi_structure20.png')
             custom_icon = QIcon(r'../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
             new_tab_widget.subwindow.setWindowIcon(custom_icon)
-            #custom_icon = QIcon(r'C:\Users\davee\Desktop\SP\Biophysical_Essentials\QT_GUI\Button\light_mode\offline_analysis\mdi_data20.png')
             new_tab_widget.PlotWindow.setWindowIcon(custom_icon)
 
             print(s)
-            new_tab_widget.analysis_functions.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
+            new_tab_widget.series_name = s
+
+            #new_tab_widget.analysis_functions.select_series_analysis_functions.clicked.connect(partial(analysis_function, s))
+            
             # show normalization options only in voltage clamp mode to avoid further checks user confusion
             recording_mode = self.database_handler.query_recording_mode(s)
             if recording_mode == "Voltage Clamp":
@@ -153,6 +159,7 @@ class SeriesItemTreeWidget():
         
         if not reload:
             self.ap.stop_and_close_animation()
+
 
     def normalization_value_handler(self):
         """show the normalization values to the user and allow to edit the values
@@ -360,24 +367,35 @@ class SeriesItemTreeWidget():
 
 
     def set_ribbon_bar_page(self,page_index):
-        self.find_ribbon_bar_object_by_name(QStackedWidget,"ribbon_series_normalization").setCurrentIndex(page_index)
-        self.find_ribbon_bar_object_by_name(QStackedWidget,"ribbon_analysis").setCurrentIndex(page_index)
-        
-    def find_ribbon_bar_object_by_name(self,instance, name):
-        """
-        The ribbon bar is given as qframe and requires identification and extraction of the corect item
+        self.find_widget_by_name(self.ribbon_bar,"ribbon_series_normalization").setCurrentIndex(page_index)
+        self.find_widget_by_name(self.ribbon_bar,"ribbon_analysis").setCurrentIndex(page_index)
+    
+    
+    def find_widget_by_name(self, parent:object, name:str):
+        """The ribbon bar is given as qframe and requires identification and extraction of the corect item by its name
+        Recursion is applied to get the childrens childs
+
         Args:
-            instance (_type_): QStackedWidget, QPushButton ... anything like this
-            name (_type_): name of the object
+            parent (_type_): initially its the self.ribbon_bar 
+            name (_type_): name of the object as str
+
         Returns:
             _type_: QStackedWidget, QPushButton ... anything like this
         """
-        for child in self.ribbon_bar.children():
-            if isinstance(child, instance) and child.objectName() == name:
+        if parent.objectName() == name:
+            return parent
+
+        for child in parent.findChildren(QWidget):
+            if child.objectName() == name:
                 return child
+
+        for child in parent.findChildren(QWidget):
+            found_widget = self.find_widget_by_name(child, name)
+            if found_widget:
+                return found_widget
+
         return None
-
-
+    
     def click_top_level_item(self):
         """Clicks the first top level item in the tree widget.
         """

@@ -839,11 +839,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 self.fo_forward_button.setEnabled(True)
 
     @Slot()
-    def select_analysis_functions(self, series_name):
+    def select_analysis_functions(self):
         """ open a popup dialog for the user to select available analysis functions """
 
         # 1) create dialog
-        dialog = Select_Analysis_Functions(self.database_handler,series_name)
+        current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+        current_tab = self.offline_tree.tab_list[current_index]
+
+        dialog = Select_Analysis_Functions(self.database_handler,current_tab.series_name)
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.continue_with_selection.clicked.connect(partial(self.update_selected_analysis_function_table,dialog))
         dialog.exec_()
@@ -864,6 +867,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # get the index of the tab (e.g. tabe name might be IV, IV-40)
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.offline_tree.tab_list[current_index]
+
         current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
         plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
@@ -876,6 +880,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
+        # set the size of the table
+        if self.analysis_function_selection_manager.col_count<2:
+            current_tab.analysis_functions.groupBox.setMinimumSize(290, 0)
+        else:
+            current_tab.analysis_functions.groupBox.setMinimumSize(290 + (self.analysis_function_selection_manager.col_count-1)*145, 0)
+        current_tab.analysis_functions.groupBox.show()
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
         Performs analysis according to the selected analysis functions, cursor bounds, pgf segment and normalization method.

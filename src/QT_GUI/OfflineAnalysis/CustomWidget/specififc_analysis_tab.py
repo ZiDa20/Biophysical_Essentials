@@ -245,7 +245,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.data_table = []
         self.treebuild.groupBox_4.setStyleSheet("border-radius: 0px;")
         #self.subwindow_calc.hide()
-        
+        self.series_name = ""
         # this needs to be added to the stylesheets
         self.CameraMDI.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.CameraMDI.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
