@@ -23,7 +23,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(400, 300)
+        Dialog.resize(431, 421)
         self.gridLayout_2 = QGridLayout(Dialog)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.groupBox = QGroupBox(Dialog)
@@ -49,13 +49,14 @@ class Ui_Dialog(object):
         self.gridLayout.setObjectName(u"gridLayout")
         self.only_for_analysis = QCheckBox(self.groupBox_2)
         self.only_for_analysis.setObjectName(u"only_for_analysis")
+        self.only_for_analysis.setChecked(True)
 
-        self.gridLayout.addWidget(self.only_for_analysis, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.only_for_analysis, 1, 0, 1, 1)
 
-        self.permanent = QCheckBox(self.groupBox_2)
-        self.permanent.setObjectName(u"permanent")
+        self.label_2 = QLabel(self.groupBox_2)
+        self.label_2.setObjectName(u"label_2")
 
-        self.gridLayout.addWidget(self.permanent, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.label_2, 0, 0, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.groupBox_2, 2, 0, 1, 1)
@@ -84,7 +85,7 @@ class Ui_Dialog(object):
         self.new_name_field.setPlaceholderText(QCoreApplication.translate("Dialog", u"New Series Name", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Dialog", u"Save Changes", None))
         self.only_for_analysis.setText(QCoreApplication.translate("Dialog", u"Only For This Analysis", None))
-        self.permanent.setText(QCoreApplication.translate("Dialog", u"Permanent", None))
+        self.label_2.setText(QCoreApplication.translate("Dialog", u"Series will be only renamed for this specific analysis. When starting a new analysis, the original series name will be loaded.", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Rename Series", None))
         self.apply.setText(QCoreApplication.translate("Dialog", u"Apply", None))
     # retranslateUi

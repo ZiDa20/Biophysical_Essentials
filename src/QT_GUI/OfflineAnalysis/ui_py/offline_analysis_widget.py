@@ -116,11 +116,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger.info("init finished")
 
     def load_discarded_selected_from_database(self):
-        dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler,self.frontend_style)
-        dialog.apply_selection.clicked.connect(partial(self.update_treeview_with_previous_selection,dialog))
+        self.s_d_dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler,self.frontend_style)
+        self.s_d_dialog.apply_selection.clicked.connect(partial(self.update_treeview_with_previous_selection,self.s_d_dialog ))
 
-        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-        dialog.exec_()
+        self.frontend_style.set_pop_up_dialog_style_sheet(self.s_d_dialog )
+        self.s_d_dialog.show()
 
     def update_treeview_with_previous_selection(self,dialog):
         """_summary_
@@ -132,16 +132,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.update_gui_treeviews()
                                             
     def open_change_series_name_dialog(self):
-        dialog = ChangeSeriesName(self.database_handler)
-        dialog.apply.clicked.connect(partial(self.update_after_series_change,dialog))
-        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-        dialog.exec_()
+        """Open the dialog for the user to select one of the existign series names and change it to a custom one
+        """
 
-    def update_after_series_change(self,dialog):
-        dialog.excecute_rename()
+        # dialog needs to be self to be accessible in the unittest
+        self.change_series_name_dialog = ChangeSeriesName(self.database_handler)
+        self.change_series_name_dialog.apply.clicked.connect(self.update_after_series_change)
+        self.frontend_style.set_pop_up_dialog_style_sheet(self.change_series_name_dialog)
+        self.change_series_name_dialog.show()
+
+    def update_after_series_change(self):
+        """Actually executes the change of the series name 
+        Args:
+            dialog (_type_): _description_
+        """
+        self.change_series_name_dialog.excecute_rename()
         self.update_gui_treeviews()
-        dialog.close()
-
+        self.change_series_name_dialog.close()
+        self.ap.stop_and_close_animation()
+        
     def open_filter_dialog(self):
         """
         open the filter dialog.
