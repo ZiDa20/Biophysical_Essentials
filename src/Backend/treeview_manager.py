@@ -4,6 +4,7 @@ from functools import partial
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import QObject, Signal, QThreadPool, Qt, QModelIndex, QSize
+from PySide6.QtWidgets import QFileDialog
 from PySide6.QtTest import QTest
 from Backend.cancel_button_delegate import CancelButtonDelegate
 from Backend.plot_widget_manager import PlotWidgetManager
@@ -14,6 +15,7 @@ from Offline_Analysis.tree_model_class import TreeModel
 from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
 #import debugpy
 from DataReader.SegmentENUM import EnumSegmentTypes
+from PySide6.QtWidgets import QApplication
 
 class TreeViewManager:
     """
@@ -1225,25 +1227,62 @@ class TreeViewManager:
                                                  "increment", "voltage", "selected_channel", "series_id", "children_amount",
                                                  "sine_amplitude","sine_cycle"])
 
+    def write_experiment_to_csv(self,plot_widget_manager):
+        
+        # let the user select the location where to store the csv file
+        file, experiment_name, series_identifier = self.select_csv_location()
+        # for the experiment - get all series identifiers
+        series_identifier = self.database_handler.database.execute(f'SELECT series_identifier FROM experiment_series where experiment_name == \'{experiment_name}\' ').fetchdf()
 
-    def write_series_to_csv(self, frontend_style):
-        """_summary_
+        series_identifier = series_identifier["series_identifier"].values.tolist()
+
+        for s_i in series_identifier:
+            QApplication.processEvents()
+            self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,s_i)
+            
+            print("added successfully")
+        
+
+    def write_series_to_csv(self,plot_widget_manager):
+        """write the currently displayed series into a csv file
+        therefore, a dialog will be opened that allows the user to select the location
         """
+        # let the user select the location where to store the csv file
+        file, experiment_name, series_identifier = self.select_csv_location()
+        # get the data for all sweeps for the selected series from the db and store it in the csv
+        self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,series_identifier)
+        
+
+    def get_series_data_and_write_to_csv(self, plot_widget_manager,file, experiment_name, series_identifier):
+        
+        series_data = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+       
+        # get the meta data to correctly display y values of traces
+        meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
+        series_data["time"] = plot_widget_manager.get_time_from_meta_data(meta_data_df)
+        
+        series_data.index.name = series_identifier
+
+        series_data.to_csv(file[0], index = True, mode='a')  
+
+        print(series_data.head())
+
+    def select_csv_location(self):
+        
         #file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
         index = self.tree_build_widget.selected_tree_view.currentIndex()
         tree_item_list = self.tree_build_widget.selected_tree_view.model().get_data_row(index, Qt.DisplayRole)
         file_name = tree_item_list[1][5]+ "_"+ tree_item_list[1][1] + "_" + tree_item_list[1][3] + "_data.csv"
-        dlg = SaveDialog(f"Do you want to save the file: {file_name}", frontend_style)
-        dlg.setWindowTitle("Save File")
-        dlg.exec_()
-        if tree_item_list[1][4] == "Series":
-            q = f'select sweep_table_name from experiment_series where experiment_name = \'{tree_item_list[1][5]}\' and series_identifier = \'{tree_item_list[1][3]}\''
-            table_name = self.database_handler.database.execute(q).fetchdf()
-            table_name = table_name["sweep_table_name"].values[0]
-            df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
-            df.to_csv(file_name)
-        #print("hello from the other side")
 
+
+        file = QFileDialog().getSaveFileName(None, "Save File", file_name, ".csv")        
+
+
+        x1 = tree_item_list[1][5] # experiment name
+        x2 = tree_item_list[1][1] # series name
+        x3 = tree_item_list[1][3] # series identifier
+        return file,x1,x3
+    
     def clear_tree(self):
         self.tree_build_widget.selected_tree_view.setModel(TreeModel(pd.DataFrame()))
         #self.tree_build_widget.selected_tree_view.reset()

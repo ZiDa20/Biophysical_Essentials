@@ -103,7 +103,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.fo_forward_button.clicked.connect(self.go_forwards)
         #self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
         self.start_analysis.clicked.connect(self.start_analysis_offline)
-        #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
+        
         self.show_sweeps_radio.toggled.connect(self.update_gui_treeviews)
         # this should be transfer to the plot manager
         # and called with the connected elements
@@ -298,6 +298,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.add_meta_data_to_treeview.clicked.disconnect() 
             self.compare_series.clicked.disconnect()
             self.series_to_csv.clicked.disconnect()
+            self.experiment_to_csv.clicked.disconnect()
 
         self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
         
@@ -345,10 +346,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         
         # csv files can be written from treeview when this button is clicked. the frontend style is set in update_database_handler function
-        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))   
-
-
-
+        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.blank_analysis_plot_manager))   
+        self.experiment_to_csv.clicked.connect(self.extract_experiment_to_csv)
+    
+    def extract_experiment_to_csv(self):
+        """write an entire experiment to csv file. therefore have a small animation"""
+        self.ap.make_widget()
+        self.blank_analysis_tree_view_manager.write_experiment_to_csv(self.blank_analysis_plot_manager)
+        self.ap.stop_and_close_animation()
+ 
     def show_open_analysis_dialog(self):
         d = ChooseExistingAnalysis(self.database_handler, self.frontend_style)
         d.submit.clicked.connect(partial(self.open_analysis_results,d))
