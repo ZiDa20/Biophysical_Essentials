@@ -114,6 +114,8 @@ class TestFrontPage(unittest.TestCase):
         
     def test_query_dataviewer_table(self):
         # Checks if query system is working
+        
+        
         self.ui.ui.database.query_line_edit.setText("SELECT * FROM global_meta_data")
         self.ui.ui.database.query_execute.click()
         table = self.ui.ui.database.data_base_content_model._data

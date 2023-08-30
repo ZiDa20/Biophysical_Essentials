@@ -19,7 +19,6 @@ from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import As
 from pathlib import Path
 
 
-
 def test_long_computation(qtbot):
 
     test_db = set_database()
