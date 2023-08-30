@@ -204,8 +204,8 @@ class AnalysisFunctionSelectionManager():
         table_widget = QTableWidget(row_cnt, col_cnt)
 
         # Set the headers for each column
-        for c in range(col_cnt):
-            table_widget.setHorizontalHeaderItem(c, QTableWidgetItem("Column " + str(c)))
+        #for c in range(col_cnt):
+        #    table_widget.setHorizontalHeaderItem(c, QTableWidgetItem(str(c)))
         
         row_names = ["Color", "Func", "Left", "Right", "PGF", "Live"]
         # Set the row index names and rotate them by 90 degrees
@@ -221,7 +221,8 @@ class AnalysisFunctionSelectionManager():
             table_widget.verticalHeader().resizeSection(row, item_text_width + 10)
 
         # Resize the columns to fit the contents
-        table_widget.resizeColumnsToContents()
+        #table_widget.resizeColumnsToContents()
+        table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # Set the row height to be equal to the column width (for square cells)
@@ -239,7 +240,7 @@ class AnalysisFunctionSelectionManager():
         else:
             col = 1
 
-        self.col_count = col       
+              
         analysis_table_widget = self.create_qtablewidget(col,6)
         
         # fill the table          
@@ -252,6 +253,7 @@ class AnalysisFunctionSelectionManager():
         else:   
             self.add_cell_widgets_to_analysis_grid(index_number, col, analysis_table_widget, text)
         #analysis_table_widget.show()
+        self.col_count = analysis_table_widget.width()
         return analysis_table_widget
   
 

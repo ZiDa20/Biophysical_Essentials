@@ -93,8 +93,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.notebook = None # variable for hodling the main stacked widget describing the program
         #self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
         # blank analysis menu
-        self.select_directory_button.clicked.connect(self.open_directory)
-        self.load_from_database.clicked.connect(self.load_treeview_from_database)
+        #self.select_directory_button.clicked.connect(self.open_directory)
+        #self.load_from_database.clicked.connect(self.load_treeview_from_database)
 
         # open a dialog to select discarded flag experiments and series from previous analysis 
         self.load_selected_discarded.clicked.connect(self.load_discarded_selected_from_database)
@@ -881,11 +881,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
         # set the size of the table
-        if self.analysis_function_selection_manager.col_count<2:
-            current_tab.analysis_functions.groupBox.setMinimumSize(290, 0)
-        else:
-            current_tab.analysis_functions.groupBox.setMinimumSize(290 + (self.analysis_function_selection_manager.col_count-1)*145, 0)
+        current_tab.analysis_functions.groupBox.setMinimumSize(self.analysis_function_selection_manager.col_count, 0)
         current_tab.analysis_functions.groupBox.show()
+
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
         Performs analysis according to the selected analysis functions, cursor bounds, pgf segment and normalization method.
