@@ -9,6 +9,9 @@ from Offline_Analysis.Analysis_Functions.TimeToMin import *
 from Offline_Analysis.Analysis_Functions.TimeToMax import *
 from Offline_Analysis.Analysis_Functions.InputResistance import *
 from Offline_Analysis.Analysis_Functions.PeakFinding import *
+from Offline_Analysis.Analysis_Functions.CapacitanceMeasure import CapacitanceMeasurements
+from Offline_Analysis.Analysis_Functions.AreaUnderTheCurve import AreaUnderTheCurve
+
 
 class AnalysisFunctionRegistration():
     """
@@ -23,10 +26,12 @@ class AnalysisFunctionRegistration():
         "time_to_max": TimeToMax,
         "mean_voltage": MeanVoltage,
         "Action_Potential_Fitting": ActionPotentialFitting,
-        "Input_Resistance": InputResistance,
+        "InputResistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
-        "Peak-Detection": PeakFinding
+        "Peak-Detection": PeakFinding,
+        "CapacitanceMeasurements": CapacitanceMeasurements,
+        "AreaUnderTheCurve": AreaUnderTheCurve,
     }
 
     @classmethod
@@ -47,6 +52,11 @@ class AnalysisFunctionRegistration():
         try:
             try:
                 analysis_function_name =analysis_function_name.replace("(","").split()[0]
+                res = cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
+                print(cls.ANALYSIS_FUNCTION_MAPPING)
+                
+                print(res)
+                print(cls.ANALYSIS_FUNCTION_MAPPING.get(analysis_function_name))
                 return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
             except Exception as e:
                 print(e)
@@ -76,7 +86,18 @@ class AnalysisFunctionRegistration():
             _type_: _description_
         """
         if recording_mode == "Voltage Clamp":
-            return ["max_current","min_current","mean_current", "time_to_min", "time_to_max"] #,"area_current","time-to-maximum","time-to-minimum"]
+            return ["max_current",
+                    "min_current",
+                    "mean_current", 
+                    "time_to_min",
+                    "time_to_max", 
+                    "CapacitanceMeasurements",
+                    "AreaUnderTheCurve"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
-            return ["mean_voltage",  "Action_Potential_Fitting",
-                    "Rheobase-Detection", "RheoRamp-Detection", "Input_Resistance", "Peak-Detection"] # "Cluster",
+            return ["mean_voltage",  
+                    "Action_Potential_Fitting",
+                    "Rheobase-Detection", 
+                    "RheoRamp-Detection", 
+                    "InputResistance", 
+                    "Peak-Detection",
+                    "AreaUnderTheCurve"] # "Cluster",

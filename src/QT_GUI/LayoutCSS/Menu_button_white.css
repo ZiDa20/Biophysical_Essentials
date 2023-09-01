@@ -17,6 +17,7 @@ QTabWidget{{background-color: "#e6e6e6";}}
 
 QWidget[accessibleName="additional_function_menu"]{{background-color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
+
 QPushButton{{background-color: white; border: 2px solid #9394a5; color:black; border-radius: 5px;}}
 QPushButton:hover{{background-color: #9394a5; border: 2px solid white;}}
 
@@ -29,6 +30,9 @@ QLabel{{
 QCheckBox{{background-color:transparent; color:black; }}
 
 QComboBox{{background-color:"{QTMATERIAL_SECONDARYCOLOR}"; color:black; }}
+
+
+QComboBox[accessibleName="qcombo"]{{background-color:white; color:black; }}
 
 
 QRadioButton{{background-color:transparent; color:black; border:black; }}
@@ -214,8 +218,18 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 QPushButton[objectName="button_select_data_file"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="load_selected_discarded"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/load_discarded_flags.png);}}
+QToolTip[objectName="load_selected_discarded"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
+
 QPushButton[objectName="go_home"]{{background-image: url(../QT_GUI/Button/online_analysis/light_mode/home_light.png);}}
 QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
+
+
+
 
 
 QPushButton[objectName="HomeButton"]{{background-image: url(../QT_GUI/Button/light_mode/database_viewer/plot_home.png);}}
@@ -293,6 +307,17 @@ QToolTip[objectName="save_plot_online"] {{color: #ffffff; background-color: #000
 QPushButton[objectName="run_analysis_functions"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/run_calculation.png);}}
 QToolTip[objectName="run_analysis_functions"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="select_analysis_fct"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/analysis_functions.png);}}
+QToolTip[objectName="select_analysis_fct"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="configure_report_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/configure_report.png);}}
+QToolTip[objectName="configure_report_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="create_report_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/print_report.png);}}
+QToolTip[objectName="create_report_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="home_button"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png); height: 60px; margin-bottom: 30px}}
+QToolTip[objectName="home_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QPushButton[objectName="change_series_name"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/rename.png);}}  
 QToolTip[objectName="change_series_name"] {{color: #ffffff; background-color: #000000; border: 0px; }}
@@ -324,3 +349,47 @@ QToolButton[objectName="offline_analysis_home_2"]{{ qproperty-icon: url(../QT_GU
 QToolButton[objectName="home_logo"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_welcome.png);}}
 QToolButton[objectName="configuration_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/configure_experiment_welcome.png);}}
 QToolButton[objectName="toolButton_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/settings_welcome.png);}}
+
+
+QPushButton[objectName="go_to_online"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/online_light.png);}}
+QToolTip[objectName="go_to_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="change_solutions"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/solution_light.png);}}
+QToolTip[objectName="change_solutions"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="establish_connection_button"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/transfer_light.png);}}
+QToolTip[objectName="establish_connection_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="switch_to_testing"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/testing_light.png);}}
+QToolTip[objectName="switch_to_testing"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="stop_experiment_button"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/stop_light.png);}}
+QToolTip[objectName="stop_experiment_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="clear_sequence"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/clear_light.png);}}
+QToolTip[objectName="clear_sequence"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="transfer_to_online_analysis_button"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/finish_experiment_light.png);}}
+QToolTip[objectName="transfer_to_online_analysis_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="button_start_camera"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/play_light.png);}}
+QToolTip[objectName="button_start_camera"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="button_stop_camera"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/stop_light.png);}}
+QToolTip[objectName="button_stop_camera"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="button_take_snapshot"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/snapshot_light.png);}}
+QToolTip[objectName="button_take_snapshot"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="transfer_snapshot"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/transfer_light.png);}}
+QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="transfer_snapshot"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/transfer_light.png);}}
+QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="download_notebook"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/download_batch_light.png);}}
+QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="metadata_table"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/grid.png);}}
+QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+

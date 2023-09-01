@@ -1,19 +1,20 @@
-
+from typing import TYPE_CHECKING, Optional
 from Offline_Analysis.ResultPlotVisualizer import ResultPlotVisualizer
 from database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
+from PySide6.QtCore import Qt
 from matplotlib.figure import Figure
-from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import *
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
 from Offline_Analysis.OfflinePlot import OfflinePlots
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
 from loggers.offlineplot_logger import offlineplot_logger
 
+if TYPE_CHECKING:
+    import logging
+    from StyleFrontend.frontend_style import Frontend_Style
 
 class OfflineAnalysisResultVisualizer():
     """
@@ -24,10 +25,10 @@ class OfflineAnalysisResultVisualizer():
     def __init__(self,
                  visualization_tab_widget,
                  database: DuckDBDatabaseHandler,
-                 final_result_holder,
-                 frontend_style,
-                 plot_meta_button,
-                 splitter):
+                 final_result_holder: dict,
+                 frontend_style ,
+                 plot_meta_button: QPushButton,
+                 splitter: QSplitter):
         """_summary_
 
         Args:
@@ -35,13 +36,13 @@ class OfflineAnalysisResultVisualizer():
             database (DuckDBDatabaseHandler): _description_
             offline_analysis_widget (OfflineAnalysis Class): _description_
         """
-        self.frontend_style = frontend_style
-        self.visualization_tab_widget = visualization_tab_widget.SeriesItems
+        self.frontend_style: Frontend_Style = frontend_style
+        self.visualization_tab_widget: QTreeWidget = visualization_tab_widget.SeriesItems
         self.offline_tree = visualization_tab_widget
-        self.database_handler = database
+        self.database_handler: DuckDBDatabaseHandler = database
         self.final_result_holder = final_result_holder
-        self.canvas = None
-        self.splitter = splitter
+        self.canvas: Optional[FigureCanvas] = None
+        self.splitter: QSplitter = splitter
         self.offlineplot = OfflinePlots(
                      self.database_handler,
                      self.frontend_style,
@@ -49,7 +50,7 @@ class OfflineAnalysisResultVisualizer():
                      self.final_result_holder)
 
         self.change_meta_data = plot_meta_button
-        self.logger = offlineplot_logger
+        self.logger: logging.Logger = offlineplot_logger
         self.logger.info("Successfully initialized the Offline Analysis Result Visualizer")
 
 

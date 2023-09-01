@@ -722,6 +722,7 @@ class StimChannelPGF(TreeNode): # pgf tree last from root
 
     ]
     size_check = 80
+    
 class Pgf(TreeNode):
     """ field info for the PGF file, manually adapted the size we maybe need to have a further look"""
 

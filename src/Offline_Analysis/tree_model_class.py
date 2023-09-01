@@ -155,6 +155,8 @@ class TreeModel(QAbstractItemModel):
             # list of lists: dataframe row wise
             items_to_add = data_df[data_df["level"]==i].values.tolist()
 
+            # order the items 
+            
             for item in items_to_add:
                 # create a list of lists.
                 # each list is representing a row that will be added to the tree

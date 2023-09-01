@@ -10,6 +10,8 @@ class ExportOfflineAnalysis:
         self.path = path
         self.transfer_list = (
             "experiment_analysis_mapping",
+            "series_analysis_mapping",
+            "normalization_values",
             "experiments",
             "experiment_series",
             "analysis_series",
@@ -17,6 +19,7 @@ class ExportOfflineAnalysis:
             "global_meta_data",
             "selected_meta_data",
             "sweep_meta_data",
+            "solution"
         )
         self.export_database = None
 
@@ -47,6 +50,9 @@ class ExportOfflineAnalysis:
         # Analysis Tables
         offline_analysis = self.database_handler.database.execute(f"SELECT * FROM offline_analysis WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
         analysis_series =  self.database_handler.database.execute(f"SELECT * FROM analysis_series WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
+        series_analysis_mapping =  self.database_handler.database.execute(f"SELECT * FROM series_analysis_mapping WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
+        normalization_values = self.database_handler.database.execute(f"SELECT * FROM normalization_values WHERE offline_analysis_id = {self.offline_analysis_id}").fetchdf()
+        solution = self.database_handler.database.execute("SELECT * FROM solution").fetchdf()
         analysis_functions =  self.database_handler.database.execute(f"SELECT * FROM analysis_functions WHERE analysis_id = {self.offline_analysis_id}").fetchdf()
         max_index = max(analysis_functions["analysis_function_id"].tolist())
 

@@ -9,8 +9,14 @@ from PySide6.QtTest import QTest
 from functools import partial
 
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
+
+from database.data_db import DuckDBDatabaseHandler
+from Backend.treeview_manager import TreeViewManager
 
 import pandas as pd
+#import debugpy
+
 
 class AnalysisFunctionSelectionManager():
 
@@ -24,78 +30,57 @@ class AnalysisFunctionSelectionManager():
 
 
     def __init__(self, 
-                 database_handler, 
+                 database_handler:DuckDBDatabaseHandler,
+                 treeview_manager:TreeViewManager,
                  plot_widget_manager, 
                  current_tab, 
                  analysis_functions, 
                  frontend):
         
         self.plot_widget_manager = plot_widget_manager
+        self.treeview_manager = treeview_manager
         self.database_handler = database_handler
         self.current_tab = current_tab
         self.frontend_style = frontend
+        self.current_tab.first_add = True
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.operands =  ["+", "-", "*", "/", "(", ")"]
          # keep grid changes within the related dataframe to avoid exhaustive iteration over the grid
         
+        self.widget_with = 0
+
         self.FUNC_GRID_ROW = 1
         self.LEFT_CB_GRID_ROW = 2
         self.RIGHT_CB_GRID_ROW = 3
         self.PGF_SEQ_GRID_ROW = 4
-        self.LIVE_GRID_ROW = 5
-
-        # add a button for each selected analysis function
+        self.LIVE_GRID_ROW = 5  
+        self.plot_widget_manager.coursor_bound_tuple_dict = None
+        self.live_plot_info = None
         self.add_buttons_to_layout(analysis_functions)
-
-    def clear_analysis_widgets(self,layout):
+        
+        
+    def clear_analysis_widgets(self):
         """
         clears all pages and layouts from previous widgets 
         """
         # at 0 there is the "add" button which shouldn't be deleted
-        for i in range(1,layout.count()):
-            layout.itemAt(i).widget().deleteLater()
-
-        
-        pages = self.current_tab.analysis_stacked_widget.count()
-        for i in range(pages):
-            # allways delete page 0
-            widget = self.current_tab.analysis_stacked_widget.widget(0)
-            self.current_tab.analysis_stacked_widget.removeWidget(widget)
-
-        # insert the default Widget for the "+" button "        
-        page_widget = QWidget()
-        self.current_tab.analysis_stacked_widget.insertWidget(0, page_widget)
-
-        print("page count = ", self.current_tab.analysis_stacked_widget.count())
-
         self.plot_widget_manager.coursor_bound_tuple_dict = {}
-        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"]) #, "live_plot"
-
+        self.live_plot_info = pd.DataFrame(columns=["page", "col", "func_name", "left_cursor", "right_cursor", "live_plot", "cursor_bound"])
 
     def add_buttons_to_layout(self, analysis_functions):
         """
         Add a button for each of the selected analysis functions to the layout.
         """
-        layout = self.current_tab.analysis_button_grid
-        self.pgf_files_amount = ["1","2","3"] #self.database_handler.get_pgf_file_selection(self.current_tab)
-        self.clear_analysis_widgets(layout)
-
         
-        row = 1
-        col = 0
-        
-        sizePolicy4 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-
         try:
-            analysis_functions.remove([])
-        except:
-            print("No need to remove an empty list")
+            self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
+            self.clear_analysis_widgets()
+    
+        except Exception as e:
+             CustomErrorDialog(f"Error in analysis function selection manager: {e}",self.frontend_style)
 
-
-        for fct in analysis_functions:
+        for index, fct in enumerate(analysis_functions):
 
             if len(fct)>1:
                 text = ""
@@ -106,112 +91,79 @@ class AnalysisFunctionSelectionManager():
                     text = fct [0]
                 except Exception as e:
                     print(e)
-            button = QPushButton(text)
-
-
-            show_cb_checkbx = QCheckBox()
-            sizePolicy4.setHeightForWidth(button.sizePolicy().hasHeightForWidth())
-            button.setSizePolicy(sizePolicy4)
-            button.setMinimumSize(QSize(150, 150))
-            button.setMaximumSize(QSize(150, 150))
-            button.setAccessibleName(QCoreApplication.translate("SpecificAnalysisTab", u"analysis_grid_bt", None))
-
-            sizePolicy4.setHeightForWidth(show_cb_checkbx.sizePolicy().hasHeightForWidth())
-            show_cb_checkbx.setSizePolicy(sizePolicy4)
-            #button.setMinimumSize(QSize(150, 150))
-            #button.setMaximumSize(QSize(150, 150))
-
-            layout.addWidget(button, row, col)
-            layout.addWidget(show_cb_checkbx, row, col+1) 
-
-            button_width = button.sizeHint().width()
-            if button_width > 150:
-                lines = text.split()
-                line_width = 0
-                line_text = ""
-                for word in lines:
-                        line_text = line_text + word + " \n "
-
-                layout.removeWidget(button)
-                layout.removeWidget(show_cb_checkbx)
-
-                button.setText(line_text)
-                button.setMaximumSize(QSize(150, 150))
-                show_cb_checkbx.setMaximumSize(QSize(150, 150))
-                
-                layout.addWidget(button, row, col)
-                layout.addWidget(show_cb_checkbx, row, col+1)
-
-            button.clicked.connect(partial(self.show_analysis_grid, row,text, show_cb_checkbx))
-            show_cb_checkbx.stateChanged.connect(partial(self.on_checkbox_state_changed,row))
-            show_cb_checkbx.setEnabled(False)
-
-            # click the buttons to make sure each analysis function gets assigned with cursor bounds
-            # this eliminated the need of further checks for empty cursor bounds
-            QTest.mouseClick(button, Qt.LeftButton)
-
-            row += 1
-
-        self.run_analysis_functions = QPushButton("Run")
-        layout.addWidget(self.run_analysis_functions, row, col)
         
+            self.trial_tab = QWidget()
+            self.layout_tab = QGridLayout(self.trial_tab)
+            analysis_table_widget = self.show_analysis_grid(text, index)
+            self.layout_tab.addWidget(analysis_table_widget)
+            self.current_tab.analysis_functions.analysis_stacked_widget.addTab(self.trial_tab, text)
+            self.current_tab.data_table.append(analysis_table_widget)
+            self.on_checkbox_state_changed(index, None)
+        
+        if self.current_tab.first_add:
+            self.current_tab.analysis_functions.analysis_stacked_widget.setTabsClosable(True)
+            self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed) 
+            self.current_tab.analysis_functions.analysis_stacked_widget.tabCloseRequested.connect(self.close_tab)           
+            self.current_tab.analysis_functions.analysis_stacked_widget.show()
+            self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
+         
+    def close_tab(self, index):
+        self.current_tab.analysis_functions.analysis_stacked_widget.removeTab(index)
+        self.current_tab.data_table.pop(index)   
 
-    def on_checkbox_state_changed(self, row, state):
+    def on_checkbox_state_changed(self, row, add_cursor = True):
         """
         Handles checkboxes next to the analysis function button.
         Enables or disables all additional drawings ( cursor bounds and live plot) 
         which are related to this analysis function
         """
         print("row = ", row)
-        
-        self.current_tab.analysis_stacked_widget.setCurrentIndex(row)
-        table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+        table_widget = self.current_tab.data_table[row]
         #table_widget  = table_widget.layout().itemAt(0).widget()
         
-        if state == 2:
+        # if checked show cursor bounds and also (if checked) live plot
+        for col in range(table_widget.columnCount()):
 
-            # if checked show cursor bounds and also (if checked) live plot
-            for col in range(table_widget.columnCount()):
+            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
+            self.add_coursor_bounds((row,col), self.current_tab, table_widget)
 
-                # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
-                self.add_coursor_bounds((row,col), self.current_tab, table_widget)
-
-                condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
-                filtered_df = self.live_plot_info[condition]
+            condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
+            filtered_df = self.live_plot_info[condition]
+            
+            # if cursor bounds were created, they will be added to the live plot info dataframe
+            if filtered_df.empty:
                 
-                # if cursor bounds were created, they will be added to the live plot info dataframe
-                if filtered_df.empty:
+                func_name = table_widget.item(self.FUNC_GRID_ROW, col).text()
+                left_cursor = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
+                right_cursor = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
+                tmp = pd.DataFrame({"page":[row], "col":[col], "func_name":[func_name], 
+                    "left_cursor":[left_cursor], "right_cursor":[right_cursor], 
+                    "live_plot":[False], "cursor_bound":[True]})
+            
+                self.live_plot_info = pd.concat([self.live_plot_info, tmp])
+                self.live_plot_info.reset_index(drop = True, inplace=True)
+            else:
+                self.update_grid_data_frame(row,col,"cursor_bound",True)
                     
-                    func_name = table_widget.item(self.FUNC_GRID_ROW, col).text()
-                    left_cursor = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
-                    right_cursor = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
-                    tmp = pd.DataFrame({"page":[row], "col":[col], "func_name":[func_name], 
-                        "left_cursor":[left_cursor], "right_cursor":[right_cursor], 
-                        "live_plot":[False], "cursor_bound":[True]})
-                
-                    self.live_plot_info = pd.concat([self.live_plot_info, tmp])
-                    self.live_plot_info.reset_index(drop = True, inplace=True)
-                else:
-                    self.update_grid_data_frame(row,col,"cursor_bound",True)
-                    
-        
-        else:
-                # @todo improve: merge the  two for loops
-                self.plot_widget_manager.remove_dragable_lines(row)
-
-                for col in self.live_plot_info[self.live_plot_info['page'] == row]["col"].values:
-                    self.update_grid_data_frame(row,col,"cursor_bound",False)
+        # there should be an easy bugfix for this
+        if add_cursor:
+            for i in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
+                    # @todo improve: merge the  two for loops
+                if i != row:
+                    self.plot_widget_manager.remove_dragable_lines(i)
+                    for col in self.live_plot_info[self.live_plot_info['page'] == i]["col"].values:
+                        self.update_grid_data_frame(i,col,"cursor_bound",False)
                     
         # very important: dont forget to update the plot widget manager object !
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
 
     def group_box_fullsize(self):
-        tmp_size = self.current_tab.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_stacked_widget.sizeHint().width()
+        tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_functions.analysis_stacked_widget.sizeHint().width()
         self.resize_group_box(tmp_size)
     
     def group_box_smallsize(self):
-        tmp_size = self.current_tab.analysis_button_grid.sizeHint().width() + 50
+        tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + 50
         self.resize_group_box(tmp_size)
 
     def resize_group_box(self,tmp_size):
@@ -254,9 +206,8 @@ class AnalysisFunctionSelectionManager():
         table_widget = QTableWidget(row_cnt, col_cnt)
 
         # Set the headers for each column
-        for c in range(col_cnt):
-        
-            table_widget.setHorizontalHeaderItem(c, QTableWidgetItem("Column " + str(c)))
+        #for c in range(col_cnt):
+        #    table_widget.setHorizontalHeaderItem(c, QTableWidgetItem(str(c)))
         
         row_names = ["Color", "Func", "Left", "Right", "PGF", "Live"]
         # Set the row index names and rotate them by 90 degrees
@@ -272,104 +223,53 @@ class AnalysisFunctionSelectionManager():
             table_widget.verticalHeader().resizeSection(row, item_text_width + 10)
 
         # Resize the columns to fit the contents
-        table_widget.resizeColumnsToContents()
+        #table_widget.resizeColumnsToContents()
+        
 
         # Set the row height to be equal to the column width (for square cells)
-        table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
+        #table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
 
         return table_widget
 
-    def adapt_stacked_widget_width(self, table_widget: QTableWidget, stacked_widget: QStackedWidget):
-
-        # Get the width of the table widget
-        table_width = table_widget.verticalHeader().width() + table_widget.horizontalHeader().length() + table_widget.verticalScrollBar().width() + 4  # Add some extra pixels for borders and padding
-
-        # Set the width of the stacked widget
-        stacked_widget.setFixedWidth(table_width)
-
-    def show_analysis_grid(self, row,text, show_cb_checkbx):
+    def show_analysis_grid(self, text, index_number):
         
-        print("stacked widget page ", row, " requested")      
-        self.current_tab.analysis_stacked_widget.setCurrentIndex(row)
-        print("Current Index = ", self.current_tab.analysis_stacked_widget.currentIndex())
-        
-        if row == self.current_tab.analysis_stacked_widget.currentIndex():
-
-                print("i found a layout")
-                # display the cursor bounds -> check if they are in the dict
-                table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-                #for col in range(table_widget.columnCount()):
-                #    self.add_coursor_bounds((row,col), self.current_tab, table_widget)
-
-                self.current_tab.analysis_stacked_widget.show()
+        col = 0
+        if len(text.split())>1:
+            for expr in text.split():
+                if expr not in self.operands:
+                    col+=1
         else:
+            col = 1
 
-            print("page didnt exist yet")
-
-            page_widget = QWidget()
-            page_widget_layout = QVBoxLayout()
-            
-            
-            col = 0
-            if len(text.split())>1:
-                for expr in text.split():
-                    if expr not in self.operands:
-                        col+=1
-            else:
-                col = 1
+              
+        analysis_table_widget = self.create_qtablewidget(col,6)
         
-            # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT !
-            analysis_table_widget =  self.create_qtablewidget(col,6)
-            #analysis_table_widget.tableWidget.setColumnCount(col)
-            #analysis_table_widget.tableWidget.setRowCount(6)
-            #self.rotate_row_indexes(analysis_table_widget.tableWidget)
+        # fill the table          
+        col = 0
+        if len(text.split())>1:
+            for expr in text.split():
+                if expr not in ["+", "-", "*", "/", "(", ")"]:
+                    self.add_cell_widgets_to_analysis_grid(index_number,col, analysis_table_widget, expr)
+                    col+=1
+        else:   
+            self.add_cell_widgets_to_analysis_grid(index_number, col, analysis_table_widget, text)
+        #analysis_table_widget.show()
 
+        #analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        analysis_table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        w3 = analysis_table_widget.columnWidth(0)
+        cc = analysis_table_widget.columnCount()
+        self.widget_with = (w3 + 40) * cc + 110 # lots of trialing to make it look nicely
 
-            page_widget_layout.addWidget(analysis_table_widget)
-
-            hide_bt = QPushButton("Hide")
-            hide_bt.clicked.connect(self.hide_stacked_widget)
-            page_widget_layout.addWidget(hide_bt)
-
-            page_widget.setLayout(page_widget_layout)    
-
-            
-            self.current_tab.analysis_stacked_widget.insertWidget(row, page_widget)
-
-            
-
-            # fill the table
-            
-           
-            col = 0
-            if len(text.split())>1:
-                for expr in text.split():
-                    if expr not in ["+", "-", "*", "/", "(", ")"]:
-                        self.add_cell_widgets_to_analysis_grid(row,col, analysis_table_widget, expr)
-                        col+=1
-            else:   
-                self.add_cell_widgets_to_analysis_grid(row,col, analysis_table_widget, text)
-
-            self.adapt_stacked_widget_width(analysis_table_widget, self.current_tab.analysis_stacked_widget)
-            analysis_table_widget.show()
-            self.current_tab.analysis_stacked_widget.show()
-            # will draw the cursor bounds             
-            show_cb_checkbx.setEnabled(True)
-            show_cb_checkbx.setChecked(True)
-        
-        #self.group_box_fullsize()
-
-    def hide_stacked_widget(self):
-      self.current_tab.analysis_stacked_widget.hide()
-      #self.group_box_smallsize()
-
+        return analysis_table_widget
+  
 
     def add_cell_widgets_to_analysis_grid(self, row, col, analysis_table_widget, text):
         """
         adds cell widgets for a specific column of a an analysis table widget
         """
         color_button = QPushButton("")
-        color_button.setStyleSheet("background-color: " + self.default_colors[row + col])
+        color_button.setStyleSheet("background-color: " + self.default_colors[len(self.current_tab.data_table)])
         analysis_table_widget.setCellWidget(0, col, color_button)
         func_item = QTableWidgetItem(text)
         func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
@@ -379,7 +279,6 @@ class AnalysisFunctionSelectionManager():
         analysis_table_widget.setCellWidget(self.PGF_SEQ_GRID_ROW,col ,self.pgf_selection)
         live_result = QCheckBox()
         analysis_table_widget.setCellWidget(self.LIVE_GRID_ROW,col ,live_result)
-        # tuple 
         live_result.stateChanged.connect(partial(self.show_live_results_changed, (row,col), text))
 
 
@@ -395,8 +294,9 @@ class AnalysisFunctionSelectionManager():
         @author: dz, 02.2023
         """
 
-        table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-        if state == Qt.Checked:
+        table_index = self.current_tab.analysis_functions.analysis_stacked_widget.currentIndex()
+        table_widget = self.current_tab.data_table[table_index]
+        if state == Qt.Checked or state == 2:
             # check if cursor bounds are not empty otherwise print dialog and unchecke the checkbox again
             try:
                 # table_widget = current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
@@ -419,7 +319,6 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
         
-       
     def analysis_table_cell_changed(self, item):
         print("a cell changed")
         print(item.text())
@@ -475,13 +374,12 @@ class AnalysisFunctionSelectionManager():
              # will give an error at the beginning when no cursor bounds are added to the table widget
             print(e)
 
-
     def update_cursor_bound_labels(self, table_row, tuple_in, table_widget):
         
         # tuple in fields: [0]: cb value, [1]: row of the button, [2]: column of the function
         if table_widget is None:
-            self.current_tab.analysis_stacked_widget.setCurrentIndex(tuple_in[1])
-            table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+            self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(tuple_in[1])
+            table_widget = self.current_tab.analysis_functions.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
    
         print(
             f"updating: row = {str(tuple_in[1])} column={str(tuple_in[2])} value= {str(tuple_in[0])}"
@@ -503,36 +401,49 @@ class AnalysisFunctionSelectionManager():
         """
         reclick the last clicked treeview item to update the view
         """
-        index = self.current_tab.widget.selected_tree_view.selectedIndexes()[1]
-        rect = self.current_tab.widget.selected_tree_view.visualRect(index)
+        index = self.current_tab.treebuild.selected_tree_view.selectedIndexes()[1]
+        rect = self.current_tab.treebuild.selected_tree_view.visualRect(index)
         # on click (handled in treeview manager) plot compartments will be evaluated
-        QTest.mouseClick(self.current_tab.widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+        QTest.mouseClick(self.current_tab.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
 
     def write_table_widget_to_database(self):
         """
          iterates through each tab of the stacked widget and writes each column as a new row to the database
         """
-
-        initial_index = self.current_tab.analysis_stacked_widget.currentIndex()
+        #debugpy.debug_this_thread()
+        #initial_index = self.current_tab.analysis_stacked_widget.currentIndex()
         multiple_interval_analysis = pd.DataFrame(columns=["page", "func", "id", "function"])
+     
+        # get the recording mode and if voltage clamp, check the normalization
+        recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(self.current_tab.objectName())
+        print("Recording mode in write to table", recording_mode)
+        if recording_mode == "Voltage Clamp" and self.current_tab.normalization_values is None:
+            
+            print("before filling", self.current_tab.normalization_values)
+            Normalization_Dialog(self.current_tab, self.database_handler, self.treeview_manager.selected_tree_view_data_table).get_cslow_from_db()
+            
+            if self.current_tab.analysis_functions.normalization_combo_box.currentText() =="CSlow Manual":
+                self.current_tab.normalization_values["cslow"]=1
 
-        # -2 because of the add button at the beginning and the run button at the end
-        max_page = int((self.current_tab.analysis_button_grid.count()-2)/2)+1
+            print("after filling", self.current_tab.normalization_values)
 
-        for page in range(1,max_page):
 
-            print("reading page " , str(page))
-            self.current_tab.analysis_stacked_widget.setCurrentIndex(page)
-            table_widget = self.current_tab.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
+        for page in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
 
+            stacked = self.current_tab.analysis_functions.analysis_stacked_widget
+            self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(page)
+            table_widget = self.current_tab.data_table[page]
             for col in range(table_widget.columnCount()):
+                
                 print("writing col" , col)
+                
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
                 lower_bound = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 upper_bound = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
                 pgf_segment = int(table_widget.cellWidget(self.PGF_SEQ_GRID_ROW, col).currentText())
                 analysis_series_name = self.current_tab.objectName()
-                func_name = self.current_tab.analysis_button_grid.itemAtPosition(page, 0).widget().text()
+                current_index = self.current_tab.analysis_functions.analysis_stacked_widget.currentIndex()
+                func_name = self.current_tab.analysis_functions.analysis_stacked_widget.tabText(current_index)
                 self.database_handler.write_analysis_function_name_and_cursor_bounds_to_database(analysis_function,
                                                                                                 analysis_series_name,
                                                                                                lower_bound, upper_bound, pgf_segment)
@@ -547,9 +458,21 @@ class AnalysisFunctionSelectionManager():
                     multiple_interval_analysis = pd.concat([multiple_interval_analysis, pd.DataFrame({"page": [page], "func": [func_name],"id": [id], "function_name":[analysis_function] })])
                     print(multiple_interval_analysis)
 
+                if recording_mode == "Voltage Clamp":
+                    # write the normalization values for each function
+                    self.current_tab.normalization_values["offline_analysis_id"]= self.database_handler.analysis_id
+                    self.current_tab.normalization_values["function_id"]= self.database_handler.get_last_inserted_analysis_function_id()
+                    df_new = self.current_tab.normalization_values
+                    print("adding to database", df_new)
+                    q = "insert into normalization_values select * from df_new"
+                    self.database_handler.database.execute(q)
+
+
+
         print("returning multiple analysis ", multiple_interval_analysis)
 
         return multiple_interval_analysis
+
 
 
    

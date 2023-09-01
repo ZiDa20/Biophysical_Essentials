@@ -25,7 +25,6 @@ class Worker(QRunnable):
         self.args = args
         self.kwargs = kwargs
         self.signals = WorkerSignals()
-
         # Add the callback to our kwargs
         self.kwargs['progress_callback'] = self.signals.progress
 
@@ -44,6 +43,12 @@ class Worker(QRunnable):
             #exctype, value = sys.exc_info()[:2]
             #self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
-            self.signals.result.emit(result)  # Return the result of the processing
+            try:
+                self.signals.result.emit(result)
+            except Exception as e:
+                print(e)
         finally:
-            self.signals.finished.emit()  # Done
+            try:
+                self.signals.finished.emit()  # Done
+            except Exception as e:
+                print(e)

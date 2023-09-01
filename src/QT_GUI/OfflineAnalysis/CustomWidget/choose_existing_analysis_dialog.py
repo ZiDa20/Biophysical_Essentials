@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'choose_existing_analysis_popup.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.2
+## Created by: Qt User Interface Compiler version 6.3.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -140,6 +140,16 @@ class Ui_MetadataPopup(object):
         self.gridLayout.addLayout(self.metadata_all, 1, 0, 1, 1)
 
         self.popup_stacked.addWidget(self.LoadAnalysis)
+        self.APAnimation = QWidget()
+        self.APAnimation.setObjectName(u"APAnimation")
+        self.gridLayout_9 = QGridLayout(self.APAnimation)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.gridLayout_11 = QGridLayout()
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+
+        self.gridLayout_9.addLayout(self.gridLayout_11, 0, 0, 1, 1)
+
+        self.popup_stacked.addWidget(self.APAnimation)
         self.ExportAnalysis = QWidget()
         self.ExportAnalysis.setObjectName(u"ExportAnalysis")
         self.gridLayout_6 = QGridLayout(self.ExportAnalysis)

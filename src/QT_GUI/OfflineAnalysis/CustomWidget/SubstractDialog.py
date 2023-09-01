@@ -228,14 +228,17 @@ class SubstractDialog(Ui_CreateNewSeries):
                 for experiment_name in items:
                     sweep_table_1, sweep_table_2 = self.retrieve_sweep_table_iterator(experiment_name)
                     #calculation
-                    print(sweep_table_1.shape, sweep_table_2.shape)
-                    match analysis_option:
-                        case "Add":
-                            new_table = sweep_table_1 + sweep_table_2
-                        case "Divide":
-                            new_table = sweep_table_1 / sweep_table_2
-                        case "Substract":
-                            new_table = sweep_table_1 - sweep_table_2
+                    if sweep_table_1.shape == sweep_table_2.shape: 
+                        match analysis_option:
+                            case "Add":
+                                new_table = sweep_table_1 + sweep_table_2
+                            case "Divide":
+                                new_table = sweep_table_1 / sweep_table_2
+                            case "Substract":
+                                new_table = sweep_table_1 - sweep_table_2
+                                
+                    else:
+                        CustomErrorDialog("The Sweep Tables do not have the same shape, please check the data", self.frontend_style)
 
                     #metadata that should be written into the database
                     series_len = self.database_handler.database.execute(f"Select * from experiment_series WHERE experiment_name = '{experiment_name}'").fetchdf().shape[0]
@@ -249,7 +252,8 @@ class SubstractDialog(Ui_CreateNewSeries):
                     series_meta_1 = self.series_1.currentText().split(':')[1]
                     series_meta_2 = self.series_2.currentText().split(':')[1]
                     check = self.selectbymetadata.isChecked()
-                    print(check)
+             
+             
                     # if only metadata where selected than we need to retrieve the series
                     if self.selectbymetadata.isChecked is True:
                         series_name_1_identifier = self.database_handler.database.execute(f"Select series_identifier from experiment_series WHERE experiment_name = '{experiment_name}' AND series_meta_data = '{series_meta_1}'").fetchall()[0][0]
@@ -324,6 +328,8 @@ class SubstractDialog(Ui_CreateNewSeries):
                 imon_table = value[8]
                 self.database_handler.database.execute(f"Create Table {imon_name} AS SELECT * FROM imon_table")
                 self.database_handler.database.execute(f"Insert into experiment_series VALUES ('{value[0]}', '{value[1]}', '{value[2]}', '{value[3]}', '{value[4]}', '{value[5]}', '{value[6]}', '{value[7]}')")
+                
+                self.database_handler.database.execute(f"Insert into series_analysis_mapping VALUES ('{self.database_handler.analysis_id}', '{value[0]}', '{value[1]}', '{value[2]}', '{value[2]}', '{value[3]}')")
 
         self.treeview_manager.update_treeviews(self.plot_widget_manager)
         self.close()

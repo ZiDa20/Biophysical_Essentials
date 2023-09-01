@@ -8,10 +8,11 @@ from PySide6.QtGui import QFont, QFontMetrics, QTransform
 
 from PySide6.QtTest import QTest
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from Backend.treeview_manager import TreeViewManager
+
 from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from Backend.treeview_manager import TreeViewManager
 from Backend.plot_widget_manager import PlotWidgetManager
+from database.data_db import DuckDBDatabaseHandler
 
 import numpy as np
 from Threading.Worker import Worker
@@ -31,10 +32,10 @@ from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
-#from QT_GUI.OfflineAnalysis.CustomWidget.analysis_table_widget import Analysis_Table_Widget
+from QT_GUI.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_handler import LoadPreviousDiscardedFlagsHandler
 
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
-from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import StatisticsTablePromoted
+from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
@@ -48,6 +49,8 @@ from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Set
 
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 
+from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
+from StyleFrontend.animated_ap import LoadingAnimation
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -55,14 +58,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-
+        self.added_stacked_layout = QGridLayout()
+        self.added_stacked_layout.setContentsMargins(0, 0, 0, 0)
+        self.add_stacked_widget = QWidget()
+        self.add_stacked_widget.setLayout(self.added_stacked_layout)
         # make he ribbon bar components to attach at the same height
-        self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
+        # self.gridLayout_32.setContentsMargins(3, -1, 10, 0.9)
         
-        self.progressbar = None
-        self.statusbar = None
+       
         self.status_label = None
-
+        self.loaded_function_run: bool = False
         self.threadpool = QThreadPool()
         # style object of class type Frontend_Style that will be int
         # produced and set by start.py and shared between all subclasses
@@ -72,12 +77,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.final_result_holder = ResultHolder()
         self.offline_manager = OfflineManager()
         self.selected_series_combo.view().setFixedWidth(100)
-        self.wait_widget = None
-        self.ap_timer = None
+     
         self.offline_analysis_widgets.setCurrentIndex(0)
         self.offline_analysis_widgets.currentChanged.connect(self.ribbon_bar_handler)        # might be set during blank analysis
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
+        self.ap = None 
 
         self.parent_count = 0
         #self.offline_tree.current_tab_visualization = self.offline_tree.current_tab_visualization
@@ -85,19 +90,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
         # animation of the side dataframe
-        self.final_series = []
         self.notebook = None # variable for hodling the main stacked widget describing the program
         #self.blank_analysis_button.clicked.connect(self.start_blank_analysis)
         # blank analysis menu
-        self.select_directory_button.clicked.connect(self.open_directory)
-        self.load_from_database.clicked.connect(self.load_treeview_from_database)
+        #self.select_directory_button.clicked.connect(self.open_directory)
+        #self.load_from_database.clicked.connect(self.load_treeview_from_database)
 
+        # open a dialog to select discarded flag experiments and series from previous analysis 
+        self.load_selected_discarded.clicked.connect(self.load_discarded_selected_from_database)
         # forward and backward button
         self.go_back_button.clicked.connect(self.go_backwards)
         self.fo_forward_button.clicked.connect(self.go_forwards)
         #self.load_meta_data.clicked.connect(self.load_and_assign_meta_data)
         self.start_analysis.clicked.connect(self.start_analysis_offline)
-        #self.experiment_to_csv.clicked.connect(self.write_experiment_to_csv)
+        
         self.show_sweeps_radio.toggled.connect(self.update_gui_treeviews)
         # this should be transfer to the plot manager
         # and called with the connected elements
@@ -106,22 +112,45 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.filter_dialog = None
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
+        self.logger = offline_analysis_widget_logger
+        self.logger.info("init finished")
 
+    def load_discarded_selected_from_database(self):
+        self.s_d_dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler,self.frontend_style)
+        self.s_d_dialog.apply_selection.clicked.connect(partial(self.update_treeview_with_previous_selection,self.s_d_dialog ))
 
-    def open_change_series_name_dialog(self):
-        dialog = ChangeSeriesName(self.database_handler)
-        dialog.apply.clicked.connect(partial(self.update_after_series_change,dialog))
-        self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
-        dialog.exec_()
+        self.frontend_style.set_pop_up_dialog_style_sheet(self.s_d_dialog )
+        self.s_d_dialog.show()
 
+    def update_treeview_with_previous_selection(self,dialog):
+        """_summary_
 
-    def update_after_series_change(self,dialog):
-        dialog.excecute_rename()
-        self.update_gui_treeviews()
+        Args:
+            dialog (_type_): _description_
+        """
         dialog.close()
+        self.update_gui_treeviews()
+                                            
+    def open_change_series_name_dialog(self):
+        """Open the dialog for the user to select one of the existign series names and change it to a custom one
+        """
 
+        # dialog needs to be self to be accessible in the unittest
+        self.change_series_name_dialog = ChangeSeriesName(self.database_handler)
+        self.change_series_name_dialog.apply.clicked.connect(self.update_after_series_change)
+        self.frontend_style.set_pop_up_dialog_style_sheet(self.change_series_name_dialog)
+        self.change_series_name_dialog.show()
 
-
+    def update_after_series_change(self):
+        """Actually executes the change of the series name 
+        Args:
+            dialog (_type_): _description_
+        """
+        self.change_series_name_dialog.excecute_rename()
+        self.update_gui_treeviews()
+        self.change_series_name_dialog.close()
+        self.ap.stop_and_close_animation()
+        
     def open_filter_dialog(self):
         """
         open the filter dialog.
@@ -173,7 +202,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                      if len(self.extract_first_elements(occurency_cnts))<2:
 
                         # discard
-                        q = f"update experiment_series set discarded = 1 where experiment_name == \'{experiment_name}\'"
+                        q = f"update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{experiment_name}\'"
                         self.database_handler.database.execute(q).fetchall()
 
                 self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
@@ -186,25 +215,39 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.filter_dialog.close()
 
-    def update_gui_treeviews(self,signal=None):
+    def update_gui_treeviews(self,signal= None, meta=None):
         """toDO add Docstrings!
 
         Args:
             signal (_type_): _description_
         """
-        print("update treeviewsd for index" , self.offline_analysis_widgets.currentIndex())
+    
+        self.ap.make_widget()
         try:
             if self.offline_analysis_widgets.currentIndex()==0:
-                self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+                
+                if meta: 
+                    self.OfflineDialogs.select_tree_view_meta_data(self.blank_analysis_tree_view_manager, self.blank_analysis_plot_manager)
+                else:
+                    self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
+
             if self.offline_analysis_widgets.currentIndex() ==1: #@toDO check toggle notebook ind
-                 current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-                 plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
-                 self.offline_tree.current_tab_tree_view_manager[current_index].update_treeviews(plot_widget_manager)
+                current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+                plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+                current_tree = self.offline_tree.current_tab_tree_view_manager[current_index]
+                series_name = self.offline_tree.tab_list[current_index].objectName()
+                 
+                if meta:
+                    self.OfflineDialogs.select_tree_view_meta_data(current_tree, plot_widget_manager,series_name)
+                else:
+                    current_tree.update_treeviews(plot_widget_manager,series_name)
 
         except Exception as e:
            print(e)
            CustomErrorDialog("Please select load an Experiment First", self.frontend_style)
 
+        self.ap.stop_and_close_animation()
+ 
     def load_and_assign_meta_data(self):
         """
         To play around with the data you may want to load or assign new meta data - here one can do this
@@ -224,10 +267,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             csv_file.close()
 
     def add_splitter(self):
-         self.offline_tree.add_widget_to_splitter(self.object_splitter)
+         self.object_splitter.addWidget(self.add_stacked_widget)
+         self.offline_tree.add_widget_to_splitter(self.added_stacked_layout)
 
 
-    def update_database_handler_object(self, updated_object, frontend_style, notebook):
+    def update_database_handler_object(self, updated_object, frontend_style, notebook, reconnect = None):
         """_summary_: This function updates the object connections to the offline analysis widget
 
 
@@ -237,21 +281,41 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.database_handler = updated_object
         self.frontend_style = frontend_style
         self.notebook = notebook
-        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
         self.offline_manager.database = updated_object
         self.final_result_holder.database_handler = updated_object
 
-        self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout, self.database_handler, None, False,  self.frontend_style)
+
+
+        if not reconnect:
+            self.blank_analysis_plot_manager = PlotWidgetManager(self.canvas_grid_layout, self.database_handler, None, False,  self.frontend_style)
+            self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+
+        else:
+            self.blank_analysis_plot_manager.database_handler = self.database_handler
+            self.edit_meta.clicked.disconnect()
+            self.edit_series_meta_data.clicked.disconnect()
+            self.append.clicked.disconnect()
+            self.add_meta_data_to_treeview.clicked.disconnect() 
+            self.compare_series.clicked.disconnect()
+            self.series_to_csv.clicked.disconnect()
+            self.experiment_to_csv.clicked.disconnect()
+
+        self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild, self.show_sweeps_radio, frontend = self.frontend_style)
+        
+
+
         self.offline_tree = SeriesItemTreeWidget(self.SeriesItems_2,
                                                  [self.plot_home, self.plot_zoom, self.plot_move],
                                                  self.frontend_style,
                                                  self.database_handler,
                                                  self.offline_manager,
                                                  self.show_sweeps_radio,
-                                                 self.blank_analysis_tree_view_manager)
+                                                 self.blank_analysis_tree_view_manager,
+                                                 self.frame)
 
 
         self.offline_tree.SeriesItems.clear()
+        self.offline_tree.create_top_level_items()
 
         #self.delete_selected.clicked.connect(partial(self.offline_tree.add_analysis_tree_selection, self.offline_analysis_widgets.currentIndex()))
 
@@ -263,67 +327,99 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                                  self.object_splitter)
 
         self.plot_meta.clicked.connect(self.result_visualizer.open_meta_data)
+
         self.OfflineDialogs = OfflineDialogs(self.database_handler,
                                              self.offline_manager,
                                              self.frontend_style,
                                              self.blank_analysis_plot_manager,
                                              self.blank_analysis_tree_view_manager)
 
+        # this handling is important to avoid that we are dealing with the wrong object
+        
+        
         self.edit_meta.clicked.connect(self.OfflineDialogs.edit_metadata_analysis_id)
         self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
         self.append.clicked.connect(self.OfflineDialogs.new_series_creation)
-        self.add_meta_data_to_treeview.clicked.connect(self.OfflineDialogs.select_tree_view_meta_data)
+        self.add_meta_data_to_treeview.clicked.connect(partial(self.update_gui_treeviews, None, True)) 
         self.compare_series.clicked.connect(partial(self.OfflineDialogs.choose_series, self.selected_series_combo))
         #current_tab.pushButton_3.clicked.connect(self.OfflineDialogs.add_filter_to_offline_analysis)
 
+        
+        # csv files can be written from treeview when this button is clicked. the frontend style is set in update_database_handler function
+        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.blank_analysis_plot_manager))   
+        self.experiment_to_csv.clicked.connect(self.extract_experiment_to_csv)
+    
+    def extract_experiment_to_csv(self):
+        """write an entire experiment to csv file. therefore have a small animation"""
+        self.ap.make_widget()
+        self.blank_analysis_tree_view_manager.write_experiment_to_csv(self.blank_analysis_plot_manager)
+        self.ap.stop_and_close_animation()
+ 
     def show_open_analysis_dialog(self):
-        dialog = ChooseExistingAnalysis(self.database_handler, self.frontend_style, self.open_analysis_results)
+        d = ChooseExistingAnalysis(self.database_handler, self.frontend_style)
+        d.submit.clicked.connect(partial(self.open_analysis_results,d))
+        d.exec()
+        return d.loaded_function_run
 
     @Slot()
-    def open_analysis_results(self, dialog):
+    def open_analysis_results(self, dialog:ChooseExistingAnalysis):
         """
         Open an existing analysis from the database
         :return:
         """
-        id_ = dialog.offline_analysis_id # change this to a new name
+        
+
+        if self.loaded_function_run:
+            self.reset_class(new_analysis = False)
+     
         dialog.close()
 
-        self.load_treeview_from_database()
+        self.ap.make_widget()
 
-        #loading_dialog = LoadingDialog(self.wait_widget, self.frontend_style)
+        # deprecated ? 
+        dialog.loaded_function_run = True
+        self.loaded_function_run = True
+
+        id_ = dialog.offline_analysis_id # change this to a new name
+        self.logger.info("opening existing analysis from database. requested id = ", id_)
+   
+ 
         # static offline analysis number
         self.database_handler.analysis_id = int(id_)
+        self.blank_analysis_tree_view_manager.offline_analysis_id = int(id_)
+     
+        QApplication.processEvents()
+        self.load_page_1_tree_view(id_)
+        QApplication.processEvents()
+        
+        #@todo THREADING
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
-        print(series_names_list)
-
         for i in range(len(series_names_list)):
+            QApplication.processEvents()
             series_names_list[i] = series_names_list[i][0]
-        #    self.result_visualizer.show_results_for_current_analysis(9,name)
-        #self.selected_meta_data_list = self.database_handler.retrieve_selected_meta_data_list()
-
+        
         self.offline_tree.built_analysis_specific_tree(series_names_list,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets,
-                                                       self.selected_meta_data_list,
                                                        reload = True)
-
-        #print("displaying to analysis results: ", self.database_handler.analysis_id)
-        #print(self.offline_tree.SeriesItems.topLevelItemCount())
-
-        # @todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-
+        QApplication.processEvents()
+       
+        #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
         for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
-
+           
+            QApplication.processEvents()
             self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
             self.offline_tree.offline_analysis_result_tree_item_clicked()
 
             # should check if an analysis exist if not than skip addition of the treeview elements
             if not self.database_handler.get_series_specific_analysis_functions(series_n):
                 continue
-            self.finished_result_thread()
+            self.finished_result_thread(reload=True)
 
+        self.ap.stop_and_close_animation()
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
+        
 
     @Slot()
     def start_blank_analysis(self):
@@ -336,13 +432,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
-    def load_treeview_from_database(self):
+    def load_treeview_from_database(self, test = None):
         """_summary_: Should load the treeview from the analysis
 
         Args:
             reload (bool, optional): _description_. If this is a reloaded offline analysis or a newly created
         """
         # already initialized in in updated_data_object
+        self.ap.make_widget()
         navigation = NavigationToolbar(self.blank_analysis_plot_manager.canvas, None)
         self.plot_home.clicked.connect(navigation.home)
         self.plot_move.clicked.connect(navigation.pan)
@@ -350,56 +447,75 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_plot_manager.canvas.setStyleSheet("background-color: rgba(0,0,0,0);")
         # open a popup to allow experiment label selection by the user
         # the dialog handler has further implementations to handle displayed lists etc
+
+
         self.load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler, self.frontend_style)
         # set light or dark mode
         self.frontend_style.set_pop_up_dialog_style_sheet(self.load_data_from_database_dialog)
         self.load_data_from_database_dialog.load_data.clicked.connect(self.load_page_1_tree_view)
+        self.load_data_from_database_dialog.load_data_2.clicked.connect(self.load_page_1_tree_view)
+        
 
         #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
         self.load_data_from_database_dialog.all_cb.setChecked(True)
 
-        self.load_data_from_database_dialog.exec_()
+        if not test:
+            if self.ap: 
+                self.ap.stop_and_close_animation()
+            self.load_data_from_database_dialog.exec_()
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
-
-    def load_page_1_tree_view(self):
+        self.notebook.setCurrentIndex(3)
+        return True
+    
+    
+    def load_page_1_tree_view(self, existing_id = None):
         """
-
+        this function will be executed when the button 'load selection' was clicked after 
+        data to be analyzed were selected fro mthe db dashboard dialog
         @return:
         """
-        self.selected_meta_data_list = []
 
-        for cb in self.load_data_from_database_dialog.checkbox_list:
-            if cb.isChecked():
-                pos = self.load_data_from_database_dialog.checkbox_list.index(cb)
-                self.selected_meta_data_list.append(self.load_data_from_database_dialog.available_labels[pos][0])
+        # load an exsiting analysis from a given id
+        if existing_id:
+            q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
+            experiment_list = self.database_handler.database.execute(q).fetchdf()
+            experiment_list = experiment_list["experiment_name"].values
+            self.logger.info("experiment list found for analysis id ", self.database_handler.analysis_id)
+              
+        else:
+            # get the experiment names that were selected by the user within the db dashboard
+             # 
+            experiment_list = self.load_data_from_database_dialog.get_experiment_names()   
+            self.load_data_from_database_dialog.close()   
 
-        # is alread initialized in update_database_handler_object
-        #self.blank_analysis_tree_view_manager = TreeViewManager(self.database_handler, self.treebuild)
-        self.series_to_csv.clicked.connect(partial(self.blank_analysis_tree_view_manager.write_series_to_csv, self.frontend_style))
-        self.blank_analysis_tree_view_manager.selected_meta_data_list = self.selected_meta_data_list
-
+            # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
+            # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
+            self.blank_analysis_tree_view_manager.map_data_to_analysis_id(experiment_list)
+        
         self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.offline_tree.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
         self.OfflineDialogs.blank_analysis_tree_view_manager = self.blank_analysis_tree_view_manager
 
         self.treebuild.directory_tree_widget.setCurrentIndex(0)
         self.offline_analysis_widgets.setCurrentIndex(0)
+
+        # click the first row, first column item in the selected treeview of page 1
         index =  self.treebuild.selected_tree_view.model().index(0, 0, self.treebuild.selected_tree_view.model().index(0,0, QModelIndex()))
         self.treebuild.selected_tree_view.setCurrentIndex(index)
         # Get the rect of the index
         rect = self.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
         self.stackedWidget.setCurrentIndex(0)
-        self.load_data_from_database_dialog.close()
+        
 
-
+    """  deprecated
     def load_recordings(self, progress_callback):
-        """_summary_
+        _summary_
 
         Args:
             progress_callback (_type_): _description_
-        """
+        
 
         self.progress_callback = progress_callback
         self.database_handler.open_connection(read_only=True)
@@ -408,7 +524,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_tree.selected_meta_data_list = self.selected_meta_data_list
         self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
                                                                               self.progress_callback)
-
+    """
     @Slot()
     def experiment_label_dropped(self, item_text):
         print(item_text)
@@ -428,22 +544,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         '''Opens a filedialog where a user can select a desired directory. After the selection, a dialog will open and ask
         the user to enter meta data groups. The popup will be closed after the user clicked the concerning button.
         The function will be continued in function continue_open_directory
-        '''
-        # open the directory
-        dir_path = QFileDialog.getExistingDirectory()
-        # self.selected_directory.setText(dir_path)
 
-        if dir_path:
+        test_path = is for testing_purposes of the function
+        '''
+        if dir_path := QFileDialog.getExistingDirectory():
             self.select_directory_button.setText("Change")
 
-        # save the path in the manager class
-        self.offline_manager._directory_path = dir_path
+            # save the path in the manager class
+            # calls the offlinedialogs class to open the metadata editing popup
+            self.offline_manager._directory_path = dir_path
+            self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
+                                                        self.make_list)
 
-        # calls the offlinedialogs class to open the metadata editing popup
-        self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
-                                                      self.make_list)
-
-    def continue_open_directory(self, enter_meta_data_dialog, meta_data_group_assignment_list=None):
+    def continue_open_directory(self, meta_data_group_assignment_list=None, test = None):
         '''
         Function will continue the function open directory after any continue button in the meta data group dialog has
         been clicked. At first the popup will be closed, all data will be loaded immediately into the databse
@@ -452,13 +565,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :return:
         '''
 
-        # close the dialog
-        enter_meta_data_dialog.close()
-        self.animation_layout.addWidget(QPushButton("Sit tight we are currenly updating the database with your files!"))
-        self.notebook.setCurrentIndex(3)
+
+        self.ap.make_widget() # shows the AP Animation Waiting Dialog
         self.offline_analysis_widgets.setCurrentIndex(0)
 
         # read the directory data into the database
+        self.offline_manager.ap = self.ap
         self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)
 
         # assign meta data
@@ -472,11 +584,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 #self.database_handler.global_meta_data_table.add_meta_data_group_to_existing_experiment(n)
 
         #self.add_filter_button.setEnabled(True)
-        self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(self.load_treeview_from_database)
+        self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(partial(self.load_treeview_from_database, test))
+        #ap.stop_and_close_animation()
 
     def make_list(self,popup,treeview_model):
         m_list = treeview_model.model()._data.values.tolist()
-        self.continue_open_directory(popup,m_list)
+        popup.close()
+        self.continue_open_directory(m_list)
 
     def save_meta_data_to_template_and_continue(self, meta_data_popup):
         '''
@@ -496,16 +610,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         m_list = data_frame.values.tolist()
         self.continue_open_directory(meta_data_popup,m_list)
 
-
     def start_analysis_offline(self):
         """Starts the analysis of the selected series"""
-
-        print(self.OfflineDialogs.final_series)
+        self.logger.info(f"Series to be analyzed: {self.OfflineDialogs.final_series}")
         self.offline_tree.built_analysis_specific_tree(self.OfflineDialogs.final_series,
                                                        self.select_analysis_functions,
-                                                       self.offline_analysis_widgets,
-                                                       self.selected_meta_data_list)
-
+                                                       self.offline_analysis_widgets)
+        
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.OfflineDialogs.final_series = []
         self.selected_series_combo.clear()
@@ -518,7 +629,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         self.worker = Worker(partial(PostSqlHandler, self.database_handler))
         #self.worker.signals.finished.connect(self.finished_result_thread)
-        self.worker.signals.progress.connect(self.progress_bar_update_analysis)
+        self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
 
     def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
@@ -742,13 +853,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if index == 2:
                 self.fo_forward_button.setEnabled(True)
 
-
     @Slot()
-    def select_analysis_functions(self, series_name):
+    def select_analysis_functions(self):
         """ open a popup dialog for the user to select available analysis functions """
 
         # 1) create dialog
-        dialog = Select_Analysis_Functions(self.database_handler,series_name)
+        current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+        current_tab = self.offline_tree.tab_list[current_index]
+
+        dialog = Select_Analysis_Functions(self.database_handler,current_tab.series_name)
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.continue_with_selection.clicked.connect(partial(self.update_selected_analysis_function_table,dialog))
         dialog.exec_()
@@ -769,25 +882,37 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # get the index of the tab (e.g. tabe name might be IV, IV-40)
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.offline_tree.tab_list[current_index]
+
+        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
         plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+        self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
-        # all the analysis setup clicks and cursor bound drag and drops will be handled from the analysis function selection manager
-        self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
+        # this needs to be performed to ensure only one connection nper analysis
+        try:
+            self.run_analysis_functions.clicked.disconnect()#
+        except Exception as e:
+            self.logger.info("No connection to disconnect here, probably the first connect")
+            
+        self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
-        self.analysis_function_selection_manager.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
+        # set the size of the table
+        w = self.analysis_function_selection_manager.widget_with
+        current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
+        current_tab.analysis_functions.groupBox.show()
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
-        Performs analysis according to the selected criteria.
+        Performs analysis according to the selected analysis functions, cursor bounds, pgf segment and normalization method.
         Before the analysis starts, the selected criteria will be stored in the database
         :param current_tab:
         :return:
         '''
 
         self.database_handler.database.close()
+        self.ap.make_widget()
         self.worker = Worker(self.run_database_thread, current_tab)
         self.worker.signals.finished.connect(self.finished_result_thread)
-        self.worker.signals.progress.connect(self.progress_bar_update_analysis)
+        self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         self.threadpool.start(self.worker)
 
 
@@ -798,40 +923,20 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         :param progress_callback:
         """
 
-        print("writing analysis to database")
-        #current_tab.stackedWidget.setCurrentIndex(1)
-        #current_tab.calc_animation_layout.addWidget(self.wait_widget,0,0)
-
-
+        
         self.database_handler.open_connection()
-        #self.analysis_function_selection_manager.database_handler = self.database_handler
-
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-
-
-        #self.analysis_function_selection_manager.database_handler = self.database_handler
-
-        print("finished: ", self.multiple_interval_analysis)
-
-        # self.write_function_grid_values_into_database(current_tab)
-        print("executing single series analysis")
-
+        self.logger.info("finished: ", self.multiple_interval_analysis)
+        self.logger.info(f"executing single series analysis: {current_tab.objectName()}")
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
 
-        print("finished single series analysis")
+        self.logger.info(f"Finished the Series {current_tab.objectName()}")
         self.database_handler.database.close()
 
-        #@todo remove the widget from the layout
+        # Process events to allow the update
+        #@todo remove the widget from the layout in case of rerun 
         current_tab.stackedWidget.setCurrentIndex(0)
 
-    def progress_bar_update_analysis(self, data):
-        """ This function will update the progress bar in the analysis tab
-        :param data:
-
-        """
-        self.progressbar.setValue(data[0])
-        #self.statusbar.showMessage("Analyzing: " + str(data[1]) + "%")
-        self.status_label.setText(f"Analyzing: {str(data[1])}%")
 
     def solve_calculation(self, equation_components):
         """
@@ -847,14 +952,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 r_brack_pos.append(i)
 
 
-    def finished_result_thread(self, write_data = True):
+    def finished_result_thread(self, write_data = True, reload=False):
         """
         Once all the reuslt have been calculated, an offline tab is created.
         This tab visualizes all calculated results.
         Therefore, a new plot child is inserted to the related series name analysis.
-        Furthermore, a table, a statistics and an advanced analysis child are added for further processing steps
+        Furthermore, a table, a  statistics and an advanced analysis child are added for further processing steps
         @return:
         """
+        if not reload:
+            self.ap.stop_and_close_animation()
+
+        try:
+            #@todo fallback to make sure its always closed, otherwise open connection might fail
+            self.database_handler.database.close()
+        except Exception as e:
+            pass
 
         self.database_handler.open_connection()
 
@@ -917,8 +1030,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             # split string into list, e.g. max_current - min_current
             # @todo: can this be done better ?
-            equation_components = related_intervals["func"].values[0].split(" \n ")
-            equation_components.remove("")
+            equation_components = related_intervals["func"].values[0].split(" ")
+            
+            try:
+                equation_components.remove("")
+            except Exception as e:
+                print(e)
+                
 
             #reconstrcut the text before pop
             db_text = ""
@@ -1080,10 +1198,46 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
     def ribbon_bar_handler(self):
-        if self.offline_analysis_widgets.currentIndex() == 0:
-            self.ribbon_analysis.setCurrentIndex(0)
-            self.ribbon_series_normalization.setCurrentIndex(0)
+        """Handler for the last two fields of the ribbon bar. Specific functions for each analysis step are provided.
+        """
 
-        if self.offline_analysis_widgets.currentIndex() == 1:
-            self.ribbon_analysis.setCurrentIndex(1)
-            self.ribbon_series_normalization.setCurrentIndex(1)
+        # current index can be either 0 (blank start), 1 (selectded sereis to be analyzed) and 2 (results panel)
+        current_index = self.offline_analysis_widgets.currentIndex()
+        # update the stacked widget to show the correct button
+        self.ribbon_analysis.setCurrentIndex(current_index)
+        self.ribbon_series_normalization.setCurrentIndex(current_index)
+
+    def reset_class(self, new_analysis = True):
+        """resets the class to its orignal point and adds a new 
+        offline analysis id"""
+        #reset the complete offline_stages
+        # reset the objects interacting with the offline_widget_class
+        #reset the variables to the default value
+     
+        if new_analysis: 
+            self.database_handler.database.close()
+            self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
+        self.blank_analysis_tree_view_manager.clear_tree()
+        self.blank_analysis_plot_manager.canvas.figure.clf()
+        self.blank_analysis_plot_manager.canvas.draw_idle()
+        self.tree_widget_index_count = 0
+        self.filter_dialog = None
+        self.final_result_holder = ResultHolder()
+        self.offline_manager = OfflineManager()
+        try: # important if initial loading did not wo  rk out properly
+            self.offline_tree.hierachy_stacked.deleteLater()
+            self.offline_tree.analysis_stacked.deleteLater()
+        except AttributeError:
+            self.logger.info("No hierachy widget yet defined")
+    
+        self.update_database_handler_object(self.database_handler, self.frontend_style, self.notebook, reconnect = True)
+        self.add_splitter()
+        self.loaded_function_run = True
+        
+      
+
+    
+        
+
+
+

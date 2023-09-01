@@ -19,7 +19,8 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                  update_treeview = True, 
                  update_plot = None,
                  analysis_function_id = -1,
-                 frontend = None):
+                 frontend = None, 
+                 series_name = None):
         
         super().__init__(parent)
         self.setupUi(self)
@@ -35,6 +36,7 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         self.setWindowModality(Qt.ApplicationModal)
         if self.frontend_style:
             self.frontend_style.set_pop_up_dialog_style_sheet(self)
+        self.series_name = series_name
         self.load_content()
         
 
@@ -136,8 +138,6 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         # create new labels and checkboxes in the selection grid
 
     def finish_dialog(self,checkbox_list,name_list):
-        print("have to close ")
-        print(name_list) 
         meta_data_df = pd.DataFrame(columns=["table", "column", "values", "analysis_function_id", "offline_analysis_id"])
 
         if self.analysis_function_id == -1:
@@ -153,7 +153,6 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
             
             if not self.database_handler.database.execute(f"Select * from selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1").fetchdf().empty:
                 self.database_handler.database.execute(f"DELETE FROM selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1")
-            self.database_handler.database.register("meta_data_df", meta_data_df)
             self.database_handler.database.execute(f'INSERT INTO selected_meta_data SELECT * FROM meta_data_df')
             self.close()
             
@@ -187,4 +186,4 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                 # no need to update again
 
         if self.update_treeview:
-            self.treeview_manager.update_treeviews(self.plot_widget_manager)
+            self.treeview_manager.update_treeviews(self.plot_widget_manager,self.series_name)

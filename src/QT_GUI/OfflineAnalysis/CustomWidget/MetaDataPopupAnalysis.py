@@ -32,7 +32,7 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
         self.series = series
         
         if self.series:
-            self.query = f'select * from experiment_series where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
+            self.query = f'select * from series_analysis_mapping where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
         else:
             self.query = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})'
             self.SearchSeries.hide()

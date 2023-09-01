@@ -10,13 +10,13 @@ from functools import partial
 class OfflineDialogs:
     """_summary_: Class that should handle PopUps/Dialogs for the Offline Analysis
     """
-    def __init__(self, 
-                 database_handler, 
-                 offline_manager, 
-                 frontend, 
+    def __init__(self,
+                 database_handler,
+                 offline_manager,
+                 frontend,
                  blank_analysis_plot_manager,
                  treeview_manager) -> None:
-        
+
 
         self.database_handler = database_handler
         self.offline_manager = offline_manager
@@ -25,16 +25,17 @@ class OfflineDialogs:
         self.series_dialog = None
         self.blank_analysis_plot_manager = blank_analysis_plot_manager
         self.final_series = []
-        
+        self.meta_data_popup = None
+
     def new_series_creation(self):
         """_summary_: Creates a Popup that can be used for new Series generation
-        such as e.g Substraction/Addition of two equally length series 
+        such as e.g Substraction/Addition of two equally length series
         """
         series_dialog = SubstractDialog(self.database_handler, self.frontend_style, self.edit_series_meta_data_popup, self.blank_analysis_plot_manager, self.blank_analysis_tree_view_manager)
         series_dialog.exec()
-        
+
     def edit_metadata_analysis_id(self):
-        """_summary_: Popup Dialog to edit the metadata of the selected experiments 
+        """_summary_: Popup Dialog to edit the metadata of the selected experiments
         """
         edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = False)
         edit_data.create_table()
@@ -52,7 +53,7 @@ class OfflineDialogs:
         edit_data.quit.setAutoDefault(False)
         edit_data.submit.clicked.connect(edit_data.add_metadata_into_db)
         edit_data.exec()
-        
+
     def create_meta_data_template(self, save, make):
         """_summary_
 
@@ -60,6 +61,7 @@ class OfflineDialogs:
             save (function): Function that will be performed by the save button, saving the changed metadata into the database
             open (function): _description_
             make (function): _description_
+            test (function): For testing purposes only
         """
         # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
         meta_data_popup = Assign_Meta_Data_PopUp(self.database_handler, self.offline_manager, self.frontend_style)
@@ -71,14 +73,15 @@ class OfflineDialogs:
         meta_data_popup.continue_loading.clicked.connect(partial(make,meta_data_popup,template_table_view))
         meta_data_popup.exec_()
         
-    def select_tree_view_meta_data(self):
+    def select_tree_view_meta_data(self, tree_view, plot_widget_manager,series_name=None):
         """_summary_
         """
         # Create the Dialog to be shown to the user: The user will be allowed to check/uncheck desired labels
         dialog = SelectMetaDataForTreeviewDialog(self.database_handler, 
-                                                 self.blank_analysis_tree_view_manager, 
-                                                 self.blank_analysis_plot_manager, 
-                                                 frontend = self.frontend_style)
+                                                 tree_view, 
+                                                 plot_widget_manager, 
+                                                 frontend = self.frontend_style, 
+                                                 series_name=series_name)
         dialog.exec()
         #dialog.finish_button.clicked.connect(
         #    partial(self.add_meta_data_to_tree_view,checkbox_list, name_list, dialog))
@@ -89,8 +92,9 @@ class OfflineDialogs:
         Args:
             seleced_series_combo (QTCombobox): Combobox holding the individual selected series for the analysis
         """
-        self.series_dialog = SeriesDialog(self.database_handler, self.frontend_style)
-        self.series_dialog.setup_ui(selected_series_combo, self.final_series)
+        self.series_dialog = SeriesDialog(self.database_handler, self.frontend_style, selected_series_combo)
+        self.final_series.extend(self.series_dialog.final_series)
+        print(self.final_series)
 
     def add_filter_to_offline_analysis(self):
         """_summary_: Will be called when the filter button is clicked and should open a popup to filter for certain parameters derived from the sweep metadata table
@@ -98,6 +102,5 @@ class OfflineDialogs:
         filter_dialog = Filter_Settings(self.frontend_style)
         filter_dialog.set_meta_data_filter_combobox_options(filter_dialog.meta_data_combo_box)
         filter_dialog.exec_()
-        
-    
-    
+
+

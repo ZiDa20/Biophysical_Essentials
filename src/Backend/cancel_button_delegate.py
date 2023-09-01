@@ -1,10 +1,14 @@
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import QStyledItemDelegate, QStyleOptionButton, QPushButton, QTreeView
+from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QStyledItemDelegate, QTreeView, QStyle
+from PySide6.QtGui import QPixmap, QColor, Qt
+from PySide6.QtCore import QSize
 
 class CancelButtonDelegate(QStyledItemDelegate):
-
+    """_summary_
+    Class handler to create the remove and reinsert icon within the treeview
+    Args:
+        QStyledItemDelegate (_type_): _description_
+    """
     def __init__(self, parent:QTreeView, delete:bool, col_count:int, frontend_style:int):
         self.delete = delete
         self.col_count = col_count

@@ -24,9 +24,14 @@ class ExportOfflineDialog(QDialog, Ui_MetadataPopup):
         self.file_name: str = os.getcwd()
         self.database_handler = database_handler
         self.offline_analysis_id = None
-        self.popup_stacked.setCurrentIndex(1)
+        self.popup_stacked.setCurrentIndex(2)
         # show here the appropriate table
-        data = self.database_handler.database.execute('SELECT * FROM analysis_functions LEFT JOIN analysis_series ON (analysis_functions.analysis_id = analysis_series.analysis_id AND analysis_functions.analysis_series_name = analysis_series.analysis_series_name)').fetchdf()
+        data = self.database_handler.database.execute('''SELECT * 
+                                                      FROM analysis_functions 
+                                                      LEFT JOIN analysis_series 
+                                                        ON (analysis_functions.analysis_id = analysis_series.analysis_id AND analysis_functions.analysis_series_name = analysis_series.analysis_series_name)
+                                                      ''').fetchdf()
+        
         data = data.drop(["time", "analysis_series_name_2","analysis_function_id","analysis_id_2","lower_bound","upper_bound"], axis = 1)
         ids = {str(i) for i in data["analysis_id"].tolist()}
         self.comboBox.addItems(ids)
@@ -41,6 +46,7 @@ class ExportOfflineDialog(QDialog, Ui_MetadataPopup):
     def open_path_dialog(self):
         """_summary_: Sets the path for the new exported database
         """
+        print("dialog")
         self.file_name = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.Path.setText(self.file_name)
 

@@ -1,21 +1,33 @@
 import duckdb
 import os
-import sys
 from pathlib import Path
 import datetime
 
 
 class DuckDBInitializer:
-    def __init__(self, logger, data_file, in_memory):
+    def __init__(self, logger, data_file: str, in_memory: bool, database_path: str):
         """_summary_
         """
         self.db_file_name = data_file
         self.logger = logger
         self.in_memory = in_memory
-        self.current_path = os.path.dirname(os.getcwd())
-        self.dir_list = os.listdir(f"{os.path.dirname(os.getcwd())}/src/database/")
-        self.return_value = False
+        self.database_path: str = database_path
+        self.path = str(Path(f'{self.database_path}/{self.db_file_name}'))
+        self.dir_list = os.listdir(self.database_path)
+        self._return_value: bool = False
         self.database = None
+
+    @property
+    def return_value(self):
+        return self._return_value
+
+    @return_value.setter
+    def return_value(self, value: bool):
+        if isinstance(value, bool):
+            self._return_value = value
+        else:
+            raise TypeError(f"self._return_value should be of type Bool and not of type {type(value)}")
+
 
     def init_database(self):
         # creates a new analysis database and writes the tables or connects to an existing database
@@ -42,12 +54,11 @@ class DuckDBInitializer:
 
         try:
             # self.database = duckdb.connect(database=':memory:', read_only=False)
-            path = str(Path(f'./database/{self.db_file_name}'))
             if self.in_memory:
                 self.database = duckdb.connect(database=':memory:')
                 self.logger.info("connection successfull to online_in_memory_database")
             else:
-                self.database = duckdb.connect(path, read_only=False)
+                self.database = duckdb.connect(self.path, read_only=False)
                 self.logger.info("connection successfull to offline_database")
 
         except Exception as e:
@@ -58,14 +69,16 @@ class DuckDBInitializer:
 
         # create a unique sequence analoque to auto increment function
         create_unique_offline_analysis_sequence = """CREATE SEQUENCE unique_offline_analysis_sequence;"""
+        create_solution_sequence = """CREATE SEQUENCE solution_sequence;"""
         self.database.execute(create_unique_offline_analysis_sequence)
+        self.database.execute(create_solution_sequence)
 
         # create all database tables assuming they do not exist'''
-
+        
         sql_create_experiment_mapping_table = """  create table experiment_analysis_mapping(
                                         experiment_name text,
                                         analysis_id integer,
-                                        UNIQUE (experiment_name, analysis_id) 
+                                        UNIQUE (experiment_name, analysis_id)
                                         ); """
 
         sql_create_series_mapping_table = """  create table series_analysis_mapping(
@@ -75,7 +88,7 @@ class DuckDBInitializer:
                                         series_name text,
                                         renamed_series_name text,
                                         analysis_discarded text,
-                                        primary key (analysis_id, experiment_name, series_identifier) 
+                                        primary key (analysis_id, experiment_name, series_identifier)
                                         ); """
 
         sql_create_global_meta_data_table = """CREATE TABLE global_meta_data(
@@ -162,6 +175,20 @@ class DuckDBInitializer:
                                                 analysis_function_id integer,
                                                 offline_analysis_id integer
                                                 );"""
+        
+        sql_create_normalization_value_table = """CREATE TABLE normalization_values (
+                                                    offline_analysis_id integer,
+                                                    function_id integer,
+                                                    sweep_table_name text,
+                                                    normalization_value float,
+                                                    primary key (offline_analysis_id, function_id, sweep_table_name)
+                                                    );"""
+
+        sql_solutions_table = """CREATE TABLE solution(
+                                                solution_id integer PRIMARY KEY DEFAULT(nextval ('solution_sequence')),
+                                                solutions text,
+                                                type text
+                                                );"""
 
         try:
             self.database.execute(sql_create_offline_analysis_table)
@@ -173,9 +200,11 @@ class DuckDBInitializer:
             self.database.execute(sql_create_results_table)
             self.database.execute(sql_create_experiment_series_table)
             self.database.execute(sql_create_experiment_mapping_table)
-            self.database.execute(sql_create_series_mapping_table) 
+            self.database.execute(sql_create_series_mapping_table)
             self.database.execute(sql_create_global_meta_data_table)
             self.database.execute(sql_create_selected_meta_data_table)
+            self.database.execute(sql_create_normalization_value_table)
+            self.database.execute(sql_solutions_table)
             self.logger.info("create_table created all tables successfully")
         except Exception as e:
             self.logger.info("create_tables function failed with error %s", e)
@@ -195,3 +224,16 @@ class DuckDBInitializer:
         self.analysis_id = self.database.execute(q, (time_stamp, user_name)).fetchall()[0][0]
         self.logger.info("Analysis id for this analysis will be: %s", self.analysis_id)
         return self.analysis_id
+
+    def open_connection(self, read_only = False):
+        """ Opens a connection to the database"""
+        print("trials to open connection")
+        try:
+            self.database = duckdb.connect(self.path, read_only=read_only)
+            self.logger.debug("opened connection to database %s", self.db_file_name)
+            print("succeeded")
+            return self.database
+
+        except Exception as e:
+            self.logger.error("failed to open connection to database %s with error %s", self.db_file_name, e)
+            print("failed")

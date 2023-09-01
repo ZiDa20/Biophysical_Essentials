@@ -1,5 +1,6 @@
 from PySide6.QtCore import QAbstractTableModel, Qt, Signal, QModelIndex
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableView
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 
 class PandasTable(QAbstractTableModel):
@@ -9,13 +10,14 @@ class PandasTable(QAbstractTableModel):
     --> Need to build a table
     """
     data_changed = Signal()
-    def __init__(self, data, sliced_data = None):
+    def __init__(self, data, index_uneditable = None): #sliced_data = None, 
         super().__init__()
         
         self._data = data
         self._full_data = None
         self.unchanged_data = data
-    
+        self.index_uneditable: list = index_uneditable
+
     @property    
     def full_data(self):
         return self._full_data
@@ -40,10 +42,23 @@ class PandasTable(QAbstractTableModel):
             return str(value)
 
     def setData(self, index, value, role):
-        if role == Qt.EditRole:
-            self._data.iloc[index.row(), index.column()] = value
-            return True
-        return False
+        
+        if  self.index_uneditable is not None and index.column() not in self.index_uneditable:
+        
+            try:
+                test_val = float(value)
+                self._data.iloc[index.row(), index.column()] = value
+                return True
+            except Exception as e:
+                # somehow we have to bring the frontend style here to use the error dialog. dz
+                # CustomErrorDialog("Your input is of wrong data type. Please check your input")
+                return False
+
+        else:        
+            if role == Qt.EditRole:
+                self._data.iloc[index.row(), index.column()] = value
+                return True
+            return False
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
@@ -54,7 +69,11 @@ class PandasTable(QAbstractTableModel):
                 return str(self._data.index[section])
 
     def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
+        
+        if  self.index_uneditable is not None and index.column() in self.index_uneditable:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled 
+        else:
+            return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable 
     
     def resize_header(self,parent):
         try:
