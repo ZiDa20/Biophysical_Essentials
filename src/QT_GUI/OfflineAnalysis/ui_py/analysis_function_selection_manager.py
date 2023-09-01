@@ -48,6 +48,8 @@ class AnalysisFunctionSelectionManager():
         self.operands =  ["+", "-", "*", "/", "(", ")"]
          # keep grid changes within the related dataframe to avoid exhaustive iteration over the grid
         
+        self.widget_with = 0
+
         self.FUNC_GRID_ROW = 1
         self.LEFT_CB_GRID_ROW = 2
         self.RIGHT_CB_GRID_ROW = 3
@@ -56,7 +58,7 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.coursor_bound_tuple_dict = None
         self.live_plot_info = None
         self.add_buttons_to_layout(analysis_functions)
-        self.col_count = 0
+        
         
     def clear_analysis_widgets(self):
         """
@@ -222,8 +224,7 @@ class AnalysisFunctionSelectionManager():
 
         # Resize the columns to fit the contents
         #table_widget.resizeColumnsToContents()
-        table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        
 
         # Set the row height to be equal to the column width (for square cells)
         #table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
@@ -253,7 +254,13 @@ class AnalysisFunctionSelectionManager():
         else:   
             self.add_cell_widgets_to_analysis_grid(index_number, col, analysis_table_widget, text)
         #analysis_table_widget.show()
-        self.col_count = analysis_table_widget.width()
+
+        #analysis_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        analysis_table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        w3 = analysis_table_widget.columnWidth(0)
+        cc = analysis_table_widget.columnCount()
+        self.widget_with = (w3 + 40) * cc + 110 # lots of trialing to make it look nicely
+
         return analysis_table_widget
   
 

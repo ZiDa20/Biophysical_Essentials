@@ -1228,33 +1228,46 @@ class TreeViewManager:
                                                  "sine_amplitude","sine_cycle"])
 
     def write_experiment_to_csv(self,plot_widget_manager):
-        
+        """write the entire experiment of the currently selected and displayed series into a csv file
+        """
         # let the user select the location where to store the csv file
-        file, experiment_name, series_identifier = self.select_csv_location()
+        file, experiment_name, series_identifier = self.select_csv_location(True)
         # for the experiment - get all series identifiers
         series_identifier = self.database_handler.database.execute(f'SELECT series_identifier FROM experiment_series where experiment_name == \'{experiment_name}\' ').fetchdf()
 
         series_identifier = series_identifier["series_identifier"].values.tolist()
+        if file[0]!="":
 
-        for s_i in series_identifier:
-            QApplication.processEvents()
-            self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,s_i)
+            for s_i in series_identifier:
+                QApplication.processEvents()
+                self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,s_i)
             
-            print("added successfully")
+                print("added successfully")
+    
+
+        
         
 
     def write_series_to_csv(self,plot_widget_manager):
-        """write the currently displayed series into a csv file
+        """write the currently selected and displayed series into a csv file
         therefore, a dialog will be opened that allows the user to select the location
         """
         # let the user select the location where to store the csv file
-        file, experiment_name, series_identifier = self.select_csv_location()
+        file, experiment_name, series_identifier = self.select_csv_location(False)
         # get the data for all sweeps for the selected series from the db and store it in the csv
-        self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,series_identifier)
+        if file[0]!="":
+            self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,series_identifier)
         
 
-    def get_series_data_and_write_to_csv(self, plot_widget_manager,file, experiment_name, series_identifier):
-        
+    def get_series_data_and_write_to_csv(self, plot_widget_manager: PlotWidgetManager, file, experiment_name:str, series_identifier:str):
+        """queries the data table from the database and writes it to a given csv file
+
+        Args:
+            plot_widget_manager (_type_): the plot widget manager to use fir the time extraction 
+            file (_type_): the csv file to write to 
+            experiment_name (_type_): the name of the experiment
+            series_identifier (_type_): the name of the series that is currently being displayed
+        """
         series_data = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
        
         # get the meta data to correctly display y values of traces
@@ -1266,13 +1279,23 @@ class TreeViewManager:
         series_data.to_csv(file[0], index = True, mode='a')  
 
         print(series_data.head())
+    
+    def select_csv_location(self,experiment:bool):
+        """open a qfiledialog and let the user choose its file location and file name too but suggest already the correct name
 
-    def select_csv_location(self):
-        
+        Args:
+            experiment (bool): True if an entire experiment will be written or false if only a single series will be written
+
+        Returns:
+            _type_: the file to write to, the experiment name and the series identifier of the currently selected and displayed series
+        """
         #file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
         index = self.tree_build_widget.selected_tree_view.currentIndex()
         tree_item_list = self.tree_build_widget.selected_tree_view.model().get_data_row(index, Qt.DisplayRole)
-        file_name = tree_item_list[1][5]+ "_"+ tree_item_list[1][1] + "_" + tree_item_list[1][3] + "_data.csv"
+        if experiment:
+            file_name = tree_item_list[1][5]+ "_data.csv"
+        else:
+            file_name = tree_item_list[1][5]+ "_"+ tree_item_list[1][1] + "_" + tree_item_list[1][3] + "_data.csv"
 
 
         file = QFileDialog().getSaveFileName(None, "Save File", file_name, ".csv")        

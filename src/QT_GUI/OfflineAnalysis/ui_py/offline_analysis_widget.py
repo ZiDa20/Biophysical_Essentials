@@ -896,7 +896,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
         # set the size of the table
-        current_tab.analysis_functions.groupBox.setMinimumSize(self.analysis_function_selection_manager.col_count, 0)
+        w = self.analysis_function_selection_manager.widget_with
+        current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
         current_tab.analysis_functions.groupBox.show()
 
     def start_offline_analysis_of_single_series(self, current_tab):

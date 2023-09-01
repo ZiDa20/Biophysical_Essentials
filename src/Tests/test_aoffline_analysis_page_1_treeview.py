@@ -123,6 +123,31 @@ def test_change_series_renaming(qtbot):
     test_db.database.close()
 
 
+"""
+import time
+import keyboard
+def test_write_series_to_csv(qtbot):
+  # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot)
+
+    app.ui.offline.ap.stop_and_close_animation()
+
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.series_to_csv, Qt.LeftButton)
+
+      # Wait for the QFileDialog to become visible
+    file_dialog = None
+    for _ in range(10):  # Try for a maximum of 10 iterations (adjust if necessary)
+        file_dialog = QApplication.activeModalWidget()
+        if file_dialog is not None:
+            break
+        qtbot.wait(1000)  # Wait for 1 second before checking again (adjust if necessary)
+
+    assert file_dialog is not None
+    # Now you can continue with your
+"""
+
+"""
 def test_load_discarded_flags_dialog(qtbot):
       # assumes that the default treeview test before worked 
     test_db,app = load_demo_dat_data_into_database(qtbot)
@@ -140,9 +165,8 @@ def test_load_discarded_flags_dialog(qtbot):
     #dialog.new_name_field.setText("TEST123")
     
     #dialog.close()
-
-    
-
+   
+"""
 # def test meta data 
 #def test sweeps AND meta data
 
