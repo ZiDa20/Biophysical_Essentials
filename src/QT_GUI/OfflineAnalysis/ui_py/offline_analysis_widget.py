@@ -548,7 +548,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         test_path = is for testing_purposes of the function
         '''
         if dir_path := QFileDialog.getExistingDirectory():
-            self.select_directory_button.setText("Change")
+            #self.select_directory_button.setText("Change")
 
             # save the path in the manager class
             # calls the offlinedialogs class to open the metadata editing popup
