@@ -172,47 +172,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.filter_dialog.make_cslow_plot()
 
         self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
-        self.filter_dialog.exec()
+        self.filter_dialog.show()
 
     def apply_filter_selection(self):
 
-        if self.filter_dialog.DISCARD_DATA:
-            # for now, mark all the experiments as discarded
-            # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
-            if self.filter_dialog.contains_series_list is not []:
-
-                # only keep experiment_names with 2 and more counts
-                q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'
-                list_of_all_experiments = self.database_handler.database.execute(q).fetchall()
-                list_of_all_experiments = self.extract_first_elements(list_of_all_experiments)
-
-
-                # prepare the sql expression:
-                q1 = ""
-                for pos in range(len(self.filter_dialog.contains_series_list)):
-
-                        q1 = q1 + f' series_name == \'{self.filter_dialog.contains_series_list[pos]}\' '
-
-                        if pos < len(self.filter_dialog.contains_series_list) - 1:
-                            q1 += " or "
-
-                for experiment_name in list_of_all_experiments:
-                     q = f' select series_identifier from experiment_series where experiment_name == \'{experiment_name}\' and ({q1})'
-                     occurency_cnts = self.database_handler.database.execute(q).fetchall()
-                     if len(self.extract_first_elements(occurency_cnts))<2:
-
-                        # discard
-                        q = f"update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{experiment_name}\'"
-                        self.database_handler.database.execute(q).fetchall()
-
-                self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
-
-
-
-                #update experiment_series set discarded = True
-
-                print(self.filter_dialog.contains_series_list)
-
+        #if self.filter_dialog.DISCARD_DATA:
+        # for now, mark all the experiments as discarded
+        self.filter_dialog.apply_filters()
+        # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            self.offline_tree.current_tab_tree_view_manager.update_treeviews(self.offline_tree.plot_widget_manager)
+        else:
+            self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.filter_dialog.close()
 
     def update_gui_treeviews(self,signal= None, meta=None):

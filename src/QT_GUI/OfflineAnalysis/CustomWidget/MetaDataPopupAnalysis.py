@@ -63,7 +63,9 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
      
 
     def add_metadata_into_db(self,experiment:bool):
-      
+        """ This function overwrites existing metadata in the database
+        """
+        
         # @todo: this function overwrites the global meta data table, while the series annotation is only added to the series analysis mapping table
         # @todo: make sure that the appropriate table columns are blocked from editing
         new_df = self.table_model._data

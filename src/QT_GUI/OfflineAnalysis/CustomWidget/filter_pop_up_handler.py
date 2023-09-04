@@ -78,27 +78,27 @@ class Filter_Settings(QDialog, Ui_Dialog):
             cslow =  self.database_handler.get_cslow_value_for_sweep_table(name)
             experiment_cslow_param[identifier[0]]=cslow
 
-        fig = Figure(figsize=(5, 4), dpi=100)
-        canvas = FigureCanvasQTAgg(fig)        
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        canvas = FigureCanvasQTAgg(self.fig)        
         self.filter_plot_widget.addWidget(canvas)
 
-        ax = fig.add_subplot(111)
+        self.ax = self.fig.add_subplot(111)
 
         # adjust axis to pico farad 
         vals =  [float(i)* 1e12   for i in experiment_cslow_param.values()] # 
     
 
-        points = ax.plot(vals,'o')
+        points = self.ax.plot(vals,'o')
         labels = list(experiment_cslow_param.keys())
         m = np.mean(vals)
         mad = np.median(np.absolute(vals - np.median(vals)))
-        ax.axhline(y = m, color = 'b', linestyle = ':', label = "mean")
-        ax.axhline(y = m+mad, color = 'b', linestyle = ':', label = "mean + MAD")
-        ax.axhline(y = m-mad, color = 'b', linestyle = ':', label = "mean - MAD")
-        ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
+        self.ax.axhline(y = m, color = 'b', linestyle = ':', label = "mean")
+        self.ax.axhline(y = m+mad, color = 'b', linestyle = ':', label = "mean + MAD")
+        self.ax.axhline(y = m-mad, color = 'b', linestyle = ':', label = "mean - MAD")
+        self.ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
         # Add annotations to the points using mplcursors
-        cursor = mplcursors.cursor(points)
-        ax.set_ylabel("CSlow in pF")
+        cursor = mplcursors.cursor(points, hover = True)
+        self.ax.set_ylabel("CSlow in pF")
         canvas.draw()
 
         @cursor.connect("add")
@@ -106,6 +106,86 @@ class Filter_Settings(QDialog, Ui_Dialog):
             idx = sel.target.index
             label = labels[idx]
             sel.annotation.set_text(label)
-   
+            sel.annotation.get_bbox_patch().set(fc = "white")
+        
+        self.lower_slider_threshold_line = None
+        self.upper_slider_threshold_line = None
+        # Connect the slider valueChanged signals to update_label
+        self.slider_lower_threshold_2.valueChanged.connect(lambda value, line=0, label=self.label_6: self.update_label(value, line,label))
+        self.slider_upper_threshold_2.valueChanged.connect(lambda value, line=1, label=self.label_5:  self.update_label(value, line, label))
+
+        self.slider_lower_threshold_2.setMinimum(m-mad)
+        self.slider_lower_threshold_2.setMaximum(m) 
+        self.slider_lower_threshold_2.setValue(m-mad/2)  
+
+        self.slider_upper_threshold_2.setMinimum(m)
+        self.slider_upper_threshold_2.setMaximum(m+mad) 
+        self.slider_upper_threshold_2.setValue(m+mad/2)  
 
         
+
+    def update_label(self, value, line, label):
+        label.setText(f"{value} pF")
+
+        if line == 0:
+            if  self.lower_slider_threshold_line:
+                self.lower_slider_threshold_line.remove()   
+            # Draw horizontal lines on the matplotlib figure
+            self.lower_slider_threshold_line = self.ax.axhline(y=value, color='r', linestyle='--', label="lower threshold")
+        else:
+            if self.upper_slider_threshold_line:
+                self.upper_slider_threshold_line.remove()   
+            # Draw horizontal lines on the matplotlib figure
+            self.upper_slider_threshold_line = self.ax.axhline(y=value, color='r', linestyle='--', label="lower threshold")
+
+        self.fig.canvas.draw()
+        
+        
+    def contains_series_filter(self):
+        """evaluate the filter selection to remove experiments that do not containa a specific series 
+        """
+        if self.contains_series_list is not []:
+
+            # only keep experiment_names with 2 and more counts
+            q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'
+            list_of_all_experiments = self.database_handler.database.execute(q).fetchall()
+            list_of_all_experiments = self.extract_first_elements(list_of_all_experiments)
+
+
+            # prepare the sql expression:
+            q1 = ""
+            for pos in range(len(self.contains_series_list)):
+
+                    q1 = q1 + f' series_name == \'{self.contains_series_list[pos]}\' '
+
+                    if pos < len(self.contains_series_list) - 1:
+                        q1 += " or "
+
+            for experiment_name in list_of_all_experiments:
+                    q = f' select series_identifier from experiment_series where experiment_name == \'{experiment_name}\' and ({q1})'
+                    occurency_cnts = self.database_handler.database.execute(q).fetchall()
+                    cnt_series = len(self.extract_first_elements(occurency_cnts))
+
+                    if cnt_series <1:
+
+                        # discard
+                        q = f"update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{experiment_name}\' and analysis_id =={self.database_handler.analysis_id}"
+                        self.database_handler.database.execute(q).fetchall()
+
+    def filter_parameter_value(self):
+        # get the parameter name
+        parameter = self.filter_parameter_combobox.currentText()
+        # get the user defined thresholds
+        
+        # get the series name 
+
+
+    def apply_filters(self):
+        if self.tabWidget.currentIndex() == 0:
+            self.contains_series_filter()
+        
+        if self.tabWidget.currentIndex() == 1:
+            self.filter_parameter_value()
+
+    def extract_first_elements(self,lst):
+        return [t[0] for t in lst]
