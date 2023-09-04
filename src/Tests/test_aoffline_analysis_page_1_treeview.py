@@ -122,6 +122,54 @@ def test_change_series_renaming(qtbot):
 
     test_db.database.close()
 
+def test_change_experiment_meta_data(qtbot):
+    """Test of the ribbon bar button: change experiment meta data
+    Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
+    Make sure, that the label "TEST123" is present in the database while the old experiment label is not present anymore
+    Args:
+        qtbot (_type_): _description_
+    """
+
+    # @todo: finish this test
+
+    # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot)
+
+    app.ui.offline.ap.stop_and_close_animation()
+
+    
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.edit_meta, Qt.LeftButton, delay = 1)
+
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+
+    assert app.ui.offline.OfflineDialogs.edit_data is not None
+    app.ui.offline.OfflineDialogs.edit_data.close()
+
+def test_change_series_meta_data(qtbot):
+    """Test of the ribbon bar button: change series meta data
+    Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
+    Make sure, that the label "TEST123" is present in the database.
+    Args:
+        qtbot (_type_): _description_
+    """
+
+    # @todo: finish this test
+    
+    # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot)
+
+    app.ui.offline.ap.stop_and_close_animation()
+
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.edit_series_meta_data, Qt.LeftButton, delay = 1)
+
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+
+    assert app.ui.offline.OfflineDialogs.edit_data is not None
+    app.ui.offline.OfflineDialogs.edit_data.close()
+
+#self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
 
 """
 import time

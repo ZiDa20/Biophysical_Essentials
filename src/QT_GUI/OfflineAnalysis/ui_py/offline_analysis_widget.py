@@ -509,22 +509,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.stackedWidget.setCurrentIndex(0)
         
 
-    """  deprecated
-    def load_recordings(self, progress_callback):
-        _summary_
-
-        Args:
-            progress_callback (_type_): _description_
-        
-
-        self.progress_callback = progress_callback
-        self.database_handler.open_connection(read_only=True)
-        experiment_label = ""
-        self.blank_analysis_page_1_tree_manager.selected_meta_data_list = self.selected_meta_data_list
-        self.offline_tree.selected_meta_data_list = self.selected_meta_data_list
-        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
-                                                                              self.progress_callback)
-    """
     @Slot()
     def experiment_label_dropped(self, item_text):
         print(item_text)

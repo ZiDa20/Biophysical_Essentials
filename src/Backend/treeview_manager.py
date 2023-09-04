@@ -12,7 +12,8 @@ from DataReader.ABFclass import AbfReader
 from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
-from QT_GUI.OfflineAnalysis.CustomWidget.SaveDialog import SaveDialog
+
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 #import debugpy
 from DataReader.SegmentENUM import EnumSegmentTypes
 from PySide6.QtWidgets import QApplication
@@ -1292,6 +1293,12 @@ class TreeViewManager:
         #file_name = QFileDialog.getSaveFileName(self,'SaveFile')[0]
         index = self.tree_build_widget.selected_tree_view.currentIndex()
         tree_item_list = self.tree_build_widget.selected_tree_view.model().get_data_row(index, Qt.DisplayRole)
+
+        if tree_item_list is None:
+            self.logger.error("Please click the series you want to save first: No series in the treeview was clicked")
+            CustomErrorDialog("Please click the series you want to save first")
+            return "","",""
+        
         if experiment:
             file_name = tree_item_list[1][5]+ "_data.csv"
         else:
