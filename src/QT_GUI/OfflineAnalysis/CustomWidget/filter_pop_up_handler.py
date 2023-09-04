@@ -95,7 +95,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.ax.axhline(y = m, color = 'b', linestyle = ':', label = "mean")
         self.ax.axhline(y = m+mad, color = 'b', linestyle = ':', label = "mean + MAD")
         self.ax.axhline(y = m-mad, color = 'b', linestyle = ':', label = "mean - MAD")
-        self.ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
+        
         # Add annotations to the points using mplcursors
         cursor = mplcursors.cursor(points, hover = True)
         self.ax.set_ylabel("CSlow in pF")
@@ -114,14 +114,15 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.slider_lower_threshold_2.valueChanged.connect(lambda value, line=0, label=self.label_6: self.update_label(value, line,label))
         self.slider_upper_threshold_2.valueChanged.connect(lambda value, line=1, label=self.label_5:  self.update_label(value, line, label))
 
-        self.slider_lower_threshold_2.setMinimum(m-mad)
+        self.slider_lower_threshold_2.setMinimum(min(vals))
         self.slider_lower_threshold_2.setMaximum(m) 
         self.slider_lower_threshold_2.setValue(m-mad/2)  
 
         self.slider_upper_threshold_2.setMinimum(m)
-        self.slider_upper_threshold_2.setMaximum(m+mad) 
+        self.slider_upper_threshold_2.setMaximum(max(vals)) 
         self.slider_upper_threshold_2.setValue(m+mad/2)  
 
+        self.ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
         
 
     def update_label(self, value, line, label):
@@ -136,7 +137,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
             if self.upper_slider_threshold_line:
                 self.upper_slider_threshold_line.remove()   
             # Draw horizontal lines on the matplotlib figure
-            self.upper_slider_threshold_line = self.ax.axhline(y=value, color='r', linestyle='--', label="lower threshold")
+            self.upper_slider_threshold_line = self.ax.axhline(y=value, color='r', linestyle='--', label="upper threshold")
 
         self.fig.canvas.draw()
         
@@ -175,10 +176,27 @@ class Filter_Settings(QDialog, Ui_Dialog):
     def filter_parameter_value(self):
         # get the parameter name
         parameter = self.filter_parameter_combobox.currentText()
-        # get the user defined thresholds
-        
-        # get the series name 
 
+        # get the user defined thresholds
+        m1 = self.slider_lower_threshold_2.value() *  1e-12
+        m2  = self.slider_upper_threshold_2.value()  * 1e-12
+
+        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+        tree_manager = self.current_tab_tree_view_manager[current_index]
+
+        df = tree_manager.selected_tree_view_data_table
+        
+        for identifier in df[df['type'] == 'Series']["identifier"].values:
+            identifier = identifier.split("::")
+
+            q = f'select sweep_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
+            name = self.database_handler.database.execute(q).fetchall()[0][0]
+            cslow =  self.database_handler.get_cslow_value_for_sweep_table(name)
+            
+            if cslow < m1 or cslow > m2:
+                q = f'update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{identifier[0]}\' and series_identifier == \'{identifier[1]}\' and analysis_id =={self.database_handler.analysis_id}'
+                print("outfiltered" + identifier[0] + " " + identifier[0])
+        
 
     def apply_filters(self):
         if self.tabWidget.currentIndex() == 0:

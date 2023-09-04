@@ -181,7 +181,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.filter_dialog.apply_filters()
         # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
         if self.offline_analysis_widgets.currentIndex() ==1:
-            self.offline_tree.current_tab_tree_view_manager.update_treeviews(self.offline_tree.plot_widget_manager)
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+            tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
+            current_tab = self.offline_tree.tab_list[current_index]
+
+            tree_manager.update_treeviews(plot_widget_manager,current_tab.series_name)
         else:
             self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.filter_dialog.close()
