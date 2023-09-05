@@ -1044,46 +1044,6 @@ class TreeViewManager:
                 top_level_combo_box.setCurrentText("None")
                 self.logger.error("Could not assign meta data group for " + top_level_item.text(0))
 
-    """ deprecated dz 01.05.2023
-    def reinsert_button_clicked(self, item, experiment_tree, discarded_tree,specific_series=None):
-         Function to reinsert a given item into the experiment tree via button clicked
-        print("reinsert button clicked")
-        self.tree_button_clicked(item, discarded_tree, experiment_tree,"reinsert",specific_series)
-
-    def discard_button_clicked(self, item, experiment_tree, discarded_tree, specific_series=None):
-       Function to discard a given item into the discarded tree via button clicked
-        print("discard button clicked")
-        self.tree_button_clicked(item, experiment_tree, discarded_tree,"discard",specific_series)
-
-    
-    def tree_button_clicked(self, item, experiment_tree,discarded_tree,function,specific_series):
-        function can be -reinsert- or -discard-
-
-        print("tree button clicked")
-        if item.parent():
-            self.move_series_from_treeview_a_to_b(item, experiment_tree, discarded_tree, function,specific_series)
-
-            # assuming that a series button was clicked
-            experiment_name = item.data(3,0)[0]
-            series_identifier = item.data(3, 0)[1]
-
-            #@todo if the entire experiment gets removed label each series as discarded
-
-            #if self.database is not None:
-            if function == "reinsert":
-                    self.database_handler.reinsert_specific_series(experiment_name,series_identifier)
-            else:
-                    self.database_handler.discard_specific_series(experiment_name,series_identifier)
-        else:
-            # @todo needs to be eddited for group in online_analysis
-            self.move_experiment_from_treeview_a_to_b(item,experiment_tree,discarded_tree,function,specific_series)
-            if function == "reinsert":
-                self.database_handler.database.execute(
-                    f'update experiment_series set discarded = \'False\' where experiment_name = \'{item.text(0)}\';')
-            else:
-                self.database_handler.database.execute(
-                    f'update experiment_series set discarded = \'True\' where experiment_name = \'{item.text(0)}\';')
-    """
     def insert_meta_data_items_into_combo_box(self, combo_box):
         '''
          According to the entries in the global meta data option list, combo box items will be displayed to be selected
