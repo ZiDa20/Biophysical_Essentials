@@ -27,11 +27,33 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.read_available_series_names()
         self.DISCARD_DATA = 0
     
-        self.filter_checkbox_remove.stateChanged.connect(self.handle_filter_options)
+        #self.filter_checkbox_remove.stateChanged.connect(self.handle_filter_options)
 
         self.SeriesItems = None
         self.current_tab_visualization = None
         self.current_tab_tree_view_manager = None
+
+        self.and_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
+        self.or_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
+        self.contains_checkbox.stateChanged.connect(self.contains_checkbox_handling)
+        self.contains_not_checkbox.stateChanged.connect(self.contains_checkbox_handling)
+
+    def contains_checkbox_handling(self):	
+        self.checkbox_handler(self.contains_checkbox,self.contains_not_checkbox)
+
+    def and_or_checkbox_handling(self):
+        self.checkbox_handler(self.and_checkbox,self.or_checkbox)
+    
+    def checkbox_handler(self,c1,c2):
+        sender = self.sender()
+        if sender.isChecked():
+            if sender == c1:
+                c2.setChecked(False)
+            elif sender == c2:
+                c1.setChecked(False)
+        else: # make sure that at least one is always checked
+            if not c1.isChecked() and not c2.isChecked():
+                sender.setChecked(True)
 
     def read_available_series_names(self):
 
@@ -141,11 +163,14 @@ class Filter_Settings(QDialog, Ui_Dialog):
 
         self.fig.canvas.draw()
         
-        
+
+
     def contains_series_filter(self):
         """evaluate the filter selection to remove experiments that do not containa a specific series 
         """
-        if self.contains_series_list is not []:
+        if len(self.contains_series_list) > 0:
+          
+            
 
             # only keep experiment_names with 2 and more counts
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'
@@ -155,19 +180,37 @@ class Filter_Settings(QDialog, Ui_Dialog):
 
             # prepare the sql expression:
             q1 = ""
+
             for pos in range(len(self.contains_series_list)):
 
-                    q1 = q1 + f' series_name == \'{self.contains_series_list[pos]}\' '
+                    if self.contains_not_checkbox.isChecked():
+                        q1 = q1 + f' renamed_series_name != \'{self.contains_series_list[pos]}\' '
+                    else:
+                        q1 = q1 + f' renamed_series_name == \'{self.contains_series_list[pos]}\' '
 
                     if pos < len(self.contains_series_list) - 1:
                         q1 += " or "
 
+            # renamed_series_name
+            # analysis_discarded
+            
             for experiment_name in list_of_all_experiments:
-                    q = f' select series_identifier from experiment_series where experiment_name == \'{experiment_name}\' and ({q1})'
+                    q = f' select series_identifier,renamed_series_name from series_analysis_mapping where experiment_name == \'{experiment_name}\' and analysis_discarded = False and analysis_id == {self.database_handler.analysis_id} and ({q1})'
                     occurency_cnts = self.database_handler.database.execute(q).fetchall()
                     cnt_series = len(self.extract_first_elements(occurency_cnts))
 
-                    if cnt_series <1:
+                    # and condition requires all series names to be in the experiment
+                    and_condition_failed = False  
+                    if self.and_checkbox.isChecked():
+                        unqiue_series_names = []
+                        for tup in occurency_cnts:
+                            unqiue_series_names.append(tup[1])
+                     
+                        if self.contains_series_list != list(set(unqiue_series_names)):
+                            and_condition_failed = True
+                    #    print(occurency_cnts
+                    #          )
+                    if cnt_series <1 or and_condition_failed:
 
                         # discard
                         q = f"update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{experiment_name}\' and analysis_id =={self.database_handler.analysis_id}"

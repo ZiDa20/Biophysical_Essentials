@@ -190,6 +190,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.filter_dialog.close()
+        # make a proper rest
+        self.filter_dialog = None
 
     def update_gui_treeviews(self,signal= None, meta=None):
         """toDO add Docstrings!
