@@ -17,7 +17,7 @@ import mplcursors
 import numpy as np
 class Filter_Settings(QDialog, Ui_Dialog):
 
-    def __init__(self,frontend, database_handler, parent=None):
+    def __init__(self,frontend, database_handler, treeview_manager,parent=None):
         super().__init__(parent)
         self.frontend_style = frontend
         self.setupUi(self)
@@ -29,14 +29,20 @@ class Filter_Settings(QDialog, Ui_Dialog):
     
         #self.filter_checkbox_remove.stateChanged.connect(self.handle_filter_options)
 
-        self.SeriesItems = None
-        self.current_tab_visualization = None
-        self.current_tab_tree_view_manager = None
+        self.treeview_manager = treeview_manager
 
         self.and_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
         self.or_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
         self.contains_checkbox.stateChanged.connect(self.contains_checkbox_handling)
         self.contains_not_checkbox.stateChanged.connect(self.contains_checkbox_handling)
+
+        self.fig = None
+        self.tabWidget.currentChanged.connect(self.tab_changed)
+
+    def tab_changed(self):
+        if self.tabWidget.currentIndex() == 1:
+            if self.fig is None:
+                self.make_cslow_plot()
 
     def contains_checkbox_handling(self):	
         self.checkbox_handler(self.contains_checkbox,self.contains_not_checkbox)
@@ -85,12 +91,8 @@ class Filter_Settings(QDialog, Ui_Dialog):
         """
         
         """
-        # df with columns item_name, parent, type, level, identifier
-        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-        plot_widget_manager  = self.current_tab_visualization[current_index]
-        tree_manager = self.current_tab_tree_view_manager[current_index]
 
-        df = tree_manager.selected_tree_view_data_table
+        df = self.treeview_manager.selected_tree_view_data_table
         experiment_cslow_param = {}
         for identifier in df[df['type'] == 'Series']["identifier"].values:
             identifier = identifier.split("::")
@@ -224,10 +226,9 @@ class Filter_Settings(QDialog, Ui_Dialog):
         m1 = self.slider_lower_threshold_2.value() *  1e-12
         m2  = self.slider_upper_threshold_2.value()  * 1e-12
 
-        current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-        tree_manager = self.current_tab_tree_view_manager[current_index]
+        
 
-        df = tree_manager.selected_tree_view_data_table
+        df = self.treeview_manager.selected_tree_view_data_table
         
         for identifier in df[df['type'] == 'Series']["identifier"].values:
             identifier = identifier.split("::")
@@ -238,8 +239,8 @@ class Filter_Settings(QDialog, Ui_Dialog):
             
             if cslow < m1 or cslow > m2:
                 q = f'update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{identifier[0]}\' and series_identifier == \'{identifier[1]}\' and analysis_id =={self.database_handler.analysis_id}'
-                print("outfiltered" + identifier[0] + " " + identifier[0])
-        
+                self.database_handler.database.execute(q).fetchall()
+                print("outfiltered" + identifier[0] + " " + identifier[1])
 
     def apply_filters(self):
         if self.tabWidget.currentIndex() == 0:

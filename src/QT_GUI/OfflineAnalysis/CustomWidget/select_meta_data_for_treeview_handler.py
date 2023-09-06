@@ -153,6 +153,8 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
             
             if not self.database_handler.database.execute(f"Select * from selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1").fetchdf().empty:
                 self.database_handler.database.execute(f"DELETE FROM selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1")
+            
+            # write the selected meta data into te database
             self.database_handler.database.execute(f'INSERT INTO selected_meta_data SELECT * FROM meta_data_df')
             self.close()
             

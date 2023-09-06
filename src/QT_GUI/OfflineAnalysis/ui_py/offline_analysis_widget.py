@@ -112,8 +112,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.filter_dialog = None
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
+        self.clear.clicked.connect(self.clear_meta_data)
+
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
+
+    def clear_meta_data(self):
+        """clear the meta data from the database"""
+        self.database_handler.database.execute(f"DELETE FROM selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1")    
+        self.update_gui_treeviews()
 
     def load_discarded_selected_from_database(self):
         self.s_d_dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler,self.frontend_style)
@@ -158,20 +165,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         if self.filter_dialog is None:
             # if none, the dialog is created initially
-            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler)
+            if self.offline_analysis_widgets.currentIndex() ==1:
+                current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+                tree_manager = self.current_tab_tree_view_manager[current_index]
+                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,tree_manager)
+            
+            else:
+                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,
+                                                     self.blank_analysis_tree_view_manager)
+            
             self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
 
-        # dialog contains a tab widget which holds filter functions for experiments (0) and series (1)
-        # experiment filters can be applied on series level to, but not the other way round
-
-        if self.offline_analysis_widgets.currentIndex() ==1:
-            # get the index of the tab (e.g. tabe name might be IV, IV-40)
-            self.filter_dialog.SeriesItems = self.offline_tree.SeriesItems
-            self.filter_dialog.current_tab_visualization = self.offline_tree.current_tab_visualization
-            self.filter_dialog.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
-            self.filter_dialog.make_cslow_plot()
-
-        self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
+        #self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
         self.filter_dialog.show()
 
     def apply_filter_selection(self):
