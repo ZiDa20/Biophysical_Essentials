@@ -46,7 +46,10 @@ class PlotWidgetManager(QRunnable):
             self.draw_color = "black"
             self.ax_color = "black"
 
-        self.show_pgf_plot_button = None
+        #self.show_pgf_plot_button = None
+        self.show_pgf_plot = True
+        self.show_plot_grid = True
+
         self.shift_sweeps = None
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
@@ -131,8 +134,7 @@ class PlotWidgetManager(QRunnable):
                             x_y_tuple = [x_y_tuple[sweep_number-1]]
 
                         if x_y_tuple is not None:
-                                    self.ax1.grid(False)
-                                    self.ax2.grid(False)
+
                                     for tuple in x_y_tuple:
                                         if isinstance(tuple[1],list):
                                             y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
@@ -348,10 +350,16 @@ class PlotWidgetManager(QRunnable):
 
         if split_view:
             # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-
+            if self.show_pgf_plot:
+                axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+            else:
+                axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=False, sharey=False)
+    
             self.ax1 = axes[0]
             self.ax2 = axes[1]
+            self.ax2.set_visible(self.show_pgf_plot)
+            if not self.show_pgf_plot:
+                self.ax1.set_position([0.1, 0.1, 0.8, 0.8])  # Maximize ax1
         else:
             self.ax1 = self.canvas.figure.subplots()
             self.ax2 = self.ax1.twinx()
@@ -364,6 +372,7 @@ class PlotWidgetManager(QRunnable):
         """
         self.ax1.spines['top'].set_visible(False)
         self.ax1.spines['right'].set_visible(False)
+
         self.ax2.spines['top'].set_visible(False)
         self.ax2.spines['right'].set_visible(False)
         #self.ax1.patch.set_alpha(0)
@@ -372,18 +381,18 @@ class PlotWidgetManager(QRunnable):
         ax_color = self.ax_color
         self.ax1.spines['bottom'].set_color(ax_color)
         self.ax1.spines['left'].set_color(ax_color)
-        self.ax1.xaxis.label.set_color(ax_color)
-        self.ax1.yaxis.label.set_color(ax_color)
-        self.ax1.tick_params(axis='x', colors=ax_color)
-        self.ax1.tick_params(axis='y', colors=ax_color)
-
-
         self.ax2.spines['bottom'].set_color(ax_color)
         self.ax2.spines['left'].set_color(ax_color)
         self.ax2.xaxis.label.set_color(ax_color)
         self.ax2.yaxis.label.set_color(ax_color)
         self.ax2.tick_params(axis='x', colors=ax_color)
         self.ax2.tick_params(axis='y', colors=ax_color)
+        self.ax1.xaxis.label.set_color(ax_color)
+        self.ax1.yaxis.label.set_color(ax_color)
+        self.ax1.tick_params(axis='x', colors=ax_color)
+        self.ax1.tick_params(axis='y', colors=ax_color)
+        self.ax1.set_xticklabels(self.ax2.get_xticklabels())
+
         #plt.subplots_adjust(left=0.8, right=0.9, bottom=0.8, top=0.9)
         #self.ax1.autoscale()
         #self.ax2.autoscale()
@@ -391,7 +400,11 @@ class PlotWidgetManager(QRunnable):
 
         #self.canvas.figure.patch.set_alpha(0)
         #self.canvas.figure.tight_layout()
-        self.ax2.set_xlabel('Time [ms]')
+        if self.show_pgf_plot:
+            self.ax2.set_xlabel('Time [ms]')
+        else:
+            self.ax1.set_xlabel('Time [ms]')
+            
         if self.y_unit == "V":
             self.ax1.set_ylabel('Voltage [mV]')
             self.ax2.set_ylabel('Current [pA]')
@@ -399,6 +412,10 @@ class PlotWidgetManager(QRunnable):
             self.ax1.set_ylabel('Current [nA]')
             self.ax2.set_ylabel('Voltage [mV]')
 
+        self.ax1.grid(self.show_plot_grid)
+        self.ax2.grid(self.show_plot_grid)
+
+        
         self.canvas.draw_idle()
 
     def plot_pgf_signal(self,pgf_table_df,data,sweep_number=None):

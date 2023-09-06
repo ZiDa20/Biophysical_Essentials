@@ -113,10 +113,50 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
         self.clear.clicked.connect(self.clear_meta_data)
+        self.turn_off_grid.clicked.connect(partial(self.grid_button_clicked, True))
+        self.show_pgf_trace.clicked.connect(partial( self.grid_button_clicked, False))
 
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
 
+
+    def grid_button_clicked(self, grid:bool):
+        """either show or turn off the grid in the plot or show or turn off the pgf plot
+        """
+        if self.offline_analysis_widgets.currentIndex() == 0:
+            tm = self.blank_analysis_tree_view_manager # ptm = tree manager
+            pm = self.blank_analysis_plot_manager # pm = plot manager
+        else:
+            #have to find the corect widget first
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            tm = self.offline_tree.current_tab_tree_view_manager[current_index]
+            pm = self.offline_tree.current_tab_visualization[current_index]
+
+        if grid: # grid button was clicked
+            pm.show_plot_grid =  not pm.show_plot_grid
+        else: # pgf button was clicked
+            pm.show_pgf_plot = not pm.show_pgf_plot 
+
+        self.reclick_tree_item(tm)
+
+    def reclick_tree_item(self, treeview_manager:TreeViewManager):
+            """
+            reclick the current tree object to update the plot
+            """   
+            try:
+                index = treeview_manager.tree_build_widget.selected_tree_view.selectedIndexes()[1]
+                rect = treeview_manager.tree_build_widget.selected_tree_view.visualRect(index)
+            
+            except IndexError:
+                # if there was some discarding/reinsertion procedire before, it might happen that no treeelement is clicked
+                # Find the QModelIndex of the first child of the first parent
+                parent_index = treeview_manager.tree_build_widget.selected_tree_view.model().index(0, 0,  QModelIndex())  # Row 0, Column 0
+                child_index = treeview_manager.tree_build_widget.selected_tree_view.model().index(0, 0, parent_index)  # Row 0, Column 0, under parent_index
+                rect = treeview_manager.tree_build_widget.selected_tree_view.visualRect(child_index)
+            
+            # on click (handled in treeview manager) plot compartments will be evaluated
+            QTest.mouseClick(treeview_manager.tree_build_widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+    
     def clear_meta_data(self):
         """clear the meta data from the database"""
         self.database_handler.database.execute(f"DELETE FROM selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1")    
@@ -167,7 +207,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # if none, the dialog is created initially
             if self.offline_analysis_widgets.currentIndex() ==1:
                 current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-                tree_manager = self.current_tab_tree_view_manager[current_index]
+                tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
                 self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,tree_manager)
             
             else:
