@@ -266,27 +266,38 @@ class TreeViewManager:
         self.selected_model = TreeModel(selected_table_view_table)
         self.discarded_model = TreeModel(discarded_table_view_table, "discarded")
 
-        # assign the models to the visible treeview objects
-        col_count = len(selected_table_view_table["type"].unique())
+        # check both column counts: if one of the trees is empty, make sure to adopt the size to the non empty one
+        col_count_selected = len(selected_table_view_table["type"].unique())
+        col_count_discarded = len(discarded_table_view_table["type"].unique())
+
+        if col_count_discarded>col_count_selected:
+            col_count= col_count_discarded
+        else:
+            col_count = col_count_selected
+
         # workaround .. works around okish -- forces the tree to change its with
         if self.specific_analysis_tab:
             self.update_mdi_areas(col_count)
         else:
             self.tree_build_widget.selected_tree_view.setMinimumWidth(350 + (col_count-2)*100)
             #self.tree_build_widget.selected_tree_view.setMaximumWidth(350 + (col_count-2)*100)
-
+        
+        # make the delete button
         delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view,
                                                True,
-                                               col_count,
-                                               self.frontend_style.default_mode) #self.selected_model.header().count()
+                                               col_count_selected,
+                                               self.frontend_style.default_mode) 
+        
         self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
         self.tree_build_widget.selected_tree_view.expandAll()
 
+        
         delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view,
                                                  False,
-                                                 col_count,
-                                                 self.frontend_style.default_mode)       #self.discarded_model.header().count()
+                                                 col_count_discarded,
+                                                 self.frontend_style.default_mode)
+        
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()
@@ -304,6 +315,7 @@ class TreeViewManager:
 
         self.tree_build_widget.selected_tree_view.clicked.connect(
             partial(self.handle_tree_view_click, self.selected_model, plot_widget_manager,series_name))
+        
         self.tree_build_widget.discarded_tree_view.clicked.connect(
             partial(self.handle_tree_view_click, self.discarded_model, plot_widget_manager,series_name))
 
@@ -415,54 +427,6 @@ class TreeViewManager:
 
         return series_table,  series_df
 
-    def create_series_specific_tree(self, series_name, plot_widget_manager : PlotWidgetManager):
-        """
-         create a treeview containing only series of the specific series identified by series name
-        """
-        self.selected_tree_view_data_table = self.create_data_frame_for_tree_model( False, self.show_sweeps_radio.isChecked(), series_name)
-        self.discarded_tree_view_data_table = self.create_data_frame_for_tree_model( True, self.show_sweeps_radio.isChecked(), series_name)
-
-        selected_model = TreeModel(self.selected_tree_view_data_table)
-        print("selected finished succesful")
-        discarded_model = TreeModel(self.discarded_tree_view_data_table, "discarded")
-
-        # assign the models to the visible treeview objects
-        col_count = len(self.selected_tree_view_data_table["type"].unique())
-
-        delegate_delete = CancelButtonDelegate(self.tree_build_widget.selected_tree_view, True, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
-        self.tree_build_widget.selected_tree_view.setItemDelegate(delegate_delete)
-        self.tree_build_widget.selected_tree_view.setModel(selected_model)
-        self.tree_build_widget.selected_tree_view.expandAll()
-
-        delegate_discard = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view, False, col_count,self.frontend_style.default_mode) #self.selected_model.header().count()
-        self.tree_build_widget.discarded_tree_view.setModel(discarded_model)
-        self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_discard)
-        self.tree_build_widget.discarded_tree_view.expandAll()
-
-        # display the correct columns according to the selected metadata and sweeps
-        self.set_visible_columns_treeview(selected_model, self.tree_build_widget.selected_tree_view)
-        self.set_visible_columns_treeview(discarded_model,self.tree_build_widget.discarded_tree_view)
-
-        try:
-            self.tree_build_widget.selected_tree_view.clicked.disconnect()
-            self.tree_build_widget.discarded_tree_view.clicked.disconnect()
-        except Exception as e:
-            print(e)
-
-        self.tree_build_widget.selected_tree_view.clicked.connect(
-            partial(self.handle_tree_view_click, selected_model, plot_widget_manager, series_name))
-        self.tree_build_widget.discarded_tree_view.clicked.connect(
-            partial(self.handle_tree_view_click, discarded_model, plot_widget_manager, series_name))
-    """
-    def click_qtreeview_cell(self,treeview, index):
-        "click on a specific cell"
-        model = treeview.model()
-        #item = model.data(index, Qt.DisplayRole)
-        treeview.setCurrentIndex(index)
-        treeview.clicked.emit(index)
-        treeview.doubleClicked.emit(index)
-    """
-
     def handle_tree_view_click(self, model, plot_widget_manager: PlotWidgetManager, series_name, index):
         """
         Handler function to handle treeview clicks in online and offline analysis mode.
@@ -483,7 +447,7 @@ class TreeViewManager:
         i = tree_item_list[1][data_pos["hidden1_identifier"]].split("::")
         tree_item_list[1][data_pos["hidden1_identifier"]] = i[len(i)-1]
 
-        # remove: move and experiment or series from selected to discarded tree and mark it in the database as discarded
+        # remove: move an experiment or series from selected to discarded tree and mark it in the database as discarded
         if tree_item_list[0] == "x":
             self.move_tree_view_item(tree_item_list, series_name, data_pos, plot_widget_manager, "True")
        
@@ -543,31 +507,17 @@ class TreeViewManager:
             #print(discard_query)
             self.database_handler.database.execute(query)
 
-            self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
+            self.update_treeviews(plot_widget_manager,series_name)
 
         if tree_item_list[1][data_pos["hidden2_type"]] == "Experiment":
             # set all series of the related series to discarded
             self.database_handler.database.execute(f'update series_analysis_mapping set analysis_discarded = {discarded_state} where '\
                                                     f'analysis_id = {self.offline_analysis_id} '\
                                                     f'and experiment_name = \'{tree_item_list[1][data_pos["Experiment"]]}\' ')
-            #print("discarding an experiment")
-            #print(series_name)
-            self.update_treeviews_after_discard_reinsert(series_name,plot_widget_manager)
+            
+            self.update_treeviews(plot_widget_manager,series_name)
 
-    def update_treeviews_after_discard_reinsert(self,series_name:str, plot_widget_manager:PlotWidgetManager):
-        """
-
-        @param series_name:
-        @param plot_widget_manager:
-        @return:
-        """
-        if series_name:
-            # load the updated table
-            self.create_series_specific_tree(series_name, plot_widget_manager)
-        else:
-            self.update_treeviews(plot_widget_manager)
-        return
-
+   
     def update_treeview(self):
         """ updates the treeview with the selected and discarded experiments following
         database writing
@@ -1202,12 +1152,8 @@ class TreeViewManager:
             for s_i in series_identifier:
                 QApplication.processEvents()
                 self.get_series_data_and_write_to_csv(plot_widget_manager,file,experiment_name,s_i)
-            
-                print("added successfully")
+                self.logger.info(f"write_experiment_to_csv: added series {s_i} to csv file")
     
-
-        
-        
 
     def write_series_to_csv(self,plot_widget_manager):
         """write the currently selected and displayed series into a csv file

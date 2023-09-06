@@ -265,8 +265,9 @@ class SeriesItemTreeWidget():
 
         # slice out all series names that are not related to the specific chosen one
         # at the moment its setting back every plot! @2toDO:MZ
-        current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
-
+        
+        #current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
+        current_tab_tree_view_manager.update_treeviews(current_tab_plot_manager,series_name)
 
         navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         self.home.clicked.connect(navigation.home)

@@ -486,7 +486,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
         self.stackedWidget.setCurrentIndex(0)
         
-
+    """ deprecated ? dz 06092023
     @Slot()
     def experiment_label_dropped(self, item_text):
         print(item_text)
@@ -500,6 +500,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             QListWidgetItem(i[0], self.dialog.meta_data_list).setCheckState(Qt.CheckState.Checked)
 
         print("added new item")
+    """
 
     @Slot()
     def open_directory(self):
