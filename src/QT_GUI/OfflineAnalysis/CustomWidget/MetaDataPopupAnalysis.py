@@ -53,6 +53,8 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
         table_handling = self.database_handler.get_data_from_database(
             self.database_handler.database, self.query, fetch_mode=2
         )
+
+        table_handling  = table_handling[table_handling["analysis_id"]==self.database_handler.analysis_id]
         self.table_model = PandasTable(table_handling)
 
         
