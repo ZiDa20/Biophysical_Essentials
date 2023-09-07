@@ -590,12 +590,11 @@ class TreeViewManager:
 
         return combinations
 
-    def create_treeview_with_meta_data_parents(self, meta_data_table):
+    def create_treeview_with_meta_data_parents(self, meta_data_table,series_name = None):
 
         """
         make labels according to the entries in the meta data table
         meta_data_table = pandas data frame with columns [table, column, values]
-
         """
         # Create an empty DataFrame with the necessary columns
         df = pd.DataFrame(columns=["item_name", "parent", "type", "level", "identifier"])
@@ -604,14 +603,54 @@ class TreeViewManager:
         GLOBAL_META_DATA_TABLE = "global_meta_data"
         EXPERIMENT_SERIES_TABLE = "series_analysis_mapping"
         SWEEP_META_DATA_TABLE = "sweep_meta_data"
-       
-        global_meta_data_query = f'select * from global_meta_data where experiment_name in (select experiment_name from experiment_analysis_mapping where analysis_id = {self.offline_analysis_id})'
-        global_meta_data = self.database_handler.database.execute(global_meta_data_query).fetchdf()
         
-        global_meta_data["agg"] = global_meta_data[meta_data_table["condition_column"]].agg('::'.join, axis=1)
+        # lets assume pure frames first: 
+        if meta_data_table["table_name"].unique().tolist() == [GLOBAL_META_DATA_TABLE, EXPERIMENT_SERIES_TABLE]:
+            global_meta_data_query = f'select * from global_meta_data '\
+                                        f'where experiment_name in '\
+                                        f'(select experiment_name from experiment_analysis_mapping '\
+                                        f'where analysis_id = {self.offline_analysis_id})'
+            
+            global_meta_data = self.database_handler.database.execute(global_meta_data_query).fetchdf()
+            global_meta_data_condition_column = meta_data_table[meta_data_table["table_name"] == GLOBAL_META_DATA_TABLE]["condition_column"]
+            global_meta_data["agg"] = global_meta_data[global_meta_data_condition_column].agg('::'.join, axis=1)
+        
+
+            series_meta_data_query = f'select * from series_analysis_mapping where analysis_id = {self.offline_analysis_id} and series_name == \'{series_name}\''
+            series_meta_data = self.database_handler.database.execute(series_meta_data_query).fetchdf()
+            
+            merged_meta_data_df = pd.DataFrame(columns=["experiment_name", "agg"])
+            
+            # go through each experiment and check the series meta data
+            for experiment, aggregate in zip(global_meta_data["experiment_name"].values.tolist(), global_meta_data["agg"].values.tolist()):
+                tmp = series_meta_data[series_meta_data["experiment_name"] == experiment]
+                experiment_series_meta_data = tmp["series_meta_data"].unique().tolist()
+                for i in experiment_series_meta_data:
+                    merged_meta_data_df = merged_meta_data_df.append({"experiment_name": experiment, "agg": aggregate + "::" + i}, ignore_index=True)
+            
+            global_meta_data = merged_meta_data_df
+
+        else:
+
+            if meta_data_table["table_name"].unique().tolist() == [GLOBAL_META_DATA_TABLE]:
+                global_meta_data_query = f'select * from global_meta_data '\
+                                        f'where experiment_name in '\
+                                        f'(select experiment_name from experiment_analysis_mapping '\
+                                        f'where analysis_id = {self.offline_analysis_id})'
+            
+            elif meta_data_table["table_name"].unique().tolist() == [EXPERIMENT_SERIES_TABLE]:
+                # this will be always series specific !! 
+                global_meta_data_query = f'select * from series_analysis_mapping where analysis_id = {self.offline_analysis_id} and series_name == \'{series_name}\''\
+        
+
+
+            global_meta_data = self.database_handler.database.execute(global_meta_data_query).fetchdf()
+            
+            global_meta_data["agg"] = global_meta_data[meta_data_table["condition_column"]].agg('::'.join, axis=1)
+        
         global_meta_data["root"] = "root"
         global_meta_data["agg_experiment_names"] =global_meta_data[["root", "agg","experiment_name"]].agg('::'.join, axis=1)
-        
+            
         # go through all created meta data label combinations, e.g. [KO::Male, KO::Female, WT::Male, W::Female] and get the related experiment name
         for c in global_meta_data["agg"].unique():
             
@@ -640,7 +679,7 @@ class TreeViewManager:
 
         # get a dataframe with hierarchical strcutured meta data items and exoeriments
         # thsi dataframe will have 2 levels: meta data label a parent and the experiment names
-        df = self.create_treeview_with_meta_data_parents(meta_data_table)
+        df = self.create_treeview_with_meta_data_parents(meta_data_table,series_name)
         series_level = df["level"].max() + 1
 
         experiments_only = df[df["type"]=="Experiment"]
@@ -656,7 +695,7 @@ class TreeViewManager:
             series_meta_data = None
 
             # if there was a selection of series meta data -- 
-            #if "experiment_series" in meta_data_table["table_name"].values.tolist():
+            # if "series_analysis_mapping" in meta_data_table["table_name"].values.tolist():
 
             #    # get the parent
             #    label = df[df.identifier == experiment_row["parent"]]["item_name"].values[0]

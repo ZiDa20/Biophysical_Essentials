@@ -54,7 +54,9 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
             self.database_handler.database, self.query, fetch_mode=2
         )
 
-        table_handling  = table_handling[table_handling["analysis_id"]==self.database_handler.analysis_id]
+        if self.series:
+            table_handling  = table_handling[table_handling["analysis_id"]==self.database_handler.analysis_id]
+    
         self.table_model = PandasTable(table_handling)
 
         
@@ -74,13 +76,16 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
         df = new_df
         for index, row in df.iterrows():
             if experiment:
-                q = f"""update global_meta_data set experiment_label = \'{row["experiment_label"]}\' where experiment_name = \'{row["experiment_name"]}\' """
+                for c in ["experiment_label", "species", "genotype", "sex", "celltype","condition", "individuum_id"]:
+                    #if row[c] != "None":
+                    q = f"""update global_meta_data set {c} = \'{row[c]}\' where experiment_name = \'{row["experiment_name"]}\' """
+                    self.database_handler.database.execute(q)
             else:
                 # only update  the series meta data column !! 
                  q = f"""update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
                 #q = f"""update series_analysis_mapping set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
 
-            self.database_handler.database.execute(q)
+                 self.database_handler.database.execute(q)
         self.close()
 
     def slide_search_model(self, series = False):
