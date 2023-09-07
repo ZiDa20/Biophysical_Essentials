@@ -283,9 +283,9 @@ class SweepWiseAnalysisTemplate(ABC):
 		increment = None if (query_data["Increment"] > 0).any() else 1
 
 		if "Voltage" in query_data.columns:
-			return query_data[["Sweep_Number","Duration","Voltage","Result","experiment_name"]], increment
+			return query_data[["Sweep_Number","Duration","Voltage","Result","experiment_name","Sweep_Table_Name"]], increment
 		else:
-			return query_data[["Sweep_Number","Duration","Current","Result","experiment_name"]], increment
+			return query_data[["Sweep_Number","Duration","Current","Result","experiment_name","Sweep_Table_Name"]], increment
 
 	@staticmethod
 	def get_list_of_result_tables(analysis_id, analysis_function_id, database)-> list:

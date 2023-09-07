@@ -113,6 +113,7 @@ class OfflinePlots():
             self.violin = True
 
         self.parent_widget.selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
+        debug = self.database_handler.get_selected_meta_data(analysis_function_id)
 
         try:
             self.plot_dictionary.get(analysis_function)(result_table_list)
@@ -161,7 +162,16 @@ class OfflinePlots():
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
+            
+            # replace column Sweep_Table_Name with series_identifier and add the series meta data
+            experiment_series_table = self.database_handler.database.execute("select * from experiment_series").fetchdf()
+            series_merge = pd.merge(plot_dataframe, experiment_series_table, left_on = "Sweep_Table_Name", right_on = "sweep_table_name", how = "left")
+            plot_dataframe["Sweep_Table_Name"]=series_merge["series_identifier"]
+            plot_dataframe["series_meta_data"]=series_merge["series_meta_data"]
+
+            # merge with the experiment meta data
             self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            
             self.parent_widget.increment = increment
         else:
             for ax in self.parent_widget.canvas.figure.axes:

@@ -695,13 +695,11 @@ class TreeViewManager:
             series_meta_data = None
 
             # if there was a selection of series meta data -- 
-            # if "series_analysis_mapping" in meta_data_table["table_name"].values.tolist():
-
-            #    # get the parent
-            #    label = df[df.identifier == experiment_row["parent"]]["item_name"].values[0]
+            if "series_analysis_mapping" in meta_data_table["table_name"].values.tolist():  
             #    # split at ::
-            #    label = label.split("::")
-            #    series_meta_data = label[meta_data_table["table_name"].values.tolist().index("experiment_series")]
+                label = id.split("::")
+                #'root::male::before::220315_01' -> before would be the series meta data
+                series_meta_data = label[len(label)-2]
 
             df, series_table = self.add_series_to_treeview(df, name, id , discarded_state, series_name, series_level, series_meta_data)
            
