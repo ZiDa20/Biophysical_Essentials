@@ -123,6 +123,15 @@ class OfflinePlots():
 
         self.logger.info(f"Analysis function retrieved successfully {analysis_function}")
 
+    def add_sweep_meta_data_to_result_table(self,result_table):
+        # replace column Sweep_Table_Name with series_identifier and add the series meta data
+        experiment_series_table = self.database_handler.database.execute("select * from experiment_series").fetchdf()
+        series_merge = pd.merge(result_table, experiment_series_table, left_on = "Sweep_Table_Name", right_on = "sweep_table_name", how = "left")
+        result_table["Sweep_Table_Name"]=series_merge["series_identifier"]
+        result_table["series_meta_data"]=series_merge["series_meta_data"]
+        return result_table
+   
+
     def make_boxplot(self,result_table_list: list) -> None:
 
         """Specific Function to draw Boxplots from long table formats
@@ -162,13 +171,7 @@ class OfflinePlots():
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-            
-            # replace column Sweep_Table_Name with series_identifier and add the series meta data
-            experiment_series_table = self.database_handler.database.execute("select * from experiment_series").fetchdf()
-            series_merge = pd.merge(plot_dataframe, experiment_series_table, left_on = "Sweep_Table_Name", right_on = "sweep_table_name", how = "left")
-            plot_dataframe["Sweep_Table_Name"]=series_merge["series_identifier"]
-            plot_dataframe["series_meta_data"]=series_merge["series_meta_data"]
-
+            plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
             # merge with the experiment meta data
             self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
             
@@ -222,6 +225,7 @@ class OfflinePlots():
             plot_dataframe = SpecificAnalysisFunctions.rheobase_calc(result_table_list, self.database_handler)
             self.merge_meta_plot_and_assign_meta(plot_dataframe)
         else:
+            plot_dataframe = self.add_sweep_meta_data_to_result_table(self.parent_widget.holded_dataframe) # adds series identifier and series meta data
             self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             for ax in self.parent_widget.canvas.figure.axes:
                 ax.clear()
@@ -246,6 +250,7 @@ class OfflinePlots():
             right_on="experiment_name",
             how="left",
         )
+        plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
         plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg(
             '::'.join, axis=1
         )
@@ -290,7 +295,9 @@ class OfflinePlots():
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe = SpecificAnalysisFunctions.rheoramp_calc(result_table_list, self.database_handler)
+            plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            
             plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             self.parent_widget.holded_dataframe = plot_dataframe
 
@@ -331,9 +338,9 @@ class OfflinePlots():
         if self.parent_widget.holded_dataframe is None:
             statitics_dataframe, _ = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
             # its the unscaled dataframe
+            self.add_sweep_meta_data_to_result_table(statitics_dataframe)
             self.parent_widget.statistics = statitics_dataframe
             self.parent_widget.holded_dataframe = pd.merge(statitics_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-
         else:
             self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             for ax in self.parent_widget.canvas.figure.axes:
@@ -389,6 +396,7 @@ class OfflinePlots():
             # retrieve the plot_dataframe
             statitics_dataframe, plot_dataframe = SpecificAnalysisFunctions.ap_calc(result_table_list, self.database_handler)
             self.statistics = statitics_dataframe
+            self.add_sweep_meta_data_to_result_table(plot_dataframe)
             self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         else:
             for ax in self.parent_widget.canvas.figure.axes:
@@ -410,7 +418,8 @@ class OfflinePlots():
                 subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
                 subset.dropna(axis = 0, inplace = True)
                 tmp_dict = {}
-                for c in  self.statistics.columns[0:-2]: # get rid of the last since this is the experiment name and meta data
+                # get rid of the last 3: since this is the experiment name, series identifier and meta data
+                for c in  self.statistics.columns[0:-3]: 
                     tmp_dict[c] = [np.mean(subset[c].values)]
                 #print(tmp_dict)
                 tmp_df = pd.DataFrame(tmp_dict)
@@ -420,7 +429,8 @@ class OfflinePlots():
             drawing_data = new_df.T
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
-           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-2]].T
+           # get rid of the last 3: since this is the experiment name, series identifier and meta data
+           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-3]].T
            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
 
         self.parent_widget.canvas.figure.tight_layout()
@@ -467,6 +477,7 @@ class OfflinePlots():
             # retrieve the plot_dataframe
             plot_dataframe, _ = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
             plot_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+            self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
             plot_dataframe["meta_data"] = plot_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
             self.hue_regplot(data=plot_dataframe, x='Sweep_Number', y='Result', hue='meta_data', ax=self.parent_widget.ax)
             self.parent_widget.holded_dataframe = plot_dataframe
@@ -491,6 +502,7 @@ class OfflinePlots():
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
             plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc(result_table_list, self.database_handler)
+            self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
             self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
         else:
             for ax in self.parent_widget.canvas.figure.axes:

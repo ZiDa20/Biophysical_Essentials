@@ -20,7 +20,7 @@ class SpecificAnalysisFunctions():
         """
        
         plot_dataframe = database.database.execute(f'select * from {result_table[0]}').fetchdf()
-          
+        
         return plot_dataframe
         # no nan handling required since sweeps without an AP are not stored in the dataframe
 
@@ -40,9 +40,11 @@ class SpecificAnalysisFunctions():
         """
         
         sweep_table, increment= SweepWiseAnalysisTemplate.fetch_x_and_y_data(result_table, database)
-        return sweep_table, increment
-        
+       
 
+        return sweep_table, increment
+    
+    
     @staticmethod
     def rheobase_calc(result_table_list:list, database):
         """Specific calculation for Rheobase Data constructed by the Rheobase Function
@@ -58,7 +60,7 @@ class SpecificAnalysisFunctions():
         for table in result_table_list:
             if "_max" not in table:
                 plot_dataframe = database.database.execute(f'select * from {table}').fetchdf()
-        plot_dataframe.columns = ["Result", "experiment_name"]
+        plot_dataframe.columns = ["Result", "experiment_name","Sweep_Table_Name"]
         return plot_dataframe
 
     @staticmethod
@@ -107,6 +109,8 @@ class SpecificAnalysisFunctions():
         z_score = StandardScaler().fit_transform(plot_dataframe.iloc[:,0:-1].values)
         z_score_df = pd.DataFrame(z_score, columns = plot_dataframe.iloc[:,0:-1].columns)
         z_score_df["experiment_name"] = plot_dataframe.experiment_name
+        z_score_df["Sweep_Table_Name"] =plot_dataframe.Sweep_Table_Name
+
         return plot_dataframe, z_score_df
 
     @staticmethod
@@ -126,6 +130,7 @@ class SpecificAnalysisFunctions():
         explained_variance = pca.explained_variance_ratio_.tolist()
         pca_dataframe = pd.DataFrame(pca_data, columns = ["PC1", "PC2"])
         pca_dataframe["experiment_name"] = plot_dataframe["experiment_name"]
+        pca_dataframe["Sweep_Table_Name"] = plot_dataframe["Sweep_Table_Name"]
         plot_dataframe = plot_dataframe.dropna(axis = 0)
         
         return pca_dataframe, explained_variance

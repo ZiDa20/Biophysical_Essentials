@@ -6,6 +6,7 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis im
 class RheobaseDetection(SweepWiseAnalysisTemplate):
     """Analysis Class to detect the minimum current that needs to be injected into a cell to fire action potentials
     :author dz, 13.07.2022
+    @todo: revise this class and make it more efficient
     """
     
     def __init__(self):
@@ -95,6 +96,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                             print(injected_current)
                             result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
                             result_data_frame["experiment_name"] = experiment_name
+                            result_data_frame["Sweep_Table_Name"] = data_table
                             agg_table = pd.concat([agg_table, result_data_frame])
                             break
 
@@ -108,6 +110,7 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
 
                         result_data_frame = pd.DataFrame({'1st AP': [injected_current]})
                         result_data_frame["experiment_name"] = experiment_name
+                        result_data_frame["Sweep_Table_Name"] = data_table
                         agg_table = pd.concat([agg_table, result_data_frame])
                         break
                

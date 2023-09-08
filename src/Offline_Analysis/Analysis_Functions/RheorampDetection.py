@@ -73,6 +73,7 @@ class RheorampDetection(SweepWiseAnalysisTemplate):
                     number_peaks = len(peak_x) if peaks is not None else 0
                     tmp_df = pd.DataFrame([[sweep_number, number_peaks]], columns = ["Rheoramp","Number AP"])
                     tmp_df["experiment_name"] = experiment_name
+                    tmp_df["Sweep_Table_Name"] = data_table
                     result_data_frame = pd.concat([result_data_frame,tmp_df])
                 
                 agg_table = pd.concat([agg_table, result_data_frame])

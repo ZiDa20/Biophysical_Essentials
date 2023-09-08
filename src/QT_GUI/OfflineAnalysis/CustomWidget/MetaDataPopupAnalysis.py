@@ -83,9 +83,10 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
             else:
                 # only update  the series meta data column !! 
                  q = f"""update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
-                #q = f"""update series_analysis_mapping set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
-
                  self.database_handler.database.execute(q)
+                 q = f"""update series_analysis_mapping set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
+                 self.database_handler.database.execute(q)
+
         self.close()
 
     def slide_search_model(self, series = False):
