@@ -428,17 +428,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QApplication.processEvents()
        
         #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
+        
+        for parent_pos, series_n in zip(range(len(series_names_list)), series_names_list):
            
             QApplication.processEvents()
-            self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
+            #bugfix: we always have to load toplevelitem 0 here (max count = 2)
+            self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(0).child(parent_pos).child(0))
             self.offline_tree.offline_analysis_result_tree_item_clicked()
 
             # should check if an analysis exist if not than skip addition of the treeview elements
             if not self.database_handler.get_series_specific_analysis_functions(series_n):
                 continue
             self.finished_result_thread(reload=True)
-
+        
         self.ap.stop_and_close_animation()
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
