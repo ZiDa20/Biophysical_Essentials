@@ -25,6 +25,7 @@ from QT_GUI.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysi
 from QT_GUI.Settings.ui_py.settings_dialog import SettingsWindow
 from QT_GUI.DatabaseViewer.ui_py.database_viewer_widget import Database_Viewer
 
+
 import Figures_rc
 from StyleFrontend.frontend_style import Frontend_Style
 

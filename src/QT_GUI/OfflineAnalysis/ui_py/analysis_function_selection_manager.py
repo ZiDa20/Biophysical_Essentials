@@ -158,6 +158,7 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
 
+    """ deprecated dz 08092023
     def group_box_fullsize(self):
         tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_functions.analysis_stacked_widget.sizeHint().width()
         self.resize_group_box(tmp_size)
@@ -170,7 +171,8 @@ class AnalysisFunctionSelectionManager():
         print("resize not working")
         #self.current_tab.subwindow_calc.setMinimumSize(QSize(tmp_size, 900))
         #self.current_tab.subwindow_calc.setMaximumSize(QSize(tmp_size, 900))
-    
+
+    """     
 
         
     """

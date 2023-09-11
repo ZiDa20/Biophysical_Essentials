@@ -28,6 +28,7 @@ import unittest
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 
     
+## make sure to have any old test_treeview_db.db removed .. !!!! otherwise tests might fail###
 
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
     """ Test 1: check the default treeview after loading data from the database: 
@@ -36,7 +37,10 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
         qtbot (_type_): clickbot
     """
     test_db,app = load_demo_dat_data_into_database(qtbot)
-    
+        #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
+    tables = test_db.database.execute("SHOW TABLES").fetchdf()
+    assert tables.shape[0] == 65
+
     # check that the selected treeview is not none
     stv = app.ui.offline.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view
     unittest.TestCase.assertIsNotNone(stv,"selected treeview should not be empty anymore")
@@ -44,6 +48,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
     # check that the default selected treeview does only show experiment and series level data
     selected_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
     print("got this table back")
+    print(selected_treeview_table)
     res = selected_treeview_table["type"].unique().tolist()
     valid_types = ["Experiment","Series"]
     

@@ -1,18 +1,23 @@
 import sys
 import os
-from loggers.start_logger import start_logger
+
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtTest import QTest
+
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from qt_material import apply_stylesheet
 from functools import partial
 from qt_material import QtStyleTools
 from StyleFrontend.frontend_style import Frontend_Style
 from database.data_db import DuckDBDatabaseHandler
-from StyleFrontend.animated_ap import LoadingAnimation
+#from StyleFrontend.animated_ap import LoadingAnimation
 import webbrowser
+
+# needed to make the pyinstaller exe working
+import logging
+from loggers.start_logger import start_logger
 
 class MainWindow(QMainWindow, QtStyleTools):
 
