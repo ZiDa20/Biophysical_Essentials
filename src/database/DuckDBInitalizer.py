@@ -88,6 +88,7 @@ class DuckDBInitializer:
                                         series_name text,
                                         renamed_series_name text,
                                         analysis_discarded text,
+                                        series_meta_data text,
                                         primary key (analysis_id, experiment_name, series_identifier)
                                         ); """
 

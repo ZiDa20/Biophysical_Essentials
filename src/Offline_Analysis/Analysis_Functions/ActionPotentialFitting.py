@@ -219,7 +219,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
                     y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
                     self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
-                res = self.specific_calculation(experiment_name)
+                res = self.specific_calculation(experiment_name,data_table)
                 print(res)
                 # res can be none if there is a beat that had no action potential
                 if res is not None:
@@ -263,7 +263,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         self.run_late_register_feature()
 
         
-    def specific_calculation(self,experiment_name, manual_threshold = 10, smoothing_window_length = 19):
+    def specific_calculation(self,experiment_name,data_table, manual_threshold = 10, smoothing_window_length = 19):
         print("running action potential fitting")
 
         fitting_parameters = {}
@@ -388,6 +388,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             fitting_parameters['dt t_min-t_max [ms]'] = t_min_1st_derivative_amplitude - t_max_1st_derivative_amplitude
             fitting_parameters['AP_with [ms]'] = half_width
             fitting_parameters["experiment_name"] = experiment_name
+            fitting_parameters["Sweep_Table_Name"]=data_table
             #fitting_parameters["meta_data"] = experiment_name
 
             return fitting_parameters

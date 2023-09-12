@@ -37,22 +37,30 @@ class OfflineDialogs:
     def edit_metadata_analysis_id(self):
         """_summary_: Popup Dialog to edit the metadata of the selected experiments
         """
-        edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = False)
-        edit_data.create_table()
-        edit_data.submit.setAutoDefault(False)
-        edit_data.quit.setAutoDefault(False)
-        edit_data.submit.clicked.connect(edit_data.add_metadata_into_db)
-        edit_data.exec()
+        # dialog needs to be global to be accessible in the unittest
+        self.edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = False)
+        self.edit_data.create_table()
+        self.edit_data.submit.setAutoDefault(False)
+        self.edit_data.quit.setAutoDefault(False)
+        self.edit_data.submit.clicked.connect(partial(self.change_meta_data,True, self.edit_data))
+        self.edit_data.show()
 
     def edit_series_meta_data_popup(self):
         """ _summary_: Popup Dialog to edit the metadata of the related series
         """
-        edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = True)
-        edit_data.create_table()
-        edit_data.submit.setAutoDefault(False)
-        edit_data.quit.setAutoDefault(False)
-        edit_data.submit.clicked.connect(edit_data.add_metadata_into_db)
-        edit_data.exec()
+        # dialog needs to be global to be accessible in the unittest
+        self.edit_data = MetadataPopupAnalysis(self.database_handler, self.frontend_style, series = True)
+        self.edit_data.create_table()
+        self.edit_data.submit.setAutoDefault(False)
+        self. edit_data.quit.setAutoDefault(False)
+        self.edit_data.submit.clicked.connect(partial(self.change_meta_data,False, self.edit_data))
+        self.edit_data.show()
+
+    def change_meta_data(self,experiment:bool, popup:MetadataPopupAnalysis):
+        """_summary_: Function that will be called when the submit button is clicked in the MetaDataPopupAnalysis"""
+        # write the update 
+        popup.add_metadata_into_db(experiment)
+        popup.close()
 
     def create_meta_data_template(self, save, make):
         """_summary_

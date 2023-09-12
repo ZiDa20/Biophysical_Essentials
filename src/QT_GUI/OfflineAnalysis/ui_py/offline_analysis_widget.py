@@ -112,8 +112,55 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.filter_dialog = None
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
+        self.clear.clicked.connect(self.clear_meta_data)
+        self.turn_off_grid.clicked.connect(partial(self.grid_button_clicked, True))
+        self.show_pgf_trace.clicked.connect(partial( self.grid_button_clicked, False))
+
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
+
+
+    def grid_button_clicked(self, grid:bool):
+        """either show or turn off the grid in the plot or show or turn off the pgf plot
+        """
+        if self.offline_analysis_widgets.currentIndex() == 0:
+            tm = self.blank_analysis_tree_view_manager # ptm = tree manager
+            pm = self.blank_analysis_plot_manager # pm = plot manager
+        else:
+            #have to find the corect widget first
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            tm = self.offline_tree.current_tab_tree_view_manager[current_index]
+            pm = self.offline_tree.current_tab_visualization[current_index]
+
+        if grid: # grid button was clicked
+            pm.show_plot_grid =  not pm.show_plot_grid
+        else: # pgf button was clicked
+            pm.show_pgf_plot = not pm.show_pgf_plot 
+
+        self.reclick_tree_item(tm)
+
+    def reclick_tree_item(self, treeview_manager:TreeViewManager):
+            """
+            reclick the current tree object to update the plot
+            """   
+            try:
+                index = treeview_manager.tree_build_widget.selected_tree_view.selectedIndexes()[1]
+                rect = treeview_manager.tree_build_widget.selected_tree_view.visualRect(index)
+            
+            except IndexError:
+                # if there was some discarding/reinsertion procedire before, it might happen that no treeelement is clicked
+                # Find the QModelIndex of the first child of the first parent
+                parent_index = treeview_manager.tree_build_widget.selected_tree_view.model().index(0, 0,  QModelIndex())  # Row 0, Column 0
+                child_index = treeview_manager.tree_build_widget.selected_tree_view.model().index(0, 0, parent_index)  # Row 0, Column 0, under parent_index
+                rect = treeview_manager.tree_build_widget.selected_tree_view.visualRect(child_index)
+            
+            # on click (handled in treeview manager) plot compartments will be evaluated
+            QTest.mouseClick(treeview_manager.tree_build_widget.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
+    
+    def clear_meta_data(self):
+        """clear the meta data from the database"""
+        self.database_handler.database.execute(f"DELETE FROM selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1")    
+        self.update_gui_treeviews()
 
     def load_discarded_selected_from_database(self):
         self.s_d_dialog = LoadPreviousDiscardedFlagsHandler(self.database_handler,self.frontend_style)
@@ -158,62 +205,38 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
         if self.filter_dialog is None:
             # if none, the dialog is created initially
-            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler)
+            if self.offline_analysis_widgets.currentIndex() ==1:
+                current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+                tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
+                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,tree_manager)
+            
+            else:
+                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,
+                                                     self.blank_analysis_tree_view_manager)
+            
             self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
 
-        # dialog contains a tab widget which holds filter functions for experiments (0) and series (1)
-        # experiment filters can be applied on series level to, but not the other way round
-
-        if self.offline_analysis_widgets.currentIndex() ==1:
-            # get the index of the tab (e.g. tabe name might be IV, IV-40)
-            self.filter_dialog.SeriesItems = self.offline_tree.SeriesItems
-            self.filter_dialog.current_tab_visualization = self.offline_tree.current_tab_visualization
-            self.filter_dialog.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
-            self.filter_dialog.make_cslow_plot()
-
-        self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
-        self.filter_dialog.exec()
+        #self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
+        self.filter_dialog.show()
 
     def apply_filter_selection(self):
 
-        if self.filter_dialog.DISCARD_DATA:
-            # for now, mark all the experiments as discarded
-            # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
-            if self.filter_dialog.contains_series_list is not []:
+        #if self.filter_dialog.DISCARD_DATA:
+        # for now, mark all the experiments as discarded
+        self.filter_dialog.apply_filters()
+        # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+            tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
+            current_tab = self.offline_tree.tab_list[current_index]
 
-                # only keep experiment_names with 2 and more counts
-                q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'
-                list_of_all_experiments = self.database_handler.database.execute(q).fetchall()
-                list_of_all_experiments = self.extract_first_elements(list_of_all_experiments)
-
-
-                # prepare the sql expression:
-                q1 = ""
-                for pos in range(len(self.filter_dialog.contains_series_list)):
-
-                        q1 = q1 + f' series_name == \'{self.filter_dialog.contains_series_list[pos]}\' '
-
-                        if pos < len(self.filter_dialog.contains_series_list) - 1:
-                            q1 += " or "
-
-                for experiment_name in list_of_all_experiments:
-                     q = f' select series_identifier from experiment_series where experiment_name == \'{experiment_name}\' and ({q1})'
-                     occurency_cnts = self.database_handler.database.execute(q).fetchall()
-                     if len(self.extract_first_elements(occurency_cnts))<2:
-
-                        # discard
-                        q = f"update series_analysis_mapping set analysis_discarded = 1 where experiment_name == \'{experiment_name}\'"
-                        self.database_handler.database.execute(q).fetchall()
-
-                self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
-
-
-
-                #update experiment_series set discarded = True
-
-                print(self.filter_dialog.contains_series_list)
-
+            tree_manager.update_treeviews(plot_widget_manager,current_tab.series_name)
+        else:
+            self.blank_analysis_tree_view_manager.update_treeviews(self.blank_analysis_plot_manager)
         self.filter_dialog.close()
+        # make a proper rest
+        self.filter_dialog = None
 
     def update_gui_treeviews(self,signal= None, meta=None):
         """toDO add Docstrings!
@@ -405,17 +428,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QApplication.processEvents()
        
         #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        for parent_pos, series_n in zip(range(self.offline_tree.SeriesItems.topLevelItemCount()), series_names_list):
+        
+        for parent_pos, series_n in zip(range(len(series_names_list)), series_names_list):
            
             QApplication.processEvents()
-            self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(parent_pos).child(0))
+            #bugfix: we always have to load toplevelitem 0 here (max count = 2)
+            self.offline_tree.offline_tree.SeriesItems.setCurrentItem(self.offline_tree.SeriesItems.topLevelItem(0).child(parent_pos).child(0))
             self.offline_tree.offline_analysis_result_tree_item_clicked()
 
             # should check if an analysis exist if not than skip addition of the treeview elements
             if not self.database_handler.get_series_specific_analysis_functions(series_n):
                 continue
             self.finished_result_thread(reload=True)
-
+        
         self.ap.stop_and_close_animation()
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
@@ -508,23 +533,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         QTest.mouseClick(self.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
         self.stackedWidget.setCurrentIndex(0)
         
-
-    """  deprecated
-    def load_recordings(self, progress_callback):
-        _summary_
-
-        Args:
-            progress_callback (_type_): _description_
-        
-
-        self.progress_callback = progress_callback
-        self.database_handler.open_connection(read_only=True)
-        experiment_label = ""
-        self.blank_analysis_page_1_tree_manager.selected_meta_data_list = self.selected_meta_data_list
-        self.offline_tree.selected_meta_data_list = self.selected_meta_data_list
-        self.blank_analysis_page_1_tree_manager.create_treeview_from_database(experiment_label, None,
-                                                                              self.progress_callback)
-    """
+    """ deprecated ? dz 06092023
     @Slot()
     def experiment_label_dropped(self, item_text):
         print(item_text)
@@ -538,6 +547,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             QListWidgetItem(i[0], self.dialog.meta_data_list).setCheckState(Qt.CheckState.Checked)
 
         print("added new item")
+    """
 
     @Slot()
     def open_directory(self):
@@ -548,7 +558,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         test_path = is for testing_purposes of the function
         '''
         if dir_path := QFileDialog.getExistingDirectory():
-            self.select_directory_button.setText("Change")
+            #self.select_directory_button.setText("Change")
 
             # save the path in the manager class
             # calls the offlinedialogs class to open the metadata editing popup
@@ -896,9 +906,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
         # set the size of the table
-        w = self.analysis_function_selection_manager.widget_with
+        w = self.analysis_function_selection_manager.widget_with + 5
         current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
         current_tab.analysis_functions.groupBox.show()
+
+        # click the resize button of the data view !!!!!
+        QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''

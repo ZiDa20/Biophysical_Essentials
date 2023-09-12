@@ -53,6 +53,10 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
         table_handling = self.database_handler.get_data_from_database(
             self.database_handler.database, self.query, fetch_mode=2
         )
+
+        if self.series:
+            table_handling  = table_handling[table_handling["analysis_id"]==self.database_handler.analysis_id]
+    
         self.table_model = PandasTable(table_handling)
 
         
@@ -62,26 +66,27 @@ class MetadataPopupAnalysis(QDialog, Ui_MetadataPopup):
         self.table_model.resize_header(self.metadata_table)
      
 
-    # TODO Rename this here and in `submit_series_meta_table_into_db` and `submit_experiment_meta_table_into_db`
-    def add_metadata_into_db(self):
-        """"""  
-        old_df = self.database_handler.get_data_from_database(
-            self.database_handler.database, self.query, fetch_mode=2
-        )
+    def add_metadata_into_db(self,experiment:bool):
+        """ This function overwrites existing metadata in the database
+        """
         
+        # @todo: this function overwrites the global meta data table, while the series annotation is only added to the series analysis mapping table
+        # @todo: make sure that the appropriate table columns are blocked from editing
         new_df = self.table_model._data
-        df = pd.merge(
-            new_df,
-            old_df,
-            on=['experiment_name', 'series_identifier', 'series_meta_data'],
-            how="left",
-            indicator=True,
-        ).query('_merge=="left_only"')
-        
-        # here still some things are not working
+        df = new_df
         for index, row in df.iterrows():
-            q = f"""update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
-            self.database_handler.database.execute(q)
+            if experiment:
+                for c in ["experiment_label", "species", "genotype", "sex", "celltype","condition", "individuum_id"]:
+                    #if row[c] != "None":
+                    q = f"""update global_meta_data set {c} = \'{row[c]}\' where experiment_name = \'{row["experiment_name"]}\' """
+                    self.database_handler.database.execute(q)
+            else:
+                # only update  the series meta data column !! 
+                 q = f"""update experiment_series set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
+                 self.database_handler.database.execute(q)
+                 q = f"""update series_analysis_mapping set series_meta_data = \'{row["series_meta_data"]}\' where experiment_name = \'{row["experiment_name"]}\' and series_identifier = \'{row["series_identifier"]}\'"""
+                 self.database_handler.database.execute(q)
+
         self.close()
 
     def slide_search_model(self, series = False):

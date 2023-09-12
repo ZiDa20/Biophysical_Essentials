@@ -205,32 +205,35 @@ class SeriesItemTreeWidget():
         @param offline_tab:
         @return:
         """
-        if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0: # thats the parent which is clicked
-            parent_tree_item = self.SeriesItems.currentItem()
-            parent_stacked_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-            parent_stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
+        try:    
+            if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0: # thats the parent which is clicked
+                parent_tree_item = self.SeriesItems.currentItem()
+                parent_stacked_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+                parent_stacked_widget = self.SeriesItems.currentItem().data(4, Qt.UserRole)
 
-        else: # child is clicked
-            parent_tree_item = self.SeriesItems.currentItem().parent()
-            parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
-            parent_stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
+            else: # child is clicked
+                parent_tree_item = self.SeriesItems.currentItem().parent()
+                parent_stacked_index = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
+                parent_stacked_widget = self.SeriesItems.currentItem().parent().data(4, Qt.UserRole)
 
-        print(parent_tree_item.data(8, Qt.UserRole))
-        if parent_tree_item.data(8, Qt.UserRole) is False:
-            # add new children within the tree:
-            for i in ["Plot", "Tables", "Statistics",]: # "Advanced Analysis"]:
-                new_child = SideBarAnalysisItem(i, parent_tree_item)
-                parent_stacked_widget.addWidget(QWidget())
-                if i in ["Plot", "Tables"]:
-                    new_child.setting_data(self.hierachy_stacked)
+            print(parent_tree_item.data(8, Qt.UserRole))
+            if parent_tree_item.data(8, Qt.UserRole) is False:
+                # add new children within the tree:
+                for i in ["Plot", "Tables", "Statistics",]: # "Advanced Analysis"]:
+                    new_child = SideBarAnalysisItem(i, parent_tree_item)
+                    parent_stacked_widget.addWidget(QWidget())
+                    if i in ["Plot", "Tables"]:
+                        new_child.setting_data(self.hierachy_stacked)
 
-            # overwrite the old stacked widget with the new extended stacked widget
-            self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
-            if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0:
-                self.SeriesItems.currentItem().setData(8, Qt.UserRole, True)
-            else:
-                self.SeriesItems.currentItem().parent().setData(8, Qt.UserRole, True)
-
+                # overwrite the old stacked widget with the new extended stacked widget
+                self.hierachy_stacked_list[parent_stacked_index] = parent_stacked_widget
+                if self.SeriesItems.currentItem().data(5, Qt.UserRole) == 0:
+                    self.SeriesItems.currentItem().setData(8, Qt.UserRole, True)
+                else:
+                    self.SeriesItems.currentItem().parent().setData(8, Qt.UserRole, True)
+        except Exception as e:
+            print("catched another error: 2")
+            print(e)
 
     def tab_changed(self, index, series_name):
         """Function tab changed will be called whenever a tab in the notebook of the selected series for analysis is
@@ -265,8 +268,9 @@ class SeriesItemTreeWidget():
 
         # slice out all series names that are not related to the specific chosen one
         # at the moment its setting back every plot! @2toDO:MZ
-        current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
-
+        
+        #current_tab_tree_view_manager.create_series_specific_tree(series_name,current_tab_plot_manager)
+        current_tab_tree_view_manager.update_treeviews(current_tab_plot_manager,series_name)
 
         navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
         self.home.clicked.connect(navigation.home)
@@ -329,42 +333,45 @@ class SeriesItemTreeWidget():
         @author:DZ
         @todo restructure this and move it maybe into a new class with the related functions ?
         """
+        try:
 
-        if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
-            #self.result_analysis_parent_clicked()
-            self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
-            self.offline_analysis_result_tree_item_clicked()
-        else:
-            """identifiy the parent"""
-            if self.SeriesItems.currentItem().child(0):
-                parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+            if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
+                #self.result_analysis_parent_clicked()
+                self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
+                self.offline_analysis_result_tree_item_clicked()
             else:
-                parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
+                """identifiy the parent"""
+                if self.SeriesItems.currentItem().child(0):
+                    parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+                else:
+                    parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
 
-            if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
-                self.simple_analysis_configuration_clicked(parent_stacked)
-                self.parent_stacked = parent_stacked
-                self.set_ribbon_bar_page(1)
+                if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
+                    self.simple_analysis_configuration_clicked(parent_stacked)
+                    self.parent_stacked = parent_stacked
+                    self.set_ribbon_bar_page(1)
 
-            if self.SeriesItems.currentItem().text(0) == "Plot":
-                self.analysis_stacked.setCurrentIndex(parent_stacked)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
-                self.set_ribbon_bar_page(2)
+                if self.SeriesItems.currentItem().text(0) == "Plot":
+                    self.analysis_stacked.setCurrentIndex(parent_stacked)
+                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+                    self.set_ribbon_bar_page(2)
 
-            if self.SeriesItems.currentItem().text(0) == "Tables":
-                self.view_table_clicked(parent_stacked)
-                self.set_ribbon_bar_page(2)
+                if self.SeriesItems.currentItem().text(0) == "Tables":
+                    self.view_table_clicked(parent_stacked)
+                    self.set_ribbon_bar_page(2)
 
-            if self.SeriesItems.currentItem().text(0) == "Statistics":
+                if self.SeriesItems.currentItem().text(0) == "Statistics":
 
-                # get the qtdesigner created table widget
-                statistics_table_widget = StatisticsTablePromoted(parent_stacked, self.analysis_stacked, self.hierachy_stacked_list,self.SeriesItems, self.database_handler,self.frontend_style)
+                    # get the qtdesigner created table widget
+                    statistics_table_widget = StatisticsTablePromoted(parent_stacked, self.analysis_stacked, self.hierachy_stacked_list,self.SeriesItems, self.database_handler,self.frontend_style)
 
-                # add it to the statistic child in the tree
-                self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
-                self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-                self.set_ribbon_bar_page(2)
-
+                    # add it to the statistic child in the tree
+                    self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
+                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
+                    self.set_ribbon_bar_page(2)
+        except Exception as e:
+            print("catched an error ")
+            print(e)
 
     def set_ribbon_bar_page(self,page_index):
         self.find_widget_by_name(self.ribbon_bar,"ribbon_series_normalization").setCurrentIndex(page_index)

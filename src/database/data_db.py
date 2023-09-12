@@ -132,8 +132,8 @@ class DuckDBDatabaseHandler():
         importantly, only the mappings of the current id should be added to the series analysis mapping table.
         """
 
-        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, renamed_series_name, analysis_discarded) \
-                SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.series_name, experiment_series.discarded \
+        q = "Insert into series_analysis_mapping (analysis_id, experiment_name, series_identifier, series_name, renamed_series_name, analysis_discarded,series_meta_data) \
+                SELECT experiment_analysis_mapping.analysis_id, experiment_analysis_mapping.experiment_name, experiment_series.series_identifier, experiment_series.series_name, experiment_series.series_name, experiment_series.discarded, experiment_series.series_meta_data \
                 FROM experiment_analysis_mapping \
                 JOIN experiment_series \
                 ON experiment_analysis_mapping.experiment_name = experiment_series.experiment_name where experiment_analysis_mapping.analysis_id = (?);"
@@ -659,10 +659,10 @@ class DuckDBDatabaseHandler():
         q = f'select sweep_table_name, normalization_value from normalization_values where offline_analysis_id = (?) and function_id = (?)'
         return self.database.execute(q, (self.analysis_id, function_id)).fetch_df()
 
-    """
+   
     def get_cslow_value_for_sweep_table(self, series_name: str) -> float:
         '''
-        get the cslow value for a specific sweep
+        get the cslow value for a specific sweep' used for the filters to make the cslow plot 
         :param series_name: name of the sweep table in the database
         :return:
         :authored: dz, 29.04.2022
@@ -679,7 +679,6 @@ class DuckDBDatabaseHandler():
 
         return float(meta_data_dict.get('CSlow'))
 
-    """
 
     def add_single_series_to_database(self, experiment_name: str, series_name:str, series_identifier: str) -> None:
         """ Adds a single series to the database. This function is used when a new series is added to an existing experiment

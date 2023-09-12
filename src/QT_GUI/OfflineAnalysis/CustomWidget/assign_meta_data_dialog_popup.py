@@ -39,11 +39,25 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
             
             
             if isinstance(dat_file, list):
-                self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name,"Experiment_label":"None","Species":"None",
-                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+                new_experiment_name = splitted_name
             else:
-                self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
-                                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+                new_experiment_name = splitted_name[0]
+            
+            # Create a DataFrame with the new data
+            new_data = pd.DataFrame({"Experiment_name": [splitted_name],
+                                        "Experiment_label": ["None"],
+                                        "Species": ["None"],
+                                        "Genotype": ["None"],
+                                        "Sex": ["None"],
+                                        "Celltype": ["None"],
+                                        "Condition": ["None"],
+                                        "Individuum_id": ["None"]})
+                #self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name,"Experiment_label":"None","Species":"None",
+                #                        "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
+            self.template_dataframe = pd.concat([self.template_dataframe, new_data], ignore_index=True)
+           
+            #    self.template_dataframe = self.template_dataframe.append({"Experiment_name":splitted_name[0],"Experiment_label":"None","Species":"None",
+            #                            "Genotype":"None","Sex":"None","Celltype":"None","Condition":"None","Individuum_id":"None"}, ignore_index=True)
 
         return self.create_table()
 

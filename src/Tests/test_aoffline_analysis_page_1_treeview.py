@@ -28,6 +28,7 @@ import unittest
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 
     
+## make sure to have any old test_treeview_db.db removed .. !!!! otherwise tests might fail###
 
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
     """ Test 1: check the default treeview after loading data from the database: 
@@ -36,7 +37,10 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
         qtbot (_type_): clickbot
     """
     test_db,app = load_demo_dat_data_into_database(qtbot)
-    
+        #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
+    tables = test_db.database.execute("SHOW TABLES").fetchdf()
+    assert tables.shape[0] == 65
+
     # check that the selected treeview is not none
     stv = app.ui.offline.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view
     unittest.TestCase.assertIsNotNone(stv,"selected treeview should not be empty anymore")
@@ -44,6 +48,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
     # check that the default selected treeview does only show experiment and series level data
     selected_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
     print("got this table back")
+    print(selected_treeview_table)
     res = selected_treeview_table["type"].unique().tolist()
     valid_types = ["Experiment","Series"]
     
@@ -122,6 +127,54 @@ def test_change_series_renaming(qtbot):
 
     test_db.database.close()
 
+def test_change_experiment_meta_data(qtbot):
+    """Test of the ribbon bar button: change experiment meta data
+    Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
+    Make sure, that the label "TEST123" is present in the database while the old experiment label is not present anymore
+    Args:
+        qtbot (_type_): _description_
+    """
+
+    # @todo: finish this test
+
+    # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot)
+
+    app.ui.offline.ap.stop_and_close_animation()
+
+    
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.edit_meta, Qt.LeftButton, delay = 1)
+
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+
+    assert app.ui.offline.OfflineDialogs.edit_data is not None
+    app.ui.offline.OfflineDialogs.edit_data.close()
+
+def test_change_series_meta_data(qtbot):
+    """Test of the ribbon bar button: change series meta data
+    Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
+    Make sure, that the label "TEST123" is present in the database.
+    Args:
+        qtbot (_type_): _description_
+    """
+
+    # @todo: finish this test
+    
+    # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot)
+
+    app.ui.offline.ap.stop_and_close_animation()
+
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.edit_series_meta_data, Qt.LeftButton, delay = 1)
+
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+
+    assert app.ui.offline.OfflineDialogs.edit_data is not None
+    app.ui.offline.OfflineDialogs.edit_data.close()
+
+#self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
 
 """
 import time

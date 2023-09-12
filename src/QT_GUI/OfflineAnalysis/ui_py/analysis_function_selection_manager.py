@@ -158,6 +158,7 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
 
+    """ deprecated dz 08092023
     def group_box_fullsize(self):
         tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_functions.analysis_stacked_widget.sizeHint().width()
         self.resize_group_box(tmp_size)
@@ -170,7 +171,8 @@ class AnalysisFunctionSelectionManager():
         print("resize not working")
         #self.current_tab.subwindow_calc.setMinimumSize(QSize(tmp_size, 900))
         #self.current_tab.subwindow_calc.setMaximumSize(QSize(tmp_size, 900))
-    
+
+    """     
 
         
     """
@@ -401,11 +403,20 @@ class AnalysisFunctionSelectionManager():
         """
         reclick the last clicked treeview item to update the view
         """
-        index = self.current_tab.treebuild.selected_tree_view.selectedIndexes()[1]
-        rect = self.current_tab.treebuild.selected_tree_view.visualRect(index)
+        try:
+            index = self.current_tab.treebuild.selected_tree_view.selectedIndexes()[1]
+            rect = self.current_tab.treebuild.selected_tree_view.visualRect(index)
+         
+        except IndexError:
+            # if there was some discarding/reinsertion procedire before, it might happen that no treeelement is clicked
+            # Find the QModelIndex of the first child of the first parent
+            parent_index = self.current_tab.treebuild.selected_tree_view.model().index(0, 0,  QModelIndex())  # Row 0, Column 0
+            child_index = self.current_tab.treebuild.selected_tree_view.model().index(0, 0, parent_index)  # Row 0, Column 0, under parent_index
+            rect = self.current_tab.treebuild.selected_tree_view.visualRect(child_index)
+
         # on click (handled in treeview manager) plot compartments will be evaluated
         QTest.mouseClick(self.current_tab.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
-
+            
     def write_table_widget_to_database(self):
         """
          iterates through each tab of the stacked widget and writes each column as a new row to the database

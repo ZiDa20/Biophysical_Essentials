@@ -37,7 +37,15 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
         if self.frontend_style:
             self.frontend_style.set_pop_up_dialog_style_sheet(self)
         self.series_name = series_name
+
+        if not self.series_name:
+            self.series.hide()
+        
+        self.sweeps.hide()
+
         self.load_content()
+
+
         
 
     def load_content(self):
@@ -70,15 +78,23 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
             name_list.append(tuple(["global_meta_data", s, available_groups]))
             c.stateChanged.connect(partial(self.checkbox_state_changed, checkbox_list, name_list))
 
-        for n in ["Series", "Sweeps"]:
+        # @todo: in the current release sweep handling is not supported
+        #for n in ["Series", "Sweeps"]:
+        if self.series_name:
             c = QCheckBox()
             l = QLabel("condition")
             checkbox_list.append(c)
 
-            if n == "Series":
-                grid = self.series_grid
-                column = "series_meta_data"
-                table = "experiment_series"
+                #if n == "Series":
+            grid = self.series_grid
+            column = "series_meta_data"
+            table = "series_analysis_mapping"
+            available_groups = self.database_handler.database.execute(
+                    f'select distinct series_meta_data from series_analysis_mapping ' \
+                    f'where analysis_id = {self.database_handler.analysis_id} and '\
+                    f'series_name == \'{self.series_name}\'').fetchdf()
+
+            """    
             else:
                 grid = self.sweep_grid
                 column = "meta_data"
@@ -88,7 +104,7 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
                 f'select distinct {column} from {table} ' \
                 f'where experiment_name in (select experiment_name ' \
                 f'from experiment_analysis_mapping where analysis_id = {self.database_handler.analysis_id})').fetchdf()
-
+            """
             grid.addWidget(c, 0, 0)
             grid.addWidget(l, 0, 1)
 
@@ -153,6 +169,8 @@ class SelectMetaDataForTreeviewDialog(QDialog, Ui_Dialog):
             
             if not self.database_handler.database.execute(f"Select * from selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1").fetchdf().empty:
                 self.database_handler.database.execute(f"DELETE FROM selected_meta_data WHERE offline_analysis_id = {self.database_handler.analysis_id} AND analysis_function_id = -1")
+            
+            # write the selected meta data into te database
             self.database_handler.database.execute(f'INSERT INTO selected_meta_data SELECT * FROM meta_data_df')
             self.close()
             
