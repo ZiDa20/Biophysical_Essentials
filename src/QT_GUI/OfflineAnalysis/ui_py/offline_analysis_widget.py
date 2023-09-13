@@ -623,6 +623,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def start_analysis_offline(self):
         """Starts the analysis of the selected series"""
         self.logger.info(f"Series to be analyzed: {self.OfflineDialogs.final_series}")
+        
         self.offline_tree.built_analysis_specific_tree(self.OfflineDialogs.final_series,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets)

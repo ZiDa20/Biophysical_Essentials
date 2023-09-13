@@ -109,7 +109,8 @@ class Load_Data_From_Database_Popup_Handler(QDialog, Ui_Dialog):
                 layout.removeItem(item)
 
     def checkbox_checked(self,checkbox,label,state):
-        if state == Qt.Checked:
+
+        if state == 2: # equivalent to QT.checked
             for cb in self.checkbox_list:
                 if cb!= checkbox:
                     cb.setChecked(False)
