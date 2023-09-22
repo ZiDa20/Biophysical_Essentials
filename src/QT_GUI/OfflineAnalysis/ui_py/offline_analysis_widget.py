@@ -600,6 +600,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def make_list(self,popup,treeview_model):
         m_list = treeview_model.model()._data.values.tolist()
         popup.close()
+        self.blank_analysis_tree_view_manager.experiment_name_mapping=popup.experiment_name_dict
         self.continue_open_directory(m_list)
 
     def save_meta_data_to_template_and_continue(self, meta_data_popup):

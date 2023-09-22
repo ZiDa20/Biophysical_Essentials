@@ -67,6 +67,8 @@ class TreeViewManager:
         self.meta_data_assignment_list = None
         self.configure_default_signals()
 
+        # this is a mapping dict that maps a potential problem causing experiment name to a new name that was accepted by the user
+        self.experiment_name_mapping = {}
         # introduce logger
 
     """ ############################## Chapter A Create treeview functions ######################################### """
@@ -848,6 +850,9 @@ class TreeViewManager:
             self.series_identifier = None
 
             self.logger.info("adding experiment")
+            if experiment_name in self.experiment_name_mapping.keys():
+                self.logger.info(f"replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
+                experiment_name = self.experiment_name_mapping[experiment_name]
             print("adding experiment")
             print(experiment_name)
             self.logger.info(experiment_name)
