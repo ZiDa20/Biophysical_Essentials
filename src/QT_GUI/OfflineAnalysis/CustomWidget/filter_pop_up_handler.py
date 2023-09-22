@@ -179,9 +179,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
     def contains_series_filter(self):
         """evaluate the filter selection to remove experiments that do not containa a specific series 
         """
-        if len(self.contains_series_list) > 0:
-          
-            
+        if len(self.contains_series_list) > 0:          
 
             # only keep experiment_names with 2 and more counts
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'

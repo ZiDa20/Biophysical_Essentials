@@ -44,7 +44,7 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
                 new_experiment_name = splitted_name[0]
             
             # Create a DataFrame with the new data
-            new_data = pd.DataFrame({"Experiment_name": [splitted_name],
+            new_data = pd.DataFrame({"Experiment_name": [new_experiment_name],
                                         "Experiment_label": ["None"],
                                         "Species": ["None"],
                                         "Genotype": ["None"],
