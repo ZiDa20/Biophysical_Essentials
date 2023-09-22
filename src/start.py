@@ -214,12 +214,25 @@ if __name__ == "__main__":
     
     import ctypes
     import time
+    # add this to show the icon in the taskbar
     myappid = 'mycompany.myproduct.subproduct.version' 
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     time.sleep(1)
 
     #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
+    #from qt_material import export_theme
+    #export_theme(theme='dark_cyan.xml', 
+    #         qss='dark_cyan.qss', 
+    #         rcc='dark_cyan.rcc',
+    #         output='theme', 
+    #         prefix='icon:/', 
+    #        )
+    # Load styles
+    #with open('dark_cyan.qss', 'r') as file:
+    #    app.style_sheet = file.read()
+    # Load icons
+    #QDir.add_search_path('icon', 'theme')
     window = MainWindow()
     window.show()
     app.exec()

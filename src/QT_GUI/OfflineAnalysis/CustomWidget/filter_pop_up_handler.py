@@ -69,15 +69,24 @@ class Filter_Settings(QDialog, Ui_Dialog):
         for s in series_names_string_list:
             c = QCheckBox()
             c.setText(s[0])
-            self.contains_series_grid.addWidget(c)    
-            c.stateChanged.connect(partial(self.checkbox_state_changed,c,self.contains_series_list))
+            self.contains_series_grid.addWidget(c)
+            c.stateChanged.connect(partial(self.checkbox_state_changed,c))
+            #c.stateChanged.connect(self.test123)
 
+    #def test123(self):
+        
 
-    def checkbox_state_changed(self,checkbox,list_name,state):
-        if checkbox.checkState() == 2:
-           list_name.append(checkbox.text())
+    def checkbox_state_changed(self,checkbox,state):
+        """_summary_
+
+        Args:
+            checkbox (_type_): _description_
+            state (_type_): _description_
+        """
+        if state == 2:
+           self.contains_series_list.append(checkbox.text())
         else:
-            list_name.remove(checkbox.text())
+            self.contains_series_list.remove(checkbox.text())
 
 
     def handle_filter_options(self,state):
