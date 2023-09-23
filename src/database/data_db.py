@@ -10,7 +10,7 @@ import duckdb
 import re
 from pathlib import Path
 from database.DuckDBInitalizer import DuckDBInitializer
-from database.database_logger import database_logger
+from loggers.database_logger import database_logger
 
 if TYPE_CHECKING:
     import logging
