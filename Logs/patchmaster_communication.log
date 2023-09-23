@@ -1565,3 +1565,458 @@
 2023-09-23 21:14:23,683 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
 2023-09-23 21:14:23,683 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
 2023-09-23 21:14:23,800 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:29:32,522 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:29:32,571 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:29:32,620 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 21:29:33,142 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:29:33,144 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 21:29:33,157 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 21:29:33,166 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:29:33.157026
+2023-09-23 21:29:33,168 : INFO : loggers.database_logger : Analysis id for this analysis will be: 82
+2023-09-23 21:29:33,168 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:29:33,169 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 21:29:33,173 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 21:29:33,176 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 21:29:33,176 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:29:33.176937
+2023-09-23 21:29:33,177 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 21:29:33,239 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 21:29:37,510 : INFO : loggers.database_logger : Mapped experiment 2_2_0_3_1_5_02 to analysis 82
+2023-09-23 21:29:37,515 : INFO : loggers.database_logger : Mapped experiment 22_03_15_01 to analysis 82
+2023-09-23 21:29:42,196 : INFO : loggers.offline_analysis_widget_logger : Series to be analyzed: ['Block Pulse', 'IV', 'IV_40_new', 'Inact', 'CClamp', 'InputRes', 'Rheobase', '5xRheo', 'Rheoramp', '2xRheobase']
+2023-09-23 21:29:42,311 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,315 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,322 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,325 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,329 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,333 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,336 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,340 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,345 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,349 : INFO : loggers.database_logger : inserting new analysis_series with id  82
+2023-09-23 21:29:42,349 : INFO : loggers.database_logger : inserted all series
+2023-09-23 21:29:52,688 : INFO : loggers.offline_analysis_widget_logger : No connection to disconnect here, probably the first connect
+2023-09-23 21:29:57,178 : INFO : loggers.database_logger : added new row into analysis_function_table: max_current, Block Pulse,82,19.99,79.96
+2023-09-23 21:29:57,197 : INFO : loggers.database_logger : added new row into analysis_function_table: min_current, Block Pulse,82,24.99,84.96
+2023-09-23 21:29:57,209 : INFO : loggers.database_logger : added new row into analysis_function_table: mean_current, Block Pulse,82,29.99,89.96
+2023-09-23 21:29:57,222 : INFO : loggers.database_logger : added new row into analysis_function_table: time_to_min, Block Pulse,82,34.99,94.96
+2023-09-23 21:29:57,237 : INFO : loggers.database_logger : added new row into analysis_function_table: time_to_max, Block Pulse,82,39.99,99.96
+2023-09-23 21:29:57,256 : INFO : loggers.offline_analysis_widget_logger : executing single series analysis: Block Pulse
+2023-09-23 21:29:57,346 : INFO : loggers.database_logger : Successfully created results_analysis_function_83_max_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 83
+2023-09-23 21:29:57,437 : INFO : loggers.database_logger : Successfully created results_analysis_function_84_min_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 84
+2023-09-23 21:29:57,525 : INFO : loggers.database_logger : Successfully created results_analysis_function_85_mean_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 85
+2023-09-23 21:29:57,622 : INFO : loggers.database_logger : Successfully created results_analysis_function_86_time_to_min table of imon_signal_22_03_15_01_Series2 for analysis_function_id 86
+2023-09-23 21:29:57,733 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:29:57,740 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:29:57,772 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:29:57,871 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:29:57,871 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:29:57,871 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:29:57,879 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:29:57,884 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:29:57,912 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:29:57,997 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:29:57,998 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:29:57,998 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:29:58,004 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:29:58,010 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:29:58,037 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:29:58,128 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:29:58,128 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:29:58,128 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:29:58,134 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:29:58,138 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:29:58,166 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:29:58,250 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:29:58,250 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:29:58,250 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:29:58,255 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:13,866 : INFO : loggers.database_logger : added new row into analysis_function_table: max_current, Block Pulse,82,19.99,79.96
+2023-09-23 21:30:13,886 : INFO : loggers.database_logger : added new row into analysis_function_table: min_current, Block Pulse,82,24.99,84.96
+2023-09-23 21:30:13,899 : INFO : loggers.database_logger : added new row into analysis_function_table: mean_current, Block Pulse,82,29.99,89.96
+2023-09-23 21:30:13,920 : INFO : loggers.offline_analysis_widget_logger : executing single series analysis: Block Pulse
+2023-09-23 21:30:14,388 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:14,394 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:14,406 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:14,441 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:14,441 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:30:14,441 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:30:14,447 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:14,455 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:14,467 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:14,502 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:14,502 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:30:14,502 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:30:14,509 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:14,513 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:14,523 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:14,555 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:14,555 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:30:14,556 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:30:14,566 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:14,571 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:14,582 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:14,619 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:14,619 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:30:14,620 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:30:14,625 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:20,518 : INFO : loggers.database_logger : added new row into analysis_function_table: max_current, Block Pulse,82,19.99,79.96
+2023-09-23 21:30:20,532 : INFO : loggers.database_logger : added new row into analysis_function_table: min_current, Block Pulse,82,24.99,84.96
+2023-09-23 21:30:20,544 : INFO : loggers.database_logger : added new row into analysis_function_table: mean_current, Block Pulse,82,29.99,89.96
+2023-09-23 21:30:20,560 : INFO : loggers.offline_analysis_widget_logger : executing single series analysis: Block Pulse
+2023-09-23 21:30:20,938 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:20,942 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:20,974 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:21,070 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:21,070 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:30:21,070 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:30:21,080 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:21,086 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:21,120 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:21,220 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:21,220 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:30:21,220 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:30:21,228 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:21,236 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:21,272 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:21,379 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:21,379 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:30:21,379 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:30:21,386 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:21,391 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:21,425 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:21,523 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:21,524 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:30:21,524 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:30:21,531 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:39,628 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:30:39,680 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:30:39,730 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 21:30:40,253 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:30:40,254 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 21:30:40,267 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 21:30:40,273 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:30:40.267434
+2023-09-23 21:30:40,274 : INFO : loggers.database_logger : Analysis id for this analysis will be: 94
+2023-09-23 21:30:40,275 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:30:40,275 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 21:30:40,281 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 21:30:40,283 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 21:30:40,283 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:30:40.283366
+2023-09-23 21:30:40,284 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 21:30:40,353 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 21:30:44,496 : INFO : loggers.database_logger : Mapped experiment 2_2_0_3_1_5_02 to analysis 94
+2023-09-23 21:30:44,504 : INFO : loggers.database_logger : Mapped experiment 22_03_15_01 to analysis 94
+2023-09-23 21:30:48,851 : INFO : loggers.offline_analysis_widget_logger : Series to be analyzed: ['Block Pulse', 'IV', 'IV_40_new', 'Inact', 'CClamp', 'InputRes', 'Rheobase', '5xRheo', 'Rheoramp', '2xRheobase']
+2023-09-23 21:30:48,955 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,959 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,965 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,970 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,973 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,977 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,980 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,984 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,988 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,992 : INFO : loggers.database_logger : inserting new analysis_series with id  94
+2023-09-23 21:30:48,993 : INFO : loggers.database_logger : inserted all series
+2023-09-23 21:30:57,028 : INFO : loggers.offline_analysis_widget_logger : No connection to disconnect here, probably the first connect
+2023-09-23 21:30:58,938 : INFO : loggers.database_logger : added new row into analysis_function_table: max_current, Block Pulse,94,19.99,79.96
+2023-09-23 21:30:58,955 : INFO : loggers.database_logger : added new row into analysis_function_table: min_current, Block Pulse,94,24.99,84.96
+2023-09-23 21:30:58,967 : INFO : loggers.database_logger : added new row into analysis_function_table: mean_current, Block Pulse,94,29.99,89.96
+2023-09-23 21:30:58,986 : INFO : loggers.offline_analysis_widget_logger : executing single series analysis: Block Pulse
+2023-09-23 21:30:59,075 : INFO : loggers.database_logger : Successfully created results_analysis_function_95_max_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 95
+2023-09-23 21:30:59,163 : INFO : loggers.database_logger : Successfully created results_analysis_function_96_min_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 96
+2023-09-23 21:30:59,246 : INFO : loggers.database_logger : Successfully created results_analysis_function_97_mean_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 97
+2023-09-23 21:30:59,290 : INFO : loggers.offline_analysis_widget_logger : Finished the Series Block Pulse
+2023-09-23 21:30:59,360 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:59,365 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:59,395 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:59,496 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:59,496 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:30:59,496 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:30:59,503 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:59,508 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:59,538 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:59,623 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:59,623 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:30:59,623 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:30:59,630 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:30:59,635 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:30:59,663 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:30:59,842 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:30:59,842 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:30:59,842 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:50:09,159 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:50:09,202 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:50:35,047 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:50:35,097 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:50:35,148 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 21:50:35,667 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:50:35,667 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 21:50:35,681 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 21:50:35,685 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:50:35.681512
+2023-09-23 21:50:35,686 : INFO : loggers.database_logger : Analysis id for this analysis will be: 98
+2023-09-23 21:50:35,686 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:50:35,686 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 21:50:35,693 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 21:50:35,695 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 21:50:35,696 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:50:35.695523
+2023-09-23 21:50:35,696 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 21:50:35,753 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 21:50:39,626 : INFO : loggers.database_logger : Mapped experiment 2_2_0_3_1_5_02 to analysis 98
+2023-09-23 21:50:39,634 : INFO : loggers.database_logger : Mapped experiment 22_03_15_01 to analysis 98
+2023-09-23 21:50:45,604 : INFO : loggers.offline_analysis_widget_logger : Series to be analyzed: ['Block Pulse', 'IV', 'IV_40_new', 'Inact', 'CClamp', 'InputRes', 'Rheobase', '5xRheo', 'Rheoramp', '2xRheobase']
+2023-09-23 21:50:45,716 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,719 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,723 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,727 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,730 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,734 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,737 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,741 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,744 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,748 : INFO : loggers.database_logger : inserting new analysis_series with id  98
+2023-09-23 21:50:45,748 : INFO : loggers.database_logger : inserted all series
+2023-09-23 21:50:52,525 : INFO : loggers.offline_analysis_widget_logger : No connection to disconnect here, probably the first connect
+2023-09-23 21:50:53,534 : INFO : loggers.database_logger : added new row into analysis_function_table: max_current, Block Pulse,98,19.99,79.96
+2023-09-23 21:50:53,553 : INFO : loggers.database_logger : added new row into analysis_function_table: min_current, Block Pulse,98,24.99,84.96
+2023-09-23 21:50:53,568 : INFO : loggers.database_logger : added new row into analysis_function_table: mean_current, Block Pulse,98,29.99,89.96
+2023-09-23 21:50:53,589 : INFO : loggers.offline_analysis_widget_logger : executing single series analysis: Block Pulse
+2023-09-23 21:50:53,674 : INFO : loggers.database_logger : Successfully created results_analysis_function_99_max_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 99
+2023-09-23 21:50:53,750 : INFO : loggers.database_logger : Successfully created results_analysis_function_100_min_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 100
+2023-09-23 21:50:53,819 : INFO : loggers.database_logger : Successfully created results_analysis_function_101_mean_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 101
+2023-09-23 21:50:53,853 : INFO : loggers.offline_analysis_widget_logger : Finished the Series Block Pulse
+2023-09-23 21:50:53,901 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:50:53,907 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:50:53,943 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:50:54,051 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:50:54,051 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:50:54,051 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:50:54,058 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:50:54,063 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:50:54,095 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:50:54,188 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:50:54,188 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:50:54,188 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-09-23 21:50:54,195 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:50:54,200 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:50:54,231 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:50:54,425 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:50:54,425 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-09-23 21:50:54,425 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:51:53,289 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:51:53,335 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:51:53,385 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 21:51:53,909 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:51:53,909 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 21:51:53,923 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 21:51:53,931 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:51:53.924400
+2023-09-23 21:51:53,932 : INFO : loggers.database_logger : Analysis id for this analysis will be: 102
+2023-09-23 21:51:53,933 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:51:53,933 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 21:51:53,939 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 21:51:53,941 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 21:51:53,941 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:51:53.941718
+2023-09-23 21:51:53,942 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 21:51:54,012 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 21:51:58,589 : INFO : loggers.database_logger : Mapped experiment 2_2_0_3_1_5_02 to analysis 102
+2023-09-23 21:51:58,597 : INFO : loggers.database_logger : Mapped experiment 22_03_15_01 to analysis 102
+2023-09-23 21:52:02,941 : INFO : loggers.offline_analysis_widget_logger : Series to be analyzed: ['Block Pulse', 'IV', 'IV_40_new', 'Inact', 'CClamp', 'InputRes', 'Rheobase', '5xRheo', 'Rheoramp', '2xRheobase']
+2023-09-23 21:52:03,050 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,054 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,058 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,062 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,065 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,069 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,073 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,077 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,081 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,086 : INFO : loggers.database_logger : inserting new analysis_series with id  102
+2023-09-23 21:52:03,086 : INFO : loggers.database_logger : inserted all series
+2023-09-23 21:52:09,439 : INFO : loggers.offline_analysis_widget_logger : No connection to disconnect here, probably the first connect
+2023-09-23 21:52:10,280 : INFO : loggers.database_logger : added new row into analysis_function_table: max_current, Block Pulse,102,19.99,79.96
+2023-09-23 21:52:10,302 : INFO : loggers.offline_analysis_widget_logger : executing single series analysis: Block Pulse
+2023-09-23 21:52:10,385 : INFO : loggers.database_logger : Successfully created results_analysis_function_103_max_current table of imon_signal_22_03_15_01_Series2 for analysis_function_id 103
+2023-09-23 21:52:10,424 : INFO : loggers.offline_analysis_widget_logger : Finished the Series Block Pulse
+2023-09-23 21:52:10,486 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:52:10,495 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:52:10,531 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:52:10,653 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:52:10,653 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:52:10,654 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:53:59,913 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:53:59,957 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:54:00,012 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 21:54:00,556 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:54:00,557 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 21:54:00,571 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 21:54:00,576 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:54:00.571308
+2023-09-23 21:54:00,577 : INFO : loggers.database_logger : Analysis id for this analysis will be: 104
+2023-09-23 21:54:00,578 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:54:00,578 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 21:54:00,584 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 21:54:00,586 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 21:54:00,587 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:54:00.586757
+2023-09-23 21:54:00,588 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 21:54:00,657 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 21:54:30,817 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:54:30,830 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:54:30,904 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:54:31,128 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:54:31,129 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:54:31,129 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 21:58:56,551 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 21:58:56,594 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 21:58:56,644 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 21:58:57,174 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:58:57,174 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 21:58:57,189 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 21:58:57,194 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:58:57.189078
+2023-09-23 21:58:57,196 : INFO : loggers.database_logger : Analysis id for this analysis will be: 105
+2023-09-23 21:58:57,196 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 21:58:57,196 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 21:58:57,203 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 21:58:57,205 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 21:58:57,205 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 21:58:57.205104
+2023-09-23 21:58:57,206 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 21:58:57,273 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 21:59:12,198 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 21:59:12,205 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 21:59:12,240 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 21:59:12,350 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 21:59:12,351 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 21:59:12,351 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 22:01:19,549 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:01:19,592 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:01:19,642 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 22:01:20,173 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:01:20,173 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 22:01:20,188 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 22:01:20,196 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:01:20.188007
+2023-09-23 22:01:20,197 : INFO : loggers.database_logger : Analysis id for this analysis will be: 106
+2023-09-23 22:01:20,197 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:01:20,198 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 22:01:20,203 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 22:01:20,205 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 22:01:20,205 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:01:20.205154
+2023-09-23 22:01:20,206 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 22:01:20,266 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 22:01:26,474 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 22:01:26,479 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 22:01:26,516 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 22:01:26,626 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 22:01:26,626 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 22:01:26,626 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 22:02:19,014 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:02:19,071 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:02:19,120 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 22:02:19,651 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:02:19,651 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 22:02:19,664 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 22:02:19,673 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:02:19.664935
+2023-09-23 22:02:19,674 : INFO : loggers.database_logger : Analysis id for this analysis will be: 107
+2023-09-23 22:02:19,675 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:02:19,675 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 22:02:19,681 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 22:02:19,683 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 22:02:19,684 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:02:19.684051
+2023-09-23 22:02:19,685 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 22:02:19,750 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 22:02:25,851 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 22:02:25,860 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 22:02:25,896 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 22:02:26,006 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 22:02:26,006 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 22:02:26,006 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 22:05:31,875 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:05:31,924 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:06:00,010 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:06:00,065 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:06:00,115 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 22:06:00,636 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:06:00,637 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 22:06:00,650 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 22:06:00,658 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:06:00.651644
+2023-09-23 22:06:00,659 : INFO : loggers.database_logger : Analysis id for this analysis will be: 108
+2023-09-23 22:06:00,659 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:06:00,659 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 22:06:00,665 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 22:06:00,667 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 22:06:00,668 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:06:00.668164
+2023-09-23 22:06:00,669 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 22:06:00,728 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 22:06:04,941 : INFO : loggers.database_logger : Mapped experiment 2_2_0_3_1_5_02 to analysis 108
+2023-09-23 22:06:04,946 : INFO : loggers.database_logger : Mapped experiment 22_03_15_01 to analysis 108
+2023-09-23 22:06:10,347 : INFO : loggers.offline_analysis_widget_logger : Series to be analyzed: ['Block Pulse', 'IV', 'IV_40_new', 'Inact', 'CClamp', 'InputRes', 'Rheobase', '5xRheo', 'Rheoramp', '2xRheobase']
+2023-09-23 22:06:10,463 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,467 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,471 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,475 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,479 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,482 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,486 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,490 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,495 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,500 : INFO : loggers.database_logger : inserting new analysis_series with id  108
+2023-09-23 22:06:10,500 : INFO : loggers.database_logger : inserted all series
+2023-09-23 22:09:46,895 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:09:46,947 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:09:47,000 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 22:09:47,542 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:09:47,543 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 22:09:47,567 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 22:09:47,570 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:09:47.567880
+2023-09-23 22:09:47,571 : INFO : loggers.database_logger : Analysis id for this analysis will be: 109
+2023-09-23 22:09:47,571 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:09:47,571 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 22:09:47,578 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 22:09:47,580 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 22:09:47,580 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:09:47.580845
+2023-09-23 22:09:47,581 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 22:09:47,644 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 22:10:33,143 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 22:10:33,157 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 22:10:33,260 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 22:10:33,508 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 22:10:33,508 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 22:10:33,508 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 22:12:47,919 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:12:47,967 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:12:48,020 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 22:12:48,548 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:12:48,549 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 22:12:48,563 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 22:12:48,571 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:12:48.564096
+2023-09-23 22:12:48,573 : INFO : loggers.database_logger : Analysis id for this analysis will be: 110
+2023-09-23 22:12:48,573 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:12:48,573 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 22:12:48,579 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 22:12:48,581 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 22:12:48,582 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:12:48.581713
+2023-09-23 22:12:48,583 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 22:12:48,649 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 22:13:00,818 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 22:13:00,825 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 22:13:00,862 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 22:13:00,973 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 22:13:00,973 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 22:13:00,973 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-09-23 22:13:54,568 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-09-23 22:13:54,612 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-09-23 22:13:54,659 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-09-23 22:13:55,194 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:13:55,194 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-09-23 22:13:55,208 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-09-23 22:13:55,217 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:13:55.208167
+2023-09-23 22:13:55,219 : INFO : loggers.database_logger : Analysis id for this analysis will be: 111
+2023-09-23 22:13:55,219 : INFO : loggers.database_logger : Database Manager Initialized
+2023-09-23 22:13:55,220 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-09-23 22:13:55,227 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-09-23 22:13:55,229 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-09-23 22:13:55,229 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-09-23 22:13:55.229061
+2023-09-23 22:13:55,230 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-09-23 22:13:55,315 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-09-23 22:14:01,864 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-09-23 22:14:01,870 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-09-23 22:14:01,907 : INFO : loggers.offlineplot_logger : Retrieving analysis function: {analysis_function}, {analysis_function_id}
+2023-09-23 22:14:02,019 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-09-23 22:14:02,019 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-09-23 22:14:02,019 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
