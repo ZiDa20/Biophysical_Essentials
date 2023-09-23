@@ -233,6 +233,7 @@ if __name__ == "__main__":
     #    app.style_sheet = file.read()
     # Load icons
     #QDir.add_search_path('icon', 'theme')
+    
     window = MainWindow()
     window.show()
     app.exec()

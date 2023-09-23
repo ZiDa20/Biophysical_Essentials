@@ -823,7 +823,6 @@ class TreeViewManager:
         if database is None:
             database = self.database_handler
 
-        self.logger.info("started treeview generation")
         root = bundle.pul
         node = root
 
@@ -844,7 +843,7 @@ class TreeViewManager:
         except AttributeError:
             node_label = ''
 
-        self.logger.info(f"processed{node_type}")
+        self.logger.info(f"single_file_into_db: current node = {node_type}")
 
         metadata = node
 
@@ -856,62 +855,63 @@ class TreeViewManager:
 
         if "Group" in node_type:
 
+            self.logger.info("single_file_into_db: " +  "experiment_name=" + experiment_name)
             self.sweep_data_df = pd.DataFrame()
             self.sweep_meta_data_df = pd.DataFrame()
             self.series_identifier = None
 
-            self.logger.info("adding experiment")
             if experiment_name in self.experiment_name_mapping.keys():
-                self.logger.info(f"replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
+                self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
                 experiment_name = self.experiment_name_mapping[experiment_name]
-            
-            print("adding experiment")
-            print(experiment_name)
-            self.logger.info(experiment_name)
+
+            self.logger.info(F"single_file_into_db: adding experiment {experiment_name} to db")
             database.add_experiment_to_experiment_table(experiment_name)
             group_name = None
             try:
-                print("adding experiment", experiment_name)
-                print(self.meta_data_assignment_list)
-                print(self.meta_data_assigned_experiment_names)
                 pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                 meta_data = self.meta_data_assignment_list[pos]
             except Exception as e:
-                print(f"Fehler: {e}")
-                print("adding ", experiment_name, " without meta data")
+                self.logger.error(F"single_file_into_db: meta data assignment failed: " + {e})
+                self.logger.info("adding " + experiment_name + " without meta data")
+
                 '''experiment_label = 'default, all other parameters are none '''
                 meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
 
 
             ''' add meta data as the default data indicated with a -1'''
-            print(meta_data)
             database.add_experiment_to_global_meta_data(-1, meta_data)
 
         if "Series" in node_type:
-            #print(node_type) # node type is None for Series
-            self.logger.info(self.series_identifier)
-            # make empty new df
+            # node type will become the new series identifier while current value in self.seriesidentfier is the previous series identifier 
+            self.logger.info(F"single_file_into_db: adding series_identifier {node_type} of experiment {experiment_name} to db")
             try:
-                if not self.sweep_data_df.empty:
-                    self.logger.info("Non empty dataframe needs to be written to the database")
-                    self.logger.info(self.sweep_data_df)
-                    self.logger.info(self.sweep_meta_data_df)
+                # sweeps are appended to the sweep data df as long as no new series name is detected
+                # if a new series is detected and sweep_data_df is not empty, swepps that belong to the previous series are written to the database  
+                # afterwird the sweep_data_df is reseted to an emtpy df  
+                if not self.sweep_data_df.empty:   
+                    self.logger.info(f"single_file_into_db: non empty sweep_data_df for series {self.series_identifier} needs to be written to the database")
+                    #self.logger.info(self.sweep_data_df)
+                    #self.logger.info(self.sweep_meta_data_df)
                     database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
                     self.sweep_data_df = pd.DataFrame()
                     self.sweep_meta_data_df = pd.DataFrame()
+                    self.logger.info("single_file_into_db:  sweep_data_df reseted to empty df")
                 else:
-                    self.logger.info("data frame is empty as planned")
-                    
+                    self.logger.info("single_file_into_db:  sweep_data_df was already, all good")
+
             except Exception as e:
+                self.logger.error(F"single_file_into_db: error in series writing: " + {e})
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
 
             sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
 
-
+            # adding the series to the database
             database.add_single_series_to_database(experiment_name, node_label, node_type)
+            
+            self.logger.info(f"single_file_into_db:  added new series with experiment_name {experiment_name}, series_name = {node_label} and identifier {node_type} to db")
 
-            print(sliced_pgf_tuple_data_frame)
+            #print(sliced_pgf_tuple_data_frame)
             database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                       "pgf_table_" + experiment_name + "_" + node_type,
                                                       experiment_name, node_type)
@@ -926,8 +926,7 @@ class TreeViewManager:
 
 
         if "Sweep" in node_type :
-            self.logger.info(self.series_identifier)
-            self.logger.info(node_type)
+            self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
             self.write_sweep_data_into_df(bundle,data_access_array,metadata)
 
             #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
@@ -945,7 +944,12 @@ class TreeViewManager:
             self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
 
         if node_type == "Pulsed" and not self.sweep_data_df.empty:
-            print("finiahws with non empty dataframe")
+            print("finishs with non empty dataframe")
+            # copy from above .. smarter to have it here to avoid additional if condition in all the recursions
+            if experiment_name in self.experiment_name_mapping.keys():
+                self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
+                experiment_name = self.experiment_name_mapping[experiment_name]
+
             database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
                                               self.sweep_meta_data_df)
 
@@ -997,9 +1001,7 @@ class TreeViewManager:
             {f'sweep_{str(data_access_array[2] + 1)}': data_array}
         )
         self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
-        self.logger.info(self.sweep_data_df.columns.tolist())
-
-
+      
         child_node = metadata[0]
         child_node_ordered_dict = dict(child_node.get_fields())
 
@@ -1010,6 +1012,7 @@ class TreeViewManager:
         )
 
         self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
+        self.logger.info(f'added new sweep_{str(data_access_array[2] + 1)} to self.sweep_data_df')
 
     def cancel_button_clicked(self,dialog):
         '''
