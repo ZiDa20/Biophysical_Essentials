@@ -807,7 +807,18 @@ class TreeViewManager:
 
 
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
+        """Main Functions to write a single (.dat ?) file into the database. Called during multithreading ! 
+        If the filename (==experimentname) was identified as corrupted, the mapped new name is used instead
+        This function is executed recursively
 
+        Args:
+            index (_type_): _description_
+            bundle (_type_): _description_
+            experiment_name (_type_): _description_
+            database (_type_): _description_
+            data_access_array (_type_): _description_
+            pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
+        """
         #debugpy.debug_this_thread()
         if database is None:
             database = self.database_handler
@@ -853,6 +864,7 @@ class TreeViewManager:
             if experiment_name in self.experiment_name_mapping.keys():
                 self.logger.info(f"replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
                 experiment_name = self.experiment_name_mapping[experiment_name]
+            
             print("adding experiment")
             print(experiment_name)
             self.logger.info(experiment_name)
@@ -889,6 +901,7 @@ class TreeViewManager:
                     self.sweep_meta_data_df = pd.DataFrame()
                 else:
                     self.logger.info("data frame is empty as planned")
+                    
             except Exception as e:
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
