@@ -19,6 +19,8 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         self.saving_template.clicked.connect(self.save_template_only)
         self.gridLayout.addWidget(self.saving_template, 5, 4, 1, 1)
         
+        # dict that is needed to rename experiments with whitespaces or whatever
+        self.experiment_name_dict = {}
     def map_metadata_to_database(self):
         """_summary_
         """
@@ -37,14 +39,20 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
                 splitted_name = dat_file.split(".")
                 self.database_handler.add_experiment_to_experiment_table(splitted_name[0])
             
-            
             if isinstance(dat_file, list):
                 new_experiment_name = splitted_name
             else:
                 new_experiment_name = splitted_name[0]
             
+
+            # we have to check for whitespaces in the name or other characters which are not allowed in the database
+            if " " in new_experiment_name:
+                 new_name= new_experiment_name.replace(" ", "_")
+                 self.experiment_name_dict[new_experiment_name] = new_name
+                 new_experiment_name = new_name
+
             # Create a DataFrame with the new data
-            new_data = pd.DataFrame({"Experiment_name": [splitted_name],
+            new_data = pd.DataFrame({"Experiment_name": [new_experiment_name],
                                         "Experiment_label": ["None"],
                                         "Species": ["None"],
                                         "Genotype": ["None"],

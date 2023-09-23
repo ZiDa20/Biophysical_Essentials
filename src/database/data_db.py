@@ -10,7 +10,7 @@ import duckdb
 import re
 from pathlib import Path
 from database.DuckDBInitalizer import DuckDBInitializer
-from database.database_logger import database_logger
+from loggers.database_logger import database_logger
 
 if TYPE_CHECKING:
     import logging
@@ -1049,10 +1049,11 @@ class DuckDBDatabaseHandler():
 
             try:
                 self.database.execute(f'CREATE TABLE {imon_trace_meta_data_table_name} AS SELECT * FROM meta_data_df')
+                self.logger.info(f"Added Meta Data Table {imon_trace_meta_data_table_name} to databas successfully")
             except Exception as e:
-                self.logger.error("Failed to create meta data table with error: %s", e)
+                self.logger.error(f"Failed to create meta data table {imon_trace_meta_data_table_name} with error: " +  {e})
 
-            self.logger.info("Added Meta Data to databas successfully")
+            
 
             q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
             self.database.execute(q,

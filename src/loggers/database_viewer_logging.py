@@ -4,7 +4,8 @@ import logging
 # Should be imported for the Database!
 
 database_viewer_logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('../Logs/database_viewer.log')
+#file_handler = logging.FileHandler('../Logs/database_viewer.log')
+file_handler = logging.FileHandler('../Logs/main_log.log')
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
 file_handler.setFormatter(formatter)
 database_viewer_logger.addHandler(file_handler)

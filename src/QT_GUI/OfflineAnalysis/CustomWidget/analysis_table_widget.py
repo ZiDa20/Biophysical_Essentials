@@ -8,6 +8,7 @@ class Analysis_Function_Table(QWidget, Ui_Form):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self.analysis_stacked_widget.hide()
+        self.remove_functions.hide()
         #add this to promote
 
   

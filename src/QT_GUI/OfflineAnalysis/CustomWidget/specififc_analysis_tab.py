@@ -65,7 +65,7 @@ class Ui_SpecificAnalysisTab(object):
                 
                 self.treebuild= TreeBuild(self.PlotWindow)
                 self.treebuild.setObjectName(u"widget")
-                self.treebuild.setMinimumSize(QSize(300, 300))
+                self.treebuild.setMinimumSize(QSize(280, 300))
                 #self.widget.groupBox_4.setMaximumSize(QSize(16777215, 16777215))
                 #self.widget.setMaximumSize(QSize(16777215, 16777215))
                 #self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -88,7 +88,7 @@ class Ui_SpecificAnalysisTab(object):
                 self.subwindow_layout = QVBoxLayout(self.treebuild.groupBox_4)
                 self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignLeft)
                 self.subwindow.setMinimumSize(QSize(0, 0))
-                self.subwindow.setMaximumSize(QSize(350, 16777215))
+                self.subwindow.setMaximumSize(QSize(400, 16777215))
                 self.subwindow.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 #self.stackedWidget.setMinimumSize(QSize(400,700))
                 #sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())

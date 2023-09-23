@@ -69,15 +69,24 @@ class Filter_Settings(QDialog, Ui_Dialog):
         for s in series_names_string_list:
             c = QCheckBox()
             c.setText(s[0])
-            self.contains_series_grid.addWidget(c)    
-            c.stateChanged.connect(partial(self.checkbox_state_changed,c,self.contains_series_list))
+            self.contains_series_grid.addWidget(c)
+            c.stateChanged.connect(partial(self.checkbox_state_changed,c))
+            #c.stateChanged.connect(self.test123)
 
+    #def test123(self):
+        
 
-    def checkbox_state_changed(self,checkbox,list_name,state):
-        if checkbox.checkState() == 2:
-           list_name.append(checkbox.text())
+    def checkbox_state_changed(self,checkbox,state):
+        """_summary_
+
+        Args:
+            checkbox (_type_): _description_
+            state (_type_): _description_
+        """
+        if state == 2:
+           self.contains_series_list.append(checkbox.text())
         else:
-            list_name.remove(checkbox.text())
+            self.contains_series_list.remove(checkbox.text())
 
 
     def handle_filter_options(self,state):
@@ -170,9 +179,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
     def contains_series_filter(self):
         """evaluate the filter selection to remove experiments that do not containa a specific series 
         """
-        if len(self.contains_series_list) > 0:
-          
-            
+        if len(self.contains_series_list) > 0:          
 
             # only keep experiment_names with 2 and more counts
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id == {self.database_handler.analysis_id}'

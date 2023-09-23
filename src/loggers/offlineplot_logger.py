@@ -5,7 +5,7 @@ import logging
 # Should be imported for the Database!
 
 offlineplot_logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('../Logs/offline_plot.log')
+file_handler = logging.FileHandler('../Logs/main_log.log')
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
 file_handler.setFormatter(formatter)
 offlineplot_logger.addHandler(file_handler)
