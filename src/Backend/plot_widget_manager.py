@@ -120,7 +120,6 @@ class PlotWidgetManager(QRunnable):
 
                     self.show_draggable_lines((row_nr,column))
 
-
                     # only show live plot if also cursor bounds were selected
                     if live_plot:
 
@@ -153,6 +152,7 @@ class PlotWidgetManager(QRunnable):
                     else:
                         x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
             """
+        
 
     def show_pgf_segment_buttons(self, experiment_name, series_identifier):
 
@@ -650,7 +650,7 @@ class PlotWidgetManager(QRunnable):
         print("Xinterval = %d", number_of_datapoints)
         return time
 
-    def create_dragable_lines(self,row_col_tuple):
+    def create_dragable_lines(self,row_col_tuple,rgb_color):
         """
         """
 
@@ -659,8 +659,8 @@ class PlotWidgetManager(QRunnable):
 
         right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
 
-        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor)
+        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor,rgb_color)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor,rgb_color)
 
         self.left_coursor = left_coursor
         self.right_coursor = right_coursor
@@ -670,31 +670,34 @@ class PlotWidgetManager(QRunnable):
         print(self.coursor_bound_tuple_dict.keys())
 
 
-        self.canvas.draw_idle()
+        #self.canvas.draw_idle()
 
         return left_val,right_val
 
-    def show_draggable_lines(self,row_col_tuple,positions = None):
+    def show_draggable_lines(self,row_col_tuple,rgb_color=None):
         """
         showing existing courspr bounds
         @param row_number:
         @return:
         """
 
-
+        
 
         coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
 
         left_val = coursor_tuple[0].XorY
         right_val = coursor_tuple[1].XorY
+        
+        if rgb_color is None: # if the color is none, it was already set 
+            rgb_color = coursor_tuple[0].rgb_color
 
-        self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.ax1.get_ylim())
-        self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.ax1.get_ylim())
+        self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.ax1.get_ylim(),rgb_color)
+        self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.ax1.get_ylim(),rgb_color)
 
         self.coursor_bound_tuple_dict.pop(row_col_tuple)
         self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
 
-        self.canvas.draw_idle()
+        #self.canvas.draw_idle()
 
         #self.ax1.draw_artist(self.left_coursor)
         #self.canvas.blit()
@@ -709,6 +712,7 @@ class PlotWidgetManager(QRunnable):
         print("row number")
         print(row)
         print(self.coursor_bound_tuple_dict)
+        
         try:
 
             tuples_to_remove = []
