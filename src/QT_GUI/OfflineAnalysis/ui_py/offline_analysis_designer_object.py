@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'offline_analysis_designer.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.1
+## Created by: Qt User Interface Compiler version 6.5.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -401,12 +401,12 @@ class Ui_Offline_Analysis(object):
         self.groupBox_7.setObjectName(u"groupBox_7")
         self.gridLayout_36 = QGridLayout(self.groupBox_7)
         self.gridLayout_36.setObjectName(u"gridLayout_36")
-        self.configure_report_button = QPushButton(self.groupBox_7)
-        self.configure_report_button.setObjectName(u"configure_report_button")
-        self.configure_report_button.setMinimumSize(QSize(30, 30))
-        self.configure_report_button.setMaximumSize(QSize(30, 30))
+        self.advanced_analysis = QPushButton(self.groupBox_7)
+        self.advanced_analysis.setObjectName(u"advanced_analysis")
+        self.advanced_analysis.setMinimumSize(QSize(30, 30))
+        self.advanced_analysis.setMaximumSize(QSize(30, 30))
 
-        self.gridLayout_36.addWidget(self.configure_report_button, 0, 0, 1, 1)
+        self.gridLayout_36.addWidget(self.advanced_analysis, 0, 0, 1, 1)
 
 
         self.gridLayout_35.addWidget(self.groupBox_7, 0, 0, 1, 1)
@@ -495,7 +495,14 @@ class Ui_Offline_Analysis(object):
         self.create_report_button.setMinimumSize(QSize(30, 30))
         self.create_report_button.setMaximumSize(QSize(30, 30))
 
-        self.gridLayout_32.addWidget(self.create_report_button, 0, 0, 1, 1)
+        self.gridLayout_32.addWidget(self.create_report_button, 0, 1, 1, 1)
+
+        self.configure_report_button = QPushButton(self.groupBox_4)
+        self.configure_report_button.setObjectName(u"configure_report_button")
+        self.configure_report_button.setMinimumSize(QSize(30, 30))
+        self.configure_report_button.setMaximumSize(QSize(30, 30))
+
+        self.gridLayout_32.addWidget(self.configure_report_button, 0, 0, 1, 1)
 
 
         self.gridLayout_31.addWidget(self.groupBox_4, 0, 1, 1, 1)
@@ -818,8 +825,8 @@ class Ui_Offline_Analysis(object):
         self.compare_series.setText("")
         self.groupBox_3.setTitle(QCoreApplication.translate("Offline_Analysis", u"Select Analysis", None))
         self.select_analysis_fct.setText("")
-        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Configure Report", None))
-        self.configure_report_button.setText("")
+        self.groupBox_7.setTitle(QCoreApplication.translate("Offline_Analysis", u"Advanced Analysis", None))
+        self.advanced_analysis.setText("")
         self.StartAnalysis.setTitle(QCoreApplication.translate("Offline_Analysis", u"Set Up Analysis", None))
 #if QT_CONFIG(tooltip)
         self.start_analysis.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" text-decoration: underline;\">Continue Analysis</span></p><p>Configure specific analysis functions for the selected series</p></body></html>", None))
@@ -829,6 +836,7 @@ class Ui_Offline_Analysis(object):
         self.run_analysis_functions.setText("")
         self.groupBox_4.setTitle(QCoreApplication.translate("Offline_Analysis", u"Create Report", None))
         self.create_report_button.setText("")
+        self.configure_report_button.setText("")
         self.groupBox_8.setTitle(QCoreApplication.translate("Offline_Analysis", u"Treeview Options", None))
 #if QT_CONFIG(tooltip)
         self.clear.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Remove Meta Data</span></p><p>Remove added meta data from the analysis</p></body></html>", None))

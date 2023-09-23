@@ -52,6 +52,8 @@ from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import Chang
 from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
 from StyleFrontend.animated_ap import LoadingAnimation
 
+from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
+
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -119,6 +121,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
 
+        self.advanced_analysis.clicked.connect(ConstrcutionSideDialog)
+        self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
+        self.create_report_button.clicked.connect(ConstrcutionSideDialog)
 
     def grid_button_clicked(self, grid:bool):
         """either show or turn off the grid in the plot or show or turn off the pgf plot

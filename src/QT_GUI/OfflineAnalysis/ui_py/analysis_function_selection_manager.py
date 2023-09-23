@@ -57,6 +57,8 @@ class AnalysisFunctionSelectionManager():
         self.LIVE_GRID_ROW = 5  
         self.plot_widget_manager.coursor_bound_tuple_dict = None
         self.live_plot_info = None
+
+        # add a button for each of the selected analysis functions
         self.add_buttons_to_layout(analysis_functions)
         
         
@@ -103,13 +105,26 @@ class AnalysisFunctionSelectionManager():
         if self.current_tab.first_add:
             self.current_tab.analysis_functions.analysis_stacked_widget.setTabsClosable(True)
             self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed) 
-            self.current_tab.analysis_functions.analysis_stacked_widget.tabCloseRequested.connect(self.close_tab)           
+            self.current_tab.analysis_functions.analysis_stacked_widget.tabCloseRequested.connect(self.close_tab)        
+
+            #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::tab::selected, QTabBar::tab::hover {background-color:#ff0000;}")
+            self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::close-button {background-color:#ff0000;}")
+            ## not working
+            #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::close-button {image:(../QT_GUI/Buton/light_mode/offline_analysis/treeview_delete.png);}")
+            #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::close-button { image: url(../QT_GUI/Buton/light_mode/offline_analysis/treeview_delete.png); }")
+
+          
             self.current_tab.analysis_functions.analysis_stacked_widget.show()
             self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(0)
-         
+
+            
+
     def close_tab(self, index):
+        # remove the tab 
+        self.plot_widget_manager.remove_dragable_lines(index)
         self.current_tab.analysis_functions.analysis_stacked_widget.removeTab(index)
-        self.current_tab.data_table.pop(index)   
+        self.current_tab.data_table.pop(index)
+        
 
     def on_checkbox_state_changed(self, row, add_cursor = True):
         """
@@ -123,9 +138,26 @@ class AnalysisFunctionSelectionManager():
         
         # if checked show cursor bounds and also (if checked) live plot
         for col in range(table_widget.columnCount()):
+            
+
+            #table_widget=self.current_tab.data_table[row] # get the analysis table widget
+
+            #cdefault color is white .. 
+            background_color_rgb = (1,1,1)
+
+            cell_widget = table_widget.cellWidget(0, col)
+
+            if cell_widget is not None and isinstance(cell_widget, QPushButton):
+                palette = cell_widget.palette()
+                background_color = palette.color(QPalette.Window)
+                
+                # Convert the QColor to an RGB tuple
+                background_color_rgb = (background_color.redF(), background_color.greenF(), background_color.blueF())
+
+
 
             # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
-            self.add_coursor_bounds((row,col), self.current_tab, table_widget)
+            self.add_coursor_bounds((row,col), self.current_tab, table_widget,background_color_rgb)
 
             condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
             filtered_df = self.live_plot_info[condition]
@@ -325,7 +357,7 @@ class AnalysisFunctionSelectionManager():
         print("a cell changed")
         print(item.text())
 
-    def add_coursor_bounds(self, row_column_tuple, current_tab, table_widget):
+    def add_coursor_bounds(self, row_column_tuple, current_tab, table_widget,color_rgb):
        
         print("adding cursor bounds")
 
@@ -334,12 +366,13 @@ class AnalysisFunctionSelectionManager():
         if row_column_tuple in self.plot_widget_manager.coursor_bound_tuple_dict.keys():
 
             # show existing cursor bounds which are also already connected 
-            self.plot_widget_manager.show_draggable_lines(row_column_tuple)
+            #print("nothing to do")
+            self.plot_widget_manager.show_draggable_lines(row_column_tuple,color_rgb)
 
         else:
 
             # 1) insert dragable coursor bounds into graph
-            left_val, right_val = self.plot_widget_manager.create_dragable_lines(row_column_tuple)
+            left_val, right_val = self.plot_widget_manager.create_dragable_lines(row_column_tuple,color_rgb)
             
             # 2) connect to the signal that will be emitted when cursor bounds are moved by user
             self.plot_widget_manager.left_bound_changed.cursor_bound_signal.connect(
@@ -428,6 +461,7 @@ class AnalysisFunctionSelectionManager():
         # get the recording mode and if voltage clamp, check the normalization
         recording_mode = self.database_handler.get_recording_mode_from_analysis_series_table(self.current_tab.objectName())
         print("Recording mode in write to table", recording_mode)
+       
         if recording_mode == "Voltage Clamp" and self.current_tab.normalization_values is None:
             
             print("before filling", self.current_tab.normalization_values)
@@ -440,6 +474,9 @@ class AnalysisFunctionSelectionManager():
 
 
         for page in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
+            
+            print("writing page ")
+            print(page)
 
             stacked = self.current_tab.analysis_functions.analysis_stacked_widget
             self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(page)

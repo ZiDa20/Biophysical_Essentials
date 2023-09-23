@@ -1,14 +1,15 @@
 import matplotlib.lines as lines
 from PySide6.QtCore import *  # type: ignore
 
-class DraggableLines:
-    def __init__(self, ax, kind, XorY,canvas, bound_changed, row_column_tuple,scaling_factor):
+class  DraggableLines:
+    def __init__(self, ax, kind, XorY,canvas, bound_changed, row_column_tuple,scaling_factor,rgb_color):
         self.ax = ax
         self.c = canvas
         self.o = kind
         self.XorY = XorY
         self.line = None
         self.scaling_factor = scaling_factor
+        self.rgb_color = rgb_color
 
         self.button_number = row_column_tuple[0]
         self.table_column = row_column_tuple[1]
@@ -29,7 +30,8 @@ class DraggableLines:
             else:
                y = [-1*self.scaling_factor, self.scaling_factor]
 
-        self.line = lines.Line2D(x, y, color = default_colors[row_column_tuple[0]+row_column_tuple[1]], picker=True)
+        # default_colors[row_column_tuple[0]+row_column_tuple[1]]
+        self.line = lines.Line2D(x, y, color = self.rgb_color, picker=True)
 
         self.draw_line_on_ax(self.ax)      
 

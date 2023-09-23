@@ -11,6 +11,7 @@ import copy
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
+from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 from StyleFrontend.animated_ap import LoadingAnimation
 import pandas as pd
 from PySide6.QtTest import QTest
@@ -334,8 +335,9 @@ class SeriesItemTreeWidget():
         @todo restructure this and move it maybe into a new class with the related functions ?
         """
         try:
-
-            if self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
+            if self.SeriesItems.currentItem().text(0) == "Multi-Series Analysis:":
+                ConstrcutionSideDialog()
+            elif self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
                 #self.result_analysis_parent_clicked()
                 self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
                 self.offline_analysis_result_tree_item_clicked()
