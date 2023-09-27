@@ -125,6 +125,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
         self.create_report_button.clicked.connect(ConstrcutionSideDialog)
 
+    def make_iv_boltzmann_fitting(self):
+        # boltzmann fitting is performed to model voltage-dependent behavior of ion channels and receptors
+
+        # make an initial guess:
+        initial_guess = [-50,10]
+        voltage_steps = np.array[-80,-70,-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80]
+
+        # params[0] = v-half-fit, params[1] = k-fit
+        params, params_covariance = optimize.curve_fit(self.boltzman_fit, voltage_steps, self.current, p0=initial_guess)
+        
+        voltage_fit = np.linspace(min(voltage_steps),max(voltage_steps), 50)
+        current_fit = self.boltzman_fit(voltage_fit, params[0], params[1])
+
+        plt.plot(voltage_fit,current_fit)
+        plt.show()
+
+    def boltzman_fit(V,V_half,k):
+        return 1/(1+np.exp((V_half-V)/k))
+
     def grid_button_clicked(self, grid:bool):
         """either show or turn off the grid in the plot or show or turn off the pgf plot
         """

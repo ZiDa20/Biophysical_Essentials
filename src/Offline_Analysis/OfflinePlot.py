@@ -106,14 +106,14 @@ class OfflinePlots():
 
         analysis_function = self.parent_widget.plot_type_combo_box.currentText()
         analysis_function_id = self.parent_widget.analysis_function_id
-        self.logger.info("Retrieving analysis function: {analysis_function}, {analysis_function_id}")
+        self.logger.info(f"Retrieving analysis function: {analysis_function}, {analysis_function_id}")
         # should retrieve the right function based on the selected analysis function
         # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
 
         self.parent_widget.selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
-        debug = self.database_handler.get_selected_meta_data(analysis_function_id)
+        #debug = self.database_handler.get_selected_meta_data(analysis_function_id)
 
         try:
             self.plot_dictionary.get(analysis_function)(result_table_list)

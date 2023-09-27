@@ -159,10 +159,15 @@ class OfflineAnalysisResultVisualizer():
         """
         For each specific analysis function a new custom widget will be created and filled with available results
         from the database
-        @param parent_widget:
-        @param plot_type:
-        @author dz, 13.07.2022
-        @reworked MZ        """
+
+        Args:
+            parent_widget (_type_): _description_
+            analysis_function (_type_, optional): _description_. Defaults to None.
+            switch (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)()
         self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
@@ -191,16 +196,16 @@ class OfflineAnalysisResultVisualizer():
             self.offlineplot.retrieve_analysis_function(parent_widget =parent_widget,
                                                         result_table_list =result_table_names)
         return analysis_function
-
+    
+    
+    """ deprecated ? dz, 27.09.2023
     def handle_metadata_click(self):
-        """
-        Handle the click on the metadata button
+                Handle the click on the metadata button
         @return: None
         @author dz, 13.07.2022
-        """
-        self.metadata_widget = MetadataWidget(self.database_handler, self.analysis_id)
+                self.metadata_widget = MetadataWidget(self.database_handler, self.analysis_id)
         self.metadata_widget.show()
-
+    """
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
         """
         Handle the setting of the plot widget, which is inside a custom made widget called parent widget.
