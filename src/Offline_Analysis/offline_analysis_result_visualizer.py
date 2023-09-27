@@ -62,6 +62,8 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
 
+        self.logger.info(f"Show results for current analysis with series_name = {series_name}")
+
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
 
         print(self.database_handler.database.execute("""select analysis_series_name
@@ -71,6 +73,10 @@ class OfflineAnalysisResultVisualizer():
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
 
+        self.logger.info("List of available series to be visualized")
+        self.logger.info(list_of_series)
+        self.logger.info(series_name)
+        
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
             # print("running analysis")
@@ -112,8 +118,10 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
+            
             # fill the plot widget with analysis specific data
-            analysis_function = self.single_analysis_visualization(custom_plot_widget)
+            self.single_analysis_visualization(custom_plot_widget)
+            
             # widgets per row = 2
             widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
             widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row

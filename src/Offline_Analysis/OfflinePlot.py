@@ -115,6 +115,12 @@ class OfflinePlots():
         self.parent_widget.selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
         #debug = self.database_handler.get_selected_meta_data(analysis_function_id)
 
+        self.logger.info("retrieving analysis function")
+        self.logger.info(analysis_function)
+        self.logger.info("result table list is")
+        self.logger.info(result_table_list)
+        self.logger.info(self.plot_dictionary)
+
         try:
             self.plot_dictionary.get(analysis_function)(result_table_list)
         except Exception as e:
@@ -165,26 +171,32 @@ class OfflinePlots():
         Plot all data without incorporating meta data groups
         :param result_table_list: the list of result tables for the specific analysis
         """
-        if not self.parent_widget.selected_meta_data:
-            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.parent_widget.holded_dataframe is None:
-            # retrieve the plot_dataframe
-            plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-            plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
-            # merge with the experiment meta data
-            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            
-            self.parent_widget.increment = increment
-        else:
-            for ax in self.parent_widget.canvas.figure.axes:
-                ax.clear()
+        self.logger.info("Simple Plot started")
+        try:
+            if not self.parent_widget.selected_meta_data:
+                self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
-        pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
-        self.parent_widget.canvas.draw_idle()
-        self.parent_widget.export_data_frame = pivoted_table
-        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+            if self.parent_widget.holded_dataframe is None:
+                # retrieve the plot_dataframe
+                plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
+                plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
+                # merge with the experiment meta data
+                self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+                self.parent_widget.increment = increment
+
+            else:
+                for ax in self.parent_widget.canvas.figure.axes:
+                    ax.clear()
+
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            self.logger.info("ready to do the simple plot")
+            pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
+            self.parent_widget.canvas.draw_idle()
+            self.parent_widget.export_data_frame = pivoted_table
+            self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        except Exception as e:
+            self.logger.error(f"Simple Plot could not be created {e}")
 
 
     def capacitance_plot(self, result_table_list:list) -> None:
@@ -525,7 +537,10 @@ class OfflinePlots():
         Returns:
             pd.DataFrame: Pivoted dataframe having columns either as experiment name or as metadata name
         """
+        self.logger.info("Simple Plot started")
+
         if increment: # if sweep has no voltage steps --> check naming of thev ariable
+            self.logger.info("Simple Plot without voltage steps")
             self.comparison_plot(plot_dataframe)
             try:
                 pivoted_table = pd.pivot_table(plot_dataframe, index = ["Sweep_Number"], columns = ["meta_data"], values = "Result")
@@ -533,16 +548,25 @@ class OfflinePlots():
                 print(e)
 
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
-            # errorbar=("se", 2) not working with the current seaborn version
+            self.logger.info("Simple Plot with voltage steps")
+            self.logger.info(plot_dataframe)
+            try:
+               #g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+                g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+            except Exception as e:
+                g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+                # errorbar=("se", 2) not working with the current seaborn version
             self.parent_widget.connect_hover(g)
             try:
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
+                #pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
+                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["series_meta_data"], values = "Result")
             except Exception as e:
                 print(e)
 
         self.parent_widget.ax.autoscale()
         self.parent_widget.canvas.figure.tight_layout()
+        self.logger.info("Simple Plot returning")
+        
         return pivoted_table
     
     def plot_capacitance(self, plot_dataframe: pd.DataFrame) -> None:

@@ -44,10 +44,12 @@ from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWid
 from Offline_Analysis.FinalResultHolder import ResultHolder
 from QT_GUI.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
 
+
 from QT_GUI.OfflineAnalysis.ui_py.analysis_function_selection_manager import AnalysisFunctionSelectionManager
 from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
 
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
+from QT_GUI.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
 
 from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
 from StyleFrontend.animated_ap import LoadingAnimation
@@ -121,28 +123,18 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
 
-        self.advanced_analysis.clicked.connect(ConstrcutionSideDialog)
+        self.advanced_analysis.clicked.connect(self.show_second_layor_analysis)
         self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
         self.create_report_button.clicked.connect(ConstrcutionSideDialog)
 
-    def make_iv_boltzmann_fitting(self):
-        # boltzmann fitting is performed to model voltage-dependent behavior of ion channels and receptors
+    def show_second_layor_analysis(self):
+        """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
+        """
+        d = Second_Layor_Analysis_Functions(self.database_handler,self.offline_tree)
+        d.exec()
 
-        # make an initial guess:
-        initial_guess = [-50,10]
-        voltage_steps = np.array[-80,-70,-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60,70,80]
 
-        # params[0] = v-half-fit, params[1] = k-fit
-        params, params_covariance = optimize.curve_fit(self.boltzman_fit, voltage_steps, self.current, p0=initial_guess)
-        
-        voltage_fit = np.linspace(min(voltage_steps),max(voltage_steps), 50)
-        current_fit = self.boltzman_fit(voltage_fit, params[0], params[1])
-
-        plt.plot(voltage_fit,current_fit)
-        plt.show()
-
-    def boltzman_fit(V,V_half,k):
-        return 1/(1+np.exp((V_half-V)/k))
+    
 
     def grid_button_clicked(self, grid:bool):
         """either show or turn off the grid in the plot or show or turn off the pgf plot
@@ -530,7 +522,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
             experiment_list = self.database_handler.database.execute(q).fetchdf()
             experiment_list = experiment_list["experiment_name"].values
-            self.logger.info("experiment list found for analysis id ", self.database_handler.analysis_id)
+            self.logger.info("experiment list found for analysis id ", str(self.database_handler.analysis_id))
               
         else:
             # get the experiment names that were selected by the user within the db dashboard
