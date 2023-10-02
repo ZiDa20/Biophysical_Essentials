@@ -219,10 +219,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         open the filter dialog.
         dialog is safed global to be reused for the whole analysis
         """
+
+        print("add filter button clicked")
         if self.filter_dialog is None:
             # if none, the dialog is created initially
             if self.offline_analysis_widgets.currentIndex() ==1:
-                current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
+                current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
                 tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
                 self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,tree_manager)
             

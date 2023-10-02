@@ -111,6 +111,9 @@ class Filter_Settings(QDialog, Ui_Dialog):
             cslow =  self.database_handler.get_cslow_value_for_sweep_table(name)
             experiment_cslow_param[identifier[0]]=cslow
 
+            print("Cslow")
+            print(cslow)
+
         self.fig = Figure(figsize=(5, 4), dpi=100)
         canvas = FigureCanvasQTAgg(self.fig)        
         self.filter_plot_widget.addWidget(canvas)
