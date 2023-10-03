@@ -75,6 +75,9 @@ class Filter_Settings(QDialog, Ui_Dialog):
             for identifier in df[df['type'] == 'Series']["identifier"].values:
                 print(identifier)
                 identifier = identifier.split("::")
+                # in case of meta data were added only keep the last : Mouse::220318_02::Series9
+                if len(identifier)>2:
+                    identifier=identifier[len(identifier)-2:len(identifier)]
                 q = f'select sweep_table_name, meta_data_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
                 name = self.database_handler.database.execute(q).fetchall()[0]
                 meta_data_table_name = name[1]
@@ -82,16 +85,23 @@ class Filter_Settings(QDialog, Ui_Dialog):
                 
                 q = f'select * from {name}'
                 raw_data = self.database_handler.database.execute(q).fetchdf()
-                thresh = 0
+                thresh = None
                 
                 for c in raw_data.columns:
+                    y_min, y_max = self.database_handler.get_ymin_from_metadata_by_sweep_table_name(name, c)
+                    data = np.interp(raw_data[c], (raw_data[c].min(), raw_data[c].max()), (y_min, y_max))
+                
                     if analysis_fct == "Maximum":
-                        if np.max(raw_data[c].values) > thresh:
-                            thresh = np.max(raw_data[c].values)
+                        if thresh is None:
+                            thresh = np.max(data)
+                        elif np.max(data) > thresh:
+                            thresh = np.max(data)
                     
                     if analysis_fct == "Minimum":
-                        if np.min(raw_data[c].values) < thresh:
-                            thresh = np.max(raw_data[c].values)
+                        if thresh is None:
+                            thresh = np.min(data)
+                        elif np.min(data) < thresh:
+                            thresh = np.min(data)
 
                 self.fct_filter_plot_df = pd.concat([self.fct_filter_plot_df,
                                                      pd.DataFrame({ "identifier":[identifier[0]+"::"+identifier[1]], "val":[thresh], "discarded":[0] })])
@@ -101,19 +111,16 @@ class Filter_Settings(QDialog, Ui_Dialog):
             meta_data_df = meta_data_df[meta_data_df['Parameter'] == 'RecordingMode']
             unit = "A"
             
-            print(meta_data_df["sweep_1"].values)
-            print(type(meta_data_df["sweep_1"].values))
             if meta_data_df["sweep_1"].values == ['4']:
                    unit  = "V"
 
-            # sseries ? name ? recording mode ? 
-            # multiply by 10e3 until > 0
-            # adjust axis to mV for voltage .. .. nA resolution missing ?!
+            # adjust the unit to the SI prefix
             si_prefix = ""
             print("adjusting the prefix")
             for prefix in ["m","u","n","p","f"]:
                 print(self.fct_filter_plot_df["val"].values)
-                if all(i < 1 for i in self.fct_filter_plot_df["val"].values):
+
+                if all(abs(i) < 1 for i in self.fct_filter_plot_df["val"].values):
                     self.fct_filter_plot_df["val"] = self.fct_filter_plot_df["val"] * 1e3
                     si_prefix = prefix        
                 else:
