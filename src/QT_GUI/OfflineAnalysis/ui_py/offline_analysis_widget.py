@@ -220,19 +220,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         dialog is safed global to be reused for the whole analysis
         """
 
-        print("add filter button clicked")
-        if self.filter_dialog is None:
+        #print("add filter button clicked")
+        #if self.filter_dialog is None:
             # if none, the dialog is created initially
-            if self.offline_analysis_widgets.currentIndex() ==1:
-                current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-                tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
-                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,tree_manager)
-            
-            else:
-                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,
-                                                     self.blank_analysis_tree_view_manager)
-            
-            self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,self.offline_tree)
+        
+        else:
+            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,
+                                                    self.blank_analysis_tree_view_manager)
+        
+        self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
 
         #self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
         self.filter_dialog.show()

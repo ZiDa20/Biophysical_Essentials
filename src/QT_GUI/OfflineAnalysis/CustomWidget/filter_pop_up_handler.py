@@ -10,11 +10,12 @@ from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 from PySide6.QtGui import QFont, QFontMetrics, QTransform
 
-
+from Backend.treeview_manager import TreeViewManager
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import mplcursors
 import numpy as np
+import pandas as pd
 class Filter_Settings(QDialog, Ui_Dialog):
 
     def __init__(self,frontend, database_handler, treeview_manager,parent=None):
@@ -28,13 +29,21 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.DISCARD_DATA = 0
     
         #self.filter_checkbox_remove.stateChanged.connect(self.handle_filter_options)
-
-        self.treeview_manager = treeview_manager
+        if isinstance(treeview_manager,TreeViewManager):
+            self.treeview_manager = treeview_manager
+            self.offline_tree = None
+        else:
+            self.current_index = treeview_manager.SeriesItems.currentItem().data(7, Qt.UserRole)
+            self.offline_tree = treeview_manager
+            self.treeview_manager = treeview_manager.current_tab_tree_view_manager[self.current_index]
 
         self.and_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
         self.or_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
         self.contains_checkbox.stateChanged.connect(self.contains_checkbox_handling)
         self.contains_not_checkbox.stateChanged.connect(self.contains_checkbox_handling)
+        
+        self.show_data_distribution.stateChanged.connect(self.make_data_distribution_plot)
+        #QTimer.singleShot(2000, lambda: self.show_data_distribution.setChecked(False))
 
         self.fig = None
         self.tabWidget.currentChanged.connect(self.tab_changed)
@@ -43,6 +52,72 @@ class Filter_Settings(QDialog, Ui_Dialog):
         if self.tabWidget.currentIndex() == 1:
             if self.fig is None:
                 self.make_cslow_plot()
+
+    def make_data_distribution_plot(self,state):
+        """calculate the result for a select easy analysis function and plot the results series wise
+
+        Args:
+            state (_type_): _description_
+        """
+        if state == 2:
+            print("checked")
+            
+            analysis_fct = self.comboBox.currentText()
+            
+            if self.offline_tree:
+                self.current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+                self.treeview_manager = self.offline_tree.current_tab_tree_view_manager[self.current_index]
+            
+            df = self.treeview_manager.selected_tree_view_data_table
+            self.fct_filter_plot_df = pd.DataFrame(columns=["identifier", "val","discarded"])
+
+            for identifier in df[df['type'] == 'Series']["identifier"].values:
+                print(identifier)
+                identifier = identifier.split("::")
+                q = f'select sweep_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
+                name = self.database_handler.database.execute(q).fetchall()[0][0]
+                q = f'select * from {name}'
+                raw_data = self.database_handler.database.execute(q).fetchdf()
+                thresh = 0
+                
+                for c in raw_data.columns:
+                    if analysis_fct == "Maximum":
+                        if np.max(raw_data[c].values) > thresh:
+                            thresh = np.max(raw_data[c].values)
+                    
+                    if analysis_fct == "Minimum":
+                        if np.min(raw_data[c].values) < thresh:
+                            thresh = np.max(raw_data[c].values)
+
+                self.fct_filter_plot_df = pd.concat([self.fct_filter_plot_df,
+                                                     pd.DataFrame({ "identifier":[identifier[0]+"::"+identifier[1]], "val":[thresh], "discarded":[0] })])
+
+
+            # adjust axis to mV for voltage .. .. nA resolution missing ?!
+            self.fct_filter_plot_df["val"] = self.fct_filter_plot_df["val"] * 1e3
+            # @todoy buggy bugfix
+            if all(i < 0 for i in self.fct_filter_plot_df["val"].values):
+                self.fct_filter_plot_df["val"] = self.fct_filter_plot_df["val"] * 1e6
+            vals =  [float(i) for i in self.fct_filter_plot_df["val"].values] # 
+        
+            self.make_interactive_plot(self.gridLayout_12,
+                                   vals,
+                                   self.fct_filter_plot_df["identifier"].values,
+                                   self.left_signal_threshold_slider,
+                                   self.right_signal_threshold_slider,
+                                   self.left_signal_threshold_label,
+                                   self.right_signal_threshold_label)
+
+
+        else:
+            item = self.gridLayout_12.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+            print("unchecked")
+
+    def update_fct_label(self,value,label):        
+         label.setText(f"{value}")
 
     def contains_checkbox_handling(self):	
         self.checkbox_handler(self.contains_checkbox,self.contains_not_checkbox)
@@ -97,8 +172,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
 
     
     def make_cslow_plot(self):
-        """
-        
+        """Make a scatter plot that shows the cslow value for each series
         """
 
         df = self.treeview_manager.selected_tree_view_data_table
@@ -111,21 +185,26 @@ class Filter_Settings(QDialog, Ui_Dialog):
             cslow =  self.database_handler.get_cslow_value_for_sweep_table(name)
             experiment_cslow_param[identifier[0]]=cslow
 
-            print("Cslow")
-            print(cslow)
-
-        self.fig = Figure(figsize=(5, 4), dpi=100)
-        canvas = FigureCanvasQTAgg(self.fig)        
-        self.filter_plot_widget.addWidget(canvas)
-
-        self.ax = self.fig.add_subplot(111)
-
         # adjust axis to pico farad 
         vals =  [float(i)* 1e12   for i in experiment_cslow_param.values()] # 
     
+        self.make_interactive_plot(self.filter_plot_widget,
+                                   vals,
+                                   list(experiment_cslow_param.keys()),
+                                   self.slider_lower_threshold_2,
+                                   self.slider_upper_threshold_2,
+                                   self.label_6,
+                                   self.label_5)
+        self.ax.set_ylabel("CSlow in pF")
+
+    def make_interactive_plot(self,plot_widget,vals:list[float],labels:list[str], lower_slider, upper_slider, lower_label, upper_label):
+
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        canvas = FigureCanvasQTAgg(self.fig)        
+        plot_widget.addWidget(canvas)
+        self.ax = self.fig.add_subplot(111)
 
         points = self.ax.plot(vals,'o')
-        labels = list(experiment_cslow_param.keys())
         m = np.mean(vals)
         mad = np.median(np.absolute(vals - np.median(vals)))
         self.ax.axhline(y = m, color = 'b', linestyle = ':', label = "mean")
@@ -134,7 +213,6 @@ class Filter_Settings(QDialog, Ui_Dialog):
         
         # Add annotations to the points using mplcursors
         cursor = mplcursors.cursor(points, hover = True)
-        self.ax.set_ylabel("CSlow in pF")
         canvas.draw()
 
         @cursor.connect("add")
@@ -147,20 +225,21 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.lower_slider_threshold_line = None
         self.upper_slider_threshold_line = None
         # Connect the slider valueChanged signals to update_label
-        self.slider_lower_threshold_2.valueChanged.connect(lambda value, line=0, label=self.label_6: self.update_label(value, line,label))
-        self.slider_upper_threshold_2.valueChanged.connect(lambda value, line=1, label=self.label_5:  self.update_label(value, line, label))
 
-        self.slider_lower_threshold_2.setMinimum(min(vals))
-        self.slider_lower_threshold_2.setMaximum(m) 
-        self.slider_lower_threshold_2.setValue(m-mad/2)  
-
-        self.slider_upper_threshold_2.setMinimum(m)
-        self.slider_upper_threshold_2.setMaximum(max(vals)) 
-        self.slider_upper_threshold_2.setValue(m+mad/2)  
-
-        self.ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
+        lower_slider.valueChanged.connect(lambda value, line=0, label=lower_label: self.update_label(value, line,label))
+        upper_slider.valueChanged.connect(lambda value, line=1, label=upper_label:  self.update_label(value, line, label))
         
 
+        lower_slider.setMinimum(min(vals)*1.2)
+        lower_slider.setMaximum(m*1.2) 
+        lower_slider.setValue(min(vals)*0.5)  
+
+        upper_slider.setMinimum(m*1.2)
+        upper_slider.setMaximum(max(vals)*1.2) 
+        upper_slider.setValue(m*0.5)  
+
+        self.ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
+    
     def update_label(self, value, line, label):
         label.setText(f"{value} pF")
 
@@ -252,12 +331,37 @@ class Filter_Settings(QDialog, Ui_Dialog):
                 self.database_handler.database.execute(q).fetchall()
                 print("outfiltered" + identifier[0] + " " + identifier[1])
 
+    def filter_fct_values(self):
+        """ Apply the filters that were chosen to select series according to some minor analysis function
+        """
+
+        # read the respective values from the labels        
+        left_val = float(self.left_signal_threshold_slider.value())
+        right_val = float(self.right_signal_threshold_slider.value())
+        
+        # flage the series that are out of the threshold
+        self.fct_filter_plot_df.loc[(self.fct_filter_plot_df['val'] < left_val) | 
+                                        (self.fct_filter_plot_df['val'] > right_val), 'discarded'] = 1
+
+        # Filter the DataFrame to only include rows where discarded== 1
+        filtered_df = self.fct_filter_plot_df[self.fct_filter_plot_df['discarded'] == 1]
+
+        # discard the flagged series
+        for index, row in filtered_df.iterrows():
+            identifier = row['identifier'].split("::")
+            q = f'update series_analysis_mapping set analysis_discarded = True where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
+            self.database_handler.database.execute(q)
+
+            
     def apply_filters(self):
         if self.tabWidget.currentIndex() == 0:
             self.contains_series_filter()
         
         if self.tabWidget.currentIndex() == 1:
             self.filter_parameter_value()
+        
+        if self.tabWidget.currentIndex() == 2:
+            self.filter_fct_values()
 
     def extract_first_elements(self,lst):
         return [t[0] for t in lst]
