@@ -71,11 +71,15 @@ class Filter_Settings(QDialog, Ui_Dialog):
             df = self.treeview_manager.selected_tree_view_data_table
             self.fct_filter_plot_df = pd.DataFrame(columns=["identifier", "val","discarded"])
 
+            meta_data_table_name = None
             for identifier in df[df['type'] == 'Series']["identifier"].values:
                 print(identifier)
                 identifier = identifier.split("::")
-                q = f'select sweep_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
-                name = self.database_handler.database.execute(q).fetchall()[0][0]
+                q = f'select sweep_table_name, meta_data_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
+                name = self.database_handler.database.execute(q).fetchall()[0]
+                meta_data_table_name = name[1]
+                name = name[0]
+                
                 q = f'select * from {name}'
                 raw_data = self.database_handler.database.execute(q).fetchdf()
                 thresh = 0
@@ -92,12 +96,30 @@ class Filter_Settings(QDialog, Ui_Dialog):
                 self.fct_filter_plot_df = pd.concat([self.fct_filter_plot_df,
                                                      pd.DataFrame({ "identifier":[identifier[0]+"::"+identifier[1]], "val":[thresh], "discarded":[0] })])
 
+            q = f'select * from {meta_data_table_name}'
+            meta_data_df = self.database_handler.database.execute(q).fetchdf()
+            meta_data_df = meta_data_df[meta_data_df['Parameter'] == 'RecordingMode']
+            unit = "A"
+            
+            print(meta_data_df["sweep_1"].values)
+            print(type(meta_data_df["sweep_1"].values))
+            if meta_data_df["sweep_1"].values == ['4']:
+                   unit  = "V"
 
+            # sseries ? name ? recording mode ? 
+            # multiply by 10e3 until > 0
             # adjust axis to mV for voltage .. .. nA resolution missing ?!
-            self.fct_filter_plot_df["val"] = self.fct_filter_plot_df["val"] * 1e3
-            # @todoy buggy bugfix
-            if all(i < 0 for i in self.fct_filter_plot_df["val"].values):
-                self.fct_filter_plot_df["val"] = self.fct_filter_plot_df["val"] * 1e6
+            si_prefix = ""
+            print("adjusting the prefix")
+            for prefix in ["m","u","n","p","f"]:
+                print(self.fct_filter_plot_df["val"].values)
+                if all(i < 1 for i in self.fct_filter_plot_df["val"].values):
+                    self.fct_filter_plot_df["val"] = self.fct_filter_plot_df["val"] * 1e3
+                    si_prefix = prefix        
+                else:
+                    break
+            self.unit = si_prefix + unit
+
             vals =  [float(i) for i in self.fct_filter_plot_df["val"].values] # 
         
             self.make_interactive_plot(self.gridLayout_12,
@@ -107,7 +129,8 @@ class Filter_Settings(QDialog, Ui_Dialog):
                                    self.right_signal_threshold_slider,
                                    self.left_signal_threshold_label,
                                    self.right_signal_threshold_label)
-
+            
+            self.ax.set_ylabel(self.unit)
 
         else:
             item = self.gridLayout_12.takeAt(0)
@@ -185,9 +208,10 @@ class Filter_Settings(QDialog, Ui_Dialog):
             cslow =  self.database_handler.get_cslow_value_for_sweep_table(name)
             experiment_cslow_param[identifier[0]]=cslow
 
+        self.unit = "pF"
         # adjust axis to pico farad 
         vals =  [float(i)* 1e12   for i in experiment_cslow_param.values()] # 
-    
+
         self.make_interactive_plot(self.filter_plot_widget,
                                    vals,
                                    list(experiment_cslow_param.keys()),
@@ -241,7 +265,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
         self.ax.legend(bbox_to_anchor = (1.0, 1), loc = 'upper center')
     
     def update_label(self, value, line, label):
-        label.setText(f"{value} pF")
+        label.setText(f"{value} "+ self.unit)
 
         if line == 0:
             if  self.lower_slider_threshold_line:
