@@ -16,6 +16,7 @@ from matplotlib.figure import Figure
 import mplcursors
 import numpy as np
 import pandas as pd
+from scipy.signal import find_peaks
 class Filter_Settings(QDialog, Ui_Dialog):
 
     def __init__(self,frontend, database_handler, treeview_manager,parent=None):
@@ -47,7 +48,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
 
         self.fig = None
         self.tabWidget.currentChanged.connect(self.tab_changed)
-
+        self.update_peak_filter.clicked.connect(self.update_peak_filter_clicked)
     def tab_changed(self):
         if self.tabWidget.currentIndex() == 1:
             if self.fig is None:
@@ -59,49 +60,68 @@ class Filter_Settings(QDialog, Ui_Dialog):
         Args:
             state (_type_): _description_
         """
+        # if the checkbox is checked
         if state == 2:
-            print("checked")
-            
+            # query the selected analysis function
             analysis_fct = self.comboBox.currentText()
-            
+            if analysis_fct == "Maximum":
+                    self.stackedWidget.setCurrentIndex(0)
+                    self.min_max_analysis(np.nanmax)
+            elif analysis_fct == "Minimum":
+                    self.stackedWidget.setCurrentIndex(0)
+                    self.min_max_analysis(np.nanmin) 
+            # @(todo) implement the peak detection
+            #elif analysis_fct == "Number of Peaks":
+            #        self.min_max_analysis(np.nanmax)
+            #       self.stackedWidget.setCurrentIndex(1)
+                    # if the checkbox was unchecked
+        else:
+            item = self.gridLayout_12.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+            print("unchecked")
+        
+    def update_peak_filter_clicked(self):
+        print("update peak filter")
+
+    def min_max_analysis(self,selected_fct):
+            # if the menu was opened while beeing on page 2 (series specific tree)
+            # the current series with the correct selected treeview needs to be identified	 
             if self.offline_tree:
                 self.current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
                 self.treeview_manager = self.offline_tree.current_tab_tree_view_manager[self.current_index]
-            
+            # only query the data frome the selected treeview
             df = self.treeview_manager.selected_tree_view_data_table
+            # new df to store the calculated results and the discarded flag
             self.fct_filter_plot_df = pd.DataFrame(columns=["identifier", "val","discarded"])
-
+            # HEKA data are between 0 and inf but the ymin and ymax values give a hint how to shift the absolute values for each sweep
+            # @todo check if this is true for non-HEKA data too
             meta_data_table_name = None
+            # loop through each series as, query the data, adjust to min and max values and calculate execute the user selected analysis function
             for identifier in df[df['type'] == 'Series']["identifier"].values:
-                print(identifier)
+                
                 identifier = identifier.split("::")
                 # in case of meta data were added only keep the last : Mouse::220318_02::Series9
                 if len(identifier)>2:
                     identifier=identifier[len(identifier)-2:len(identifier)]
+                # get the meta data table name and series sweep data table names and from that the raw data table
                 q = f'select sweep_table_name, meta_data_table_name from experiment_series where experiment_name = \'{identifier[0]}\' and series_identifier = \'{identifier[1]}\''
                 name = self.database_handler.database.execute(q).fetchall()[0]
                 meta_data_table_name = name[1]
                 name = name[0]
-                
                 q = f'select * from {name}'
                 raw_data = self.database_handler.database.execute(q).fetchdf()
-                thresh = None
-                
+                # this thresh-varaible will be assinged with the smallest/greatest result from all sweeps
+                result_list = []
+               
+                #run this brief analysis for all sweeps 
                 for c in raw_data.columns:
                     y_min, y_max = self.database_handler.get_ymin_from_metadata_by_sweep_table_name(name, c)
                     data = np.interp(raw_data[c], (raw_data[c].min(), raw_data[c].max()), (y_min, y_max))
-                
-                    if analysis_fct == "Maximum":
-                        if thresh is None:
-                            thresh = np.max(data)
-                        elif np.max(data) > thresh:
-                            thresh = np.max(data)
-                    
-                    if analysis_fct == "Minimum":
-                        if thresh is None:
-                            thresh = np.min(data)
-                        elif np.min(data) < thresh:
-                            thresh = np.min(data)
+                    result_list.append(selected_fct(data))
+              
+                thresh = selected_fct(result_list)
 
                 self.fct_filter_plot_df = pd.concat([self.fct_filter_plot_df,
                                                      pd.DataFrame({ "identifier":[identifier[0]+"::"+identifier[1]], "val":[thresh], "discarded":[0] })])
@@ -139,12 +159,7 @@ class Filter_Settings(QDialog, Ui_Dialog):
             
             self.ax.set_ylabel(self.unit)
 
-        else:
-            item = self.gridLayout_12.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.deleteLater()
-            print("unchecked")
+        
 
     def update_fct_label(self,value,label):        
          label.setText(f"{value}")

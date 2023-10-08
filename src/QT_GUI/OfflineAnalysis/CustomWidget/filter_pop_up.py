@@ -17,14 +17,14 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog,
     QGridLayout, QGroupBox, QHBoxLayout, QLabel,
-    QPushButton, QSizePolicy, QSlider, QSpacerItem,
-    QTabWidget, QWidget)
+    QLineEdit, QPushButton, QSizePolicy, QSlider,
+    QSpacerItem, QStackedWidget, QTabWidget, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(858, 547)
+        Dialog.resize(979, 547)
         self.gridLayout = QGridLayout(Dialog)
         self.gridLayout.setObjectName(u"gridLayout")
         self.tabWidget = QTabWidget(Dialog)
@@ -156,52 +156,6 @@ class Ui_Dialog(object):
         self.tab_2.setObjectName(u"tab_2")
         self.gridLayout_2 = QGridLayout(self.tab_2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.gridLayout_12 = QGridLayout()
-        self.gridLayout_12.setObjectName(u"gridLayout_12")
-
-        self.gridLayout_2.addLayout(self.gridLayout_12, 3, 0, 1, 1)
-
-        self.groupBox_9 = QGroupBox(self.tab_2)
-        self.groupBox_9.setObjectName(u"groupBox_9")
-        self.gridLayout_15 = QGridLayout(self.groupBox_9)
-        self.gridLayout_15.setObjectName(u"gridLayout_15")
-        self.label_3 = QLabel(self.groupBox_9)
-        self.label_3.setObjectName(u"label_3")
-        self.label_3.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout_15.addWidget(self.label_3, 0, 0, 1, 1)
-
-        self.left_signal_threshold_slider = QSlider(self.groupBox_9)
-        self.left_signal_threshold_slider.setObjectName(u"left_signal_threshold_slider")
-        self.left_signal_threshold_slider.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_15.addWidget(self.left_signal_threshold_slider, 1, 0, 1, 1)
-
-        self.right_signal_threshold_slider = QSlider(self.groupBox_9)
-        self.right_signal_threshold_slider.setObjectName(u"right_signal_threshold_slider")
-        self.right_signal_threshold_slider.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_15.addWidget(self.right_signal_threshold_slider, 1, 2, 1, 1)
-
-        self.left_signal_threshold_label = QLabel(self.groupBox_9)
-        self.left_signal_threshold_label.setObjectName(u"left_signal_threshold_label")
-
-        self.gridLayout_15.addWidget(self.left_signal_threshold_label, 1, 1, 1, 1)
-
-        self.right_signal_threshold_label = QLabel(self.groupBox_9)
-        self.right_signal_threshold_label.setObjectName(u"right_signal_threshold_label")
-
-        self.gridLayout_15.addWidget(self.right_signal_threshold_label, 1, 3, 1, 1)
-
-        self.label_2 = QLabel(self.groupBox_9)
-        self.label_2.setObjectName(u"label_2")
-        self.label_2.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout_15.addWidget(self.label_2, 0, 2, 1, 1)
-
-
-        self.gridLayout_2.addWidget(self.groupBox_9, 2, 0, 1, 1)
-
         self.groupBox_8 = QGroupBox(self.tab_2)
         self.groupBox_8.setObjectName(u"groupBox_8")
         self.gridLayout_14 = QGridLayout(self.groupBox_8)
@@ -242,6 +196,118 @@ class Ui_Dialog(object):
 
         self.gridLayout_2.addWidget(self.groupBox_5, 0, 0, 1, 1)
 
+        self.gridLayout_12 = QGridLayout()
+        self.gridLayout_12.setObjectName(u"gridLayout_12")
+
+        self.gridLayout_2.addLayout(self.gridLayout_12, 3, 0, 1, 1)
+
+        self.stackedWidget = QStackedWidget(self.tab_2)
+        self.stackedWidget.setObjectName(u"stackedWidget")
+        self.page = QWidget()
+        self.page.setObjectName(u"page")
+        self.gridLayout_13 = QGridLayout(self.page)
+        self.gridLayout_13.setObjectName(u"gridLayout_13")
+        self.groupBox_9 = QGroupBox(self.page)
+        self.groupBox_9.setObjectName(u"groupBox_9")
+        self.gridLayout_15 = QGridLayout(self.groupBox_9)
+        self.gridLayout_15.setObjectName(u"gridLayout_15")
+        self.label_3 = QLabel(self.groupBox_9)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_15.addWidget(self.label_3, 0, 0, 1, 1)
+
+        self.left_signal_threshold_slider = QSlider(self.groupBox_9)
+        self.left_signal_threshold_slider.setObjectName(u"left_signal_threshold_slider")
+        self.left_signal_threshold_slider.setOrientation(Qt.Horizontal)
+
+        self.gridLayout_15.addWidget(self.left_signal_threshold_slider, 1, 0, 1, 1)
+
+        self.right_signal_threshold_slider = QSlider(self.groupBox_9)
+        self.right_signal_threshold_slider.setObjectName(u"right_signal_threshold_slider")
+        self.right_signal_threshold_slider.setOrientation(Qt.Horizontal)
+
+        self.gridLayout_15.addWidget(self.right_signal_threshold_slider, 1, 2, 1, 1)
+
+        self.left_signal_threshold_label = QLabel(self.groupBox_9)
+        self.left_signal_threshold_label.setObjectName(u"left_signal_threshold_label")
+
+        self.gridLayout_15.addWidget(self.left_signal_threshold_label, 1, 1, 1, 1)
+
+        self.right_signal_threshold_label = QLabel(self.groupBox_9)
+        self.right_signal_threshold_label.setObjectName(u"right_signal_threshold_label")
+
+        self.gridLayout_15.addWidget(self.right_signal_threshold_label, 1, 3, 1, 1)
+
+        self.label_2 = QLabel(self.groupBox_9)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setAlignment(Qt.AlignCenter)
+
+        self.gridLayout_15.addWidget(self.label_2, 0, 2, 1, 1)
+
+
+        self.gridLayout_13.addWidget(self.groupBox_9, 0, 0, 1, 1)
+
+        self.stackedWidget.addWidget(self.page)
+        self.page_2 = QWidget()
+        self.page_2.setObjectName(u"page_2")
+        self.gridLayout_16 = QGridLayout(self.page_2)
+        self.gridLayout_16.setObjectName(u"gridLayout_16")
+        self.groupBox_6 = QGroupBox(self.page_2)
+        self.groupBox_6.setObjectName(u"groupBox_6")
+        self.gridLayout_17 = QGridLayout(self.groupBox_6)
+        self.gridLayout_17.setObjectName(u"gridLayout_17")
+        self.update_peak_filter = QPushButton(self.groupBox_6)
+        self.update_peak_filter.setObjectName(u"update_peak_filter")
+
+        self.gridLayout_17.addWidget(self.update_peak_filter, 3, 1, 1, 1)
+
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_17.addItem(self.horizontalSpacer_3, 3, 0, 1, 1)
+
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.gridLayout_17.addItem(self.horizontalSpacer_4, 3, 2, 1, 1)
+
+        self.label_4 = QLabel(self.groupBox_6)
+        self.label_4.setObjectName(u"label_4")
+
+        self.gridLayout_17.addWidget(self.label_4, 0, 0, 1, 1)
+
+        self.label_9 = QLabel(self.groupBox_6)
+        self.label_9.setObjectName(u"label_9")
+
+        self.gridLayout_17.addWidget(self.label_9, 1, 0, 1, 1)
+
+        self.label_10 = QLabel(self.groupBox_6)
+        self.label_10.setObjectName(u"label_10")
+        self.label_10.setMaximumSize(QSize(16777215, 50))
+
+        self.gridLayout_17.addWidget(self.label_10, 2, 0, 1, 1)
+
+        self.lineEdit_3 = QLineEdit(self.groupBox_6)
+        self.lineEdit_3.setObjectName(u"lineEdit_3")
+
+        self.gridLayout_17.addWidget(self.lineEdit_3, 2, 1, 1, 3)
+
+        self.lineEdit_2 = QLineEdit(self.groupBox_6)
+        self.lineEdit_2.setObjectName(u"lineEdit_2")
+
+        self.gridLayout_17.addWidget(self.lineEdit_2, 1, 1, 1, 3)
+
+        self.lineEdit = QLineEdit(self.groupBox_6)
+        self.lineEdit.setObjectName(u"lineEdit")
+
+        self.gridLayout_17.addWidget(self.lineEdit, 0, 1, 1, 3)
+
+
+        self.gridLayout_16.addWidget(self.groupBox_6, 0, 0, 1, 1)
+
+        self.stackedWidget.addWidget(self.page_2)
+
+        self.gridLayout_2.addWidget(self.stackedWidget, 2, 0, 1, 1)
+
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_4 = QWidget()
         self.tab_4.setObjectName(u"tab_4")
@@ -272,6 +338,7 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
 
         self.tabWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Dialog)
@@ -297,11 +364,6 @@ class Ui_Dialog(object):
         self.label_7.setText(QCoreApplication.translate("Dialog", u"Upper Threshold: ", None))
         self.label_8.setText(QCoreApplication.translate("Dialog", u"Lower Threshold: ", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("Dialog", u"Parameter Filter", None))
-        self.groupBox_9.setTitle(QCoreApplication.translate("Dialog", u"3. Adapt the thresholds using the sliders", None))
-        self.label_3.setText(QCoreApplication.translate("Dialog", u"Lower Threshold", None))
-        self.left_signal_threshold_label.setText("0")
-        self.right_signal_threshold_label.setText("100")
-        self.label_2.setText(QCoreApplication.translate("Dialog", u"Upper Threshold", None))
         self.groupBox_8.setTitle(QCoreApplication.translate("Dialog", u"2. Activate the plot checkbox below to scan the data for the selected criteria.", None))
         self.show_data_distribution.setText(QCoreApplication.translate("Dialog", u"Show Data Distribution Plot", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("Dialog", u"1. Choose a criteria to select and discard data", None))
@@ -309,6 +371,19 @@ class Ui_Dialog(object):
         self.comboBox.setItemText(1, QCoreApplication.translate("Dialog", u"Maximum", None))
         self.comboBox.setItemText(2, QCoreApplication.translate("Dialog", u"Number of Peaks", None))
 
+        self.groupBox_9.setTitle(QCoreApplication.translate("Dialog", u"3. Adapt the thresholds using the sliders", None))
+        self.label_3.setText(QCoreApplication.translate("Dialog", u"Lower Threshold", None))
+        self.left_signal_threshold_label.setText("")
+        self.right_signal_threshold_label.setText("")
+        self.label_2.setText(QCoreApplication.translate("Dialog", u"Upper Threshold", None))
+        self.groupBox_6.setTitle(QCoreApplication.translate("Dialog", u"3. Enter the thresholds ", None))
+        self.update_peak_filter.setText(QCoreApplication.translate("Dialog", u"Update", None))
+        self.label_4.setText(QCoreApplication.translate("Dialog", u"Enter the minimum amount of peaks per sweep:", None))
+        self.label_9.setText(QCoreApplication.translate("Dialog", u"Enter the minimum distance between two peaks:", None))
+        self.label_10.setText(QCoreApplication.translate("Dialog", u"Enter the minimum amplitude of each peak:", None))
+        self.lineEdit_3.setText(QCoreApplication.translate("Dialog", u"min peak height", None))
+        self.lineEdit_2.setText(QCoreApplication.translate("Dialog", u"min distance", None))
+        self.lineEdit.setText(QCoreApplication.translate("Dialog", u"peak number", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("Dialog", u"Signal Thresholds", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("Dialog", u"Contains Meta Data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), QCoreApplication.translate("Dialog", u"Meta Data Filter", None))
