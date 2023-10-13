@@ -67,6 +67,7 @@ class SweepWiseAnalysisTemplate(ABC):
 			self.sliced_trace = self.trace[
 				((self.trace[:, 0] > self.lower_bound) & (self.trace[:, 0] < self.upper_bound))]
 			self.sliced_volt = self.sliced_trace[:, 1]
+			self.sliced_time = self.sliced_trace[:, 0]
 		else:
 			raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
 
@@ -166,15 +167,21 @@ class SweepWiseAnalysisTemplate(ABC):
 				sweep_number = column.split("_")
 				sweep_number = int(sweep_number[1])
 				# This is the hickup why we have to use
+				import debugpy
+				debugpy.breakpoint()
 				if unit_name != "Voltage":
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
-				# slice trace according to coursor bounds
+				for prefix in ['m','u','n','p']:
+					if abs(np.max(self.data))<1:
+						self.data = self.data*1000
+										# slice trace according to coursor bounds
 				self.construct_trace()
 				self.slice_trace()
 				self.duration_list, inc, volt_val, duration_value = self.get_pgf_time_segment(pgf_data_frame, sweep_number)
 				res = self.specific_calculation()
+
 				res = self.normalize_data(unit_name, normalization_values, data_table, res)
 				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val, duration_value, res,inc,experiment_name]],columns = column_names)
 				merged_all_results = pd.concat([merged_all_results,new_df])
