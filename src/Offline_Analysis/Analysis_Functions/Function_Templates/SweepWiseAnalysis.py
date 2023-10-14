@@ -144,7 +144,7 @@ class SweepWiseAnalysisTemplate(ABC):
 
 		# get the user defined normalization values -> were safed in the database, only allowed for voltage mode so far
 		if self.unit_name == "Voltage":
-			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
+			self.normalization_values = self.database.get_normalization_values(self.analysis_function_id)
 	
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
 		self.column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", self.unit_name, "Duration", "Result", "Increment","experiment_name"]
@@ -173,6 +173,7 @@ class SweepWiseAnalysisTemplate(ABC):
 
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
 			# adding the name would increase readibility of the database but also add a lot of redundant information
+
 			for column in entire_sweep_table:
 				self.data = entire_sweep_table.get(column)
 				
@@ -183,9 +184,9 @@ class SweepWiseAnalysisTemplate(ABC):
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
 				# add the prefix to the unit
-				for prefix in ['m','u','n','p']:
-					if abs(np.max(self.data))<1:
-						self.data = self.data*1000
+				#for prefix in ['m','u','n','p']:
+				#	if abs(np.max(self.data))<1:
+				#		self.data = self.data*1000
 				
 				# slice trace according to coursor bounds
 				self.construct_trace()

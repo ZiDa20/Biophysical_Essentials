@@ -434,18 +434,15 @@ class OfflinePlots():
         if agg:  # if agg - calculate the mean for each meta data group
             new_df = pd.DataFrame()
             for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
-                #print(m)
-                subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
-                subset.dropna(axis = 0, inplace = True)
+
+                subset = self.parent_widget.holded_dataframe[self.holded_dataframe["meta_data"]==m]
+                subset = subset.drop(columns=[col for col in subset.columns if col in df_names_to_drop])
                 tmp_dict = {}
-                # get rid of the last 3: since this is the experiment name, series identifier and meta data
-                for c in  self.statistics.columns[0:-3]: 
+                for c in  subset.columns: 
                     tmp_dict[c] = [np.mean(subset[c].values)]
-                #print(tmp_dict)
                 tmp_df = pd.DataFrame(tmp_dict)
-                #print(tmp_df)
                 new_df = pd.concat([new_df, tmp_df])
-                #print("new df ", new_df)
+
             drawing_data = new_df.T
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:

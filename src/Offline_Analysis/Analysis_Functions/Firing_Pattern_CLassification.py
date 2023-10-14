@@ -35,7 +35,7 @@ class FiringPatternCLassification(SweepWiseAnalysisTemplate):
 
         print("running firing pattern analysis ")
         # @todo: let the user define this threshold (also dependent on the sampling frequency)
-        height_threshold = 0
+        height_threshold = 0.001
         distance_threshold = 200
         number_of_subintervals = 4 # per default total and 4 smaller intervals are examined
         self.res_dict = {}
@@ -55,7 +55,7 @@ class FiringPatternCLassification(SweepWiseAnalysisTemplate):
 
             interval_signal = self.sliced_volt[start:end]
             interval_time = self.sliced_time[start:end]
-
+            print(np.max(interval_signal))
             peaks, _ = find_peaks(interval_signal, height=height_threshold)#, distance=distance_threshold)
             peak_y = interval_signal[peaks]
             peak_x = interval_time[peaks]
