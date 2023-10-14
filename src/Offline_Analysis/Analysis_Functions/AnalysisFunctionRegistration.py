@@ -34,7 +34,7 @@ class AnalysisFunctionRegistration():
         "Peak-Detection": PeakFinding,
         "CapacitanceMeasurements": CapacitanceMeasurements,
         "AreaUnderTheCurve": AreaUnderTheCurve,
-        "Firing-Pattern": FiringPatternCLassification
+        "Firing_Pattern": FiringPatternCLassification
     }
 
     @classmethod
@@ -104,4 +104,4 @@ class AnalysisFunctionRegistration():
                     "InputResistance", 
                     "Peak-Detection",
                     "AreaUnderTheCurve",
-                    "Firing-Pattern"] # "Cluster",
+                    "Firing_Pattern"] # "Cluster",

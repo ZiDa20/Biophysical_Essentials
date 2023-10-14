@@ -16,8 +16,8 @@ class FiringPatternCLassification(SweepWiseAnalysisTemplate):
     
     def __init__(self):
         super().__init__()
-        self.function_name = "RheoRamp-Detection"
-        self.plot_type_options = ["Rheoramp-AUC"]
+        self.function_name = "Firing_Pattern"
+        self.plot_type_options = ["Parameter-Heatmap"]
         
         
     def specific_calculation(self):
@@ -39,9 +39,6 @@ class FiringPatternCLassification(SweepWiseAnalysisTemplate):
         distance_threshold = 200
         number_of_subintervals = 4 # per default total and 4 smaller intervals are examined
         self.res_dict = {}
-        import debugpy
-        debugpy.breakpoint()
-
        
         interval_length = len(self.sliced_volt)//number_of_subintervals
         print(interval_length)
@@ -59,43 +56,44 @@ class FiringPatternCLassification(SweepWiseAnalysisTemplate):
             interval_signal = self.sliced_volt[start:end]
             interval_time = self.sliced_time[start:end]
 
-            peaks, _ = find_peaks(interval_signal, height=height_threshold, distance=distance_threshold)
+            peaks, _ = find_peaks(interval_signal, height=height_threshold)#, distance=distance_threshold)
             peak_y = interval_signal[peaks]
             peak_x = interval_time[peaks]
-            
+
             print(start)
             print(end)
             print("debug")
             # peak count
-            self.res_dict[prefix+"ap_count"] = len(peak_y)
+            n = prefix+"ap_count"
+            self.res_dict[n] = len(peak_y)
             # ap frequency
             self.res_dict[prefix+"ap_frequency"] = len(peak_y)/(np.max(interval_time)-np.min(interval_time)) * 1000 # to compensate for the milliseconds 
 
         print(self.res_dict)
-
-
-    def merge_lists_to_list_of_tuples(self,list1, list2):
-        """_summary_
+        res_df = pd.DataFrame([self.res_dict])
+        return res_df   
+    
+    def append_to_result_df(self,column:int, data_table:str, res:pd.DataFrame):
+        """append the new results for the specific data table and column to the existing result table for all the selected data
 
         Args:
-            list1 (_type_): _description_
-            list2 (_type_): _description_
+            column (int): sweep number
+            data_table (str): sweep_data table name
+            res (pd.DataFrame): data frame with the numerical results for each parameter (==column)
 
         Returns:
-            _type_: _description_
+            pd.DataFrame: concatted results of the so far analysed data
         """
-        return [(list1[i], list2[i]) for i in range(len(list1))]
-     
-   
-    def get_list_of_result_tables(self, analysis_id, analysis_function_id):
-        '''
-        reading all specific result table names from the database
-        '''
-        q = """select specific_result_table_name from results where analysis_id =(?) and analysis_function_id =(?) """
-        result_list = self.database.get_data_from_database(self.database.database, q,
-                                                           [analysis_id, analysis_function_id])
-        # print(analysis_id)
-        # print(analysis_function_id)
-        # print(q)
-        result_list = (list(zip(*result_list))[0])
-        return result_list
+        print("Firing Pattern Analysis Results")
+        sweep_number = column.split("_")
+        sweep_number = int(sweep_number[1])
+        #"", "",, , "Duration", "Result", "Increment","experiment_name"]
+        res["Analysis_ID"] = self.database.analysis_id
+        res["Function_Analysis_ID"] = self.analysis_function_id
+        res["Sweep_Table_Name"] = data_table
+        res[ "Sweep_Number"] = sweep_number
+        res[self.unit_name] = self.unit_name
+        res["experiment_name"] = self.experiment_name
+
+        merged_all_results = pd.concat([self.merged_all_results,res],ignore_index=True)
+        return merged_all_results

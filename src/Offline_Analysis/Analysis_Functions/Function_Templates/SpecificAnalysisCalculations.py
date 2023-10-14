@@ -107,11 +107,25 @@ class SpecificAnalysisFunctions():
         """
 
         plot_dataframe = database.database.execute(f'select * from {result_table[0]}').fetchdf()
-        plot_dataframe = plot_dataframe.dropna(axis = 0)
-        z_score = StandardScaler().fit_transform(plot_dataframe.iloc[:,0:-1].values)
-        z_score_df = pd.DataFrame(z_score, columns = plot_dataframe.iloc[:,0:-1].columns)
-        z_score_df["experiment_name"] = plot_dataframe.experiment_name
-        z_score_df["Sweep_Table_Name"] =plot_dataframe.Sweep_Table_Name
+        #plot_dataframe = plot_dataframe.dropna(axis = 0)
+        print(plot_dataframe.columns)
+        df_names_to_drop = ['Analysis_ID', 'Function_Analysis_ID', 'Sweep_Table_Name', 'Sweep_Number', 
+                            'Current', 'Duration', 'Result', 'Increment', 'experiment_name',
+                            'series_meta_data','analysis_id','experiment_label','species','genotype','sex','celltype','condition','individuum_id']
+        
+        z_df = plot_dataframe.drop(columns=[col for col in plot_dataframe.columns if col in df_names_to_drop])
+       
+        # Create a DataFrame with only the dropped columns
+        df_dropped = plot_dataframe[[col for col in plot_dataframe.columns if col in df_names_to_drop]]
+
+        # todo here: ap fitting/firing pattern header columns are not standardized
+        # z scaling can be only done for the non z scaled parameters
+        z_score = StandardScaler().fit_transform(z_df.values)
+        z_score_df = pd.DataFrame(z_score, columns = z_df.columns)
+
+        z_score_df = pd.concat([z_score_df,df_dropped],axis=1)
+        #z_score_df["experiment_name"] = plot_dataframe.experiment_name
+        #z_score_df["Sweep_Table_Name"] =plot_dataframe.Sweep_Table_Name
 
         return plot_dataframe, z_score_df
 

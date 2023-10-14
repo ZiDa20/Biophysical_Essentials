@@ -46,7 +46,7 @@ class OfflinePlots():
                                 "Rheobase Plot": self.rheobase_plot,
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
-                                "Action_Potential_Fitting": self.ap_fitting_plot,
+                                "Parameter-Heatmap": self.ap_fitting_plot,
                                 "Single_AP_Parameter": self.single_ap_parameter_plot,
                                 "Mean_Action_Potential_Fitting": self.mean_ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
@@ -398,6 +398,13 @@ class OfflinePlots():
             result_table_list (list): List of queried result tables
             agg (bool, optional): If True, the data will be aggregated by the selected meta data. Defaults to False.
         """
+
+
+        df_names_to_drop = ['Analysis_ID', 'Function_Analysis_ID', 'Sweep_Table_Name', 'Sweep_Number', 
+                            'Current', 'Duration', 'Result', 'Increment', 'experiment_name',
+                            'series_meta_data','analysis_id','experiment_label','species','genotype','sex','celltype','condition','individuum_id',"meta_data"]
+        
+     
         if not self.parent_widget.selected_meta_data:
             self.parent_widget.selected_meta_data = ["experiment_name"]
 
@@ -422,7 +429,8 @@ class OfflinePlots():
 
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
 
-
+        import debugpy 
+        debugpy.breakpoint()
         if agg:  # if agg - calculate the mean for each meta data group
             new_df = pd.DataFrame()
             for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
@@ -442,7 +450,9 @@ class OfflinePlots():
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
            # get rid of the last 3: since this is the experiment name, series identifier and meta data
-           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-3]].T
+           drawing_data = self.parent_widget.holded_dataframe.drop(columns=[col for col in self.parent_widget.holded_dataframe.columns if col in df_names_to_drop]).T
+           #drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-3]].T
+           print(drawing_data.columns)
            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
 
         self.parent_widget.canvas.figure.tight_layout()

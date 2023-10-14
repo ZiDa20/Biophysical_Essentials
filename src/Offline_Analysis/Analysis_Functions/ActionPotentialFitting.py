@@ -9,7 +9,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
     
     def __init__(self):
         super().__init__()
-        self.plot_type_options = ["Action_Potential_Fitting", "Mean_Action_Potential_Fitting", "PCA-Plot", "Single_AP_Parameter"]
+        self.plot_type_options = ["Parameter-Heatmap", "Mean_Action_Potential_Fitting", "PCA-Plot", "Single_AP_Parameter"]
         self.function_name = "Action_Potential_Fitting"
     
     def show_configuration_options(self):
@@ -254,6 +254,8 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         print(agg_table)
         new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id,
                                                                                     "AP_Fitting")
+        import debugpy
+        debugpy.breakpoint()
         self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
                                                                                 self.analysis_function_id,
                                                                                 data_table,

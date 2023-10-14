@@ -130,66 +130,81 @@ class SweepWiseAnalysisTemplate(ABC):
 
 	def calculate_results(self):
 		"""
-		iterate through each single sweep of all not discarded series in the database and save the calculated result
-		to a new database table.
-		:return:
+		This is a template function --> variables are intended to be global:
+		this is to allow further classes to override functions if needed 
+		
+		Calculate results iterates through each single sweep of all not discarded 
+		series in the database and save the calculated result to a new database table.		
 		"""
-		#debugpy.debug_this_thread()
-		data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
+		# get the names of the data tables that were affiliated with this analysis
+		self.data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
 
-		unit_name = self.get_current_recording_type()
-		normalization_values = None
-		if unit_name == "Voltage":
-			#get the user defined normalization values -> were safed in the database
+		self.unit_name = self.get_current_recording_type()
+		self.normalization_values = None
+
+		# get the user defined normalization values -> were safed in the database, only allowed for voltage mode so far
+		if self.unit_name == "Voltage":
 			normalization_values = self.database.get_normalization_values(self.analysis_function_id)
 	
-
 		# should assure that the time and bound setting will be only exeuted once since it is the same all the time
-		column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", unit_name, "Duration", "Result", "Increment","experiment_name"]
-		merged_all_results = pd.DataFrame(columns = column_names)
-		# get the pgf segment whic hwas selected by the user and stored in the db
+		self.column_names = ["Analysis_ID", "Function_Analysis_ID", "Sweep_Table_Name", "Sweep_Number", self.unit_name, "Duration", "Result", "Increment","experiment_name"]
+	
+		# get the pgf segment which was selected by the user
 		self.pgf_segment = self.database.database.execute(f'select pgf_segment from analysis_functions where analysis_function_id = {self.analysis_function_id}').fetchall()[0][0]
 
-		for data_table in data_table_names:
-			experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,data_table)
+		# reset theresults dataframe: results for each datatable will be appended 
+		self.merged_all_results = pd.DataFrame(columns = self.column_names)
+		
+		# iterate through each datatable name, query and slice the data, execute the analysis function and write back the result to the db
+		for data_table in self.data_table_names:
+			# get the experiment name
+			self.experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,data_table)
+			# get the raw data in a pandas df: each column represent a sweep trace
 			entire_sweep_table = self.database.get_entire_sweep_table(data_table)
+			
 			if self.time is None:
 				self.time = self.database.get_time_in_ms_of_by_sweep_table_name(data_table)
-			#set the current_time if it changes
+			
+			# set the current_time which is identical for each sweep
 			self.set_current_time_shape(entire_sweep_table,data_table)
-			# pgf table is also just once per data_table and not per sweep
-			pgf_data_frame = self.database.get_entire_pgf_table(data_table)
+			
+			# pgf table is also identical for each sweep
+			self.pgf_data_frame = self.database.get_entire_pgf_table(data_table)
 
 			# added function id since it can be that one selects 2x e.g. max_current and the ids are linked to the coursor bounds too
-			# adding the name would increase readibility of the database ut also add a lot of redundant information
+			# adding the name would increase readibility of the database but also add a lot of redundant information
 			for column in entire_sweep_table:
 				self.data = entire_sweep_table.get(column)
-				sweep_number = column.split("_")
-				sweep_number = int(sweep_number[1])
+				
 				# This is the hickup why we have to use
-				import debugpy
-				debugpy.breakpoint()
-				if unit_name != "Voltage":
+
+				if self.unit_name != "Voltage":
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
+				# add the prefix to the unit
 				for prefix in ['m','u','n','p']:
 					if abs(np.max(self.data))<1:
 						self.data = self.data*1000
-										# slice trace according to coursor bounds
+				
+				# slice trace according to coursor bounds
 				self.construct_trace()
 				self.slice_trace()
-				self.duration_list, inc, volt_val, duration_value = self.get_pgf_time_segment(pgf_data_frame, sweep_number)
 				res = self.specific_calculation()
+				self.merged_all_results = self.append_to_result_df(column,data_table,res)
 
-				res = self.normalize_data(unit_name, normalization_values, data_table, res)
-				new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val, duration_value, res,inc,experiment_name]],columns = column_names)
-				merged_all_results = pd.concat([merged_all_results,new_df])
-    
 		# initalize the writing of the new table
-		self.write_and_update_database_with_result(data_table, merged_all_results)
-		
-  
+		self.write_and_update_database_with_result(data_table,self.merged_all_results)
+
+	def append_to_result_df(self,column, data_table, res):
+			sweep_number = column.split("_")
+			sweep_number = int(sweep_number[1])
+			self.duration_list, inc, volt_val, duration_value = self.get_pgf_time_segment(self.pgf_data_frame, sweep_number)	
+			res = self.normalize_data(self.unit_name, self.normalization_values, data_table, res)
+			new_df = pd.DataFrame([[self.database.analysis_id,self.analysis_function_id,data_table,sweep_number,volt_val, duration_value, res,inc,self.experiment_name]],columns = self.column_names)
+			merged_all_results = pd.concat([self.merged_all_results,new_df])
+			return merged_all_results
+	
 	def write_and_update_database_with_result(self, data_table: str, merged_all_results: pd.DataFrame):
 		"""_summary_
 
