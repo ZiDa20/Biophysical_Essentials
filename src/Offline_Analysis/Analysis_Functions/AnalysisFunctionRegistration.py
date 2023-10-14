@@ -13,6 +13,7 @@ from Offline_Analysis.Analysis_Functions.CapacitanceMeasure import CapacitanceMe
 from Offline_Analysis.Analysis_Functions.AreaUnderTheCurve import AreaUnderTheCurve
 from Offline_Analysis.Analysis_Functions.Rheoramp_Detection import RheorampDetection
 from Offline_Analysis.Analysis_Functions.Firing_Pattern_CLassification import FiringPatternCLassification
+from Offline_Analysis.Analysis_Functions.PCA import PCA
 
 
 class AnalysisFunctionRegistration():
@@ -34,7 +35,8 @@ class AnalysisFunctionRegistration():
         "Peak-Detection": PeakFinding,
         "CapacitanceMeasurements": CapacitanceMeasurements,
         "AreaUnderTheCurve": AreaUnderTheCurve,
-        "Firing_Pattern": FiringPatternCLassification
+        "Firing_Pattern": FiringPatternCLassification,
+        "PCA":PCA
     }
 
     @classmethod

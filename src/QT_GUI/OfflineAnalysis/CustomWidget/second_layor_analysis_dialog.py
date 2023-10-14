@@ -68,6 +68,7 @@ class Ui_Dialog(object):
         self.second_layer_analysis_functions = QComboBox(self.groupBox)
         self.second_layer_analysis_functions.addItem("")
         self.second_layer_analysis_functions.addItem("")
+        self.second_layer_analysis_functions.addItem("")
         self.second_layer_analysis_functions.setObjectName(u"second_layer_analysis_functions")
 
         self.gridLayout_2.addWidget(self.second_layer_analysis_functions, 1, 0, 1, 1)
@@ -96,8 +97,9 @@ class Ui_Dialog(object):
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Results from which first layer analysis should be considered for the second layer analysis function ?", None))
         self.groupBox.setTitle(QCoreApplication.translate("Dialog", u"Select Second Layer Analysis Function", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Which function do you want to execute", None))
-        self.second_layer_analysis_functions.setItemText(0, QCoreApplication.translate("Dialog", u"IV-Boltzmann Fitting", None))
-        self.second_layer_analysis_functions.setItemText(1, QCoreApplication.translate("Dialog", u"Hill-Curve", None))
+        self.second_layer_analysis_functions.setItemText(0, QCoreApplication.translate("Dialog", u"PCA", None))
+        self.second_layer_analysis_functions.setItemText(1, QCoreApplication.translate("Dialog", u"IV-Boltzmann Fitting", None))
+        self.second_layer_analysis_functions.setItemText(2, QCoreApplication.translate("Dialog", u"Hill-Curve", None))
 
         self.label.setText(QCoreApplication.translate("Dialog", u"Welcome to the second layer analysis function selection", None))
     # retranslateUi

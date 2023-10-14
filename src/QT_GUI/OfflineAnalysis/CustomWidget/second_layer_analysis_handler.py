@@ -5,7 +5,8 @@ from PySide6.QtCore import *  # type: ignore
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
-
+from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
+import seaborn as sns
 class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
 
     def __init__(self, database_handler, offline_tree, parent=None):
@@ -31,10 +32,43 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
         """This function is called when the user clicks on the run button. It will execute the function selected in the second layer analysis function combobox.
         """
         function_to_execute = self.second_layer_analysis_functions.currentText()
+        if function_to_execute == "PCA":
+            self.principle_component_analysis()
         if function_to_execute == "IV-Boltzmann Fitting":
            self.make_iv_boltzmann_fitting()
         else:
            print("Not implemented yet")
+
+    def principle_component_analysis(self):
+       
+       analysis_function_tuple = self.name_tuple_mapping[self.first_layer_analysis_functions.currentText()]
+
+       table_name = "results_analysis_function_"+str(analysis_function_tuple[1])+"_"+analysis_function_tuple[0]
+             
+       plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc([table_name], self.database_handler)
+       
+       sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe)
+       #self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
+       #self.parent_widget.canvas.draw_idle()
+       #self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
+       #self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        # insert the fitting analysis
+       q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
+       self.database_handler.database.execute(q, ("PCA",self.series_name,self.database_handler.analysis_id,-1,-1,-1))
+
+       # get the db id of the inserted fitting
+       new_id = self.database_handler.get_last_inserted_analysis_function_id()
+       new_table_name = "results_analysis_function_"+str(new_id)+"_PCA"
+
+       # write the results in to the database
+       self.database_handler.database.register(new_table_name, plot_dataframe)
+       self.database_handler.database.execute(f'CREATE TABLE {new_table_name} AS SELECT * FROM {new_table_name}')
+
+       # and now the link of each experiment name and the sweep table name to analysis id and analysis function id in the results table
+       q = """insert into  results values (?,?,?,?) """
+    
+       for data_table_name in plot_dataframe["Sweep_Table_Name"].values:
+           self.database_handler.database.execute(q, (self.database_handler.analysis_id, new_id,data_table_name,new_table_name))
 
     def make_iv_boltzmann_fitting(self):
        """boltzmann fitting is performed to model voltage-dependent behavior of ion channels and receptors

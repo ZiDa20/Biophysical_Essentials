@@ -429,8 +429,6 @@ class OfflinePlots():
 
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
 
-        import debugpy 
-        debugpy.breakpoint()
         if agg:  # if agg - calculate the mean for each meta data group
             new_df = pd.DataFrame()
             for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
