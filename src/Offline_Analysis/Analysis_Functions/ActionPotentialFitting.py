@@ -254,8 +254,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         print(agg_table)
         new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id,
                                                                                     "Action_Potential_Fitting")
-        import debugpy
-        debugpy.breakpoint()
+        
         self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
                                                                                 self.analysis_function_id,
                                                                                 data_table,

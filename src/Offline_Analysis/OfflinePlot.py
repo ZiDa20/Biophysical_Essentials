@@ -556,8 +556,10 @@ class OfflinePlots():
             self.logger.info("Simple Plot with voltage steps")
             self.logger.info(plot_dataframe)
             try:
-               #g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
-                g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+                if "meta_data" in plot_dataframe.columns:
+                   g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+                else:
+                    g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
             except Exception as e:
                 g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
                 # errorbar=("se", 2) not working with the current seaborn version

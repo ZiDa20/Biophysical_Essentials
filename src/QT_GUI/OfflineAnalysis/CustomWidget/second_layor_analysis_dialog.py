@@ -46,10 +46,10 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_3, 0, 0, 1, 1)
 
-        self.first_layer_analysis_functions = QComboBox(self.groupBox_2)
-        self.first_layer_analysis_functions.setObjectName(u"first_layer_analysis_functions")
+        self.checkbox_grid_layout = QGridLayout()
+        self.checkbox_grid_layout.setObjectName(u"checkbox_grid_layout")
 
-        self.gridLayout_3.addWidget(self.first_layer_analysis_functions, 1, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.checkbox_grid_layout, 1, 0, 1, 1)
 
 
         self.gridLayout.addWidget(self.groupBox_2, 2, 0, 1, 2)

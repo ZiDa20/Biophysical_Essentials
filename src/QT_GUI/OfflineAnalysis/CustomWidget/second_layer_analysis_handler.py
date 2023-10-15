@@ -3,6 +3,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.second_layor_analysis_dialog import Ui_
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import *  # type: ignore
 import numpy as np
+import pandas as pd
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
@@ -24,10 +25,21 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
         analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.series_name)
         self.name_tuple_mapping = {}
 
-        self.first_layer_analysis_functions.addItem(f"All")
+        # Replace QComboBox with checkboxes
+        self.checkboxes = []  # Keep track of checkboxes
+        #self.checkbox_all = QCheckBox("All")
+        #self.checkbox_all.setChecked(True)  # Set default state to checked
+        #self.checkbox_grid_layout.addWidget(self.checkbox_all)
+        #self.checkboxes.append(self.checkbox_all)
+
         for tuple in analysis_function_tuple:
-            self.first_layer_analysis_functions.addItem(f"Analysis: {tuple[1]}, {tuple[0]}")
+            checkbox = QCheckBox(f"Analysis: {tuple[1]}, {tuple[0]}")
+            self.checkbox_grid_layout.addWidget(checkbox)
+            self.checkboxes.append(checkbox)
             self.name_tuple_mapping[f"Analysis: {tuple[1]}, {tuple[0]}"] = tuple
+
+        
+        self.checkboxes[0].setChecked(True)  # Set default state to checked
 
     def run_second_layer_analysis(self):
         """This function is called when the user clicks on the run button. It will execute the function selected in the second layer analysis function combobox.
@@ -61,20 +73,44 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
         self.offline_tree.offline_analysis_result_tree_item_clicked()
         self.close()
 
-    def principle_component_analysis(self):
-       
-       analysis_function_tuple = self.name_tuple_mapping[self.first_layer_analysis_functions.currentText()]
+    def get_checked_analysis_functions(self):
+        checked_items = [checkbox.text() for checkbox in self.checkboxes if checkbox.isChecked()]
+        print("Checked Items:", checked_items)
+        return checked_items
 
-       table_name = "results_analysis_function_"+str(analysis_function_tuple[1])+"_"+analysis_function_tuple[0]
-             
-       plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc([table_name], self.database_handler)
+    def principle_component_analysis(self):
+       df_names_to_drop = ['Analysis_ID', 'Function_Analysis_ID', 'Sweep_Table_Name', 'Sweep_Number', 
+                            'Duration', 'Increment', 'series_meta_data','analysis_id',
+                            'experiment_label','species','genotype','sex','celltype','condition','individuum_id']
+      
+       # removed on purpose 'Current','Voltage' and 'experiment_name'
        
-       sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe)
-       #self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
-       #self.parent_widget.canvas.draw_idle()
-       #self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
-       #self.parent_widget.statistics = self.parent_widget.holded_dataframe
-        # insert the fitting analysis
+       analysis_function_list = self.get_checked_analysis_functions()
+
+       if len(analysis_function_list) == 1:
+           analysis_function_tuple = self.name_tuple_mapping[analysis_function_list[0]]
+           table_name = "results_analysis_function_"+str(analysis_function_tuple[1])+"_"+analysis_function_tuple[0]
+           
+           plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc([table_name], self.database_handler)
+       else:
+           concatted_result_table = pd.DataFrame()
+           for analysis in analysis_function_list:
+               analysis_function_tuple = self.name_tuple_mapping[analysis]
+               table_name = "results_analysis_function_"+str(analysis_function_tuple[1])+"_"+analysis_function_tuple[0]
+               res_df = self.database_handler.database.execute(f'select * from {table_name}').fetchdf()
+              
+               reduced_df = res_df.drop(columns=[col for col in res_df.columns if col in df_names_to_drop])
+        
+               # column result should be renamed in smth like "result_analysis_function_id_100"
+               # results must be merged by experiment name 
+               
+               if concatted_result_table.empty:
+                   concatted_result_table = reduced_df
+               else:
+                   concatted_result_table = pd.merge(concatted_result_table,res_df,on=["experiment_name","Voltage"],how="left")
+           concatted_result_table.reset_index()
+           plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc("", self.database_handler,concatted_result_table)
+
        q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
        self.database_handler.database.execute(q, ("PCA",self.series_name,self.database_handler.analysis_id,-1,-1,-1))
 
