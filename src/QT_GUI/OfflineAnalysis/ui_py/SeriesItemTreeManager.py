@@ -378,6 +378,10 @@ class SeriesItemTreeWidget():
     def set_ribbon_bar_page(self,page_index):
         self.find_widget_by_name(self.ribbon_bar,"ribbon_series_normalization").setCurrentIndex(page_index)
         self.find_widget_by_name(self.ribbon_bar,"ribbon_analysis").setCurrentIndex(page_index)
+        if page_index > 1:
+            self.find_widget_by_name(self.ribbon_bar,"ribbon_plot_options").setCurrentIndex(1)
+        else:
+            self.find_widget_by_name(self.ribbon_bar,"ribbon_plot_options").setCurrentIndex(0)
     
     
     def find_widget_by_name(self, parent:object, name:str):

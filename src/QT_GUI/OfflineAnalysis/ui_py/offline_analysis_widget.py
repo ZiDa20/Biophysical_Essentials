@@ -133,8 +133,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         d = Second_Layor_Analysis_Functions(self.database_handler,self.result_visualizer)
         self.frontend_style.set_pop_up_dialog_style_sheet(d)
         d.exec()
-
-
     
 
     def grid_button_clicked(self, grid:bool):
@@ -1238,6 +1236,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # update the stacked widget to show the correct button
         self.ribbon_analysis.setCurrentIndex(current_index)
         self.ribbon_series_normalization.setCurrentIndex(current_index)
+
 
     def reset_class(self, new_analysis = True):
         """resets the class to its orignal point and adds a new 
