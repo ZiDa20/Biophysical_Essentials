@@ -4,8 +4,13 @@ import math
 from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis import *
 
 class PCA(SweepWiseAnalysisTemplate):
-    
-    
+    """ Second level analysis function, 
+    Run the Principle component analysis on the data and plot the results
+
+    Args:
+        SweepWiseAnalysisTemplate (_type_): _description_
+    """
+
     def __init__(self):
         super().__init__()
         self.plot_type_options =  ["PCA-Plot"]

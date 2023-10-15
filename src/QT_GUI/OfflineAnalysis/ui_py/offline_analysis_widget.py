@@ -130,7 +130,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def show_second_layor_analysis(self):
         """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
         """
-        d = Second_Layor_Analysis_Functions(self.database_handler,self.offline_tree)
+        d = Second_Layor_Analysis_Functions(self.database_handler,self.result_visualizer)
+        self.frontend_style.set_pop_up_dialog_style_sheet(d)
         d.exec()
 
 

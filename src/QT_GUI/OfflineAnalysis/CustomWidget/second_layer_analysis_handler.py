@@ -9,7 +9,7 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalc
 import seaborn as sns
 class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
 
-    def __init__(self, database_handler, offline_tree, parent=None):
+    def __init__(self, database_handler, result_visualizer, parent=None):
         
         super().__init__(parent)
         self.setupUi(self)
@@ -18,7 +18,8 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
         self.cancel.clicked.connect(self.close)
         self.run_second_layer_analysis_function.clicked.connect(self.run_second_layer_analysis)
         
-        self.offline_tree = offline_tree
+        self.result_visualizer = result_visualizer
+        self.offline_tree = self.result_visualizer.offline_tree
         self.series_name = self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole)
         analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.series_name)
         self.name_tuple_mapping = {}
@@ -38,6 +39,27 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
            self.make_iv_boltzmann_fitting()
         else:
            print("Not implemented yet")
+
+        # once the function is executed, the offline tab for this specific series only needs to be re-generated
+        offline_tab = self.result_visualizer.analysis_function_specific_visualization(self.series_name,self.database_handler.analysis_id)
+        # now add the plot to the tree 
+        if self.offline_tree.SeriesItems.currentItem().child(0):
+            parent_item = self.offline_tree.SeriesItems.currentItem()
+        else:
+            parent_item = self.offline_tree.SeriesItems.currentItem().parent()
+
+        print(parent_item.text(0))
+
+        """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
+        self.offline_tree.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
+        analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
+        analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
+        self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
+        """simulate click on  "Plot" children """
+        self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
+        #execute the click and all should be done
+        self.offline_tree.offline_analysis_result_tree_item_clicked()
+        self.close()
 
     def principle_component_analysis(self):
        
