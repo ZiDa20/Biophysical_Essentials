@@ -134,48 +134,46 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
        """ 
        # get the analysis function and id and the name to query the correct table
 
-       if self.first_layer_analysis_functions.currentText() == "All":
-           print("not implemented")
-       else:
-           analysis_function_tuple = self.name_tuple_mapping[self.first_layer_analysis_functions.currentText()]
+       analysis_function_list = self.get_checked_analysis_functions()
        
+       # for now only one at a time is possible
+       if len(analysis_function_list) != 1:
+           print("Please select only one analysis function")
+           return
+       
+       analysis_function_tuple = self.name_tuple_mapping[analysis_function_list[0]]
        table_name = "results_analysis_function_"+str(analysis_function_tuple[1])+"_"+analysis_function_tuple[0]
        result_df = self.database_handler.database.execute(f"select * from {table_name}").fetchdf()
-
-
+       
        # insert the fitting analysis
-       q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
-       self.database_handler.database.execute(q, ("IV-Boltzmann Fitting",self.series_name,self.database_handler.analysis_id,-1,-1,-1))
+       #q = """insert into analysis_functions (function_name, analysis_series_name, analysis_id,lower_bound,upper_bound,pgf_segment) values (?,?,?,?,?,?)"""
+       #self.database_handler.database.execute(q, ("IV-Boltzmann Fitting",self.series_name,self.database_handler.analysis_id,-1,-1,-1))
 
        
        # get the db id of the inserted fitting
-       new_id = self.database_handler.get_last_inserted_analysis_function_id()
-       new_table_name = "results_analysis_function_"+str(new_id)+"_IV-Boltzmann Fitting"
-
-       # make an initial guess:
-       initial_guess = [-50,10]
-       pos = 0
+       #new_id = self.database_handler.get_last_inserted_analysis_function_id()
+       #new_table_name = "results_analysis_function_"+str(new_id)+"_IV-Boltzmann Fitting"
+       fitting_result_df = pd.DataFrame(columns=("sweep_table_name","v_r_fit","g_max_fit","v_50_fit","k_fit"))
        for t in result_df["Sweep_Table_Name"].unique():
 
             tmp = result_df[result_df["Sweep_Table_Name"] == t]
-            tmp = tmp.sort_values(by='Voltage', ascending=False)
-            
-            voltage_steps = tmp["Voltage"].values
-            conductance = 1/tmp["Result"].values
-            # params[0] = v-half-fit, params[1] = k-fit
-            params, params_covariance = curve_fit(self.boltzman_fit, voltage_steps, conductance, p0=initial_guess)
+            tmp = tmp.sort_values(by='Voltage', ascending=True)
 
+            voltage = tmp["Voltage"].values
+            current = tmp["Result"].values
+            # Fit the current-voltage relationship to the data
+            params, covariance = curve_fit(self.iv_curve, voltage,current, p0=[-70.0, 1.0, 0.0, 10.0])
+
+            # Extract the fitted parameters
+            v_r_fit, g_max_fit, v_50_fit, k_fit = params          
+            new_df = pd.DataFrame({"sweep_table_name":[t],
+                                   "v_r_fit":[v_r_fit],
+                                   "g_max_fit":[g_max_fit],"v_50_fit":[v_50_fit],"k_fit":[k_fit]})
+            fitting_result_df = pd.concat([fitting_result_df,new_df])
             print(params)
-            print(params_covariance)
-
-            # Create a figure and set the title
-            voltage_fit = np.linspace(min(voltage_steps),max(voltage_steps), 50)
-            current_fit = self.boltzman_fit(voltage_fit, params[0], params[1])
-            pos += 1
-            plt.subplot(120+pos)
-            plt.plot(voltage_fit,current_fit)
-            plt.show()
-    
-    
-    def boltzman_fit(self,V,V_half,k):
-        return 1/(1+np.exp((V_half-V)/k))
+        
+       print("done")
+       
+    # Define the current-voltage relationship function
+    def iv_curve(self,v, v_r, g_max, v_50, k):
+        return (v - v_r) * (g_max / (1 + np.exp((v_50 - v) / k)))
