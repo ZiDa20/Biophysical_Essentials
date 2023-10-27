@@ -286,6 +286,9 @@ QToolTip[objectName="show_pgf_trace"] {{color: #ffffff; background-color: #00000
 QPushButton[objectName="turn_off_grid"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/grid.png);}}
 QToolTip[objectName="turn_off_grid"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="make_screenshot"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/screenshot.png);}}
+QToolTip[objectName="make_screenshot"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
 QPushButton[objectName="experiment_to_csv"]{{background-image: url(../QT_GUI/Button/light_mode/offline_analysis/light_experiment_save.png);}}
 QToolTip[objectName="experiment_to_csv"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
@@ -353,7 +356,6 @@ QToolButton[objectName="offline_analysis_home_2"]{{ qproperty-icon: url(../QT_GU
 QToolButton[objectName="home_logo"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/online_welcome.png);}}
 QToolButton[objectName="configuration_home_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/configure_experiment_welcome.png);}}
 QToolButton[objectName="toolButton_2"]{{ qproperty-icon: url(../QT_GUI/Button/welcome_page/settings_welcome.png);}}
-
 
 QPushButton[objectName="go_to_online"]{{background-image: url(../QT_GUI/Button/Experimentator/light_mode/online_light.png);}}
 QToolTip[objectName="go_to_online"] {{color: #ffffff; background-color: #000000; border: 0px; }}

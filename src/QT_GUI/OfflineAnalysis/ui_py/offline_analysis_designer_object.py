@@ -99,6 +99,13 @@ class Ui_Offline_Analysis(object):
 
         self.PlotOptions.addWidget(self.plot_home, 0, 0, 1, 1)
 
+        self.turn_off_grid = QPushButton(self.PlotGroup)
+        self.turn_off_grid.setObjectName(u"turn_off_grid")
+        self.turn_off_grid.setMinimumSize(QSize(30, 30))
+        self.turn_off_grid.setMaximumSize(QSize(30, 30))
+
+        self.PlotOptions.addWidget(self.turn_off_grid, 0, 3, 1, 1)
+
         self.plot_move = QPushButton(self.PlotGroup)
         self.plot_move.setObjectName(u"plot_move")
         self.plot_move.setMinimumSize(QSize(30, 30))
@@ -108,13 +115,6 @@ class Ui_Offline_Analysis(object):
 
         self.PlotOptions.addWidget(self.plot_move, 0, 2, 1, 1)
 
-        self.turn_off_grid = QPushButton(self.PlotGroup)
-        self.turn_off_grid.setObjectName(u"turn_off_grid")
-        self.turn_off_grid.setMinimumSize(QSize(30, 30))
-        self.turn_off_grid.setMaximumSize(QSize(30, 30))
-
-        self.PlotOptions.addWidget(self.turn_off_grid, 0, 3, 1, 1)
-
         self.plot_zoom = QPushButton(self.PlotGroup)
         self.plot_zoom.setObjectName(u"plot_zoom")
         self.plot_zoom.setMinimumSize(QSize(30, 30))
@@ -123,6 +123,13 @@ class Ui_Offline_Analysis(object):
         self.plot_zoom.setStyleSheet(u"")
 
         self.PlotOptions.addWidget(self.plot_zoom, 0, 1, 1, 1)
+
+        self.make_screenshot = QPushButton(self.PlotGroup)
+        self.make_screenshot.setObjectName(u"make_screenshot")
+        self.make_screenshot.setMinimumSize(QSize(30, 30))
+        self.make_screenshot.setMaximumSize(QSize(30, 30))
+
+        self.PlotOptions.addWidget(self.make_screenshot, 0, 5, 1, 1)
 
 
         self.gridLayout_16.addLayout(self.PlotOptions, 0, 0, 1, 1)
@@ -771,15 +778,16 @@ class Ui_Offline_Analysis(object):
         self.plot_home.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Recenter</span></p><p>Remove zoom or cut out </p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.plot_home.setText("")
+        self.turn_off_grid.setText("")
 #if QT_CONFIG(tooltip)
         self.plot_move.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Move </span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.plot_move.setText("")
-        self.turn_off_grid.setText("")
 #if QT_CONFIG(tooltip)
         self.plot_zoom.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Zoom in </span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.plot_zoom.setText("")
+        self.make_screenshot.setText("")
         self.groupBox_10.setTitle(QCoreApplication.translate("Offline_Analysis", u"Result Meta Data", None))
         self.plot_meta.setText("")
         self.groupBox_9.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))

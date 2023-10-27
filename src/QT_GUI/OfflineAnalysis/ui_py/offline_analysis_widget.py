@@ -112,7 +112,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # this should be transfer to the plot manager
         # and called with the connected elements
 
-        self.add_filter_button.clicked.connect(self.open_filter_dialog)
+        self.add_filter_button.clicked.connect(self.open_filter_dialog)#
+        self.make_screenshot.clicked.connect(self.save_data_trace_as_image)
         self.filter_dialog = None
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
@@ -233,6 +234,19 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
         self.filter_dialog.show()
+
+    def save_data_trace_as_image(self):
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+        else:
+            plot_widget_manager = self.blank_analysis_plot_manager
+        
+        file_filter = "Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
+        result_path = QFileDialog.getSaveFileName(filter=file_filter)[0]
+        plot_widget_manager.canvas.print_figure(result_path)
+        self.logger.info("Saved plot as image succesfully")
+
 
     def apply_filter_selection(self):
 
