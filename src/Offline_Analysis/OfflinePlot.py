@@ -5,6 +5,9 @@ import numpy as np
 from matplotlib.cm import get_cmap
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 from loggers.offlineplot_logger import offlineplot_logger
+from mplcursors import cursor
+import matplotlib.pyplot as plt
+
 class OfflinePlots():
 
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
@@ -527,6 +530,7 @@ class OfflinePlots():
 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
         self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
+
         self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
@@ -649,12 +653,33 @@ class OfflinePlots():
         plot_dataframe needs to have the columns PC1 and PC2
         explaind_ratios is a list of the explained ratios of the first two components"""
 
-        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
+        scatter_plot = sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
+        
         if explaind_ratios:
-            self.parent_widget.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
-            self.parent_widget.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
+            self.parent_widget.ax.set_xlabel(f"PC1: {str(round(explaind_ratios[0],3))}")
+            self.parent_widget.ax.set_ylabel(f"PC2: {str(round(explaind_ratios[1],3))}")
         sns.move_legend(self.parent_widget.ax, "upper left", bbox_to_anchor=(1, 1))
+       
+        # Add hover information using mplcursors
+        scatter_cursor = cursor(scatter_plot, hover=True)
+        
+        scatter_cursor.connect("add", lambda sel: sel.annotation.set_text(
+            f"Experiment: {plot_dataframe['experiment_name'].iloc[sel.index]}\n"
+        ))
+
+        # Customize the appearance of the hover box using sel
+        scatter_cursor.connect("add", lambda sel: sel.annotation.set_bbox(
+            dict(boxstyle='round', facecolor='white', edgecolor='black')
+        ))
+
         self.parent_widget.canvas.figure.tight_layout()
+
+    
+
+
+         # Add hoverinfo using ax.text
+        #for index, row in plot_dataframe.iterrows():
+        #    self.parent_widget.ax.text(row["PC1"], row["PC2"], f"{row['experiment_name']}\nPC1: {row['PC1']}\nPC2: {row['PC2']}", fontsize=8)
 
 
     def line_boxplot(self, plot_dataframe: pd.DataFrame):
