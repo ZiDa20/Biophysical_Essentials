@@ -119,6 +119,9 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
             
+            if analysis_name != "Action_Potential_Fitting":
+                self.clear_plot_type_parameter_selection_layout(custom_plot_widget)
+
             # fill the plot widget with analysis specific data
             self.single_analysis_visualization(custom_plot_widget)
             
@@ -128,13 +131,27 @@ class OfflineAnalysisResultVisualizer():
 
             self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
             self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
+           
+            custom_plot_widget.specific_plot_box.adjustSize()
+            
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
+
             parent_list.append(custom_plot_widget)
 
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
         return offline_tab
+    
+    def clear_plot_type_parameter_selection_layout(self,custom_plot_widget):
+        custom_plot_widget.plot_type.deleteLater()
+        custom_plot_widget.plot_type_combo_box.deleteLater()
+        custom_plot_widget.parameter_label.deleteLater()
+        custom_plot_widget.parameter_combobox.deleteLater()
+        custom_plot_widget.gridLayout_5.removeItem(custom_plot_widget.horizontalSpacer)
+        custom_plot_widget.line.deleteLater()
+        
+
 
     def open_meta_data(self):
         """_summary_: This opens the meta data from the selected meta data table to
@@ -232,9 +249,8 @@ class OfflineAnalysisResultVisualizer():
             # create a new plot and insert it into the already exsiting plot layout
             self.logger.info("Creating a new plot widget")
             parent_widget.canvas = FigureCanvas(Figure())
-            parent_widget.canvas.setMinimumSize(500, 500)  # set minimum size for the canvas
-            parent_widget.canvas.setMaximumSize(1000, 500)
-
+            parent_widget.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+ 
             self.scroll_area = QScrollArea()
             self.scroll_layout = QGridLayout()
             self.scroll_layout.addWidget(parent_widget.canvas)

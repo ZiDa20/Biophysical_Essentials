@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'specific_visualization_plot.ui'
+## Form generated from reading UI file 'specific_visualization_plot_update.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.1.1
+## Created by: Qt User Interface Compiler version 6.5.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
+    QGroupBox, QLabel, QPushButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_result_plot_visualizer(object):
     def setupUi(self, result_plot_visualizer):
         if not result_plot_visualizer.objectName():
             result_plot_visualizer.setObjectName(u"result_plot_visualizer")
-        result_plot_visualizer.resize(757, 757)
+        result_plot_visualizer.resize(779, 624)
         self.gridLayout = QGridLayout(result_plot_visualizer)
         self.gridLayout.setObjectName(u"gridLayout")
         self.specific_plot_box = QGroupBox(result_plot_visualizer)
@@ -26,7 +33,8 @@ class Ui_result_plot_visualizer(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.specific_plot_box.sizePolicy().hasHeightForWidth())
         self.specific_plot_box.setSizePolicy(sizePolicy)
-        self.specific_plot_box.setMaximumSize(QSize(16777215,900))
+        self.specific_plot_box.setMinimumSize(QSize(0, 600))
+        self.specific_plot_box.setMaximumSize(QSize(16777215, 800))
         self.gridLayout_2 = QGridLayout(self.specific_plot_box)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_4 = QGridLayout()
@@ -39,6 +47,7 @@ class Ui_result_plot_visualizer(object):
         sizePolicy1.setHeightForWidth(self.save_plot_button.sizePolicy().hasHeightForWidth())
         self.save_plot_button.setSizePolicy(sizePolicy1)
         self.save_plot_button.setMinimumSize(QSize(150, 50))
+        self.save_plot_button.setMaximumSize(QSize(16777215, 50))
         font = QFont()
         font.setPointSize(12)
         self.save_plot_button.setFont(font)
@@ -56,7 +65,7 @@ class Ui_result_plot_visualizer(object):
         sizePolicy1.setHeightForWidth(self.export_data_button.sizePolicy().hasHeightForWidth())
         self.export_data_button.setSizePolicy(sizePolicy1)
         self.export_data_button.setMinimumSize(QSize(150, 50))
-        self.export_data_button.setMaximumSize(QSize(25, 16777215))
+        self.export_data_button.setMaximumSize(QSize(25, 50))
         self.export_data_button.setFont(font)
         self.export_data_button.setStyleSheet(u"\n"
 "background-color: rgba(255,255,255,0);\n"
@@ -82,7 +91,8 @@ class Ui_result_plot_visualizer(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy2)
-        self.widget.setMinimumSize(QSize(0, 400))
+        self.widget.setMinimumSize(QSize(0, 0))
+        self.widget.setMaximumSize(QSize(16777215, 700))
         self.widget.setStyleSheet(u"border-radius: 5px;")
         self.gridLayout_3 = QGridLayout(self.widget)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
@@ -161,6 +171,4 @@ class Ui_result_plot_visualizer(object):
         self.parameter_label.setText(QCoreApplication.translate("result_plot_visualizer", u"Parameter", None))
         self.plot_type.setText(QCoreApplication.translate("result_plot_visualizer", u"Plot Type:", None))
     # retranslateUi
-
-
 
