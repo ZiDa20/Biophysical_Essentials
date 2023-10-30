@@ -131,7 +131,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     def show_second_layor_analysis(self):
         """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
         """
-        d = Second_Layor_Analysis_Functions(self.database_handler,self.result_visualizer)
+        d = Second_Layor_Analysis_Functions(self.database_handler,self.result_visualizer,self.frontend_style)
         self.frontend_style.set_pop_up_dialog_style_sheet(d)
         d.exec()
     
@@ -1034,20 +1034,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         print(parent_item.text(0))
 
-        offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
-                                                                                   parent_item.data(6, Qt.UserRole))
+        try:
+            offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
+                                                                                    parent_item.data(6, Qt.UserRole))
 
-        """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
-        self.offline_tree.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
-        analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
-        analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
-        self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
-        """simulate click on  "Plot" children """
-        self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
+            """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
+            self.offline_tree.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
+            analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
+            analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
+            self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
+            """simulate click on  "Plot" children """
+            self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
 
-        if write_data:
-            self.offline_tree.offline_analysis_result_tree_item_clicked()
-
+            if write_data:
+                self.offline_tree.offline_analysis_result_tree_item_clicked()
+        except Exception as e:
+            CustomErrorDialog(f'Error occured while creating the offline tab: {e}',self.frontend_style)
 
     def finish_multiple_interval_analysis(self):
         """

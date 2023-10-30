@@ -4,6 +4,7 @@ import seaborn as sns
 import numpy as np
 from matplotlib.cm import get_cmap
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from loggers.offlineplot_logger import offlineplot_logger
 from mplcursors import cursor
 import matplotlib.pyplot as plt
@@ -107,7 +108,14 @@ class OfflinePlots():
         if switch:
             self.parent_widget.holded_dataframe = None
 
-        analysis_function = self.parent_widget.plot_type_combo_box.currentText()
+        # the combo box could have been already deleted     
+        try:
+            analysis_function = self.parent_widget.plot_type_combo_box.currentText()
+        except Exception as e:
+            analysis_class_name = self.parent_widget.analysis_name
+            class_object = AnalysisFunctionRegistration.get_registered_analysis_class(analysis_class_name)
+            analysis_function = class_object().plot_type_options[0]
+
         analysis_function_id = self.parent_widget.analysis_function_id
         self.logger.info(f"Retrieving analysis function: {analysis_function}, {analysis_function_id}")
         # should retrieve the right function based on the selected analysis function

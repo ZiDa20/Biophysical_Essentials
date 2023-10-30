@@ -19,7 +19,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
 
         # must be consideres regarding the sampling frequency
 
-        self.AP_WINDOW = 100
+        self.AP_WINDOW = 1000
         
         self.AP_THRESHOLD = 0.01
 

@@ -11,6 +11,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResult
 from Offline_Analysis.OfflinePlot import OfflinePlots
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 from loggers.offlineplot_logger import offlineplot_logger
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 if TYPE_CHECKING:
     import logging
@@ -177,7 +178,12 @@ class OfflineAnalysisResultVisualizer():
 
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
         for parent in parents:
-            self.offlineplot.retrieve_analysis_function(parent_widget = parent)
+            try:
+                self.offlineplot.retrieve_analysis_function(parent_widget = parent)
+            except Exception as e:
+                print("Could not retrieve analysis function")
+                CustomErrorDialog(f'An error occured while retrieving the analysis function: {str(e)}',self.frontend_style)
+
         return None
 
     def single_analysis_visualization(self,parent_widget,analysis_function=None, switch = None):

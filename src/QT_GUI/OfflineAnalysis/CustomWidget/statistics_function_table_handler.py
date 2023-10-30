@@ -225,7 +225,9 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             elif  "AP_Window" in df.columns:
                 result_column = "AP_Window"
             elif "Rheoramp" in df.columns:
-                result_column = "Number AP" 
+                result_column = "Number AP"
+            else: # e.g. PCA 
+                return
 
             shapiro_test = stats.shapiro(df[result_column])
             grouped_data = df.groupby('meta_data')[result_column]
