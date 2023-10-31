@@ -1049,7 +1049,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if write_data:
                 self.offline_tree.offline_analysis_result_tree_item_clicked()
         except Exception as e:
+            self.logger.error(f'finished_result_thread: occured while creating the offline tab: {e}')
             CustomErrorDialog(f'Error occured while creating the offline tab: {e}',self.frontend_style)
+            
 
     def finish_multiple_interval_analysis(self):
         """

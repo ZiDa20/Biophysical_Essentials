@@ -67,10 +67,7 @@ class OfflineAnalysisResultVisualizer():
 
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
 
-        print(self.database_handler.database.execute("""select analysis_series_name
-                                                     from analysis_series
-                                                     where analysis_id = 4""").fetchdf())
-
+    
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
 
@@ -96,8 +93,12 @@ class OfflineAnalysisResultVisualizer():
         """
 
         # series name e.g. IV
-        q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
-        list_of_analysis = self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
+        #q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
+        #q = f'select function_name, analysis_function_id from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
+        
+        list_of_analysis = self.database_handler.get_analysis_functions_for_specific_series(series)
+        
+        #self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
 
         # print("series= " + series)
         # print("list of analysis")
@@ -112,9 +113,9 @@ class OfflineAnalysisResultVisualizer():
             # create new custom plot visualizer and parametrize data
             custom_plot_widget = ResultPlotVisualizer(self.offline_tree)
             custom_plot_widget.analysis_id = analysis_id
-            custom_plot_widget.analysis_function_id = analysis[0]
+            custom_plot_widget.analysis_function_id = analysis[1]
             custom_plot_widget.series_name = series
-            analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+            analysis_name = analysis[0]
             custom_plot_widget.analysis_name = analysis_name
             custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))

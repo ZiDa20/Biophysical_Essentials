@@ -20,7 +20,7 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         # must be consideres regarding the sampling frequency
 
         self.AP_WINDOW = 1000
-        
+        self.window_length_in_ms = 20 # 20 ms window centered around the AP Peak (10 ms before, 10ms afterwords)
         self.AP_THRESHOLD = 0.01
 
     def calculate_results(self):
@@ -82,35 +82,35 @@ class PeakFinding(SweepWiseAnalysisTemplate):
 
                 ap_window = self.specific_calculation(data, time, column)
                
-            # write result_data_frame into database
+                # write result_data_frame into database
 
-            if ap_window:
-                print("ap_window succeeded")
-                try:
-                    result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window",
-                                                                       "AP_Time",
-                                                                       "Sweep",
-                                                                       "Peak",
-                                                                       "AP_Timing"])
-                
-                    print(f'ap_window return = {result_data_frame.shape}')
-                    result_data_frame["experiment_name"] = experiment_name
-                    agg_table = pd.concat([agg_table, result_data_frame])
-                except Exception as e:
-                    print("Error catch:",e)
-                    print(len(ap_window["AP_Window"]))
-                    print(len(ap_window["AP_Time"]))
-                    print(len(ap_window["Sweep"]))
-                    print(len(ap_window["Peak"]))
-                    print(len(ap_window["AP_Timing"]))
-
-            else:
-                print("ap_window failed")
+                if ap_window:
+                    print("ap_window succeeded")
+                    try:
+                        result_data_frame = pd.DataFrame(ap_window, columns = ["AP_Window",
+                                                                        "AP_Time",
+                                                                        "Sweep",
+                                                                        "Peak",
+                                                                        "AP_Timing"])
+                    
+                        print(f'ap_window return = {result_data_frame.shape}')
+                        result_data_frame["experiment_name"] = experiment_name
+                        agg_table = pd.concat([agg_table, result_data_frame])
+                    except Exception as e:
+                        print("Error catch:",e)
+                        print(len(ap_window["AP_Window"]))
+                        print(len(ap_window["AP_Time"]))
+                        print(len(ap_window["Sweep"]))
+                        print(len(ap_window["Peak"]))
+                        print(len(ap_window["AP_Timing"]))               
+                else:
+                    print("ap_window failed")
 
         print(" debug1")
         new_specific_result_table_name = self.create_new_specific_result_table_name(self.analysis_function_id,
                                                                                     "Peak_Detection", True)
         print(" debug2")
+        print(agg_table["Sweep"].unique())
         self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
                                                                                 self.analysis_function_id,
                                                                                 data_table,
@@ -153,13 +153,15 @@ class PeakFinding(SweepWiseAnalysisTemplate):
         """
         ap_window = {"AP_Window": [], "AP_Time":[], "Sweep": [], "Peak": [], "AP_Timing": []}
         print("extracting ap potenions")
+        # this assumes that there is only one peak
         for peak_count, peak in enumerate(list(peaks), start=1):
             
             peak_pos = peak
 
-            min_time = time[peak_pos]-2 # ms ? 
+            min_time = time[peak_pos]-(self.window_length_in_ms/2) # ms ? 
             min_time_pos = next((i for i, item in enumerate(time) if item > min_time), None)
-            max_time = time[peak_pos]+2
+            max_time = time[peak_pos]+(self.window_length_in_ms /2)
+
             max_time_pos = next((i for i, item in enumerate(time) if item > max_time), None)
 
             print(min_time)
@@ -169,14 +171,16 @@ class PeakFinding(SweepWiseAnalysisTemplate):
             #data_window = data[peak - self.AP_WINDOW:peak + self.AP_WINDOW+50]           
             #ap_window["AP_Window"].extend(data_window)
             #ap_window["AP_Time"].extend(time[peak - self.AP_WINDOW:peak + self.AP_WINDOW+50])
-            data_window = data[min_time_pos:max_time_pos]           
+            data_window = data[min_time_pos:max_time_pos][::20]           
             ap_window["AP_Window"].extend(data_window)
-            ap_window["AP_Time"].extend(time[min_time_pos:max_time_pos]-min_time) # start all at 0
+            ap_time = time[min_time_pos:max_time_pos]-min_time
+            ap_window["AP_Time"].extend(ap_time[::20]) # start all at 0
             
             ap_window["Sweep"].extend([column] *data_window.shape[0] )
             ap_window["Peak"].extend([peak_count]*data_window.shape[0])
-            ap_window["AP_Timing"].extend(list(range(1, data_window.shape[0]+1)))
-          
+            ap_window["AP_Timing"].extend(list(range(1, data_window.shape[0]+1)))          
+            #ap_window["AP_Timing"].extend(time[min_time_pos:max_time_pos])
+
         return ap_window
 
     def merge_lists_to_list_of_tuples(self,list1, list2):

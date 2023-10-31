@@ -825,7 +825,7 @@ class DuckDBDatabaseHandler():
             list: List of analysis function names
         """
 
-        q = f'select function_name from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
+        q = f'select function_name, analysis_function_id from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
         return self.database.execute(q).fetchall()
 
     """----------------------------------------------------------"""
