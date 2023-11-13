@@ -110,8 +110,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             #self.ui.side_left_menu.show()
             functions_list = [self.start_new_offline_analysis_from_dir, 
                               self.start_new_offline_analysis_from_db, 
-                              self.open_analysis, 
-                              self.go_to_offline_analysis]
+                              self.open_analysis]#, 
+                              #self.go_to_offline_analysis]
             button_txt = ["New Analysis From Directory", 
                           "New Analysis From Database", 
                           "Open Existing Analysis", 
@@ -163,12 +163,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.check_already_executed = self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    def go_to_offline_analysis(self) -> None:
-        """This opens the notebook page that has the Offline Analysis integrated
-        """
-        self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
-        self.ui.notebook.setCurrentIndex(3)
-        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
+    # deprecated ? dz 13.11.2023
+    #def go_to_offline_analysis(self) -> None:
+    #    """This opens the notebook page that has the Offline Analysis integrated
+    #    """
+    #    self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
+    #    self.ui.notebook.setCurrentIndex(3)
+    #    QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
     def start_new_offline_analysis_from_dir(self)-> None:
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
@@ -183,7 +184,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.check_already_executed:
             self.ui.offline.reset_class()
         self.check_already_executed = self.ui.offline.load_treeview_from_database()
-        self.go_to_offline_analysis()
+        #self.go_to_offline_analysis()
         
     def open_bpe_webside(self)-> None:
         """open the webside of BPE"""
