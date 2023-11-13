@@ -163,7 +163,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.check_already_executed = self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    # deprecated ? dz 13.11.2023
+    # deprecated ? dz 13.11.2023H
     #def go_to_offline_analysis(self) -> None:
     #    """This opens the notebook page that has the Offline Analysis integrated
     #    """

@@ -242,7 +242,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             plot_widget_manager = self.blank_analysis_plot_manager
         
-        file_filter = "Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
+        file_filter = "Portable Document Format (*.pdf);;Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
         result_path = QFileDialog.getSaveFileName(filter=file_filter)[0]
         plot_widget_manager.canvas.print_figure(result_path)
         self.logger.info("Saved plot as image succesfully")

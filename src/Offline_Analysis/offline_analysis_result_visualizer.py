@@ -296,7 +296,7 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
         self.logger.info("Saving plot as image")
-        file_filter = "Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
+        file_filter = "Portable Document Format (*.pdf);;Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
         result_path = QFileDialog.getSaveFileName(filter=file_filter)[0]
         parent_widget.canvas.print_figure(result_path)
         self.logger.info("Saved plot as image succesfully")
