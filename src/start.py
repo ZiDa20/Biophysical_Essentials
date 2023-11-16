@@ -31,6 +31,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui: QMainWindow = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setup_ui()
+        self.set_background_logo()
         self.logger= start_logger # set the logger
         self.logger.info("Starting the Biophysical Essentials Program!")
         self.frontend_style = Frontend_Style(self)
@@ -58,7 +59,18 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.setup_config_online_style() # connects to the online analysis and database viewer
         self.ui.side_left_menu.hide()
         self.connect_buttons_start()
-        
+    
+    def set_background_logo(self):
+        style_sheet = (
+            "QFrame#frame {"\
+            "background-image: url(../QT_GUI/Button/Logo/welcome_page_background_logo.png);" \
+            "background-repeat: no-repeat;" \
+            "background-position: center;" \
+            "}"
+        )
+
+        self.ui.frame.setStyleSheet(style_sheet)
+
     def setup_ui(self) -> None:
         """Set up the user interface"""
         self.setMinimumSize(1600,800)
@@ -213,6 +225,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
+        # Set background image #  \"background-color: grey;" \
+        #/QT_GUI/Button/Logo/welcome_page_background_logo.png
+
+   
     import ctypes
     import time
     # add this to show the icon in the taskbar
@@ -234,7 +250,7 @@ if __name__ == "__main__":
     #    app.style_sheet = file.read()
     # Load icons
     #QDir.add_search_path('icon', 'theme')
-    
+ 
     window = MainWindow()
     window.show()
     app.exec()
