@@ -12,7 +12,7 @@ from functools import partial
 from qt_material import QtStyleTools
 from StyleFrontend.frontend_style import Frontend_Style
 from database.data_db import DuckDBDatabaseHandler
-#from StyleFrontend.animated_ap import LoadingAnimation
+from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 import webbrowser
 
 # needed to make the pyinstaller exe working
@@ -61,6 +61,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.connect_buttons_start()
     
     def set_background_logo(self):
+        """Set the background logo on the start page only
+        """
         style_sheet = (
             "QFrame#frame {"\
             "background-image: url(../QT_GUI/Button/Logo/welcome_page_background_logo.png);" \
@@ -104,7 +106,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
         self.ui.database_viewer_home_2.clicked.connect(self.initialize_database)
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
-        self.ui.toolButton_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 5))
+        
+        self.ui.toolButton_2.clicked.connect(self.handle_settings_page)
+
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
         self.ui.offline.home_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
@@ -112,6 +116,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
+
+    def handle_settings_page(self):
+        """@todo: implement settings needs
+        """
+        ConstrcutionSideDialog(self.frontend_style)
+        #artial(self.ui.notebook.setCurrentIndex, 5)
+
 
     def insert_row_of_buttons(self) -> None:
         """
