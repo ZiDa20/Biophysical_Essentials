@@ -7,3 +7,96 @@
 2023-11-17 17:22:12,301 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
 2023-11-17 17:22:12,327 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
 2023-11-17 17:22:12,430 : INFO : loggers.start_logger : Started Program Main Logging
+2023-11-17 17:22:13,163 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-11-17 17:22:14,043 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-11-17 17:22:14,167 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-11-17 17:22:14,225 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-11-17 17:22:14,313 : INFO : loggers.start_logger : Started Program Main Logging
+2023-11-17 17:22:37,355 : INFO : loggers.database_logger : Started Database Logging
+2023-11-17 17:22:38,454 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-11-17 17:22:40,046 : INFO : loggers.database_logger : Started Database Logging
+2023-11-17 17:22:40,065 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-11-17 17:22:41,078 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-11-17 17:22:41,457 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-11-17 17:22:41,628 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-11-17 17:22:41,646 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-11-17 17:22:41,741 : INFO : loggers.start_logger : Started Program Main Logging
+2023-11-17 17:22:42,856 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-11-17 17:22:43,930 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-11-17 17:22:44,069 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-11-17 17:22:44,091 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-11-17 17:22:44,205 : INFO : loggers.start_logger : Started Program Main Logging
+2023-11-17 17:22:44,230 : INFO : loggers.database_logger : Started Database Logging
+2023-11-17 17:22:45,737 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-11-17 17:22:48,151 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-11-17 17:22:49,575 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-11-17 17:22:49,822 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-11-17 17:22:49,853 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-11-17 17:22:50,019 : INFO : loggers.start_logger : Started Program Main Logging
+2023-11-17 17:22:53,714 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-11-17 17:22:53,801 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-11-17 17:22:53,923 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-11-17 17:22:55,022 : INFO : loggers.database_logger : Database Manager Initialized
+2023-11-17 17:22:55,023 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-11-17 17:22:55,797 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-11-17 17:22:55,816 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-11-17 17:22:55.798218
+2023-11-17 17:22:55,824 : INFO : loggers.database_logger : Analysis id for this analysis will be: 484
+2023-11-17 17:22:55,826 : INFO : loggers.database_logger : Database Manager Initialized
+2023-11-17 17:22:55,826 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-11-17 17:22:55,837 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-11-17 17:22:55,846 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-11-17 17:22:55,848 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-11-17 17:22:55.846369
+2023-11-17 17:22:55,850 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-11-17 17:22:56,012 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-11-17 17:23:04,379 : INFO : loggers.database_logger : Mapped experiment 220809_04 to analysis 484
+2023-11-17 17:23:04,408 : INFO : loggers.database_logger : Mapped experiment 120618_1 to analysis 484
+2023-11-17 17:23:04,414 : INFO : loggers.database_logger : Mapped experiment 120618_10 to analysis 484
+2023-11-17 17:23:04,419 : INFO : loggers.database_logger : Mapped experiment 120618_11 to analysis 484
+2023-11-17 17:23:04,425 : INFO : loggers.database_logger : Mapped experiment 120618_12 to analysis 484
+2023-11-17 17:23:04,429 : INFO : loggers.database_logger : Mapped experiment 120618_2 to analysis 484
+2023-11-17 17:23:04,433 : INFO : loggers.database_logger : Mapped experiment 120618_3 to analysis 484
+2023-11-17 17:23:04,436 : INFO : loggers.database_logger : Mapped experiment 120618_4 to analysis 484
+2023-11-17 17:23:04,439 : INFO : loggers.database_logger : Mapped experiment 120618_5 to analysis 484
+2023-11-17 17:23:04,442 : INFO : loggers.database_logger : Mapped experiment 120618_6 to analysis 484
+2023-11-17 17:23:04,445 : INFO : loggers.database_logger : Mapped experiment 120618_7 to analysis 484
+2023-11-17 17:23:04,448 : INFO : loggers.database_logger : Mapped experiment 120618_8 to analysis 484
+2023-11-17 17:23:04,451 : INFO : loggers.database_logger : Mapped experiment 120618_9 to analysis 484
+2023-11-17 17:23:04,455 : INFO : loggers.database_logger : Mapped experiment 201228_01 to analysis 484
+2023-11-17 17:23:04,458 : INFO : loggers.database_logger : Mapped experiment 201228_02 to analysis 484
+2023-11-17 17:23:04,462 : INFO : loggers.database_logger : Mapped experiment 201228_03 to analysis 484
+2023-11-17 17:23:04,465 : INFO : loggers.database_logger : Mapped experiment 201228_04 to analysis 484
+2023-11-17 17:23:04,469 : INFO : loggers.database_logger : Mapped experiment 201228_05 to analysis 484
+2023-11-17 17:23:04,478 : INFO : loggers.database_logger : Mapped experiment 201228_06 to analysis 484
+2023-11-17 17:23:04,480 : INFO : loggers.database_logger : Mapped experiment 201228_07 to analysis 484
+2023-11-17 17:23:04,483 : INFO : loggers.database_logger : Mapped experiment 201228_08 to analysis 484
+2023-11-17 17:23:04,486 : INFO : loggers.database_logger : Mapped experiment 201228_09 to analysis 484
+2023-11-17 17:23:04,495 : INFO : loggers.database_logger : Mapped experiment 201228_10 to analysis 484
+2023-11-17 17:23:04,499 : INFO : loggers.database_logger : Mapped experiment 201228_11 to analysis 484
+2023-11-17 17:23:04,502 : INFO : loggers.database_logger : Mapped experiment 201228_12 to analysis 484
+2023-11-17 17:23:04,512 : INFO : loggers.database_logger : Mapped experiment 201228_13 to analysis 484
+2023-11-17 17:23:04,516 : INFO : loggers.database_logger : Mapped experiment 201228_14 to analysis 484
+2023-11-17 17:23:04,519 : INFO : loggers.database_logger : Mapped experiment 201228_15 to analysis 484
+2023-11-17 17:23:04,523 : INFO : loggers.database_logger : Mapped experiment 201228_16 to analysis 484
+2023-11-17 17:23:04,527 : INFO : loggers.database_logger : Mapped experiment 201228_17 to analysis 484
+2023-11-17 17:23:04,531 : INFO : loggers.database_logger : Mapped experiment 201228_18 to analysis 484
+2023-11-17 17:23:04,535 : INFO : loggers.database_logger : Mapped experiment 201228_19 to analysis 484
+2023-11-17 17:23:04,539 : INFO : loggers.database_logger : Mapped experiment 201228_21 to analysis 484
+2023-11-17 17:23:04,542 : INFO : loggers.database_logger : Mapped experiment 201228_22 to analysis 484
+2023-11-17 17:23:04,546 : INFO : loggers.database_logger : Mapped experiment 201228_23 to analysis 484
+2023-11-17 17:23:04,549 : INFO : loggers.database_logger : Mapped experiment 201228_24 to analysis 484
+2023-11-17 17:23:04,552 : INFO : loggers.database_logger : Mapped experiment 201228_25 to analysis 484
+2023-11-17 17:23:04,556 : INFO : loggers.database_logger : Mapped experiment 201228_26 to analysis 484
+2023-11-17 17:23:04,561 : INFO : loggers.database_logger : Mapped experiment 220315_05 to analysis 484
+2023-11-17 17:23:04,564 : INFO : loggers.database_logger : Mapped experiment 220317_05 to analysis 484
+2023-11-17 17:23:04,567 : INFO : loggers.database_logger : Mapped experiment 220317_10 to analysis 484
+2023-11-17 17:23:04,571 : INFO : loggers.database_logger : Mapped experiment 220802_04 to analysis 484
+2023-11-17 17:23:04,575 : INFO : loggers.database_logger : Mapped experiment 220802_10 to analysis 484
+2023-11-17 17:23:04,580 : INFO : loggers.database_logger : Mapped experiment 220803_02 to analysis 484
+2023-11-17 17:23:04,584 : INFO : loggers.database_logger : Mapped experiment 220803_09 to analysis 484
+2023-11-17 17:23:04,589 : INFO : loggers.database_logger : Mapped experiment 220803_11 to analysis 484
+2023-11-17 17:23:04,593 : INFO : loggers.database_logger : Mapped experiment 220804_06 to analysis 484
+2023-11-17 17:23:04,596 : INFO : loggers.database_logger : Mapped experiment 220809_01 to analysis 484
+2023-11-17 17:23:04,600 : INFO : loggers.database_logger : Mapped experiment 220809_02 to analysis 484
+2023-11-17 17:23:14,675 : INFO : loggers.offline_analysis_widget_logger : Series to be analyzed: ['IV']
+2023-11-17 17:23:14,863 : INFO : loggers.database_logger : inserting new analysis_series with id  484
+2023-11-17 17:23:14,863 : INFO : loggers.database_logger : inserted all series

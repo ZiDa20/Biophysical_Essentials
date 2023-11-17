@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f environment_r_09_23.yml ]; then pip install -r environment_r_09_23.yml; fi
+        pip install -r requirements_17112023.txt
     - name: Test with pytest
       run: |
         pytest src/Tests
