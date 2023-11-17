@@ -9,7 +9,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
     
     def __init__(self):
         super().__init__()
-        self.plot_type_options = ["Action_Potential_Fitting", "Mean_Action_Potential_Fitting", "PCA-Plot", "Single_AP_Parameter"]
+        self.plot_type_options = ["Parameter-Heatmap", "Mean_Action_Potential_Fitting", "Single_AP_Parameter"]
         self.function_name = "Action_Potential_Fitting"
     
     def show_configuration_options(self):
@@ -81,65 +81,69 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
 
         smoothed_first_derivative = np.round(smoothed_first_derivative, 2)
 
+        initial_parameter_list = parameter_list
         ######## calc threshold #######
+        try:
+            # returns a tuple of true values and therefore needs to be taken at pos 0
+            threshold_pos_origin = np.where(smoothed_first_derivative >= manual_threshold)[0]
+            max_1st_derivate_pos = np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))[0][0]
 
-        # returns a tuple of true values and therefore needs to be taken at pos 0
-        threshold_pos_origin = np.where(smoothed_first_derivative >= manual_threshold)[0]
-        max_1st_derivate_pos = np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))[0][0]
+            print("max 1st derivate")
+            print(max_1st_derivate_pos)
+            threshold_pos = None
+            for pos in threshold_pos_origin:
+                if np.all(smoothed_first_derivative[pos:max_1st_derivate_pos] > manual_threshold):
+                    # np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
+                    threshold_pos = pos
+                    break
+            print("Threshold")
+            print(threshold_pos)
 
-        print("max 1st derivate")
-        print(max_1st_derivate_pos)
-        threshold_pos = None
-        for pos in threshold_pos_origin:
-            if np.all(smoothed_first_derivative[pos:max_1st_derivate_pos] > manual_threshold):
-                # np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
-                threshold_pos = pos
-                break
-        print("Threshold")
-        print(threshold_pos)
+            # if still none means there was no real AP
+            if threshold_pos is None:
+                print("No Action Potential detected in this sweep")
+                return initial_parameter_list
 
-        # if still none means there was no real AP
-        if threshold_pos is None:
-            print("No Action Potential detected in this sweep")
-            return parameter_list
-
-        t_threshold = time[threshold_pos]
-        v_threshold = data[threshold_pos]
-        parameter_list.append((t_threshold,v_threshold/1e3))
-        ####### calc max amplitude ####
-        max_amplitude = np.max(data)
-        max_amplitude_pos = np.argmax(data >= max_amplitude)
-        t_max_amplitude = time[max_amplitude_pos]
-        print(max_amplitude)
-        #parameter_list.append((t_max_amplitude, max_amplitude/1e9))
-        parameter_list.append((t_max_amplitude, max_amplitude/1e3))
+            t_threshold = time[threshold_pos]
+            v_threshold = data[threshold_pos]
+            parameter_list.append((t_threshold,v_threshold/1e3))
+            ####### calc max amplitude ####
+            max_amplitude = np.max(data)
+            max_amplitude_pos = np.argmax(data >= max_amplitude)
+            t_max_amplitude = time[max_amplitude_pos]
+            print("max amplitude")
+            print(max_amplitude)
+            #parameter_list.append((t_max_amplitude, max_amplitude/1e9))
+            parameter_list.append((t_max_amplitude, max_amplitude/1e3))
 
 
-        ###### calc afterhyperpolarization #####
+            ###### calc afterhyperpolarization #####
 
-        dev_1_min = np.min(smoothed_first_derivative)
-        pos_dev_1_min = np.where(smoothed_first_derivative == dev_1_min)[0][0]
-        hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
-        hyperpol_pos = hyperpol_pos + pos_dev_1_min
+            dev_1_min = np.min(smoothed_first_derivative)
+            pos_dev_1_min = np.where(smoothed_first_derivative == dev_1_min)[0][0]
+            hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
+            hyperpol_pos = hyperpol_pos + pos_dev_1_min
 
-        parameter_list.append((time[hyperpol_pos],data[hyperpol_pos]/1e3))
+            parameter_list.append((time[hyperpol_pos],data[hyperpol_pos]/1e3))
 
-        ######## first derivate to get repolarization speed ########
+            ######## first derivate to get repolarization speed ########
 
-        max_1st_derivative_amplitude = np.max(smoothed_first_derivative)
-        print(max_1st_derivative_amplitude)
-        pos_max_1st_derivative_amplitude = np.argmax(smoothed_first_derivative >= max_1st_derivative_amplitude)
-        t_max_1st_derivative_amplitude = time[pos_max_1st_derivative_amplitude]
-        data_max_1st = data[pos_max_1st_derivative_amplitude]
+            max_1st_derivative_amplitude = np.max(smoothed_first_derivative)
+            print(max_1st_derivative_amplitude)
+            pos_max_1st_derivative_amplitude = np.argmax(smoothed_first_derivative >= max_1st_derivative_amplitude)
+            t_max_1st_derivative_amplitude = time[pos_max_1st_derivative_amplitude]
+            data_max_1st = data[pos_max_1st_derivative_amplitude]
 
-        print("max repolarization speed")
-        print(max_1st_derivative_amplitude / t_max_1st_derivative_amplitude)
+            print("max repolarization speed")
+            print(max_1st_derivative_amplitude / t_max_1st_derivative_amplitude)
 
-        min_1st_derivative_amplitude = np.min(smoothed_first_derivative)
-        pos_min_1st_derivative_amplitude = np.argmax(smoothed_first_derivative <= min_1st_derivative_amplitude)
-        t_min_1st_derivative_amplitude = time[pos_min_1st_derivative_amplitude]
-        data_min_1st = data[pos_min_1st_derivative_amplitude]
-
+            min_1st_derivative_amplitude = np.min(smoothed_first_derivative)
+            pos_min_1st_derivative_amplitude = np.argmax(smoothed_first_derivative <= min_1st_derivative_amplitude)
+            t_min_1st_derivative_amplitude = time[pos_min_1st_derivative_amplitude]
+            data_min_1st = data[pos_min_1st_derivative_amplitude]
+        except Exception as e:
+            print(f"Error in AP  fitting analysis was: {e}")
+            return initial_parameter_list
         ##### calc half width #########
 
         try:
@@ -249,7 +253,8 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         print("here is the aggregated table")
         print(agg_table)
         new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id,
-                                                                                    "AP_Fitting")
+                                                                                    "Action_Potential_Fitting")
+        
         self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
                                                                                 self.analysis_function_id,
                                                                                 data_table,
@@ -288,68 +293,70 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
         # returns a tuple of true values and therefore needs to be taken at pos 0
         threshold_pos_origin = np.where(smoothed_first_derivative >= manual_threshold)[0]
         max_1st_derivate_pos = np.argwhere(smoothed_first_derivative == np.max(smoothed_first_derivative))[0][0]
+        try:
+            print("max 1st derivate")
+            print(max_1st_derivate_pos)
+            threshold_pos = None
 
-        print("max 1st derivate")
-        print(max_1st_derivate_pos)
-        threshold_pos = None
+            for pos in threshold_pos_origin:
+                if np.all(smoothed_first_derivative[pos:max_1st_derivate_pos] > manual_threshold):
+                    # np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
+                    threshold_pos = pos
+                    break
 
-        for pos in threshold_pos_origin:
-            if np.all(smoothed_first_derivative[pos:max_1st_derivate_pos] > manual_threshold):
-                # np.polyfit(smoothed_first_derivative[pos:pos+2*smoothing_window_length,1)
-                threshold_pos = pos
-                break
+            print("Threshold")
+            print(threshold_pos)
 
-        print("Threshold")
-        print(threshold_pos)
+            # if still none means there was no real AP
+            if threshold_pos is None:
+                print("No Action Potential detected in this sweep")
+                return None
 
-        # if still none means there was no real AP
-        if threshold_pos is None:
-            print("No Action Potential detected in this sweep")
+
+            t_threshold = time[threshold_pos]
+            v_threshold = data[threshold_pos]
+
+            left_bound = np.argmax(time >= 25)
+            print(left_bound)
+
+            v_mem = np.mean(data[:left_bound - 1])
+            print(v_mem)
+
+            ####### calc max amplitude ####
+
+            max_amplitude = np.max(data)
+            max_amplitude_pos = np.argmax(data >= max_amplitude)
+            t_max_amplitude = time[max_amplitude_pos]
+
+            ###### calc afterhyperpolarization #####
+            dev_1_min = np.min(smoothed_first_derivative)
+            pos_dev_1_min = np.where(smoothed_first_derivative == dev_1_min)[0][0]
+            hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
+            hyperpol_pos = hyperpol_pos + pos_dev_1_min
+
+
+            ahp = data[hyperpol_pos]
+            ahp_pos = hyperpol_pos
+            t_ahp = time[hyperpol_pos]
+
+            ######## first derivate to get repolarization speed ########
+
+            max_1st_derivative_amplitude = np.max(smoothed_first_derivative)
+            print(max_1st_derivative_amplitude)
+            pos_max_1st_derivative_amplitude = np.argmax(smoothed_first_derivative >= max_1st_derivative_amplitude)
+            t_max_1st_derivative_amplitude = time[pos_max_1st_derivative_amplitude]
+            data_max_1st = data[pos_max_1st_derivative_amplitude]
+
+            print("max repolarization speed")
+            print(max_1st_derivative_amplitude / t_max_1st_derivative_amplitude)
+
+            min_1st_derivative_amplitude = np.min(smoothed_first_derivative)
+            pos_min_1st_derivative_amplitude = np.argmax(smoothed_first_derivative <= min_1st_derivative_amplitude)
+            t_min_1st_derivative_amplitude = time[pos_min_1st_derivative_amplitude]
+            data_min_1st = data[pos_min_1st_derivative_amplitude]
+        except Exception as e:
+            print(f"Error in AP  fitting analysis was: {e}")
             return None
-
-
-        t_threshold = time[threshold_pos]
-        v_threshold = data[threshold_pos]
-
-        left_bound = np.argmax(time >= 25)
-        print(left_bound)
-
-        v_mem = np.mean(data[:left_bound - 1])
-        print(v_mem)
-
-        ####### calc max amplitude ####
-
-        max_amplitude = np.max(data)
-        max_amplitude_pos = np.argmax(data >= max_amplitude)
-        t_max_amplitude = time[max_amplitude_pos]
-
-        ###### calc afterhyperpolarization #####
-        dev_1_min = np.min(smoothed_first_derivative)
-        pos_dev_1_min = np.where(smoothed_first_derivative == dev_1_min)[0][0]
-        hyperpol_pos = np.where(smoothed_first_derivative[pos_dev_1_min:len(smoothed_first_derivative)] >= 0)[0][0]
-        hyperpol_pos = hyperpol_pos + pos_dev_1_min
-
-
-        ahp = data[hyperpol_pos]
-        ahp_pos = hyperpol_pos
-        t_ahp = time[hyperpol_pos]
-
-        ######## first derivate to get repolarization speed ########
-
-        max_1st_derivative_amplitude = np.max(smoothed_first_derivative)
-        print(max_1st_derivative_amplitude)
-        pos_max_1st_derivative_amplitude = np.argmax(smoothed_first_derivative >= max_1st_derivative_amplitude)
-        t_max_1st_derivative_amplitude = time[pos_max_1st_derivative_amplitude]
-        data_max_1st = data[pos_max_1st_derivative_amplitude]
-
-        print("max repolarization speed")
-        print(max_1st_derivative_amplitude / t_max_1st_derivative_amplitude)
-
-        min_1st_derivative_amplitude = np.min(smoothed_first_derivative)
-        pos_min_1st_derivative_amplitude = np.argmax(smoothed_first_derivative <= min_1st_derivative_amplitude)
-        t_min_1st_derivative_amplitude = time[pos_min_1st_derivative_amplitude]
-        data_min_1st = data[pos_min_1st_derivative_amplitude]
-
         ##### calc half width #########
 
         try:
@@ -367,6 +374,9 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             half_width = np.NAN
             return None
 
+        import debugpy
+        debugpy.debug_this_thread()
+        
         # only run analysis if there is an action potential, otherwise return nan
         if np.max(data) > manual_threshold:
             fitting_parameters['Vmem [mV]'] = v_mem

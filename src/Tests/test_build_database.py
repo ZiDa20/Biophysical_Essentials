@@ -18,7 +18,7 @@ from database.data_db import DuckDBDatabaseHandler
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 
-
+@pytest.mark.serial
 def test_long_computation(qtbot):
 
     test_db = set_database()

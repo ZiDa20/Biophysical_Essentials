@@ -11,6 +11,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResult
 from Offline_Analysis.OfflinePlot import OfflinePlots
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 from loggers.offlineplot_logger import offlineplot_logger
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 
 if TYPE_CHECKING:
     import logging
@@ -62,15 +63,18 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
 
+        self.logger.info(f"Show results for current analysis with series_name = {series_name}")
+
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
 
-        print(self.database_handler.database.execute("""select analysis_series_name
-                                                     from analysis_series
-                                                     where analysis_id = 4""").fetchdf())
-
+    
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
 
+        self.logger.info("List of available series to be visualized")
+        self.logger.info(list_of_series)
+        self.logger.info(series_name)
+        
         for series in list_of_series:
             # create visualization for each specific series in specific tabs
             # print("running analysis")
@@ -89,8 +93,12 @@ class OfflineAnalysisResultVisualizer():
         """
 
         # series name e.g. IV
-        q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
-        list_of_analysis = self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
+        #q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
+        #q = f'select function_name, analysis_function_id from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
+        
+        list_of_analysis = self.database_handler.get_analysis_functions_for_specific_series(series)
+        
+        #self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
 
         # print("series= " + series)
         # print("list of analysis")
@@ -105,28 +113,47 @@ class OfflineAnalysisResultVisualizer():
             # create new custom plot visualizer and parametrize data
             custom_plot_widget = ResultPlotVisualizer(self.offline_tree)
             custom_plot_widget.analysis_id = analysis_id
-            custom_plot_widget.analysis_function_id = analysis[0]
+            custom_plot_widget.analysis_function_id = analysis[1]
             custom_plot_widget.series_name = series
-            analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+            analysis_name = analysis[0]
             custom_plot_widget.analysis_name = analysis_name
             custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
+            
+            if analysis_name != "Action_Potential_Fitting":
+                self.clear_plot_type_parameter_selection_layout(custom_plot_widget)
+
             # fill the plot widget with analysis specific data
-            analysis_function = self.single_analysis_visualization(custom_plot_widget)
+            self.single_analysis_visualization(custom_plot_widget)
+            
             # widgets per row = 2
             widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
             widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
 
             self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
             self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
+           
+            custom_plot_widget.specific_plot_box.adjustSize()
+            
             offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
+
             parent_list.append(custom_plot_widget)
 
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
         return offline_tab
+    
+    def clear_plot_type_parameter_selection_layout(self,custom_plot_widget):
+        custom_plot_widget.plot_type.deleteLater()
+        custom_plot_widget.plot_type_combo_box.deleteLater()
+        custom_plot_widget.parameter_label.deleteLater()
+        custom_plot_widget.parameter_combobox.deleteLater()
+        custom_plot_widget.gridLayout_5.removeItem(custom_plot_widget.horizontalSpacer)
+        custom_plot_widget.line.deleteLater()
+        
+
 
     def open_meta_data(self):
         """_summary_: This opens the meta data from the selected meta data table to
@@ -152,17 +179,27 @@ class OfflineAnalysisResultVisualizer():
 
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
         for parent in parents:
-            self.offlineplot.retrieve_analysis_function(parent_widget = parent)
+            try:
+                self.offlineplot.retrieve_analysis_function(parent_widget = parent)
+            except Exception as e:
+                print("Could not retrieve analysis function")
+                CustomErrorDialog(f'An error occured while retrieving the analysis function: {str(e)}',self.frontend_style)
+
         return None
 
     def single_analysis_visualization(self,parent_widget,analysis_function=None, switch = None):
         """
         For each specific analysis function a new custom widget will be created and filled with available results
         from the database
-        @param parent_widget:
-        @param plot_type:
-        @author dz, 13.07.2022
-        @reworked MZ        """
+
+        Args:
+            parent_widget (_type_): _description_
+            analysis_function (_type_, optional): _description_. Defaults to None.
+            switch (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
         # get the class object name for this analysis
         class_object = AnalysisFunctionRegistration().get_registered_analysis_class(parent_widget.analysis_name)()
         self.handle_plot_widget_settings(parent_widget, class_object.plot_type_options)
@@ -191,16 +228,16 @@ class OfflineAnalysisResultVisualizer():
             self.offlineplot.retrieve_analysis_function(parent_widget =parent_widget,
                                                         result_table_list =result_table_names)
         return analysis_function
-
+    
+    
+    """ deprecated ? dz, 27.09.2023
     def handle_metadata_click(self):
-        """
-        Handle the click on the metadata button
+                Handle the click on the metadata button
         @return: None
         @author dz, 13.07.2022
-        """
-        self.metadata_widget = MetadataWidget(self.database_handler, self.analysis_id)
+                self.metadata_widget = MetadataWidget(self.database_handler, self.analysis_id)
         self.metadata_widget.show()
-
+    """
     def handle_plot_widget_settings(self, parent_widget:ResultPlotVisualizer, plot_type_list):
         """
         Handle the setting of the plot widget, which is inside a custom made widget called parent widget.
@@ -219,9 +256,8 @@ class OfflineAnalysisResultVisualizer():
             # create a new plot and insert it into the already exsiting plot layout
             self.logger.info("Creating a new plot widget")
             parent_widget.canvas = FigureCanvas(Figure())
-            parent_widget.canvas.setMinimumSize(500, 500)  # set minimum size for the canvas
-            parent_widget.canvas.setMaximumSize(1000, 500)
-
+            parent_widget.canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+ 
             self.scroll_area = QScrollArea()
             self.scroll_layout = QGridLayout()
             self.scroll_layout.addWidget(parent_widget.canvas)
@@ -260,6 +296,7 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
         self.logger.info("Saving plot as image")
-        result_path = QFileDialog.getSaveFileName()[0]
+        file_filter = "Portable Document Format (*.pdf);;Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
+        result_path = QFileDialog.getSaveFileName(filter=file_filter)[0]
         parent_widget.canvas.print_figure(result_path)
-        #print("saved plot in " + result_path)
+        self.logger.info("Saved plot as image succesfully")

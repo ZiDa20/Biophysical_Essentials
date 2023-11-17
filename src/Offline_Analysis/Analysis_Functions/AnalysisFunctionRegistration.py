@@ -3,7 +3,7 @@ from Offline_Analysis.Analysis_Functions.MinCurrent import *
 from Offline_Analysis.Analysis_Functions.MeanCurrent import *
 from Offline_Analysis.Analysis_Functions.ActionPotentialFitting import *
 from Offline_Analysis.Analysis_Functions.RheobaseDetection import *
-from Offline_Analysis.Analysis_Functions.RheorampDetection import *
+from Offline_Analysis.Analysis_Functions.Firing_Pattern_CLassification import *
 from Offline_Analysis.Analysis_Functions.MeanVoltage import *
 from Offline_Analysis.Analysis_Functions.TimeToMin import *
 from Offline_Analysis.Analysis_Functions.TimeToMax import *
@@ -11,6 +11,9 @@ from Offline_Analysis.Analysis_Functions.InputResistance import *
 from Offline_Analysis.Analysis_Functions.PeakFinding import *
 from Offline_Analysis.Analysis_Functions.CapacitanceMeasure import CapacitanceMeasurements
 from Offline_Analysis.Analysis_Functions.AreaUnderTheCurve import AreaUnderTheCurve
+from Offline_Analysis.Analysis_Functions.Rheoramp_Detection import RheorampDetection
+from Offline_Analysis.Analysis_Functions.Firing_Pattern_CLassification import FiringPatternCLassification
+from Offline_Analysis.Analysis_Functions.PCA import PCA
 
 
 class AnalysisFunctionRegistration():
@@ -32,6 +35,8 @@ class AnalysisFunctionRegistration():
         "Peak-Detection": PeakFinding,
         "CapacitanceMeasurements": CapacitanceMeasurements,
         "AreaUnderTheCurve": AreaUnderTheCurve,
+        "Firing_Pattern": FiringPatternCLassification,
+        "PCA":PCA
     }
 
     @classmethod
@@ -100,4 +105,5 @@ class AnalysisFunctionRegistration():
                     "RheoRamp-Detection", 
                     "InputResistance", 
                     "Peak-Detection",
-                    "AreaUnderTheCurve"] # "Cluster",
+                    "AreaUnderTheCurve",
+                    "Firing_Pattern"] # "Cluster",

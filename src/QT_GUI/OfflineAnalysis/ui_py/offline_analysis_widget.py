@@ -44,10 +44,12 @@ from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWid
 from Offline_Analysis.FinalResultHolder import ResultHolder
 from QT_GUI.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
 
+
 from QT_GUI.OfflineAnalysis.ui_py.analysis_function_selection_manager import AnalysisFunctionSelectionManager
 from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
 
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
+from QT_GUI.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
 
 from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
 from StyleFrontend.animated_ap import LoadingAnimation
@@ -110,7 +112,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # this should be transfer to the plot manager
         # and called with the connected elements
 
-        self.add_filter_button.clicked.connect(self.open_filter_dialog)
+        self.add_filter_button.clicked.connect(self.open_filter_dialog)#
+        self.make_screenshot.clicked.connect(self.save_data_trace_as_image)
         self.filter_dialog = None
 
         self.change_series_name.clicked.connect(self.open_change_series_name_dialog)
@@ -121,9 +124,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger = offline_analysis_widget_logger
         self.logger.info("init finished")
 
-        self.advanced_analysis.clicked.connect(ConstrcutionSideDialog)
+        self.advanced_analysis.clicked.connect(self.show_second_layor_analysis)
         self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
         self.create_report_button.clicked.connect(ConstrcutionSideDialog)
+
+    def show_second_layor_analysis(self):
+        """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
+        """
+        d = Second_Layor_Analysis_Functions(self.database_handler,self.result_visualizer,self.frontend_style)
+        self.frontend_style.set_pop_up_dialog_style_sheet(d)
+        d.exec()
+    
 
     def grid_button_clicked(self, grid:bool):
         """either show or turn off the grid in the plot or show or turn off the pgf plot
@@ -208,21 +219,34 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         open the filter dialog.
         dialog is safed global to be reused for the whole analysis
         """
-        if self.filter_dialog is None:
+
+        #print("add filter button clicked")
+        #if self.filter_dialog is None:
             # if none, the dialog is created initially
-            if self.offline_analysis_widgets.currentIndex() ==1:
-                current_index = self.SeriesItems.currentItem().data(7, Qt.UserRole)
-                tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
-                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,tree_manager)
-            
-            else:
-                self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,
-                                                     self.blank_analysis_tree_view_manager)
-            
-            self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,self.offline_tree)
+        
+        else:
+            self.filter_dialog = Filter_Settings(self.frontend_style,self.database_handler,
+                                                    self.blank_analysis_tree_view_manager)
+        
+        self.filter_dialog.apply_filter_button.clicked.connect(partial(self.apply_filter_selection))
 
         #self.filter_dialog.tabWidget.setCurrentIndex(self.offline_analysis_widgets.currentIndex())
         self.filter_dialog.show()
+
+    def save_data_trace_as_image(self):
+        if self.offline_analysis_widgets.currentIndex() ==1:
+            current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
+            plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+        else:
+            plot_widget_manager = self.blank_analysis_plot_manager
+        
+        file_filter = "Portable Document Format (*.pdf);;Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
+        result_path = QFileDialog.getSaveFileName(filter=file_filter)[0]
+        plot_widget_manager.canvas.print_figure(result_path)
+        self.logger.info("Saved plot as image succesfully")
+
 
     def apply_filter_selection(self):
 
@@ -450,16 +474,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
         
+    # outdated ? dz 13.11.2023
+    #@Slot()
+    #def start_blank_analysis(self):
+    #    """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
+    #    new button interactions offered """
+    #    self.offline_analysis_widgets.setCurrentIndex(1)
 
-    @Slot()
-    def start_blank_analysis(self):
-        """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
-        new button interactions offered """
-        self.offline_analysis_widgets.setCurrentIndex(1)
-
-    @Slot()
-    def go_to_main_page(self):
-        self.offline_analysis_widgets.setCurrentIndex(1)
+    # outdated ? dz 13.11.2023
+    #@Slot()
+    #def go_to_main_page(self):
+    #    self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
     def load_treeview_from_database(self, test = None):
@@ -495,7 +520,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.load_data_from_database_dialog.exec_()
 
         #self.load_data_from_database_dialog.all_cb.setChecked(True)
-        self.notebook.setCurrentIndex(3)
+        #self.notebook.setCurrentIndex(3)
         return True
     
     
@@ -505,13 +530,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         data to be analyzed were selected fro mthe db dashboard dialog
         @return:
         """
+        # switch to the first page of the offline analysis 
+        self.notebook.setCurrentIndex(3)
 
         # load an exsiting analysis from a given id
         if existing_id:
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
             experiment_list = self.database_handler.database.execute(q).fetchdf()
             experiment_list = experiment_list["experiment_name"].values
-            self.logger.info("experiment list found for analysis id ", self.database_handler.analysis_id)
+            self.logger.info("experiment list found for analysis id ", str(self.database_handler.analysis_id))
               
         else:
             # get the experiment names that were selected by the user within the db dashboard
@@ -1010,20 +1037,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         print(parent_item.text(0))
 
-        offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
-                                                                                   parent_item.data(6, Qt.UserRole))
+        try:
+            offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
+                                                                                    parent_item.data(6, Qt.UserRole))
 
-        """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
-        self.offline_tree.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
-        analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
-        analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
-        self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
-        """simulate click on  "Plot" children """
-        self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
+            """add the results at position 1 of the stacked widget ( position 0  is the analysis config ) """
+            self.offline_tree.hierachy_stacked_list[parent_item.data(7, Qt.UserRole)].insertWidget(1,offline_tab)
+            analysis_function_tuple = self.database_handler.get_series_specific_analysis_functions(self.offline_tree.SeriesItems.currentItem().parent().data(6,Qt.UserRole))
+            analysis_function_tuple = tuple(i[1] for i in analysis_function_tuple)
+            self.offline_tree.SeriesItems.currentItem().parent().setData(8, Qt.UserRole,analysis_function_tuple)
+            """simulate click on  "Plot" children """
+            self.offline_tree.SeriesItems.setCurrentItem(parent_item.child(1))
 
-        if write_data:
-            self.offline_tree.offline_analysis_result_tree_item_clicked()
-
+            if write_data:
+                self.offline_tree.offline_analysis_result_tree_item_clicked()
+        except Exception as e:
+            self.logger.error(f'finished_result_thread: occured while creating the offline tab: {e}')
+            CustomErrorDialog(f'Error occured while creating the offline tab: {e}',self.frontend_style)
+            
 
     def finish_multiple_interval_analysis(self):
         """
@@ -1226,6 +1257,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # update the stacked widget to show the correct button
         self.ribbon_analysis.setCurrentIndex(current_index)
         self.ribbon_series_normalization.setCurrentIndex(current_index)
+
 
     def reset_class(self, new_analysis = True):
         """resets the class to its orignal point and adds a new 

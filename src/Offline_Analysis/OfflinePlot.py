@@ -4,7 +4,11 @@ import seaborn as sns
 import numpy as np
 from matplotlib.cm import get_cmap
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
+from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from loggers.offlineplot_logger import offlineplot_logger
+from mplcursors import cursor
+import matplotlib.pyplot as plt
+
 class OfflinePlots():
 
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
@@ -46,7 +50,7 @@ class OfflinePlots():
                                 "Rheobase Plot": self.rheobase_plot,
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
-                                "Action_Potential_Fitting": self.ap_fitting_plot,
+                                "Parameter-Heatmap": self.ap_fitting_plot,
                                 "Single_AP_Parameter": self.single_ap_parameter_plot,
                                 "Mean_Action_Potential_Fitting": self.mean_ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
@@ -57,7 +61,8 @@ class OfflinePlots():
 
         # initialize the logger
         self.logger = offlineplot_logger
-        sns.set_palette("Set2")
+        sns.set_palette("colorblind")
+
 
     def set_frontend_axes(self, parent_widget):
         """_summary_: This function should set the axis and teh figure of the canvas
@@ -104,16 +109,29 @@ class OfflinePlots():
         if switch:
             self.parent_widget.holded_dataframe = None
 
-        analysis_function = self.parent_widget.plot_type_combo_box.currentText()
+        # the combo box could have been already deleted     
+        try:
+            analysis_function = self.parent_widget.plot_type_combo_box.currentText()
+        except Exception as e:
+            analysis_class_name = self.parent_widget.analysis_name
+            class_object = AnalysisFunctionRegistration.get_registered_analysis_class(analysis_class_name)
+            analysis_function = class_object().plot_type_options[0]
+
         analysis_function_id = self.parent_widget.analysis_function_id
-        self.logger.info("Retrieving analysis function: {analysis_function}, {analysis_function_id}")
+        self.logger.info(f"Retrieving analysis function: {analysis_function}, {analysis_function_id}")
         # should retrieve the right function based on the selected analysis function
         # retrieve the appropiate plot from the combobox
         if analysis_function == "Violinplot":
             self.violin = True
 
         self.parent_widget.selected_meta_data = self.database_handler.get_selected_meta_data(analysis_function_id)
-        debug = self.database_handler.get_selected_meta_data(analysis_function_id)
+        #debug = self.database_handler.get_selected_meta_data(analysis_function_id)
+
+        self.logger.info("retrieving analysis function")
+        self.logger.info(analysis_function)
+        self.logger.info("result table list is")
+        self.logger.info(result_table_list)
+        self.logger.info(self.plot_dictionary)
 
         try:
             self.plot_dictionary.get(analysis_function)(result_table_list)
@@ -165,26 +183,32 @@ class OfflinePlots():
         Plot all data without incorporating meta data groups
         :param result_table_list: the list of result tables for the specific analysis
         """
-        if not self.parent_widget.selected_meta_data:
-            self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        if self.parent_widget.holded_dataframe is None:
-            # retrieve the plot_dataframe
-            plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
-            plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
-            # merge with the experiment meta data
-            self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
-            
-            self.parent_widget.increment = increment
-        else:
-            for ax in self.parent_widget.canvas.figure.axes:
-                ax.clear()
+        self.logger.info("Simple Plot started")
+        try:
+            if not self.parent_widget.selected_meta_data:
+                self.parent_widget.selected_meta_data = ["experiment_name"]
 
-        self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
-        pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
-        self.parent_widget.canvas.draw_idle()
-        self.parent_widget.export_data_frame = pivoted_table
-        self.parent_widget.statistics = self.parent_widget.holded_dataframe
+            if self.parent_widget.holded_dataframe is None:
+                # retrieve the plot_dataframe
+                plot_dataframe, increment = SpecificAnalysisFunctions.simple_plot_calc(result_table_list, self.database_handler)
+                plot_dataframe = self.add_sweep_meta_data_to_result_table(plot_dataframe) # adds series identifier and series meta data
+                # merge with the experiment meta data
+                self.parent_widget.holded_dataframe = pd.merge(plot_dataframe, self.meta_data, left_on = "experiment_name", right_on = "experiment_name", how = "left")
+                self.parent_widget.increment = increment
+
+            else:
+                for ax in self.parent_widget.canvas.figure.axes:
+                    ax.clear()
+
+            self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
+            self.logger.info("ready to do the simple plot")
+            pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
+            self.parent_widget.canvas.draw_idle()
+            self.parent_widget.export_data_frame = pivoted_table
+            self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        except Exception as e:
+            self.logger.error(f"Simple Plot could not be created {e}")
 
 
     def capacitance_plot(self, result_table_list:list) -> None:
@@ -386,6 +410,13 @@ class OfflinePlots():
             result_table_list (list): List of queried result tables
             agg (bool, optional): If True, the data will be aggregated by the selected meta data. Defaults to False.
         """
+
+
+        df_names_to_drop = ['Analysis_ID', 'Function_Analysis_ID', 'Sweep_Table_Name', 'Sweep_Number', 
+                            'Current', 'Duration', 'Result', 'Increment', 'experiment_name',
+                            'series_meta_data','analysis_id','experiment_label','species','genotype','sex','celltype','condition','individuum_id',"meta_data"]
+        
+     
         if not self.parent_widget.selected_meta_data:
             self.parent_widget.selected_meta_data = ["experiment_name"]
 
@@ -410,27 +441,25 @@ class OfflinePlots():
 
         self.holded_dataframe = self.parent_widget.holded_dataframe.sort_values(by = ["meta_data", "experiment_name"])
 
-
         if agg:  # if agg - calculate the mean for each meta data group
             new_df = pd.DataFrame()
             for m in list(self.holded_dataframe["meta_data"].unique() ):  # calculate the mean for each meta data group and for each ap parameter
-                #print(m)
-                subset = self.holded_dataframe[self.holded_dataframe["meta_data"]==m]
-                subset.dropna(axis = 0, inplace = True)
+
+                subset = self.parent_widget.holded_dataframe[self.holded_dataframe["meta_data"]==m]
+                subset = subset.drop(columns=[col for col in subset.columns if col in df_names_to_drop])
                 tmp_dict = {}
-                # get rid of the last 3: since this is the experiment name, series identifier and meta data
-                for c in  self.statistics.columns[0:-3]: 
+                for c in  subset.columns: 
                     tmp_dict[c] = [np.mean(subset[c].values)]
-                #print(tmp_dict)
                 tmp_df = pd.DataFrame(tmp_dict)
-                #print(tmp_df)
                 new_df = pd.concat([new_df, tmp_df])
-                #print("new df ", new_df)
+
             drawing_data = new_df.T
             sns.heatmap(data = drawing_data , ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"].unique(), yticklabels=drawing_data.index)
         else:
            # get rid of the last 3: since this is the experiment name, series identifier and meta data
-           drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-3]].T
+           drawing_data = self.parent_widget.holded_dataframe.drop(columns=[col for col in self.parent_widget.holded_dataframe.columns if col in df_names_to_drop]).T
+           #drawing_data = self.parent_widget.holded_dataframe[self.statistics.columns[1:-3]].T
+           print(drawing_data.columns)
            sns.heatmap(data = drawing_data, ax = self.parent_widget.ax, cbar = cbar, xticklabels=self.holded_dataframe["meta_data"], yticklabels=drawing_data.index)
 
         self.parent_widget.canvas.figure.tight_layout()
@@ -458,6 +487,7 @@ class OfflinePlots():
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        sns.set_palette("colorblind")
         sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", ax = self.parent_widget.ax)
         # errorbar=("se", 2),
         self.parent_widget.canvas.draw_idle()
@@ -510,6 +540,7 @@ class OfflinePlots():
 
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].astype(str).agg('::'.join, axis=1)
         self.scatter_plot_make(self.parent_widget.holded_dataframe, self.explained_ratio)
+
         self.parent_widget.canvas.draw_idle()
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
@@ -525,7 +556,10 @@ class OfflinePlots():
         Returns:
             pd.DataFrame: Pivoted dataframe having columns either as experiment name or as metadata name
         """
+        self.logger.info("Simple Plot started")
+
         if increment: # if sweep has no voltage steps --> check naming of thev ariable
+            self.logger.info("Simple Plot without voltage steps")
             self.comparison_plot(plot_dataframe)
             try:
                 pivoted_table = pd.pivot_table(plot_dataframe, index = ["Sweep_Number"], columns = ["meta_data"], values = "Result")
@@ -533,16 +567,27 @@ class OfflinePlots():
                 print(e)
 
         else: # if stable voltage dependency
-            g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
-            # errorbar=("se", 2) not working with the current seaborn version
+            self.logger.info("Simple Plot with voltage steps")
+            self.logger.info(plot_dataframe)
+            try:
+                if "meta_data" in plot_dataframe.columns:
+                   g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+                else:
+                    g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+            except Exception as e:
+                g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+                # errorbar=("se", 2) not working with the current seaborn version
             self.parent_widget.connect_hover(g)
             try:
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
+                #pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
+                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["series_meta_data"], values = "Result")
             except Exception as e:
                 print(e)
 
         self.parent_widget.ax.autoscale()
         self.parent_widget.canvas.figure.tight_layout()
+        self.logger.info("Simple Plot returning")
+        
         return pivoted_table
     
     def plot_capacitance(self, plot_dataframe: pd.DataFrame) -> None:
@@ -617,13 +662,35 @@ class OfflinePlots():
         """_summary_: Creates a scatter plot from the data
         plot_dataframe needs to have the columns PC1 and PC2
         explaind_ratios is a list of the explained ratios of the first two components"""
-
-        sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
+        
+        sns.set_palette("colorblind")
+        scatter_plot = sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
+        
         if explaind_ratios:
-            self.parent_widget.ax.set_xlabel(f"PC1: {str(explaind_ratios[0])}")
-            self.parent_widget.ax.set_ylabel(f"PC2: {str(explaind_ratios[1])}")
+            self.parent_widget.ax.set_xlabel(f"PC1: {str(round(explaind_ratios[0],3))}")
+            self.parent_widget.ax.set_ylabel(f"PC2: {str(round(explaind_ratios[1],3))}")
         sns.move_legend(self.parent_widget.ax, "upper left", bbox_to_anchor=(1, 1))
+       
+        # Add hover information using mplcursors
+        scatter_cursor = cursor(scatter_plot, hover=True)
+        
+        scatter_cursor.connect("add", lambda sel: sel.annotation.set_text(
+            f"Experiment: {plot_dataframe['experiment_name'].iloc[sel.index]}\n"
+        ))
+
+        # Customize the appearance of the hover box using sel
+        scatter_cursor.connect("add", lambda sel: sel.annotation.set_bbox(
+            dict(boxstyle='round', facecolor='white', edgecolor='black')
+        ))
+
         self.parent_widget.canvas.figure.tight_layout()
+
+    
+
+
+         # Add hoverinfo using ax.text
+        #for index, row in plot_dataframe.iterrows():
+        #    self.parent_widget.ax.text(row["PC1"], row["PC2"], f"{row['experiment_name']}\nPC1: {row['PC1']}\nPC2: {row['PC2']}", fontsize=8)
 
 
     def line_boxplot(self, plot_dataframe: pd.DataFrame):
