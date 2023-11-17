@@ -29,7 +29,21 @@ from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import As
 
     
 ## make sure to have any old test_treeview_db.db removed .. !!!! otherwise tests might fail###
+@pytest.mark.run(order=0)
+def test_setup():
+     test_dir = os.path.join(os.getcwd(),"Tests")
+     for filename in os.listdir(test_dir):
+        if filename.endswith(".db"):
+            filepath = os.path.join(test_dir, filename)
+            try:
+                os.remove(filepath)
+                print(f"Deleted: {filepath}")
+            except Exception as e:
+                print(f"Error deleting {filepath}: {e}")
 
+     assert True
+
+@pytest.mark.run(order=1)
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
     """ Test 1: check the default treeview after loading data from the database: 
     only experiment and sweeps must be displayed, no sweeps and no metadata label 
@@ -57,7 +71,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
     # close it to run another test with the same setdb function
     test_db.database.close()
 
-
+@pytest.mark.run(order=2)
 def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     """_summary_
     Test 2: Click on the sweeps button in the ribbon bar which should add the sweeps to the treeview
@@ -90,6 +104,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     assert res == valid_types #,"the expected types in the treeview are not correct ")
     test_db.database.close()
 
+@pytest.mark.run(order=3)
 def test_change_series_renaming(qtbot):
     """Test: Click on the change series name button in the ribbon bar, change the series name of an IV to TEST123.
     Make sure, that the string "IV" is not present anymore in the treeview while TEST123 is present 
@@ -112,21 +127,26 @@ def test_change_series_renaming(qtbot):
 
     dialog.new_name_field.setText("TEST123")
     
+    #  this items will be renamed
+    renamed_item = dialog.series_names_combobox.currentText()
+
     qtbot.mouseClick(dialog.apply, Qt.LeftButton)
     
     updated_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
     
     # Find the corresponding rows for the old and new item names
-    old_row = initial_treeview_table[initial_treeview_table["item_name"] == "Block Pulse"].index.tolist()
+    old_row = initial_treeview_table[initial_treeview_table["item_name"] == renamed_item].index.tolist()
     new_row = updated_treeview_table[updated_treeview_table["item_name"] == "TEST123"].index.tolist()
 
     # Assert that the change has occurred
     assert len(old_row) > 0, "The list is empty"    # Ensure the old item was found
     assert len(new_row) > 0, "The list is empty"    # Ensure the old item was found
-    assert old_row  == new_row  # Ensure the row indices are different
+
+    assert old_row  == new_row  # Ensure the row indices are exactly the same
 
     test_db.database.close()
 
+@pytest.mark.run(order=4)
 def test_change_experiment_meta_data(qtbot):
     """Test of the ribbon bar button: change experiment meta data
     Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
@@ -150,7 +170,9 @@ def test_change_experiment_meta_data(qtbot):
 
     assert app.ui.offline.OfflineDialogs.edit_data is not None
     app.ui.offline.OfflineDialogs.edit_data.close()
+    test_db.database.close()
 
+@pytest.mark.run(order=5)
 def test_change_series_meta_data(qtbot):
     """Test of the ribbon bar button: change series meta data
     Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
@@ -173,6 +195,7 @@ def test_change_series_meta_data(qtbot):
 
     assert app.ui.offline.OfflineDialogs.edit_data is not None
     app.ui.offline.OfflineDialogs.edit_data.close()
+    test_db.database.close()
 
 #self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
 
