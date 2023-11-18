@@ -44,7 +44,8 @@ def test_long_computation(qtbot):
     #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = app.database_handler.database.execute("SHOW TABLES").fetchdf()
     app.local_database_handler.database.close()
-    assert tables.shape[0] == 65
+    a = tables.shape[0]
+    assert a == 65, f"Expected 65 rows, but found {a} rows."
     
 
     # Watch for the app.worker.finished signal, then start the worker.

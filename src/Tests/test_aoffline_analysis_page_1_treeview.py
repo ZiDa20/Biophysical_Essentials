@@ -49,7 +49,7 @@ def clean_leftover_db():
 
 def set_database(db_name):
             #_summary_: Sets up the database for the testing purpose!
-            # clean_leftover_db()
+            #clean_leftover_db()
             path_db = os.path.join(os.getcwd(),"Tests")
             return DuckDBDatabaseHandler(None,
                                         db_file_name = "test_treeview_db_"+db_name+".db",
@@ -76,7 +76,10 @@ def load_demo_dat_data_into_database(qtbot,db_name):
     # qtbot.wait until waits until the load_data_from_database_dialog.. variable was initialized as an instance of 
     # Load_Data_From_Database_Popup_Handler
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
+    QApplication.processEvents()
+
     qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
+    QApplication.processEvents()
 
     return test_db,app
    
@@ -94,8 +97,10 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
         qtbot (_type_): clickbot
     """
     test_db,app = load_demo_dat_data_into_database(qtbot,"1")
-        #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
+
+    #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = test_db.database.execute("SHOW TABLES").fetchdf()
+    
     a = tables.shape[0]
     print(a)
     b = tables.shape[1]
@@ -193,3 +198,57 @@ def test_change_series_renaming(qtbot):
     assert old_row  == new_row  # Ensure the row indices are exactly the same
 
     test_db.database.close()
+
+
+@pytest.mark.serial 
+def test_change_experiment_meta_data(qtbot):
+    """Test of the ribbon bar button: change experiment meta data
+    Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
+    Make sure, that the label "TEST123" is present in the database while the old experiment label is not present anymore
+    Args:
+        qtbot (_type_): _description_
+    """
+
+    # @todo: finish this test
+
+    # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot,"4")
+
+    app.ui.offline.ap.stop_and_close_animation()
+    
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.edit_meta, Qt.LeftButton, delay = 1)
+
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+
+    assert app.ui.offline.OfflineDialogs.edit_data is not None
+    app.ui.offline.OfflineDialogs.edit_data.close()
+    test_db.database.close()
+
+
+
+@pytest.mark.serial
+def test_change_series_meta_data(qtbot):
+    """Test of the ribbon bar button: change series meta data
+    Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
+    Make sure, that the label "TEST123" is present in the database.
+    Args:
+        qtbot (_type_): _description_
+    """
+
+    # @todo: finish this test
+    
+    # assumes that the default treeview test before worked 
+    test_db,app = load_demo_dat_data_into_database(qtbot,"5")
+
+    app.ui.offline.ap.stop_and_close_animation()
+
+    # click the button to change the series name, this should open a dialog
+    qtbot.mouseClick(app.ui.offline.edit_series_meta_data, Qt.LeftButton, delay = 1)
+
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+
+    assert app.ui.offline.OfflineDialogs.edit_data is not None
+    app.ui.offline.OfflineDialogs.edit_data.close()
+    test_db.database.close()
+
