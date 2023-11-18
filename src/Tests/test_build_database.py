@@ -55,6 +55,6 @@ def set_database():
         path_db = os.getcwd() + "/Tests/"
         path_db = str(Path(path_db)) 
         return DuckDBDatabaseHandler(None,
-                                    db_file_name = "test_db.db",
+                                    db_file_name = "test_db_1.db",
                                     database_path = path_db,
                                     in_memory = False)
