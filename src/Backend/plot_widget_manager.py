@@ -458,7 +458,7 @@ class PlotWidgetManager(QRunnable):
         increment_interval_amount = len(increment_intervals)
 
         durations = pgf_table_df['duration'].values.tolist()
-        if "start_time" in pgf_table_df.columns:
+        if "start_time" in pgf_table_df.columns: # this is a bugfix for abf files ... 
             if pgf_table_df["start_time"].tolist()[0] != 0:
                 durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
         voltages = pgf_table_df['voltage'].values.tolist()
