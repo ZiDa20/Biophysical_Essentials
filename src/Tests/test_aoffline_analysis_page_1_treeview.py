@@ -84,8 +84,12 @@ def load_demo_dat_data_into_database(qtbot,db_name):
 @pytest.mark.serial
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
 
-    """ Test 1: check the default treeview after loading data from the database: 
-    only experiment and sweeps must be displayed, no sweeps and no metadata label 
+    """ Test 1: 
+        1. Load files from the directory into the database 
+        2. Select the imported data in the data selection dialog 
+        3. This should open the first page of OFA showing a treeview 
+        4. This treeview MUST hold only experiment and sweeps 
+        5. But No sweeps and no metadata label 
     Args:
         qtbot (_type_): clickbot
     """
@@ -95,7 +99,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
     a = tables.shape[0]
     print(a)
     b = tables.shape[1]
-    assert tables.shape[0] == 65
+    assert a == 65, f"Expected 65 rows, but found {a} rows."
 
     # check that the selected treeview is not none
     stv = app.ui.offline.blank_analysis_tree_view_manager.tree_build_widget.selected_tree_view
@@ -117,8 +121,10 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
 @pytest.mark.serial
 def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     """_summary_
-    Test 2: Click on the sweeps button in the ribbon bar which should add the sweeps to the treeview
-    The sweep level must be part of the treeview df
+    Test 2: 
+        1. Repeats data loading as performed in TEST 1: Treeview with only experiment and series 
+        2. Click on the sweeps button in the ribbon bar which should add the sweeps to the treeview
+        3. The sweep level must be part of the treeview df
     Args:
         qtbot (_type_): _description_
     """
