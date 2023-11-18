@@ -26,5 +26,5 @@ jobs:
         pip install -r requirements_17112023.txt
     - name: Test with pytest
       run: |
-        working-directory: src
+        cd src
         pytest src/Tests
