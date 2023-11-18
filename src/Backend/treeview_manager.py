@@ -95,8 +95,7 @@ class TreeViewManager:
         #debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
-        import debugpy
-        debugpy.debug_this_thread()
+
         for i in dat_files:
             abf_file_data = []
             try:
@@ -148,8 +147,6 @@ class TreeViewManager:
             database type: database object - the database to write the data into
         """
 
-        import debugpy
-        debugpy.debug_this_thread()
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
         ################################################################################################################
         #Progress Bar setup
