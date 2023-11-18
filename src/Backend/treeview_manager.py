@@ -176,7 +176,7 @@ class TreeViewManager:
                     f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
                 )
                 try:
-                    progress_callback.emit((progress_value,i))
+                     progress_callback.emit((round(progress_value,2),i))
                 except Exception as es:
                     print(es)
                     self.database_handler.database.close() # we close the database connection and emit an error message
@@ -187,7 +187,6 @@ class TreeViewManager:
             try:
                 progress_value = progress_value + increment
                 self.single_abf_file_into_db(i, self.database_handler)
-                #progress_callback.emit((round(progress_value,i)))
                 progress_callback.emit((round(progress_value,2),i))
             except Exception as e:
                 print(e)
