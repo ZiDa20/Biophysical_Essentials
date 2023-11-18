@@ -28,6 +28,9 @@ class LoadPreviousDiscardedFlagsHandler(QDialog, Ui_Dialog):
         self.update_was_executed = None
         self.id_to_show.setText(str(self.database_handler.analysis_id))
         self.cancel_button.clicked.connect(self.cancel)
+        
+        self.comboBox.setStyleSheet("QComboBox QAbstractItemView { color: black; }")
+
         self.update_combobox()
 
     def update_combobox(self):
@@ -39,7 +42,13 @@ class LoadPreviousDiscardedFlagsHandler(QDialog, Ui_Dialog):
        
         for i in range(len(analysis_id_list)):
             analysis_id_list[i] = str(analysis_id_list[i])
-        self.comboBox.addItems(analysis_id_list) #unique_ids["analysis_id"].values
+
+      
+        sorted_ids = sorted(analysis_id_list, key=int,reverse=True)
+        self.comboBox.addItems(sorted_ids) #unique_ids["analysis_id"].values
+        # Set the font color to black
+        
+
         self.comboBox.currentTextChanged.connect(self.combobox_changed)
         self.combobox_changed()
         

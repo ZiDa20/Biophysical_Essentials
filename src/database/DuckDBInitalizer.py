@@ -76,14 +76,14 @@ class DuckDBInitializer:
         # create all database tables assuming they do not exist'''
         
         sql_create_experiment_mapping_table = """  create table experiment_analysis_mapping(
-                                        experiment_name text,
+                                        experiment_name text REFERENCES experiments(experiment_name),
                                         analysis_id integer,
                                         UNIQUE (experiment_name, analysis_id)
                                         ); """
 
         sql_create_series_mapping_table = """  create table series_analysis_mapping(
                                         analysis_id integer,
-                                        experiment_name text,
+                                        experiment_name text REFERENCES experiments(experiment_name),
                                         series_identifier text,
                                         series_name text,
                                         renamed_series_name text,
@@ -94,7 +94,7 @@ class DuckDBInitializer:
 
         sql_create_global_meta_data_table = """CREATE TABLE global_meta_data(
                                         analysis_id integer,
-                                        experiment_name text,
+                                        experiment_name text REFERENCES experiments(experiment_name),
                                         experiment_label text,
                                         species text,
                                         genotype text,
@@ -118,7 +118,7 @@ class DuckDBInitializer:
                                            );"""
 
         sql_create_experiment_series_table = """ CREATE TABLE experiment_series(
-                                              experiment_name text,
+                                              experiment_name text REFERENCES experiments(experiment_name),
                                               series_name text,
                                               series_identifier text,
                                               discarded boolean,
@@ -126,7 +126,7 @@ class DuckDBInitializer:
                                               sweep_table_name text,
                                               meta_data_table_name text,
                                               pgf_data_table_name text,
-                                              series_meta_data text
+                                              series_meta_data text,
                                               ); """
 
         sql_create_series_table = """CREATE TABLE analysis_series(
@@ -164,7 +164,7 @@ class DuckDBInitializer:
         sql_create_sweep_meta_data_table ="""CREATE TABLE sweep_meta_data(
                                                 sweep_name text,
                                                 series_identifier text,
-                                                experiment_name text,
+                                                experiment_name text REFERENCES experiments(experiment_name),
                                                 meta_data text,
                                                 primary key (sweep_name,series_identifier, experiment_name)
                                                 ); """
@@ -192,14 +192,16 @@ class DuckDBInitializer:
                                                 );"""
 
         try:
+            self.database.execute(sql_create_experiments_table)
+            self.database.execute(sql_create_experiment_series_table)
             self.database.execute(sql_create_offline_analysis_table)
             self.database.execute(sql_create_filter_table)
             self.database.execute(sql_create_series_table)
-            self.database.execute(sql_create_experiments_table)
+            
             self.database.execute(sql_create_sweep_meta_data_table)
             self.database.execute(sql_create_analysis_function_table)
             self.database.execute(sql_create_results_table)
-            self.database.execute(sql_create_experiment_series_table)
+            
             self.database.execute(sql_create_experiment_mapping_table)
             self.database.execute(sql_create_series_mapping_table)
             self.database.execute(sql_create_global_meta_data_table)

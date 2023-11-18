@@ -4,10 +4,11 @@ from PySide6.QtGui import QPixmap, QColor, Qt
 
 class ConstrcutionSideDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, parent=None):    
+    def __init__(self, frontend_style = None, parent=None):    
         super().__init__(parent)
         self.setupUi(self)
-
+        if frontend_style:
+            frontend_style.set_pop_up_dialog_style_sheet(self)
         image_path = r"..\QT_GUI\Button\light_mode\offline_analysis\construction.png"  # Replace with the actual path to your PNG image
         pixmap = QPixmap(image_path)
         image_label = QLabel()

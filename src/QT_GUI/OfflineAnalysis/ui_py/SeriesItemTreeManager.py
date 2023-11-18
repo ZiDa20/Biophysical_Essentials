@@ -363,10 +363,8 @@ class SeriesItemTreeWidget():
                     self.set_ribbon_bar_page(2)
 
                 if self.SeriesItems.currentItem().text(0) == "Statistics":
-
                     # get the qtdesigner created table widget
                     statistics_table_widget = StatisticsTablePromoted(parent_stacked, self.analysis_stacked, self.hierachy_stacked_list,self.SeriesItems, self.database_handler,self.frontend_style)
-
                     # add it to the statistic child in the tree
                     self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
                     self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
@@ -378,6 +376,10 @@ class SeriesItemTreeWidget():
     def set_ribbon_bar_page(self,page_index):
         self.find_widget_by_name(self.ribbon_bar,"ribbon_series_normalization").setCurrentIndex(page_index)
         self.find_widget_by_name(self.ribbon_bar,"ribbon_analysis").setCurrentIndex(page_index)
+        if page_index > 1:
+            self.find_widget_by_name(self.ribbon_bar,"ribbon_plot_options").setCurrentIndex(1)
+        else:
+            self.find_widget_by_name(self.ribbon_bar,"ribbon_plot_options").setCurrentIndex(0)
     
     
     def find_widget_by_name(self, parent:object, name:str):
