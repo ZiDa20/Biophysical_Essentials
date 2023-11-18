@@ -26,31 +26,24 @@ import pytest
 import unittest
 
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-
+import time
     
 ## make sure to have any old test_treeview_db.db removed .. !!!! otherwise tests might fail###
-@pytest.mark.run(order=0)
-def test_setup():
-     test_dir = os.path.join(os.getcwd(),"Tests")
-     for filename in os.listdir(test_dir):
-        if filename.endswith(".db"):
-            filepath = os.path.join(test_dir, filename)
-            try:
-                os.remove(filepath)
-                print(f"Deleted: {filepath}")
-            except Exception as e:
-                print(f"Error deleting {filepath}: {e}")
 
-     assert True
+@pytest.fixture(autouse=True)
+def slow_down_tests():
+    yield
+    time.sleep(3)
 
-@pytest.mark.run(order=1)
+    
+@pytest.mark.serial
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
     """ Test 1: check the default treeview after loading data from the database: 
     only experiment and sweeps must be displayed, no sweeps and no metadata label 
     Args:
         qtbot (_type_): clickbot
     """
-    test_db,app = load_demo_dat_data_into_database(qtbot)
+    test_db,app = load_demo_dat_data_into_database(qtbot,"1")
         #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = test_db.database.execute("SHOW TABLES").fetchdf()
     assert tables.shape[0] == 65
@@ -70,8 +63,9 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
    
     # close it to run another test with the same setdb function
     test_db.database.close()
+    app.close()
 
-@pytest.mark.run(order=2)
+@pytest.mark.serial
 def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     """_summary_
     Test 2: Click on the sweeps button in the ribbon bar which should add the sweeps to the treeview
@@ -81,9 +75,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     """
     
     # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot)
-
-
+    test_db,app = load_demo_dat_data_into_database(qtbot,"2")
     # click the sweeps button to add the extra sweep level in the treeview 
     qtbot.mouseClick(app.ui.offline.show_sweeps_radio, Qt.LeftButton)
         
@@ -104,14 +96,14 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     assert res == valid_types #,"the expected types in the treeview are not correct ")
     test_db.database.close()
 
-@pytest.mark.run(order=3)
+@pytest.mark.serial
 def test_change_series_renaming(qtbot):
     """Test: Click on the change series name button in the ribbon bar, change the series name of an IV to TEST123.
     Make sure, that the string "IV" is not present anymore in the treeview while TEST123 is present 
     """
     
     # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot)
+    test_db,app = load_demo_dat_data_into_database(qtbot,"3")
 
     app.ui.offline.ap.stop_and_close_animation()
 
@@ -146,7 +138,7 @@ def test_change_series_renaming(qtbot):
 
     test_db.database.close()
 
-@pytest.mark.run(order=4)
+@pytest.mark.serial
 def test_change_experiment_meta_data(qtbot):
     """Test of the ribbon bar button: change experiment meta data
     Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
@@ -158,10 +150,9 @@ def test_change_experiment_meta_data(qtbot):
     # @todo: finish this test
 
     # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot)
+    test_db,app = load_demo_dat_data_into_database(qtbot,"4")
 
     app.ui.offline.ap.stop_and_close_animation()
-
     
     # click the button to change the series name, this should open a dialog
     qtbot.mouseClick(app.ui.offline.edit_meta, Qt.LeftButton, delay = 1)
@@ -172,7 +163,7 @@ def test_change_experiment_meta_data(qtbot):
     app.ui.offline.OfflineDialogs.edit_data.close()
     test_db.database.close()
 
-@pytest.mark.run(order=5)
+@pytest.mark.serial
 def test_change_series_meta_data(qtbot):
     """Test of the ribbon bar button: change series meta data
     Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
@@ -184,7 +175,7 @@ def test_change_series_meta_data(qtbot):
     # @todo: finish this test
     
     # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot)
+    test_db,app = load_demo_dat_data_into_database(qtbot,"5")
 
     app.ui.offline.ap.stop_and_close_animation()
 
@@ -196,6 +187,7 @@ def test_change_series_meta_data(qtbot):
     assert app.ui.offline.OfflineDialogs.edit_data is not None
     app.ui.offline.OfflineDialogs.edit_data.close()
     test_db.database.close()
+
 
 #self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
 
@@ -247,21 +239,31 @@ def test_load_discarded_flags_dialog(qtbot):
 #def test sweeps AND meta data
 
 
+def clean_leftover_db():
+     test_dir = os.path.join(os.getcwd(),"Tests")
+     for filename in os.listdir(test_dir):
+        if filename.endswith(".db") or filename.endswith(".wal"):
+            filepath = os.path.join(test_dir, filename)
+            try:
+                os.remove(filepath)
+                print(f"Deleted: {filepath}")
+            except Exception as e:
+                print(f"Error deleting {filepath}: {e}")
+
 # functions 
 
-def set_database():
+def set_database(db_name):
             #_summary_: Sets up the database for the testing purpose!
-            
-            path_db = os.getcwd() + "/Tests/"
-            path_db = str(Path(path_db)) 
+            clean_leftover_db()
+            path_db = os.path.join(os.getcwd(),"Tests")
             return DuckDBDatabaseHandler(None,
-                                        db_file_name = "test_treeview_db.db",
+                                        db_file_name = "test_treeview_db_"+db_name+".db",
                                         database_path = path_db,
                                         in_memory = False)
 
-def load_demo_dat_data_into_database(qtbot):
+def load_demo_dat_data_into_database(qtbot,db_name):
     
-    test_db = set_database()
+    test_db = set_database(db_name)
     app = MainWindow(testing_db = test_db)
     app.database_handler = app.local_database_handler
     app.ui.offline.offline_manager._directory_path = "./Tests/Test_Files/"
@@ -279,5 +281,5 @@ def load_demo_dat_data_into_database(qtbot):
     # Load_Data_From_Database_Popup_Handler
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
     qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
-    
+
     return test_db,app
