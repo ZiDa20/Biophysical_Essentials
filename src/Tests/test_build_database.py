@@ -24,7 +24,9 @@ def test_long_computation(qtbot):
     test_db = set_database()
     app = MainWindow(testing_db = test_db)
     app.database_handler = app.local_database_handler
+    
     app.ui.offline.offline_manager._directory_path = "./Tests/Test_Files/"
+
     template = Assign_Meta_Data_PopUp(app.database_handler,
                             app.ui.offline.offline_manager,
                             app.frontend_style)
@@ -55,6 +57,6 @@ def set_database():
         path_db = os.getcwd() + "/Tests/"
         path_db = str(Path(path_db)) 
         return DuckDBDatabaseHandler(None,
-                                    db_file_name = "test_db_1.db",
+                                    db_file_name = "test_db_new.db",
                                     database_path = path_db,
                                     in_memory = False)
