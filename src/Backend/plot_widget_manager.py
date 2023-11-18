@@ -458,8 +458,9 @@ class PlotWidgetManager(QRunnable):
         increment_interval_amount = len(increment_intervals)
 
         durations = pgf_table_df['duration'].values.tolist()
-        if pgf_table_df["start_time"].tolist()[0] != 0:
-            durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
+        if "start_time" in pgf_table_df.columns:
+            if pgf_table_df["start_time"].tolist()[0] != 0:
+                durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
         voltages = pgf_table_df['voltage'].values.tolist()
         holding = pgf_table_df['holding_potential'].values.tolist()
 
@@ -639,7 +640,7 @@ class PlotWidgetManager(QRunnable):
 
         number_of_points_pos = meta_data_frame['Parameter'].tolist().index('DataPoints')
 
-        bandwidth = meta_data_frame['Parameter'].tolist().index('Bandwidth')
+        #bandwidth = meta_data_frame['Parameter'].tolist().index('Bandwidth')
         
         x_start= float(meta_data_frame['sweep_1'].tolist()[x_start_pos])
         x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
