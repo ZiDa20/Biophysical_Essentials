@@ -24,14 +24,14 @@ import os
 from start import *
 import pytest
 import unittest
-
+import time
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 
 
-#@pytest.fixture(autouse=True)
-#def slow_down_tests():
-#    yield
-#    time.sleep(3)
+@pytest.fixture(autouse=True)
+def slow_down_tests():
+    yield
+    time.sleep(3)
 
 
 def clean_leftover_db():
