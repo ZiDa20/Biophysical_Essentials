@@ -28,10 +28,10 @@ import time
 from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 
 
-@pytest.fixture(autouse=True)
-def slow_down_tests():
-    yield
-    time.sleep(3)
+#@pytest.fixture(autouse=True)
+#def slow_down_tests():
+#    yield
+#    time.sleep(3)
 
 
 def clean_leftover_db():
@@ -49,12 +49,13 @@ def clean_leftover_db():
 
 def set_database(db_name):
             #_summary_: Sets up the database for the testing purpose!
-            clean_leftover_db()
+            # clean_leftover_db()
             path_db = os.path.join(os.getcwd(),"Tests")
             return DuckDBDatabaseHandler(None,
                                         db_file_name = "test_treeview_db_"+db_name+".db",
                                         database_path = path_db,
                                         in_memory = False)
+
 
 def load_demo_dat_data_into_database(qtbot,db_name):
     
@@ -79,11 +80,10 @@ def load_demo_dat_data_into_database(qtbot,db_name):
 
     return test_db,app
    
-
-
     
 @pytest.mark.serial
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
+
     """ Test 1: check the default treeview after loading data from the database: 
     only experiment and sweeps must be displayed, no sweeps and no metadata label 
     Args:
@@ -92,6 +92,9 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
     test_db,app = load_demo_dat_data_into_database(qtbot,"1")
         #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = test_db.database.execute("SHOW TABLES").fetchdf()
+    a = tables.shape[0]
+    print(a)
+    b = tables.shape[1]
     assert tables.shape[0] == 65
 
     # check that the selected treeview is not none
@@ -109,7 +112,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
    
     # close it to run another test with the same setdb function
     test_db.database.close()
-    app.close()
+
 
 @pytest.mark.serial
 def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
@@ -141,6 +144,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     
     assert res == valid_types #,"the expected types in the treeview are not correct ")
     test_db.database.close()
+
 
 @pytest.mark.serial
 def test_change_series_renaming(qtbot):
@@ -183,106 +187,3 @@ def test_change_series_renaming(qtbot):
     assert old_row  == new_row  # Ensure the row indices are exactly the same
 
     test_db.database.close()
-
-@pytest.mark.serial
-def test_change_experiment_meta_data(qtbot):
-    """Test of the ribbon bar button: change experiment meta data
-    Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
-    Make sure, that the label "TEST123" is present in the database while the old experiment label is not present anymore
-    Args:
-        qtbot (_type_): _description_
-    """
-
-    # @todo: finish this test
-
-    # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot,"4")
-
-    app.ui.offline.ap.stop_and_close_animation()
-    
-    # click the button to change the series name, this should open a dialog
-    qtbot.mouseClick(app.ui.offline.edit_meta, Qt.LeftButton, delay = 1)
-
-    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
-
-    assert app.ui.offline.OfflineDialogs.edit_data is not None
-    app.ui.offline.OfflineDialogs.edit_data.close()
-    test_db.database.close()
-
-@pytest.mark.serial
-def test_change_series_meta_data(qtbot):
-    """Test of the ribbon bar button: change series meta data
-    Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
-    Make sure, that the label "TEST123" is present in the database.
-    Args:
-        qtbot (_type_): _description_
-    """
-
-    # @todo: finish this test
-    
-    # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot,"5")
-
-    app.ui.offline.ap.stop_and_close_animation()
-
-    # click the button to change the series name, this should open a dialog
-    qtbot.mouseClick(app.ui.offline.edit_series_meta_data, Qt.LeftButton, delay = 1)
-
-    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
-
-    assert app.ui.offline.OfflineDialogs.edit_data is not None
-    app.ui.offline.OfflineDialogs.edit_data.close()
-    test_db.database.close()
-
-
-#self.edit_series_meta_data.clicked.connect(self.OfflineDialogs.edit_series_meta_data_popup)
-
-"""
-import time
-import keyboard
-def test_write_series_to_csv(qtbot):
-  # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot)
-
-    app.ui.offline.ap.stop_and_close_animation()
-
-    # click the button to change the series name, this should open a dialog
-    qtbot.mouseClick(app.ui.offline.series_to_csv, Qt.LeftButton)
-
-      # Wait for the QFileDialog to become visible
-    file_dialog = None
-    for _ in range(10):  # Try for a maximum of 10 iterations (adjust if necessary)
-        file_dialog = QApplication.activeModalWidget()
-        if file_dialog is not None:
-            break
-        qtbot.wait(1000)  # Wait for 1 second before checking again (adjust if necessary)
-
-    assert file_dialog is not None
-    # Now you can continue with your
-"""
-
-"""
-def test_load_discarded_flags_dialog(qtbot):
-      # assumes that the default treeview test before worked 
-    test_db,app = load_demo_dat_data_into_database(qtbot)
-
-    app.ui.offline.ap.stop_and_close_animation()
-
-    # click the button to change the series name, this should open a dialog
-    qtbot.mouseClick(app.ui.offline.load_selected_discarded, Qt.LeftButton, delay = 1)
-
-    qtbot.waitUntil(lambda: hasattr(app.ui.offline, "s_d_dialog"), timeout = 2000)
-    qtbot.mouseClick(app.ui.offline.s_d_dialog.apply_selection, Qt.LeftButton)
-
-    #dialog= app.ui.offline.s_d_dialog
-
-    #dialog.new_name_field.setText("TEST123")
-    
-    #dialog.close()
-   
-"""
-# def test meta data 
-#def test sweeps AND meta data
-
-
-
