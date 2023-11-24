@@ -75,13 +75,17 @@ class OfflineAnalysisResultVisualizer():
         self.logger.info(list_of_series)
         self.logger.info(series_name)
         
-        for series in list_of_series:
-            # create visualization for each specific series in specific tabs
-            # print("running analysis")
-            if series[0] == series_name:
-                return self.analysis_function_specific_visualization(series[0],analysis_id)
-            else:
-                print("The logger should be added here to show that the series is not available in the database")
+        try:
+            for series in list_of_series:
+                # create visualization for each specific series in specific tabs
+                # print("running analysis")
+                if series[0] == series_name:
+                    print("all good")
+                    return self.analysis_function_specific_visualization(series[0],analysis_id)
+                else:
+                    self.logger.error(f'{series[0]} was not found in the database ')
+        except Exception as e:
+            self.logger.error("show_results_for_current_analysis: Error occured",e)
 
 
     def analysis_function_specific_visualization(self,series,analysis_id):
@@ -121,25 +125,28 @@ class OfflineAnalysisResultVisualizer():
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
             
-            if analysis_name != "Action_Potential_Fitting":
-                self.clear_plot_type_parameter_selection_layout(custom_plot_widget)
+            try:
+                if analysis_name != "Action_Potential_Fitting":
+                    self.clear_plot_type_parameter_selection_layout(custom_plot_widget)
 
-            # fill the plot widget with analysis specific data
-            self.single_analysis_visualization(custom_plot_widget)
+                # fill the plot widget with analysis specific data
+                self.single_analysis_visualization(custom_plot_widget)
+                
+                # widgets per row = 2
+                widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
+                widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
+
+                self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
+                self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
             
-            # widgets per row = 2
-            widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
-            widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
+                custom_plot_widget.specific_plot_box.adjustSize()
+                
+                offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
 
-            self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
-            self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
-           
-            custom_plot_widget.specific_plot_box.adjustSize()
-            
-            offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
-
-            parent_list.append(custom_plot_widget)
-
+                parent_list.append(custom_plot_widget)
+            except Exception as e:
+                CustomErrorDialog(f"analysis_function_specific_visualization: Error detected {e}", self.frontend_style)
+                self.logger.error(f"analysis_function_specific_visualization: Error detected",e)
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)

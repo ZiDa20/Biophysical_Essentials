@@ -154,7 +154,7 @@ class SweepWiseAnalysisTemplate(ABC):
 
 		# reset theresults dataframe: results for each datatable will be appended 
 		self.merged_all_results = pd.DataFrame(columns = self.column_names)
-		
+
 		# iterate through each datatable name, query and slice the data, execute the analysis function and write back the result to the db
 		for data_table in self.data_table_names:
 			# get the experiment name
@@ -213,6 +213,7 @@ class SweepWiseAnalysisTemplate(ABC):
 			data_table (str): _description_
 			merged_all_results (pd.DataFrame): _description_
 		"""
+
 		new_specific_result_table_name = self.database.create_new_specific_result_table_name(self.analysis_function_id, 
                                                                                        self.function_name)
 		self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id,
@@ -320,5 +321,11 @@ class SweepWiseAnalysisTemplate(ABC):
 		print(analysis_id)
 		print(analysis_function_id)
 
-		result_list = (list(zip(*result_list))[0])
-		return result_list
+		if result_list == []:
+			return None
+		else:
+			result_list = (list(zip(*result_list))[0])
+			return result_list
+		
+
+	

@@ -973,7 +973,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         self.database_handler.open_connection()
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-        self.logger.info("finished: ", self.multiple_interval_analysis)
+        self.logger.info(f"finished: {self.multiple_interval_analysis}")
         self.logger.info(f"executing single series analysis: {current_tab.objectName()}")
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
 
@@ -1035,7 +1035,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             parent_item = self.offline_tree.SeriesItems.currentItem().parent()
 
-        print(parent_item.text(0))
+        self.logger.info(parent_item.text(0))
 
         try:
             offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,

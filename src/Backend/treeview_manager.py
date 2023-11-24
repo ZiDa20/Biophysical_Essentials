@@ -12,9 +12,7 @@ from DataReader.ABFclass import AbfReader
 from DataReader.heka_reader import Bundle
 from loggers.treeview_logger import treeview_logger
 from Offline_Analysis.tree_model_class import TreeModel
-
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
-#import debugpy
 from DataReader.SegmentENUM import EnumSegmentTypes
 from PySide6.QtWidgets import QApplication
 
@@ -92,7 +90,6 @@ class TreeViewManager:
           bundle_list type: list of tuples - the list of bundles that were read
 
         """
-        #debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
 
@@ -820,7 +817,6 @@ class TreeViewManager:
             data_access_array (_type_): _description_
             pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
         """
-        #debugpy.debug_this_thread()
         if database is None:
             database = self.database_handler
 
