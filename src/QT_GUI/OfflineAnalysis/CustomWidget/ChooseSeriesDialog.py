@@ -68,7 +68,7 @@ class SeriesDialog(QDialog):
             # set the custom app icon
             custom_icon = QIcon(r'../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
             self.setWindowIcon(custom_icon)
-            self.exec()
+            self.show()
 
     def check_all_clicked(self,state):
         if state == 2:
