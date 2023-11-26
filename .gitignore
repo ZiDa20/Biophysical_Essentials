@@ -19,6 +19,7 @@ src/__pycache__/
 *.log
 .Logs/*.log
 ./Logs/main_log.log
+./Logs/abf.log
 .src/analysis_database.db
 c
 .bioqypt/
