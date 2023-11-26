@@ -18,6 +18,7 @@ src/__pycache__/
 *.ui
 *.log
 .Logs/*.log
+./Logs/main_log.log
 .src/analysis_database.db
 c
 .bioqypt/
