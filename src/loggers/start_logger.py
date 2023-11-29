@@ -1,12 +1,21 @@
 
 import logging
+import os
 
-# Module that creates the logging level and the logger
-# Should be imported for the Database!
+# Create the Logs directory if it doesn't exist
+log_dir = '../Logs'
+os.makedirs(log_dir, exist_ok=True)
 
+# Set up the logger
 start_logger = logging.getLogger(__name__)
-#file_handler = logging.FileHandler('../Logs/start.log')
-file_handler = logging.FileHandler('../Logs/main_log.log')
+log_file_path = os.path.join(log_dir, 'main_log.log')
+
+# Create the log file if it doesn't exist
+if not os.path.exists(log_file_path):
+    with open(log_file_path, 'w') as file:
+        file.write("Log file created.")
+
+file_handler = logging.FileHandler(log_file_path)
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
 file_handler.setFormatter(formatter)
 start_logger.addHandler(file_handler)
