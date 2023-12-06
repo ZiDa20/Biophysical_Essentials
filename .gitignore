@@ -16,10 +16,9 @@
 src/__pycache__/
 .QT_GUI/__pycache__/*.pyc
 *.ui
-*.log
-.Logs/*.log
 ./Logs/main_log.log
 ./Logs/abf.log
+offline_plots.log
 .src/analysis_database.db
 c
 .bioqypt/

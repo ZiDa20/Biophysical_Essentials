@@ -95,6 +95,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
     Args:
         qtbot (_type_): clickbot
     """
+
     test_db, app = setup_test_environment
     QApplication.processEvents()
     app.show()

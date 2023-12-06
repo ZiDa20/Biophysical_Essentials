@@ -4,7 +4,8 @@ import os
 
 # Create the Logs directory if it doesn't exist
 log_dir = '../Logs'
-os.makedirs(log_dir, exist_ok=True)
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
 
 # Set up the logger
 start_logger = logging.getLogger(__name__)
