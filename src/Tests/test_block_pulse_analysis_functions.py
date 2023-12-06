@@ -178,6 +178,6 @@ def test_analysis_function_menu(qtbot, setup_test_environment):
      # open the analysis function selection menu
      # qtbot.mouseClick(app.ui.offline.select_analysis_fct,Qt.LeftButton)
      assert True
-
-
+     return test_db, app
+ 
      
