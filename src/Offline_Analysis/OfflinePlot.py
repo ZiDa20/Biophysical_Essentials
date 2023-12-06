@@ -569,6 +569,7 @@ class OfflinePlots():
         else: # if stable voltage dependency
             self.logger.info("Simple Plot with voltage steps")
             self.logger.info(plot_dataframe)
+            sns.set_palette("colorblind")
             try:
                 if "meta_data" in plot_dataframe.columns:
                    g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
@@ -598,6 +599,7 @@ class OfflinePlots():
         """
         # check if violin parameter is set then use the violin plots
         #sns.lineplot(data = plot_dataframe, x = "Duration", y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+        sns.set_palette("colorblind")
         if self.parent_widget.selected_meta_data == ["experiment_name"]:
             sns.boxplot(data = plot_dataframe, x = "Duration", y = "Result", ax = self.parent_widget.ax)
         else:
@@ -622,6 +624,7 @@ class OfflinePlots():
         Args:
             plot_dataframe (pd.DataFrame): DataFrame long format holding result data
         """
+        sns.set_palette("colorblind")
         g = sns.violinplot(data = plot_dataframe,
                     x="meta_data",
                     y = "Result",
@@ -636,6 +639,7 @@ class OfflinePlots():
         Args:
             plot_dataframe (pd.DataFrame): DataFrame long format holding result data
         """
+        sns.set_palette("colorblind")
         sns.boxplot(data = plot_dataframe,
                     x="meta_data",
                     y = "Result",
@@ -645,6 +649,7 @@ class OfflinePlots():
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
     def swarm_plot(self, plot_dataframe: pd.DataFrame, size: int, g) -> None:
+        sns.set_palette("colorblind")
         z = sns.swarmplot(
             data=plot_dataframe,
             x="meta_data",
@@ -699,6 +704,7 @@ class OfflinePlots():
         Args:
             plot_dataframe (_type_): _description_
         """
+        sns.set_palette("colorblind")
         sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, legend = False)
         # @todo: statannotations requires a seaborn version < 0.12 but <0.12 does not have the errobar function
         #errorbar=("se", 2),
@@ -713,7 +719,7 @@ class OfflinePlots():
         if palette is None:
             default_colors = get_cmap('tab10')
             palette = {k: default_colors(i) for i, k in enumerate(levels)}
-
+        sns.set_palette("colorblind")
         return [
             sns.regplot(
                 x=x, y=y, data=data[data[hue] == key], color=palette[key], **kwargs
