@@ -573,17 +573,14 @@ class OfflinePlots():
             try:
                 if "meta_data" in plot_dataframe.columns:
                    g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+                   pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
                 else:
                     g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+                    pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["series_meta_data"], values = "Result")
             except Exception as e:
                 g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
                 # errorbar=("se", 2) not working with the current seaborn version
             self.parent_widget.connect_hover(g)
-            try:
-                #pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["series_meta_data"], values = "Result")
-            except Exception as e:
-                print(e)
 
         self.parent_widget.ax.autoscale()
         self.parent_widget.canvas.figure.tight_layout()
