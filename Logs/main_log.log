@@ -14246,3 +14246,275 @@
 2023-12-06 23:57:03,693 : INFO : loggers.treeview_logger : Database writing thread successfully finished
 2023-12-06 23:57:03,990 : INFO : loggers.database_logger : Mapped experiment 220315_01 to analysis 1
 2023-12-06 23:57:03,995 : INFO : loggers.database_logger : Mapped experiment 220315_02 to analysis 1
+2023-12-07 00:08:39,104 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 00:08:39,758 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 00:08:41,206 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 00:08:42,045 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 00:08:42,196 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 00:08:42,224 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 00:08:42,402 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 00:09:06,665 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 00:09:07,349 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 00:09:08,809 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 00:09:09,773 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 00:09:09,861 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 00:09:09,872 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 00:09:09,974 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 00:09:37,565 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 00:09:38,211 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 00:09:40,068 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 00:09:41,086 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 00:09:41,226 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 00:09:41,256 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 00:09:41,435 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 14:26:55,005 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 14:26:55,006 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 14:26:56,770 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 14:26:56,772 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 14:27:05,322 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 14:27:05,324 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 14:27:10,132 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 14:27:10,132 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 14:27:10,518 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 14:27:10,533 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 14:27:10,546 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 14:27:10,582 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 14:27:11,164 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 14:27:11,165 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 14:27:15,011 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-12-07 14:27:15,121 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-12-07 14:27:15,276 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-12-07 14:27:16,566 : INFO : loggers.database_logger : Database Manager Initialized
+2023-12-07 14:27:16,567 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-12-07 14:27:17,759 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-12-07 14:27:17,800 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-12-07 14:27:17.760876
+2023-12-07 14:27:17,807 : INFO : loggers.database_logger : Analysis id for this analysis will be: 37
+2023-12-07 14:27:17,808 : INFO : loggers.database_logger : Database Manager Initialized
+2023-12-07 14:27:17,809 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-12-07 14:27:17,822 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-12-07 14:27:17,830 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-12-07 14:27:17,833 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-12-07 14:27:17.831837
+2023-12-07 14:27:17,835 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-12-07 14:27:18,012 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-12-07 14:39:36,122 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 14:39:36,523 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 14:39:37,380 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 14:39:37,942 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 14:39:38,012 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 14:39:38,023 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 14:39:38,079 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 17:17:05,927 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 17:17:07,660 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 17:17:14,747 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 17:17:18,258 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 17:17:18,950 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 17:17:19,036 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 17:17:19,571 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 17:18:12,215 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 17:18:12,992 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 17:18:14,316 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 17:18:15,027 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 17:18:15,119 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 17:18:15,132 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 17:18:15,222 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-07 17:18:17,874 : INFO : loggers.online_logger : Successfully connected all the appropiates button calls
+2023-12-07 17:18:17,924 : INFO : loggers.offline_analysis_widget_logger : init finished
+2023-12-07 17:18:17,992 : INFO : loggers.start_logger : Starting the Biophysical Essentials Program!
+2023-12-07 17:18:18,594 : INFO : loggers.database_logger : Database Manager Initialized
+2023-12-07 17:18:18,594 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+2023-12-07 17:18:19,088 : INFO : loggers.database_logger : connection successfull to offline_database
+2023-12-07 17:18:19,092 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-12-07 17:18:19.088020
+2023-12-07 17:18:19,093 : INFO : loggers.database_logger : Analysis id for this analysis will be: 38
+2023-12-07 17:18:19,094 : INFO : loggers.database_logger : Database Manager Initialized
+2023-12-07 17:18:19,094 : INFO : loggers.database_logger : A new database will created. Created and Connected to new database: online_db
+2023-12-07 17:18:19,099 : INFO : loggers.database_logger : connection successfull to online_in_memory_database
+2023-12-07 17:18:19,102 : INFO : loggers.database_logger : create_table created all tables successfully
+2023-12-07 17:18:19,103 : INFO : loggers.database_logger : Started new Analysis for user admin at time 2023-12-07 17:18:19.102185
+2023-12-07 17:18:19,103 : INFO : loggers.database_logger : Analysis id for this analysis will be: 1
+2023-12-07 17:18:19,175 : INFO : loggers.offlineplot_logger : Successfully initialized the Offline Analysis Result Visualizer
+2023-12-07 17:18:30,177 : INFO : loggers.offline_analysis_widget_logger : IV Analysis
+2023-12-07 17:18:30,178 : INFO : loggers.offlineplot_logger : Show results for current analysis with series_name = IV
+2023-12-07 17:18:30,179 : INFO : loggers.offlineplot_logger : List of available series to be visualized
+2023-12-07 17:18:30,179 : INFO : loggers.offlineplot_logger : [('IV-40_new',), ('2xRheobase',), ('Block Pulse',), ('IV',), ('Rheobase',), ('Inact',), ('Rheobase2',), ('CClamp',), ('Rheoramp',), ('5xRheo',), ('IV_40_new',), ('InputRes',)]
+2023-12-07 17:18:30,179 : INFO : loggers.offlineplot_logger : IV
+2023-12-07 17:18:30,179 : ERROR : loggers.offlineplot_logger : IV-40_new was not found in the database 
+2023-12-07 17:18:30,179 : ERROR : loggers.offlineplot_logger : 2xRheobase was not found in the database 
+2023-12-07 17:18:30,180 : ERROR : loggers.offlineplot_logger : Block Pulse was not found in the database 
+2023-12-07 17:18:30,191 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-12-07 17:18:30,197 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-12-07 17:18:30,239 : INFO : loggers.offlineplot_logger : Retrieving analysis function: No Split, 32
+2023-12-07 17:18:30,241 : INFO : loggers.offlineplot_logger : retrieving analysis function
+2023-12-07 17:18:30,241 : INFO : loggers.offlineplot_logger : No Split
+2023-12-07 17:18:30,241 : INFO : loggers.offlineplot_logger : result table list is
+2023-12-07 17:18:30,242 : INFO : loggers.offlineplot_logger : ('results_analysis_function_32_max_current',)
+2023-12-07 17:18:30,242 : INFO : loggers.offlineplot_logger : {'Boxplot': <bound method OfflinePlots.make_boxplot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'No Split': <bound method OfflinePlots.simple_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>}
+2023-12-07 17:18:30,242 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:30,279 : INFO : loggers.offlineplot_logger : ready to do the simple plot
+2023-12-07 17:18:30,280 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:30,280 : INFO : loggers.offlineplot_logger : Simple Plot with voltage steps
+2023-12-07 17:18:30,280 : INFO : loggers.offlineplot_logger :      Sweep_Number  Duration  Voltage        Result experiment_name Sweep_Table_Name  ... genotype   sex    celltype condition individuum_id meta_data
+0               1      50.0    -60.0  2.102230e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+1               2      50.0    -55.0  5.400077e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+2               3      50.0    -50.0  1.161270e-10       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+3               4      50.0    -45.0  1.570206e-10       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+4               5      50.0    -40.0  2.034590e-10       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+..            ...       ...      ...           ...             ...              ...  ...      ...   ...         ...       ...           ...       ...
+205            17      50.0     20.0  7.603984e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+206            18      50.0     25.0  8.521329e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+207            19      50.0     30.0  9.426382e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+208            20      50.0     35.0  1.043859e-08       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+209            21      50.0     40.0  1.102743e-08       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+
+[210 rows x 16 columns]
+2023-12-07 17:18:31,625 : INFO : loggers.offlineplot_logger : Simple Plot returning
+2023-12-07 17:18:31,625 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-12-07 17:18:31,625 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-12-07 17:18:31,626 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-12-07 17:18:31,639 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-12-07 17:18:31,649 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-12-07 17:18:31,688 : INFO : loggers.offlineplot_logger : Retrieving analysis function: No Split, 33
+2023-12-07 17:18:31,690 : INFO : loggers.offlineplot_logger : retrieving analysis function
+2023-12-07 17:18:31,690 : INFO : loggers.offlineplot_logger : No Split
+2023-12-07 17:18:31,690 : INFO : loggers.offlineplot_logger : result table list is
+2023-12-07 17:18:31,691 : INFO : loggers.offlineplot_logger : ('results_analysis_function_33_min_current',)
+2023-12-07 17:18:31,691 : INFO : loggers.offlineplot_logger : {'Boxplot': <bound method OfflinePlots.make_boxplot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'No Split': <bound method OfflinePlots.simple_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>}
+2023-12-07 17:18:31,691 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:31,710 : INFO : loggers.offlineplot_logger : ready to do the simple plot
+2023-12-07 17:18:31,710 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:31,710 : INFO : loggers.offlineplot_logger : Simple Plot with voltage steps
+2023-12-07 17:18:31,710 : INFO : loggers.offlineplot_logger :      Sweep_Number  Duration  Voltage        Result experiment_name Sweep_Table_Name  ... genotype   sex    celltype condition individuum_id meta_data
+0               1      50.0    -60.0 -2.229713e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+1               2      50.0    -55.0 -3.418522e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+2               3      50.0    -50.0 -5.869783e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+3               4      50.0    -45.0 -8.123631e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+4               5      50.0    -40.0 -9.513566e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+..            ...       ...      ...           ...             ...              ...  ...      ...   ...         ...       ...           ...       ...
+205            17      50.0     20.0 -9.267388e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+206            18      50.0     25.0 -8.411928e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+207            19      50.0     30.0 -7.398576e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+208            20      50.0     35.0 -6.505496e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+209            21      50.0     40.0 -5.239021e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+
+[210 rows x 16 columns]
+2023-12-07 17:18:32,941 : INFO : loggers.offlineplot_logger : Simple Plot returning
+2023-12-07 17:18:32,941 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-12-07 17:18:32,942 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 0 
+2023-12-07 17:18:32,942 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-12-07 17:18:32,954 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-12-07 17:18:32,962 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-12-07 17:18:33,001 : INFO : loggers.offlineplot_logger : Retrieving analysis function: No Split, 34
+2023-12-07 17:18:33,003 : INFO : loggers.offlineplot_logger : retrieving analysis function
+2023-12-07 17:18:33,003 : INFO : loggers.offlineplot_logger : No Split
+2023-12-07 17:18:33,003 : INFO : loggers.offlineplot_logger : result table list is
+2023-12-07 17:18:33,003 : INFO : loggers.offlineplot_logger : ('results_analysis_function_34_mean_current',)
+2023-12-07 17:18:33,003 : INFO : loggers.offlineplot_logger : {'Boxplot': <bound method OfflinePlots.make_boxplot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'No Split': <bound method OfflinePlots.simple_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>}
+2023-12-07 17:18:33,003 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:33,022 : INFO : loggers.offlineplot_logger : ready to do the simple plot
+2023-12-07 17:18:33,022 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:33,023 : INFO : loggers.offlineplot_logger : Simple Plot with voltage steps
+2023-12-07 17:18:33,023 : INFO : loggers.offlineplot_logger :      Sweep_Number  Duration  Voltage        Result experiment_name Sweep_Table_Name  ... genotype   sex    celltype condition individuum_id meta_data
+0               1      50.0    -60.0 -1.253846e-12       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+1               2      50.0    -55.0  2.545756e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+2               3      50.0    -50.0  7.271089e-11       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+3               4      50.0    -45.0  1.108547e-10       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+4               5      50.0    -40.0  1.513161e-10       220315_05          Series4  ...   group1  sex1  DRG Neuron      None             1    group1
+..            ...       ...      ...           ...             ...              ...  ...      ...   ...         ...       ...           ...       ...
+205            17      50.0     20.0  7.319851e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+206            18      50.0     25.0  8.200464e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+207            19      50.0     30.0  9.086034e-09       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+208            20      50.0     35.0  1.004409e-08       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+209            21      50.0     40.0  1.062558e-08       220810_01          Series3  ...   group2  sex2  DRG Neuron      None             6    group2
+
+[210 rows x 16 columns]
+2023-12-07 17:18:34,264 : INFO : loggers.offlineplot_logger : Simple Plot returning
+2023-12-07 17:18:34,264 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-12-07 17:18:34,264 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-12-07 17:18:34,265 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-12-07 17:18:34,278 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-12-07 17:18:34,284 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-12-07 17:18:34,324 : INFO : loggers.offlineplot_logger : Retrieving analysis function: No Split, 35
+2023-12-07 17:18:34,325 : INFO : loggers.offlineplot_logger : retrieving analysis function
+2023-12-07 17:18:34,326 : INFO : loggers.offlineplot_logger : No Split
+2023-12-07 17:18:34,326 : INFO : loggers.offlineplot_logger : result table list is
+2023-12-07 17:18:34,326 : INFO : loggers.offlineplot_logger : ('results_analysis_function_35_time_to_min',)
+2023-12-07 17:18:34,326 : INFO : loggers.offlineplot_logger : {'Boxplot': <bound method OfflinePlots.make_boxplot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'No Split': <bound method OfflinePlots.simple_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>}
+2023-12-07 17:18:34,327 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:34,348 : INFO : loggers.offlineplot_logger : ready to do the simple plot
+2023-12-07 17:18:34,348 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:34,348 : INFO : loggers.offlineplot_logger : Simple Plot with voltage steps
+2023-12-07 17:18:34,348 : INFO : loggers.offlineplot_logger :      Sweep_Number  Duration  Voltage  Result experiment_name Sweep_Table_Name series_meta_data  ...  species genotype   sex    celltype condition individuum_id meta_data
+0               1      50.0    -60.0   20.85       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+1               2      50.0    -55.0   12.45       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+2               3      50.0    -50.0   12.45       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+3               4      50.0    -45.0   12.45       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+4               5      50.0    -40.0   62.60       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+..            ...       ...      ...     ...             ...              ...              ...  ...      ...      ...   ...         ...       ...           ...       ...
+205            17      50.0     20.0   13.20       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+206            18      50.0     25.0   13.15       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+207            19      50.0     30.0   13.15       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+208            20      50.0     35.0   13.10       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+209            21      50.0     40.0   13.05       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+
+[210 rows x 16 columns]
+2023-12-07 17:18:35,606 : INFO : loggers.offlineplot_logger : Simple Plot returning
+2023-12-07 17:18:35,606 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-12-07 17:18:35,606 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 1 
+2023-12-07 17:18:35,606 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 1
+2023-12-07 17:18:35,619 : INFO : loggers.offlineplot_logger : Creating a new plot widget
+2023-12-07 17:18:35,624 : INFO : loggers.offlineplot_logger : No analysis function specified, retrieving first available analysis function
+2023-12-07 17:18:35,659 : INFO : loggers.offlineplot_logger : Retrieving analysis function: No Split, 36
+2023-12-07 17:18:35,661 : INFO : loggers.offlineplot_logger : retrieving analysis function
+2023-12-07 17:18:35,661 : INFO : loggers.offlineplot_logger : No Split
+2023-12-07 17:18:35,661 : INFO : loggers.offlineplot_logger : result table list is
+2023-12-07 17:18:35,661 : INFO : loggers.offlineplot_logger : ('results_analysis_function_36_time_to_max',)
+2023-12-07 17:18:35,661 : INFO : loggers.offlineplot_logger : {'Boxplot': <bound method OfflinePlots.make_boxplot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'No Split': <bound method OfflinePlots.simple_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Offline_Analysis.OfflinePlot.OfflinePlots object at 0x000001B654E6B490>>}
+2023-12-07 17:18:35,661 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:35,681 : INFO : loggers.offlineplot_logger : ready to do the simple plot
+2023-12-07 17:18:35,681 : INFO : loggers.offlineplot_logger : Simple Plot started
+2023-12-07 17:18:35,681 : INFO : loggers.offlineplot_logger : Simple Plot with voltage steps
+2023-12-07 17:18:35,681 : INFO : loggers.offlineplot_logger :      Sweep_Number  Duration  Voltage  Result experiment_name Sweep_Table_Name series_meta_data  ...  species genotype   sex    celltype condition individuum_id meta_data
+0               1      50.0    -60.0   34.85       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+1               2      50.0    -55.0   17.00       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+2               3      50.0    -50.0   66.85       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+3               4      50.0    -45.0   66.85       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+4               5      50.0    -40.0   66.85       220315_05          Series4             None  ...    Mouse   group1  sex1  DRG Neuron      None             1    group1
+..            ...       ...      ...     ...             ...              ...              ...  ...      ...      ...   ...         ...       ...           ...       ...
+205            17      50.0     20.0   65.40       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+206            18      50.0     25.0   65.05       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+207            19      50.0     30.0   64.15       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+208            20      50.0     35.0   65.65       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+209            21      50.0     40.0   66.55       220810_01          Series3             None  ...    Mouse   group2  sex2  DRG Neuron      None             6    group2
+
+[210 rows x 16 columns]
+2023-12-07 17:18:36,924 : INFO : loggers.offlineplot_logger : Simple Plot returning
+2023-12-07 17:18:36,926 : INFO : loggers.offlineplot_logger : Analysis function retrieved successfully No Split
+2023-12-07 17:18:36,926 : INFO : loggers.offlineplot_logger : Logging the position of the widget x pos widget = 2 
+2023-12-07 17:18:36,926 : INFO : loggers.offlineplot_logger : Logging the position of the widget y pos widget = 0
+2023-12-07 18:00:03,742 : INFO : loggers.database_logger : Started Database Logging
+2023-12-07 18:00:07,049 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-07 18:00:19,168 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-07 18:00:24,836 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-07 18:00:25,280 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-07 18:00:25,312 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-07 18:00:26,067 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-10 17:27:57,704 : INFO : loggers.database_logger : Started Database Logging
+2023-12-10 17:28:00,574 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-10 17:28:11,353 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-10 17:28:16,889 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-10 17:28:17,345 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-10 17:28:17,378 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-10 17:28:18,038 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-10 17:29:48,362 : INFO : loggers.database_logger : Started Database Logging
+2023-12-10 17:29:49,150 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-10 17:29:50,515 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-10 17:29:51,931 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-10 17:29:52,063 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-10 17:29:52,095 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-10 17:29:52,251 : INFO : loggers.start_logger : Started Program Main Logging
+2023-12-10 17:30:10,149 : INFO : loggers.database_logger : Started Database Logging
+2023-12-10 17:30:10,722 : INFO : loggers.online_logger : Started Offline Plot Logging
+2023-12-10 17:30:12,064 : INFO : loggers.treeview_logger : Started tree_view_manager Logging
+2023-12-10 17:30:13,083 : INFO : loggers.offlineplot_logger : Started Offline Plot Logging
+2023-12-10 17:30:13,212 : INFO : loggers.offline_analysis_widget_logger : Started offline_analysis_widget Logging
+2023-12-10 17:30:13,228 : INFO : loggers.database_viewer_logging : Started offline_analysis_widget Logging
+2023-12-10 17:30:13,330 : INFO : loggers.start_logger : Started Program Main Logging

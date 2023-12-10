@@ -269,7 +269,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             treeview_name = redundant.new_treeview_name
             self.logger.info(f"Data was renamed to {treeview_name}")
 
-        self.experiment_name = treeview_name
+        
         self.show_single_file_in_treeview(file_name, treeview_name)
 
     def check_if_experiments_exist_online(self, treeview_name: str) -> pd.DataFrame:
@@ -289,6 +289,9 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         """
         load the new file into the database and create a treeview from it
         """
+        # to allow mapping of the current experiment with the analysis id
+        self.experiment_name = treeview_name
+
         # create treeview of this .dat file
         if self.online_analysis_tree_view_manager is None:
             self.online_analysis_tree_view_manager = TreeViewManager(database = self.database_handler,
