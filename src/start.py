@@ -1,23 +1,27 @@
 import sys
 import os
-
-from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
-from PySide6.QtWidgets import *  # type: ignore
-from PySide6.QtTest import QTest
-
-from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
-from qt_material import apply_stylesheet
 from functools import partial
-from qt_material import QtStyleTools
-from StyleFrontend.frontend_style import Frontend_Style
-from database.data_db import DuckDBDatabaseHandler
-#from StyleFrontend.animated_ap import LoadingAnimation
-import webbrowser
 
-# needed to make the pyinstaller exe working
-import logging
-from loggers.start_logger import start_logger
+import webbrowser
+import picologging
+import Logging.config
+from qbstyles import mpl_style
+from PySide6.QtCore import QSize, Qt, QDir
+from PySide6.QtGui import QIcon # type: ignore
+from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication
+from PySide6.QtTest import QTest# type: ignore
+from qt_material import QtStyleTools
+from qt_material import apply_stylesheet
+from StyleFrontend.frontend_style import Frontend_Style
+from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
+from database.data_db import DuckDBDatabaseHandler
+import resources
+
+if getattr(sys, 'frozen', False):
+    EXE_LOCATION = sys._MEIPASS
+else:
+    EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
+
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -29,15 +33,17 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         super().__init__(parent)
         self.ui: QMainWindow = Ui_MainWindow()
+        
         self.ui.setupUi(self)
         self.setup_ui()
-        self.logger= start_logger # set the logger
+        self.logger= picologging.getLogger(__name__) # set the logger
+        self.logger.info(EXE_LOCATION)
         self.logger.info("Starting the Biophysical Essentials Program!")
-        self.frontend_style = Frontend_Style(self)
+        self.frontend_style = Frontend_Style(self, path = EXE_LOCATION)
         # Create the frontend style for the app
         self.check_already_executed: bool  = None
         # set the custom app icon
-        custom_icon = QIcon(r'../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+        custom_icon = QIcon(r'./QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
         self.setWindowIcon(custom_icon)
   
         # handler functions for the database and the database itself
@@ -45,11 +51,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         if testing_db:
             self.local_database_handler = testing_db
         else:
-            self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style)
+            self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style, database_path = os.path.join( EXE_LOCATION, "database" ))
 
         self.online_database = DuckDBDatabaseHandler(self.frontend_style,
                                                     db_file_name = "online_db",
-                                                    in_memory = True)
+                                                    in_memory = True,
+                                                    )
         if self.local_database_handler:
             self.statusBar().showMessage("Program Started and Database Connected:")
         # share the object with offline analysis and database viewer
@@ -133,7 +140,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                 if self.frontend_style.default_mode == 1:
                     new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
                     icon.addFile(
-                        f"../QT_GUI/Button/Menu/{button_image[col]}",
+                        f":/QT_GUI/Button/Menu/{button_image[col]}",
                         QSize(),
                         QIcon.Normal,
                         QIcon.Off,
@@ -141,7 +148,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                 else:
                     new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
                     icon.addFile(
-                        f"../QT_GUI/Button/Menu/{button_image_dark[col]}",
+                        f":QT_GUI/Button/Menu/{button_image_dark[col]}",
                         QSize(),
                         QIcon.Normal,
                         QIcon.Off,
@@ -207,33 +214,11 @@ if __name__ == "__main__":
     """Main function to start the application"""
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
     os.environ["QT_SCALE_FACTOR"] = '1'
-    #os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    QDir.addSearchPath('button', os.path.join(EXE_LOCATION, 'QT_GUI/Buttons'))
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    
-    import ctypes
-    import time
-    # add this to show the icon in the taskbar
-    myappid = 'mycompany.myproduct.subproduct.version' 
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    time.sleep(1)
-
-    #app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     apply_stylesheet(app, theme="dark_cyan.xml")
-    #from qt_material import export_theme
-    #export_theme(theme='dark_cyan.xml', 
-    #         qss='dark_cyan.qss', 
-    #         rcc='dark_cyan.rcc',
-    #         output='theme', 
-    #         prefix='icon:/', 
-    #        )
-    # Load styles
-    #with open('dark_cyan.qss', 'r') as file:
-    #    app.style_sheet = file.read()
-    # Load icons
-    #QDir.add_search_path('icon', 'theme')
-    
     window = MainWindow()
     window.show()
     app.exec()

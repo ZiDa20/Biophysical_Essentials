@@ -6,7 +6,7 @@ import logging
 from abc import ABC, abstractmethod
 #import debugpy
 from typing import Optional
-
+import picologging
 
 class SweepWiseAnalysisTemplate(ABC):
 	"""
@@ -20,7 +20,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		self.database = None
 		self.analysis_function_id: Optional[int] = None
 		self.time: Optional[np.ndarray] = None
-		self.logger: logging.Logger = None
+		self.logger: logging.Logger = picologging.getLogger(__name__)
 		self.not_normalize: bool = False
 		self.duration_list: Optional[list] = None
 		#self.cslow_normalization = 1

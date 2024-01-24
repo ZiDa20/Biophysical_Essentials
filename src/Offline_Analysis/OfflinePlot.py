@@ -4,10 +4,8 @@ import seaborn as sns
 import numpy as np
 from matplotlib.cm import get_cmap
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
-from loggers.offlineplot_logger import offlineplot_logger
 from mplcursors import cursor
-import matplotlib.pyplot as plt
-
+import picologging
 class OfflinePlots():
 
     """Class to handle the Plot Drawing and Calculations for the Offline Analysis
@@ -59,7 +57,7 @@ class OfflinePlots():
                                 }
 
         # initialize the logger
-        self.logger = offlineplot_logger
+        self.logger = picologging.getLogger(__name__)
         sns.set_palette("Set2")
 
     def set_frontend_axes(self, parent_widget):

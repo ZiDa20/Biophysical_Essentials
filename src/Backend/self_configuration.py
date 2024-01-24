@@ -22,8 +22,7 @@ from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import Ui_Config_Widg
 from QT_GUI.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
 import traceback, sys
 from functools import partial
-
-
+import picologging
 import shutil
 from PySide6.QtTest import QTest
 
@@ -46,7 +45,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # added the Progress Bar to the self-configuration
         self.database_handler = None
         self.frontend_style = None
-
+        self.logger= picologging.getLogger(__name__)
         #
         self.experiment_control_stacked.setCurrentIndex(0)
         self.set_buttons_beginning()
@@ -86,13 +85,11 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.check_session: bool = None
 
         # Initialize the connections
-        self.logger_setup()
         self.initialize_camera()
         self.connections_clicked_experiment()
         self.connections_clicked_camera()
         self.connection_clicked_threading()
         
-
     def connection_clicked_threading(self):
         """ connect button to the threading"""
         self.start_analysis.clicked.connect(self.make_threading) # spawns the thread
@@ -139,7 +136,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.set_solutions()
         
     def solution_dialog(self):
-        solution = SolutionsDialog(database = self.database_handler, frontend = self.frontend_style)
+        return SolutionsDialog(database = self.database_handler, frontend = self.frontend_style)
     
     def go_back(self):
         index = self.experiment_control_stacked.currentIndex()
@@ -155,17 +152,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.go_back_button.setEnabled(True)
             self.fo_forward_button.setEnabled(False)
         
-    def logger_setup(self):
-        # logger added --> ToDO: should be used for developers as well as for users should be disriminated
-        print("initialized the logger")
-        self.logger= logging.getLogger()
-        self.logger.setLevel(logging.ERROR)
-        file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
-        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.debug('A debug message')
-
     def set_solutions(self):
         """ set solutions that you can use for the experiment"""
         extracellular_solutions = self.database_handler.get_extracellular_solutions()

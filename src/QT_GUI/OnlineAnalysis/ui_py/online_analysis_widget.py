@@ -2,23 +2,20 @@ import os
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-from loggers.online_logger import online_logger
+
 import pandas as pd
-from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.figure import Figure
+from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
 from QT_GUI.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
 from Backend.online_analysis_manager import OnlineAnalysisManager
 from Backend.treeview_manager import TreeViewManager
 from Backend.plot_widget_manager import PlotWidgetManager
-from pathlib import Path
-from functools import partial
+
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
 from DataReader.ABFclass import AbfReader
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
 from database.DuckDBInitalizer import DuckDBInitializer
-from queue import Queue
-
+import picologging
 import numpy as np
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
@@ -47,7 +44,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         ##########
 
         # Connect the buttons, connect the logger
-        self.logger = online_logger
+        self.logger = picologging.getLogger(__name__)
         self.connections_clicked()
 
         self.database_handler = None # online db

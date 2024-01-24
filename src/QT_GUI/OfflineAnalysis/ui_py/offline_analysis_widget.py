@@ -4,7 +4,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
-from PySide6.QtGui import QFont, QFontMetrics, QTransform
+
 
 from PySide6.QtTest import QTest
 from Offline_Analysis.offline_analysis_manager import OfflineManager
@@ -20,9 +20,7 @@ from Threading.Worker import Worker
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from functools import partial
-import operator
-import itertools
-
+import picologging
 
 from database.PostSql_Handler import PostSqlHandler
 from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
@@ -39,7 +37,6 @@ from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler impor
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
 from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
-from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
 from Offline_Analysis.FinalResultHolder import ResultHolder
 from QT_GUI.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
@@ -51,7 +48,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Set
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 from QT_GUI.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
 
-from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
+
 from StyleFrontend.animated_ap import LoadingAnimation
 
 from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
@@ -121,7 +118,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.turn_off_grid.clicked.connect(partial(self.grid_button_clicked, True))
         self.show_pgf_trace.clicked.connect(partial( self.grid_button_clicked, False))
 
-        self.logger = offline_analysis_widget_logger
+        self.logger = picologging.getLogger(__name__)
         self.logger.info("init finished")
 
         self.advanced_analysis.clicked.connect(self.show_second_layor_analysis)

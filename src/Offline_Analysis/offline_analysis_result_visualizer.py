@@ -10,7 +10,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
 from Offline_Analysis.OfflinePlot import OfflinePlots
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
-from loggers.offlineplot_logger import offlineplot_logger
+import picologging
 
 if TYPE_CHECKING:
     import logging
@@ -50,7 +50,7 @@ class OfflineAnalysisResultVisualizer():
                      self.final_result_holder)
 
         self.change_meta_data = plot_meta_button
-        self.logger: logging.Logger = offlineplot_logger
+        self.logger: logging.Logger = picologging.getLogger(__name__)
         self.logger.info("Successfully initialized the Offline Analysis Result Visualizer")
 
 

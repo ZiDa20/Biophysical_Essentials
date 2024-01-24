@@ -9,13 +9,12 @@ from QT_GUI.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
 from QT_GUI.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
 import duckdb
-from loggers.database_viewer_logging import database_viewer_logger
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 from QT_GUI.DatabaseViewer.ui_py.DatabaseTable import Ui_DatabaseTable
 from QT_GUI.DatabaseViewer.ui_py.ListViewTables import Ui_ListViewTables
 from database.data_db import DuckDBDatabaseHandler
 from StyleFrontend.frontend_style import Frontend_Style
-
+import picologging
     
 class Database_Viewer(QWidget, Ui_Database_Viewer):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -31,7 +30,7 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
     
         # setup the logger
         self.data_base_content_model: Optional[PandasTable] = None
-        self.logger = database_viewer_logger
+        self.logger = picologging.getLogger(__name__)
         self.suggestions: Optional[list] = None
         #self.connect_to_database.clicked.connect(self.show_basic_tables)
         self.execute_dialog: QDialog = ExecuteDialog()
