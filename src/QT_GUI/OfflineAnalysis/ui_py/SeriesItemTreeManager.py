@@ -363,10 +363,8 @@ class SeriesItemTreeWidget():
                     self.set_ribbon_bar_page(2)
 
                 if self.SeriesItems.currentItem().text(0) == "Statistics":
-
                     # get the qtdesigner created table widget
                     statistics_table_widget = StatisticsTablePromoted(parent_stacked, self.analysis_stacked, self.hierachy_stacked_list,self.SeriesItems, self.database_handler,self.frontend_style)
-
                     # add it to the statistic child in the tree
                     self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
                     self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)

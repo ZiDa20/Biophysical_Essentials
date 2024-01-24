@@ -66,10 +66,7 @@ class OfflineAnalysisResultVisualizer():
 
         q = """select analysis_series_name from analysis_series where analysis_id = (?)"""
 
-        print(self.database_handler.database.execute("""select analysis_series_name
-                                                     from analysis_series
-                                                     where analysis_id = 4""").fetchdf())
-
+    
         list_of_series = self.database_handler.get_data_from_database(self.database_handler.database, q,
                                                                         [analysis_id])
 
@@ -77,13 +74,17 @@ class OfflineAnalysisResultVisualizer():
         self.logger.info(list_of_series)
         self.logger.info(series_name)
         
-        for series in list_of_series:
-            # create visualization for each specific series in specific tabs
-            # print("running analysis")
-            if series[0] == series_name:
-                return self.analysis_function_specific_visualization(series[0],analysis_id)
-            else:
-                print("The logger should be added here to show that the series is not available in the database")
+        try:
+            for series in list_of_series:
+                # create visualization for each specific series in specific tabs
+                # print("running analysis")
+                if series[0] == series_name:
+                    print("all good")
+                    return self.analysis_function_specific_visualization(series[0],analysis_id)
+                else:
+                    self.logger.error(f'{series[0]} was not found in the database ')
+        except Exception as e:
+            self.logger.error("show_results_for_current_analysis: Error occured",e)
 
 
     def analysis_function_specific_visualization(self,series,analysis_id):
@@ -95,8 +96,12 @@ class OfflineAnalysisResultVisualizer():
         """
 
         # series name e.g. IV
-        q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
-        list_of_analysis = self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
+        #q = """select distinct analysis_function_id from analysis_functions where analysis_id = (?) and analysis_series_name =(?)"""
+        #q = f'select function_name, analysis_function_id from analysis_functions where analysis_id = {self.analysis_id} and analysis_series_name=\'{series_name}\''
+        
+        list_of_analysis = self.database_handler.get_analysis_functions_for_specific_series(series)
+        
+        #self.database_handler.get_data_from_database(self.database_handler.database, q, (analysis_id,series))
 
         # print("series= " + series)
         # print("list of analysis")
@@ -111,33 +116,36 @@ class OfflineAnalysisResultVisualizer():
             # create new custom plot visualizer and parametrize data
             custom_plot_widget = ResultPlotVisualizer(self.offline_tree)
             custom_plot_widget.analysis_id = analysis_id
-            custom_plot_widget.analysis_function_id = analysis[0]
+            custom_plot_widget.analysis_function_id = analysis[1]
             custom_plot_widget.series_name = series
-            analysis_name = self.database_handler.get_analysis_function_name_from_id(analysis[0])
+            analysis_name = analysis[0]
             custom_plot_widget.analysis_name = analysis_name
             custom_plot_widget.specific_plot_box.setTitle(f"Analysis: {analysis_name}")
             custom_plot_widget.save_plot_button.clicked.connect(partial(self.save_plot_as_image, custom_plot_widget))
             custom_plot_widget.export_data_button.clicked.connect(partial(self.export_plot_data,custom_plot_widget))
             
-            if analysis_name != "Action_Potential_Fitting":
-                self.clear_plot_type_parameter_selection_layout(custom_plot_widget)
+            try:
+                if analysis_name != "Action_Potential_Fitting":
+                    self.clear_plot_type_parameter_selection_layout(custom_plot_widget)
 
-            # fill the plot widget with analysis specific data
-            self.single_analysis_visualization(custom_plot_widget)
+                # fill the plot widget with analysis specific data
+                self.single_analysis_visualization(custom_plot_widget)
+                
+                # widgets per row = 2
+                widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
+                widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
+
+                self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
+                self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
             
-            # widgets per row = 2
-            widget_x_pos = list_of_analysis.index(analysis) // 2#1  # 2 widgets per row
-            widgte_y_pos = list_of_analysis.index(analysis) % 2# 1 # 2 widgets per row
+                custom_plot_widget.specific_plot_box.adjustSize()
+                
+                offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
 
-            self.logger.info(f"Logging the position of the widget x pos widget = {widget_x_pos} ")
-            self.logger.info(f"Logging the position of the widget y pos widget = {widgte_y_pos}")
-           
-            custom_plot_widget.specific_plot_box.adjustSize()
-            
-            offline_tab.OfflineResultGrid.addWidget(custom_plot_widget, widget_x_pos+1, widgte_y_pos)
-
-            parent_list.append(custom_plot_widget)
-
+                parent_list.append(custom_plot_widget)
+            except Exception as e:
+                CustomErrorDialog(f"analysis_function_specific_visualization: Error detected {e}", self.frontend_style)
+                self.logger.error(f"analysis_function_specific_visualization: Error detected",e)
 
         # after all plots have been added
         self.visualization_tab_widget.currentItem().parent().setData(10, Qt.UserRole, parent_list)
@@ -177,7 +185,12 @@ class OfflineAnalysisResultVisualizer():
 
         parents = self.visualization_tab_widget.currentItem().parent().data(10, Qt.UserRole)
         for parent in parents:
-            self.offlineplot.retrieve_analysis_function(parent_widget = parent)
+            try:
+                self.offlineplot.retrieve_analysis_function(parent_widget = parent)
+            except Exception as e:
+                print("Could not retrieve analysis function")
+                CustomErrorDialog(f'An error occured while retrieving the analysis function: {str(e)}',self.frontend_style)
+
         return None
 
     def single_analysis_visualization(self,parent_widget,analysis_function=None, switch = None):
@@ -289,7 +302,7 @@ class OfflineAnalysisResultVisualizer():
         @author dz, 13.07.2022
         """
         self.logger.info("Saving plot as image")
-        file_filter = "Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
+        file_filter = "Portable Document Format (*.pdf);;Scalable Vector Graphics (*.svg);;Portable Network Graphics (*.png)"
         result_path = QFileDialog.getSaveFileName(filter=file_filter)[0]
         parent_widget.canvas.print_figure(result_path)
         self.logger.info("Saved plot as image succesfully")

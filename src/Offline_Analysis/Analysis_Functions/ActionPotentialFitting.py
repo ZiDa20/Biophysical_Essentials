@@ -9,7 +9,7 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
     
     def __init__(self):
         super().__init__()
-        self.plot_type_options = ["Parameter-Heatmap", "Mean_Action_Potential_Fitting", "PCA-Plot", "Single_AP_Parameter"]
+        self.plot_type_options = ["Parameter-Heatmap", "Mean_Action_Potential_Fitting", "Single_AP_Parameter"]
         self.function_name = "Action_Potential_Fitting"
     
     def show_configuration_options(self):

@@ -65,7 +65,20 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.setup_config_online_style() # connects to the online analysis and database viewer
         self.ui.side_left_menu.hide()
         self.connect_buttons_start()
-        
+    
+    def set_background_logo(self):
+        """Set the background logo on the start page only
+        """
+        style_sheet = (
+            "QFrame#frame {"\
+            "background-image: url(../QT_GUI/Button/Logo/welcome_page_background_logo.png);" \
+            "background-repeat: no-repeat;" \
+            "background-position: center;" \
+            "}"
+        )
+
+        self.ui.frame.setStyleSheet(style_sheet)
+
     def setup_ui(self) -> None:
         """Set up the user interface"""
         self.setMinimumSize(1600,800)
@@ -99,7 +112,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.online_analysis_home_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 2))
         self.ui.database_viewer_home_2.clicked.connect(self.initialize_database)
         self.ui.home_logo.clicked.connect(self.open_bpe_webside)
-        self.ui.toolButton_2.clicked.connect(partial(self.ui.notebook.setCurrentIndex, 5))
+        
+        self.ui.toolButton_2.clicked.connect(self.handle_settings_page)
+
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
         self.ui.offline.home_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
@@ -107,6 +122,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
+
+    def handle_settings_page(self):
+        """@todo: implement settings needs
+        """
+        ConstrcutionSideDialog(self.frontend_style)
+        #artial(self.ui.notebook.setCurrentIndex, 5)
+
 
     def insert_row_of_buttons(self) -> None:
         """
@@ -117,8 +139,8 @@ class MainWindow(QMainWindow, QtStyleTools):
             #self.ui.side_left_menu.show()
             functions_list = [self.start_new_offline_analysis_from_dir, 
                               self.start_new_offline_analysis_from_db, 
-                              self.open_analysis, 
-                              self.go_to_offline_analysis]
+                              self.open_analysis]#, 
+                              #self.go_to_offline_analysis]
             button_txt = ["New Analysis From Directory", 
                           "New Analysis From Database", 
                           "Open Existing Analysis", 
@@ -170,12 +192,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.check_already_executed = self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    def go_to_offline_analysis(self) -> None:
-        """This opens the notebook page that has the Offline Analysis integrated
-        """
-        self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
-        self.ui.notebook.setCurrentIndex(3)
-        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
+    # deprecated ? dz 13.11.2023H
+    #def go_to_offline_analysis(self) -> None:
+    #    """This opens the notebook page that has the Offline Analysis integrated
+    #    """
+    #    self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
+    #    self.ui.notebook.setCurrentIndex(3)
+    #    QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
     def start_new_offline_analysis_from_dir(self)-> None:
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
@@ -190,7 +213,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.check_already_executed:
             self.ui.offline.reset_class()
         self.check_already_executed = self.ui.offline.load_treeview_from_database()
-        self.go_to_offline_analysis()
+        #self.go_to_offline_analysis()
         
     def open_bpe_webside(self)-> None:
         """open the webside of BPE"""

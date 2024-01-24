@@ -41,14 +41,11 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QSize(1280, 950))
         MainWindow.setMaximumSize(QSize(16777215, 16777215))
-        MainWindow.setStyleSheet(u"QMainWindow{\n"
-"border-radius: 10px\n"
-"}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
-        self.centralwidget.setStyleSheet(u"")
+
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -58,8 +55,11 @@ class Ui_MainWindow(object):
         self.notebook.setSizePolicy(sizePolicy)
         self.notebook.setMinimumSize(QSize(1100, 900))
         self.notebook.setMaximumSize(QSize(16777215, 2000))
+        #self.notebook.setStyleSheet(style_sheet)
+        
         self.home = QWidget()
         self.home.setObjectName(u"home")
+
         self.gridLayout_5 = QGridLayout(self.home)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
@@ -69,6 +69,7 @@ class Ui_MainWindow(object):
         self.frame.setObjectName(u"frame")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
+       
         self.gridLayout_2 = QGridLayout(self.frame)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_4 = QGridLayout()

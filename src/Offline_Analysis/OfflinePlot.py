@@ -105,7 +105,14 @@ class OfflinePlots():
         if switch:
             self.parent_widget.holded_dataframe = None
 
-        analysis_function = self.parent_widget.plot_type_combo_box.currentText()
+        # the combo box could have been already deleted     
+        try:
+            analysis_function = self.parent_widget.plot_type_combo_box.currentText()
+        except Exception as e:
+            analysis_class_name = self.parent_widget.analysis_name
+            class_object = AnalysisFunctionRegistration.get_registered_analysis_class(analysis_class_name)
+            analysis_function = class_object().plot_type_options[0]
+
         analysis_function_id = self.parent_widget.analysis_function_id
         self.logger.info(f"Retrieving analysis function: {analysis_function}, {analysis_function_id}")
         # should retrieve the right function based on the selected analysis function
@@ -476,6 +483,7 @@ class OfflinePlots():
         self.parent_widget.holded_dataframe["meta_data"] = self.parent_widget.holded_dataframe[self.parent_widget.selected_meta_data].agg('::'.join, axis=1)
         self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe
         self.parent_widget.statistics = self.parent_widget.holded_dataframe
+        sns.set_palette("colorblind")
         sns.lineplot(data = self.parent_widget.holded_dataframe , x= "AP_Timing", y = "AP_Window", hue = "meta_data", ax = self.parent_widget.ax)
         # errorbar=("se", 2),
         self.parent_widget.canvas.draw_idle()
@@ -557,20 +565,18 @@ class OfflinePlots():
         else: # if stable voltage dependency
             self.logger.info("Simple Plot with voltage steps")
             self.logger.info(plot_dataframe)
+            sns.set_palette("colorblind")
             try:
                 if "meta_data" in plot_dataframe.columns:
                    g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+                   pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
                 else:
                     g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
+                    pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["series_meta_data"], values = "Result")
             except Exception as e:
                 g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
                 # errorbar=("se", 2) not working with the current seaborn version
             self.parent_widget.connect_hover(g)
-            try:
-                #pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["meta_data"], values = "Result")
-                pivoted_table =  pd.pivot_table(plot_dataframe, index = [value], columns = ["series_meta_data"], values = "Result")
-            except Exception as e:
-                print(e)
 
         self.parent_widget.ax.autoscale()
         self.parent_widget.canvas.figure.tight_layout()
@@ -586,6 +592,7 @@ class OfflinePlots():
         """
         # check if violin parameter is set then use the violin plots
         #sns.lineplot(data = plot_dataframe, x = "Duration", y = "Result", hue = "meta_data", ax = self.parent_widget.ax)
+        sns.set_palette("colorblind")
         if self.parent_widget.selected_meta_data == ["experiment_name"]:
             sns.boxplot(data = plot_dataframe, x = "Duration", y = "Result", ax = self.parent_widget.ax)
         else:
@@ -610,6 +617,7 @@ class OfflinePlots():
         Args:
             plot_dataframe (pd.DataFrame): DataFrame long format holding result data
         """
+        sns.set_palette("colorblind")
         g = sns.violinplot(data = plot_dataframe,
                     x="meta_data",
                     y = "Result",
@@ -624,6 +632,7 @@ class OfflinePlots():
         Args:
             plot_dataframe (pd.DataFrame): DataFrame long format holding result data
         """
+        sns.set_palette("colorblind")
         sns.boxplot(data = plot_dataframe,
                     x="meta_data",
                     y = "Result",
@@ -633,6 +642,7 @@ class OfflinePlots():
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
     def swarm_plot(self, plot_dataframe: pd.DataFrame, size: int, g) -> None:
+        sns.set_palette("colorblind")
         z = sns.swarmplot(
             data=plot_dataframe,
             x="meta_data",
@@ -650,7 +660,8 @@ class OfflinePlots():
         """_summary_: Creates a scatter plot from the data
         plot_dataframe needs to have the columns PC1 and PC2
         explaind_ratios is a list of the explained ratios of the first two components"""
-
+        
+        sns.set_palette("colorblind")
         scatter_plot = sns.scatterplot(x = "PC1", y = "PC2", data = plot_dataframe, hue = "meta_data", ax = self.parent_widget.ax, s = 50, linewidth = False)
         
         if explaind_ratios:
@@ -686,6 +697,7 @@ class OfflinePlots():
         Args:
             plot_dataframe (_type_): _description_
         """
+        sns.set_palette("colorblind")
         sns.lineplot(data = plot_dataframe, x = "Rheoramp", y = "Number AP", hue = "meta_data", ax = self.parent_widget.ax, legend = False)
         # @todo: statannotations requires a seaborn version < 0.12 but <0.12 does not have the errobar function
         #errorbar=("se", 2),
@@ -700,7 +712,7 @@ class OfflinePlots():
         if palette is None:
             default_colors = get_cmap('tab10')
             palette = {k: default_colors(i) for i, k in enumerate(levels)}
-
+        sns.set_palette("colorblind")
         return [
             sns.regplot(
                 x=x, y=y, data=data[data[hue] == key], color=palette[key], **kwargs

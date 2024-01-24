@@ -3,6 +3,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from scipy import stats
 from functools import partial
 import pandas as pd
+import numpy as np
 
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_result_template_handler import StatisticsResultTemplate
@@ -17,7 +18,7 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
     def __init__(self, parent_stacked, analysis_stacked, hierachy_stacked_list, SeriesItems, database_handler, frontend_style, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        
+        self.functions_without_statistics = ["PCA", "Peak-Detection"]
         self.tabWidget.widget(1).hide()
         self.statistics_table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.statistics_table_widget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -68,12 +69,10 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             if i != word_analysis_index-1:
                 self.series_name = self.series_name + " "
         
-        tuple_list = self.database_handler.get_analysis_functions_for_specific_series(self.series_name) # list of tuples
+        tuple_list = self.database_handler.get_analysis_functions_for_specific_series(self.series_name) # list of tuples  
         self.analysis_functions = [item[0] for item in tuple_list]
 
         existing_row_numbers = self.statistics_table_widget.rowCount() #initiate the table in case there are no rows yet
-
-
 
         if  existing_row_numbers == 0:
             # MUsT BE SPECIFIED DOES NOT WORK WITHOUT TAKES YOU 3 H of LIFE WHEN YOU DONT DO IT ;) !
@@ -107,15 +106,24 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         self.scroll_area_container_widget.setLayout(self.scroll_area_container_layout)
         scroll_area.setWidget(self.scroll_area_container_widget)
 
+        show_custom_dialog = False
+        custom_dialog_message = ""
 
         for i in range(len(self.analysis_functions)):
-
-            if self.analysis_functions[i] == "Action_Potential_Fitting":
-                df = self.get_analysis_specific_statistics_df(i)
-                self.autofill_ap_fitting(df,existing_row_numbers)
-            else:
-               self.autofill_by_analysis_function(i, self.analysis_functions,existing_row_numbers)
         
+            if  self.analysis_functions[i] not in self.functions_without_statistics:
+                if self.analysis_functions[i] == "Action_Potential_Fitting":
+                    df = self.get_analysis_specific_statistics_df(i)
+                    self.autofill_ap_fitting(df,existing_row_numbers)
+                else:
+                    self.autofill_by_analysis_function(i, self.analysis_functions,existing_row_numbers)
+            else:
+                custom_dialog_message = custom_dialog_message + self.analysis_functions[i] + ", "
+                show_custom_dialog = True
+        
+        if show_custom_dialog:
+            CustomErrorDialog("Statistics are not available for the following analysis functions: " + custom_dialog_message, self.frontend_style)
+
         self.statistics_table_widget.resizeRowsToContents()   
         start_statistics = QPushButton("Run Statistic Test")
         self.verticalLayout_2.addWidget(start_statistics)
@@ -225,7 +233,9 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             elif  "AP_Window" in df.columns:
                 result_column = "AP_Window"
             elif "Rheoramp" in df.columns:
-                result_column = "Number AP" 
+                result_column = "Number AP"
+            else: # e.g. PCA 
+                return
 
             shapiro_test = stats.shapiro(df[result_column])
             grouped_data = df.groupby('meta_data')[result_column]
@@ -430,11 +440,11 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
          
         if test_type in self.available_multi_group_test:
             result_widget = StatisticsResultTemplate(self.statistics_table_widget.item(row,1).text(), test_type, df, res_df, pairs, result_column_name)
-            result_widget.statistics_table_view.resizeColumnsToContents()
-            
         else:
             result_widget = StatisticsResultTemplate(self.statistics_table_widget.item(row,1).text(), test_type, df, res_df, pairs, result_column_name, step_column_name, voltage_steps)
-        
+
+        result_widget.statistics_table_view.resizeColumnsToContents()
+        result_widget.statistics_table_view.resizeRowsToContents()
         # Set the minimum height of the result widget
         result_widget.setMinimumHeight(400)
         self.scroll_area_container_layout.addWidget(result_widget)
@@ -507,17 +517,23 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
             elif test_type == "Wilcoxon Signed-Rank test":
                 res = stats.wilcoxon(group1,group2)
 
+            g0 = [f'{group_pair[0]}: \n {np.mean(group1):.2f} ± {np.std(group1)/2:.2f}']
+            g1 = [f'{group_pair[1]}: \n {np.mean(group2):.2f} ± {np.std(group2)/2:.2f}']
+
             if data_type: # for all voltage clamp recordings and other step protocols, such as the rheoramp (ramp1,2,... )
-                tmp = pd.DataFrame({data_type:voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
+                tmp = pd.DataFrame({data_type:voltage, "Group_1":g0, "Group_2":g1, "p_Value":[round(res.pvalue,4)]})
             else:
-                tmp = pd.DataFrame({"Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":[round(res.pvalue,4)]})
+                tmp = pd.DataFrame({"Group_1":g0, "Group_2":g1, "p_Value":[round(res.pvalue,4)]})
 
         except Exception as e:
             print("Error in statistics", e)
+            g0 = [f'{group_pair[0]}: {np.mean(group1):.2f} ± {np.std(group1):.2f}']
+            g1 = [f'{group_pair[1]}: {np.mean(group2):.2f} ± {np.std(group2):.2f}']
+
             if data_type == "Voltage":
-                tmp = pd.DataFrame({"Voltage":voltage, "Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":["Error"]})
+                tmp = pd.DataFrame({"Voltage":voltage, "Group_1":g0, "Group_2":g1, "p_Value":["Error"]})
             else:
-                tmp = pd.DataFrame({"Group_1":[group_pair[0]], "Group_2":[group_pair[1]], "p_Value":["Error"]})
+                tmp = pd.DataFrame({"Group_1":g0, "Group_2":g1, "p_Value":["Error"]})
 
         return tmp
 

@@ -8,14 +8,17 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 import seaborn as sns
+from Offline_Analysis.error_dialog_class import CustomErrorDialog
 class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
 
-    def __init__(self, database_handler, result_visualizer, parent=None):
+    def __init__(self, database_handler, result_visualizer, frontend_stlye, parent=None):
         
         super().__init__(parent)
         self.setupUi(self)
  
         self.database_handler = database_handler
+        self.frontend_style = frontend_stlye
+
         self.cancel.clicked.connect(self.close)
         self.run_second_layer_analysis_function.clicked.connect(self.run_second_layer_analysis)
         
@@ -90,8 +93,10 @@ class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
        if len(analysis_function_list) == 1:
            analysis_function_tuple = self.name_tuple_mapping[analysis_function_list[0]]
            table_name = "results_analysis_function_"+str(analysis_function_tuple[1])+"_"+analysis_function_tuple[0]
-           
-           plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc([table_name], self.database_handler)
+           try:
+               plot_dataframe, self.explained_ratio = SpecificAnalysisFunctions.pca_calc([table_name], self.database_handler)
+           except Exception as e:
+               CustomErrorDialog(f'PCA could not be calculated. Please check if the selected analysis function is correct and has more than 2 results to be compared. Error: {e}',self.frontend_style)
        else:
            concatted_result_table = pd.DataFrame()
            for analysis in analysis_function_list:

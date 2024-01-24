@@ -13,7 +13,6 @@ from DataReader.heka_reader import Bundle
 from Offline_Analysis.tree_model_class import TreeModel
 import picologging
 from Offline_Analysis.error_dialog_class import CustomErrorDialog
-#import debugpy
 from DataReader.SegmentENUM import EnumSegmentTypes
 from PySide6.QtWidgets import QApplication
 
@@ -91,9 +90,9 @@ class TreeViewManager:
           bundle_list type: list of tuples - the list of bundles that were read
 
         """
-        #debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         abf_list = []
+
         for i in dat_files:
             abf_file_data = []
             try:
@@ -144,6 +143,7 @@ class TreeViewManager:
         returns:
             database type: database object - the database to write the data into
         """
+
         self.meta_data_assigned_experiment_names =  [i[0] for i in self.meta_data_assignment_list]
         ################################################################################################################
         #Progress Bar setup
@@ -170,7 +170,7 @@ class TreeViewManager:
                     f"The DAT file could not be written to the database: {str(i[0])} the error occured: {str(e)}"
                 )
                 try:
-                    progress_callback.emit((progress_value,i))
+                     progress_callback.emit((round(progress_value,2),i))
                 except Exception as es:
                     print(es)
                     self.database_handler.database.close() # we close the database connection and emit an error message
@@ -181,8 +181,7 @@ class TreeViewManager:
             try:
                 progress_value = progress_value + increment
                 self.single_abf_file_into_db(i, self.database_handler)
-                progress_callback.emit((round(progress_value,i)))
-
+                progress_callback.emit((round(progress_value,2),i))
             except Exception as e:
                 print(e)
                 self.logger.error(
@@ -818,7 +817,6 @@ class TreeViewManager:
             data_access_array (_type_): _description_
             pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
         """
-        #debugpy.debug_this_thread()
         if database is None:
             database = self.database_handler
 
@@ -954,36 +952,40 @@ class TreeViewManager:
 
     def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
-        print("single file into db" )
-        print("adding to experiments", abf_bundle[1][0])
-        database.add_experiment_to_experiment_table(abf_bundle[1][0])
+        
+        try:
+            print("single file into db" )
+            print("adding to experiments", abf_bundle[1][0])
+            database.add_experiment_to_experiment_table(abf_bundle[1][0])
 
-        pos = self.meta_data_assigned_experiment_names.index(abf_bundle[1][0])
-        meta_data = self.meta_data_assignment_list[pos]
-        database.add_experiment_to_global_meta_data(-1 ,meta_data)
+            pos = self.meta_data_assigned_experiment_names.index(abf_bundle[1][0])
+            meta_data = self.meta_data_assignment_list[pos]
+            database.add_experiment_to_global_meta_data(-1 ,meta_data)
 
-        print("we try to enter the abf file funciton in treeview manager")
-        for series_count, sweep in enumerate(abf_bundle[0], start=1):
+            print("we try to enter the abf file funciton in treeview manager")
+            for series_count, sweep in enumerate(abf_bundle[0], start=1):
 
-            database.add_single_series_to_database(
-                abf_bundle[1][0], sweep[3], f"Series{str(series_count)}"
-            )
+                database.add_single_series_to_database(
+                    abf_bundle[1][0], sweep[3], f"Series{str(series_count)}"
+                )
 
-            database.add_sweep_df_to_database(
-                abf_bundle[1][0],
-                f"Series{str(series_count)}",
-                sweep[0],
-                sweep[1],
-                False,
-            )
+                database.add_sweep_df_to_database(
+                    abf_bundle[1][0],
+                    f"Series{str(series_count)}",
+                    sweep[0],
+                    sweep[1],
+                    False,
+                )
 
-            pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
-            database.create_series_specific_pgf_table(
-                sweep[2].set_index("series_name").reset_index(),
-                pgf_table_name,
-                abf_bundle[1][0],
-                f"Series{str(series_count)}",
-            )
+                pgf_table_name = "pgf_table_" + abf_bundle[1][0] + "_" + "Series" + str(series_count)
+                database.create_series_specific_pgf_table(
+                    sweep[2].set_index("series_name").reset_index(),
+                    pgf_table_name,
+                    abf_bundle[1][0],
+                    f"Series{str(series_count)}",
+                )
+        except Exception as e:
+            print("error detected")
 
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
         """
