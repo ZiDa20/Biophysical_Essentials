@@ -204,14 +204,14 @@ class MainWindow(QMainWindow, QtStyleTools):
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
         #self.go_to_offline_analysis()
         if self.check_already_executed:
-            self.ui.offline.reset_class()
+            self.ui.offline.reset_class(path_to_database = os.path.join( EXE_LOCATION, "database" ))
         self.ui.offline.open_directory()
 
     def start_new_offline_analysis_from_db(self)-> None:
         "start new offline analysis, therefore let the user choose a data from the database"
         
         if self.check_already_executed:
-            self.ui.offline.reset_class()
+            self.ui.offline.reset_class(path_to_database = os.path.join( EXE_LOCATION, "database" ))
         self.check_already_executed = self.ui.offline.load_treeview_from_database()
         #self.go_to_offline_analysis()
         

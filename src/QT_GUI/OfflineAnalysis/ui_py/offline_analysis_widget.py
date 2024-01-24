@@ -1256,7 +1256,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.ribbon_series_normalization.setCurrentIndex(current_index)
 
 
-    def reset_class(self, new_analysis = True):
+    def reset_class(self, new_analysis = True, path_to_database = None):
         """resets the class to its orignal point and adds a new 
         offline analysis id"""
         #reset the complete offline_stages
@@ -1265,7 +1265,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
      
         if new_analysis: 
             self.database_handler.database.close()
-            self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
+            self.database_handler = DuckDBDatabaseHandler(self.frontend_style, database_path = path_to_database)
         self.blank_analysis_tree_view_manager.clear_tree()
         self.blank_analysis_plot_manager.canvas.figure.clf()
         self.blank_analysis_plot_manager.canvas.draw_idle()
