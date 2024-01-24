@@ -247,7 +247,7 @@ class SweepWiseAnalysisTemplate(ABC):
                     unit_name: str, 
                     normalization_values: pd.DataFrame, 
                     data_table: str, 
-                    res: Optional[np.ndarray|float]):
+                    res):
 		"""_summary_: Function that normalizes the data according to the unit"""
   
 		if (unit_name == "Voltage") and not self.not_normalize:
