@@ -155,6 +155,7 @@
     <file>QT_GUI/Button/Menu/go_right.png</file>
     <file>QT_GUI/Button/Menu/open_dir_dark.png</file>
     <file>QT_GUI/Button/Menu/db_dark.png</file>
+    <file>QT_GUI/Button/Logo/welcome_page_background_logo.png</file>
 
 </qresource>
 </RCC>

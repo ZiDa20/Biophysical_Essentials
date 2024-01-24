@@ -35,6 +35,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui: QMainWindow = Ui_MainWindow()
         
         self.ui.setupUi(self)
+        self.set_background_logo()
         self.setup_ui()
         self.logger= picologging.getLogger(__name__) # set the logger
         self.logger.info(EXE_LOCATION)
@@ -70,10 +71,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         """Set the background logo on the start page only
         """
         style_sheet = (
-            "QFrame#frame {"\
-            "background-image: url(../QT_GUI/Button/Logo/welcome_page_background_logo.png);" \
-            "background-repeat: no-repeat;" \
-            "background-position: center;" \
+            "QFrame#frame {"
+            "background-image: url(:/QT_GUI/Button/Logo/welcome_page_background_logo.png);"
+            "background-repeat: no-repeat;"
+            "background-position: center;"
             "}"
         )
 
