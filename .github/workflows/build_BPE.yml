@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         python-version: [3.9]
 
     steps:
@@ -32,7 +32,6 @@ jobs:
     - name: Install dependencies
       working-directory: src  
       run: |
-
         poetry install
 
     - name: Build with PyInstaller
@@ -40,4 +39,14 @@ jobs:
       run: |
         pyinstaller start.spec
 
+    - name: Zip dist directory
+      working-directory: src
+      run: |
+          zip -r dist.zip dist/
+          
+    - name: Upload dist directory
+      uses: actions/upload-artifact@v2
+      with:
+        name: dist-${{ matrix.os }}
+        path: src/dist.zip
     
