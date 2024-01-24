@@ -43,7 +43,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         # Create the frontend style for the app
         self.check_already_executed: bool  = None
         # set the custom app icon
-        custom_icon = QIcon(r'./QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+        custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
         self.setWindowIcon(custom_icon)
   
         # handler functions for the database and the database itself

@@ -5,7 +5,7 @@ from functools import partial
 
 
 class SeriesDialog(QDialog):
-    
+
     def __init__(self,database_handler, frontend_style, series_combo, parent=None) -> None:
         super().__init__(parent)
         self.database_handler = database_handler
@@ -13,8 +13,8 @@ class SeriesDialog(QDialog):
         self.series_combo = series_combo
         self.final_series = []
         self.setup_ui()
-        
-        
+
+
     def setup_ui(self):
             """
             Opens a popup and displays available series to be analyzed in the selected experiments
@@ -36,25 +36,25 @@ class SeriesDialog(QDialog):
             self.checkbox_list = []
             self.name_list = []
 
-           
+
             for s in series_names_string_list:
                 c = QCheckBox()
                 self.checkbox_list.append(c)
-               
+
                 self.dialog_grid.addWidget(c, series_names_string_list.index(s) + 2, 0)
                 if s=="All":
                      c.stateChanged.connect(self.check_all_clicked)
                      self.name_list.append("All")
                      c.setText("All")
-                else:  
+                else:
                     self.name_list.append(s[0])
                     c.setText(s[0])
 
-                
+
 
             self.confirm_series = QPushButton("Compare Series", self)
             self.quit = QPushButton("Cancel", self)
-            
+
             self.dialog_grid.addWidget(self.confirm_series, len(self.name_list) + 2, 0)
             self.dialog_grid.addWidget(self.quit,len(self.name_list) + 2, 1)
             self.confirm_series.clicked.connect(self.compare_series_clicked)
@@ -64,9 +64,9 @@ class SeriesDialog(QDialog):
 
              # Adjust the size of the QGroupBox to its content
             gb.adjustSize()
-            
+
             # set the custom app icon
-            custom_icon = QIcon(r'../QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+            custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
             self.setWindowIcon(custom_icon)
             self.show()
 
@@ -95,7 +95,7 @@ class SeriesDialog(QDialog):
 
         self.final_series.extend(self.series_to_analyze)
         self.close()
-        
+
     def get_selected_checkboxes(self):
         """From two lists of checkboxes and labels one list of checked labels (string) will be returned"""
         return [self.name_list[self.checkbox_list.index(c)] for c in self.checkbox_list if c.isChecked()]
