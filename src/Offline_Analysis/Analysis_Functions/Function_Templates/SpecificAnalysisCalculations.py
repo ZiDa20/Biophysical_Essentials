@@ -32,6 +32,7 @@ class SpecificAnalysisFunctions():
             
         """Calculates the data for the experiment aggregated data used in lineplots
 
+        
         Args:
             result_table_list (list): List of Result Tables 
             database (_type_): DataBase Handler
