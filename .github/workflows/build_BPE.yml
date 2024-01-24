@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest]
         python-version: [3.9]
 
     steps:
@@ -42,7 +42,11 @@ jobs:
     - name: Zip dist directory
       working-directory: src
       run: |
-          zip -r dist.zip dist/
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            powershell Compress-Archive -Path dist/* -DestinationPath dist.zip
+          else
+            zip -r dist.zip dist/
+          fi
           
     - name: Upload dist directory
       uses: actions/upload-artifact@v2
