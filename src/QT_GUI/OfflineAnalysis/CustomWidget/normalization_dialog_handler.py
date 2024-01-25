@@ -5,7 +5,7 @@ from PySide6 import QtGui
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog import Ui_Dialog
 
 from CustomWidget.Pandas_Table import PandasTable
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 from functools import partial
 import re

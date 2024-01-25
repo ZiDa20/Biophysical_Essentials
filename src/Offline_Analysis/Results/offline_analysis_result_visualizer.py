@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-from Offline_Analysis.ResultPlotVisualizer import ResultPlotVisualizer
+from Offline_Analysis.Plots.ResultPlotVisualizer import ResultPlotVisualizer
 from database.data_db import DuckDBDatabaseHandler
 from functools import partial
 from PySide6.QtWidgets import *
@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
-from Offline_Analysis.OfflinePlot import OfflinePlots
+from Offline_Analysis.Plots.OfflinePlot import OfflinePlots
 from QT_GUI.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 import picologging
 

@@ -32,6 +32,7 @@ picologging = "^0.9.3"
 sqlalchemy = "^2.0.25"
 pyinstaller = "^6.3.0"
 pytest-qt = "^4.3.1"
+pypylon = "^3.0.1"
 
 
 [build-system]

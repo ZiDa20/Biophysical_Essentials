@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_designer import Ui_Dialog
 from Backend.treeview_manager import TreeViewManager
 
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 from CustomWidget.Pandas_Table import PandasTable
 import copy

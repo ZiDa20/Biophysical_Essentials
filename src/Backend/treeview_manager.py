@@ -10,9 +10,9 @@ from Backend.cancel_button_delegate import CancelButtonDelegate
 from Backend.plot_widget_manager import PlotWidgetManager
 from DataReader.ABFclass import AbfReader
 from DataReader.heka_reader import Bundle
-from Offline_Analysis.tree_model_class import TreeModel
+from Offline_Analysis.ExperimentTree.tree_model_class import TreeModel
 import picologging
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 from DataReader.SegmentENUM import EnumSegmentTypes
 from PySide6.QtWidgets import QApplication
 

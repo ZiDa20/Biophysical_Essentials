@@ -1,6 +1,6 @@
 from PySide6.QtCore import QAbstractTableModel, Qt, Signal, QModelIndex
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableView
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 
 class PandasTable(QAbstractTableModel):

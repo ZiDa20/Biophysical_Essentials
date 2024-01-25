@@ -221,10 +221,10 @@ QToolTip[objectName="delete_selected"]{{color: #ffffff; background-color: #00000
 QPushButton[objectName="button_select_data_file"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/open_dir.png);}}
 QToolTip[objectName="button_select_data_file"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="go_home"]{{background-image: url(:QT_GUI/Button/online_analysis/dark_mode/home_dark.png);}}
+QPushButton[objectName="go_home"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png);}}
 QToolTip[objectName="plot_home"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="HomeButton"]{{background-image: url(:QT_GUI/Button/dark_mode/database_viewer/plot_home.png);}}
+QPushButton[objectName="HomeButton"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png);}}
 QToolTip[objectName="HomeButton"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
 QPushButton[objectName="open_db"]{{background-image: url(:QT_GUI/Button/dark_mode/database_viewer/open_dir.png);}}

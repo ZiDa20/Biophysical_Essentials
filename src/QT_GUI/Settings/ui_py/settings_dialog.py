@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.getcwd()[:-3] + "QT_GUI")
-from DeviceAPI.tkinter_camera import * 
+from DeviceAPI.BCamera import * 
 from QT_GUI.Settings.ui_py.settings_designer import Ui_Settings
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
@@ -26,7 +26,6 @@ class SettingsWindow(QWidget,Ui_Settings):
         """ Basler camera initalizing  
         ToDO: Error handling, add multiple camera possibilites for capturing in the dropdown menu"""
 
-        
         self.camera = BayerCamera()
         #initialize the camera 
         camera_status = self.camera.init_camera()

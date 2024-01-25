@@ -3,7 +3,7 @@ from PySide6.QtWidgets import *  # type: ignore
 
 from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_desginer import Ui_Dialog
 from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 from functools import partial
 import re

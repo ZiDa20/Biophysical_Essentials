@@ -6,7 +6,7 @@ from functools import partial
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 from CustomWidget.Pandas_Table import PandasTable
 import copy

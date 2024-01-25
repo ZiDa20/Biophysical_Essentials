@@ -6,7 +6,7 @@ from PySide6.QtCore import QThreadPool
 from PySide6.QtGui import QFont, QFontMetrics, QTransform
 from PySide6.QtTest import QTest
 from functools import partial
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
 from database.data_db import DuckDBDatabaseHandler
 from Backend.treeview_manager import TreeViewManager

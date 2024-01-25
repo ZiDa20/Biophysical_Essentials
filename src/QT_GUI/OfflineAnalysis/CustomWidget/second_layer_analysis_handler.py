@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from Offline_Analysis.Analysis_Functions.Function_Templates.SpecificAnalysisCalculations import SpecificAnalysisFunctions
 import seaborn as sns
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 class Second_Layor_Analysis_Functions(QDialog, Ui_Dialog):
 
     def __init__(self, database_handler, result_visualizer, frontend_stlye, parent=None):

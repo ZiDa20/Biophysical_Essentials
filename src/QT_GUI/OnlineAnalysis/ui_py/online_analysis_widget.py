@@ -13,7 +13,7 @@ from Backend.plot_widget_manager import PlotWidgetManager
 from CustomWidget.Pandas_Table import PandasTable
 from QT_GUI.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
 from DataReader.ABFclass import AbfReader
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 from database.DuckDBInitalizer import DuckDBInitializer
 import picologging
 import numpy as np

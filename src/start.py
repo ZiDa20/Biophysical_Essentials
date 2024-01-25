@@ -17,6 +17,7 @@ from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from database.data_db import DuckDBDatabaseHandler
 import resources
 
+# this is important for pyinstaller to find the right parts of the program
 if getattr(sys, 'frozen', False):
     EXE_LOCATION = sys._MEIPASS
 else:
@@ -129,61 +130,43 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         ConstructionSideDialog(self.frontend_style)
         #artial(self.ui.notebook.setCurrentIndex, 5)
-
-
+        
+    def create_button(self, text, image, image_dark, function):
+        """Creates a single button"""
+        new_button = QToolButton()
+        new_button.setText(text)
+        icon = QIcon()
+        if self.frontend_style.default_mode == 1:
+            new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
+            icon.addFile(f":/QT_GUI/Button/Menu/{image}", QSize(), QIcon.Normal, QIcon.Off)
+        else:
+            new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
+            icon.addFile(f":QT_GUI/Button/Menu/{image_dark}", QSize(), QIcon.Normal, QIcon.Off)
+        new_button.clicked.connect(function)
+        new_button.setIcon(icon)
+        new_button.setIconSize(QSize(200, 200))
+        new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        return new_button
+    
     def insert_row_of_buttons(self) -> None:
         """
         Function to insert a row of buttons to the start up grid
         """
         if self.ui.side_left_menu.isHidden():
-
-            #self.ui.side_left_menu.show()
-            functions_list = [self.start_new_offline_analysis_from_dir, 
-                              self.start_new_offline_analysis_from_db, 
-                              self.open_analysis]#, 
-                              #self.go_to_offline_analysis]
-            button_txt = ["New Analysis From Directory", 
-                          "New Analysis From Database", 
-                          "Open Existing Analysis", 
-                          "Continue"]
-            button_image = ["open_dir.png", 
-                            "db.png", 
-                            "open_existing_results.png",
-                            "go_right.png"]
-            button_image_dark = ["open_dir_dark.png", 
-                                 "db_dark.png", 
-                                 "open_existing_results_dark.png", 
-                                 "go_right.png"]
+            buttons = [
+                {"text": "New Analysis From Directory", "image": "open_dir.png", "image_dark": "open_dir_dark.png", "function": self.start_new_offline_analysis_from_dir},
+                {"text": "New Analysis From Database", "image": "db.png", "image_dark": "db_dark.png", "function": self.start_new_offline_analysis_from_db},
+                {"text": "Open Existing Analysis", "image": "open_existing_results.png", "image_dark": "open_existing_results_dark.png", "function": self.open_analysis},
+                {"text": "Continue", "image": "go_right.png", "image_dark": "go_right.png", "function": self.go_to_offline_analysis}
+            ]
             amount_of_buttons = 4 if self.ui.offline.canvas_grid_layout.count()>0 else 3
-            
             for col in range(amount_of_buttons):
-                new_button = QToolButton()
-                new_button.setText(button_txt[col])
-                icon = QIcon()
-                if self.frontend_style.default_mode == 1:
-                    new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
-                    icon.addFile(
-                        f":/QT_GUI/Button/Menu/{button_image[col]}",
-                        QSize(),
-                        QIcon.Normal,
-                        QIcon.Off,
-                    )
-                else:
-                    new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
-                    icon.addFile(
-                        f":QT_GUI/Button/Menu/{button_image_dark[col]}",
-                        QSize(),
-                        QIcon.Normal,
-                        QIcon.Off,
-                    )
-                new_button.clicked.connect(functions_list[col])
-                new_button.setIcon(icon)
-                new_button.setIconSize(QSize(200, 200))
-                new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                self.ui.gridLayout_3.addWidget(new_button, 0, col)
-                self.ui.side_left_menu.show()
+                button = self.create_button(**buttons[col])
+                self.ui.gridLayout_3.addWidget(button, 0, col)
+            self.ui.side_left_menu.show()
         else:
             self.ui.side_left_menu.hide()
+
 
     def open_analysis(self) -> None:
         """Should open a already performed analysis
@@ -194,12 +177,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
     # deprecated ? dz 13.11.2023H
-    #def go_to_offline_analysis(self) -> None:
-    #    """This opens the notebook page that has the Offline Analysis integrated
-    #    """
-    #    self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
-    #    self.ui.notebook.setCurrentIndex(3)
-    #    QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
+    def go_to_offline_analysis(self) -> None:
+       """This opens the notebook page that has the Offline Analysis integrated
+       """
+       self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
+       self.ui.notebook.setCurrentIndex(3)
+       QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
     def start_new_offline_analysis_from_dir(self)-> None:
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"

@@ -1,9 +1,10 @@
 import os.path
+from time import sleep
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 import pandas as pd
-from time import sleep
+
 
 
 class BackendManager:

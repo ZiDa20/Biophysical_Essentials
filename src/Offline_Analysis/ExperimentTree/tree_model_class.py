@@ -1,5 +1,5 @@
 from PySide6.QtCore import *  # type: ignore
-from Offline_Analysis.tree_item_class import TreeItem
+from Offline_Analysis.ExperimentTree.tree_item_class import TreeItem
 import numpy as np
 
 class TreeModel(QAbstractItemModel):

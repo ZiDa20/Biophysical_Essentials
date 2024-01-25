@@ -7,7 +7,7 @@ import numpy as np
 
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_result_template_handler import StatisticsResultTemplate
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 import itertools
 
 class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
