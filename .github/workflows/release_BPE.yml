@@ -41,29 +41,39 @@ jobs:
       working-directory: src
       run: poetry run pyinstaller --onefile --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
 
-      
     - name: Upload dist directory
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v2
       with:
         name: BPE-${{ matrix.os }}
         path: src/dist/*
 
-    release:
-        name: "Prelease"
-        needs: build_release
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/download-artifact@v3
-            - name: Display fetched artifacts
-            run: ls -R
-            - name: Emit a Github Release
-            uses: "marvinpinto/action-automatic-releases@latest"
-            with:
-                repo_token: "${{ secrets.GITHUB_TOKEN }}"
-                automatic_release_tag: "latest"
-                prerelease: true
-                title: "Development Build"
-                files: |
-                BPE-windows-latest/*.zip
-                BPE-macos-latest/*.zip
-                BPE-ubuntu-latest/*.zip
+  release:
+    name: "Prelease"
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: BPE-windows-latest
+          path: BPE-windows-latest/*.zip
+      - uses: actions/download-artifact@v2
+        with:
+          name: BPE-macos-latest
+          path: BPE-macos-latest/*.zip
+      - uses: actions/download-artifact@v2
+        with:
+          name: BPE-ubuntu-latest
+          path: BPE-ubuntu-latest/*.zip
+      - name: Display fetched artifacts
+        run: ls -R
+      - name: Emit a Github Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            BPE-windows-latest/*.zip
+            BPE-macos-latest/*.zip
+            BPE-ubuntu-latest/*.zip
