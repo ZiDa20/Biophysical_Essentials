@@ -127,7 +127,7 @@ class MainWindow(QMainWindow, QtStyleTools):
     def handle_settings_page(self):
         """@todo: implement settings needs
         """
-        ConstrcutionSideDialog(self.frontend_style)
+        ConstructionSideDialog(self.frontend_style)
         #artial(self.ui.notebook.setCurrentIndex, 5)
 
 

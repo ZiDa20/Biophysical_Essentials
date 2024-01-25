@@ -26,8 +26,8 @@ class CapacitanceMeasurements(SweepWiseAnalysisTemplate):
         Returns:
             _type_: _description_
         """
-        import debugpy
-        debugpy.debug_this_thread()
+        #import debugpy
+        #debugpy.debug_this_thread()
         upper_bound, lower_bound = self.get_pgf_segments_upper_lower()
         times = self.get_time_per_segment(upper_bound, lower_bound)
         upper_mean = np.mean(self.sliced_volt[times[2]:times[3]])
