@@ -2,8 +2,6 @@ name: Build and Release
 
 on:
   push:
-    branches:
-        - main
   workflow_dispatch:
 
 jobs:
@@ -38,15 +36,9 @@ jobs:
 
     - name: Build with PyInstaller
       working-directory: src
-      run: |
-        pyinstaller start.spec
+      run: poetry run pyinstaller --onefile --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
 
-    - name: Fix macOS Gatekeeper issue
-      if: runner.os == 'macOS'
-      working-directory: src
-      run: |
-        xattr -d dist   
-        
+  
     - name: Upload dist directory
       uses: actions/upload-artifact@v4
       with:
