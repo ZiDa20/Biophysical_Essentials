@@ -19,13 +19,15 @@ class CancelButtonDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         if index.column() == self.col_count:  # assuming the pixmap will be in the last column
             if self.delete & self.frontend_style == 1:
-                pixmap = QPixmap(r"../QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png")
+                pixmap = QPixmap(r":QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png")
             if self.delete & self.frontend_style == 0:
-                pixmap = QPixmap(r"../QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png")
+                #pixmap = QPixmap(r":QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png")
+                pixmap = QPixmap(r":QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png")
             if self.delete==False & self.frontend_style == 1:
-                pixmap = QPixmap(r"../QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png")
-            if self.delete==False & self.frontend_style == 0:
-                pixmap = QPixmap(r"../QT_GUI/Button/dark_mode/offline_analysis/treeview_reinsert.png")
+                pixmap = QPixmap(r":QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png")
+            if self.delete==False & self.frontend_style ==0:
+                pixmap = QPixmap(r":QT_GUI/Button/dark_mode/offline_analysis/treeview_reinsert.png")
+                #pixmap = QPixmap(r":QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png")
 
             if not pixmap.isNull():
                 size = pixmap.size().scaled(20, 20, Qt.KeepAspectRatio)

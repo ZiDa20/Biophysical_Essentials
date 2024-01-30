@@ -13,7 +13,7 @@ class Frontend_Style():
         self.path = path
         self.app = app
         self.ax = []
-        self._default_mode = 1
+        self._default_mode = 1 # 1 = darkmode, 0 = lightmode
         self.change_to_lightmode()
         QDir.addSearchPath('button', os.path.join(self.path, 'QT_GUI/Buttons'))
 
