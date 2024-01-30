@@ -48,7 +48,7 @@ jobs:
         path: src/dist/*
 
   release:
-    name: "Prelease"
+    name: "Tagged Prelease"
     needs: build_release
     runs-on: ubuntu-latest
     steps:
@@ -56,21 +56,23 @@ jobs:
         with:
           name: BPE-windows-latest
           path: BPE-windows-latest/*.zip
+
       - uses: actions/download-artifact@v4
         with:
           name: BPE-macOS-latest
           path: BPE-macOS-latest/*.zip
+
       - uses: actions/download-artifact@v4
         with:
           name: BPE-ubuntu-latest
           path: BPE-ubuntu-latest/*.zip
+
       - name: Display fetched artifacts
         run: ls -R
       - name: Emit a Github Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
           prerelease: true
           title: "Development Build"
           files: |
