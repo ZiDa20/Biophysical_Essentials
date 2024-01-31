@@ -16,6 +16,7 @@ from StyleFrontend.frontend_style import Frontend_Style
 from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from database.data_db import DuckDBDatabaseHandler
 import resources
+from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
 
 # this is important for pyinstaller to find the right parts of the program
 if getattr(sys, 'frozen', False):
@@ -41,8 +42,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.logger= picologging.getLogger(__name__) # set the logger
         self.logger.info(EXE_LOCATION)
         self.logger.info("Starting the Biophysical Essentials Program!")
-        self.frontend_style = Frontend_Style(self, path = EXE_LOCATION)
         # Create the frontend style for the app
+        self.frontend_style = Frontend_Style(self, path = EXE_LOCATION)
+        self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
+
         self.check_already_executed: bool  = None
         # set the custom app icon
         custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
@@ -63,12 +66,17 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.statusBar().showMessage("Program Started and Database Connected:")
         # share the object with offline analysis and database viewer
 
-        self.ui.switch_dark_light_mode.clicked.connect(self.frontend_style.change_to_lightmode)
+        
         self.setup_offline_style() # connects to the offline analysis
         self.setup_config_online_style() # connects to the online analysis and database viewer
         self.ui.side_left_menu.hide()
         self.connect_buttons_start()
     
+    def dark_light_mode_switch_handling(self):
+        "switch the mode of the app upon button click"
+        self.ui.side_left_menu.hide()
+        self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
+
     def set_background_logo(self):
         """Set the background logo on the start page only
         """
@@ -125,11 +133,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
+        self.ui.switch_dark_light_mode.clicked.connect(self.dark_light_mode_switch_handling)
 
     def handle_settings_page(self):
         """@todo: implement settings needs
         """
-        ConstructionSideDialog(self.frontend_style)
+        ConstrcutionSideDialog(self.frontend_style)
         #artial(self.ui.notebook.setCurrentIndex, 5)
         
     def create_button(self, text, image, image_dark, function):
@@ -158,7 +167,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                 {"text": "New Analysis From Directory", "image": "open_dir.png", "image_dark": "open_dir_dark.png", "function": self.start_new_offline_analysis_from_dir},
                 {"text": "New Analysis From Database", "image": "db.png", "image_dark": "db_dark.png", "function": self.start_new_offline_analysis_from_db},
                 {"text": "Open Existing Analysis", "image": "open_existing_results.png", "image_dark": "open_existing_results_dark.png", "function": self.open_analysis},
-                {"text": "Continue", "image": "go_right.png", "image_dark": "go_right.png", "function": self.go_to_offline_analysis}
+                {"text": "Continue", "image": "go_right.png", "image_dark": "go_right_dark.png", "function": self.go_to_offline_analysis}
             ]
             amount_of_buttons = 4 if self.ui.offline.canvas_grid_layout.count()>0 else 3
             for col in range(amount_of_buttons):
@@ -202,7 +211,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         
     def open_bpe_webside(self)-> None:
         """open the webside of BPE"""
-        url = "https://github.com/ZiDa20/Biophysical_Essentials"
+        url = "https://biophysical-essentials.i-med.ac.at/"
         webbrowser.open(url, new=0, autoraise=True)
 
     def initialize_database(self)-> None:

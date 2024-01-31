@@ -152,11 +152,13 @@
     <file>QT_GUI/Button/Experimentator/dark_mode/grid.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png</file>
     <file>QT_GUI/Button/Menu/open_dir.png</file>
-    <file>QT_GUI/Button/Menu/db.png</file>
-    <file>QT_GUI/Button/Menu/open_existing_results.png</file>
-    <file>QT_GUI/Button/Menu/go_right.png</file>
     <file>QT_GUI/Button/Menu/open_dir_dark.png</file>
+    <file>QT_GUI/Button/Menu/db.png</file>
     <file>QT_GUI/Button/Menu/db_dark.png</file>
+    <file>QT_GUI/Button/Menu/open_existing_results.png</file>
+    <file>QT_GUI/Button/Menu/open_existing_results_dark.png</file> 
+    <file>QT_GUI/Button/Menu/go_right.png</file>
+    <file>QT_GUI/Button/Menu/go_right_dark.png</file>
     <file>QT_GUI/Button/Logo/welcome_page_background_logo.png</file>
     <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png</file>
     <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png</file>
