@@ -62,7 +62,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.local_database_handler:
             self.statusBar().showMessage("Program Started and Database Connected:")
         # share the object with offline analysis and database viewer
-        
+
+        self.ui.switch_dark_light_mode.clicked.connect(self.frontend_style.change_to_lightmode)
         self.setup_offline_style() # connects to the offline analysis
         self.setup_config_online_style() # connects to the online analysis and database viewer
         self.ui.side_left_menu.hide()

@@ -17,7 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
     QMainWindow, QSizePolicy, QSpacerItem, QStackedWidget,
-    QToolButton, QWidget)
+    QToolButton, QWidget,QPushButton)
 
 from Backend.self_configuration import Config_Widget
 from QT_GUI.OnlineAnalysis.ui_py.online_analysis_widget import Online_Analysis
@@ -41,11 +41,14 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QSize(1280, 950))
         MainWindow.setMaximumSize(QSize(16777215, 16777215))
+        MainWindow.setStyleSheet(u"QMainWindow{\n"
+"border-radius: 10px\n"
+"}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
-
+        self.centralwidget.setStyleSheet(u"")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -53,13 +56,10 @@ class Ui_MainWindow(object):
         self.notebook.setObjectName(u"notebook")
         sizePolicy.setHeightForWidth(self.notebook.sizePolicy().hasHeightForWidth())
         self.notebook.setSizePolicy(sizePolicy)
-        self.notebook.setMinimumSize(QSize(1100, 900))
-        self.notebook.setMaximumSize(QSize(16777215, 2000))
-        #self.notebook.setStyleSheet(style_sheet)
-        
+        self.notebook.setMinimumSize(QSize(956, 500))
+        self.notebook.setMaximumSize(QSize(16777215, 1000))
         self.home = QWidget()
         self.home.setObjectName(u"home")
-
         self.gridLayout_5 = QGridLayout(self.home)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
@@ -69,7 +69,6 @@ class Ui_MainWindow(object):
         self.frame.setObjectName(u"frame")
         self.frame.setFrameShape(QFrame.StyledPanel)
         self.frame.setFrameShadow(QFrame.Raised)
-       
         self.gridLayout_2 = QGridLayout(self.frame)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_4 = QGridLayout()
@@ -231,6 +230,11 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.toolButton_2, 6, 2, 1, 1)
 
+        self.switch_dark_light_mode = QPushButton(self.frame)
+        self.switch_dark_light_mode.setObjectName(u"switch_dark_light_mode")
+
+        self.gridLayout_4.addWidget(self.switch_dark_light_mode, 4, 2, 1, 1)
+
 
         self.gridLayout_2.addLayout(self.gridLayout_4, 0, 0, 1, 1)
 
@@ -308,6 +312,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Patch Clamp Module", None))
         self.database_viewer_home_2.setText(QCoreApplication.translate("MainWindow", u"Database Viewer", None))
         self.toolButton_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.switch_dark_light_mode.setText(QCoreApplication.translate("MainWindow", u"Switch to Ligh Mode", None))
 #if QT_CONFIG(accessibility)
         self.side_left_menu.setAccessibleName(QCoreApplication.translate("MainWindow", u"additional_function_menu", None))
 #endif // QT_CONFIG(accessibility)
