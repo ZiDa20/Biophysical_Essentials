@@ -277,7 +277,6 @@ class PlotWidgetManager(QRunnable):
 
     def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
         
-        
         print("plotting started")
 
         experiment_name = experiment_name.split("::")
@@ -317,6 +316,7 @@ class PlotWidgetManager(QRunnable):
             if self.y_unit == "V":
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+                data = data*1000 # @todo weird heka property ! we have to double check for axon data !  
                 # data scaling to mV
                 #self.plot_scaling_factor = 1000
             #else:
