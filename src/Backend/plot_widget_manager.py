@@ -36,15 +36,8 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        # that the style sheet for the plot class
-        if frontend_style.default_mode == 0:
-            frontend_style.set_mpl_style_dark()
-            self.draw_color = "white"
-            self.ax_color = "white"
-        else:
-            frontend_style.set_mpl_style_white()
-            self.draw_color = "black"
-            self.ax_color = "black"
+        self.frontend_style = frontend_style
+        self.check_style()
 
         #self.show_pgf_plot_button = None
         self.show_pgf_plot = True
@@ -79,7 +72,25 @@ class PlotWidgetManager(QRunnable):
 
         self.live_analysis_info = None
 
+    def check_style(self):
+        # that the style sheet for the plot class
+        if self.frontend_style.default_mode == 0:
+            self.frontend_style.set_mpl_style_dark()
+            self.draw_color = "white"
+            self.ax_color = "white"
+            try:
+                self.canvas.figure.set_facecolor("#121212")
+            except Exception as e:
+                print("there might be no canvas")
 
+        else:
+            self.frontend_style.set_mpl_style_white()
+            self.draw_color = "black"
+            self.ax_color = "black"
+            try:
+                self.canvas.figure.set_facecolor("white")
+            except Exception as e:
+                print("there might be no canvas")
     def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
         self.analysis_functions_table_widget = analysis_functions_table_widget
         print("table widget was set")
@@ -295,7 +306,7 @@ class PlotWidgetManager(QRunnable):
 
         plot_offset = 0
         time_offset = 0
-
+        self.check_style()
         # plot for each sweep
         for name in column_names:
             data = series_df[name].values.tolist()
@@ -338,6 +349,7 @@ class PlotWidgetManager(QRunnable):
             print(x_pos)
             self.ax1.axvline(x_pos, c = 'tab:gray')
 
+        self.canvas.setStyleSheet("background-color:blue;")
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization()
 
@@ -363,6 +375,7 @@ class PlotWidgetManager(QRunnable):
         else:
             self.ax1 = self.canvas.figure.subplots()
             self.ax2 = self.ax1.twinx()
+
 
     def handle_plot_visualization(self):
         """git s
@@ -508,7 +521,7 @@ class PlotWidgetManager(QRunnable):
                         #print(1000*float(voltages[n]))
 
                 start_pos = end_pos
-
+            self.check_style()
             if sweep_number_of_interest is not None:
                 if sweep_number != sweep_number_of_interest:
                     self.ax2.plot(self.time, pgf_signal, c='tab:gray')
@@ -563,7 +576,7 @@ class PlotWidgetManager(QRunnable):
 
         except Exception as e:
             print(e)
-
+        self.check_style()
         self.ax2.plot(self.time, pgf_signal, c = self.draw_color)
 
         return protocol_steps
