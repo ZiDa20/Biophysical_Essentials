@@ -276,9 +276,8 @@ class PlotWidgetManager(QRunnable):
         self.handle_plot_visualization()
 
     def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
-
-        """new function"""
-
+        
+        
         print("plotting started")
 
         experiment_name = experiment_name.split("::")
@@ -290,8 +289,10 @@ class PlotWidgetManager(QRunnable):
         print(series_identifier)
         split_view = 1
 
-
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+        # to display 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
+        series_df,si_prefix_plot = self.scale_plot_data(series_df)
+
         series_name = self.database_handler.database.execute(f"select renamed_series_name from series_analysis_mapping where experiment_name = '{experiment_name}' and series_identifier = '{series_identifier}' and analysis_id = {self.database_handler.analysis_id} ").fetchdf()
         series_name = series_name["renamed_series_name"].unique()[0]
 
@@ -308,6 +309,7 @@ class PlotWidgetManager(QRunnable):
         time_offset = 0
         self.check_style()
         # plot for each sweep
+        self.plot_scaling_factor = 1
         for name in column_names:
             data = series_df[name].values.tolist()
             data = np.array(data)
@@ -316,18 +318,18 @@ class PlotWidgetManager(QRunnable):
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
                 # data scaling to mV
-                self.plot_scaling_factor = 1000
-            else:
+                #self.plot_scaling_factor = 1000
+            #else:
                 # data scaling to nA
-                self.plot_scaling_factor = 1e9
-
-            if series_name == 'Rheoramp' or series_name == '5xRheo' or series_name == 'Rheobase':
-                data = data * self.plot_scaling_factor
-                self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
+                #self.plot_scaling_factor = 1e9
+            self.ax1.plot(self.time, data, self.draw_color)
+            #if series_name == 'Rheoramp' or series_name == '5xRheo' or series_name == 'Rheobase':
+            #    data = data * self.plot_scaling_factor
+            #    self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
                 ##plot_offset += max(data) - min(data) # get the total distance
                 #time_offset += len(self.time)*0.005 # empirically determined
-            else:
-                self.ax1.plot(self.time, data * self.plot_scaling_factor, self.draw_color)
+            #else:
+            #    self.ax1.plot(self.time, data, self.draw_color)
 
             """
             if self.detection_mode:
@@ -351,7 +353,19 @@ class PlotWidgetManager(QRunnable):
 
         self.canvas.setStyleSheet("background-color:blue;")
         self.vertical_layout.addWidget(self.canvas)
-        self.handle_plot_visualization()
+        self.handle_plot_visualization(si_prefix_plot)
+
+    def scale_plot_data(self,data_df):
+        "identify the max value in the entire df and scale all data accordingly"
+        max_df_value = max(data_df.max())
+        si_prefixes = ["","m","mu","n","p"]
+        si_offset = 0
+        while abs(max_df_value) < 1:
+            max_df_value *= 1000
+            si_offset += 1
+        if si_offset>0:
+            data_df = data_df*1000**si_offset
+        return data_df,si_prefixes[si_offset]
 
     def create_new_subplots(self, split_view):
         """
@@ -377,7 +391,7 @@ class PlotWidgetManager(QRunnable):
             self.ax2 = self.ax1.twinx()
 
 
-    def handle_plot_visualization(self):
+    def handle_plot_visualization(self,si_prefix=None):
         """git s
         handle visualizations of the data and pgf plot
         @return:
@@ -422,7 +436,7 @@ class PlotWidgetManager(QRunnable):
             self.ax1.set_ylabel('Voltage [mV]')
             self.ax2.set_ylabel('Current [pA]')
         else:
-            self.ax1.set_ylabel('Current [nA]')
+            self.ax1.set_ylabel('Current ['+si_prefix+'A]')
             self.ax2.set_ylabel('Voltage [mV]')
 
         self.ax1.grid(self.show_plot_grid)
@@ -745,7 +759,6 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print("all good")
             print(e)
-
 
 
 # from QCore
