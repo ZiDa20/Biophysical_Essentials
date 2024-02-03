@@ -77,6 +77,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.side_left_menu.hide()
         self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
 
+        try:
+            # click any random object in the treeview of page 1 to reaload the plot
+            print("hi")
+        except Exception as e:
+            print("an expected error in frontend switching")
+
     def set_background_logo(self):
         """Set the background logo on the start page only
         """
