@@ -238,7 +238,7 @@ class PlotWidgetManager(QRunnable):
 
         self.time = self.get_time_from_meta_data(meta_data_df)
 
-        self.create_new_subplots(split_view)
+        self.create_new_subplots()
 
         data = series_df[sweep_name].values.tolist()
         data = np.array(data)
@@ -275,40 +275,41 @@ class PlotWidgetManager(QRunnable):
 
         self.handle_plot_visualization()
 
-    def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
-        
-        print("plotting started")
+    def table_view_series_clicked_load_from_database(self,experiment_name:str, series_identifier:str, plot_3d = False):
+        """
+        table_view_series_clicked_load_from_database _summary_
+            plot the data for the current selection - either in 2d or 3d mode, with or without pgf
+        Args:
+            experiment_name (str): _description_
+            series_identifier (str): _description_
+            plot_3d (bool, optional): _description_. Defaults to False.
+        """
 
+        plot_3d = True
+        # 1. extract the experiment name
         experiment_name = experiment_name.split("::")
         experiment_name = experiment_name[len(experiment_name)-1]
-        print(experiment_name)
-
+        #2. extract the series identifier
         series_identifier = series_identifier.split("::")
         series_identifier = series_identifier[len(series_identifier)-1]
-        print(series_identifier)
-        split_view = 1
-
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
-        # to display 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
+        # to display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
+        # this is dynamic, so 10-3 becomes mA and so on .. 
         series_df,si_prefix_plot = self.scale_plot_data(series_df)
-
+        # make sure to work with ther renamed series name
         series_name = self.database_handler.database.execute(f"select renamed_series_name from series_analysis_mapping where experiment_name = '{experiment_name}' and series_identifier = '{series_identifier}' and analysis_id = {self.database_handler.analysis_id} ").fetchdf()
         series_name = series_name["renamed_series_name"].unique()[0]
-
         # get the meta data to correctly display y values of traces
         meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
         self.time = self.get_time_from_meta_data(meta_data_df)
-
         column_names = series_df.columns.values.tolist()
-
-        self.create_new_subplots(split_view)
-
+        self.create_new_subplots()
+        self.check_style() # either white or darkmode
         plot_offset = 0
         time_offset = 0
-        self.check_style()
         # plot for each sweep
-        self.plot_scaling_factor = 1
+        #self.plot_scaling_factor = 1
         for name in column_names:
             data = series_df[name].values.tolist()
             data = np.array(data)
@@ -322,43 +323,42 @@ class PlotWidgetManager(QRunnable):
             #else:
                 # data scaling to nA
                 #self.plot_scaling_factor = 1e9
-            self.ax1.plot(self.time, data, self.draw_color)
-            #if series_name == 'Rheoramp' or series_name == '5xRheo' or series_name == 'Rheobase':
-            #    data = data * self.plot_scaling_factor
-            #    self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
-                ##plot_offset += max(data) - min(data) # get the total distance
-                #time_offset += len(self.time)*0.005 # empirically determined
-            #else:
-            #    self.ax1.plot(self.time, data, self.draw_color)
+            if plot_3d:
+                plot_offset += max(data) - min(data) # get the total distance
+                time_offset += len(self.time)*0.005 # empirically determined
+                self.show_pgf_plot = False
 
-            """
-            if self.detection_mode:
-                peaks, _ = find_peaks(data, height = 0.00,distance=200)
-                print('peaks')
-                print(peaks)
-                self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
-            """
+            self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
 
-        # finally also the pgf file needs to be added to the plot
-        # load the table
-        pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
-        
-        protocol_steps = self.plot_pgf_signal(pgf_table,data)
-        for x in range(0,len(protocol_steps)):
+        # 3d plotting will add some offset to y and x and therefore the overlap wth the pgf signal is no given anymore
+        if not plot_3d:
+            # finally also the pgf file needs to be added to the plot
+            # load the table
+            pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+            pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
+            
+            protocol_steps = self.plot_pgf_signal(pgf_table,data)
+            for x in range(0,len(protocol_steps)):
 
-            x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
-            print(x_pos)
-            self.ax1.axvline(x_pos, c = 'tab:gray')
+                x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
+                print(x_pos)
+                self.ax1.axvline(x_pos, c = 'tab:gray')
 
-        self.canvas.setStyleSheet("background-color:blue;")
+            
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization(si_prefix_plot)
 
-    def scale_plot_data(self,data_df):
-        "identify the max value in the entire df and scale all data accordingly"
-        max_df_value = max(data_df.max())
-        si_prefixes = ["","m","mu","n","p"]
+    def scale_plot_data(self,data_df:pd.DataFrame):
+        """
+        To display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
+        The scaling is dynamic, so 10-3 becomes mA and so on .. 
+        Args:
+            data_df (_type_): df with data - each column represents one sweep
+        Returns:
+            _type_: scaled data df, 
+        """
+        max_df_value = max(data_df.max()) #identify the max value in the entire df and scale all data accordingly
+        si_prefixes = ["","m","mu","n","p","f","a"] # milli, mikro, nano, pico,fempto, atto
         si_offset = 0
         while abs(max_df_value) < 1:
             max_df_value *= 1000
@@ -367,24 +367,23 @@ class PlotWidgetManager(QRunnable):
             data_df = data_df*1000**si_offset
         return data_df,si_prefixes[si_offset]
 
-    def create_new_subplots(self, split_view):
+    def create_new_subplots(self):
         """
         create new subplots for data and pgf view
         """
         fig = self.canvas.figure
         fig.clf()
-
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            if self.show_pgf_plot:
-                axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            else:
-                axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=False, sharey=False)
+        axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+        
+        # initialise the figure. here we share X and Y axis
+        # if self.show_pgf_plot:
+        # else:
+        # axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=False, sharey=False)
     
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-            self.ax2.set_visible(self.show_pgf_plot)
-            if not self.show_pgf_plot:
+        self.ax1 = axes[0]
+        self.ax2 = axes[1]
+        self.ax2.set_visible(self.show_pgf_plot)
+        if not self.show_pgf_plot:
                 self.ax1.set_position([0.1, 0.1, 0.8, 0.8])  # Maximize ax1
         else:
             self.ax1 = self.canvas.figure.subplots()
