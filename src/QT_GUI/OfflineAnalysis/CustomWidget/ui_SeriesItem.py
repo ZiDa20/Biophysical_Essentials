@@ -18,6 +18,7 @@ class Ui_OfflineTree(QWidget):
             OfflineTree.setObjectName(u"OfflineTree")
         OfflineTree.resize(291, 623)
         self.gridLayout = QGridLayout(OfflineTree)
+        self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.TreeLayout1 = QGridLayout()
@@ -27,6 +28,9 @@ class Ui_OfflineTree(QWidget):
         __qtreewidgetitem.setText(0, u"1");
         self.SeriesItems.setHeaderItem(__qtreewidgetitem)
         self.SeriesItems.setObjectName(u"SeriesItems")
+        self.SeriesItems.setFrameShape(QFrame.NoFrame)
+        self.SeriesItems.setFrameShadow(QFrame.Plain)
+        self.SeriesItems.setLineWidth(0)
 
         self.TreeLayout1.addWidget(self.SeriesItems, 1, 0, 1, 1)
 
@@ -42,9 +46,6 @@ class Ui_OfflineTree(QWidget):
     def retranslateUi(self, OfflineTree):
         OfflineTree.setWindowTitle(QCoreApplication.translate("OfflineTree", u"Form", None))
     # retranslateUi
-
-
-
 class OfflineTree(Ui_OfflineTree):
     def __init__(self,parent = None):
         self.parent = parent

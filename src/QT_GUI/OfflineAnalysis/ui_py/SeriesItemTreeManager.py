@@ -106,10 +106,11 @@ class SeriesItemTreeWidget():
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
             new_tab_widget.analysis_functions.groupBox.hide()
 
+            # set the small bpe logo to the upper left corner
             custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
             new_tab_widget.subwindow.setWindowIcon(custom_icon)
             new_tab_widget.PlotWindow.setWindowIcon(custom_icon)
-
+      
             print(s)
             new_tab_widget.series_name = s
 
@@ -336,7 +337,7 @@ class SeriesItemTreeWidget():
         """
         try:
             if self.SeriesItems.currentItem().text(0) == "Multi-Series Analysis:":
-                ConstrcutionSideDialog()
+                ConstrcutionSideDialog(self.frontend_style)
             elif self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
                 #self.result_analysis_parent_clicked()
                 self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))

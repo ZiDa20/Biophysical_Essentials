@@ -17,6 +17,7 @@ from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
 from database.data_db import DuckDBDatabaseHandler
 import resources
 from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 # this is important for pyinstaller to find the right parts of the program
 if getattr(sys, 'frozen', False):
@@ -74,14 +75,14 @@ class MainWindow(QMainWindow, QtStyleTools):
     
     def dark_light_mode_switch_handling(self):
         "switch the mode of the app upon button click"
-        self.ui.side_left_menu.hide()
-        self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
-
-        try:
-            # click any random object in the treeview of page 1 to reaload the plot
-            print("hi")
-        except Exception as e:
-            print("an expected error in frontend switching")
+        l = len(self.ui.offline.offline_tree.tab_list) # make sure offline analysis page 1 was visited only
+        if l <= 0: # this list has entires for every selected series to be analyzed
+            self.ui.side_left_menu.hide()
+            tm, pm = self.ui.offline.get_current_tm_pm() # gets the treeivewmanager and plotwidgetmanager of page. 
+            self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
+            tm.update_treeviews(pm) # update the treeviews to redraw the delegates in the correct color (if opened once)
+        else:
+            CustomErrorDialog("Switching between the modes is not allowed after specific series in offline analysis were selected. \n You could start a new offline analysis and switch the color mode before selecting the series to analyze.",self.frontend_style)
 
     def set_background_logo(self):
         """Set the background logo on the start page only
@@ -133,14 +134,21 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.toolButton_2.clicked.connect(self.handle_settings_page)
 
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
-        self.ui.offline.home_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.offline.home_button.clicked.connect(self.show_bpe_home_page)
+        self.ui.database.HomeButton.clicked.connect(self.show_bpe_home_page)
+        self.ui.online.go_home.clicked.connect(self.show_bpe_home_page)
+        self.ui.config.go_home.clicked.connect(self.show_bpe_home_page)
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
         self.ui.switch_dark_light_mode.clicked.connect(self.dark_light_mode_switch_handling)
 
+    def show_bpe_home_page(self):
+        """
+        show_bpe_home_page: go to the home page and make sure the side left menu becomes hidden: it will becone updated if it needs to be reopened
+        """
+        if not self.ui.side_left_menu.isHidden():
+            self.ui.side_left_menu.hide()
+        self.ui.notebook.setCurrentIndex(0)
     def handle_settings_page(self):
         """@todo: implement settings needs
         """
@@ -192,10 +200,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.check_already_executed = self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    # deprecated ? dz 13.11.2023H
     def go_to_offline_analysis(self) -> None:
        """This opens the notebook page that has the Offline Analysis integrated
        """
+
        self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
        self.ui.notebook.setCurrentIndex(3)
        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)

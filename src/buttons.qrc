@@ -48,9 +48,19 @@
     <file>QT_GUI/Button/light_mode/offline_analysis/analysis_functions.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/run_calculation.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/analysis_functions.png</file>
+
     <file>QT_GUI/Button/light_mode/offline_analysis/configure_report.png</file>
-    <file>QT_GUI/Button/light_mode/offline_analysis/print_report.png</file>
-    <file>QT_GUI/Button/light_mode/offline_analysis/advanced_analysis.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/create_report_dark_mode.png</file>
+
+    <file>QT_GUI/Button/light_mode/offline_analysis/print_report_white_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/print_report_dark_mode.png</file>
+    
+    <file>QT_GUI/Button/light_mode/offline_analysis/advanced_analysis_white_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/advanced_analysis_dark_mode.png</file>
+
+    <file>QT_GUI/Button/light_mode/offline_analysis/construction_white.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/construction_dark.png</file>
+
     <file>QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/rename.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/add_meta_data.png</file>
@@ -59,6 +69,7 @@
     <file>QT_GUI/Button/light_mode/offline_analysis/light_image_exp.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png</file>  
+    <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_reinsert.png</file>  
     <file>QT_GUI/Button/online_analysis/light_mode/ml_light.png</file>
     <file>QT_GUI/Button/online_analysis/light_mode/exp_light.png</file>
     <file>QT_GUI/Button/online_analysis/light_mode/play_video_light.png</file>
@@ -163,6 +174,11 @@
     <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png</file>
     <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png</file>
     
+    <file>QT_GUI/Button/dark_mode/offline_analysis/analysis_functions_dark_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/3d_dark_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/change_series_name_dark_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/snapshot_dark_mode.png</file>
 
+    <file>QT_GUI/Button/light_mode/offline_analysis/3d_white_mode.png</file>
 </qresource>
 </RCC>

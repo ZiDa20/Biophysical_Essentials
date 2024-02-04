@@ -117,13 +117,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.clear.clicked.connect(self.clear_meta_data)
         self.turn_off_grid.clicked.connect(partial(self.grid_button_clicked, True))
         self.show_pgf_trace.clicked.connect(partial( self.grid_button_clicked, False))
+        self.show_in_3d.clicked.connect(partial(self.show_in_3d_clicked))
 
         self.logger = picologging.getLogger(__name__)
         self.logger.info("init finished")
 
         self.advanced_analysis.clicked.connect(self.show_second_layor_analysis)
-        self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
-        self.create_report_button.clicked.connect(ConstrcutionSideDialog)
+        self.configure_report_button.clicked.connect(self.show_constructions_side_dialog)
+        self.create_report_button.clicked.connect(self.show_constructions_side_dialog)
+
+    def show_constructions_side_dialog(self):
+        ConstrcutionSideDialog(self.frontend_style)
 
     def show_second_layor_analysis(self):
         """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
@@ -133,23 +137,49 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         d.exec()
     
 
-    def grid_button_clicked(self, grid:bool):
-        """either show or turn off the grid in the plot or show or turn off the pgf plot
+    def get_current_tm_pm(self):
+        """
+        get_current_tm_pm 
         """
         if self.offline_analysis_widgets.currentIndex() == 0:
             tm = self.blank_analysis_tree_view_manager # ptm = tree manager
             pm = self.blank_analysis_plot_manager # pm = plot manager
         else:
             #have to find the corect widget first
+            c = self.offline_analysis_widgets.currentIndex()
             current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
             tm = self.offline_tree.current_tab_tree_view_manager[current_index]
             pm = self.offline_tree.current_tab_visualization[current_index]
+        return tm, pm
+
+    def grid_button_clicked(self, grid:bool):
+        """either show or turn off the grid in the plot or show or turn off the pgf plot
+        """
+        tm,pm = self.get_current_tm_pm()
 
         if grid: # grid button was clicked
             pm.show_plot_grid =  not pm.show_plot_grid
         else: # pgf button was clicked
-            pm.show_pgf_plot = not pm.show_pgf_plot 
+            if pm.make_3d_plot:
+                CustomErrorDialog(f'Please deactivate the 3D feature to view the PGF plot',self.frontend_style)
+                return
+            else:
+                pm.show_pgf_plot = not pm.show_pgf_plot 
 
+        self.reclick_tree_item(tm)
+
+    def show_in_3d_clicked(self):
+        """
+        show_in_3d_clicked: switch the current plot to 3d view
+        3d view will only show recording data without pgf, otherwise its too crowded
+        """
+        tm,pm = self.get_current_tm_pm()
+
+        pm.make_3d_plot = not pm.make_3d_plot
+        if pm.make_3d_plot:
+            pm.show_pgf_plot = False
+        else:
+            pm.show_pgf_plot = True
         self.reclick_tree_item(tm)
 
     def reclick_tree_item(self, treeview_manager:TreeViewManager):
@@ -937,12 +967,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
         # set the size of the table
-        w = self.analysis_function_selection_manager.widget_with + 5
+        w = self.analysis_function_selection_manager.widget_with + 50
         current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
         current_tab.analysis_functions.groupBox.show()
-
+        current_tab.show_and_tile()
         # click the resize button of the data view !!!!!
-        QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
+        #QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''

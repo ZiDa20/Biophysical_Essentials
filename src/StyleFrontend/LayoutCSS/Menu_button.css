@@ -24,11 +24,40 @@ QTabWidget{{
     color: white;
     background-color: "#1f2933";
 }}
+
 QTabBar::tab {{ color: white; }}
 QTabBar::tab:selected{{ color: white; }}
 
+QTabBar::tab:!has-children:selected {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    color: white;
+    selection-color: black;
+}}
+
+
+QHeaderView::section{{background-color: "#1f2933"; color:white;}}
+
+QTreeView::item:hover {{
+    background-color: "#1f2933";
+}}
+
 QTreeView::item{{color:white;}}
-QTreeView::item:selected{{color:white;}}
+
+QTreeView::item:selected:focus {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    color: "white";
+    selection-color: "white"; /* For Windows */
+  }}
+
+  QTreeView::item:!has-children:selected {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    color: white;
+    selection-color: black;
+}}
+
 
 
 QWidget[accessibleName="additional_function_menu"]{{
@@ -43,7 +72,7 @@ QPushButton{{
 
 QPushButton:hover{{
     background-color: "grey"; 
-    border: 0px;
+    border: 1px solid white;
 }}
 
 
@@ -63,10 +92,22 @@ QRadioButton{{
     border:white; 
 }}
 
+QRadioButton::indicator:checked {{
+    background-color:       white; }}
+
+QRadioButton::indicator:unchecked {{
+    background-color:       white; }}
+
 QComboBox{{
     background-color:"#121212"; 
     color:white;
  }}
+
+QCheckBox::indicator:checked {{
+    background-color:       white; }}
+
+QCheckBox::indicator:unchecked {{
+    background-color:       white; }}
 
 QListView::item {{
     background-color: "#121212";;
@@ -111,15 +152,20 @@ QLineEdit{{
 }}
 
 QSplitter{{
-    background-color: #121212;
+    background-color: "#1f2933";
 }}
 
+QTabWidget{{
+    background-color: "#1f2933";
+}}
+
+
 QHeaderView::section{{
-    background-color: #121212;
+    background-color: "#121212";
     color:white;}}
 
 QTreeView::branch{{
-    background-color: #121212; 
+    background-color: "#121212"; 
     color: #1f2933;}}
 
 QTreeView{{
@@ -128,13 +174,32 @@ QTreeView{{
     border: 0px solid white;
 }}
 
-QTreeView::item:selected:focus {{
-    background-color: "#1f2933";
-    color: #ffffff; /* For Windows */
-  }}
-  
+
+QTreeWidget::branch{{
+    background-color: #121212; 
+    color: #1f2933;
+}}
+
+QTreeWidget::branch:selected {{
+    background-color:#121212;
+}}
+
+QTreeWidget::branch:!selected{{
+    background-color:#121212;
+}}
+
+QTreeWidget::item{{
+    color:white;  
+    background-color: #121212;
+}}
+
+QWidget[objectName="OfflineTree"] {{
+    background-color: #121212;
+}}
+
+
 QFrame{{
-    border: 0px solid white;
+    border: 0px solid red;
 }}
 
 QListView{{
@@ -159,11 +224,6 @@ QFrame[accessibleName="divline"]{{
     background-color: "#1f2933";
 }}
 
-QHeaderView::section{{background-color: "#1f2933"; color:white;}}
-
-QTreeView::item:hover {{
-    background-color: "#1f2933";
-}}
 
 QMdiArea {{
     qproperty-background: transparent;
@@ -372,3 +432,27 @@ QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #00000
 
 QPushButton[objectName="home_button"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png);  margin-bottom: 10px}}
 QToolTip[objectName="home_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="show_in_3d"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/3d_dark_mode.png);}}
+QToolTip[objectName="show_in_3d"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="make_screenshot"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/snapshot_dark_mode.png);}}
+QToolTip[objectName="make_screenshot"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="change_series_name"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/change_series_name_dark_mode.png);}}
+QToolTip[objectName="change_series_name"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="select_analysis_fct"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/analysis_functions_dark_mode.png);}}
+QToolTip[objectName="select_analysis_fct"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="run_analysis_functions"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/play.png);}}
+QToolTip[objectName="run_analysis_functions"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="advanced_analysis"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/advanced_analysis_dark_mode.png);}}
+QToolTip[objectName="advanced_analysis"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="configure_report_button"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/create_report_dark_mode.png);}}
+QToolTip[objectName="configure_report_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="create_report_button"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/print_report_dark_mode.png);}}
+QToolTip[objectName="create_report_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
