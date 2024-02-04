@@ -39,7 +39,14 @@ jobs:
 
     - name: Build with PyInstaller
       working-directory: src
-      run: poetry run pyinstaller --onefile --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
+      run: |
+	if [ "${{ matrix.os }}" = "windows-latest" ]; then
+      		poetry run pyinstaller --onefile --name myapp-windows --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
+    	elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+      		poetry run pyinstaller --onefile --name myapp-linux --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
+	elif [ "${{ matrix.os }}" = "macOS-latest" ]; then
+      		poetry run pyinstaller --onefile --name myapp-macos --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
+
 
     - name: Upload dist directory
       uses: actions/upload-artifact@v4
