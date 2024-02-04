@@ -163,6 +163,11 @@
     <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png</file>
     <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_delete.png</file>
     
+    <file>QT_GUI/Button/dark_mode/offline_analysis/analysis_functions_dark_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/3d_dark_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/change_series_name_dark_mode.png</file>
+    <file>QT_GUI/Button/dark_mode/offline_analysis/snapshot_dark_mode.png</file>
 
+    <file>QT_GUI/Button/light_mode/offline_analysis/3d_white_mode.png</file>
 </qresource>
 </RCC>

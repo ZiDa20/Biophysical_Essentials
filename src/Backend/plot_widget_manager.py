@@ -739,9 +739,7 @@ class PlotWidgetManager(QRunnable):
         print("row number")
         print(row)
         print(self.coursor_bound_tuple_dict)
-        
         try:
-
             tuples_to_remove = []
             for k in self.coursor_bound_tuple_dict.keys():
                 if k[0]==row:
@@ -759,8 +757,6 @@ class PlotWidgetManager(QRunnable):
             print("all good")
             print(e)
 
-
 # from QCore
 class CursorBoundSignal(QObject):
     cursor_bound_signal = Signal(tuple)
-

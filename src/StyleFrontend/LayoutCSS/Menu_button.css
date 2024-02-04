@@ -372,3 +372,16 @@ QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #00000
 
 QPushButton[objectName="home_button"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png);  margin-bottom: 10px}}
 QToolTip[objectName="home_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="show_in_3d"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/3d_dark_mode.png);}}
+QToolTip[objectName="show_in_3d"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="make_screenshot"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/snapshot_dark_mode.png);}}
+QToolTip[objectName="make_screenshot"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="change_series_name"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/change_series_name_dark_mode.png);}}
+QToolTip[objectName="change_series_name"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="select_analysis_fct"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/analysis_functions_dark_mode.png);}}
+QToolTip[objectName="select_analysis_fct"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+

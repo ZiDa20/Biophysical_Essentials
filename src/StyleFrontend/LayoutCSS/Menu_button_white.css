@@ -399,3 +399,7 @@ QToolTip[objectName="transfer_snapshot"] {{color: #ffffff; background-color: #00
 QPushButton[objectName="metadata_table"]{{background-image: url(:QT_GUI/Button/Experimentator/light_mode/grid.png);}}
 QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
+
+
+QPushButton[objectName="show_in_3d"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/3d_white_mode.png);}}
+QToolTip[objectName="show_in_3d"]{{color: #ffffff; background-color: #000000; border: 0px; }}
