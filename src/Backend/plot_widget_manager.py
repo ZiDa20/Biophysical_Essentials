@@ -42,6 +42,7 @@ class PlotWidgetManager(QRunnable):
         #self.show_pgf_plot_button = None
         self.show_pgf_plot = True
         self.show_plot_grid = True
+        self.make_3d_plot = False
 
         self.shift_sweeps = None
 
@@ -275,17 +276,15 @@ class PlotWidgetManager(QRunnable):
 
         self.handle_plot_visualization()
 
-    def table_view_series_clicked_load_from_database(self,experiment_name:str, series_identifier:str, plot_3d = False):
+    def table_view_series_clicked_load_from_database(self,experiment_name:str, series_identifier:str):
         """
         table_view_series_clicked_load_from_database _summary_
             plot the data for the current selection - either in 2d or 3d mode, with or without pgf
         Args:
             experiment_name (str): _description_
             series_identifier (str): _description_
-            plot_3d (bool, optional): _description_. Defaults to False.
         """
 
-        plot_3d = True
         # 1. extract the experiment name
         experiment_name = experiment_name.split("::")
         experiment_name = experiment_name[len(experiment_name)-1]
@@ -323,7 +322,7 @@ class PlotWidgetManager(QRunnable):
             #else:
                 # data scaling to nA
                 #self.plot_scaling_factor = 1e9
-            if plot_3d:
+            if self.make_3d_plot:
                 plot_offset += max(data) - min(data) # get the total distance
                 time_offset += len(self.time)*0.005 # empirically determined
                 self.show_pgf_plot = False
@@ -331,7 +330,7 @@ class PlotWidgetManager(QRunnable):
             self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
 
         # 3d plotting will add some offset to y and x and therefore the overlap wth the pgf signal is no given anymore
-        if not plot_3d:
+        if not self.make_3d_plot:
             # finally also the pgf file needs to be added to the plot
             # load the table
             pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
@@ -369,26 +368,18 @@ class PlotWidgetManager(QRunnable):
 
     def create_new_subplots(self):
         """
-        create new subplots for data and pgf view
+        Create new subplots for data and pgf view. If pgf view is deseleted, ax 1 will be maximized
         """
+
         fig = self.canvas.figure
         fig.clf()
+
         axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-        
-        # initialise the figure. here we share X and Y axis
-        # if self.show_pgf_plot:
-        # else:
-        # axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=False, sharey=False)
-    
         self.ax1 = axes[0]
         self.ax2 = axes[1]
         self.ax2.set_visible(self.show_pgf_plot)
         if not self.show_pgf_plot:
-                self.ax1.set_position([0.1, 0.1, 0.8, 0.8])  # Maximize ax1
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
+            self.ax1.set_position([0.1, 0.1, 0.8, 0.8])  # Maximize ax1
 
     def handle_plot_visualization(self,si_prefix=None):
         """git s

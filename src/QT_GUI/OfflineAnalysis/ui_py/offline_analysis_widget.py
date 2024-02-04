@@ -117,6 +117,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.clear.clicked.connect(self.clear_meta_data)
         self.turn_off_grid.clicked.connect(partial(self.grid_button_clicked, True))
         self.show_pgf_trace.clicked.connect(partial( self.grid_button_clicked, False))
+        self.show_in_3d.clicked.connect(partial(self.show_in_3d_clicked))
 
         self.logger = picologging.getLogger(__name__)
         self.logger.info("init finished")
@@ -133,8 +134,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         d.exec()
     
 
-    def grid_button_clicked(self, grid:bool):
-        """either show or turn off the grid in the plot or show or turn off the pgf plot
+    def get_current_tm_pm(self):
+        """
+        get_current_tm_pm 
         """
         if self.offline_analysis_widgets.currentIndex() == 0:
             tm = self.blank_analysis_tree_view_manager # ptm = tree manager
@@ -144,12 +146,34 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
             tm = self.offline_tree.current_tab_tree_view_manager[current_index]
             pm = self.offline_tree.current_tab_visualization[current_index]
+        return tm, pm
+
+    def grid_button_clicked(self, grid:bool):
+        """either show or turn off the grid in the plot or show or turn off the pgf plot
+        """
+        tm,pm = self.get_current_tm_pm()
 
         if grid: # grid button was clicked
             pm.show_plot_grid =  not pm.show_plot_grid
         else: # pgf button was clicked
-            pm.show_pgf_plot = not pm.show_pgf_plot 
+            if pm.make_3d_plot:
+                CustomErrorDialog(f'Please deactivate the 3D feature to view the PGF plot',self.frontend_style)
+                return
+            else:
+                pm.show_pgf_plot = not pm.show_pgf_plot 
 
+        self.reclick_tree_item(tm)
+
+    def show_in_3d_clicked(self):
+        """
+        show_in_3d_clicked _summary_
+        """
+        tm,pm = self.get_current_tm_pm()
+        pm.make_3d_plot = not pm.make_3d_plot
+        if pm.make_3d_plot:
+            pm.show_pgf_plot = False
+        else:
+            pm.show_pgf_plot = True
         self.reclick_tree_item(tm)
 
     def reclick_tree_item(self, treeview_manager:TreeViewManager):
