@@ -43,7 +43,8 @@ class PlotWidgetManager(QRunnable):
         self.show_pgf_plot = True
         self.show_plot_grid = True
         self.make_3d_plot = False
-
+        self.ax1_si_prefix = ""
+        self.si_prefix_handler = {"":1, "m":1000, "mu":1000**2, "n":1000**3, "p":1000**4, "f":1000**5}
         self.shift_sweeps = None
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
@@ -246,7 +247,7 @@ class PlotWidgetManager(QRunnable):
         self.check_style() # either white or darkmode
         experiment_name, series_identifier = self.extract_experiment_series_id( experiment_name, series_identifier)
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
-        series_df,si_prefix_plot = self.scale_plot_data(series_df)
+        series_df,self.ax1_si_prefix = self.scale_plot_data(series_df)
 
         #print(series_df)
         # get the meta data to correctly display y values of traces
@@ -285,7 +286,7 @@ class PlotWidgetManager(QRunnable):
             print(x_pos)
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.handle_plot_visualization(si_prefix_plot)
+        self.handle_plot_visualization(self.ax1_si_prefix)
 
     def table_view_series_clicked_load_from_database(self,experiment_name:str, series_identifier:str):
         """
@@ -300,7 +301,7 @@ class PlotWidgetManager(QRunnable):
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
         # to display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
         # this is dynamic, so 10-3 becomes mA and so on .. 
-        series_df,si_prefix_plot = self.scale_plot_data(series_df)
+        series_df,self.ax1_si_prefix = self.scale_plot_data(series_df)
         # make sure to work with ther renamed series name
         series_name = self.database_handler.database.execute(f"select renamed_series_name from series_analysis_mapping where experiment_name = '{experiment_name}' and series_identifier = '{series_identifier}' and analysis_id = {self.database_handler.analysis_id} ").fetchdf()
         series_name = series_name["renamed_series_name"].unique()[0]
@@ -351,7 +352,7 @@ class PlotWidgetManager(QRunnable):
 
             
         self.vertical_layout.addWidget(self.canvas)
-        self.handle_plot_visualization(si_prefix_plot)
+        self.handle_plot_visualization(self.ax1_si_prefix)
 
     def scale_plot_data(self,data_df:pd.DataFrame):
         """
@@ -679,15 +680,23 @@ class PlotWidgetManager(QRunnable):
 
     def create_dragable_lines(self,row_col_tuple,rgb_color):
         """
+        create_dragable_lines: as indicated by the name: this function creates two dragable line objects
+
+        Args:
+            row_col_tuple (_type_): _description_
+            rgb_color (_type_): _description_
+
+        Returns:
+            _type_: _description_
         """
 
         print("creating new dragable lines")
         left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
-
         right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
 
-        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor,rgb_color)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor,rgb_color)
+        scaling_factor = self.si_prefix_handler.get(self.ax1_si_prefix)
+        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple,scaling_factor ,rgb_color)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, scaling_factor,rgb_color)
 
         self.left_coursor = left_coursor
         self.right_coursor = right_coursor

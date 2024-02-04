@@ -963,12 +963,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
         # set the size of the table
-        w = self.analysis_function_selection_manager.widget_with + 5
+        w = self.analysis_function_selection_manager.widget_with + 50
         current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
         current_tab.analysis_functions.groupBox.show()
-
+        current_tab.show_and_tile()
         # click the resize button of the data view !!!!!
-        QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
+        #QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''

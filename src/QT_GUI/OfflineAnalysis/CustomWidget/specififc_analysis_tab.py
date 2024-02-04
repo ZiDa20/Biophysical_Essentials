@@ -131,12 +131,12 @@ class Ui_SpecificAnalysisTab(object):
 
                 self.horizontalLayout.addItem(self.horizontalSpacer_3)
 
-                self.dock_button = QPushButton("Dock me",self.groupBox_5)
-                self.horizontalLayout.addWidget(self.dock_button)
+                #self.dock_button = QPushButton("Dock me",self.groupBox_5)
+                #self.horizontalLayout.addWidget(self.dock_button)
         
 
-                self.tile_button = QPushButton("tile me",self.groupBox_5)
-                self.horizontalLayout.addWidget(self.tile_button)
+                #self.tile_button = QPushButton("tile me",self.groupBox_5)
+                #self.horizontalLayout.addWidget(self.tile_button)
 
                 self.gridLayout_7.addLayout(self.horizontalLayout, 2, 0, 1, 1)
 
@@ -179,7 +179,7 @@ class Ui_SpecificAnalysisTab(object):
 
                 self.analysis_functions = Analysis_Function_Table(SpecificAnalysisTab)
                 self.analysis_functions.setObjectName(u"analysis_functions")
-                
+
 
 
                 #self.analysi_grid.addLayout(self.select_series_analysis_functions)
@@ -250,9 +250,9 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.title_bar_widget = self.dock_widget.titleBarWidget()
         self.dock_widget.setTitleBarWidget(QWidget(self.dock_widget))
         self.PlotWindow.setWindowFlags(self.PlotWindow.windowFlags() | Qt.WindowMinMaxButtonsHint)
-        self.dock_button.clicked.connect(self.undock_me)
+        #self.dock_button.clicked.connect(self.undock_me)
         self.dock_widget.topLevelChanged.connect(self.remove_title_bar_dock)
-        self.tile_button.clicked.connect(self.show_and_tile)
+        #self.tile_button.clicked.connect(self.show_and_tile)
         self.floating: bool = False
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
 
