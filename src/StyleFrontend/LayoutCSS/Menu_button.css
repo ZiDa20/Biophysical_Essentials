@@ -24,11 +24,40 @@ QTabWidget{{
     color: white;
     background-color: "#1f2933";
 }}
+
 QTabBar::tab {{ color: white; }}
 QTabBar::tab:selected{{ color: white; }}
 
+QTabBar::tab:!has-children:selected {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    color: white;
+    selection-color: black;
+}}
+
+
+QHeaderView::section{{background-color: "#1f2933"; color:white;}}
+
+QTreeView::item:hover {{
+    background-color: "#1f2933";
+}}
+
 QTreeView::item{{color:white;}}
-QTreeView::item:selected{{color:white;}}
+
+QTreeView::item:selected:focus {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    color: "white";
+    selection-color: "white"; /* For Windows */
+  }}
+
+  QTreeView::item:!has-children:selected {{
+    background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    selection-background-color: "{QTMATERIAL_SECONDARYCOLOR}";
+    color: white;
+    selection-color: black;
+}}
+
 
 
 QWidget[accessibleName="additional_function_menu"]{{
@@ -43,7 +72,7 @@ QPushButton{{
 
 QPushButton:hover{{
     background-color: "grey"; 
-    border: 0px;
+    border: 1px solid white;
 }}
 
 
@@ -63,10 +92,22 @@ QRadioButton{{
     border:white; 
 }}
 
+QRadioButton::indicator:checked {{
+    background-color:       white; }}
+
+QRadioButton::indicator:unchecked {{
+    background-color:       white; }}
+
 QComboBox{{
     background-color:"#121212"; 
     color:white;
  }}
+
+QCheckBox::indicator:checked {{
+    background-color:       white; }}
+
+QCheckBox::indicator:unchecked {{
+    background-color:       white; }}
 
 QListView::item {{
     background-color: "#121212";;
@@ -111,15 +152,20 @@ QLineEdit{{
 }}
 
 QSplitter{{
-    background-color: #121212;
+    background-color: "#1f2933";
 }}
 
+QTabWidget{{
+    background-color: "#1f2933";
+}}
+
+
 QHeaderView::section{{
-    background-color: #121212;
+    background-color: "#121212";
     color:white;}}
 
 QTreeView::branch{{
-    background-color: #121212; 
+    background-color: "#121212"; 
     color: #1f2933;}}
 
 QTreeView{{
@@ -128,13 +174,32 @@ QTreeView{{
     border: 0px solid white;
 }}
 
-QTreeView::item:selected:focus {{
-    background-color: "#1f2933";
-    color: #ffffff; /* For Windows */
-  }}
-  
+
+QTreeWidget::branch{{
+    background-color: #121212; 
+    color: #1f2933;
+}}
+
+QTreeWidget::branch:selected {{
+    background-color:#121212;
+}}
+
+QTreeWidget::branch:!selected{{
+    background-color:#121212;
+}}
+
+QTreeWidget::item{{
+    color:white;  
+    background-color: #121212;
+}}
+
+QWidget[objectName="OfflineTree"] {{
+    background-color: #121212;
+}}
+
+
 QFrame{{
-    border: 0px solid white;
+    border: 0px solid red;
 }}
 
 QListView{{
@@ -159,11 +224,6 @@ QFrame[accessibleName="divline"]{{
     background-color: "#1f2933";
 }}
 
-QHeaderView::section{{background-color: "#1f2933"; color:white;}}
-
-QTreeView::item:hover {{
-    background-color: "#1f2933";
-}}
 
 QMdiArea {{
     qproperty-background: transparent;

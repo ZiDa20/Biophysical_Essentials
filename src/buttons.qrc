@@ -59,6 +59,7 @@
     <file>QT_GUI/Button/light_mode/offline_analysis/light_image_exp.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/treeview_delete.png</file>
     <file>QT_GUI/Button/light_mode/offline_analysis/treeview_reinsert.png</file>  
+    <file>QT_GUI/Button/dark_mode/offline_analysis/treeview_reinsert.png</file>  
     <file>QT_GUI/Button/online_analysis/light_mode/ml_light.png</file>
     <file>QT_GUI/Button/online_analysis/light_mode/exp_light.png</file>
     <file>QT_GUI/Button/online_analysis/light_mode/play_video_light.png</file>

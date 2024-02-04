@@ -106,10 +106,11 @@ class SeriesItemTreeWidget():
             new_tab_widget = SpecificAnalysisTab(self.frontend_style)
             new_tab_widget.analysis_functions.groupBox.hide()
 
+            # set the small bpe logo to the upper left corner
             custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
             new_tab_widget.subwindow.setWindowIcon(custom_icon)
             new_tab_widget.PlotWindow.setWindowIcon(custom_icon)
-
+      
             print(s)
             new_tab_widget.series_name = s
 

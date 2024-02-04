@@ -88,11 +88,8 @@ class Ui_SpecificAnalysisTab(object):
                 self.subwindow_layout = QVBoxLayout(self.treebuild.groupBox_4)
                 self.subwindow_layout.addWidget(self.grid, alignment=Qt.AlignBottom | Qt.AlignLeft)
                 self.subwindow.setMinimumSize(QSize(0, 0))
-                self.subwindow.setMaximumSize(QSize(400, 16777215))
-                self.subwindow.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                #self.stackedWidget.setMinimumSize(QSize(400,700))
-                #sizePolicy.setHeightForWidth(self.stackedWidget.sizePolicy().hasHeightForWidth())
-                #self.stackedWidget.setSizePolicy(sizePolicy)
+                self.subwindow.setMaximumSize(QSize(800, 16777215))
+                self.subwindow.setSizePolicy(QSizePolicy.Expanding , QSizePolicy.Expanding)
                 self.stackedWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 
                 self.page = QWidget()

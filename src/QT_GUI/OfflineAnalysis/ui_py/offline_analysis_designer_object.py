@@ -746,7 +746,6 @@ class Ui_Offline_Analysis(object):
         sizePolicy.setHeightForWidth(self.SeriesItems_2.sizePolicy().hasHeightForWidth())
         self.SeriesItems_2.setSizePolicy(sizePolicy)
         self.SeriesItems_2.setMaximumSize(QSize(250, 16777215))
-
         self.gridLayout_5.addWidget(self.SeriesItems_2, 0, 0, 1, 1)
 
         self.WidgetAnalysis = QGridLayout()

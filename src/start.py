@@ -202,6 +202,7 @@ class MainWindow(QMainWindow, QtStyleTools):
     def go_to_offline_analysis(self) -> None:
        """This opens the notebook page that has the Offline Analysis integrated
        """
+       # we have to rebuild the tree in order to display remove and reinsert delegates in the correct color 
        # reclick the tree to update the plot if the style was changed
        tm,_ =  self.ui.offline.get_current_tm_pm()
        self.ui.offline.reclick_tree_item(tm)
