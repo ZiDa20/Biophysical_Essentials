@@ -2,7 +2,7 @@ import pyabf
 import numpy as np
 import pandas as pd
 from typing import Optional
-from loggers.abf_logger import abf_logger
+import picologging
 
 #####################################################################################
 #ABFReader class which should Read an ABF file and return a dictionary containing the data
@@ -17,7 +17,7 @@ class AbfReader():
         """ abf_path: str -> should be file to open """
         self.abf_path: str = abf_path
         self.epochs_dataframe : Optional[pd.DataFrame] = None
-        self.logger = abf_logger
+        self.logger = picologging.getLogger(__name__)
         self.metadata_table: Optional[pd.DataFrame] = None
         self.data_table: Optional[pd.DataFrame] = None
         try:

@@ -1,16 +1,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Union
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 import re
 import numpy as np
 import pandas as pd
-
+import picologging
 import duckdb
 #from global_meta_data_table import GlobalMetaDataTable
 import re
 from pathlib import Path
 from database.DuckDBInitalizer import DuckDBInitializer
-from loggers.database_logger import database_logger
+
 
 if TYPE_CHECKING:
     import logging
@@ -21,7 +21,7 @@ class DuckDBDatabaseHandler():
     ''' A class to handle all data in a duck db database.
      @date: 23.06.2021, @author dz'''
 
-    def __init__(self, frontend_style, db_file_name="duck_db_analysis_database.db", in_memory = False, database_path = "./database/"):
+    def __init__(self, frontend_style, db_file_name="duck_db_analysis_database.db", in_memory = False, database_path = None):
 
         #@toDO add properties instead of open variable names like analysis_id and database path
         # set up the classes for the main tables
@@ -29,8 +29,11 @@ class DuckDBDatabaseHandler():
         # logger settings
         self.db_file_name: str = db_file_name
         self.database_path: str = database_path
-        self.logger: logging.Logger = database_logger
-        self.duckdb_database: DuckDBInitializer = DuckDBInitializer(self.logger, self.db_file_name, in_memory, database_path)
+        self.logger: logging.Logger = picologging.getLogger(__name__)
+        self.duckdb_database: DuckDBInitializer = DuckDBInitializer(self.logger, 
+                                                                    self.db_file_name, 
+                                                                    in_memory, 
+                                                                    self.database_path)
         self.frontend_style: Frontend_Style = frontend_style
         self.logger.info('Database Manager Initialized')
         self.duck_db_database: str = "DUCK_DB"

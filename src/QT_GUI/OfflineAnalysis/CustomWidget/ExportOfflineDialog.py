@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QFileDialog, QDialog, QTableView  # type: ignore
 from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_dialog import Ui_MetadataPopup
 from CustomWidget.Pandas_Table import PandasTable
 from database.ExportAnalysis import ExportOfflineAnalysis
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 class ExportOfflineDialog(QDialog, Ui_MetadataPopup):
 

@@ -1,0 +1,50 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+    pull_request:
+      branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macOS-latest]
+        python-version: [3.11]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Poetry
+      run: |
+        pip install poetry
+
+    - name: Configure Poetry
+      working-directory: src
+      run: |
+        poetry config virtualenvs.create false
+
+    - name: Install dependencies
+      working-directory: src  
+      run: |
+        poetry install
+
+    - name: Build with PyInstaller
+      working-directory: src
+      run: poetry run pyinstaller --onefile --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
+
+  
+    - name: Upload dist directory
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ matrix.os }}
+        path: src/dist
+    

@@ -1,6 +1,6 @@
 from PySide6.QtCore import *
 from Threading.WorkerSignals import WorkerSignals
-
+import traceback, sys
 
 
 class Worker(QRunnable):
@@ -39,9 +39,9 @@ class Worker(QRunnable):
             result = self.fn(*self.args, **self.kwargs)
         except Exception as e:
             print(f"The Analysis throwed an error: {e}")
-            #traceback.print_exc()
-            #exctype, value = sys.exc_info()[:2]
-            #self.signals.error.emit((exctype, value, traceback.format_exc()))
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
             try:
                 self.signals.result.emit(result)

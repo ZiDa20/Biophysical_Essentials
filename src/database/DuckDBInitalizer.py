@@ -1,19 +1,28 @@
 import duckdb
 import os
-from pathlib import Path
 import datetime
+import picologging
 
 
 class DuckDBInitializer:
-    def __init__(self, logger, data_file: str, in_memory: bool, database_path: str):
+    def __init__(self, logger, 
+                 data_file: str, 
+                 in_memory: bool, 
+                 database_path: str):
         """_summary_
         """
         self.db_file_name = data_file
-        self.logger = logger
+        self.logger = picologging.getLogger(__name__)
         self.in_memory = in_memory
         self.database_path: str = database_path
-        self.path = str(Path(f'{self.database_path}/{self.db_file_name}'))
-        self.dir_list = os.listdir(self.database_path)
+        self.logger.info("database path is %s", self.database_path)
+        self.path = f'{self.database_path}/{self.db_file_name}'
+        self.logger.debug("database path is %s", self.path)
+        try:
+            self.dir_list = os.listdir(self.database_path)
+        except Exception as e:
+            self.logger.error("failed to list directory %s with error %s", self.database_path, e)
+            self.dir_list = []
         self._return_value: bool = False
         self.database = None
 

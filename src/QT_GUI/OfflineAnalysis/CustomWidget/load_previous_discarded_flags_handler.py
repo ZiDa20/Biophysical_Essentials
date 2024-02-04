@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvas
 from QT_GUI.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_designer import Ui_Dialog
 from Backend.treeview_manager import TreeViewManager
 
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 from CustomWidget.Pandas_Table import PandasTable
 import copy
@@ -88,8 +88,8 @@ class LoadPreviousDiscardedFlagsHandler(QDialog, Ui_Dialog):
         tvm = TreeViewManager(self.database_handler,None, QRadioButton(), frontend=self.frontend_style)
         tvm.show_discarded_flag_dialog_trees(self.selected_data_treeview, self.discarded_data_treeview)
         
-        self.selected_data_treeview.setStyleSheet("QTreeView::item { color: black; }")
-        self.discarded_data_treeview.setStyleSheet("QTreeView::item { color: black; }")
+        #self.selected_data_treeview.setStyleSheet("QTreeView::item { color: black; }")
+        #self.discarded_data_treeview.setStyleSheet("QTreeView::item { color: black; }")
             
     def cancel(self):
         # reset to the initial selection

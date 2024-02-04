@@ -81,13 +81,6 @@ class Ui_Offline_Analysis(object):
         self.gridLayout_16.setContentsMargins(1, 3, 1, 3)
         self.PlotOptions = QGridLayout()
         self.PlotOptions.setObjectName(u"PlotOptions")
-        self.show_pgf_trace = QPushButton(self.PlotGroup)
-        self.show_pgf_trace.setObjectName(u"show_pgf_trace")
-        self.show_pgf_trace.setMinimumSize(QSize(30, 30))
-        self.show_pgf_trace.setMaximumSize(QSize(30, 30))
-
-        self.PlotOptions.addWidget(self.show_pgf_trace, 0, 4, 1, 1)
-
         self.plot_home = QPushButton(self.PlotGroup)
         self.plot_home.setObjectName(u"plot_home")
         self.plot_home.setMinimumSize(QSize(30, 30))
@@ -106,14 +99,12 @@ class Ui_Offline_Analysis(object):
 
         self.PlotOptions.addWidget(self.turn_off_grid, 0, 3, 1, 1)
 
-        self.plot_move = QPushButton(self.PlotGroup)
-        self.plot_move.setObjectName(u"plot_move")
-        self.plot_move.setMinimumSize(QSize(30, 30))
-        self.plot_move.setMaximumSize(QSize(30, 30))
-        self.plot_move.setFont(font)
-        self.plot_move.setStyleSheet(u"")
+        self.show_pgf_trace = QPushButton(self.PlotGroup)
+        self.show_pgf_trace.setObjectName(u"show_pgf_trace")
+        self.show_pgf_trace.setMinimumSize(QSize(30, 30))
+        self.show_pgf_trace.setMaximumSize(QSize(30, 30))
 
-        self.PlotOptions.addWidget(self.plot_move, 0, 2, 1, 1)
+        self.PlotOptions.addWidget(self.show_pgf_trace, 0, 4, 1, 1)
 
         self.plot_zoom = QPushButton(self.PlotGroup)
         self.plot_zoom.setObjectName(u"plot_zoom")
@@ -130,6 +121,22 @@ class Ui_Offline_Analysis(object):
         self.make_screenshot.setMaximumSize(QSize(30, 30))
 
         self.PlotOptions.addWidget(self.make_screenshot, 0, 5, 1, 1)
+
+        self.plot_move = QPushButton(self.PlotGroup)
+        self.plot_move.setObjectName(u"plot_move")
+        self.plot_move.setMinimumSize(QSize(30, 30))
+        self.plot_move.setMaximumSize(QSize(30, 30))
+        self.plot_move.setFont(font)
+        self.plot_move.setStyleSheet(u"")
+
+        self.PlotOptions.addWidget(self.plot_move, 0, 2, 1, 1)
+
+        self.show_in_3d = QPushButton(self.PlotGroup)
+        self.show_in_3d.setObjectName(u"show_in_3d")
+        self.show_in_3d.setMinimumSize(QSize(30, 30))
+        self.show_in_3d.setMaximumSize(QSize(30, 30))
+
+        self.PlotOptions.addWidget(self.show_in_3d, 0, 6, 1, 1)
 
 
         self.gridLayout_16.addLayout(self.PlotOptions, 0, 0, 1, 1)
@@ -739,7 +746,6 @@ class Ui_Offline_Analysis(object):
         sizePolicy.setHeightForWidth(self.SeriesItems_2.sizePolicy().hasHeightForWidth())
         self.SeriesItems_2.setSizePolicy(sizePolicy)
         self.SeriesItems_2.setMaximumSize(QSize(250, 16777215))
-
         self.gridLayout_5.addWidget(self.SeriesItems_2, 0, 0, 1, 1)
 
         self.WidgetAnalysis = QGridLayout()
@@ -773,21 +779,34 @@ class Ui_Offline_Analysis(object):
     def retranslateUi(self, Offline_Analysis):
         Offline_Analysis.setWindowTitle(QCoreApplication.translate("Offline_Analysis", u"Form", None))
         self.PlotGroup.setTitle(QCoreApplication.translate("Offline_Analysis", u"Plot Options", None))
-        self.show_pgf_trace.setText("")
 #if QT_CONFIG(tooltip)
         self.plot_home.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Recenter</span></p><p>Remove zoom or cut out </p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.plot_home.setText("")
+#if QT_CONFIG(tooltip)
+        self.turn_off_grid.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Grid Lines</span></p><p>Click to turn grid on/off</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
         self.turn_off_grid.setText("")
+#if QT_CONFIG(tooltip)
+        self.show_pgf_trace.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">PGF Plot</span></p><p>Click to turn PGF plot on/off</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.show_pgf_trace.setText("")
+#if QT_CONFIG(tooltip)
+        self.plot_zoom.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Zoom in </span></p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.plot_zoom.setText("")
+#if QT_CONFIG(tooltip)
+        self.make_screenshot.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Snapshot</span></p><p>Click to take snapshot</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.make_screenshot.setText("")
 #if QT_CONFIG(tooltip)
         self.plot_move.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Move </span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.plot_move.setText("")
 #if QT_CONFIG(tooltip)
-        self.plot_zoom.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">Zoom in </span></p></body></html>", None))
+        self.show_in_3d.setToolTip(QCoreApplication.translate("Offline_Analysis", u"<html><head/><body><p><span style=\" font-weight:600; text-decoration: underline;\">3D Visualization</span></p><p>Click to show traces in 3D (no PGF)</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
-        self.plot_zoom.setText("")
-        self.make_screenshot.setText("")
+        self.show_in_3d.setText("")
         self.groupBox_10.setTitle(QCoreApplication.translate("Offline_Analysis", u"Result Meta Data", None))
         self.plot_meta.setText("")
         self.groupBox_9.setTitle(QCoreApplication.translate("Offline_Analysis", u"Home", None))

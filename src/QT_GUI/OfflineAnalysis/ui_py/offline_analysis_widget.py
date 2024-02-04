@@ -4,7 +4,7 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
-from PySide6.QtGui import QFont, QFontMetrics, QTransform
+
 
 from PySide6.QtTest import QTest
 from Offline_Analysis.offline_analysis_manager import OfflineManager
@@ -20,15 +20,13 @@ from Threading.Worker import Worker
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from functools import partial
-import operator
-import itertools
-
+import picologging
 
 from database.PostSql_Handler import PostSqlHandler
-from Offline_Analysis.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
+from Offline_Analysis.Results.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
 
 from Offline_Analysis.offline_analysis_manager import OfflineManager
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from QT_GUI.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from QT_GUI.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
@@ -38,10 +36,9 @@ from QT_GUI.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import
 from QT_GUI.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from QT_GUI.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
 
-from Offline_Analysis.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
-from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
+from Offline_Analysis.Results.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
 from QT_GUI.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
-from Offline_Analysis.FinalResultHolder import ResultHolder
+from Offline_Analysis.Results.FinalResultHolder import ResultHolder
 from QT_GUI.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
 
 
@@ -51,7 +48,7 @@ from QT_GUI.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Set
 from QT_GUI.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 from QT_GUI.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
 
-from loggers.offline_analysis_widget_logger import offline_analysis_widget_logger
+
 from StyleFrontend.animated_ap import LoadingAnimation
 
 from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
@@ -120,13 +117,17 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.clear.clicked.connect(self.clear_meta_data)
         self.turn_off_grid.clicked.connect(partial(self.grid_button_clicked, True))
         self.show_pgf_trace.clicked.connect(partial( self.grid_button_clicked, False))
+        self.show_in_3d.clicked.connect(partial(self.show_in_3d_clicked))
 
-        self.logger = offline_analysis_widget_logger
+        self.logger = picologging.getLogger(__name__)
         self.logger.info("init finished")
 
         self.advanced_analysis.clicked.connect(self.show_second_layor_analysis)
-        self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
-        self.create_report_button.clicked.connect(ConstrcutionSideDialog)
+        self.configure_report_button.clicked.connect(self.show_constructions_side_dialog)
+        self.create_report_button.clicked.connect(self.show_constructions_side_dialog)
+
+    def show_constructions_side_dialog(self):
+        ConstrcutionSideDialog(self.frontend_style)
 
     def show_second_layor_analysis(self):
         """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
@@ -136,23 +137,49 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         d.exec()
     
 
-    def grid_button_clicked(self, grid:bool):
-        """either show or turn off the grid in the plot or show or turn off the pgf plot
+    def get_current_tm_pm(self):
+        """
+        get_current_tm_pm 
         """
         if self.offline_analysis_widgets.currentIndex() == 0:
             tm = self.blank_analysis_tree_view_manager # ptm = tree manager
             pm = self.blank_analysis_plot_manager # pm = plot manager
         else:
             #have to find the corect widget first
+            c = self.offline_analysis_widgets.currentIndex()
             current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
             tm = self.offline_tree.current_tab_tree_view_manager[current_index]
             pm = self.offline_tree.current_tab_visualization[current_index]
+        return tm, pm
+
+    def grid_button_clicked(self, grid:bool):
+        """either show or turn off the grid in the plot or show or turn off the pgf plot
+        """
+        tm,pm = self.get_current_tm_pm()
 
         if grid: # grid button was clicked
             pm.show_plot_grid =  not pm.show_plot_grid
         else: # pgf button was clicked
-            pm.show_pgf_plot = not pm.show_pgf_plot 
+            if pm.make_3d_plot:
+                CustomErrorDialog(f'Please deactivate the 3D feature to view the PGF plot',self.frontend_style)
+                return
+            else:
+                pm.show_pgf_plot = not pm.show_pgf_plot 
 
+        self.reclick_tree_item(tm)
+
+    def show_in_3d_clicked(self):
+        """
+        show_in_3d_clicked: switch the current plot to 3d view
+        3d view will only show recording data without pgf, otherwise its too crowded
+        """
+        tm,pm = self.get_current_tm_pm()
+
+        pm.make_3d_plot = not pm.make_3d_plot
+        if pm.make_3d_plot:
+            pm.show_pgf_plot = False
+        else:
+            pm.show_pgf_plot = True
         self.reclick_tree_item(tm)
 
     def reclick_tree_item(self, treeview_manager:TreeViewManager):
@@ -655,9 +682,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def start_analysis_offline(self):
         """Starts the analysis of the selected series"""
-        self.logger.info(f"Series to be analyzed: {self.OfflineDialogs.final_series}")
+        self.logger.info(f"Series to be analyzed: {self.OfflineDialogs.series_dialog.final_series}")
         
-        self.offline_tree.built_analysis_specific_tree(self.OfflineDialogs.final_series,
+        self.offline_tree.built_analysis_specific_tree(self.OfflineDialogs.series_dialog.final_series,
                                                        self.select_analysis_functions,
                                                        self.offline_analysis_widgets)
         
@@ -940,12 +967,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.run_analysis_functions.clicked.connect(partial(self.start_offline_analysis_of_single_series,current_tab))
 
         # set the size of the table
-        w = self.analysis_function_selection_manager.widget_with + 5
+        w = self.analysis_function_selection_manager.widget_with + 50
         current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
         current_tab.analysis_functions.groupBox.show()
-
+        current_tab.show_and_tile()
         # click the resize button of the data view !!!!!
-        QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
+        #QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''
@@ -973,7 +1000,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         self.database_handler.open_connection()
         self.multiple_interval_analysis = self.analysis_function_selection_manager.write_table_widget_to_database()
-        self.logger.info("finished: ", self.multiple_interval_analysis)
+        self.logger.info(f"finished: {self.multiple_interval_analysis}")
         self.logger.info(f"executing single series analysis: {current_tab.objectName()}")
         self.offline_manager.execute_single_series_analysis(current_tab.objectName(), progress_callback)
 
@@ -1035,7 +1062,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         else:
             parent_item = self.offline_tree.SeriesItems.currentItem().parent()
 
-        print(parent_item.text(0))
+        self.logger.info(parent_item.text(0))
 
         try:
             offline_tab = self.result_visualizer.show_results_for_current_analysis(self.database_handler.analysis_id,
@@ -1259,7 +1286,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.ribbon_series_normalization.setCurrentIndex(current_index)
 
 
-    def reset_class(self, new_analysis = True):
+    def reset_class(self, new_analysis = True, path_to_database = None):
         """resets the class to its orignal point and adds a new 
         offline analysis id"""
         #reset the complete offline_stages
@@ -1268,7 +1295,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
      
         if new_analysis: 
             self.database_handler.database.close()
-            self.database_handler = DuckDBDatabaseHandler(self.frontend_style)
+            self.database_handler = DuckDBDatabaseHandler(self.frontend_style, database_path = path_to_database)
         self.blank_analysis_tree_view_manager.clear_tree()
         self.blank_analysis_plot_manager.canvas.figure.clf()
         self.blank_analysis_plot_manager.canvas.draw_idle()

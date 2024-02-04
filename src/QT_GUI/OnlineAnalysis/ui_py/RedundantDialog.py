@@ -1,7 +1,7 @@
 
 from PySide6.QtWidgets import QDialog, QDialogButtonBox  # type: ignore
 from QT_GUI.OnlineAnalysis.ui_py.ui_RedundantDialog import Ui_RedundantDialog
-from PySide6.QtCore import Qt
+import picologging
 
 class RedundantDialog(QDialog, Ui_RedundantDialog):
     def __init__(self, offline_database, treeview_name, logger, parent=None):
@@ -10,7 +10,7 @@ class RedundantDialog(QDialog, Ui_RedundantDialog):
         self.offline_database = offline_database
         self._treeview_name = treeview_name
         self._new_treeview_name = None
-        self.logger = logger
+        self.logger = picologging.getLogger(__name__)
         self.checkName.clicked.connect(self.check_analysis_in_database)
         self.ok_button = self.buttonBox.button(QDialogButtonBox.Ok)
         self.checkBox.setEnabled(False)

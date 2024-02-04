@@ -374,9 +374,6 @@ class ActionPotentialFitting(SweepWiseAnalysisTemplate):
             half_width = np.NAN
             return None
 
-        import debugpy
-        debugpy.debug_this_thread()
-        
         # only run analysis if there is an action potential, otherwise return nan
         if np.max(data) > manual_threshold:
             fitting_parameters['Vmem [mV]'] = v_mem

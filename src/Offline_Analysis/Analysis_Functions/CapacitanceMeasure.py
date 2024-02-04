@@ -5,8 +5,7 @@ from Offline_Analysis.Analysis_Functions.Function_Templates.SweepWiseAnalysis im
 
 class CapacitanceMeasurements(SweepWiseAnalysisTemplate):
     """
-    Analysis Class to detect the minimum current that needs to be injected into a cell to fire action potentials
-    :author dz, 13.07.2022
+    Capacitance Measurement
     """
 
     def __init__(self):
@@ -27,6 +26,8 @@ class CapacitanceMeasurements(SweepWiseAnalysisTemplate):
         Returns:
             _type_: _description_
         """
+        #import debugpy
+        #debugpy.debug_this_thread()
         upper_bound, lower_bound = self.get_pgf_segments_upper_lower()
         times = self.get_time_per_segment(upper_bound, lower_bound)
         upper_mean = np.mean(self.sliced_volt[times[2]:times[3]])

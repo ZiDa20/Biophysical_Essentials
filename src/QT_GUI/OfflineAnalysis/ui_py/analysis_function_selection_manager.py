@@ -5,18 +5,12 @@ from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 from PySide6.QtGui import QFont, QFontMetrics, QTransform
 from PySide6.QtTest import QTest
-
 from functools import partial
-
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 from QT_GUI.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
-
 from database.data_db import DuckDBDatabaseHandler
 from Backend.treeview_manager import TreeViewManager
-
 import pandas as pd
-#import debugpy
-
 
 class AnalysisFunctionSelectionManager():
 
@@ -454,7 +448,6 @@ class AnalysisFunctionSelectionManager():
         """
          iterates through each tab of the stacked widget and writes each column as a new row to the database
         """
-        #debugpy.debug_this_thread()
         #initial_index = self.current_tab.analysis_stacked_widget.currentIndex()
         multiple_interval_analysis = pd.DataFrame(columns=["page", "func", "id", "function"])
      

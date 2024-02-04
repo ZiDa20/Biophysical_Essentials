@@ -3,7 +3,7 @@ from QT_GUI.ConfigWidget.ui_py.ui_solutions_dialog import Ui_SolutionsDialog
 from database.data_db import DuckDBDatabaseHandler
 from StyleFrontend.frontend_style import Frontend_Style
 import pandas as pd
-from Offline_Analysis.error_dialog_class import CustomErrorDialog
+from CustomWidget.error_dialog_class import CustomErrorDialog
 
 class SolutionsDialog(QDialog, Ui_SolutionsDialog):
     """A dialog for adding new solutions to the database"""

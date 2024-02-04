@@ -36,20 +36,15 @@ class PlotWidgetManager(QRunnable):
         except Exception as e:
             print(e)
 
-        # that the style sheet for the plot class
-        if frontend_style.default_mode == 0:
-            frontend_style.set_mpl_style_dark()
-            self.draw_color = "white"
-            self.ax_color = "white"
-        else:
-            frontend_style.set_mpl_style_white()
-            self.draw_color = "black"
-            self.ax_color = "black"
+        self.frontend_style = frontend_style
+        self.check_style()
 
         #self.show_pgf_plot_button = None
         self.show_pgf_plot = True
         self.show_plot_grid = True
-
+        self.make_3d_plot = False
+        self.ax1_si_prefix = ""
+        self.si_prefix_handler = {"":1, "m":1000, "mu":1000**2, "n":1000**3, "p":1000**4, "f":1000**5}
         self.shift_sweeps = None
 
         self.canvas = FigureCanvas(Figure(figsize=(5,3)))
@@ -79,7 +74,25 @@ class PlotWidgetManager(QRunnable):
 
         self.live_analysis_info = None
 
+    def check_style(self):
+        # that the style sheet for the plot class
+        if self.frontend_style.default_mode == 0:
+            self.frontend_style.set_mpl_style_dark()
+            self.draw_color = "white"
+            self.ax_color = "white"
+            try:
+                self.canvas.figure.set_facecolor("#121212")
+            except Exception as e:
+                print("there might be no canvas")
 
+        else:
+            self.frontend_style.set_mpl_style_white()
+            self.draw_color = "black"
+            self.ax_color = "black"
+            try:
+                self.canvas.figure.set_facecolor("white")
+            except Exception as e:
+                print("there might be no canvas")
     def set_analysis_functions_table_widget(self,analysis_functions_table_widget):
         self.analysis_functions_table_widget = analysis_functions_table_widget
         print("table widget was set")
@@ -200,7 +213,29 @@ class PlotWidgetManager(QRunnable):
                 print(f'Clicked on rectangle with label: {text.get_text()}')
                 break
 
+    
+    def extract_experiment_series_id(self,experiment_name, series_identifier):
+        """
+        extract_experiment_series_id _summary_
 
+        Args:
+            experiment_name (_type_): _description_
+            series_identifier (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        #print(experiment_name)
+        #print(series_identifier)
+        #print(sweep_name)
+        # 1. extract the experiment name
+        experiment_name = experiment_name.split("::")
+        experiment_name = experiment_name[len(experiment_name)-1]
+        #2. extract the series identifier
+        series_identifier = series_identifier.split("::")
+        series_identifier = series_identifier[len(series_identifier)-1]
+        return experiment_name, series_identifier
+    
     def table_view_sweep_clicked_load_from_database(self, experiment_name, series_identifier, sweep_name):
         """
         visualizes the sweep when clicked on it in the treeview
@@ -209,17 +244,12 @@ class PlotWidgetManager(QRunnable):
         :author: dz, modified 29.09.2022
         """
         print("sweep clicked")
-        print(experiment_name)
-        print(series_identifier)
-        print(sweep_name)
-        split_view = 1
-
-        experiment_name = experiment_name.split("::")
-        experiment_name = experiment_name[len(experiment_name)-1]
-        series_identifier = series_identifier.split("::")
-        series_identifier = series_identifier[len(series_identifier)-1]
+        self.check_style() # either white or darkmode
+        experiment_name, series_identifier = self.extract_experiment_series_id( experiment_name, series_identifier)
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
-        print(series_df)
+        series_df,self.ax1_si_prefix = self.scale_plot_data(series_df)
+
+        #print(series_df)
         # get the meta data to correctly display y values of traces
         meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name,
                                                                  series_identifier)
@@ -227,7 +257,7 @@ class PlotWidgetManager(QRunnable):
 
         self.time = self.get_time_from_meta_data(meta_data_df)
 
-        self.create_new_subplots(split_view)
+        self.create_new_subplots()
 
         data = series_df[sweep_name].values.tolist()
         data = np.array(data)
@@ -235,15 +265,9 @@ class PlotWidgetManager(QRunnable):
         if self.y_unit == "V":
             y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, sweep_name)
             data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
-            # data scaling to mV
-            self.plot_scaling_factor = 1000
-        else:
-            # data scaling to nA
-            self.plot_scaling_factor = 1e9
-
-        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'black')
-
-        self.handle_plot_visualization()
+            data = data*1000
+       
+        self.ax1.plot(self.time, data, self.draw_color)
 
         pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
                                                                                         series_identifier)
@@ -262,41 +286,36 @@ class PlotWidgetManager(QRunnable):
             print(x_pos)
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.handle_plot_visualization()
+        self.handle_plot_visualization(self.ax1_si_prefix)
 
-    def table_view_series_clicked_load_from_database(self,experiment_name, series_identifier):
-
-        """new function"""
-
-        print("plotting started")
-
-        experiment_name = experiment_name.split("::")
-        experiment_name = experiment_name[len(experiment_name)-1]
-        print(experiment_name)
-
-        series_identifier = series_identifier.split("::")
-        series_identifier = series_identifier[len(series_identifier)-1]
-        print(series_identifier)
-        split_view = 1
-
-
+    def table_view_series_clicked_load_from_database(self,experiment_name:str, series_identifier:str):
+        """
+        table_view_series_clicked_load_from_database _summary_
+            plot the data for the current selection - either in 2d or 3d mode, with or without pgf
+        Args:
+            experiment_name (str): _description_
+            series_identifier (str): _description_
+        """
+        self.check_style() # adjust the mpl figures to either white or darkmode
+        experiment_name, series_identifier = self.extract_experiment_series_id(experiment_name, series_identifier)
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+        # to display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
+        # this is dynamic, so 10-3 becomes mA and so on .. 
+        series_df,self.ax1_si_prefix = self.scale_plot_data(series_df)
+        # make sure to work with ther renamed series name
         series_name = self.database_handler.database.execute(f"select renamed_series_name from series_analysis_mapping where experiment_name = '{experiment_name}' and series_identifier = '{series_identifier}' and analysis_id = {self.database_handler.analysis_id} ").fetchdf()
         series_name = series_name["renamed_series_name"].unique()[0]
-
         # get the meta data to correctly display y values of traces
         meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name, series_identifier)
         self.y_unit = self.get_y_unit_from_meta_data(meta_data_df)
         self.time = self.get_time_from_meta_data(meta_data_df)
-
         column_names = series_df.columns.values.tolist()
-
-        self.create_new_subplots(split_view)
-
+        self.create_new_subplots()
+        
         plot_offset = 0
         time_offset = 0
-
         # plot for each sweep
+        #self.plot_scaling_factor = 1
         for name in column_names:
             data = series_df[name].values.tolist()
             data = np.array(data)
@@ -304,67 +323,72 @@ class PlotWidgetManager(QRunnable):
             if self.y_unit == "V":
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
+                data = data*1000 # @todo weird heka property ! we have to double check for axon data !  
                 # data scaling to mV
-                self.plot_scaling_factor = 1000
-            else:
+                #self.plot_scaling_factor = 1000
+            #else:
                 # data scaling to nA
-                self.plot_scaling_factor = 1e9
+                #self.plot_scaling_factor = 1e9
+            if self.make_3d_plot:
+                plot_offset += max(data) - min(data) # get the total distance
+                time_offset += len(self.time)*0.005 # empirically determined
+                self.show_pgf_plot = False
 
-            if series_name == 'Rheoramp' or series_name == '5xRheo' or series_name == 'Rheobase':
-                data = data * self.plot_scaling_factor
-                self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
-                ##plot_offset += max(data) - min(data) # get the total distance
-                #time_offset += len(self.time)*0.005 # empirically determined
-            else:
-                self.ax1.plot(self.time, data * self.plot_scaling_factor, self.draw_color)
+            self.ax1.plot(self.time+ time_offset, data + plot_offset, self.draw_color)
 
-            """
-            if self.detection_mode:
-                peaks, _ = find_peaks(data, height = 0.00,distance=200)
-                print('peaks')
-                print(peaks)
-                self.plot_widget.plot(self.time[peaks], data[peaks],pen=None, symbol='o')
-            """
+        # 3d plotting will add some offset to y and x and therefore the overlap wth the pgf signal is no given anymore
+        if not self.make_3d_plot:
+            # finally also the pgf file needs to be added to the plot
+            # load the table
+            pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
+            pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
+            
+            protocol_steps = self.plot_pgf_signal(pgf_table,data)
+            for x in range(0,len(protocol_steps)):
 
-        # finally also the pgf file needs to be added to the plot
-        # load the table
-        pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-        pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
-        
-        protocol_steps = self.plot_pgf_signal(pgf_table,data)
-        for x in range(0,len(protocol_steps)):
+                x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
+                print(x_pos)
+                self.ax1.axvline(x_pos, c = 'tab:gray')
 
-            x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
-            print(x_pos)
-            self.ax1.axvline(x_pos, c = 'tab:gray')
-
+            
         self.vertical_layout.addWidget(self.canvas)
-        self.handle_plot_visualization()
+        self.handle_plot_visualization(self.ax1_si_prefix)
 
-    def create_new_subplots(self, split_view):
+    def scale_plot_data(self,data_df:pd.DataFrame):
         """
-        create new subplots for data and pgf view
+        To display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
+        The scaling is dynamic, so 10-3 becomes mA and so on .. 
+        Args:
+            data_df (_type_): df with data - each column represents one sweep
+        Returns:
+            _type_: scaled data df, 
         """
+        max_df_value = max(data_df.max()) #identify the max value in the entire df and scale all data accordingly
+        si_prefixes = ["","m","mu","n","p","f","a"] # milli, mikro, nano, pico,fempto, atto
+        si_offset = 0
+        while abs(max_df_value) < 1:
+            max_df_value *= 1000
+            si_offset += 1
+        if si_offset>0:
+            data_df = data_df*1000**si_offset
+        return data_df,si_prefixes[si_offset]
+
+    def create_new_subplots(self):
+        """
+        Create new subplots for data and pgf view. If pgf view is deseleted, ax 1 will be maximized
+        """
+
         fig = self.canvas.figure
         fig.clf()
 
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            if self.show_pgf_plot:
-                axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-            else:
-                axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=False, sharey=False)
-    
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-            self.ax2.set_visible(self.show_pgf_plot)
-            if not self.show_pgf_plot:
-                self.ax1.set_position([0.1, 0.1, 0.8, 0.8])  # Maximize ax1
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
+        axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
+        self.ax1 = axes[0]
+        self.ax2 = axes[1]
+        self.ax2.set_visible(self.show_pgf_plot)
+        if not self.show_pgf_plot:
+            self.ax1.set_position([0.1, 0.1, 0.8, 0.8])  # Maximize ax1
 
-    def handle_plot_visualization(self):
+    def handle_plot_visualization(self,si_prefix=None):
         """git s
         handle visualizations of the data and pgf plot
         @return:
@@ -409,7 +433,10 @@ class PlotWidgetManager(QRunnable):
             self.ax1.set_ylabel('Voltage [mV]')
             self.ax2.set_ylabel('Current [pA]')
         else:
-            self.ax1.set_ylabel('Current [nA]')
+            if si_prefix is not None:
+                self.ax1.set_ylabel('Current [' + si_prefix + 'A]')
+            else:
+                self.ax1.set_ylabel('Current [A]')
             self.ax2.set_ylabel('Voltage [mV]')
 
         self.ax1.grid(self.show_plot_grid)
@@ -508,7 +535,7 @@ class PlotWidgetManager(QRunnable):
                         #print(1000*float(voltages[n]))
 
                 start_pos = end_pos
-
+            self.check_style()
             if sweep_number_of_interest is not None:
                 if sweep_number != sweep_number_of_interest:
                     self.ax2.plot(self.time, pgf_signal, c='tab:gray')
@@ -563,7 +590,7 @@ class PlotWidgetManager(QRunnable):
 
         except Exception as e:
             print(e)
-
+        self.check_style()
         self.ax2.plot(self.time, pgf_signal, c = self.draw_color)
 
         return protocol_steps
@@ -653,15 +680,23 @@ class PlotWidgetManager(QRunnable):
 
     def create_dragable_lines(self,row_col_tuple,rgb_color):
         """
+        create_dragable_lines: as indicated by the name: this function creates two dragable line objects
+
+        Args:
+            row_col_tuple (_type_): _description_
+            rgb_color (_type_): _description_
+
+        Returns:
+            _type_: _description_
         """
 
         print("creating new dragable lines")
         left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
-
         right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
 
-        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.plot_scaling_factor,rgb_color)
-        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.plot_scaling_factor,rgb_color)
+        scaling_factor = self.si_prefix_handler.get(self.ax1_si_prefix)
+        left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple,scaling_factor ,rgb_color)
+        right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, scaling_factor,rgb_color)
 
         self.left_coursor = left_coursor
         self.right_coursor = right_coursor
@@ -713,9 +748,7 @@ class PlotWidgetManager(QRunnable):
         print("row number")
         print(row)
         print(self.coursor_bound_tuple_dict)
-        
         try:
-
             tuples_to_remove = []
             for k in self.coursor_bound_tuple_dict.keys():
                 if k[0]==row:
@@ -733,247 +766,6 @@ class PlotWidgetManager(QRunnable):
             print("all good")
             print(e)
 
-
-
 # from QCore
 class CursorBoundSignal(QObject):
     cursor_bound_signal = Signal(tuple)
-
-
-
-
-
-## deprecated dz 11.05.2023
-    """
-    def sweep_clicked_load_from_dat_file(self,item):
-
-        Whenever a sweep is clicked in online analysis, this handler will be executed to plot the selected sweep
-        @param item: treeviewitem
-        :author: dz, 21.07.2022
-        @return:
-
-
-        self.time = None
-
-        split_view = 1
-
-        fig = self.canvas.figure
-        fig.clf()
-
-
-        data_request_information = item.data(3, 0)
-        self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-
-        print(self.data)
-        meta_data_dict = item.data(5, 0)
-        print(meta_data_dict)
-
-        if self.time is None:
-            self.time = self.get_time_from_dict(meta_data_dict)
-            # recording_mode = self.get_recording_mode(meta_data_array)
-
-            self.y_unit = self.get_y_unit_from_meta_data_dict(meta_data_dict)
-
-            print(self.y_unit)
-
-            if self.y_unit == "V":
-                y_min, y_max = self.get_y_min_max_meta_data_dict_values(meta_data_dict)
-                self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
-                self.plot_scaling_factor = 1000
-            else:
-                # data scaling to nA
-                self.plot_scaling_factor = 1e9
-
-
-        self.ax1.plot(self.time, self.data * self.plot_scaling_factor, c=self.draw_color, alpha = 0.5)
-
-        print("plotting sweep")
-        print(item.text(0))
-
-        sweep_number = item.text(0).split("Sweep")
-        sweep_number = int(sweep_number[1])
-        # plot pgf traces
-        protocol_steps = self.plot_pgf_signal(item.parent().data(5, 0), self.data,sweep_number)
-
-
-        #@todo: fix this asap : len(protocol_steps)
-        for x in range(0, 3):
-            x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
-            self.ax1.axvline(x_pos, c='tab:gray')
-
-        self.vertical_layout.addWidget(self.canvas)
-        self.handle_plot_visualization()
-    """
-    """
-    def series_clicked_load_from_dat_file(self,item):
-
-        plots trace data and pgf data after a series was clicked in the online analysis
-        @param item:
-        @return:
-        :author: dz, 21.07.2022
-
-        print("online analysis %s series was clicked", item.text(0))
-        children = item.childCount()
-        split_view = 1
-
-        # reset the time array -> will be created new from the first sweep
-        self.time = None
-        self.y_unit = None
-
-
-        fig = self.canvas.figure
-        fig.clf()
-
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-        # plot data traces for this series
-        for c in range(0, children):
-
-            child = item.child(c)
-            #child.setCheckState(1, Qt.Checked)
-            data_request_information = child.data(3, 0)
-            self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-            meta_data_dict = child.data(5, 0)
-
-            if self.time is None:
-                self.time = self.get_time_from_dict(meta_data_dict)
-                #recording_mode = self.get_recording_mode(meta_data_array)
-
-                self.y_unit = self.get_y_unit_from_meta_data_dict(meta_data_dict)
-
-                print(self.y_unit)
-
-            if self.y_unit == "V":
-                y_min, y_max = self.get_y_min_max_meta_data_dict_values(meta_data_dict)
-                self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
-                self.plot_scaling_factor = 1000
-            else:
-                # data scaling to nA
-                self.plot_scaling_factor = 1e9
-
-            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c=self.draw_color)
-
-        # plot pgf traces
-
-        protocol_steps = self.plot_pgf_signal(item.data(5, 0), self.data)
-        for x in range(0, len(protocol_steps)):
-            x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
-            self.ax1.axvline(x_pos, c='tab:gray')
-
-        self.vertical_layout.addWidget(self.canvas)
-        self.handle_plot_visualization()
-
-    """
-    """
-    def series_clicked_load_from_dat_file(self,item):
-
-        plots trace data and pgf data after a series was clicked in the online analysis
-        @param item:
-        @return:
-        :author: dz, 21.07.2022
-
-        print("online analysis %s series was clicked", item.text(0))
-        children = item.childCount()
-        split_view = 1
-
-        # reset the time array -> will be created new from the first sweep
-        self.time = None
-        self.y_unit = None
-
-
-        fig = self.canvas.figure
-        fig.clf()
-
-        if split_view:
-            # initialise the figure. here we share X and Y axis
-            axes = self.canvas.figure.subplots(nrows=2, ncols=1, sharex=True, sharey=False)
-
-            self.ax1 = axes[0]
-            self.ax2 = axes[1]
-        else:
-            self.ax1 = self.canvas.figure.subplots()
-            self.ax2 = self.ax1.twinx()
-
-        # plot data traces for this series
-        for c in range(0, children):
-
-            child = item.child(c)
-            #child.setCheckState(1, Qt.Checked)
-            data_request_information = child.data(3, 0)
-            self.data = self.online_manager.get_sweep_data_array_from_dat_file(data_request_information)
-            meta_data_dict = child.data(5, 0)
-
-            if self.time is None:
-                self.time = self.get_time_from_dict(meta_data_dict)
-                #recording_mode = self.get_recording_mode(meta_data_array)
-
-                self.y_unit = self.get_y_unit_from_meta_data_dict(meta_data_dict)
-
-                print(self.y_unit)
-
-            if self.y_unit == "V":
-                y_min, y_max = self.get_y_min_max_meta_data_dict_values(meta_data_dict)
-                self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
-                self.plot_scaling_factor = 1000
-            else:
-                    # data scaling to nA
-                self.plot_scaling_factor = 1e9
-
-            self.ax1.plot(self.time,self.data*self.plot_scaling_factor, c=self.draw_color)
-
-        # plot pgf traces
-
-        protocol_steps = self.plot_pgf_signal(item.data(5,0),self.data)
-        for x in range(0, len(protocol_steps)):
-            x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
-            self.ax1.axvline(x_pos, c='tab:gray')
-
-        self.vertical_layout.addWidget(self.canvas)
-        self.handle_plot_visualization()
-
-    """
-
-    
-    """ @deprecated dz 30.11.2022
-    def tree_view_click_handler(self, item):
-
-        #handle all incoming clicks in the treeview related to plotting
-        #@param item: treeviewitem
-        #@return:
-        #:author: dz, 21.07.2022
-
-        print(f'Text of first column in item is {item.text(0)}')
-
-        try:
-            if "Sweep" in item.text(0) or "sweep" in item.text(0):
-                self.sweep_in_treeview_clicked(item)
-            else:
-                if ".dat" in item.text(0):
-                    print("To see data traces, click on a sweep or a series")
-                else:
-                 self.series_in_treeview_clicked(item)
-                 #self.series_clicked(item)
-        except Exception as e:
-            print(e)
-            print("experiment was clicked")
-            self.series_in_treeview_clicked(item.child(0))
-    """
-
-    """
-    def sweep_in_treeview_clicked(self,item):
-            self.sweep_clicked_load_from_dat_database(item)
-            self.check_live_analysis_plot(item,"sweep")
-
-    def series_in_treeview_clicked(self,item):
-            self.series_clicked_load_from_database(item)
-            self.check_live_analysis_plot(item,"series")
-
-    """

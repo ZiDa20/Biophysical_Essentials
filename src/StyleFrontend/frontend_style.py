@@ -1,19 +1,21 @@
 import os
 from qbstyles import mpl_style
 import matplotlib as mpl
-
+from PySide6.QtCore import QDir
 class Frontend_Style():
     """class that will provide all the frontend styles to be used in common by all frontend classes with the same instance"""
 
-    def __init__(self, app):
+    def __init__(self, app, path):
 
         # style 0 = white mode
         # style 1 = dark mode
         self.canvas = []
+        self.path = path
         self.app = app
         self.ax = []
-        self._default_mode = 0
-        self.change_to_lightmode()
+        self.default_mode = 0 # 1 = darkmode, 0 = lightmode
+        #self.change_to_lightmode()
+        QDir.addSearchPath('button', os.path.join(self.path, 'QT_GUI/Buttons'))
 
     @property
     def default_mode(self):
@@ -36,11 +38,11 @@ class Frontend_Style():
         :return:
         '''
         if self.default_mode == 0:
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button.css") as file:
+            with open(f"{self.path}/StyleFrontend/LayoutCSS/Menu_button.css") as file:
                 dialog.setStyleSheet(file.read().format(**os.environ))
 
         else:
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+            with open(f"{self.path}/StyleFrontend/LayoutCSS/Menu_button_white.css") as file:
                 dialog.setStyleSheet(file.read().format(**os.environ))
 
     def get_color_plots(self):
@@ -60,21 +62,19 @@ class Frontend_Style():
         mpl.rcParams["figure.facecolor"] = "#ffffff"
         mpl.rcParams["axes.facecolor"] = "#ffffff"
 
-    def change_to_lightmode(self):
+    def change_to_lightmode(self, button_object):
         """DarkMode LightMode Switch
         """
 
         if self.default_mode == 1:
             self.default_mode = 0
             self.app.apply_stylesheet(self.app, 'dark_mode.xml', invert_secondary=False)
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button.css") as file:
+            with open(f"{self.path}/StyleFrontend/LayoutCSS/Menu_button.css") as file:
                 self.app.setStyleSheet(self.app.styleSheet() +file.read().format(**os.environ))
-
+            button_object.setText("Change to White Mode")
         else:
             self.default_mode = 1 # set the darkmode back to 1 for the switch
-            self.app.apply_stylesheet(self.app, f"{os.getcwd()}/StyleFrontend/white_mode.xml", invert_secondary=False)
-            with open(f"{os.getcwd()}/QT_GUI/LayoutCSS/Menu_button_white.css") as file:
+            self.app.apply_stylesheet(self.app, f"{self.path}/StyleFrontend/white_mode.xml", invert_secondary=False)
+            with open(f"{self.path}/StyleFrontend/LayoutCSS/Menu_button_white.css") as file:
                 self.app.setStyleSheet(self.app.styleSheet() +file.read().format(**os.environ))
-
-
-
+            button_object.setText("Change to Dark Mode")

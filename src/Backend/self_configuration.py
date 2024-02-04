@@ -1,30 +1,25 @@
-import sys
-import os
+from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import Ui_Config_Widget
+from QT_GUI.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
 from typing import Optional
 from pathlib import Path
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/CustomWidgets")
-sys.path.append(os.path.dirname(os.getcwd()) + "/QT_GUI/ConfigWidget/ui_py")
+from Threading.Worker import Worker
+from functools import partial
+import picologging
+import shutil
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 
 from PIL import ImageQt ,Image
-from Backend.backend_manager import *
-import os.path
-import logging
-from DeviceAPI.tkinter_camera import *
+from Backend.Experimentator.backend_manager import BackendManager
+from DeviceAPI.BCamera import *
 from time import sleep
 import pandas as pd
 import pyqtgraph as pg
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
-from QT_GUI.ConfigWidget.ui_py.self_config_notebook_widget import Ui_Config_Widget
-from QT_GUI.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
-import traceback, sys
-from functools import partial
 
 
-import shutil
 from PySide6.QtTest import QTest
 
 
@@ -46,7 +41,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         # added the Progress Bar to the self-configuration
         self.database_handler = None
         self.frontend_style = None
-
+        self.logger= picologging.getLogger(__name__)
         #
         self.experiment_control_stacked.setCurrentIndex(0)
         self.set_buttons_beginning()
@@ -86,13 +81,11 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.check_session: bool = None
 
         # Initialize the connections
-        self.logger_setup()
         self.initialize_camera()
         self.connections_clicked_experiment()
         self.connections_clicked_camera()
         self.connection_clicked_threading()
         
-
     def connection_clicked_threading(self):
         """ connect button to the threading"""
         self.start_analysis.clicked.connect(self.make_threading) # spawns the thread
@@ -139,7 +132,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         self.set_solutions()
         
     def solution_dialog(self):
-        solution = SolutionsDialog(database = self.database_handler, frontend = self.frontend_style)
+        return SolutionsDialog(database = self.database_handler, frontend = self.frontend_style)
     
     def go_back(self):
         index = self.experiment_control_stacked.currentIndex()
@@ -155,17 +148,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
             self.go_back_button.setEnabled(True)
             self.fo_forward_button.setEnabled(False)
         
-    def logger_setup(self):
-        # logger added --> ToDO: should be used for developers as well as for users should be disriminated
-        print("initialized the logger")
-        self.logger= logging.getLogger()
-        self.logger.setLevel(logging.ERROR)
-        file_handler = logging.FileHandler('../Logs/patchmaster_communication.log')
-        formatter  = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s')
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.debug('A debug message')
-
     def set_solutions(self):
         """ set solutions that you can use for the experiment"""
         extracellular_solutions = self.database_handler.get_extracellular_solutions()
@@ -193,19 +175,19 @@ class Config_Widget(QWidget,Ui_Config_Widget):
 
     def set_pgf_file(self):
         """set the pgf file that is used for the patchmaster"""
-        logging.info("Setted PGF File")
+        self.logger.info("Setted PGF File")
         self.pgf_file = self.meta_open_directory()
         self.pg_file_set.setText(self.pgf_file)
 
     def set_protocol_file(self):
         """set the .pro file that is used for the patchmaster"""
-        logging.info("Setted Protocol File")
+        self.logger.info("Setted Protocol File")
         self.pro_file = self.meta_open_directory()
         self.protocol_file_set.setText(self.pro_file)
 
     def set_online_file(self):
         """set the online_analysis_file that is used for the patchmaster"""
-        logging.info("Setted online analysis file")
+        self.logger.info("Setted online analysis file")
         self.onl_file = self.meta_open_directory()
         self.online_analysis_file_set.setText(self.onl_file)
 
@@ -272,7 +254,7 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         if self.batch_path: # if the path is already set
 
             try:
-                file_existence = self.backend_manager.check_input_file_existence()
+                _ = self.backend_manager.check_input_file_existence()
                 self.backend_manager.create_ascii_file_from_template()
                 self.submit_patchmaster_files()
                 self.set_dat_file_name(self.experiment_type_desc.text())
@@ -351,7 +333,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         except Exception as e:
             self.logger.error(f"Here is the Error description of the camera running task: {e}")
 
-
     def start_camera(self):
         """ grab the current picture one by one with 50 FPS """
         camera_image = self.camera.grab_video() # grab video retrieved np.array image
@@ -383,7 +364,6 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         #self.snapshot_scence.addPixmap(self.camera_image_recording) # add the image to the scene
         #self.online_analysis.draw_scene(self.camera_image_recording)
         self.draw_snapshots_on_galery(image_list) # draw into the galery
-
 
     def draw_video(self, imgs):
         """ draw the video in the live feed
@@ -952,65 +932,3 @@ class Config_Widget(QWidget,Ui_Config_Widget):
         else: 
             print("Here the data will just be appended to the list and this will be visible in the online analysis function")
 
-class Worker(QRunnable):
-    '''
-    Worker thread
-
-    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
-
-    :param callback: The function callback to run on this worker thread. Supplied args and
-                     kwargs will be passed through to the runner.
-    :type callback: function
-    :param args: Arguments to pass to the callback function
-    :param kwargs: Keywords to pass to the callback function
-
-    '''
-
-    def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
-        # Store constructor arguments (re-used for processing)
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = WorkerSignals()
-
-        self.kwargs['progress_callback'] = self.signals.progress
-
-    @Slot()  # QtCore.Slot
-    def run(self):
-        '''
-        Initialise the runner function with passed args, kwargs.
-        '''
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except:
-            traceback.print_exc()
-            exctype, value = sys.exc_info()[:2]
-            self.signals.error.emit((exctype, value, traceback.format_exc()))
-        else:
-            self.signals.result.emit(result)  # Return the result of the processing
-        finally:
-            self.signals.finished.emit()  # Done
-
-
-class WorkerSignals(QObject):
-    '''
-    Defines the signals available from a running worker thread.
-
-    Supported signals are:
-
-    finished
-        No data
-
-    error
-        tuple (exctype, value, traceback.format_exc() )
-
-    result
-        object data returned from processing, anything
-
-    '''
-    finished = Signal()
-    error = Signal(tuple)
-    result = Signal(object)
-    new_worker = Signal()
-    progress = Signal(tuple)
