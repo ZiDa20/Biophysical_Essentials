@@ -166,9 +166,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def show_in_3d_clicked(self):
         """
-        show_in_3d_clicked _summary_
+        show_in_3d_clicked: switch the current plot to 3d view
+        3d view will only show recording data without pgf, otherwise its too crowded
         """
         tm,pm = self.get_current_tm_pm()
+
         pm.make_3d_plot = not pm.make_3d_plot
         if pm.make_3d_plot:
             pm.show_pgf_plot = False

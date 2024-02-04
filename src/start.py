@@ -133,14 +133,21 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.toolButton_2.clicked.connect(self.handle_settings_page)
 
         self.ui.offline_analysis_home_2.clicked.connect(self.insert_row_of_buttons)
-        self.ui.offline.home_button.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.database.HomeButton.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.online.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
-        self.ui.config.go_home.clicked.connect(partial(self.ui.notebook.setCurrentIndex,0))
+        self.ui.offline.home_button.clicked.connect(self.show_bpe_home_page)
+        self.ui.database.HomeButton.clicked.connect(self.show_bpe_home_page)
+        self.ui.online.go_home.clicked.connect(self.show_bpe_home_page)
+        self.ui.config.go_home.clicked.connect(self.show_bpe_home_page)
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
         self.ui.switch_dark_light_mode.clicked.connect(self.dark_light_mode_switch_handling)
 
+    def show_bpe_home_page(self):
+        """
+        show_bpe_home_page: go to the home page and make sure the side left menu becomes hidden: it will becone updated if it needs to be reopened
+        """
+        if not self.ui.side_left_menu.isHidden():
+            self.ui.side_left_menu.hide()
+        self.ui.notebook.setCurrentIndex(0)
     def handle_settings_page(self):
         """@todo: implement settings needs
         """
@@ -192,10 +199,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.check_already_executed = self.ui.offline.show_open_analysis_dialog()
         QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    # deprecated ? dz 13.11.2023H
     def go_to_offline_analysis(self) -> None:
        """This opens the notebook page that has the Offline Analysis integrated
        """
+       # reclick the tree to update the plot if the style was changed
+       tm,_ =  self.ui.offline.get_current_tm_pm()
+       self.ui.offline.reclick_tree_item(tm)
        self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
        self.ui.notebook.setCurrentIndex(3)
        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)

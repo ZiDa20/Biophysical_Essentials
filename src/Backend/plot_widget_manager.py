@@ -212,7 +212,29 @@ class PlotWidgetManager(QRunnable):
                 print(f'Clicked on rectangle with label: {text.get_text()}')
                 break
 
+    
+    def extract_experiment_series_id(self,experiment_name, series_identifier):
+        """
+        extract_experiment_series_id _summary_
 
+        Args:
+            experiment_name (_type_): _description_
+            series_identifier (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        #print(experiment_name)
+        #print(series_identifier)
+        #print(sweep_name)
+        # 1. extract the experiment name
+        experiment_name = experiment_name.split("::")
+        experiment_name = experiment_name[len(experiment_name)-1]
+        #2. extract the series identifier
+        series_identifier = series_identifier.split("::")
+        series_identifier = series_identifier[len(series_identifier)-1]
+        return experiment_name, series_identifier
+    
     def table_view_sweep_clicked_load_from_database(self, experiment_name, series_identifier, sweep_name):
         """
         visualizes the sweep when clicked on it in the treeview
@@ -221,17 +243,12 @@ class PlotWidgetManager(QRunnable):
         :author: dz, modified 29.09.2022
         """
         print("sweep clicked")
-        print(experiment_name)
-        print(series_identifier)
-        print(sweep_name)
-        split_view = 1
-
-        experiment_name = experiment_name.split("::")
-        experiment_name = experiment_name[len(experiment_name)-1]
-        series_identifier = series_identifier.split("::")
-        series_identifier = series_identifier[len(series_identifier)-1]
+        self.check_style() # either white or darkmode
+        experiment_name, series_identifier = self.extract_experiment_series_id( experiment_name, series_identifier)
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
-        print(series_df)
+        series_df,si_prefix_plot = self.scale_plot_data(series_df)
+
+        #print(series_df)
         # get the meta data to correctly display y values of traces
         meta_data_df = self.database_handler.get_meta_data_table_of_specific_series(experiment_name,
                                                                  series_identifier)
@@ -247,15 +264,9 @@ class PlotWidgetManager(QRunnable):
         if self.y_unit == "V":
             y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df, sweep_name)
             data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
-            # data scaling to mV
-            self.plot_scaling_factor = 1000
-        else:
-            # data scaling to nA
-            self.plot_scaling_factor = 1e9
-
-        self.ax1.plot(self.time, data * self.plot_scaling_factor, 'black')
-
-        self.handle_plot_visualization()
+            data = data*1000
+       
+        self.ax1.plot(self.time, data, self.draw_color)
 
         pgf_table_df = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name,
                                                                                         series_identifier)
@@ -274,7 +285,7 @@ class PlotWidgetManager(QRunnable):
             print(x_pos)
             self.ax1.axvline(x_pos, c='tab:gray')
 
-        self.handle_plot_visualization()
+        self.handle_plot_visualization(si_prefix_plot)
 
     def table_view_series_clicked_load_from_database(self,experiment_name:str, series_identifier:str):
         """
@@ -284,13 +295,8 @@ class PlotWidgetManager(QRunnable):
             experiment_name (str): _description_
             series_identifier (str): _description_
         """
-
-        # 1. extract the experiment name
-        experiment_name = experiment_name.split("::")
-        experiment_name = experiment_name[len(experiment_name)-1]
-        #2. extract the series identifier
-        series_identifier = series_identifier.split("::")
-        series_identifier = series_identifier[len(series_identifier)-1]
+        self.check_style() # adjust the mpl figures to either white or darkmode
+        experiment_name, series_identifier = self.extract_experiment_series_id(experiment_name, series_identifier)
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
         # to display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
         # this is dynamic, so 10-3 becomes mA and so on .. 
@@ -304,7 +310,7 @@ class PlotWidgetManager(QRunnable):
         self.time = self.get_time_from_meta_data(meta_data_df)
         column_names = series_df.columns.values.tolist()
         self.create_new_subplots()
-        self.check_style() # either white or darkmode
+        
         plot_offset = 0
         time_offset = 0
         # plot for each sweep
@@ -426,7 +432,10 @@ class PlotWidgetManager(QRunnable):
             self.ax1.set_ylabel('Voltage [mV]')
             self.ax2.set_ylabel('Current [pA]')
         else:
-            self.ax1.set_ylabel('Current ['+si_prefix+'A]')
+            if si_prefix is not None:
+                self.ax1.set_ylabel('Current [' + si_prefix + 'A]')
+            else:
+                self.ax1.set_ylabel('Current [A]')
             self.ax2.set_ylabel('Voltage [mV]')
 
         self.ax1.grid(self.show_plot_grid)
