@@ -123,8 +123,11 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.logger.info("init finished")
 
         self.advanced_analysis.clicked.connect(self.show_second_layor_analysis)
-        self.configure_report_button.clicked.connect(ConstrcutionSideDialog)
-        self.create_report_button.clicked.connect(ConstrcutionSideDialog)
+        self.configure_report_button.clicked.connect(self.show_constructions_side_dialog)
+        self.create_report_button.clicked.connect(self.show_constructions_side_dialog)
+
+    def show_constructions_side_dialog(self):
+        ConstrcutionSideDialog(self.frontend_style)
 
     def show_second_layor_analysis(self):
         """_summary_: This function opens the second layer analysis dialog which handles all the user input itself
@@ -143,6 +146,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             pm = self.blank_analysis_plot_manager # pm = plot manager
         else:
             #have to find the corect widget first
+            c = self.offline_analysis_widgets.currentIndex()
             current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
             tm = self.offline_tree.current_tab_tree_view_manager[current_index]
             pm = self.offline_tree.current_tab_visualization[current_index]

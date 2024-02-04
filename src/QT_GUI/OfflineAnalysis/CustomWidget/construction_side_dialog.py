@@ -65,7 +65,7 @@ class Ui_Dialog(object):
         self.label_2.setText(QCoreApplication.translate("Dialog", u"This feature is currently under construction and will be available soon. \n"
 " If you want to stay updated about the latest BPE news and releases \n"
 " you can register for the newsletter on our webside: \n"
-" www.bpe-ephys.i-med.at/newsletter ", None))
+" https://biophysical-essentials.i-med.ac.at/", None))
         self.pushButton.setText(QCoreApplication.translate("Dialog", u"Close", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Welcome to the construction side", None))
     # retranslateUi

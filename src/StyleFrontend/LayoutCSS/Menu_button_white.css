@@ -316,10 +316,10 @@ QToolTip[objectName="select_analysis_fct"] {{color: #ffffff; background-color: #
 QPushButton[objectName="configure_report_button"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/configure_report.png);}}
 QToolTip[objectName="configure_report_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="create_report_button"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/print_report.png);}}
+QPushButton[objectName="create_report_button"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/print_report_white_mode.png);}}
 QToolTip[objectName="create_report_button"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
-QPushButton[objectName="advanced_analysis"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/advanced_analysis.png);}}
+QPushButton[objectName="advanced_analysis"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/advanced_analysis_white_mode.png);}}
 QToolTip[objectName="advanced_analysis"] {{color: #ffffff; background-color: #000000; border: 0px; }}
 
 

@@ -204,9 +204,13 @@ class MainWindow(QMainWindow, QtStyleTools):
        """
        # we have to rebuild the tree in order to display remove and reinsert delegates in the correct color 
        # reclick the tree to update the plot if the style was changed
+       c = self.ui.offline.offline_analysis_widgets.currentIndex()
+       if c>1: # site 3 does not have a treeview 
+           c=1
+           self.ui.offline.offline_analysis_widgets.setCurrentIndex(1)
        tm,_ =  self.ui.offline.get_current_tm_pm()
        self.ui.offline.reclick_tree_item(tm)
-       self.ui.offline.offline_analysis_widgets.setCurrentIndex(0)
+       self.ui.offline.offline_analysis_widgets.setCurrentIndex(c)
        self.ui.notebook.setCurrentIndex(3)
        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 

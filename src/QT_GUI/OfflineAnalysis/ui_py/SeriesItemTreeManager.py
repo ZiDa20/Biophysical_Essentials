@@ -337,7 +337,7 @@ class SeriesItemTreeWidget():
         """
         try:
             if self.SeriesItems.currentItem().text(0) == "Multi-Series Analysis:":
-                ConstrcutionSideDialog()
+                ConstrcutionSideDialog(self.frontend_style)
             elif self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
                 #self.result_analysis_parent_clicked()
                 self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))

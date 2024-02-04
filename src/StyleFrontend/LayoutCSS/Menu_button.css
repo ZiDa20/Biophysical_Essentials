@@ -445,3 +445,14 @@ QToolTip[objectName="change_series_name"]{{color: #ffffff; background-color: #00
 QPushButton[objectName="select_analysis_fct"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/analysis_functions_dark_mode.png);}}
 QToolTip[objectName="select_analysis_fct"]{{color: #ffffff; background-color: #000000; border: 0px; }}
 
+QPushButton[objectName="run_analysis_functions"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/play.png);}}
+QToolTip[objectName="run_analysis_functions"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="advanced_analysis"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/advanced_analysis_dark_mode.png);}}
+QToolTip[objectName="advanced_analysis"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="configure_report_button"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/create_report_dark_mode.png);}}
+QToolTip[objectName="configure_report_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+QPushButton[objectName="create_report_button"]{{background-image: url(:QT_GUI/Button/dark_mode/offline_analysis/print_report_dark_mode.png);}}
+QToolTip[objectName="create_report_button"]{{color: #ffffff; background-color: #000000; border: 0px; }}
