@@ -57,9 +57,6 @@ jobs:
           name: BPE-windows-latest
           path: BPE-windows-latest/*.zip
 
-      - name: Rename Windows artifact
-        run: mv BPE-windows-latest/start.exe BPE-windows-latest/BPE-windows-latest.zip
-
       - uses: actions/download-artifact@v4
         with:
           name: BPE-macOS-latest
