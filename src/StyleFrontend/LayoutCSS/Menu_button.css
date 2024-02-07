@@ -81,8 +81,8 @@ QLabel{{
     color: "#ffffff";
 }}
 
-QLabel[objectName="label"]{{font-size: 20pt;}}
-QLabel[objectName="label_2"]{{font-size: 15pt;}}
+QLabel[objectName="home_label_1"]{{font-size: 20pt;}}
+QLabel[objectName="home_label_2"]{{font-size: 15pt;}}
 
 QCheckBox{{
     background-color:transparent; 
