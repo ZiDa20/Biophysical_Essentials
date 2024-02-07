@@ -56,6 +56,9 @@ jobs:
         with:
           name: BPE-windows-latest
           path: BPE-windows-latest/*.zip
+	
+      - name: Rename Windows artifact
+        run: mv BPE-windows-latest/start.exe BPE-windows-latest/BPE-windows-latest.zip
 
       - uses: actions/download-artifact@v4
         with:
@@ -66,7 +69,7 @@ jobs:
         with:
           name: BPE-ubuntu-latest
           path: BPE-ubuntu-latest/*.zip
-
+	
       - name: Display fetched artifacts
         run: ls -R
       - name: Emit a Github Release
@@ -76,6 +79,6 @@ jobs:
           prerelease: true
           title: "Development Build"
           files: |
-            BPE-windows-latest/*.zip
+            BPE-windows-latest/BPE-windows-latest.zip
             BPE-macOS-latest/*.zip
             BPE-ubuntu-latest/*.zip
