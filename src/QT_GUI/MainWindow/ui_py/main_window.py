@@ -28,7 +28,6 @@ from QT_GUI.DatabaseViewer.ui_py.database_viewer_widget import Database_Viewer
 
 import Figures_rc
 from StyleFrontend.frontend_style import Frontend_Style
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -81,15 +80,15 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addItem(self.verticalSpacer_5, 7, 0, 1, 1)
 
-        self.label = QLabel(self.frame)
-        self.label.setObjectName(u"label")
+        self.home_label_1 = QLabel(self.frame)
+        self.home_label_1.setObjectName(u"home_label_1")
         font = QFont()
         font.setPointSize(20)
         font.setBold(False)
-        self.label.setFont(font)
-        self.label.setAlignment(Qt.AlignCenter)
+        self.home_label_1.setFont(font)
+        self.home_label_1.setAlignment(Qt.AlignCenter)
 
-        self.gridLayout_4.addWidget(self.label, 1, 1, 1, 3)
+        self.gridLayout_4.addWidget(self.home_label_1, 1, 1, 1, 3)
 
         self.home_logo = QToolButton(self.frame)
         self.home_logo.setObjectName(u"home_logo")
@@ -173,14 +172,14 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addItem(self.verticalSpacer_2, 5, 0, 1, 1)
 
-        self.label_2 = QLabel(self.frame)
-        self.label_2.setObjectName(u"label_2")
+        self.home_label_2 = QLabel(self.frame)
+        self.home_label_2.setObjectName(u"home_label_2")
         font2 = QFont()
         font2.setPointSize(15)
-        self.label_2.setFont(font2)
-        self.label_2.setAlignment(Qt.AlignCenter)
+        self.home_label_2.setFont(font2)
+        self.home_label_2.setAlignment(Qt.AlignCenter)
 
-        self.gridLayout_4.addWidget(self.label_2, 3, 1, 1, 3)
+        self.gridLayout_4.addWidget(self.home_label_2, 3, 1, 1, 3)
 
         self.verticalSpacer_7 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
@@ -304,12 +303,12 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Welcome to Biophysical Essentials", None))
+        self.home_label_1.setText(QCoreApplication.translate("MainWindow", u"Welcome to Biophysical Essentials", None))
         self.home_logo.setText(QCoreApplication.translate("MainWindow", u"BPE Online", None))
         self.online_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Online Analysis", None))
         self.offline_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Offline Analysis", None))
         self.configuration_home_2.setText(QCoreApplication.translate("MainWindow", u"Configuration", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Patch Clamp Module", None))
+        self.home_label_2.setText(QCoreApplication.translate("MainWindow", u"Patch Clamp Module", None))
         self.database_viewer_home_2.setText(QCoreApplication.translate("MainWindow", u"Database Viewer", None))
         self.toolButton_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.switch_dark_light_mode.setText(QCoreApplication.translate("MainWindow", u"Switch to Ligh Mode", None))

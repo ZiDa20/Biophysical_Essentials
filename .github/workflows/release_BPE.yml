@@ -41,6 +41,7 @@ jobs:
       working-directory: src
       run: poetry run pyinstaller --add-data './Logs:Logs'  --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' --name=BiophysicalEssentials -i './QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png' start.py
 
+
     - name: Zip dist directory
       shell: bash
       run: |

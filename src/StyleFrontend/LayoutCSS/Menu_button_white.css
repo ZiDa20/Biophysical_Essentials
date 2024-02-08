@@ -18,14 +18,18 @@ QTabWidget{{background-color: "#e6e6e6";}}
 QWidget[accessibleName="additional_function_menu"]{{background-color: "{QTMATERIAL_SECONDARYCOLOR}";}}
 
 
-QPushButton{{background-color: white; border: 2px solid #9394a5; color:black; border-radius: 5px;}}
-QPushButton:hover{{background-color: #9394a5; border: 2px solid white;}}
 
  
 QLabel{{
     background-color: transparent; 
     color: "#000000";
+    
 }}
+
+QLabel[objectName="home_label_1"]{{font-size: 20pt;}}
+QLabel[objectName="home_label_2"]{{font-size: 15pt;}}
+
+
 
 QCheckBox{{background-color:transparent; color:black; }}
 
@@ -123,12 +127,12 @@ QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] {{
     background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
-QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton {{
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"]{{
     background-color: white;
     border-color: black;   
 }}
 
-QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"] QPushButton:hover {{
+QWidget[objectName="MetadataPopup"] QFrame[objectName="popup_frame"]{{
     background-color: {QTMATERIAL_SECONDARYCOLOR};  
 }}
 
@@ -403,3 +407,8 @@ QToolTip[objectName="metadata_table"] {{color: #ffffff; background-color: #00000
 
 QPushButton[objectName="show_in_3d"]{{background-image: url(:QT_GUI/Button/light_mode/offline_analysis/3d_white_mode.png);}}
 QToolTip[objectName="show_in_3d"]{{color: #ffffff; background-color: #000000; border: 0px; }}
+
+
+QPushButton{{background-color: white; border: 2px solid #9394a5; color:black; border-radius: 5px;}}
+QPushButton:hover{{background-color: #9394a5; border: 2px solid white;}}
+QPushButton:disabled{{background-color: #9394a5;}}
