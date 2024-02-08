@@ -45,7 +45,7 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          zip -r BPE-${{ matrix.os }}.zip *
+            7z a -tzip BPE-${{ matrix.os }}.zip *
         else
           tar -czvf BPE-${{ matrix.os }}.tar.gz *
         fi
