@@ -5,8 +5,10 @@ import os
 
 if getattr(sys, 'frozen', False):
     EXE_LOCATION = sys._MEIPASS
+    print("sys1")
 else:
-    EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
+    EXE_LOCATION = os.path.dirname(os.path.dirname( os.path.realpath( __file__ ) ))
+    print("sys2")
 
 LOG_LEVEL: str = "INFO"
 # checks the currently selected log level
@@ -24,5 +26,5 @@ picologging.basicConfig(
     format="Module: %(name)s | %(levelname)s | %(asctime)s | %(message)s",
     level=loglevel,
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[picologging.StreamHandler(), picologging.FileHandler(f"{os.path.dirname(EXE_LOCATION)}/Logs/log.log")],
+    handlers=[picologging.StreamHandler(), picologging.FileHandler(f"{EXE_LOCATION}/Logs/log.log")],
 )
