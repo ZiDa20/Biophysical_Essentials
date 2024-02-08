@@ -76,6 +76,6 @@ jobs:
           prerelease: true
           title: "Development Build"
           files: |
-            BPE-windows-latest/*.zip
-            BPE-macOS-latest/*.zip
-            BPE-ubuntu-latest/*.zip
+            BPE-windows-latest
+            BPE-macOS-latest
+            BPE-ubuntu-latest
