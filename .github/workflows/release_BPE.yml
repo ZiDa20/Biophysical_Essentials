@@ -42,19 +42,23 @@ jobs:
       run: poetry run pyinstaller --add-data './Logs:Logs'  --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' --name=BiophysicalEssentials -i './QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png' start.py
 
     - name: Zip dist directory
+      shell: bash
       run: |
         if [[ "${{ runner.os }}" == "Windows" ]]; then
-          7z a -tzip BPE-${{ matrix.os }}.zip *
+          zip -r BPE-${{ matrix.os }}.zip *
         else
           tar -czvf BPE-${{ matrix.os }}.tar.gz *
         fi
       working-directory: src/dist
     
+    - name: Display fetched artifacts
+      run: ls -R
+
     - name: Upload zipped dist directory
       uses: actions/upload-artifact@v2
       with:
         name: BPE-${{ matrix.os }}
-        path: BPE-${{ matrix.os }}.*
+        path: src/dist/BPE-${{ matrix.os }}.*
 
   release:
     name: "Tagged Prelease"
@@ -75,6 +79,7 @@ jobs:
     
       - name: Display fetched artifacts
         run: ls -R
+
       - name: Emit a Github Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
