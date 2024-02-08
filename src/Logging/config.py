@@ -24,5 +24,5 @@ picologging.basicConfig(
     format="Module: %(name)s | %(levelname)s | %(asctime)s | %(message)s",
     level=loglevel,
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[picologging.StreamHandler(), picologging.FileHandler(f"{EXE_LOCATION}/Logs/log.log")],
+    handlers=[picologging.StreamHandler(), picologging.FileHandler(f"{os.path.dirname(EXE_LOCATION)}/Logs/log.log")],
 )
