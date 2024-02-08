@@ -73,12 +73,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: BPE-macOS-latest
-          path: BPE-windows-latest/*.tar.gz
+          path: BPE-macOS-latest/*.tar.gz
   
       - uses: actions/download-artifact@v4
         with:
           name: BPE-ubuntu-latest
-          path: BPE-windows-latest/*.tar.gz
+          path: BPE-ubuntu-latest/*.tar.gz
     
       - name: Display fetched artifacts
         run: ls -R
