@@ -1,11 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 a = Analysis(
     ['start.py'],
     pathex=[],
     binaries=[],
-    datas=[('./StyleFrontend', 'StyleFrontend'), ('./database', 'database'), ('./QT_GUI', 'QT_GUI'), ('./qbstyles', 'qbstyles'), ('./resources.py', '.')],
+    datas=[('./Logs', 'Logs'), ('./StyleFrontend', 'StyleFrontend'), ('./database', 'database'), ('./QT_GUI', 'QT_GUI'), ('./qbstyles', 'qbstyles'), ('./resources.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -18,20 +17,27 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
-    name='start',
+    exclude_binaries=True,
+    name='BiophysicalEssentials',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png'],
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='BiophysicalEssentials',
 )

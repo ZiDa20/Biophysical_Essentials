@@ -1,6 +1,12 @@
 # This module is the configuration file for the picologging
 import picologging
+import sys
+import os 
 
+if getattr(sys, 'frozen', False):
+    EXE_LOCATION = sys._MEIPASS
+else:
+    EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
 
 LOG_LEVEL: str = "INFO"
 # checks the currently selected log level
@@ -18,5 +24,5 @@ picologging.basicConfig(
     format="Module: %(name)s | %(levelname)s | %(asctime)s | %(message)s",
     level=loglevel,
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[picologging.StreamHandler()],
+    handlers=[picologging.StreamHandler(), picologging.FileHandler(f"{EXE_LOCATION}/Logs/log.log")],
 )
