@@ -41,11 +41,20 @@ jobs:
       working-directory: src
       run: poetry run pyinstaller --add-data './Logs:Logs'  --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' --name=BiophysicalEssentials -i './QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png' start.py
 
-    - name: Upload dist directory
-      uses: actions/upload-artifact@v4
+    - name: Zip dist directory
+      run: |
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          7z a -tzip BPE-${{ matrix.os }}.zip *
+        else
+          tar -czvf BPE-${{ matrix.os }}.tar.gz *
+        fi
+      working-directory: src/dist
+    
+    - name: Upload zipped dist directory
+      uses: actions/upload-artifact@v2
       with:
         name: BPE-${{ matrix.os }}
-        path: src/dist/*
+        path: BPE-${{ matrix.os }}.*
 
   release:
     name: "Tagged Prelease"
@@ -54,19 +63,16 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: BPE-windows-latest
-          path: BPE-windows-latest/*.zip
+          name: BPE-windows-latest.zip
 
       - uses: actions/download-artifact@v4
         with:
-          name: BPE-macOS-latest
-          path: BPE-macOS-latest/*.zip
-
+          name: BPE-macOS-latest.tar.gz
+  
       - uses: actions/download-artifact@v4
         with:
-          name: BPE-ubuntu-latest
-          path: BPE-ubuntu-latest/*.zip
-
+          name: BPE-ubuntu-latest.tar.gz
+    
       - name: Display fetched artifacts
         run: ls -R
       - name: Emit a Github Release
@@ -76,6 +82,6 @@ jobs:
           prerelease: true
           title: "Development Build"
           files: |
-            BPE-windows-latest
-            BPE-macOS-latest
-            BPE-ubuntu-latest
+            BPE-windows-latest.zip
+            BPE-macOS-latest.tar.gz
+            BPE-ubuntu-latest.tar.gz
