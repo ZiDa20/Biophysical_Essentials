@@ -1,0 +1,377 @@
+# Query: QT_GUI.
+# ContextLines: 1
+
+108 results - 58 files
+
+src/start.py:
+  15  from StyleFrontend.frontend_style import Frontend_Style
+  16: from Frontend.MainWindow.ui_py.main_window import Ui_MainWindow
+  17  from database.data_db import DuckDBDatabaseHandler
+  18  import resources
+  19: from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
+  20  from CustomWidget.error_dialog_class import CustomErrorDialog
+
+src/Backend/self_configuration.py:
+  1: from Frontend.ConfigWidget.ui_py.self_config_notebook_widget import Ui_Config_Widget
+  2: from Frontend.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
+  3  from typing import Optional
+
+src/Backend/Experimentator/self_configuration.py:
+  1: from Frontend.ConfigWidget.ui_py.self_config_notebook_widget import Ui_Config_Widget
+  2: from Frontend.ConfigWidget.ui_py.SolutionsDialog import SolutionsDialog
+  3  from typing import Optional
+
+src/Frontend/ConfigWidget/ui_py/SolutionsDialog.py:
+  1  from PySide6.QtWidgets import * 
+  2: from Frontend.ConfigWidget.ui_py.ui_solutions_dialog import Ui_SolutionsDialog
+  3  from database.data_db import DuckDBDatabaseHandler
+
+src/Frontend/DatabaseViewer/ui_py/database_viewer_widget.py:
+   3  from PySide6.QtWidgets import *  # type: ignore
+   4: from Frontend.DatabaseViewer.ui_py.data_base_designer_object import Ui_Database_Viewer
+   5  import pandas as pd
+
+   7  
+   8: from Frontend.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
+   9  from functools import partial
+  10: from Frontend.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
+  11  import duckdb
+  12  from typing import Optional
+  13: from Frontend.DatabaseViewer.ui_py.DatabaseTable import Ui_DatabaseTable
+  14: from Frontend.DatabaseViewer.ui_py.ListViewTables import Ui_ListViewTables
+  15  from database.data_db import DuckDBDatabaseHandler
+
+src/Frontend/MainWindow/ui_py/main_window.py:
+  22  from Backend.Experimentator.self_configuration import Config_Widget
+  23: from Frontend.OnlineAnalysis.ui_py.online_analysis_widget import Online_Analysis
+  24: from Frontend.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
+  25: from Frontend.Settings.ui_py.settings_dialog import SettingsWindow
+  26: from Frontend.DatabaseViewer.ui_py.database_viewer_widget import Database_Viewer
+  27  
+
+src/Frontend/OfflineAnalysis/CustomWidget/add_new_meta_data_group_pop_up_handler.py:
+  3  
+  4: from Frontend.OfflineAnalysis.CustomWidget.add_new_meta_data_group_pop_up import Ui_Dialog
+  5  
+
+src/Frontend/OfflineAnalysis/CustomWidget/analysis_table_widget.py:
+  3  
+  4: from Frontend.OfflineAnalysis.CustomWidget.analysis_function_table_designer import Ui_Form
+  5  
+
+src/Frontend/OfflineAnalysis/CustomWidget/assign_meta_data_dialog_popup.py:
+  2  from PySide6.QtWidgets import *  # type: ignore
+  3: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_group_dialog import Ui_assign_meta_data_group
+  4  import pandas as pd
+
+src/Frontend/OfflineAnalysis/CustomWidget/change_series_name_handler.py:
+  1  from PySide6.QtWidgets import *  # type: ignore
+  2: from Frontend.OfflineAnalysis.CustomWidget.change_series_name_designer import Ui_Dialog
+  3  from functools import partial
+
+src/Frontend/OfflineAnalysis/CustomWidget/choose_existing_analysis_handler.py:
+  1  from PySide6.QtWidgets import *  # type: ignore
+  2: from Frontend.OfflineAnalysis.CustomWidget.choose_existing_analysis_dialog import Ui_MetadataPopup
+  3  from functools import partial
+
+src/Frontend/OfflineAnalysis/CustomWidget/construction_side_handler.py:
+  1: from Frontend.OfflineAnalysis.CustomWidget.construction_side_dialog import Ui_Dialog
+  2  from PySide6.QtWidgets import *  # type: ignore
+
+src/Frontend/OfflineAnalysis/CustomWidget/ExportOfflineDialog.py:
+  2  from PySide6.QtWidgets import QFileDialog, QDialog, QTableView  # type: ignore
+  3: from Frontend.OfflineAnalysis.CustomWidget.choose_existing_analysis_dialog import Ui_MetadataPopup
+  4  from CustomWidget.Pandas_Table import PandasTable
+
+src/Frontend/OfflineAnalysis/CustomWidget/filter_pop_up_handler.py:
+  2  from PySide6.QtWidgets import *  # type: ignore
+  3: from Frontend.OfflineAnalysis.CustomWidget.filter_pop_up import Ui_Dialog
+  4  from functools import partial
+
+src/Frontend/OfflineAnalysis/CustomWidget/load_data_from_database_popup_handler.py:
+  7  from matplotlib.backends.backend_qtagg import FigureCanvas
+  8: from Frontend.OfflineAnalysis.CustomWidget.load_data_from_database_popup import Ui_Dialog
+  9  from CustomWidget.error_dialog_class import CustomErrorDialog
+
+src/Frontend/OfflineAnalysis/CustomWidget/load_previous_discarded_flags_handler.py:
+  7  from matplotlib.backends.backend_qtagg import FigureCanvas
+  8: from Frontend.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_designer import Ui_Dialog
+  9  from Backend.treeview_manager import TreeViewManager
+
+src/Frontend/OfflineAnalysis/CustomWidget/MetaDataPopupAnalysis.py:
+  2  from PySide6.QtWidgets import *  # type: ignore
+  3: from Frontend.OfflineAnalysis.CustomWidget.ui_metadata_analysis_popup import Ui_MetadataPopup
+  4  import pandas as pd
+
+src/Frontend/OfflineAnalysis/CustomWidget/normalization_dialog_handler.py:
+  4  
+  5: from Frontend.OfflineAnalysis.CustomWidget.normalization_dialog import Ui_Dialog
+  6  
+
+src/Frontend/OfflineAnalysis/CustomWidget/second_layer_analysis_handler.py:
+  1  
+  2: from Frontend.OfflineAnalysis.CustomWidget.second_layor_analysis_dialog import Ui_Dialog
+  3  from PySide6.QtWidgets import *  # type: ignore
+
+src/Frontend/OfflineAnalysis/CustomWidget/select_analysis_functions_handler.py:
+  3  
+  4: from Frontend.OfflineAnalysis.CustomWidget.select_analysis_functions_desginer import Ui_Dialog
+  5  from Offline_Analysis.Analysis_Functions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
+
+src/Frontend/OfflineAnalysis/CustomWidget/select_meta_data_for_treeview_handler.py:
+  2  from PySide6.QtWidgets import *  # type: ignore
+  3: from Frontend.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview import Ui_Dialog
+  4  import numpy as np
+
+src/Frontend/OfflineAnalysis/CustomWidget/select_meta_data_options_pop_up_handler.py:
+  3  
+  4: from Frontend.OfflineAnalysis.CustomWidget.select_meta_data_options_pop_up import Ui_Dialog
+  5  
+
+src/Frontend/OfflineAnalysis/CustomWidget/select_statistics_meta_data_handler.py:
+  3  
+  4: from Frontend.OfflineAnalysis.CustomWidget.select_statistics_meta_data_dialog import StatisticsMetaData_Dialog
+  5  
+
+src/Frontend/OfflineAnalysis/CustomWidget/specififc_analysis_tab.py:
+  20  
+  21: from Frontend.OfflineAnalysis.CustomWidget.analysis_table_widget import Analysis_Function_Table
+  22  
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  
+
+src/Frontend/OfflineAnalysis/CustomWidget/statistics_function_table_handler.py:
+  7  
+  8: from Frontend.OfflineAnalysis.CustomWidget.statistics_function_table import Ui_StatisticsTable
+  9: from Frontend.OfflineAnalysis.CustomWidget.statistics_result_template_handler import StatisticsResultTemplate
+  10  from CustomWidget.error_dialog_class import CustomErrorDialog
+
+src/Frontend/OfflineAnalysis/CustomWidget/statistics_result_template_handler.py:
+  1: from Frontend.OfflineAnalysis.CustomWidget.statistics_result_template import Ui_Form
+  2  from PySide6.QtGui import *  # type: ignore
+
+src/Frontend/OfflineAnalysis/CustomWidget/SubstractDialog.py:
+  2  from matplotlib.backends.backend_qtagg import (FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+  3: from Frontend.OfflineAnalysis.CustomWidget.ui_SubstractDialog import Ui_CreateNewSeries
+  4  from CustomWidget.error_dialog_class import CustomErrorDialog
+
+src/Frontend/OfflineAnalysis/ui_py/analysis_function_selection_manager.py:
+   9  from CustomWidget.error_dialog_class import CustomErrorDialog
+  10: from Frontend.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
+  11  from database.data_db import DuckDBDatabaseHandler
+
+src/Frontend/OfflineAnalysis/ui_py/offline_analysis_designer_object.py:
+  21  
+  22: from Frontend.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  
+
+src/Frontend/OfflineAnalysis/ui_py/offline_analysis_widget.py:
+  11  
+  12: from Frontend.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
+  13  from Backend.treeview_manager import TreeViewManager
+
+  29  from CustomWidget.error_dialog_class import CustomErrorDialog
+  30: from Frontend.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
+  31: from Frontend.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
+  32: from Frontend.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
+  33: from Frontend.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_handler import LoadPreviousDiscardedFlagsHandler
+  34  
+  35: from Frontend.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
+  36: from Frontend.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
+  37: from Frontend.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
+  38  
+  39  from Offline_Analysis.Results.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+  40: from Frontend.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
+  41  from Offline_Analysis.Results.FinalResultHolder import ResultHolder
+  42: from Frontend.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
+  43  
+  44  
+  45: from Frontend.OfflineAnalysis.ui_py.analysis_function_selection_manager import AnalysisFunctionSelectionManager
+  46: from Frontend.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
+  47  
+  48: from Frontend.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
+  49: from Frontend.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
+  50  
+
+  53  
+  54: from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
+  55  
+
+src/Frontend/OfflineAnalysis/ui_py/OfflineDialogs.py:
+  1: from Frontend.OfflineAnalysis.CustomWidget.SubstractDialog import SubstractDialog
+  2: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  3: from Frontend.OfflineAnalysis.CustomWidget.MetaDataPopupAnalysis import MetadataPopupAnalysis
+  4: from Frontend.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
+  5: from Frontend.OfflineAnalysis.CustomWidget.ChooseSeriesDialog import SeriesDialog
+  6: from Frontend.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
+  7  
+
+src/Frontend/OfflineAnalysis/ui_py/SeriesItemTreeManager.py:
+   3  from PySide6.QtWidgets import *  # type: ignore
+   4: from Frontend.OfflineAnalysis.ui_py.SideBarTreeParentItem import SideBarParentItem, SideBarConfiguratorItem, SideBarAnalysisItem
+   5: from Frontend.OfflineAnalysis.CustomWidget.specififc_analysis_tab import SpecificAnalysisTab
+   6  from functools import partial
+
+  11  from CustomWidget.Pandas_Table import PandasTable
+  12: from Frontend.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
+  13: from Frontend.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
+  14: from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
+  15  from StyleFrontend.animated_ap import LoadingAnimation
+
+src/Frontend/OnlineAnalysis/ui_py/online_analysis_designer_object.py:
+  15  from CustomWidget.groupbox_resizing_class import GroupBoxSize
+  16: from Frontend.OfflineAnalysis.ui_py.treebuild_widget import TreeBuild
+  17  
+
+src/Frontend/OnlineAnalysis/ui_py/online_analysis_widget.py:
+   7  from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
+   8: from Frontend.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
+   9  from Backend.online_analysis_manager import OnlineAnalysisManager
+
+  13  from CustomWidget.Pandas_Table import PandasTable
+  14: from Frontend.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
+  15  from Backend.DataReader.ABFclass import AbfReader
+
+src/Frontend/OnlineAnalysis/ui_py/RedundantDialog.py:
+  2  from PySide6.QtWidgets import QDialog, QDialogButtonBox  # type: ignore
+  3: from Frontend.OnlineAnalysis.ui_py.ui_RedundantDialog import Ui_RedundantDialog
+  4  import picologging
+
+src/Frontend/Settings/ui_py/settings_dialog.py:
+  4  from Backend.DeviceAPI.BCamera import * 
+  5: from Frontend.Settings.ui_py.settings_designer import Ui_Settings
+  6  from PySide6.QtCore import *  # type: ignore
+
+src/Frontend/ui_elements/MainWindow/mz_08022023_main_window_new_layout.py:
+  21  
+  22: from Frontend.ConfigWidget.ui_py.self_configuration import Config_Widget
+  23: from Frontend.OnlineAnalysis.ui_py.online_analysis_widget import Online_Analysis
+  24: from Frontend.OfflineAnalysis.ui_py.offline_analysis_widget import Offline_Analysis
+  25: from Frontend.Settings.ui_py.settings_dialog import SettingsWindow
+  26: from Frontend.DatabaseViewer.ui_py.database_viewer_widget import Database_Viewer
+  27  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/specific_analysis_tab_12052022.py:
+  21  
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/specific_analysis_tab_17012023.py:
+  21  
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/specific_analysis_tab_subwindow.py:
+  21  
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/trial_specific_analysis_tab_05022023_ui.py:
+  20  
+  21: from Frontend.OfflineAnalysis.CustomWidget.analysis_functions import Analysis_Functions
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/trial_specific_analysis_tab_05022023.py:
+  20  
+  21: from Frontend.OfflineAnalysis.CustomWidget.analysis_functions import Analysis_Functions
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/ui_specific_analysis_tab_12052022.py:
+  21  
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/ui_specific_analysis_tab_subwindow.py:
+  22  
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  
+
+src/Frontend/ui_elements/OfflineAnalysis/CustomWidget/ui_trial_specific_analysis_tab_05022023.py:
+  21  
+  22: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  23  
+
+src/Frontend/ui_elements/OfflineAnalysis/ui_files/offline_analysis_designer_ui.py:
+  21  
+  22: from Frontend.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  
+
+src/Frontend/ui_elements/OfflineAnalysis/ui_files/offline_analysis_designer.py:
+  21  
+  22: from Frontend.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  
+
+src/Frontend/ui_elements/OfflineAnalysis/ui_files/ui_offline_analysis_designer.py:
+  21  
+  22: from Frontend.OfflineAnalysis.CustomWidget.ui_SeriesItem import OfflineTree
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  
+
+src/Frontend/ui_elements/OnlineAnalysis/online_analysis_notebook_ribbon_ui.py:
+  22  
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  from groupbox_resizing_class import GroupBoxSize
+
+src/Frontend/ui_elements/OnlineAnalysis/online_analysis_notebook_ribbon.py:
+  22  
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  from groupbox_resizing_class import GroupBoxSize
+
+src/Frontend/ui_elements/OnlineAnalysis/ui_online_analysis_notebook_ribbon.py:
+  22  
+  23: from Frontend.OfflineAnalysis.ui_py.treebuild_widget  import TreeBuild
+  24  from groupbox_resizing_class import GroupBoxSize
+
+src/Offline_Analysis/Plots/ResultPlotVisualizer.py:
+  6  from functools import partial
+  7: from Frontend.OfflineAnalysis.CustomWidget.specific_visualization_plot import Ui_result_plot_visualizer
+  8  
+
+src/Offline_Analysis/Results/offline_analysis_result_visualizer.py:
+   9  from matplotlib.backends.backend_qtagg import FigureCanvas
+  10: from Frontend.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResultTab
+  11  from Offline_Analysis.Plots.OfflinePlot import OfflinePlots
+  12: from Frontend.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
+  13  import picologging
+
+src/Tests/test_block_pulse_analysis_functions.py:
+  17  from database.data_db import DuckDBDatabaseHandler
+  18: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  19  from pathlib import Path
+
+  27  import time
+  28: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  29  
+
+src/Tests/test_build_database.py:
+  17  from database.data_db import DuckDBDatabaseHandler
+  18: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  19  from pathlib import Path
+
+src/Tests/test_offline_analysis_page_1_treeview_abf_files.py:
+  17  from database.data_db import DuckDBDatabaseHandler
+  18: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  19  from pathlib import Path
+
+  27  import time
+  28: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  29  
+
+src/Tests/test_offline_analysis_page_1_treeview_dat_files.py:
+  17  from database.data_db import DuckDBDatabaseHandler
+  18: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  19  from pathlib import Path
+
+  27  import time
+  28: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  29  
+
+src/Tests/test_start_up.py:
+  20  from database.data_db import DuckDBDatabaseHandler
+  21: from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+  22  from pathlib import Path

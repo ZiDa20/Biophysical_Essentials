@@ -14,8 +14,8 @@ from pytestqt import qtbot
 import pytestqt
 import pytest
 import shutil
-from database.data_db import DuckDBDatabaseHandler
-from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 import time
 

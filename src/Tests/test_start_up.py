@@ -17,8 +17,8 @@ import duckdb
 import io
 import pandas as pd
 from pytestqt import qtbot
-from database.data_db import DuckDBDatabaseHandler
-from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 import pytest
 

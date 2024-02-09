@@ -1,5 +1,5 @@
 import numpy as np
-from DataReader.heka_reader import Bundle
+from Backend.DataReader.heka_reader import Bundle
 
 
 class OnlineAnalysisManager:

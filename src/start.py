@@ -5,7 +5,6 @@ from functools import partial
 import webbrowser
 import picologging
 import Logging.config
-from qbstyles import mpl_style
 from PySide6.QtCore import QSize, Qt, QDir
 from PySide6.QtGui import QIcon # type: ignore
 from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication
@@ -13,11 +12,11 @@ from PySide6.QtTest import QTest# type: ignore
 from qt_material import QtStyleTools
 from qt_material import apply_stylesheet
 from StyleFrontend.frontend_style import Frontend_Style
-from QT_GUI.MainWindow.ui_py.main_window import Ui_MainWindow
-from database.data_db import DuckDBDatabaseHandler
+from Frontend.MainWindow.ui_py.main_window import Ui_MainWindow
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 import resources
-from  QT_GUI.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
-from CustomWidget.error_dialog_class import CustomErrorDialog
+from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
+from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 
 # this is important for pyinstaller to find the right parts of the program
 if getattr(sys, 'frozen', False):
