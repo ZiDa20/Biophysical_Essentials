@@ -5,8 +5,10 @@ import os
 
 if getattr(sys, 'frozen', False):
     EXE_LOCATION = sys._MEIPASS
+    print("sys1")
 else:
-    EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
+    EXE_LOCATION = os.path.dirname(os.path.dirname( os.path.realpath( __file__ ) ))
+    print("sys2")
 
 LOG_LEVEL: str = "INFO"
 # checks the currently selected log level
