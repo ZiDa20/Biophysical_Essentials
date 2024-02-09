@@ -1,0 +1,604 @@
+Module: Backend.Experimentator.self_configuration | INFO | 2024-02-09 13:23:20 | Camera will be initialized
+Module: Backend.DeviceAPI.BCamera | ERROR | 2024-02-09 13:23:20 | Camera not connected, failed connection process
+Module: Backend.Experimentator.self_configuration | WARNING | 2024-02-09 13:23:20 | Camera was not found please check the connection
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:23:20 | Successfully connected all the appropiates button calls
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:23:20 | init finished
+Module: __main__ | INFO | 2024-02-09 13:23:20 | /Users/maximilianzeidler/Desktop/Biophysical_Essentials/src
+Module: __main__ | INFO | 2024-02-09 13:23:20 | Starting the Biophysical Essentials Program!
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | database path is /Users/maximilianzeidler/Desktop/Biophysical_Essentials/src/database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:23:21 | Database Manager Initialized
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | connection successfull to offline_database
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | Started new Analysis for user admin at time 2024-02-09 13:23:21.046686
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | Analysis id for this analysis will be: 46
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | database path is None
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:23:21 | Database Manager Initialized
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | A new database will created. Created and Connected to new database: online_db
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | connection successfull to online_in_memory_database
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | create_table created all tables successfully
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | Started new Analysis for user admin at time 2024-02-09 13:23:21.056662
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:23:21 | Analysis id for this analysis will be: 1
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:23:21 | Successfully initialized the Offline Analysis Result Visualizer
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:23:28 | Mapped experiment 220315_01 to analysis 46
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:23:28 | Mapped experiment 220315_02 to analysis 46
+Module: Backend.ExperimentTree.treeview_manager | ERROR | 2024-02-09 13:23:59 | Please click the series you want to save first: No series in the treeview was clicked
+Module: Backend.Experimentator.self_configuration | INFO | 2024-02-09 13:25:05 | Camera will be initialized
+Module: Backend.DeviceAPI.BCamera | ERROR | 2024-02-09 13:25:05 | Camera not connected, failed connection process
+Module: Backend.Experimentator.self_configuration | WARNING | 2024-02-09 13:25:05 | Camera was not found please check the connection
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:25:05 | Successfully connected all the appropiates button calls
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:25:05 | init finished
+Module: __main__ | INFO | 2024-02-09 13:25:05 | /Users/maximilianzeidler/Desktop/Biophysical_Essentials/src
+Module: __main__ | INFO | 2024-02-09 13:25:05 | Starting the Biophysical Essentials Program!
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | database path is /Users/maximilianzeidler/Desktop/Biophysical_Essentials/src/database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:25:05 | Database Manager Initialized
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | A new database will created. Created and Connected to new database: duck_db_analysis_database.db
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | connection successfull to offline_database
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | Started new Analysis for user admin at time 2024-02-09 13:25:05.678077
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | Analysis id for this analysis will be: 47
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | database path is None
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:25:05 | Database Manager Initialized
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | A new database will created. Created and Connected to new database: online_db
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | connection successfull to online_in_memory_database
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | create_table created all tables successfully
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | Started new Analysis for user admin at time 2024-02-09 13:25:05.682318
+Module: database.DatabaseHandler.DuckDBInitalizer | INFO | 2024-02-09 13:25:05 | Analysis id for this analysis will be: 1
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:25:05 | Successfully initialized the Offline Analysis Result Visualizer
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:25:10 | Mapped experiment 220315_01 to analysis 47
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:25:10 | Mapped experiment 220315_02 to analysis 47
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:18 | write_experiment_to_csv: added series Series1 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:18 | write_experiment_to_csv: added series Series2 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:18 | write_experiment_to_csv: added series Series3 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:18 | write_experiment_to_csv: added series Series4 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:18 | write_experiment_to_csv: added series Series5 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:20 | write_experiment_to_csv: added series Series6 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:21 | write_experiment_to_csv: added series Series7 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:21 | write_experiment_to_csv: added series Series8 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:21 | write_experiment_to_csv: added series Series9 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:21 | write_experiment_to_csv: added series Series10 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:22 | write_experiment_to_csv: added series Series11 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:22 | write_experiment_to_csv: added series Series12 to csv file
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:25:22 | write_experiment_to_csv: added series Series13 to csv file
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:27:51 | Series to be analyzed: ['IV', 'Rheobase', 'Inact', 'Rheoramp']
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:27:51 | inserting new analysis_series with id  47
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:27:51 | inserting new analysis_series with id  47
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:27:51 | inserting new analysis_series with id  47
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:27:51 | inserting new analysis_series with id  47
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:27:51 | inserted all series
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:27:59 | No connection to disconnect here, probably the first connect
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:28:19 | added new row into analysis_function_table: max_current, IV,47,67.18,74.3
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:28:19 | added new row into analysis_function_table: min_current, IV,47,3.13,9.77
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:28:19 | finished: Empty DataFrame
+Columns: [page, func, id, function]
+Index: []
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:28:19 | executing single series analysis: IV
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:28:19 | Successfully created results_analysis_function_48_max_current table of imon_signal_220315_02_Series2 for analysis_function_id 48
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:28:19 | Successfully created results_analysis_function_49_min_current table of imon_signal_220315_02_Series2 for analysis_function_id 49
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:28:19 | Finished the Series IV
+Module: Frontend.OfflineAnalysis.ui_py.offline_analysis_widget | INFO | 2024-02-09 13:28:19 | IV Analysis
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:19 | Show results for current analysis with series_name = IV
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:19 | List of available series to be visualized
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:19 | [('IV',), ('Rheobase',), ('Inact',), ('Rheoramp',)]
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:19 | IV
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:19 | Creating a new plot widget
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:19 | No analysis function specified, retrieving first available analysis function
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | Retrieving analysis function: No Split, 48
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | retrieving analysis function
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | No Split
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | result table list is
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | ('results_analysis_function_48_max_current',)
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | {'Boxplot': <bound method OfflinePlots.make_boxplot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'No Split': <bound method OfflinePlots.simple_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>}
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | Simple Plot started
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | ready to do the simple plot
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | Simple Plot started
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 | Simple Plot with voltage steps
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:19 |     Sweep_Number  Duration  Voltage      Result experiment_name Sweep_Table_Name series_meta_data  analysis_id experiment_label species genotype   sex celltype condition individuum_id  meta_data
+0              1      50.0    -60.0    0.329955       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+1              2      50.0    -55.0    1.651185       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+2              3      50.0    -50.0    3.176282       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+3              4      50.0    -45.0    5.410684       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+4              5      50.0    -40.0    7.035547       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+5              6      50.0    -35.0    8.963392       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+6              7      50.0    -30.0    9.820779       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+7              8      50.0    -25.0   11.556782       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+8              9      50.0    -20.0   12.598752       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+9             10      50.0    -15.0   56.275494       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+10            11      50.0    -10.0   70.907057       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+11            12      50.0     -5.0   94.551087       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+12            13      50.0      0.0  124.554606       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+13            14      50.0      5.0  166.971550       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+14            15      50.0     10.0  207.374838       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+15            16      50.0     15.0  252.718577       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+16            17      50.0     20.0  295.168868       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+17            18      50.0     25.0  344.868782       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+18            19      50.0     30.0  396.742741       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+19            20      50.0     35.0  448.288355       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+20            21      50.0     40.0  507.498998       220315_01          Series3             None           -1             None    None     None  None     None      None          None  220315_01
+21             1      50.0    -60.0    1.665371       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+22             2      50.0    -55.0    2.425843       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+23             3      50.0    -50.0    3.322316       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+24             4      50.0    -45.0    5.774293       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+25             5      50.0    -40.0    9.529888       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+26             6      50.0    -35.0   15.760327       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+27             7      50.0    -30.0   25.242415       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+28             8      50.0    -25.0   42.086454       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+29             9      50.0    -20.0   87.247635       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+30            10      50.0    -15.0  111.647910       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+31            11      50.0    -10.0  145.766512       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+32            12      50.0     -5.0  183.907550       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+33            13      50.0      0.0  226.917646       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+34            14      50.0      5.0  275.535248       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+35            15      50.0     10.0  331.375881       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+36            16      50.0     15.0  388.593379       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+37            17      50.0     20.0  448.303937       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+38            18      50.0     25.0  508.529269       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+39            19      50.0     30.0  569.924323       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+40            20      50.0     35.0  626.115145       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+41            21      50.0     40.0  686.818467       220315_02          Series2             None           -1             None    None     None  None     None      None          None  220315_02
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Simple Plot returning
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Analysis function retrieved successfully No Split
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:20 | Logging the position of the widget x pos widget = 0 
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:20 | Logging the position of the widget y pos widget = 0
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:20 | Creating a new plot widget
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:20 | No analysis function specified, retrieving first available analysis function
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Retrieving analysis function: No Split, 49
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | retrieving analysis function
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | No Split
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | result table list is
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | ('results_analysis_function_49_min_current',)
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | {'Boxplot': <bound method OfflinePlots.make_boxplot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'No Split': <bound method OfflinePlots.simple_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Rheobase Plot': <bound method OfflinePlots.rheobase_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Sweep Plot': <bound method OfflinePlots.single_rheobase_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Rheoramp-AUC': <bound method OfflinePlots.rheoramp_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Parameter-Heatmap': <bound method OfflinePlots.ap_fitting_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Single_AP_Parameter': <bound method OfflinePlots.single_ap_parameter_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Mean_Action_Potential_Fitting': <bound method OfflinePlots.mean_ap_fitting_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Linear Regression': <bound method OfflinePlots.regression_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'PCA-Plot': <bound method OfflinePlots.pca_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'AP-Overlay': <bound method OfflinePlots.ap_overlay of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>, 'Capacitance Plot': <bound method OfflinePlots.capacitance_plot of <Backend.OfflineAnalysis.Plotting.OfflinePlot.OfflinePlots object at 0x289c18550>>}
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Simple Plot started
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | ready to do the simple plot
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Simple Plot started
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Simple Plot without voltage steps
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Simple Plot returning
+Module: Backend.OfflineAnalysis.Plotting.OfflinePlot | INFO | 2024-02-09 13:28:20 | Analysis function retrieved successfully No Split
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:20 | Logging the position of the widget x pos widget = 0 
+Module: Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer | INFO | 2024-02-09 13:28:20 | Logging the position of the widget y pos widget = 1
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Open /Users/maximilianzeidler/Desktop/Biophysical_Essentials/Data/Raw_digi/MSK1_patch_clamp/msk1_lm_caps_response/211125_14.dat
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Open .dat file {file_name}
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | This is the current name of the file: {treeview_name}
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Successfully loaded the TreeViewManager
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Successfully loaded the PlotWidgetManager
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | successfully generated pgf_dataframe .dat       series_name start_time start_segment segment_class sweep_number    node_type      holding_potential  ... increment voltage selected_channel series_id children_amount sine_amplitude sine_cycle
+0     Block Pulse        0.0             0      CONSTANT           50  StimChannel  -0.060000000000000005  ...       0.0     0.0                2   Series1               3           None       None
+1     Block Pulse        0.0             0      CONSTANT           50  StimChannel  -0.060000000000000005  ...       0.0   -0.01                2   Series1               3           None       None
+2     Block Pulse        0.0             0      CONSTANT           50  StimChannel  -0.060000000000000005  ...       0.0     0.0                2   Series1               3           None       None
+3   t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel  -0.060000000000000005  ...       0.0     0.0                2   Series2               3           None       None
+4   t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel  -0.060000000000000005  ...       0.0     0.0                2   Series2               3           None       None
+..            ...        ...           ...           ...          ...          ...                    ...  ...       ...     ...              ...       ...             ...            ...        ...
+80  t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel                    0.0  ...       0.0     0.0                0  Series20               7           None       None
+81  t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel                    0.0  ...       0.0     5.0                0  Series20               7           None       None
+82  t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel                    0.0  ...       0.0     0.0                0  Series20               7           None       None
+83  t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel                    0.0  ...       0.0     5.0                0  Series20               7           None       None
+84  t_ecs_caps_60        0.0             0      CONSTANT            1  StimChannel                    0.0  ...       0.0     0.0                0  Series20               7           None       None
+
+[85 rows x 15 columns]
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Pulsed
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Group1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: experiment_name=211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding experiment 211125_14 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | adding experiment 211125_14 to_experiment_table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | added experiment 211125_14 succesfully to experiment table)
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series1 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df was already, all good
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name Block Pulse with series identifier Series1 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series Block Pulse to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = Block Pulse and identifier Series1 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series1
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series1
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series1 table of series Series1 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace2
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep2
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_2 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace2
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep3
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_3 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace2
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep4
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_4 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace2
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series2
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series2 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series1 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series1
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series1 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series1 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series2 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series2 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series2
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series2
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series2 table of series Series2 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series3
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series3 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series2 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series2
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series2 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series2 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series3 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series3 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series3
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series3
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series3 table of series Series3 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series4
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series4 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series3 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series3
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series3 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series3 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series4 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series4 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series4
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series4
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series4 table of series Series4 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series5
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series5 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series4 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series4
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series4 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series4 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series5 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series5 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series5
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series5
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series5 table of series Series5 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series6
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series6 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series5 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series5
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series5 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series5 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series6 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series6 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series6
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series6
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series6 table of series Series6 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series7
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series7 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series6 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series6
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series6 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series6 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series7 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series7 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series7
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series7
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series7 table of series Series7 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series8
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series8 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series7 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series7
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series7 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series7 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series8 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series8 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series8
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series8
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series8 table of series Series8 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series9
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series9 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series8 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series8
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series8 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series8 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series9 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series9 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series9
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series9
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series9 table of series Series9 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series10
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series10 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series9 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series9
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series9 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series9 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series10 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series10 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series10
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series10
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series10 table of series Series10 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series11
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series11 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series10 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series10
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series10 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series10 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series11 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series11 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series11
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series11
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series11 table of series Series11 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series12
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series12 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series11 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series11
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series11 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series11 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series12 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series12 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series12
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series12
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series12 table of series Series12 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series13
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series13 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series12 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series12
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series12 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series12 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series13 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series13 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series13
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series13
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series13 table of series Series13 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series14 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series13 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series13
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series13 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series13 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series14 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series14 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series14
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series14
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series14 table of series Series14 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series15
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series15 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series14 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series14
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series14 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series14 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series15 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series15 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series15
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series15
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series15 table of series Series15 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series16
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series16 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series15 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series15
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series15 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series15 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series16 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series16 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series16
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series16
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series16 table of series Series16 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series17
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series17 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series16 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series16
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series16 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series16 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series17 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series17 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series17
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series17
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series17 table of series Series17 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series18
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series18 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series17 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series17
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series17 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series17 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series18 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series18 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series18
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series18
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series18 table of series Series18 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series19
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series19 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series18 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series18
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series18 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series18 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name ECS_60 with series identifier Series19 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series ECS_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = ECS_60 and identifier Series19 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series19
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series19
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series19 table of series Series19 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Series20
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: adding series_identifier Series20 of experiment 211125_14 to db
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: non empty sweep_data_df for series Series19 needs to be written to the database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series19
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series19 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series19 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep_data_df reseted to empty df
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Inserting series name t_ecs_caps_60 with series identifier Series20 of experiment 211125_14 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | inserting series t_ecs_caps_60 to experiment_series table
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | insertion finished succesfully
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  added new series with experiment_name 211125_14, series_name = t_ecs_caps_60 and identifier Series20 to db
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Creating new pgf table pgf_table_211125_14_Series20
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Updating series table with new pgf table name pgf_table_211125_14_Series20
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created pgf_table_211125_14_Series20 table of series Series20 in experiment 211125_14
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Sweep1
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db:  sweep detected, will be added to sweep_dfdf
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | added new sweep_1 to self.sweep_data_df
+Module: Backend.ExperimentTree.treeview_manager | INFO | 2024-02-09 13:29:53 | single_file_into_db: current node = Trace1
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Createing sweep table for series: Series20
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Adding Meta Data to database
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Added Meta Data Table imon_meta_data_211125_14_Series20 to databas successfully
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Successfully created both df tables of series Series20 in experiment 211125_14
+Module: database.DatabaseHandler.data_db | INFO | 2024-02-09 13:29:53 | Mapped experiment 211125_14 to analysis 1
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Finished the loading of the file!
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Creating labbook for file 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4177120639528486e-11, and Rseries: 0.0 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:53 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4043071242067964e-11, and Rseries: 2552936.834968672 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Retrieved Cslow: 2.4312612399490253e-11, and Rseries: 2736474.0868546832 for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Successfully generated labbook table for 211125_14
+Module: Frontend.OnlineAnalysis.ui_py.online_analysis_widget | INFO | 2024-02-09 13:29:54 | Successfully transferred to online analysis db the file 211125_14
+Module: Frontend.DatabaseViewer.ui_py.database_viewer_widget | INFO | 2024-02-09 13:30:07 | clearing database table
+Module: Frontend.DatabaseViewer.ui_py.database_viewer_widget | INFO | 2024-02-09 13:30:07 | Retrieving the table offline_analysis with the following query: SELECT * from offline_analysis
+Module: Frontend.DatabaseViewer.ui_py.database_viewer_widget | INFO | 2024-02-09 13:30:07 | clearing database table
