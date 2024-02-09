@@ -460,7 +460,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.loaded_function_run = True
 
         id_ = dialog.offline_analysis_id # change this to a new name
-        self.logger.info("opening existing analysis from database. requested id = ", id_)
+        #self.logger.info("opening existing analysis from database. requested id = ", id_)
    
  
         # static offline analysis number
@@ -565,7 +565,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             q = f'select experiment_name from experiment_analysis_mapping where analysis_id = {existing_id}'
             experiment_list = self.database_handler.database.execute(q).fetchdf()
             experiment_list = experiment_list["experiment_name"].values
-            self.logger.info("experiment list found for analysis id ", str(self.database_handler.analysis_id))
+            #@bugfix
+            #self.logger.info("experiment list found for analysis id ", str(self.database_handler.analysis_id))
               
         else:
             # get the experiment names that were selected by the user within the db dashboard
