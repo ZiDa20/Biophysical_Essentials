@@ -569,8 +569,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             #self.logger.info("experiment list found for analysis id ", str(self.database_handler.analysis_id))
               
         else:
-            # get the experiment names that were selected by the user within the db dashboard
-             # 
+            # get the experiment names that were selected by the user within the db dashboard # 
             experiment_list = self.load_data_from_database_dialog.get_experiment_names()   
             self.load_data_from_database_dialog.close()   
 

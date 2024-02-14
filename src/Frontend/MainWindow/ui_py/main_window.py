@@ -307,7 +307,7 @@ class Ui_MainWindow(object):
         self.home_logo.setText(QCoreApplication.translate("MainWindow", u"BPE Online", None))
         self.online_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Online Analysis", None))
         self.offline_analysis_home_2.setText(QCoreApplication.translate("MainWindow", u"Offline Analysis", None))
-        self.configuration_home_2.setText(QCoreApplication.translate("MainWindow", u"Configuration", None))
+        self.configuration_home_2.setText(QCoreApplication.translate("MainWindow", u"Experimenter", None))
         self.home_label_2.setText(QCoreApplication.translate("MainWindow", u"Patch Clamp Module", None))
         self.database_viewer_home_2.setText(QCoreApplication.translate("MainWindow", u"Database Viewer", None))
         self.toolButton_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
