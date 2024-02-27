@@ -5,6 +5,8 @@ import pandas as pd
 from Frontend.CustomWidget.Pandas_Table import PandasTable
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 import csv
+from PySide6.QtCore import QTimer
+from PySide6.QtCore import QSize
 class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
 
     def __init__(self, database_handler, offline_manager, frontend, parent=None):
@@ -15,19 +17,51 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         self.frontend_style = frontend
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
         self.content_model = None
-        self.saving_template = QPushButton("Save Template")
-        self.saving_template.clicked.connect(self.save_template_only)
-        self.gridLayout.addWidget(self.saving_template, 5, 4, 1, 1)
+        self.column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
+                        "Individuum_id"]
+        self.pushButton_2.clicked.connect(self.change_multiple_cell_values)
+        self.pushButton_3.clicked.connect(self.reset_meta_data)
+        #self.saving_template = QPushButton("Save Template")
+        #self.saving_template.clicked.connect(self.save_template_only)
+        #self.gridLayout.addWidget(self.saving_template, 5, 4, 1, 1)
         
         # dict that is needed to rename experiments with whitespaces or whatever
         self.experiment_name_dict = {}
-    def map_metadata_to_database(self):
-        """_summary_
+
+    def reset_meta_data(self):
         """
+        reset_meta_data: overrides all the given meta data with the value "None"
+        """
+        for column in self.column_names[1:len(self.column_names)]:
+            self.template_dataframe[column] = ["None"]*len(self.template_dataframe[column])
+        self.content_model.update_data(self.template_dataframe)
+
+    def change_multiple_cell_values(self):
+        """
+        change_multiple_cell_values:
+         replaces all cell values in the selected colum which was selected in the combo box by the text entered into the line edit 
+         new text and  
+        """
+        column = self.comboBox.currentText()
+        text = self.lineEdit.text()
+
+        self.template_dataframe[column] = [text]*len(self.template_dataframe[column])
+        self.content_model.update_data(self.template_dataframe)
+
+    def map_metadata_to_database(self):
+        """
+        map_metadata_to_database: Writes the metadata into the database and visualizes them to the user
+        if the user wants to make changes, they can be entered into the gui table
+
+        Returns:
+            _type_: _description_
+        """
+        
         directory = self.offline_manager._directory_path
-        column_names = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
-                        "Individuum_id"]
-        self.template_dataframe = pd.DataFrame(columns=column_names)
+        
+        self.comboBox.addItems(self.column_names[1:len(self.column_names)])
+
+        self.template_dataframe = pd.DataFrame(columns=self.column_names)
         print(self.offline_manager.package_list(directory))
 
         for dat_file in self.offline_manager.package_list(directory):
@@ -70,25 +104,34 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         return self.create_table()
 
     def create_table(self):
-        """_summary_
-        """
+        """Create a table view."""
         template_table_view = QTableView()
         template_table_view.setObjectName("meta_data_template")
         template_table_view.setMinimumHeight(300)
         template_table_view.horizontalHeader().setSectionsClickable(True)
 
-        # create two models one for the table show and a second for the data visualizations
+        # Create models for the table view and data visualizations
         self.content_model = PandasTable(self.template_dataframe)
         template_table_view.setModel(self.content_model)
 
-        # self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        template_table_view.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
+        # Set horizontal header resize mode
+        template_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # or QHeaderView.ResizeToContents
+
+        #def resize_popup():
+        #    table_size = template_table_view.size() + QSize(100, 0)  # Adjust as needed
+        #    self.resize(table_size)
+
+        # Use a QTimer to delay resizing until the table view is fully populated
+        #QTimer.singleShot(100, resize_popup)
+        # Assuming self is an instance of Ui_assign_meta_data_group
+        # Resize the popup to match the size of the table
+        #self.resize(table_size)
+
         self.meta_data_template_layout.addWidget(template_table_view)
-        template_table_view.setGeometry(20, 20, 691, 581)
-        # show and retrieve the selected columns
+        #template_table_view.setGeometry(20, 20, 900, 581)
         template_table_view.show()
         return template_table_view
-        #self.data_base_content.clicked.connect(self.retrieve_column)
+
 
 
     def open_meta_data_template_file(self,template_table_view):
