@@ -4,7 +4,7 @@ from PySide6.QtWidgets import *  # type: ignore
 from Frontend.DatabaseViewer.ui_py.data_base_designer_object import Ui_Database_Viewer
 import pandas as pd
 from Frontend.CustomWidget.Pandas_Table import PandasTable
-
+from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from Frontend.DatabaseViewer.ui_py.ui_execute_query import ExecuteDialog
 from functools import partial
 from Frontend.OfflineAnalysis.CustomWidget.ExportOfflineDialog import ExportOfflineDialog
@@ -72,7 +72,15 @@ class Database_Viewer(QWidget, Ui_Database_Viewer):
         self.List.database_table.itemClicked.connect(self.pull_table_from_database)
         self.List.SearchTable.clicked.connect(self.search_database_table)
         self.List.select_table.currentTextChanged.connect(self.retrieve_tables)
+        self.ImportDB.clicked.connect(self.import_data_from_existing_database)
 
+    def import_data_from_existing_database(self):
+        """
+        did we loose this function somewhere ? @DZ couldnt find
+        """
+        CustomErrorDialog("This function is currently not available", self.frontend_style)
+
+        
     def update_database_handler(self,database_handler: DuckDBDatabaseHandler, frontend_style: Frontend_Style) -> None:
         """Updates the Object
 
