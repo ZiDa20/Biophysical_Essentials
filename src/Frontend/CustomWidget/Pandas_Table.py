@@ -47,7 +47,6 @@ class PandasTable(QAbstractTableModel):
         if  self.index_uneditable is not None and index.column() in self.index_uneditable:
         
             try:
-                test_val = float(value)
                 self._data.iloc[index.row(), index.column()] = value
                 return True
             except Exception as e:

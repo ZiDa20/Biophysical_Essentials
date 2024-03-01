@@ -1188,9 +1188,12 @@ class DuckDBDatabaseHandler():
 
             except Exception as e:
                 self.logger.error("Update Series table failed with error %s", e)
+                CustomErrorDialog(f'Error::Update Series table failed:{e}',self.frontend_style)
+
 
         except Exception as e:
             self.logger.error("Error::Couldn't create a new table with error %s", e)
+            CustomErrorDialog(f'Error::Could not create a new table because of error: {e}',self.frontend_style)
 
     def get_entire_pgf_table_by_experiment_name_and_series_identifier(self,experiment_name: str, series_identifier: str)-> pd.DataFrame:
         """
