@@ -43,7 +43,8 @@ class PandasTable(QAbstractTableModel):
 
     def setData(self, index, value, role):
         
-        if  self.index_uneditable is not None and index.column() not in self.index_uneditable:
+        print(index.column())
+        if  self.index_uneditable is not None and index.column() in self.index_uneditable:
         
             try:
                 test_val = float(value)
