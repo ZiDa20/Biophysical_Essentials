@@ -41,7 +41,7 @@ class AbfReader():
         if self.abf:
             self.data_table, self.metadata_table = self.get_data_from_sweep()
             self.build_command_epoch_table()
-            self.make_membrane_test()
+            #self.make_membrane_test()
 
 
     def load_abf(self) -> None:
