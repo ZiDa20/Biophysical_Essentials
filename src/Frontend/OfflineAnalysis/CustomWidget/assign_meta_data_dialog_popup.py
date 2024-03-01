@@ -22,7 +22,8 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         self.pushButton_2.clicked.connect(self.change_multiple_cell_values)
         self.pushButton_3.clicked.connect(self.reset_meta_data)
         #self.saving_template = QPushButton("Save Template")
-        #self.saving_template.clicked.connect(self.save_template_only)
+        self.save_to_template_button.clicked.connect(self.save_template_only)
+        
         #self.gridLayout.addWidget(self.saving_template, 5, 4, 1, 1)
         
         # dict that is needed to rename experiments with whitespaces or whatever
@@ -111,7 +112,7 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         template_table_view.horizontalHeader().setSectionsClickable(True)
 
         # Create models for the table view and data visualizations
-        self.content_model = PandasTable(self.template_dataframe)
+        self.content_model = PandasTable(self.template_dataframe,[0])
         template_table_view.setModel(self.content_model)
 
         # Set horizontal header resize mode
@@ -156,5 +157,8 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
     
     def save_template_only(self):
         data = self.content_model._data
-        data.to_csv("template_creator.csv")
+        filename_path = QFileDialog.getSaveFileName(None, "Save As CSV", "", "CSV Files (*.csv)")[0]
+        if not filename_path.endswith(".csv"):
+                fileName += ".csv"
+        data.to_csv(fileName)
         

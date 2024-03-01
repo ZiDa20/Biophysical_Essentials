@@ -74,8 +74,8 @@ class OfflineDialogs:
         # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
         meta_data_popup = Assign_Meta_Data_PopUp(self.database_handler, self.offline_manager, self.frontend_style)
         template_table_view = meta_data_popup.map_metadata_to_database()
-        meta_data_popup.save_to_template_button.clicked.connect(partial(save,
-                                                                        meta_data_popup))
+        #meta_data_popup.save_to_template_button.clicked.connect(partial(save,
+        #                                                                meta_data_popup))
         
         meta_data_popup.load_template.clicked.connect(partial(meta_data_popup.open_meta_data_template_file,template_table_view))
         meta_data_popup.continue_loading.clicked.connect(partial(make,meta_data_popup,template_table_view))
