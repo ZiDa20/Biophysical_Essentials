@@ -11,9 +11,7 @@
 .src/build/
 .src/poetry.lock
 *.csv
-*.db
-*.db.wal
-*.wal
+*.log
 *.py[cod]
 .src/Logs/*.log
 **/__pycache__/
@@ -67,5 +65,5 @@ src/BiophysicalEssentials.spec
 .spec
 build/
 dist/
-
+"log.log"
 

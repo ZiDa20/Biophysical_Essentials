@@ -61,7 +61,12 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         directory = self.offline_manager._directory_path
         
         self.comboBox.addItems(self.column_names[1:len(self.column_names)])
-
+        if self.frontend_style.default_mode == 1: # white mode
+            self.comboBox.setStyleSheet(""" QComboBox::item { color: black; }    """)
+        else:
+            self.comboBox.setStyleSheet(""" QComboBox::item { color: white; }    """)
+            
+        
         self.template_dataframe = pd.DataFrame(columns=self.column_names)
         print(self.offline_manager.package_list(directory))
 
@@ -156,9 +161,12 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         
     
     def save_template_only(self):
+        """
+        save the created template as csv file
+        """
         data = self.content_model._data
         filename_path = QFileDialog.getSaveFileName(None, "Save As CSV", "", "CSV Files (*.csv)")[0]
         if not filename_path.endswith(".csv"):
-                fileName += ".csv"
-        data.to_csv(fileName)
+                filename_path += ".csv"
+        data.to_csv(filename_path, index=False)
         
