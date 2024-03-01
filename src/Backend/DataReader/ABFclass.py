@@ -196,14 +196,15 @@ class AbfReader():
         last_command = [series, sweep_number, 0, last_potential, last_time, 0, last_potential]
         return first_command, last_command
 
-    def make_membrane_test(self) -> None:
-        """ Dysfunctional for most recording, should record the membrane properties
-        But not working for most of the recordings"""
-        try:
-            memtest = pyabf.tools.memtest.Memtest(self.abf)
-            self.abf_property_dictionary["memtest"].append(memtest.CmStep.values)
-        except Exception as e:
-            self.logger.error("currently not working for the data")
+    # uncommented by DZ, 01.03.2024: Bugfix in Data Loading of some ABF Files 
+    #def make_membrane_test(self) -> None:
+    #    """ Dysfunctional for most recording, should record the membrane properties
+    #    But not working for most of the recordings"""
+    #    try:
+    #        memtest = pyabf.tools.memtest.Memtest(self.abf)
+    #        self.abf_property_dictionary["memtest"].append(memtest.CmStep.values)
+    #    except Exception as e:
+    #        self.logger.error("currently not working for the data")
 
     def get_data_table(self) -> pd.DataFrame:
         """Getter for the sweep raw data table
