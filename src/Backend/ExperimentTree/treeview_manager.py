@@ -3,6 +3,7 @@ import itertools
 from functools import partial
 import numpy as np
 import pandas as pd
+import debugpy
 from PySide6.QtCore import QObject, Signal, QThreadPool, Qt, QModelIndex, QSize
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtTest import QTest
@@ -15,7 +16,9 @@ import picologging
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from Backend.DataReader.SegmentENUM import EnumSegmentTypes
 from PySide6.QtWidgets import QApplication
+from database.DatabaseHandler.SeriesTableWriter import SeriesTableWriter
 
+debugpy.breakpoint()
 class TreeViewManager:
     """
     Manager class to handle actions for given tree view objects.
@@ -817,6 +820,7 @@ class TreeViewManager:
             data_access_array (_type_): _description_
             pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
         """
+  
         if database is None:
             database = self.database_handler
 
@@ -863,7 +867,6 @@ class TreeViewManager:
 
             self.logger.info(F"single_file_into_db: adding experiment {experiment_name} to db")
             database.add_experiment_to_experiment_table(experiment_name)
-            group_name = None
             try:
                 pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                 meta_data = self.meta_data_assignment_list[pos]
@@ -881,13 +884,16 @@ class TreeViewManager:
         if "Series" in node_type:
             # node type will become the new series identifier while current value in self.seriesidentfier is the previous series identifier 
             self.logger.info(F"single_file_into_db: adding series_identifier {node_type} of experiment {experiment_name} to db")
+            
+            series_table_writer = SeriesTableWriter(database.database, experiment_name, self.series_identifier)
             try:
                 # sweeps are appended to the sweep data df as long as no new series name is detected
                 # if a new series is detected and sweep_data_df is not empty, swepps that belong to the previous series are written to the database  
                 # afterwird the sweep_data_df is reseted to an emtpy df  
                 if not self.sweep_data_df.empty:   
                     self.logger.info(f"single_file_into_db: non empty sweep_data_df for series {self.series_identifier} needs to be written to the database")
-                    database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
+                    
+                    series_table_writer.add_sweep_df_to_database(self.sweep_data_df,self.sweep_meta_data_df)
                     self.sweep_data_df = pd.DataFrame()
                     self.sweep_meta_data_df = pd.DataFrame()
                     self.logger.info("single_file_into_db:  sweep_data_df reseted to empty df")
@@ -902,14 +908,14 @@ class TreeViewManager:
             sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
 
             # adding the series to the database
-            database.add_single_series_to_database(experiment_name, node_label, node_type)
+            series_table_writer.add_single_series_to_database(node_label, node_type)
             
             self.logger.info(f"single_file_into_db:  added new series with experiment_name {experiment_name}, series_name = {node_label} and identifier {node_type} to db")
 
             #print(sliced_pgf_tuple_data_frame)
-            database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
-                                                      "pgf_table_" + experiment_name + "_" + node_type,
-                                                      experiment_name, node_type)
+            series_table_writer.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
+                                                                 node_type
+                                                )
 
 
             # update the series counter
@@ -918,7 +924,6 @@ class TreeViewManager:
             data_access_array[2] = 0
             # update series_identifier
             self.series_identifier = node_type
-
 
         if "Sweep" in node_type :
             self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
@@ -945,7 +950,9 @@ class TreeViewManager:
                 self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
                 experiment_name = self.experiment_name_mapping[experiment_name]
 
-            database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
+            database.add_sweep_df_to_database(experiment_name, 
+                                              self.series_identifier, 
+                                              self.sweep_data_df,
                                               self.sweep_meta_data_df)
 
     def single_abf_file_into_db(self,abf_bundle,database):

@@ -8,7 +8,6 @@ class TableEnum(Enum):
     IMON_META_DATA = "imon_meta_data"
     PGF_DATA = "pgf_table"
 
-
 class ExperimentTableNames:
     """ Experiment Table Name Creator"""
     logger = picologging.getLogger(__name__)
@@ -16,12 +15,14 @@ class ExperimentTableNames:
     def __init__(self, experiment_name: str, series_identifier: str) -> None:
         self.experiment_name = experiment_name
         self.series_identifier = series_identifier
-        self.imon_signal_table_name = f'{TableEnum.IMON_SIGNAL.value}_{self.experiment_name}_{self.series_identifier}'
-        self.imon_meta_data_table_name = f'{TableEnum.IMON_META_DATA.value}_{self.experiment_name}_{self.series_identifier}'
-        self.pgf_table = f'{TableEnum.PGF_DATA.value}_{self.experiment_name}_{self.series_identifier}'
+        self.imon_signal_table_name = self._create_table_name(TableEnum.IMON_SIGNAL)
+        self.imon_meta_data_table_name = self._create_table_name(TableEnum.IMON_META_DATA)
+        self.pgf_table = self._create_table_name(TableEnum.PGF_DATA)
 
+    def _create_table_name(self, table_enum: TableEnum) -> str:
+        return f'{table_enum.value}_{self.experiment_name}_{self.series_identifier}'
 
-class ExperimentTableWriter:
+class SeriesTableWriter:
     """ Writes the Experiment Tables to the Database"""
     logger = picologging.getLogger(__name__)
 
@@ -30,41 +31,52 @@ class ExperimentTableWriter:
         self.series_identifier = series_identifier
         self.database = database
         self.TableNames = ExperimentTableNames(experiment_name, series_identifier)
+        print(self.TableNames)
 
     def add_sweep_df_to_database(self,
                                  data_df: pd.DataFrame,
                                  meta_data_df: pd.DataFrame,
                                  dat: bool = True) -> None:
-
         """_summary_: This function adds a sweep dataframe to the database
         holding all the necessary sweep information for a series
-
-        Args:
-            series_identifier (str): This is the series identifier such as IV
-            data_df (pd.DataFrame): This is the data frame holding the data for the series holding the sweeps
-            meta_data_df (pd.DataFrame): This is the data frame holding the meta data for the series
-            data (bool, optional): This is a boolean indicating if the data should be added to the database. Defaults to True.
         """
         try:
-            self.logger.info(f"Createing sweep table for series: {self.series_identifier}")
+            self.logger.info(f"Creating sweep table for series: {self.series_identifier}")
             self.build_imon_signal_query(data_df)
             self.build_imon_metadata(meta_data_df, dat)
 
-            q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-            self.database.execute(q,
-                                     (self.TableNames.imon_meta_data_table_name,
-                                      self.experiment_name,
-                                      self.series_identifier))
+            self._update_experiment_series(self.TableNames.imon_meta_data_table_name)
 
-
-            self.logger.info("Successfully created both df tables of series %s in experiment %s", series_identifier, experiment_name)
+            self.logger.info("Successfully created both df tables of series %s in experiment %s", self.series_identifier, self.experiment_name)
 
         except Exception as e:
             self.logger.error("In general add sweep df to database failed with error: %s", e)
 
+    def _update_experiment_series(self, table_name: str) -> None:
+        """
+        Update the meta_data_table_name for a specific experiment series.
 
+        Args:
+            table_name (str): The name of the metadata table.
+
+        Returns:
+            None
+        """
+        
+        q = """update experiment_series set meta_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
+        self.database.execute(q, (table_name, self.experiment_name, self.series_identifier))
+
+    # Rest of the code remains the same...
     def build_imon_signal_query(self, data_df) -> str:
-        """_summary_: This function builds the query to create the imon signal table"""
+        """
+        Builds and executes a SQL query to create a table for imon signal data and inserts the data from a DataFrame.
+
+        Args:
+            data_df (pandas.DataFrame): The DataFrame containing the imon signal data.
+
+        Returns:
+            bool: True if the table creation and data insertion are successful, False otherwise.
+        """
         column_names = data_df.columns.tolist()
         part_1 = f'create table {self.TableNames.imon_signal_table_name} ('
         query_str = ""
@@ -124,26 +136,41 @@ class ExperimentTableWriter:
             return False
 
 
+    def create_series_specific_pgf_table(self, pgf_table: pd.DataFrame, series_identifier: str) -> None:
+        """
+        Creates a series-specific table in the database using the provided Pandas DataFrame.
+
+        Args:
+            pgf_table (pd.DataFrame): The Pandas DataFrame containing the data to be stored in the table.
+            series_identifier (str): The identifier of the series.
+
+        Returns:
+            None: This method does not return any value.
+
+        Raises:
+            Exception: If there is an error creating the table or updating the series table.
+
+        """
     def create_series_specific_pgf_table (self,
-                                          pgf_table_name: pd.DataFrame,
-                                          experiment_name: str,
-                                          series_identifier: str) -> None:
-        """ adds new pgf table to the database        """
+                                          pgf_table: pd.DataFrame,
+                                          series_identifier: str,
+                                          ) -> None:
+        
         #self.database.register('df_1', data_frame)
 
         try:
             # create a new sweep table
-            self.logger.info("Creating new pgf table %s", pgf_table_name)
-            self.database.execute(f'create table {pgf_table_name} as select * from data_frame')
+            self.logger.info("Creating new pgf table %s", pgf_table)
+            self.database.execute(f'create table {self.TableNames.pgf_table} as select * from pgf_table')
 
             try:
                 # update the series table by inserting the newly created pgf table name
                 q = """update experiment_series set pgf_data_table_name=(?) where experiment_name = (?) and series_identifier=(?)"""
-                self.logger.info("Updating series table with new pgf table name %s", pgf_table_name)
-                self.database.execute(q, (pgf_table_name, experiment_name, series_identifier))
+                self.logger.info("Updating series table with new pgf table name %s", pgf_table)
+                self.database.execute(q, (self.TableNames.pgf_table, self.experiment_name, series_identifier))
 
-                self.logger.info("Successfully created %s table of series %s in experiment %s", pgf_table_name,
-                                 series_identifier, experiment_name)
+                self.logger.info("Successfully created %s table of series %s in experiment %s", self.TableNames.pgf_table,
+                                 series_identifier, self.experiment_name)
 
             except Exception as e:
                 self.logger.error("Update Series table failed with error %s", e)
@@ -153,7 +180,7 @@ class ExperimentTableWriter:
             self.logger.error("Error::Couldn't create a new table with error %s", e)
 
 
-    def add_single_series_to_database(self, series_name:str) -> None:
+    def add_single_series_to_database(self, series_name:str, series_identifier: str) -> None:
         """ Adds a single series to the database. This function is used when a new series is added to an existing experiment
 
         Args:
@@ -165,12 +192,13 @@ class ExperimentTableWriter:
         """
         self.logger.info(
             "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
-            series_name, self.series_identifier, self.experiment_name)
+            series_name, series_identifier, self.experiment_name)
         try:
             self.logger.info("inserting series %s to experiment_series table", series_name)
             q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data) values (?,?,?,?,?) """
             self.database = self.database.execute(q,
-                                                     (self.experiment_name, series_name, self.series_identifier, 0,"None"))
+                                                     (self.experiment_name,
+                                                      series_name, series_identifier, 0,"None"))
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
         except Exception as e:
