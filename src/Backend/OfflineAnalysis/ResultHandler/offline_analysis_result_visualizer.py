@@ -11,6 +11,7 @@ from Frontend.OfflineAnalysis.CustomWidget.tab_offline_result import OfflineResu
 from Backend.OfflineAnalysis.Plotting.OfflinePlot import OfflinePlots
 from Frontend.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
 import picologging
+from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 
 if TYPE_CHECKING:
     import logging

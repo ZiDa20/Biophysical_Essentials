@@ -23,8 +23,6 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         self.tableView.setModel(self.table_model)
         self.table_model.resize_header(self.tableView)
 
-
-
         self.SelectDB.clicked.connect(self.open_path_dialog)
         self.OfflineAnalysisID.setMinimumWidth(100)
         self.OfflineAnalysisID.activated.connect(self.change_current_offline_analysis_id)
