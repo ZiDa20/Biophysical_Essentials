@@ -887,8 +887,6 @@ class TreeViewManager:
                 # afterwird the sweep_data_df is reseted to an emtpy df  
                 if not self.sweep_data_df.empty:   
                     self.logger.info(f"single_file_into_db: non empty sweep_data_df for series {self.series_identifier} needs to be written to the database")
-                    #self.logger.info(self.sweep_data_df)
-                    #self.logger.info(self.sweep_meta_data_df)
                     database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
                     self.sweep_data_df = pd.DataFrame()
                     self.sweep_meta_data_df = pd.DataFrame()

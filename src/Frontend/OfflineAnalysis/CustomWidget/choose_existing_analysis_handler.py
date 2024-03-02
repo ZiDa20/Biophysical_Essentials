@@ -5,6 +5,7 @@ from Frontend.CustomWidget.Pandas_Table import PandasTable
 import duckdb
 from pathlib import Path
 from natsort import natsorted
+
 class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
 
     def __init__(self,database_handler, frontend,  parent=None):

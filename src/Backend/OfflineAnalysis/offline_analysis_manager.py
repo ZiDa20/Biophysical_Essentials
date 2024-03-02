@@ -9,8 +9,6 @@ from Backend.ExperimentTree.treeview_manager import TreeViewManager
 if TYPE_CHECKING:
     import logging
     
-    
-
 class OfflineManager():
     '''manager class to perform all backend functions of module offline analysis '''
 

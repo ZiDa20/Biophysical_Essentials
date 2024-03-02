@@ -320,6 +320,7 @@ class SeriesItemTreeWidget():
                     # Creating a QTableView
                     self.table_view = QTableView()
                     self.table_view.setModel(self.model)
+                    self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
                     self.model.resize_header(self.table_view)
                     print("setting the model")
 
