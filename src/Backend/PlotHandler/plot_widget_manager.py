@@ -117,8 +117,6 @@ class PlotWidgetManager(QRunnable):
 
         if  self.live_analysis_info is not None:
 
-            #self.show_pgf_segment_buttons(experiment_name, identifier)
-
             for index,row in  self.live_analysis_info.iterrows():
 
                 row_nr = row["page"]
@@ -139,6 +137,7 @@ class PlotWidgetManager(QRunnable):
                         analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
 
                         x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
+                        print(type(x_y_tuple))
 
                         if sweep_number:
                             sweep_number = sweep_number.split("_")
@@ -149,23 +148,16 @@ class PlotWidgetManager(QRunnable):
 
                                     for tuple in x_y_tuple:
                                         if isinstance(tuple[1],list):
-                                            y_val_list = [item * self.plot_scaling_factor for item in tuple[1]]
+                                            y_val_list = [item * self.si_prefix_handler.get(self.ax1_si_prefix)  for item in tuple[1]]
                                             self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
                                         else:
-                                            res  =tuple[1]*self.plot_scaling_factor
-                                            self.ax1.plot(tuple[0], tuple[1]*self.plot_scaling_factor, c=self.default_colors[row_nr+column], marker="o")
+                                            res = tuple[1]*self.si_prefix_handler.get(self.ax1_si_prefix)             
+                                            self.ax1.plot(tuple[0], res, c=self.default_colors[row_nr+column], marker="o")
                         else:
-                                    print("Tuple was None: is live plot function for", fct, " already implemented ? ")
+                                    self.loggger.error("Tuple was None: is live plot function for" + fct + "already implemented ?")
+                             
                 else:
                     self.remove_dragable_lines(row_nr)
-
-            """
-             if level == "series":
-
-                    else:
-                        x_y_tuple = analysis_class_object.live_data(lower_bound, upper_bound,experiment_name,identifier,self.database_handler, item_text)
-            """
-        
 
     def show_pgf_segment_buttons(self, experiment_name, series_identifier):
 
@@ -299,6 +291,7 @@ class PlotWidgetManager(QRunnable):
         self.check_style() # adjust the mpl figures to either white or darkmode
         experiment_name, series_identifier = self.extract_experiment_series_id(experiment_name, series_identifier)
         series_df = self.database_handler.get_sweep_table_for_specific_series(experiment_name, series_identifier)
+        
         # to display e.g. 1*10-9 A as nA - the plotting data are adjusted to the biggest value in all column
         # this is dynamic, so 10-3 becomes mA and so on .. 
         series_df,self.ax1_si_prefix = self.scale_plot_data(series_df)
@@ -315,7 +308,7 @@ class PlotWidgetManager(QRunnable):
         plot_offset = 0
         time_offset = 0
         # plot for each sweep
-        #self.plot_scaling_factor = 1
+       
         for name in column_names:
             data = series_df[name].values.tolist()
             data = np.array(data)
@@ -324,11 +317,7 @@ class PlotWidgetManager(QRunnable):
                 y_min, y_max = self.get_y_min_max_meta_data_values(meta_data_df,name)
                 data = np.interp(data, (data.min(), data.max()), (y_min, y_max))
                 data = data*1000 # @todo weird heka property ! we have to double check for axon data !  
-                # data scaling to mV
-                #self.plot_scaling_factor = 1000
-            #else:
-                # data scaling to nA
-                #self.plot_scaling_factor = 1e9
+                
             if self.make_3d_plot:
                 plot_offset += max(data) - min(data) # get the total distance
                 time_offset += len(self.time)*0.005 # empirically determined
