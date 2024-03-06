@@ -371,7 +371,7 @@ class SeriesItemTreeWidget():
                     self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
                     self.set_ribbon_bar_page(2)
         except Exception as e:
-            print("catched an error ")
+            print("catched an error 2")
             print(e)
 
     def set_ribbon_bar_page(self,page_index):

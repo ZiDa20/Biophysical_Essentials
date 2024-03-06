@@ -320,7 +320,7 @@ class SeriesItemTreeWidget():
                     # Creating a QTableView
                     self.table_view = QTableView()
                     self.table_view.setModel(self.model)
-                    self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+                    #self.data_base_content.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
                     self.model.resize_header(self.table_view)
                     print("setting the model")
 
@@ -372,7 +372,7 @@ class SeriesItemTreeWidget():
                     self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
                     self.set_ribbon_bar_page(2)
         except Exception as e:
-            print("catched an error ")
+            print("catched an error 1")
             print(e)
 
     def set_ribbon_bar_page(self,page_index):
