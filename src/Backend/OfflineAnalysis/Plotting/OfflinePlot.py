@@ -4,6 +4,7 @@ import seaborn as sns
 import numpy as np
 from matplotlib.cm import get_cmap
 from Backend.OfflineAnalysis.AnalysisFunctions.FunctionTemplate.SpecificAnalysisCalculations import SpecificAnalysisFunctions
+from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from mplcursors import cursor
 import picologging
 class OfflinePlots():
