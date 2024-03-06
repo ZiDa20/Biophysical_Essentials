@@ -70,3 +70,6 @@ build/
 dist/
 "log.log"
 
+Data/Raw_digi/.DS_Store
+src/.DS_Store
+src/Tests/.DS_Store
