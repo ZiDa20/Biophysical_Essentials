@@ -18,7 +18,7 @@ from Backend.DataReader.SegmentENUM import EnumSegmentTypes
 from PySide6.QtWidgets import QApplication
 from database.DatabaseHandler.SeriesTableWriter import SeriesTableWriter
 
-debugpy.breakpoint()
+#debugpy.breakpoint()
 class TreeViewManager:
     """
     Manager class to handle actions for given tree view objects.
