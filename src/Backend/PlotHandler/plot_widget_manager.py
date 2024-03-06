@@ -8,6 +8,7 @@ from Frontend.CustomWidget.draggable_lines import DraggableLines
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.figure import Figure
 from PySide6.QtCore import Signal
+import picologging
 # inheritage from qobject required for use of signal
 from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
 
@@ -58,7 +59,7 @@ class PlotWidgetManager(QRunnable):
         self.time = None
         # neccessary for succesfull signal emitting
         super().__init__()
-
+        self.logger = picologging.getLogger(__name__)
         self.left_bound_changed = CursorBoundSignal()
         self.right_bound_changed = CursorBoundSignal()
 
@@ -73,6 +74,7 @@ class PlotWidgetManager(QRunnable):
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
 
         self.live_analysis_info = None
+
 
     def check_style(self):
         # that the style sheet for the plot class
