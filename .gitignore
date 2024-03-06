@@ -11,9 +11,6 @@
 .src/build/
 .src/poetry.lock
 *.csv
-*.log
-*.db
-*.db.wal
 *.wal
 *.py[cod]
 .src/Logs/*.log
@@ -63,13 +60,10 @@ src/QT_GUI/ConfigWidget/ui_py/.DS_Store
 src/QT_GUI/DatabaseViewer/.DS_Store
 src/QT_GUI/OfflineAnalysis/.DS_Store
 src/QT_GUI/ui_elements/.DS_Store
-src/Logging/Logs/log.log
 src/BiophysicalEssentials.spec
 .spec
 build/
 dist/
-"log.log"
-
 Data/Raw_digi/.DS_Store
 src/.DS_Store
 src/Tests/.DS_Store
