@@ -113,12 +113,10 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 29.09.2022
         """
-        print("checking live analysis")
-
+        self.logger.info("checking live analysis")
         if  self.live_analysis_info is not None:
-
             for index,row in  self.live_analysis_info.iterrows():
-
+                
                 row_nr = row["page"]
                 column = row["col"]
                 fct = row["func_name"]
