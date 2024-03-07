@@ -8,7 +8,6 @@ import picologging
 import duckdb
 
 import re
-from pathlib import Path
 from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
 
 
@@ -102,7 +101,7 @@ class DuckDBDatabaseHandler():
         """
         new_df = table
         self.database.execute(f"CREATE TABLE {table_name} as SELECT * FROM new_df;")
-        trial = self.database.execute(f"Select * from {table_name};").fetch_df()
+        _ = self.database.execute(f"Select * from {table_name};").fetch_df()
         self.logger.info(f"Created Solution Table {table_name}")
 
     def add_solution_table_to_mapping(self, table_name: str, solution_type: str) -> None:
