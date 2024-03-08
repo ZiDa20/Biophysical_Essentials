@@ -148,6 +148,18 @@ class DuckDBDatabaseHandler():
             print(e)
             #self.logger.info("Series Mapping Failed")
 
+    def clear_from_previous_uncomplete_mappings(self):
+        """
+        remove entries that were made to the global meta data mapping 
+        """
+        q = "DELETE FROM experiments WHERE experiment_name NOT IN ( SELECT experiment_name FROM global_meta_data );"
+        self.database.execute(q)
+
+    def get_experiment_meta_data(self, experiment_name:str):
+        """return the global meta data for experiment"""
+        q = "select * from global_meta_data where experiment_name = (?)"
+        res = self.database.execute(q,[experiment_name]).fetchdf()
+        return res
 
     """---------------------------------------------------"""
     """    Functions to interact with treeview              """
