@@ -8,7 +8,7 @@ on:
 jobs:
 
   automated_testing:
-    name: Atomated Test
+    name: Automated Test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -39,4 +39,4 @@ jobs:
 
     - name: Execute Tests
       working-directory: src
-      run: poetry run pytest
+      run: poetry run pytest -p no:faulthandler -s
