@@ -75,7 +75,7 @@ def load_demo_dat_data_into_database(qtbot,db_name):
     return test_db,app
    
     
-@pytest.mark.serial
+#@pytest.mark.serial
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
 
     """ Test 1: 
@@ -118,7 +118,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
          test_db.database.close()
 
 
-@pytest.mark.serial
+#@pytest.mark.serial
 def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     """_summary_
     Test 2: 
@@ -153,7 +153,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
 
 
 
-@pytest.mark.serial
+#@pytest.mark.serial
 def test_change_series_renaming(qtbot):
     """Test: Click on the change series name button in the ribbon bar, change the series name of an IV to TEST123.
     Make sure, that the string "IV" is not present anymore in the treeview while TEST123 is present 
@@ -196,7 +196,7 @@ def test_change_series_renaming(qtbot):
     test_db.database.close()
 
 
-@pytest.mark.serial 
+#@pytest.mark.serial 
 def test_change_experiment_meta_data(qtbot):
     """Test of the ribbon bar button: change experiment meta data
     Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
@@ -223,7 +223,7 @@ def test_change_experiment_meta_data(qtbot):
 
 
 
-@pytest.mark.serial
+#@pytest.mark.serial
 def test_change_series_meta_data(qtbot):
     """Test of the ribbon bar button: change series meta data
     Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.

@@ -31,16 +31,16 @@ def clean_leftover_db():
                 print(f"Error deleting {filepath}: {e}")
 
 
-@pytest.mark.order(1)
-@pytest.mark.serial
+#@pytest.mark.order(1)
+#@pytest.mark.serial
 def test_clean():
      clean_leftover_db()
 
 
 #### i have no clue why and i am happy for feedbacl: the first test with the db interaction is always failing  #####
 #### thats why i have this always true test in here #####
-@pytest.mark.order(2)
-@pytest.mark.serial
+#@pytest.mark.order(2)
+#@pytest.mark.serial
 def test_true(qtbot):
     test_db = set_database()  
     app = MainWindow(testing_db = test_db)
@@ -68,8 +68,8 @@ def test_true(qtbot):
     assert True
     test_db.database.close()
 
-@pytest.mark.order(3)
-@pytest.mark.serial
+#@pytest.mark.order(3)
+#@pytest.mark.serial
 def test_long_computation(qtbot):
 
     test_db = set_database()  

@@ -82,8 +82,9 @@ def setup_test_environment(qtbot):
     test_db.database.close()
 
 # test 1: load the data
-@pytest.mark.run(order=1)
-@pytest.mark.serial
+#@pytest.mark.run(order=1)
+#@pytest.mark.serial
+#@pytest.mark.xdist_group(name="group_serial")
 def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environment):
 
     """ Test 1: 
@@ -132,7 +133,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
 
 
 # test 2: select all series and  proceed to OFA page 2
-@pytest.mark.run(order=2)
+#@pytest.mark.run(order=2)
 def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
     test_db, app = setup_test_environment
     QApplication.processEvents()
@@ -166,7 +167,7 @@ def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
     assert app.ui.offline.offline_analysis_widgets.currentIndex() == 1
     return test_db, app
 
-@pytest.mark.run(order=3)
+#@pytest.mark.run(order=3)
 # test 3: open the analysis function selection menu, select 
 def test_analysis_function_menu(qtbot, setup_test_environment):
      # get the state after test 2
@@ -179,6 +180,6 @@ def test_analysis_function_menu(qtbot, setup_test_environment):
      # open the analysis function selection menu
      # qtbot.mouseClick(app.ui.offline.select_analysis_fct,Qt.LeftButton)
      assert True
-     return test_db, app
+     #return test_db, app
  
      
