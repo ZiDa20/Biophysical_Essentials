@@ -27,8 +27,8 @@ jobs:
     - name: Update apt and install libgl1
       if: matrix.os == 'ubuntu-latest'
       run: |
-          apt-get update
-          apt-get install -y libgl1
+          sudo -E apt-get update
+          sudo -E apt-get install -y libgl1
 
     - name: Install Poetry
       run: |
