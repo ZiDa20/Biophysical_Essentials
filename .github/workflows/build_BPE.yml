@@ -1,11 +1,11 @@
 name: Build and Release
 
-on:
-  push:
-    branches: [ main ]
-    pull_request:
-      branches: [ "main" ]
-  workflow_dispatch:
+#on:
+#  push:
+#    branches: [ main ]
+#    pull_request:
+#      branches: [ "main" ]
+#  workflow_dispatch:
 
 jobs:
   build:
