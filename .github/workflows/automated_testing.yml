@@ -2,7 +2,7 @@ name: BPE Pytest
 
 on:
   pull_request:
-    types: [opened, synchronize, edited, reopen]
+    types: [opened, synchronize, edited, reopened]
 
 jobs:
 
