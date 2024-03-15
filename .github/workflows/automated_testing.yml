@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macOS-latest]#, ubuntu-latest]
+        os: [windows-latest, macOS-latest]
         python-version: [3.11]
 
     steps:
@@ -27,8 +27,8 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
           sudo -E apt-get update
-	  #sudo -E apt-get install -y libgl1-mesa-glx
-          #sudo -E apt-get install -y python3-opencv
+
+
 
 
     - name: Install Poetry
