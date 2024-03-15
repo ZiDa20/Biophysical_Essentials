@@ -27,8 +27,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
           sudo -E apt-get update
-	  sudo -E apt-get install -y libgl1-mesa-glx
-          sudo -E apt-get install -y python3-opencv
+
 
     - name: Install Poetry
       run: |
