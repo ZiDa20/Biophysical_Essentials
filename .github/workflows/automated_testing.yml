@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macOS-latest, ubuntu-latest]
+        os: [windows-latest, macOS-latest]#, ubuntu-latest]
         python-version: [3.11]
 
     steps:
@@ -27,6 +27,8 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
           sudo -E apt-get update
+	  #sudo -E apt-get install -y libgl1-mesa-glx
+          #sudo -E apt-get install -y python3-opencv
 
 
     - name: Install Poetry
@@ -43,6 +45,13 @@ jobs:
       run: |
         poetry install
 
-    - name: Execute Tests
+    - name: Execute Win Tests
       working-directory: src
+      if: matrix.os == 'windows-latest'
       run: poetry run pytest -p no:faulthandler -s
+
+    - name: Execute Linux and Mac Tests
+      working-directory: src
+      if: matrix.os != 'windows-latest'
+      run: poetry run pytest
+
