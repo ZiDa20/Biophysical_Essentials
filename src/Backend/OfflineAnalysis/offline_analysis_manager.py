@@ -161,7 +161,7 @@ class OfflineManager():
         #self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
         match data_type:
             case InputDataTypes.UNBUNDLED_HEKA_DATA:
-                print("UNBUNDLED NOT SUPPORTED YET")
+                self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_unbundled_reading,bundle_liste,self._directory_path)
             case InputDataTypes.BUNDLED_HEKA_DATA:
                 self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
             case InputDataTypes.ABF_DATA:

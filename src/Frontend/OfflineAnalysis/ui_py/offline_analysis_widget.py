@@ -632,7 +632,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # read the directory data into the database
         self.offline_manager.ap = self.ap
-        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)
+        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.input_data_type,
+                                                                                                         self.blank_analysis_tree_view_manager, 
+                                                                                                         meta_data_group_assignment_list)
 
         # assign meta data
         if not meta_data_group_assignment_list:
