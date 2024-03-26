@@ -1,11 +1,11 @@
 import os
-from typing import TYPE_CHECKING, Optional
 from PySide6.QtCore import *  # type: ignore
 from Backend.Threading.Worker import Worker
 from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration import AnalysisFunctionRegistration
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
-
+from  Backend.tokenmanager import InputDataTypes 
+from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     import logging
     
@@ -102,7 +102,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,tree_view_manager, 
+    def read_data_from_experiment_directory(self,data_type:InputDataTypes, tree_view_manager, 
                                             meta_data_assignment_list: Optional[list[str]]=None):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
@@ -136,29 +136,39 @@ class OfflineManager():
             print(f"this is the data_list final: {data_list_final} ")
             for i,t in enumerate(data_list_final):
                 # read
-                self.run_bundle_function_in_thread(t)
+                self.run_bundle_function_in_thread(t,data_type)
 
         else:
             data_list_final = list(self.chunks(data_list, threads))
             for i,t in enumerate(data_list_final):
-                self.run_bundle_function_in_thread(t)
+                self.run_bundle_function_in_thread(t,data_type)
 
         print("finished analysis using the database manager")
         self.bundle_worker.signals.finished.connect(self.run_database_threading)
 
         return self.tree_view_manager
 
-    def run_bundle_function_in_thread(self,bundle_liste: list) -> None:
+    def run_bundle_function_in_thread(self,bundle_liste: list,data_type:InputDataTypes) -> None:
         """
         Runs the bundle function in a thread
         @param bundle_liste:
         @param tree:
         @param discarded_tree:
         author MZ, 13.07.2022
+        revised: dz, 26.03.24
         """
         # this should be also not in the treeview manager
         #self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
-        self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
+        match data_type:
+            case InputDataTypes.UNBUNDLED_HEKA_DATA:
+                print("UNBUNDLED NOT SUPPORTED YET")
+            case InputDataTypes.BUNDLED_HEKA_DATA:
+                self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
+            case InputDataTypes.ABF_DATA:
+                self.bundle_worker = Worker(self.tree_view_manager.qthread_abf_bundle_reading,bundle_liste,self._directory_path)
+            case InputDataTypes.NANION_DATA:
+                print("NANION not supported yet")
+                
         self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
         self.threadpool.start(self.bundle_worker)
 

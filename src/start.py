@@ -1,22 +1,21 @@
-import sys
-import os
-from functools import partial
-
-import webbrowser
-import picologging
-import Logging.config
 from PySide6.QtCore import QSize, Qt, QDir
 from PySide6.QtGui import QIcon # type: ignore
 from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QLabel
 from PySide6.QtTest import QTest# type: ignore
 from qt_material import QtStyleTools
 from qt_material import apply_stylesheet
+import sys
+import os
+from functools import partial
+import webbrowser
+import picologging
 from StyleFrontend.frontend_style import Frontend_Style
 from Frontend.MainWindow.ui_py.main_window import Ui_MainWindow
-from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
-import resources
-from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
+from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
+from Backend.tokenmanager import InputDataTypes
+
 
 # this is important for pyinstaller to find the right parts of the program
 if getattr(sys, 'frozen', False):
@@ -245,22 +244,22 @@ class MainWindow(QMainWindow, QtStyleTools):
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "open_dir_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
-                 "param": "HEKA UNBUNDLED"}, 
+                 "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
                 {"text": "Load Bundled Heka", 
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "db_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
-                 "param": "HEKA BUNDLED"}, 
+                 "param": InputDataTypes.BUNDLED_HEKA_DATA}, 
                 {"text": "Load ABF", 
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "open_existing_results_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
-                 "param": "ABF"}, 
+                 "param": InputDataTypes.ABF_DATA}, 
                 {"text": "Load Nanion", 
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "go_right_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
-                 "param": "Nanion"}
+                 "param": InputDataTypes.NANION_DATA}
             ]
 
             for col in range(len(buttons)):  # Loop through the buttons list up to amount_of_buttons

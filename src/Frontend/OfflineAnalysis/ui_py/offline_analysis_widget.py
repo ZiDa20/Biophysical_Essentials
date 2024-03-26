@@ -4,54 +4,42 @@ from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
-
-
 from PySide6.QtTest import QTest
-from Backend.OfflineAnalysis.offline_analysis_manager import OfflineManager
-
-from Frontend.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
-from Backend.ExperimentTree.treeview_manager import TreeViewManager
-from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
-from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
-
 import numpy as np
-from Backend.Threading.Worker import Worker
-
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from functools import partial
 import picologging
 
-from database.DatabaseAdapter.PostSql_Handler import PostSqlHandler
-from Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
-
 from Backend.OfflineAnalysis.offline_analysis_manager import OfflineManager
+from Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
+from Backend.OfflineAnalysis.offline_analysis_manager import OfflineManager
+from Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+from Backend.OfflineAnalysis.ResultHandler.FinalResultHolder import ResultHolder
+from Backend.ExperimentTree.treeview_manager import TreeViewManager
+from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
+from Backend.Threading.Worker import Worker
+from Backend.tokenmanager import InputDataTypes
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
+from database.DatabaseAdapter.PostSql_Handler import PostSqlHandler
+
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from Frontend.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from Frontend.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from Frontend.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
 from Frontend.OfflineAnalysis.CustomWidget.load_previous_discarded_flags_handler import LoadPreviousDiscardedFlagsHandler
-
 from Frontend.OfflineAnalysis.CustomWidget.choose_existing_analysis_handler import ChooseExistingAnalysis
 from Frontend.OfflineAnalysis.CustomWidget.statistics_function_table_handler import StatisticsTablePromoted
 from Frontend.OfflineAnalysis.CustomWidget.select_statistics_meta_data_handler import StatisticsMetaData_Handler
-
-from Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_table_model import OfflineAnalysisResultTableModel
+from Frontend.OfflineAnalysis.ui_py.offline_analysis_designer_object import Ui_Offline_Analysis
 from Frontend.OfflineAnalysis.ui_py.SeriesItemTreeManager import SeriesItemTreeWidget
-from Backend.OfflineAnalysis.ResultHandler.FinalResultHolder import ResultHolder
 from Frontend.OfflineAnalysis.ui_py.OfflineDialogs import OfflineDialogs
-
-
 from Frontend.OfflineAnalysis.ui_py.analysis_function_selection_manager import AnalysisFunctionSelectionManager
 from Frontend.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_Settings
-
 from Frontend.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 from Frontend.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
-
-
+from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 from StyleFrontend.animated_ap import LoadingAnimation
-
-from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -609,13 +597,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     """
 
     @Slot()
-    def open_directory(self,data_type):
+    def open_directory(self,data_type:InputDataTypes):
         '''Opens a filedialog where a user can select a desired directory. After the selection, a dialog will open and ask
         the user to enter meta data groups. The popup will be closed after the user clicked the concerning button.
         The function will be continued in function continue_open_directory
 
         test_path = is for testing_purposes of the function
         '''
+        # set the data type here for later use in continue open directory
+        # this is to avoid handing it over from one function to another without using it
         self.input_data_type = data_type
 
         if dir_path := QFileDialog.getExistingDirectory():

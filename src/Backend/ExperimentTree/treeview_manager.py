@@ -12,6 +12,7 @@ from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
 from Backend.DataReader.ABFclass import AbfReader
 from Backend.DataReader.heka_reader import Bundle
 from Backend.ExperimentTree.tree_model_class import TreeModel
+from Backend.tokenmanager import InputDataTypes
 import picologging
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from Backend.DataReader.SegmentENUM import EnumSegmentTypes
@@ -81,28 +82,56 @@ class TreeViewManager:
         self.experiment_tree_finished = DataReadFinishedSignal()
 
     def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
-        bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
-        for i in dat_files:
-           if ".dat" in i:
-                    print(i)
-                    file = directory_path + "/" + i # the full path to the file
-                    bundle = self.open_bundle_of_file(file) # open heka reader
-                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-                    splitted_name = i.split(".") # retrieve the name
-                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat"))
-        return bundle_list,[]
+        try:
+            bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+            for i in dat_files:
+                if ".dat" in i:
+                            print(i)
+                            file = directory_path + "/" + i # the full path to the file
+                            bundle = self.open_bundle_of_file(file) # open heka reader
+                            pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+                            splitted_name = i.split(".") # retrieve the name
+                            bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
+                return bundle_list,[]
+        except Exception as e:
+            self.logger.error(
+                f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
 
-    def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
-        """ read the dat files in a separate thread that reads in through the directory
-        adds the dat.files run through the heka reader to get the data file and pulse generator files
+    def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
+        try:
+            abf_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+            for i in abf_files:
+                abf_file_data = []
+                if isinstance(i,list):
+                            for abf in i:
+                                print(abf)
+                                file_2 = directory_path + "/" + abf
+                                abf_file = AbfReader(file_2)
+                                data_file = abf_file.get_data_table()
+                                meta_data = abf_file.get_metadata_table()
+                                pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+                                experiment_name = [abf_file.get_experiment_name(), "None", "None", "None", "None", "None", "None", "None"]
+                                series_name = abf_file.get_series_name()
+                                abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, InputDataTypes.ABF_FILE_ENDING))
+                if isinstance(i,list):
+                    abf_list.append((abf_file_data, experiment_name))
+                return [],abf_list
+        except Exception as e:
+            self.logger.error(
+                    f"Error in abf  file reading: {str(i[0])} the error occured: {str(e)}")
+    
+    ## OUTDATED DZ 26.03.2024
+    #def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
+        #""" read the dat files in a separate thread that reads in through the directory
+        #adds the dat.files run through the heka reader to get the data file and pulse generator files
 
-        args:
-           dat_files type: list of strings - the dat files to be read
-           directory_path type: string - the path to the directory where the dat files are located
-           progress_callback type: function - the function to be called when the progress changes
+        #args:
+        #   dat_files type: list of strings - the dat files to be read
+        #   directory_path type: string - the path to the directory where the dat files are located
+        #   progress_callback type: function - the function to be called when the progress changes
 
-        returns:
-          bundle_list type: list of tuples - the list of bundles that were read
+        #returns:
+        #  bundle_list type: list of tuples - the list of bundles that were read
 
         """
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
@@ -144,6 +173,8 @@ class TreeViewManager:
                 abf_list.append((abf_file_data, experiment_name))
         print(bundle_list)
         return bundle_list, abf_list
+    
+    """
 
     def write_directory_into_database(self, dat_files, abf_files, progress_callback):
         """ writes the bundle files as well as the pgf files and meta data files into the
