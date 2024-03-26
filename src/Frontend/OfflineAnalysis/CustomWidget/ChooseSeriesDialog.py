@@ -66,7 +66,7 @@ class SeriesDialog(QDialog):
             gb.adjustSize()
 
             # set the custom app icon
-            custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+            custom_icon = QIcon(r':Frontend/Button/light_mode/offline_analysis/bpe_logo_small.png')
             self.setWindowIcon(custom_icon)
             self.show()
 

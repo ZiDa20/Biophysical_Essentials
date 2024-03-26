@@ -7,7 +7,7 @@ import picologging
 import Logging.config
 from PySide6.QtCore import QSize, Qt, QDir
 from PySide6.QtGui import QIcon # type: ignore
-from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication
+from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication, QHBoxLayout, QPushButton, QWidget, QLabel
 from PySide6.QtTest import QTest# type: ignore
 from qt_material import QtStyleTools
 from qt_material import apply_stylesheet
@@ -48,7 +48,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.check_already_executed: bool  = None
         # set the custom app icon
-        custom_icon = QIcon(r':QT_GUI/Button/light_mode/offline_analysis/bpe_logo_small.png')
+        custom_icon = QIcon(r':Frontend/Button/light_mode/offline_analysis/bpe_logo_small.png')
         self.setWindowIcon(custom_icon)
   
         # handler functions for the database and the database itself
@@ -74,9 +74,18 @@ class MainWindow(QMainWindow, QtStyleTools):
     
     def dark_light_mode_switch_handling(self):
         "switch the mode of the app upon button click"
-        l = len(self.ui.offline.offline_tree.tab_list) # make sure offline analysis page 1 was visited only
-        if l <= 0: # this list has entires for every selected series to be analyzed
+        # make sure offline analysis page 1 was visited only
+        # list l has entires for every selected series to be analyzed
+        l = len(self.ui.offline.offline_tree.tab_list) 
+        if l <= 0: 
             self.ui.side_left_menu.hide()
+            # clear the button layout to make sure they are relaoded in the correct color 
+            layout = self.ui.gridLayout_3
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget:
+                    widget.deleteLater()
             tm, pm = self.ui.offline.get_current_tm_pm() # gets the treeivewmanager and plotwidgetmanager of page. 
             self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
             tm.update_treeviews(pm) # update the treeviews to redraw the delegates in the correct color (if opened once)
@@ -88,7 +97,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         style_sheet = (
             "QFrame#frame {"
-            "background-image: url(:/QT_GUI/Button/Logo/welcome_page_background_logo.png);"
+            "background-image: url(:/Frontend/Button/Logo/welcome_page_background_logo.png);"
             "background-repeat: no-repeat;"
             "background-position: center;"
             "}"
@@ -161,10 +170,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         icon = QIcon()
         if self.frontend_style.default_mode == 1:
             new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: black} QToolButton:hover{background-color: grey;}")
-            icon.addFile(f":/QT_GUI/Button/Menu/{image}", QSize(), QIcon.Normal, QIcon.Off)
+            icon.addFile(f":/Frontend/Button/Menu/{image}", QSize(), QIcon.Normal, QIcon.Off)
         else:
             new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
-            icon.addFile(f":QT_GUI/Button/Menu/{image_dark}", QSize(), QIcon.Normal, QIcon.Off)
+            icon.addFile(f":Frontend/Button/Menu/{image_dark}", QSize(), QIcon.Normal, QIcon.Off)
         new_button.clicked.connect(function)
         new_button.setIcon(icon)
         new_button.setIconSize(QSize(200, 200))
@@ -175,21 +184,85 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         Function to insert a row of buttons to the start up grid
         """
+        
         if self.ui.side_left_menu.isHidden():
-            buttons = [
-                {"text": "New Analysis From Directory", "image": "open_dir.png", "image_dark": "open_dir_dark.png", "function": self.start_new_offline_analysis_from_dir},
-                {"text": "New Analysis From Database", "image": "db.png", "image_dark": "db_dark.png", "function": self.start_new_offline_analysis_from_db},
-                {"text": "Open Existing Analysis", "image": "open_existing_results.png", "image_dark": "open_existing_results_dark.png", "function": self.open_analysis},
-                {"text": "Continue", "image": "go_right.png", "image_dark": "go_right_dark.png", "function": self.go_to_offline_analysis}
-            ]
-            amount_of_buttons = 4 if self.ui.offline.canvas_grid_layout.count()>0 else 3
-            for col in range(amount_of_buttons):
-                button = self.create_button(**buttons[col])
-                self.ui.gridLayout_3.addWidget(button, 0, col)
+
+            if self.ui.gridLayout_3.count() == 0:
+                horizontal_layout = QHBoxLayout()
+                buttons = [
+                    {"text": "New Analysis From Directory", "image": "open_dir.png", "image_dark": "open_dir_dark.png", "function": self.insert_load_data_buttons},
+                    {"text": "New Analysis From Database", "image": "db.png", "image_dark": "db_dark.png", "function": self.start_new_offline_analysis_from_db},
+                    {"text": "Open Existing Analysis", "image": "open_existing_results.png", "image_dark": "open_existing_results_dark.png", "function": self.open_analysis},
+                    {"text": "Continue", "image": "go_right.png", "image_dark": "go_right_dark.png", "function": self.go_to_offline_analysis}
+                ]
+                amount_of_buttons = 4 if self.ui.offline.canvas_grid_layout.count()>0 else 3
+                for col in range(amount_of_buttons):
+                    button = self.create_button(**buttons[col])
+                    horizontal_layout.addWidget(button)
+        
+                self.zero_row_widget = QWidget()
+                self.zero_row_widget.setLayout(horizontal_layout)
+
+                # Limit the width of the widget to 80% of the available width
+                desired_width = 0.75*self.width()
+                self.zero_row_widget.setMinimumWidth(desired_width)
+                self.zero_row_widget.setStyleSheet("background-color: transparent")
+
+                # Add the container widget to row 1 of self.ui.gridLayout_3
+                self.ui.gridLayout_3.addWidget(self.zero_row_widget, 0, 0, 1, horizontal_layout.count())
+
+                # Center the widget horizontally within the layout
+                self.ui.gridLayout_3.setAlignment(Qt.AlignHCenter)
+
+                # make a new row widget 
+                self.first_row_widget = None
+
             self.ui.side_left_menu.show()
         else:
             self.ui.side_left_menu.hide()
+    
+    def insert_load_data_buttons(self) -> None:
+        
+  # Create a thin white line QLabel
+        line_label = QLabel()
+        line_label.setStyleSheet("background-color: white;")
+        line_label.setFixedHeight(1)  # Adjust the thickness as needed
+        self.ui.gridLayout_3.addWidget(line_label, 1, 0, 1,4)
 
+        if self.first_row_widget is None:
+
+            # Create a new vertical layout
+            horizontal_layout = QHBoxLayout()
+
+            # Create buttons
+            buttons = [
+                {"text": "Load Unbundled Heka", "image": "open_heka_unbundled_light.png", "image_dark": "open_dir_dark.png", "function": self.start_new_offline_analysis_from_dir},
+                {"text": "Load Bundled Heka", "image": "open_heka_unbundled_light.png", "image_dark": "db_dark.png", "function": self.start_new_offline_analysis_from_db},
+                {"text": "Load ABF", "image": "open_heka_unbundled_light.png", "image_dark": "open_existing_results_dark.png", "function": self.open_analysis},
+                {"text": "Load Nanion", "image": "open_heka_unbundled_light.png", "image_dark": "go_right_dark.png", "function": self.go_to_offline_analysis}
+            ]
+
+            for col in range(len(buttons)):  # Loop through the buttons list up to amount_of_buttons
+                button = self.create_button(**buttons[col])
+                horizontal_layout.addWidget(button)
+
+            # Set the vertical layout as the layout for a new QWidget
+            self.first_row_widget = QWidget()
+            self.first_row_widget.setLayout(horizontal_layout)
+            # Add the container widget to row 1 of self.ui.gridLayout_3
+            self.first_row_widget.setStyleSheet("background-color: transparent")
+
+            self.ui.gridLayout_3.addWidget(self.first_row_widget, 2, 0, 1, self.ui.gridLayout_3.columnCount())
+
+
+            # Show the side_left_menu widget
+            self.ui.side_left_menu.show()
+        else:
+            if self.first_row_widget.isHidden():
+                self.first_row_widget.show()
+            else:
+                self.first_row_widget.hide()
+        
 
     def open_analysis(self) -> None:
         """Should open a already performed analysis
@@ -245,7 +318,7 @@ if __name__ == "__main__":
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
     os.environ["QT_SCALE_FACTOR"] = '1'
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    QDir.addSearchPath('button', os.path.join(EXE_LOCATION, 'QT_GUI/Buttons'))
+    QDir.addSearchPath('button', os.path.join(EXE_LOCATION, 'Frontend/Buttons'))
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     apply_stylesheet(app, theme="dark_cyan.xml")

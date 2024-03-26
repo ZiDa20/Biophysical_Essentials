@@ -9,9 +9,9 @@ class ConstrcutionSideDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         frontend_style.set_pop_up_dialog_style_sheet(self)
         if frontend_style.default_mode == 1:
-            image_path = r":QT_GUI/Button/light_mode/offline_analysis/construction_white.png"  # Replace with the actual path to your PNG image
+            image_path = r":Frontend/Button/light_mode/offline_analysis/construction_white.png"  # Replace with the actual path to your PNG image
         else:
-            image_path = r":QT_GUI/Button/dark_mode/offline_analysis/construction_dark.png"  # Replace with the actual path to your PNG image
+            image_path = r":Frontend/Button/dark_mode/offline_analysis/construction_dark.png"  # Replace with the actual path to your PNG image
 
         pixmap = QPixmap(image_path)
         image_label = QLabel()
