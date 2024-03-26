@@ -156,7 +156,9 @@ class OfflineManager():
         @param discarded_tree:
         author MZ, 13.07.2022
         """
-        self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
+        # this should be also not in the treeview manager
+        #self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
+        self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
         self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
         self.threadpool.start(self.bundle_worker)
 
