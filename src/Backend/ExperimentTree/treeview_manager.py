@@ -80,6 +80,18 @@ class TreeViewManager:
         self.tree_build_finished = DataReadFinishedSignal()
         self.experiment_tree_finished = DataReadFinishedSignal()
 
+    def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
+        bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+        for i in dat_files:
+           if ".dat" in i:
+                    print(i)
+                    file = directory_path + "/" + i # the full path to the file
+                    bundle = self.open_bundle_of_file(file) # open heka reader
+                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+                    splitted_name = i.split(".") # retrieve the name
+                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat"))
+        return bundle_list
+
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory
         adds the dat.files run through the heka reader to get the data file and pulse generator files

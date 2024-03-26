@@ -163,7 +163,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         ConstrcutionSideDialog(self.frontend_style)
         #artial(self.ui.notebook.setCurrentIndex, 5)
         
-    def create_button(self, text, image, image_dark, function):
+    def create_button(self, text, image, image_dark, function, param=None):
         """Creates a single button"""
         new_button = QToolButton()
         new_button.setText(text)
@@ -174,8 +174,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
             icon.addFile(f":Frontend/Button/Menu/{image_dark}", QSize(), QIcon.Normal, QIcon.Off)
-       
-        new_button.clicked.connect(function)
+        if param is None:
+            new_button.clicked.connect(function)
+        else:
+            new_button.clicked.connect(partial(function,param))
         new_button.setIcon(icon)
         new_button.setIconSize(QSize(50, 50))
         # set the vertical spacing between the icon and the text
@@ -206,7 +208,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                 self.zero_row_widget = QWidget()
                 self.zero_row_widget.setLayout(horizontal_layout)
 
-                # Limit the width of the widget to 80% of the available width
+                # Limit the width of the widget to 75% of the available width
                 desired_width = 0.75*self.width()
                 self.zero_row_widget.setMinimumWidth(desired_width)
                 self.zero_row_widget.setStyleSheet("background-color: transparent")
@@ -239,10 +241,26 @@ class MainWindow(QMainWindow, QtStyleTools):
 
             # Create buttons
             buttons = [
-                {"text": "Load Unbundled Heka", "image": "open_heka_unbundled_light.png", "image_dark": "open_dir_dark.png", "function": self.start_new_offline_analysis_from_dir},
-                {"text": "Load Bundled Heka", "image": "open_heka_unbundled_light.png", "image_dark": "db_dark.png", "function": self.start_new_offline_analysis_from_db},
-                {"text": "Load ABF", "image": "open_heka_unbundled_light.png", "image_dark": "open_existing_results_dark.png", "function": self.open_analysis},
-                {"text": "Load Nanion", "image": "open_heka_unbundled_light.png", "image_dark": "go_right_dark.png", "function": self.go_to_offline_analysis}
+                {"text": "Load Unbundled Heka", 
+                 "image": "open_heka_unbundled_light.png", 
+                 "image_dark": "open_dir_dark.png", 
+                 "function": self.start_new_offline_analysis_from_dir,
+                 "param": "HEKA UNBUNDLED"}, 
+                {"text": "Load Bundled Heka", 
+                 "image": "open_heka_unbundled_light.png", 
+                 "image_dark": "db_dark.png", 
+                 "function": self.start_new_offline_analysis_from_dir,
+                 "param": "HEKA BUNDLED"}, 
+                {"text": "Load ABF", 
+                 "image": "open_heka_unbundled_light.png", 
+                 "image_dark": "open_existing_results_dark.png", 
+                 "function": self.start_new_offline_analysis_from_dir,
+                 "param": "ABF"}, 
+                {"text": "Load Nanion", 
+                 "image": "open_heka_unbundled_light.png", 
+                 "image_dark": "go_right_dark.png", 
+                 "function": self.start_new_offline_analysis_from_dir,
+                 "param": "Nanion"}
             ]
 
             for col in range(len(buttons)):  # Loop through the buttons list up to amount_of_buttons
@@ -283,12 +301,12 @@ class MainWindow(QMainWindow, QtStyleTools):
        self.ui.notebook.setCurrentIndex(3)
        QTest.mouseClick(self.ui.offline_analysis_home_2, Qt.LeftButton)
 
-    def start_new_offline_analysis_from_dir(self)-> None:
+    def start_new_offline_analysis_from_dir(self,data_type)-> None:
         "start new offline analysis, therefore let the user choose a directory and add the data to the database"
         #self.go_to_offline_analysis()
         if self.check_already_executed:
             self.ui.offline.reset_class(path_to_database = os.path.join( EXE_LOCATION, "database" ))
-        self.ui.offline.open_directory()
+        self.ui.offline.open_directory(data_type)
 
     def start_new_offline_analysis_from_db(self)-> None:
         "start new offline analysis, therefore let the user choose a data from the database"

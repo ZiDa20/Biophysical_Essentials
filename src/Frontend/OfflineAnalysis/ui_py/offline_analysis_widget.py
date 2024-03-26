@@ -84,7 +84,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
         self.ap = None 
-
+        self.input_data_type = None
         self.parent_count = 0
         #self.offline_tree.current_tab_visualization = self.offline_tree.current_tab_visualization
         #self.offline_tree.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
@@ -609,13 +609,15 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     """
 
     @Slot()
-    def open_directory(self):
+    def open_directory(self,data_type):
         '''Opens a filedialog where a user can select a desired directory. After the selection, a dialog will open and ask
         the user to enter meta data groups. The popup will be closed after the user clicked the concerning button.
         The function will be continued in function continue_open_directory
 
         test_path = is for testing_purposes of the function
         '''
+        self.input_data_type = data_type
+
         if dir_path := QFileDialog.getExistingDirectory():
             #self.select_directory_button.setText("Change")
 
