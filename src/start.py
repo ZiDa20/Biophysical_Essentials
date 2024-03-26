@@ -15,7 +15,7 @@ from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import Cons
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.tokenmanager import InputDataTypes
-
+import resources
 
 # this is important for pyinstaller to find the right parts of the program
 if getattr(sys, 'frozen', False):
