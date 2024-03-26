@@ -7,7 +7,7 @@ import picologging
 import Logging.config
 from PySide6.QtCore import QSize, Qt, QDir
 from PySide6.QtGui import QIcon # type: ignore
-from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication, QHBoxLayout, QPushButton, QWidget, QLabel
+from PySide6.QtWidgets import QSplitter, QMainWindow, QToolButton, QApplication, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QLabel
 from PySide6.QtTest import QTest# type: ignore
 from qt_material import QtStyleTools
 from qt_material import apply_stylesheet
@@ -174,9 +174,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             new_button.setStyleSheet(u"QToolButton{ background-color: transparent; border: 0px; color: white} QToolButton:hover{background-color: grey;}")
             icon.addFile(f":Frontend/Button/Menu/{image_dark}", QSize(), QIcon.Normal, QIcon.Off)
+       
         new_button.clicked.connect(function)
         new_button.setIcon(icon)
-        new_button.setIconSize(QSize(200, 200))
+        new_button.setIconSize(QSize(50, 50))
+        # set the vertical spacing between the icon and the text
+        new_button.setFixedSize(200,100)
         new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         return new_button
     
