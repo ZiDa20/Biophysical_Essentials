@@ -90,7 +90,7 @@ class TreeViewManager:
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                     splitted_name = i.split(".") # retrieve the name
                     bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat"))
-        return bundle_list
+        return bundle_list,[]
 
     def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory
