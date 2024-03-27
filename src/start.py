@@ -178,9 +178,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             new_button.clicked.connect(partial(function,param))
         new_button.setIcon(icon)
-        new_button.setIconSize(QSize(50, 50))
+        new_button.setIconSize(QSize(30,30))
         # set the vertical spacing between the icon and the text
-        new_button.setFixedSize(200,100)
+        new_button.setFixedSize(200,75)
         new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         return new_button
     
@@ -240,11 +240,11 @@ class MainWindow(QMainWindow, QtStyleTools):
 
             # Create buttons
             buttons = [
-                {"text": "Load Unbundled Heka", 
-                 "image": "open_heka_unbundled_light.png", 
-                 "image_dark": "open_dir_dark.png", 
-                 "function": self.start_new_offline_analysis_from_dir,
-                 "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
+                #{"text": "Load Unbundled Heka", 
+                # "image": "open_heka_unbundled_light.png", 
+                # "image_dark": "open_dir_dark.png", 
+                # "function": self.start_new_offline_analysis_from_dir,
+                # "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
                 {"text": "Load Bundled Heka", 
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "db_dark.png", 

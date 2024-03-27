@@ -99,28 +99,35 @@ class TreeViewManager:
                             node_type = node.__class__.__name__
                             splitted_name = i.split(".") # retrieve the name
                             bundle_2 = self.open_bundle_of_file(directory_path + "/" + splitted_name[0] + ".pgf")
-                            debugpy.debug_this_thread()
+                          
                             a = "debug"
                             bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
+    
     def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
-        try:
+        
             bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+            unbundled_heka_files = []
             for i in dat_files:
                 if ".dat" in i:
-                            print(i)
-                            file = directory_path + "/" + i # the full path to the file
-                            bundle = self.open_bundle_of_file(file) # open heka reader
-                            pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-                            splitted_name = i.split(".") # retrieve the name
-                            debugpy.debug_this_thread()
-                            bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
-                            a = "debug"
-            return bundle_list,[]
-        except Exception as e:
-            self.logger.error(
-                f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
+                    print(i)
+                    splitted_name = i.split(".") # retrieve the name
+                    try:
+                        
+                        file = directory_path + "/" + i # the full path to the file
+                        bundle = self.open_bundle_of_file(file) # open heka reader
+                        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+                        bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING)) 
 
+                        if bundle.pul == None:
+                            unbundled_heka_files.append(splitted_name)
+
+                    except Exception as e:
+                        self.logger.error(
+                        f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
+                        return None
+            return bundle_list,[]
+       
     def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
         try:
             abf_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
@@ -1263,6 +1270,7 @@ class TreeViewManager:
                                                             )
         except Exception as e:
             print(f"Error in PGF-file generation: {e}")
+            raise TypeError("PF file generation was requested from the wrong data type")
 
 
         return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","segment_class",

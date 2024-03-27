@@ -5,6 +5,8 @@ from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration impo
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
 from  Backend.tokenmanager import InputDataTypes 
+from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
+import debugpy
 from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     import logging
@@ -130,23 +132,28 @@ class OfflineManager():
         self.threadpool.setExpiryTimeout(1000)
         threads = self.threadpool.globalInstance().maxThreadCount() # get the number of threads
 
-        # start the threadpool running the bundle read in function
-        if len(data_list) < threads: #
-            data_list_final = list(self.chunks(data_list, len(data_list)))
-            print(f"this is the data_list final: {data_list_final} ")
-            for i,t in enumerate(data_list_final):
-                # read
-                self.run_bundle_function_in_thread(t,data_type)
+        try:
+            # start the threadpool running the bundle read in function
+            if len(data_list) < threads: #
+                data_list_final = list(self.chunks(data_list, len(data_list)))
+                print(f"this is the data_list final: {data_list_final} ")
+                for i,t in enumerate(data_list_final):
+                    # read
+                    self.run_bundle_function_in_thread(t,data_type)
 
-        else:
-            data_list_final = list(self.chunks(data_list, threads))
-            for i,t in enumerate(data_list_final):
-                self.run_bundle_function_in_thread(t,data_type)
+            else:
+                data_list_final = list(self.chunks(data_list, threads))
+                for i,t in enumerate(data_list_final):
+                    self.run_bundle_function_in_thread(t,data_type)
+            
+            print("finished analysis using the database manager")
+            self.bundle_worker.signals.finished.connect(self.run_database_threading)
 
-        print("finished analysis using the database manager")
-        self.bundle_worker.signals.finished.connect(self.run_database_threading)
+            return self.tree_view_manager
+        except Exception as e:
+            debugpy.debug_this_thread()
+            CustomErrorDialog("Error", self.tree_view_manager.fronted_style)
 
-        return self.tree_view_manager
 
     def run_bundle_function_in_thread(self,bundle_liste: list,data_type:InputDataTypes) -> None:
         """
@@ -159,18 +166,22 @@ class OfflineManager():
         """
         # this should be also not in the treeview manager
         #self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
-        match data_type:
-            case InputDataTypes.UNBUNDLED_HEKA_DATA:
-                self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_unbundled_reading,bundle_liste,self._directory_path)
-            case InputDataTypes.BUNDLED_HEKA_DATA:
-                self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
-            case InputDataTypes.ABF_DATA:
-                self.bundle_worker = Worker(self.tree_view_manager.qthread_abf_bundle_reading,bundle_liste,self._directory_path)
-            case InputDataTypes.NANION_DATA:
-                print("NANION not supported yet")
-                
-        self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
-        self.threadpool.start(self.bundle_worker)
+        try:
+            match data_type:
+                case InputDataTypes.UNBUNDLED_HEKA_DATA:
+                    self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_unbundled_reading,bundle_liste,self._directory_path)
+                case InputDataTypes.BUNDLED_HEKA_DATA:
+                    self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
+                case InputDataTypes.ABF_DATA:
+                    self.bundle_worker = Worker(self.tree_view_manager.qthread_abf_bundle_reading,bundle_liste,self._directory_path)
+                case InputDataTypes.NANION_DATA:
+                    print("NANION not supported yet")
+            
+            self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
+            self.threadpool.start(self.bundle_worker)
+        except Exception as e:
+            raise TypeError("ERROR")
+            CustomErrorDialog("error",self.tree_view_manager.frontend_style)
 
     def run_database_threading(self) -> None:
         """_summary_
@@ -196,11 +207,16 @@ class OfflineManager():
         Args:
             result (event, callback): The bundled results from the indivdiual Qthreads
         """
-        bundle_result, abf_result = result
-        for i in bundle_result:
-            self.bundle_liste.append(i)
-        for i in abf_result:
-            self.abf_bundle_list.append(i)
+        try:
+            bundle_result, abf_result = result
+            for i in bundle_result:
+                self.bundle_liste.append(i)
+            for i in abf_result:
+                self.abf_bundle_list.append(i)
+        except Exception as e:
+                #self.logger.info("User was displayed the custom error dialog of unbundled input data")
+                raise TypeError("Error")
+
 
     def chunks(self, lst: list, n: int):
         """Should create a chunked list used for the Qthreads
