@@ -91,16 +91,7 @@ class TreeViewManager:
                             print(i)
                             file = directory_path + "/" + i # the full path to the file
                             bundle = self.open_bundle_of_file(file) # open heka reader
-                            debugpy.debug_this_thread()
-                            root = bundle.item_classes.get('.pul').rectypes
-                            node = root
-                            for i in []:
-                                node = node[i]
-                            node_type = node.__class__.__name__
                             splitted_name = i.split(".") # retrieve the name
-                            bundle_2 = self.open_bundle_of_file(directory_path + "/" + splitted_name[0] + ".pgf")
-                          
-                            a = "debug"
                             bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
     
@@ -113,19 +104,14 @@ class TreeViewManager:
                     print(i)
                     splitted_name = i.split(".") # retrieve the name
                     try:
-                        
                         file = directory_path + "/" + i # the full path to the file
                         bundle = self.open_bundle_of_file(file) # open heka reader
                         pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                         bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING)) 
-
-                        if bundle.pul == None:
-                            unbundled_heka_files.append(splitted_name)
-
                     except Exception as e:
                         self.logger.error(
                         f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
-                        return None
+                        bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
             return bundle_list,[]
        
     def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
