@@ -91,7 +91,17 @@ class TreeViewManager:
                             print(i)
                             file = directory_path + "/" + i # the full path to the file
                             bundle = self.open_bundle_of_file(file) # open heka reader
+                            debugpy.debug_this_thread()
+                            root = bundle.item_classes.get('.pul').rectypes
+                            node = root
+                            for i in []:
+                                node = node[i]
+                            node_type = node.__class__.__name__
                             splitted_name = i.split(".") # retrieve the name
+                            bundle_2 = self.open_bundle_of_file(directory_path + "/" + splitted_name[0] + ".pgf")
+                            bundle_3 = self.open_bundle_of_file(directory_path + "/" + splitted_name[0] + ".pul")
+                            test = bundle_3.item_classes.get('.pul')
+                            a = "debug"
                             bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
     
