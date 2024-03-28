@@ -104,8 +104,8 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self,data_type:InputDataTypes, tree_view_manager, 
-                                            meta_data_assignment_list: Optional[list[str]]=None):
+    def read_data_from_experiment_directory(self, ap_dialog, data_type:InputDataTypes, tree_view_manager, 
+                                            meta_data_assignment_list: Optional[list[str]]=None ):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
         the database entries will be generated. Primary key constraints will check whether the data are already in
@@ -131,29 +131,24 @@ class OfflineManager():
         self.threadpool = QThreadPool()
         self.threadpool.setExpiryTimeout(1000)
         threads = self.threadpool.globalInstance().maxThreadCount() # get the number of threads
+  
+        # start the threadpool running the bundle read in function
+        if len(data_list) < threads: #
+            data_list_final = list(self.chunks(data_list, len(data_list)))
+            print(f"this is the data_list final: {data_list_final} ")
+            for i,t in enumerate(data_list_final):
+                # read
+                self.run_bundle_function_in_thread(t,data_type)
 
-        try:
-            # start the threadpool running the bundle read in function
-            if len(data_list) < threads: #
-                data_list_final = list(self.chunks(data_list, len(data_list)))
-                print(f"this is the data_list final: {data_list_final} ")
-                for i,t in enumerate(data_list_final):
-                    # read
-                    self.run_bundle_function_in_thread(t,data_type)
-
-            else:
-                data_list_final = list(self.chunks(data_list, threads))
-                for i,t in enumerate(data_list_final):
-                    self.run_bundle_function_in_thread(t,data_type)
-            
-            print("finished analysis using the database manager")
-            self.bundle_worker.signals.finished.connect(self.run_database_threading)
-
-            return self.tree_view_manager
-        except Exception as e:
-            debugpy.debug_this_thread()
-            CustomErrorDialog("Error", self.tree_view_manager.fronted_style)
-
+        else:
+            data_list_final = list(self.chunks(data_list, threads))
+            for i,t in enumerate(data_list_final):
+                self.run_bundle_function_in_thread(t,data_type)
+        
+        print("finished analysis using the database manager")
+        self.bundle_worker.signals.finished.connect(self.run_database_threading)
+        
+        return self.tree_view_manager
 
     def run_bundle_function_in_thread(self,bundle_liste: list,data_type:InputDataTypes) -> None:
         """
@@ -180,6 +175,7 @@ class OfflineManager():
             self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
             self.threadpool.start(self.bundle_worker)
         except Exception as e:
+            debugpy.debug_this_thread()
             raise TypeError("ERROR")
             CustomErrorDialog("error",self.tree_view_manager.frontend_style)
 
@@ -207,6 +203,7 @@ class OfflineManager():
         Args:
             result (event, callback): The bundled results from the indivdiual Qthreads
         """
+
         try:
             bundle_result, abf_result = result
             for i in bundle_result:
@@ -214,8 +211,7 @@ class OfflineManager():
             for i in abf_result:
                 self.abf_bundle_list.append(i)
         except Exception as e:
-                #self.logger.info("User was displayed the custom error dialog of unbundled input data")
-                raise TypeError("Error")
+            raise TypeError("Error" + str(e))
 
 
     def chunks(self, lst: list, n: int):

@@ -1,6 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>Frontend/Button/Menu/open_heka_unbundled_light.png</file>
+    <file>Frontend/Button/Menu/open_abf_unbundled_light.png</file>
+    <file>Frontend/Button/Menu/open_nanion_unbundled_light.png</file>
 
     <file>Frontend/Button/light_mode/offline_analysis/go_left.png</file>
     <file>Frontend/Button/light_mode/offline_analysis/go_right.png</file>

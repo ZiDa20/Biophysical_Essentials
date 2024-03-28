@@ -245,21 +245,21 @@ class MainWindow(QMainWindow, QtStyleTools):
                 # "image_dark": "open_dir_dark.png", 
                 # "function": self.start_new_offline_analysis_from_dir,
                 # "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
-                {"text": "Load Bundled Heka", 
+                {"text": "Load Bundled Heka Data", 
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "db_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
                  "param": InputDataTypes.BUNDLED_HEKA_DATA}, 
-                {"text": "Load ABF", 
-                 "image": "open_heka_unbundled_light.png", 
+                {"text": "Load ABF Data", 
+                 "image": "open_abf_unbundled_light.png", 
                  "image_dark": "open_existing_results_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
                  "param": InputDataTypes.ABF_DATA}, 
-                {"text": "Load Nanion", 
-                 "image": "open_heka_unbundled_light.png", 
+                {"text": "Load Nanion Data", 
+                 "image": "open_nanion_unbundled_light.png", 
                  "image_dark": "go_right_dark.png", 
-                 "function": self.start_new_offline_analysis_from_dir,
-                 "param": InputDataTypes.NANION_DATA}
+                 "function": ConstrcutionSideDialog,
+                 "param": self.frontend_style}
             ]
 
             for col in range(len(buttons)):  # Loop through the buttons list up to amount_of_buttons
@@ -282,7 +282,9 @@ class MainWindow(QMainWindow, QtStyleTools):
                 self.first_row_widget.show()
             else:
                 self.first_row_widget.hide()
-        
+    
+    def construction_side_dialog(self):
+            ConstrcutionSideDialog(self.frontend_style)
 
     def open_analysis(self) -> None:
         """Should open a already performed analysis

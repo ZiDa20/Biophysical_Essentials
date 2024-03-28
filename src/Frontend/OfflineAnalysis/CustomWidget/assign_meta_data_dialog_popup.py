@@ -70,7 +70,8 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
             QTableView: The prepared user data visualization.
         """
         #toDO reimplement this!
-        #self.database_handler.clear_from_previous_uncomplete_mappings()
+        self.database_handler.clear_from_previous_uncomplete_mappings()
+        
         directory = self.offline_manager._directory_path
         self.setup_combo_box()
         self.template_dataframe = pd.DataFrame(columns=self.column_names)

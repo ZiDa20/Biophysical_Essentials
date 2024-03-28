@@ -642,6 +642,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.offline_manager.ap = self.ap
         self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.blank_analysis_tree_view_manager, meta_data_group_assignment_list)
 
+        print("I WAS HERE HERE HERE 1000")
+
         # assign meta data
         if not meta_data_group_assignment_list:
             meta_data_group_assignment_list = []
