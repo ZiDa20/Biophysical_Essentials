@@ -93,7 +93,7 @@ class TreeViewManager:
 
         bundle = self.open_bundle_of_file(r"C:\Users\davee\Desktop\SP\Biophysical_Essentials\Data\Raw_digi\two_heka_files\220315_01.dat")
         pul_original = bundle.pul
-        #pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
         debugpy.debug_this_thread()
         #self.single_file_into_db([],bundle,"220315_01",self.database_handler,[0,0,0,0],pgf_tuple_data_frame)
 
@@ -114,11 +114,11 @@ class TreeViewManager:
         #self.single_file_into_db([],pul_original,"blablabla",self.database_handler,[0,0,0,0], pd.DataFrame())
 
         pgf = read_the_stupid_pgf()
-        pgf_df = self.read_series_specific_pgf_trace_into_df([], pgf, []) # retrieve pgf data
+        pgf_df = self.read_unbundled_series_specific_pgf_trace_into_df([], pgf, []) # retrieve pgf data
 
         data = read_the_stupid_data(pul)
         
-        self.single_file_into_db_reduced([],[pul,data],"blablabla",self.database_handler, [0, -1, 0, 0], pgf_df)
+        self.single_file_into_db_reduced([],[pul,data],"blablabla",self.database_handler, [0, -1, 0, 0], pgf_tuple_data_frame)
         return [],[]
     
     def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
@@ -993,7 +993,11 @@ class TreeViewManager:
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
 
-            sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
+            #sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
+            sliced_pgf_tuple_data_frame = pd.DataFrame([{"series_name":node_label,"start_time":0,"start_segment":0,"segment_class":"CONSTANT",
+                                                 "sweep_number":10,"node_type":"StimChannel", "holding_potential":-0.08, "duration":0.025, 
+                                                 "increment":0, "voltage":0, "selected_channel":2, "series_id":node_type, "children_amount":10,
+                                                 "sine_amplitude":None,"sine_cycle":None}])
 
             # adding the series to the database
             series_table_writer.add_single_series_to_database(node_label, node_type)
@@ -1350,9 +1354,113 @@ class TreeViewManager:
         splitted_string = re.match(r"([a-z]+)([0-9]+)",string,re.I)
         res = splitted_string.groups()
         return int(res[1])
-
-    # ToDo put this into dictionary instead of parameters for dynamic programming
     def read_series_specific_pgf_trace_into_df(self, index, bundle, data_list, series_count = 0,
+                                               holding_potential = None,
+                                               series_name = None,
+                                               sweep_number =None, 
+                                               stim_channel = None,
+                                               start_time = None,
+                                               start_segment = None,
+                                               series_number = None,
+                                               children_amount = None,
+                                               sine_amplitude = None,
+                                               sine_cycle = None,
+                                               ):
+
+        # open the pulse generator part of the bundle
+
+        root = bundle.pgf
+        node = root
+
+        for i in index:
+            node = node[i]
+        # node type e.g. stimulation, chanel or stimchannel
+        node_type = node.__class__.__name__
+        #print("Node type:")
+        #print(node_type)
+
+        if node_type.endswith('PGF'):
+            node_type = node_type[:-3]
+
+        if node_type.endswith('PGF'):
+            node_type = node_type[:-3]
+
+        if node_type == "Channel":
+            # Holding
+            holding_potential = node.Holding
+            stim_channel = node.DacChannel
+            children_amount = node.children
+            sine_amplitude = node.Sine_Amplitude
+            sine_cycle = node.Sine_Cycle
+
+        elif node_type == "Stimulation":
+            series_name = node.EntryName
+            sweep_number = node.NumberSweeps
+            start_time = node.DataStartTime
+            start_segment = node.DataStartSegment
+            
+        if node_type == "StimChannel":
+            duration = node.Duration
+            increment = node.DeltaVIncrement
+            voltage = node.Voltage
+            series_number = f"Series{str(series_count)}"
+            segment_class = EnumSegmentTypes(node.Class.decode("ascii")).name
+            if segment_class != "SINE":
+                sine_amplitude = "None"
+                sine_cycle = "None"
+                
+
+            data_list.append([series_name,
+                              str(start_time),
+                              str(start_segment),
+                              segment_class,
+                              str(sweep_number),
+                              node_type,
+                              str(holding_potential),
+                              str(duration),
+                              str(increment),
+                              str(voltage),
+                              str(stim_channel),
+                              str(series_number),
+                              str(len(children_amount)),
+                              str(sine_cycle),
+                              str(sine_amplitude)
+                              ]
+                              )
+            series_count = series_count
+            start_time = "None"
+            start_segment = "None"
+
+        try:
+            for i in range(len(node.children)):
+                if node_type == "Pgf":
+                    print(i)
+                    series_count = i + 1
+                self.read_series_specific_pgf_trace_into_df(index+[i],
+                                                            bundle,
+                                                            data_list,
+                                                            series_count,
+                                                            holding_potential,
+                                                            series_name,
+                                                            sweep_number,
+                                                            stim_channel,
+                                                            start_time,
+                                                            start_segment,
+                                                            series_number,
+                                                            children_amount,
+                                                            sine_amplitude,
+                                                            sine_cycle
+                                                            )
+        except Exception as e:
+            print(f"Error in PGF-file generation: {e}")
+
+
+        return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","segment_class",
+                                                 "sweep_number","node_type", "holding_potential", "duration", 
+                                                 "increment", "voltage", "selected_channel", "series_id", "children_amount",
+                                                 "sine_amplitude","sine_cycle"])
+    # ToDo put this into dictionary instead of parameters for dynamic programming
+    def read_unbundled_series_specific_pgf_trace_into_df(self, index, bundle, data_list, series_count = 0,
                                                holding_potential = None,
                                                series_name = None,
                                                sweep_number =None, 
@@ -1375,8 +1483,9 @@ class TreeViewManager:
             node = node[i]
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
-        #print("Node type:")
-        #print(node_type)
+        print("Node type:")
+        print(node_type)
+        print(series_count)
 
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
@@ -1391,10 +1500,10 @@ class TreeViewManager:
             start_segment = node.DataStartSegment
 
         elif node_type == "Channel":
-            series_count = i + 1
+            series_count += 1
             series_name = "Series"+str(series_count)
             sweep_number = len(node.children)
-
+            print(f"channel children + {len(node.children)}")
             holding_potential = node.Holding
             stim_channel = node.DacChannel
             children_amount = node.children
@@ -1445,7 +1554,7 @@ class TreeViewManager:
                     if node_type == "Pgf":
                         print(i)
                         
-                    self.read_series_specific_pgf_trace_into_df(index+[i],
+                    self.read_unbundled_series_specific_pgf_trace_into_df(index+[i],
                                                                 bundle,
                                                                 data_list,
                                                                 series_count,
