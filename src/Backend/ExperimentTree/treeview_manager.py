@@ -11,6 +11,8 @@ from Backend.cancel_button_delegate import CancelButtonDelegate
 from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
 from Backend.DataReader.ABFclass import AbfReader
 from Backend.DataReader.heka_reader import Bundle
+from Backend.DataReader.unbundled_reader import HI_ImportHEKAtoMat
+from Backend.DataReader.new_unbundled_reader import read_the_stupid_pulse
 from Backend.ExperimentTree.tree_model_class import TreeModel
 from Backend.tokenmanager import InputDataTypes
 import picologging
@@ -82,6 +84,19 @@ class TreeViewManager:
         self.experiment_tree_finished = DataReadFinishedSignal()
 
     def qthread_heka_unbundled_reading(self,input_files, directory_path, progress_callback):
+        
+        #debugging
+        debugpy.debug_this_thread()
+
+        bundle = self.open_bundle_of_file(r"/home/data-science/Desktop/Biophysical_Essentials/Data/Raw_digi/two_heka_files/220315_01.dat")
+
+        read_the_stupid_pulse()
+
+        old_dat = self.open_unbundled_file(r"/home/data-science/Downloads/test_data_dat1/PATCH4_2023278_07.dat")
+        old_pul = self.open_unbundled_file(r"/home/data-science/Downloads/test_data_dat1/PATCH4_2023278_07.pul")
+        old_pgf = self.open_unbundled_file(r"/home/data-science/Downloads/test_data_dat1/PATCH4_2023278_07.pgf")
+
+
         # get the .dat files
         # get the respectiv .pgf file
         print("doing the unbundled thing")
@@ -108,7 +123,6 @@ class TreeViewManager:
     def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
         
             bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
-            unbundled_heka_files = []
             for i in dat_files:
                 if ".dat" in i:
                     print(i)
@@ -897,11 +911,13 @@ class TreeViewManager:
         debugpy.debug_this_thread()
         root = bundle.pul
         node = root
-
+        a = type(node)
         # select the last node
         for i in index:
             node = node[i]
+            a = type(node)
 
+        a = type(node)
         node_type = node.__class__.__name__
 
         if node_type.endswith('Record'):
@@ -1156,6 +1172,9 @@ class TreeViewManager:
 
         return combo_box
     """####################################### Chapter C Helper Functions ########################################  """
+
+    def open_unbundled_file(self,file_name):
+        return Ubundled_Bundle(file_name)
 
     def open_bundle_of_file(self,file_name):
         return Bundle(file_name)
