@@ -1,6 +1,7 @@
 from enum import Enum
 import pandas as pd
 import picologging
+import debugpy
 
 class TableEnum(Enum):
     """Holder of Experiment Name Table Prefixes"""
@@ -40,6 +41,7 @@ class SeriesTableWriter:
         """_summary_: This function adds a sweep dataframe to the database
         holding all the necessary sweep information for a series
         """
+        debugpy.debug_this_thread()
         try:
             self.logger.info(f"Creating sweep table for series: {self.series_identifier}")
             self.build_imon_signal_query(data_df)
@@ -121,9 +123,12 @@ class SeriesTableWriter:
             affected_rows = [10,11,12,13,33]
 
             for r in affected_rows:
-                replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
-                for c in column_names:
-                    meta_data_df[c].iloc[r]= replace_val
+                try:
+                    replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
+                    for c in column_names:
+                        meta_data_df[c].iloc[r]= replace_val
+                except Exception as e:
+                    print("TODO: check this in general !!! might be not necessery in unbundled data loading")
 
         self.logger.info("Adding Meta Data to database")
 
@@ -136,7 +141,12 @@ class SeriesTableWriter:
             return False
 
 
-    def create_series_specific_pgf_table(self, pgf_table: pd.DataFrame, series_identifier: str) -> None:
+
+    def create_series_specific_pgf_table (self,
+                                          pgf_table: pd.DataFrame,
+                                          series_identifier: str,
+                                          ) -> None:
+        
         """
         Creates a series-specific table in the database using the provided Pandas DataFrame.
 
@@ -149,12 +159,7 @@ class SeriesTableWriter:
 
         Raises:
             Exception: If there is an error creating the table or updating the series table.
-
         """
-    def create_series_specific_pgf_table (self,
-                                          pgf_table: pd.DataFrame,
-                                          series_identifier: str,
-                                          ) -> None:
         
         #self.database.register('df_1', data_frame)
 

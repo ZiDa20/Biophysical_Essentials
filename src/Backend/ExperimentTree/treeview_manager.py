@@ -13,6 +13,9 @@ from Backend.DataReader.ABFclass import AbfReader
 from Backend.DataReader.heka_reader import Bundle
 from Backend.DataReader.unbundled_reader import HI_ImportHEKAtoMat
 from Backend.DataReader.new_unbundled_reader import read_the_stupid_pulse
+from Backend.DataReader.new_unbundled_reader import read_the_stupid_pgf
+from Backend.DataReader.new_unbundled_reader import read_the_stupid_data
+
 from Backend.ExperimentTree.tree_model_class import TreeModel
 from Backend.tokenmanager import InputDataTypes
 import picologging
@@ -88,40 +91,38 @@ class TreeViewManager:
         #debugging
         debugpy.debug_this_thread()
 
-        bundle = self.open_bundle_of_file(r"/home/data-science/Desktop/Biophysical_Essentials/Data/Raw_digi/two_heka_files/220315_01.dat")
+        bundle = self.open_bundle_of_file(r"C:\Users\davee\Desktop\SP\Biophysical_Essentials\Data\Raw_digi\two_heka_files\220315_01.dat")
+        pul_original = bundle.pul
+        #pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+        debugpy.debug_this_thread()
+        #self.single_file_into_db([],bundle,"220315_01",self.database_handler,[0,0,0,0],pgf_tuple_data_frame)
 
-        read_the_stupid_pulse()
+        pul = read_the_stupid_pulse()
 
-        old_dat = self.open_unbundled_file(r"/home/data-science/Downloads/test_data_dat1/PATCH4_2023278_07.dat")
-        old_pul = self.open_unbundled_file(r"/home/data-science/Downloads/test_data_dat1/PATCH4_2023278_07.pul")
-        old_pgf = self.open_unbundled_file(r"/home/data-science/Downloads/test_data_dat1/PATCH4_2023278_07.pgf")
+        node = pul_original
+        for i in []:
+            node = node[i]
+        node_type = node.__class__.__name__
+        print(node_type)
 
+        node = pul
+        for i in []:
+            node = node[i]
+        node_type = node.__class__.__name__
+        print(node_type)
 
-        # get the .dat files
-        # get the respectiv .pgf file
-        print("doing the unbundled thing")
-        bundle_list = []
-        for i in input_files:
-                if ".dat" in i:
-                            print(i)
-                            file = directory_path + "/" + i # the full path to the file
-                            bundle = self.open_bundle_of_file(file) # open heka reader
-                            debugpy.debug_this_thread()
-                            root = bundle.item_classes.get('.pul').rectypes
-                            node = root
-                            for i in []:
-                                node = node[i]
-                            node_type = node.__class__.__name__
-                            splitted_name = i.split(".") # retrieve the name
-                            bundle_2 = self.open_bundle_of_file(directory_path + "/" + splitted_name[0] + ".pgf")
-                            bundle_3 = self.open_bundle_of_file(directory_path + "/" + splitted_name[0] + ".pul")
-                            test = bundle_3.item_classes.get('.pul')
-                            a = "debug"
-                            bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
-        return bundle_list,[]
+        #self.single_file_into_db([],pul_original,"blablabla",self.database_handler,[0,0,0,0], pd.DataFrame())
+
+        pgf = read_the_stupid_pgf()
+        pgf_df = self.read_series_specific_pgf_trace_into_df([], pgf, []) # retrieve pgf data
+
+        data = read_the_stupid_data(pul)
+        
+        self.single_file_into_db_reduced([],[pul,data],"blablabla",self.database_handler, [0, -1, 0, 0], pgf_df)
+        return [],[]
     
     def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
-        
+           
             bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
             for i in dat_files:
                 if ".dat" in i:
@@ -890,8 +891,7 @@ class TreeViewManager:
         # Concatenate all the DataFrames in the list
         return  dfs
 
-
-    def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
+    def single_file_into_db_reduced(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
         """Main Functions to write a single (.dat ?) file into the database. Called during multithreading ! 
         If the filename (==experimentname) was identified as corrupted, the mapped new name is used instead
         This function is executed recursively
@@ -909,8 +909,9 @@ class TreeViewManager:
             database = self.database_handler
 
         debugpy.debug_this_thread()
-        root = bundle.pul
-        node = root
+        #root = bundle.pul
+        #node = root
+        node = bundle[0]
         a = type(node)
         # select the last node
         for i in index:
@@ -958,7 +959,7 @@ class TreeViewManager:
                 pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                 meta_data = self.meta_data_assignment_list[pos]
             except Exception as e:
-                self.logger.error(F"single_file_into_db: meta data assignment failed: " + {e})
+                self.logger.error("single_file_into_db: meta data assignment failed: " + str(e))
                 self.logger.info("adding " + experiment_name + " without meta data")
 
                 '''experiment_label = 'default, all other parameters are none '''
@@ -1002,7 +1003,7 @@ class TreeViewManager:
             #print(sliced_pgf_tuple_data_frame)
             series_table_writer.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                                  node_type
-                                                )
+                                               )
 
 
             # update the series counter
@@ -1011,6 +1012,176 @@ class TreeViewManager:
             data_access_array[2] = 0
             # update series_identifier
             self.series_identifier = node_type
+
+        if "Sweep" in node_type :
+            debugpy.debug_this_thread()
+            self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
+            print(node_type)
+            print(data_access_array)
+            data_array = bundle[1][data_access_array]
+
+            # new for the test
+            data_array_df = pd.DataFrame(
+                {f'sweep_{str(data_access_array[2] + 1)}': data_array}
+            )
+            self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
+        
+            child_node = metadata[0]
+            child_node_ordered_dict = dict(child_node.get_fields())
+
+            meta_data_df = pd.DataFrame.from_dict(
+                data=child_node_ordered_dict,
+                orient='index',
+                columns=[f'sweep_{str(data_access_array[2] + 1)}'],
+            )
+
+            self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
+            self.logger.info(f'added new sweep_{str(data_access_array[2] + 1)} to self.sweep_data_df')
+
+            #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
+            #                                          data_array)
+            data_access_array[2] += 1
+
+        if "NoneType" in node_type:
+            self.logger.error(
+                "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
+            return
+
+
+        for i in range(len(node.children)):
+            #    progress_callback
+            self.single_file_into_db_reduced(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
+
+        if node_type == "Pulsed" and not self.sweep_data_df.empty:
+            print("finishs with non empty dataframe")
+            # copy from above .. smarter to have it here to avoid additional if condition in all the recursions
+            if experiment_name in self.experiment_name_mapping.keys():
+                self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
+                experiment_name = self.experiment_name_mapping[experiment_name]
+
+            database.add_sweep_df_to_database(experiment_name, 
+                                              self.series_identifier, 
+                                              self.sweep_data_df,
+                                              self.sweep_meta_data_df)
+
+
+    def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
+        """Main Functions to write a single (.dat ?) file into the database. Called during multithreading ! 
+        If the filename (==experimentname) was identified as corrupted, the mapped new name is used instead
+        This function is executed recursively
+
+        Args:
+            index (_type_): _description_
+            bundle (_type_): _description_
+            experiment_name (_type_): _description_
+            database (_type_): _description_
+            data_access_array (_type_): _description_
+            pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
+        """
+        if database is None:
+            database = self.database_handler
+
+        root = bundle.pul
+        node = root
+
+        # select the last node
+        for i in index:
+            node = node[i]
+
+        node_type = node.__class__.__name__
+
+        if node_type.endswith('Record'):
+            node_type = node_type[:-6]
+        try:
+            node_type += str(getattr(node, node_type + 'Count'))
+        except AttributeError:
+            pass
+        try:
+            node_label = node.Label
+        except AttributeError:
+            node_label = ''
+
+        self.logger.info(f"single_file_into_db: current node = {node_type}")
+
+        metadata = node
+
+        if "Pulsed" in node_type:
+            parent = ""
+            
+        if "Amplifier" in node_type:
+            print("yes")
+
+        if "Group" in node_type:
+
+            self.logger.info("single_file_into_db: " +  "experiment_name=" + experiment_name)
+            self.sweep_data_df = pd.DataFrame()
+            self.sweep_meta_data_df = pd.DataFrame()
+            self.series_identifier = None
+
+            if experiment_name in self.experiment_name_mapping.keys():
+                self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
+                experiment_name = self.experiment_name_mapping[experiment_name]
+
+            self.logger.info(F"single_file_into_db: adding experiment {experiment_name} to db")
+            database.add_experiment_to_experiment_table(experiment_name)
+            group_name = None
+            try:
+                pos = self.meta_data_assigned_experiment_names.index(experiment_name)
+                meta_data = self.meta_data_assignment_list[pos]
+            except Exception as e:
+                self.logger.error(F"single_file_into_db: meta data assignment failed: {e}")
+                self.logger.info("adding " + experiment_name + " without meta data")
+
+                '''experiment_label = 'default, all other parameters are none '''
+                meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
+
+
+            ''' add meta data as the default data indicated with a -1'''
+            database.add_experiment_to_global_meta_data(-1, meta_data)
+
+        if "Series" in node_type:
+            # node type will become the new series identifier while current value in self.seriesidentfier is the previous series identifier 
+            self.logger.info(F"single_file_into_db: adding series_identifier {node_type} of experiment {experiment_name} to db")
+            try:
+                # sweeps are appended to the sweep data df as long as no new series name is detected
+                # if a new series is detected and sweep_data_df is not empty, swepps that belong to the previous series are written to the database  
+                # afterwird the sweep_data_df is reseted to an emtpy df  
+                if not self.sweep_data_df.empty:   
+                    self.logger.info(f"single_file_into_db: non empty sweep_data_df for series {self.series_identifier} needs to be written to the database")
+                    #self.logger.info(self.sweep_data_df)
+                    #self.logger.info(self.sweep_meta_data_df)
+                    database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
+                    self.sweep_data_df = pd.DataFrame()
+                    self.sweep_meta_data_df = pd.DataFrame()
+                    self.logger.info("single_file_into_db:  sweep_data_df reseted to empty df")
+                else:
+                    self.logger.info("single_file_into_db:  sweep_data_df was already, all good")
+
+            except Exception as e:
+                self.logger.error(F"single_file_into_db: error in series writing: " + {e})
+                self.sweep_data_df = pd.DataFrame()
+                self.sweep_meta_data_df = pd.DataFrame()
+
+            sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
+
+            # adding the series to the database
+            database.add_single_series_to_database(experiment_name, node_label, node_type)
+            
+            self.logger.info(f"single_file_into_db:  added new series with experiment_name {experiment_name}, series_name = {node_label} and identifier {node_type} to db")
+
+            #print(sliced_pgf_tuple_data_frame)
+            database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
+                                                      "pgf_table_" + experiment_name + "_" + node_type,
+                                                      experiment_name, node_type)
+
+
+            # update the series counter
+            data_access_array[1]+=1
+            # reset the sweep counter
+            data_access_array[2] = 0
+            # update series_identifier
+            self.series_identifier = node_type
+
 
         if "Sweep" in node_type :
             self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
@@ -1037,11 +1208,9 @@ class TreeViewManager:
                 self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
                 experiment_name = self.experiment_name_mapping[experiment_name]
 
-            database.add_sweep_df_to_database(experiment_name, 
-                                              self.series_identifier, 
-                                              self.sweep_data_df,
+            database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
                                               self.sweep_meta_data_df)
-
+            
     def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
         
@@ -1173,9 +1342,6 @@ class TreeViewManager:
         return combo_box
     """####################################### Chapter C Helper Functions ########################################  """
 
-    def open_unbundled_file(self,file_name):
-        return Ubundled_Bundle(file_name)
-
     def open_bundle_of_file(self,file_name):
         return Bundle(file_name)
 
@@ -1201,7 +1367,8 @@ class TreeViewManager:
 
         # open the pulse generator part of the bundle
 
-        root = bundle.pgf
+        #root = bundle.pgf
+        root = bundle
         node = root
 
         for i in index:
@@ -1214,33 +1381,42 @@ class TreeViewManager:
         if node_type.endswith('PGF'):
             node_type = node_type[:-3]
 
-        if node_type.endswith('PGF'):
-            node_type = node_type[:-3]
+        #if node_type.endswith('Pgf'):
+        #    node_type = node_type[:-3]
 
-        if node_type == "Channel":
-            # Holding
+        if node_type == "Stimulation":
+            #series_name = node.EntryName
+            #sweep_number = node.NumberSweeps
+            start_time = node.DataStartTime
+            start_segment = node.DataStartSegment
+
+        elif node_type == "Channel":
+            series_count = i + 1
+            series_name = "Series"+str(series_count)
+            sweep_number = len(node.children)
+
             holding_potential = node.Holding
             stim_channel = node.DacChannel
             children_amount = node.children
             sine_amplitude = node.Sine_Amplitude
             sine_cycle = node.Sine_Cycle
 
-        elif node_type == "Stimulation":
-            series_name = node.EntryName
-            sweep_number = node.NumberSweeps
-            start_time = node.DataStartTime
-            start_segment = node.DataStartSegment
+        
             
         if node_type == "StimChannel":
             duration = node.Duration
             increment = node.DeltaVIncrement
             voltage = node.Voltage
             series_number = f"Series{str(series_count)}"
-            segment_class = EnumSegmentTypes(node.Class.decode("ascii")).name
-            if segment_class != "SINE":
+            try:
+                segment_class = EnumSegmentTypes(node.Class.decode("ascii")).name
+                if segment_class != "SINE":
+                    sine_amplitude = "None"
+                    sine_cycle = "None"
+            except Exception as e:
+                segment_class = "Constant" # error occurs when b'I'
                 sine_amplitude = "None"
                 sine_cycle = "None"
-                
 
             data_list.append([series_name,
                               str(start_time),
@@ -1264,28 +1440,29 @@ class TreeViewManager:
             start_segment = "None"
 
         try:
-            for i in range(len(node.children)):
-                if node_type == "Pgf":
-                    print(i)
-                    series_count = i + 1
-                self.read_series_specific_pgf_trace_into_df(index+[i],
-                                                            bundle,
-                                                            data_list,
-                                                            series_count,
-                                                            holding_potential,
-                                                            series_name,
-                                                            sweep_number,
-                                                            stim_channel,
-                                                            start_time,
-                                                            start_segment,
-                                                            series_number,
-                                                            children_amount,
-                                                            sine_amplitude,
-                                                            sine_cycle
-                                                            )
+            if len(node.children)>0:
+                for i in range(len(node.children)):
+                    if node_type == "Pgf":
+                        print(i)
+                        
+                    self.read_series_specific_pgf_trace_into_df(index+[i],
+                                                                bundle,
+                                                                data_list,
+                                                                series_count,
+                                                                holding_potential,
+                                                                series_name,
+                                                                sweep_number,
+                                                                stim_channel,
+                                                                start_time,
+                                                                start_segment,
+                                                                series_number,
+                                                                children_amount,
+                                                                sine_amplitude,
+                                                                sine_cycle
+                                                                )
         except Exception as e:
             print(f"Error in PGF-file generation: {e}")
-            raise TypeError("PF file generation was requested from the wrong data type")
+            raise TypeError("PGF file generation was requested from the wrong data type")
 
 
         return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","segment_class",
