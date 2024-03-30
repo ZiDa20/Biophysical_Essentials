@@ -240,11 +240,11 @@ class MainWindow(QMainWindow, QtStyleTools):
 
             # Create buttons
             buttons = [
-                #{"text": "Load Unbundled Heka", 
-                # "image": "open_heka_unbundled_light.png", 
-                # "image_dark": "open_dir_dark.png", 
-                # "function": self.start_new_offline_analysis_from_dir,
-                # "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
+                {"text": "Load Unbundled Heka", 
+                 "image": "open_heka_unbundled_light.png", 
+                 "image_dark": "open_dir_dark.png", 
+                 "function": self.start_new_offline_analysis_from_dir,
+                 "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
                 {"text": "Load Bundled Heka Data", 
                  "image": "open_heka_unbundled_light.png", 
                  "image_dark": "db_dark.png", 
