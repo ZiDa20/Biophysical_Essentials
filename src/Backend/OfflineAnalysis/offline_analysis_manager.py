@@ -163,10 +163,8 @@ class OfflineManager():
         #self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
         try:
             match data_type:
-                case InputDataTypes.UNBUNDLED_HEKA_DATA:
-                    self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_unbundled_reading,bundle_liste,self._directory_path)
-                case InputDataTypes.BUNDLED_HEKA_DATA:
-                    self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_bundle_reading,bundle_liste,self._directory_path)
+                case InputDataTypes.UNBUNDLED_HEKA_DATA | InputDataTypes.BUNDLED_HEKA_DATA:
+                    self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_reading,data_type,bundle_liste,self._directory_path)
                 case InputDataTypes.ABF_DATA:
                     self.bundle_worker = Worker(self.tree_view_manager.qthread_abf_bundle_reading,bundle_liste,self._directory_path)
                 case InputDataTypes.NANION_DATA:

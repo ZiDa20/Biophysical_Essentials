@@ -625,8 +625,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         CustomErrorDialog("You have selected Bundled HEKA file reading but no .dat Bundled HEKA files \n were detected in the selected directory.",self.frontend_style)  
                         return
                     
-                    dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_unbundled_reading(dat_list,dir_path,None)[0]
+                    #dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_unbundled_reading(dat_list,dir_path,None)[0]
                     #dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_bundle_reading(dat_list,dir_path,None)[0]
+                    dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_reading(data_type,dat_list,dir_path,None)
                     for b in dat_bundle:
                         if b[0].pul == None:
                             CustomErrorDialog("Unbundled HEKA data detected ! \n Unbundled HEKA data are outdated and currently not supported. \n However, Patchmaster allows to convert the old data format into the new bundled file format. \n On our Website we show you how to convert the data. Please have a look at https://biophysical-essentials.i-med.ac.at/bpe_doku", self.frontend_style)

@@ -1050,6 +1050,8 @@ class DuckDBDatabaseHandler():
                 affected_rows = [10,11,12,13,33]
 
                 for r in affected_rows:
+
+                  try:
                     print("val")
                     print(meta_data_df['sweep_1'].iloc[r])
                     print(type(meta_data_df['sweep_1'].iloc[r]))
@@ -1058,7 +1060,9 @@ class DuckDBDatabaseHandler():
                     print(replace_val)
                     for c in column_names:
                         meta_data_df[c].iloc[r]= replace_val
-
+                  except Exception as e:
+                    print("TODO: datadb: check this in general !!! might be not necessery in unbundled data loading")
+                    
             self.logger.info("Adding Meta Data to database")
 
             try:
@@ -1077,6 +1081,7 @@ class DuckDBDatabaseHandler():
             self.logger.info("Successfully created both df tables of series %s in experiment %s", series_identifier, experiment_name)
 
         except Exception as e:
+
             self.logger.error("In general add sweep df to database failed with error: %s", e)
 
 

@@ -459,7 +459,7 @@ class StimulationPGF(TreeNode): # first node from root
         ('HandledExternally', '?'),
         ('Filler1', '?'),
         ('Filler2', '?'),
-        ('CRC', 'i'),
+        ('CRC', 'I'),
 
     ]
     size_check = 248
@@ -528,84 +528,19 @@ class ChannelPGF(TreeNode): # pfg tree second from root
         ('TraceMathFormat', 'c'),
         ('HasChirp', '?'),
         ('Square_kind', 'c'),
-    ]
-    size_check = 219
-    """
-    field_info = [
-        ('Mark', 'i'),
-        ('LinkedChannel', 'i'),
-        ('CompressionFactor', 'i'),
-        ('YUnit', '8s',cstr),
-        ('AdcChannel', 'h'),
-        ('AdcMode', 'c'),
-        ('DoWrite', '?'),
-        ('LeakStore', 'c'),
-        ('AmplMode', 'c'),
-        ('OwnSegTime', '?'),
-        ('SetLastSeqVmemb', '?'),
-        ('DacChannel', 'h'),
-        ('DacMode', 'c'),
-        ('HasLockInSquare', 'c'),
-        ('RelevantXSegment', 'i'),
-        ('RelevantYSegment', 'i'),
-        ('DacUnit', '8s', cstr),
-        ('Holding', 'd'),
-        ('LeakHolding', 'd'),
-        ('LeakSize', 'd'),
-        ('LeakHoldMode', 'c'),
-        ('LeakAlternate', '?'),
-        ('AltLeakAveraging', '?'),
-        ('LeakPulseOn', '?'),
-        ('StimToDacId', 'h'),
-        ('CompressionMode', 'h'),
-        ('CompressionSkip', 'i'),
-        ('DacBit', 'h'),
-        ('HasLockInSine', '?'),
-        ('BreakMode', 'c'),
-        ('ZeroSeq', 'i'),
-        ('StimSweep', 'i'),
-        ('Sine_Cycle', 'd'),
-        ('Sine_Amplitude', 'd'),
-        ('LockIn_VReversal', 'd'),
-        ('StartFreq', 'd'),
-        ('EndFreq', 'd'),
-        ('MinPoints', 'd'),
-        ('NegAmpl', 'd'),
-        ('Square_DurFactor', 'd'),
-        ('LockIn_Skip', 'i'),
-        ('Photo_MaxCycles', 'i'),
-        ('Photo_SeqmentNo', 'i'),
-        ('LockIn_AvgCycles', 'i'),
-        ('Imaging_RoiNo', 'i'),
-        ('Chirp_SKIP', 'i'),
-        ('chirp_amplitude', 'd'),
-        ('Photo_Adapt', 'c'),
-        ('SineKind', 'c'),
-        ('Chirp_PreChirp', 'c'),
-        ('Sine_source', 'c'),
-        ('Square_NegSource', 'c'),
-        ('Square_PosSource', 'c'),
-        ('Chirp_Kind', 'c'),
-        ('ChirpSource', 'c'),
-        ('DacOffset', 'd'),
-        ('AdcOffset', 'd'),
-        ('TraceMathFormat', 'c'),
-        ('HasChirp', '?'),
-        ('Square_kind', 'c'),
-        ('Filler1',	'8s'), #219 -> +1
-        ('Square_BaseIncr', 'd'), # + 4 /#224
-        ('Square_Cycle','d'), # 232
-        ('Square_PosAmpl','d'), #240
-        ('CompressionOffset','i'), #248
-        ('PhotoMode','i'), #252
-        ('BreakLevel', 'd'), #256
-        ('TraceMath', '8s'), # 264
-        ('OldRC', 'i'), #268
-        ('Filler2','i'), #272
-        ('CRC','i') #276
+        ('Filler2',	'5s'), #219  ####### new ones
+        ('SquareBaseIncr','d'),
+        ('Square_Cycle','d'), # 
+        ('Square_PosAmpl','d'), #
+        ('CompressionOffset','i'), #
+        ('PhotoMode','i'), #
+        ('BreakLevel', 'd'), #
+        ('TraceMath', '128s'), #
+        ('Filler3','i'), #
+        ('CRC','I') #
     ]
     size_check = 400
-    """
+  
 class StimChannelPGF(TreeNode): # pgf tree last from root
     field_info = [
         ('Mark', 'i'),
@@ -622,7 +557,7 @@ class StimChannelPGF(TreeNode): # pgf tree last from root
         ('DeltaTFactor', 'd'),
         ('DeltaTIncrement', 'd'),
         ('Filler1', 'i'),
-        ('CRC', 'i'),
+        ('CRC', 'I'),
         ('ScanRate', 'd'),
 
     ]
@@ -632,27 +567,19 @@ class Pgf(TreeNode):
     """ field info for the PGF file, manually adapted the size we maybe need to have a further look"""
 
     field_info = [
-        ('Version', 'i'),
-        ('Mark', 'i'),
-        ('VersionName', '32s', cstr),
-        ('MaxSample', 'i'),
-        ('Filler1', 'i'),
-        ('Params', 'd'),
-        ('ParamsText1', '32s', cstr),
-        ('ParamsText2', '32s', cstr),
-        ('ParamsText3', '32s', cstr),
-        ('ParamsText4', '32s', cstr),
-        ('ParamsText5', '32s', cstr),
-        ('ParamsText6', '32s', cstr),
-        ('ParamsText7', '32s', cstr),
-        ('ParamsText8', '32s', cstr),
-        ('ParamsText9', '32s', cstr),
-        ('ParamsText10', '32s', cstr),
-        ('Reserved', 'i'),
-        ('Filler2', 'i'),
-        ('CRC', 'i'),
+        ('Version', 'i'), # 4
+        ('Mark', 'i'), # 8
+        ('VersionName', '32s', cstr), # 40
+        ('MaxSample', 'i'), #44
+        ('Filler1', 'i'), # 48
+        ('Params', '10d'), # 56
+        ('ParamText', '320s',cstr), #
+        ('Reserved', '128s',cstr), # 380
+        ('Filler2', 'i'), # 384
+        ('Reserved2', '560b'), # 384
+        ('CRC', 'I'), # 388
     ]
-    size_check = 388
+    size_check = 1144
 
     rectypes = [
         None,
@@ -725,27 +652,14 @@ class Data(object):
         return return_res_old
 
 
-def read_the_stupid_pulse():
-
-    pathname = r"C:\Users\davee\Downloads\Test_data\Test_data\\"
-    file_name = "PATCH4_2023278_07"
-    suffix = ".pul"
-
+def read_the_stupid_pulse(pathname:str,file_name:str,suffix:str):
     b = Pulsed(pathname+file_name+suffix)
     return b
 
-def read_the_stupid_pgf():
-    pathname = r"C:\Users\davee\Downloads\Test_data\Test_data\\"
-    file_name = "PATCH4_2023278_07"
-    suffix = ".pul"
-
+def read_the_stupid_pgf(pathname:str,file_name:str,suffix:str):
     b = Pgf(pathname+file_name+suffix)
     return b
 
-def read_the_stupid_data(pul:Pulsed):
-    pathname = r"C:\Users\davee\Downloads\Test_data\Test_data\\"
-    file_name = "PATCH4_2023278_07"
-    suffix = ".dat"
-
+def read_the_stupid_data(pathname:str,file_name:str,suffix:str,pul:Pulsed):
     b = Data(pul, pathname+file_name+suffix)
     return b

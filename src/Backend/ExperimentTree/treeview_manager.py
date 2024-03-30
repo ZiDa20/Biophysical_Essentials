@@ -4,6 +4,7 @@ from functools import partial
 import numpy as np
 import pandas as pd
 import debugpy
+import picologging
 from PySide6.QtCore import QObject, Signal, QThreadPool, Qt, QModelIndex, QSize
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtTest import QTest
@@ -86,59 +87,56 @@ class TreeViewManager:
         self.tree_build_finished = DataReadFinishedSignal()
         self.experiment_tree_finished = DataReadFinishedSignal()
 
-    def qthread_heka_unbundled_reading(self,input_files, directory_path, progress_callback):
-        
-        #debugging
+    def qthread_heka_reading(self,data_type,input_files, directory_path, progress_callback):
+        """ read the dat files in a separate thread that reads in through the directory
+        adds the dat.files run through the heka reader to get the data file and pulse generator files
+
+        args:
+           dat_files type: list of strings - the dat files to be read
+           directory_path type: string - the path to the directory where the dat files are located
+           progress_callback type: function - the function to be called when the progress changes
+
+        returns:
+          bundle_list type: list of tuples - the list of bundles that were read
+        """
         debugpy.debug_this_thread()
-
-        bundle = self.open_bundle_of_file(r"C:\Users\davee\Desktop\SP\Biophysical_Essentials\Data\Raw_digi\two_heka_files\220315_01.dat")
-        pul_original = bundle.pul
-        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-        debugpy.debug_this_thread()
-        #self.single_file_into_db([],bundle,"220315_01",self.database_handler,[0,0,0,0],pgf_tuple_data_frame)
-
-        pul = read_the_stupid_pulse()
-
-        node = pul_original
-        for i in []:
-            node = node[i]
-        node_type = node.__class__.__name__
-        print(node_type)
-
-        node = pul
-        for i in []:
-            node = node[i]
-        node_type = node.__class__.__name__
-        print(node_type)
-
-        #self.single_file_into_db([],pul_original,"blablabla",self.database_handler,[0,0,0,0], pd.DataFrame())
-
-        pgf = read_the_stupid_pgf()
-        pgf_df = self.read_unbundled_series_specific_pgf_trace_into_df([], pgf, []) # retrieve pgf data
-
-        data = read_the_stupid_data(pul)
-        
-        self.single_file_into_db_reduced([],[pul,data],"blablabla",self.database_handler, [0, -1, 0, 0], pgf_tuple_data_frame)
-        return [],[]
-    
-    def qthread_heka_bundle_reading(self,dat_files, directory_path, progress_callback):
-           
-            bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
-            for i in dat_files:
-                if ".dat" in i:
-                    print(i)
-                    splitted_name = i.split(".") # retrieve the name
-                    try:
-                        file = directory_path + "/" + i # the full path to the file
-                        bundle = self.open_bundle_of_file(file) # open heka reader
-                        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-                        bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING)) 
-                    except Exception as e:
-                        self.logger.error(
-                        f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
-                        bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
+        bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
+        for i in input_files:
+            if ".dat" in i:
+                print(i)
+                splitted_name = i.split(".") # retrieve the name
+                file = directory_path + "/" + i # the full path to the file
+                try:
+                    match data_type:
+                            case InputDataTypes.BUNDLED_HEKA_DATA:
+                                bundle = self.open_bundle_of_file(file) # open heka reader
+                            case InputDataTypes.UNBUNDLED_HEKA_DATA:
+                                bundle = self.qthread_heka_unbundled_reading(directory_path + "/",splitted_name[0])
+                            case _: 
+                                self.logger.error("Error in qthread_heka_reading")
+                                bundle = None
+                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING)) 
+                
+                except Exception as e:
+                    self.logger.error(
+                    f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
+                    bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
             return bundle_list,[]
-       
+
+    def qthread_heka_unbundled_reading(self,directory_path, file_name):
+
+        pul = read_the_stupid_pulse(directory_path,file_name,'.pul')
+        pgf = read_the_stupid_pgf(directory_path,file_name,".pgf")
+        data = read_the_stupid_data(directory_path,file_name,".dat",pul)
+        bundle = Bundle(directory_path+file_name+".dat", 
+                                        [('.pul', pul),
+                                                ('.dat', data),
+                                                ('.pgf',pgf)])
+        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+        self.single_file_into_db([], bundle,file_name, self.database_handler, [0, -1, 0, 0], pgf_tuple_data_frame)
+        return bundle
+    
     def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
         try:
             abf_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
@@ -161,62 +159,7 @@ class TreeViewManager:
         except Exception as e:
             self.logger.error(
                     f"Error in abf  file reading: {str(i[0])} the error occured: {str(e)}")
-    
-    ## OUTDATED DZ 26.03.2024
-    #def qthread_bundle_reading(self,dat_files, directory_path, progress_callback):
-        #""" read the dat files in a separate thread that reads in through the directory
-        #adds the dat.files run through the heka reader to get the data file and pulse generator files
 
-        #args:
-        #   dat_files type: list of strings - the dat files to be read
-        #   directory_path type: string - the path to the directory where the dat files are located
-        #   progress_callback type: function - the function to be called when the progress changes
-
-        #returns:
-        #  bundle_list type: list of tuples - the list of bundles that were read
-
-        """
-        bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
-        abf_list = []
-
-        for i in dat_files:
-            abf_file_data = []
-            try:
-                if ".dat" in i:
-                    print(i)
-                    file = directory_path + "/" + i # the full path to the file
-                    bundle = self.open_bundle_of_file(file) # open heka reader
-                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-                    splitted_name = i.split(".") # retrieve the name
-                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, ".dat"))
-
-                if isinstance(i,list):
-                    for abf in i:
-                        print(abf)
-                        file_2 = directory_path + "/" + abf
-                        abf_file = AbfReader(file_2)
-                        data_file = abf_file.get_data_table()
-                        meta_data = abf_file.get_metadata_table()
-                        pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                        experiment_name = [abf_file.get_experiment_name(), "None", "None", "None", "None", "None", "None", "None"]
-                        series_name = abf_file.get_series_name()
-                        abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
-
-            except Exception as e:
-                # @todo error handling
-                print(
-                    f"Bundle file could not be read: {str(i[0])} the error occured: {str(e)}"
-                )
-                self.logger.error(
-                    f"Bundle file could not be read: {str(i[0])} the error occured: {str(e)}"
-                )
-
-            if isinstance(i,list):
-                abf_list.append((abf_file_data, experiment_name))
-        print(bundle_list)
-        return bundle_list, abf_list
-    
-    """
 
     def write_directory_into_database(self, dat_files, abf_files, progress_callback):
         """ writes the bundle files as well as the pgf files and meta data files into the
@@ -993,11 +936,11 @@ class TreeViewManager:
                 self.sweep_data_df = pd.DataFrame()
                 self.sweep_meta_data_df = pd.DataFrame()
 
-            #sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
-            sliced_pgf_tuple_data_frame = pd.DataFrame([{"series_name":node_label,"start_time":0,"start_segment":0,"segment_class":"CONSTANT",
-                                                 "sweep_number":10,"node_type":"StimChannel", "holding_potential":-0.08, "duration":0.025, 
-                                                 "increment":0, "voltage":0, "selected_channel":2, "series_id":node_type, "children_amount":10,
-                                                 "sine_amplitude":None,"sine_cycle":None}])
+            sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
+            #sliced_pgf_tuple_data_frame = pd.DataFrame([{"series_name":node_label,"start_time":0,"start_segment":0,"segment_class":"CONSTANT",
+            #                                     "sweep_number":10,"node_type":"StimChannel", "holding_potential":-0.08, "duration":0.025, 
+            #                                     "increment":0, "voltage":0, "selected_channel":2, "series_id":node_type, "children_amount":10,
+            #                                     "sine_amplitude":None,"sine_cycle":None}])
 
             # adding the series to the database
             series_table_writer.add_single_series_to_database(node_label, node_type)
@@ -1500,7 +1443,7 @@ class TreeViewManager:
             start_segment = node.DataStartSegment
 
         elif node_type == "Channel":
-            series_count += 1
+           
             series_name = "Series"+str(series_count)
             sweep_number = len(node.children)
             print(f"channel children + {len(node.children)}")
@@ -1552,7 +1495,7 @@ class TreeViewManager:
             if len(node.children)>0:
                 for i in range(len(node.children)):
                     if node_type == "Pgf":
-                        print(i)
+                         series_count += 1
                         
                     self.read_unbundled_series_specific_pgf_trace_into_df(index+[i],
                                                                 bundle,
@@ -1578,7 +1521,7 @@ class TreeViewManager:
                                                  "sweep_number","node_type", "holding_potential", "duration", 
                                                  "increment", "voltage", "selected_channel", "series_id", "children_amount",
                                                  "sine_amplitude","sine_cycle"])
-
+    
     def write_experiment_to_csv(self,plot_widget_manager):
         """write the entire experiment of the currently selected and displayed series into a csv file
         """

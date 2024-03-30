@@ -17,6 +17,7 @@ Brief example::
 
 import numpy as np
 import re, struct, collections
+from Backend.tokenmanager import InputDataTypes
 
 
 class Struct(object):
@@ -825,7 +826,7 @@ class Bundle(object):
         ".pgf": Pgf # added PGF
     }
 
-    def __init__(self, file_name):
+    def __init__(self, file_name, item_list:list = None):
         self.file_name = file_name
         fh = open(file_name, 'rb')
 
@@ -844,10 +845,17 @@ class Bundle(object):
 
         # catalog extensions of bundled items
         self.catalog = {}
-        for item in self.header.BundleItems:
-            item.instance = None
-            ext = item.Extension
-            self.catalog[ext] = item
+
+        if item_list is not None:
+            for item in item_list:
+               self.catalog[item[0]] = item[1]
+        
+        else:
+        
+            for item in self.header.BundleItems:
+                item.instance = None
+                ext = item.Extension
+                self.catalog[ext] = item
 
         fh.close()
 
@@ -872,11 +880,15 @@ class Bundle(object):
     def _get_item_instance(self, ext):
         if ext not in self.catalog:
             return None
+        
         item = self.catalog[ext]
-        if item.instance is None:
-            cls = self.item_classes[ext]
-            item.instance = cls(self, item.Start, item.Length)
-        return item.instance
+        if type(item) is BundleItem:
+            if item.instance is None:
+                cls = self.item_classes[ext]
+                item.instance = cls(self, item.Start, item.Length)
+            return item.instance
+        else:
+            return item
 
     def __repr__(self):
         return "Bundle(%r)" % list(self.catalog.keys())

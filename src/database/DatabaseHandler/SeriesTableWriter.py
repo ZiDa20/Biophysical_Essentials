@@ -2,12 +2,7 @@ from enum import Enum
 import pandas as pd
 import picologging
 import debugpy
-
-class TableEnum(Enum):
-    """Holder of Experiment Name Table Prefixes"""
-    IMON_SIGNAL = "imon_signal"
-    IMON_META_DATA = "imon_meta_data"
-    PGF_DATA = "pgf_table"
+from Backend.tokenmanager import TableEnum
 
 class ExperimentTableNames:
     """ Experiment Table Name Creator"""
@@ -41,7 +36,6 @@ class SeriesTableWriter:
         """_summary_: This function adds a sweep dataframe to the database
         holding all the necessary sweep information for a series
         """
-        debugpy.debug_this_thread()
         try:
             self.logger.info(f"Creating sweep table for series: {self.series_identifier}")
             self.build_imon_signal_query(data_df)
