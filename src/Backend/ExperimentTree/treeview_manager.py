@@ -104,6 +104,7 @@ class TreeViewManager:
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         for i in input_files:
             if ".dat" in i:
+                print("Generating Bundle for:")
                 print(i)
                 splitted_name = i.split(".") # retrieve the name
                 file = directory_path + "/" + i # the full path to the file
@@ -122,7 +123,7 @@ class TreeViewManager:
                 except Exception as e:
                     self.logger.error(
                     f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
-                    bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
+                    #bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
 
     def qthread_heka_unbundled_reading(self,directory_path:str, file_name:str)->Bundle:
@@ -191,8 +192,9 @@ class TreeViewManager:
         ################################################################################################################
         #Progress Bar setup
         max_value = len(self.meta_data_assigned_experiment_names)
-    
-    
+        print("write directory into database was given:")
+        print(dat_files)
+        print(abf_files)
         progress_value = 0
         increment = 100/max_value
         self.database_handler.open_connection()     

@@ -62,6 +62,10 @@ class OfflineManager():
         self.progressbar = progress
         self.statusbar.setText("The Process is beeing set up ... ")
 
+    def reset_bundle_lists(self):
+        self.bundle_liste = []
+        self.abf_bundle_list = []
+        
     def execute_single_series_analysis(self,series_name: str, progress_callback) -> bool:
         """
         Performs all selected analysis calculations for a specific series name: e.g.
@@ -187,6 +191,7 @@ class OfflineManager():
         self.threadpool.clear()
         self.database.database.close()
         print("here we go into thte run database threading")
+
         self.worker = Worker(self.tree_view_manager.write_directory_into_database, self.bundle_liste, self.abf_bundle_list)
         self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         #worker.signals.result.connect(self.set_database)

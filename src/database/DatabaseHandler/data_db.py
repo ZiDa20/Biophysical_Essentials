@@ -1037,8 +1037,8 @@ class DuckDBDatabaseHandler():
             #print(column_names)
             meta_data_df = meta_data_df.reset_index()
             meta_data_df.columns = ['Parameter'] + column_names
-            print("till here everything is fine and good")
-            print(meta_data_df)
+            #print("till here everything is fine and good")
+            #print(meta_data_df)
 
             '''@todo (dz, 17.08.2022): this hardcoded bugfix allows the use of duck db pre dev 0.4.1.dev1603.
             Max and I  encountered a bug with big data loading - this bug only solves when using duckdb > 0.4.0
@@ -1062,7 +1062,7 @@ class DuckDBDatabaseHandler():
                         meta_data_df[c].iloc[r]= replace_val
                   except Exception as e:
                     print("TODO: datadb: check this in general !!! might be not necessery in unbundled data loading")
-                    
+
             self.logger.info("Adding Meta Data to database")
 
             try:

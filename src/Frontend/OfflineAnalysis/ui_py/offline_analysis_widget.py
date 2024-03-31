@@ -608,6 +608,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # set the data type here for later use in continue open directory
         # this is to avoid handing it over from one function to another without using it
         self.input_data_type = data_type
+        
+        # make sure to reset the bundle lists to empty lists in case of repeated data loading
+        self.offline_manager.reset_bundle_lists()
 
         if dir_path := QFileDialog.getExistingDirectory():
             #self.select_directory_button.setText("Change")
@@ -618,14 +621,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             data_list = os.listdir(dir_path)
             #make the file check here: make sure HEKA is bundled, .dat files are read as heka and .abf files are read as abf
             match data_type:
-                case InputDataTypes.BUNDLED_HEKA_DATA:                     
+                case InputDataTypes.BUNDLED_HEKA_DATA | InputDataTypes.UNBUNDLED_HEKA_DATA:                     
                     dat_list = [i for i in data_list if InputDataTypes.HEKA_DATA_FILE_ENDING.value in i]
                     
                     if len(dat_list) == 0:
                         CustomErrorDialog("You have selected Bundled HEKA file reading but no .dat Bundled HEKA files \n were detected in the selected directory.",self.frontend_style)  
                         return
                     
-                    dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_reading(data_type,dat_list,dir_path,None)
+                    dat_bundle,_ = self.blank_analysis_tree_view_manager.qthread_heka_reading(data_type,dat_list,dir_path,None)
                     for b in dat_bundle:
                         if b[0].pul == None:
                             CustomErrorDialog("Not supported HEKA format detected !", self.frontend_style)
@@ -674,7 +677,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         #self.add_filter_button.setEnabled(True)
         self.blank_analysis_tree_view_manager.data_read_finished.finished_signal.connect(partial(self.load_treeview_from_database, test))
-        #ap.stop_and_close_animation()
+        
+        # make sure to hide the data loading menu and 
 
     def make_list(self,popup,treeview_model):
         m_list = treeview_model.model()._data.values.tolist()

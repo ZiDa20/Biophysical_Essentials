@@ -155,6 +155,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         if not self.ui.side_left_menu.isHidden():
             self.ui.side_left_menu.hide()
+            self.first_row_widget.hide()
+
         self.ui.notebook.setCurrentIndex(0)
     def handle_settings_page(self):
         """@todo: implement settings needs
@@ -308,6 +310,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         if self.check_already_executed:
             self.ui.offline.reset_class(path_to_database = os.path.join( EXE_LOCATION, "database" ))
         self.ui.offline.open_directory(data_type)
+        self.first_row_widget.hide()
 
     def start_new_offline_analysis_from_db(self)-> None:
         "start new offline analysis, therefore let the user choose a data from the database"
