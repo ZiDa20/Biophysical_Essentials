@@ -142,6 +142,12 @@ class TreeModel(QAbstractItemModel):
 
         return parentItem.childCount()
 
+    # Custom sorting function
+    def natural_sort_key(self,s):
+        import re
+        return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
+
+
     def setupModelData(self, data_df, parent):
         # [item_name, parent, type, level, identifier]
 
@@ -152,10 +158,14 @@ class TreeModel(QAbstractItemModel):
         for i in np.unique(data_df["level"]):
             print("level = ", i)
 
-            # list of lists: dataframe row wise
-            items_to_add = data_df[data_df["level"]==i].values.tolist()
+            # order the items by the identifier -> Series1, Series2, etc
+            items_to_add = data_df[data_df["level"]==i]
+            df_sorted = items_to_add.loc[items_to_add['identifier'].map(self.natural_sort_key).sort_values().index]
 
-            # order the items 
+            #items_to_add= items_to_add.sort_values(by='identifier', ascending=True)
+            # list of lists: dataframe row wise
+            items_to_add = df_sorted.values.tolist()
+            
             
             for item in items_to_add:
                 # create a list of lists.
