@@ -98,6 +98,7 @@ class TreeViewManager:
 
         returns:
           bundle_list type: list of tuples - the list of bundles that were read
+         @author: dz, 20240331
         """
         debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
@@ -122,19 +123,31 @@ class TreeViewManager:
                     self.logger.error(
                     f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
                     bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
-            return bundle_list,[]
+        return bundle_list,[]
 
-    def qthread_heka_unbundled_reading(self,directory_path, file_name):
+    def qthread_heka_unbundled_reading(self,directory_path:str, file_name:str)->Bundle:
+        """
+        qthread_heka_unbundled_reading function: Read the .pul, .dat und .pgf file individually 
 
-        pul = read_the_stupid_pulse(directory_path,file_name,'.pul')
-        pgf = read_the_stupid_pgf(directory_path,file_name,".pgf")
-        data = read_the_stupid_data(directory_path,file_name,".dat",pul)
-        bundle = Bundle(directory_path+file_name+".dat", 
-                                        [('.pul', pul),
-                                                ('.dat', data),
-                                                ('.pgf',pgf)])
-        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-        self.single_file_into_db([], bundle,file_name, self.database_handler, [0, -1, 0, 0], pgf_tuple_data_frame)
+        Args:
+            directory_path (str): path of the data dir
+            file_name (str): name of the file
+
+        Returns:
+            Bundle: a fake bundle with the items as Pulsed, Data and PGF object rather than a BundleItem
+        @author: dz, 20240331
+        """
+        try:
+            pul = read_the_stupid_pulse(directory_path,file_name,InputDataTypes.HEKA_PULSE_FILE_ENDING.value)
+            pgf = read_the_stupid_pgf(directory_path,file_name,InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value)
+            data = read_the_stupid_data(directory_path,file_name,InputDataTypes.HEKA_DATA_FILE_ENDING.value,pul)
+            bundle = Bundle(directory_path+file_name+InputDataTypes.HEKA_DATA_FILE_ENDING.value, 
+                                            [(InputDataTypes.HEKA_PULSE_FILE_ENDING.value, pul),
+                                                    (InputDataTypes.HEKA_DATA_FILE_ENDING.value, data),
+                                                    (InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value,pgf)])
+        except Exception as e:
+            # i would expect errors like file not found
+            self.logger.error(e)
         return bundle
     
     def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
@@ -847,7 +860,7 @@ class TreeViewManager:
             data_access_array (_type_): _description_
             pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
         """
-  
+
         if database is None:
             database = self.database_handler
 

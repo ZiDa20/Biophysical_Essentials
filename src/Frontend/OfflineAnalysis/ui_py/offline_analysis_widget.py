@@ -619,23 +619,21 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             #make the file check here: make sure HEKA is bundled, .dat files are read as heka and .abf files are read as abf
             match data_type:
                 case InputDataTypes.BUNDLED_HEKA_DATA:                     
-                    dat_list = [i for i in data_list if ".dat" in i]
+                    dat_list = [i for i in data_list if InputDataTypes.HEKA_DATA_FILE_ENDING.value in i]
                     
                     if len(dat_list) == 0:
                         CustomErrorDialog("You have selected Bundled HEKA file reading but no .dat Bundled HEKA files \n were detected in the selected directory.",self.frontend_style)  
                         return
                     
-                    #dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_unbundled_reading(dat_list,dir_path,None)[0]
-                    #dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_bundle_reading(dat_list,dir_path,None)[0]
                     dat_bundle = self.blank_analysis_tree_view_manager.qthread_heka_reading(data_type,dat_list,dir_path,None)
                     for b in dat_bundle:
                         if b[0].pul == None:
-                            CustomErrorDialog("Unbundled HEKA data detected ! \n Unbundled HEKA data are outdated and currently not supported. \n However, Patchmaster allows to convert the old data format into the new bundled file format. \n On our Website we show you how to convert the data. Please have a look at https://biophysical-essentials.i-med.ac.at/bpe_doku", self.frontend_style)
+                            CustomErrorDialog("Not supported HEKA format detected !", self.frontend_style)
                             return
                         
                 case InputDataTypes.ABF_DATA:
                     #experiment_names = [i.split(".")[0] for i in dat_list]
-                    abf_list = [i for i in data_list if ".abf" in i]
+                    abf_list = [i for i in data_list if InputDataTypes.ABF_FILE_ENDING.value in i]
                     if len(abf_list) == 0:
                         CustomErrorDialog("You have selected ABF file reading but no .abf files \n were detected in the selected directory.",self.frontend_style)  
                         return
@@ -664,7 +662,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.ap,self.input_data_type,
                                                                                            self.blank_analysis_tree_view_manager, 
                                                                                            meta_data_group_assignment_list)
-        
         
         # assign meta data
         if not meta_data_group_assignment_list:

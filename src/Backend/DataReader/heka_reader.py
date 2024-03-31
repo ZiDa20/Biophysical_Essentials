@@ -863,19 +863,19 @@ class Bundle(object):
     def pul(self):
         """The Pulsed object from this bundle.
         """
-        return self._get_item_instance('.pul')
+        return self._get_item_instance(InputDataTypes.HEKA_PULSE_FILE_ENDING.value)
 
     @property
     def data(self):
         """The Data object from this bundle.
         """
-        return self._get_item_instance('.dat')
+        return self._get_item_instance(InputDataTypes.HEKA_DATA_FILE_ENDING.value)
 
     @property
     def pgf(self): # added dictionary return for the pgf file
         """The Data object from this bundle.
         """
-        return self._get_item_instance('.pgf')
+        return self._get_item_instance(InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value)
 
     def _get_item_instance(self, ext):
         if ext not in self.catalog:
