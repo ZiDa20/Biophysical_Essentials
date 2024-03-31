@@ -809,12 +809,12 @@ class Data(object):
         roundet_zero = float(roundet_zero[1])
 
         return_res_old = data * trace.DataScaler - trace.ZeroData
-        r1 = data * trace.DataScaler + trace.ZeroData # original !!!!
-        r2 = data * trace.DataScaler + trace.ZeroData/2
-        r3 = data * trace.DataScaler + 2*trace.ZeroData
-        r4 = data * trace.DataScaler - trace.ZeroData/2
-        r5 = data * trace.DataScaler
-        return_res = data* roundet_scaler + roundet_zero
+        #r1 = data * trace.DataScaler + trace.ZeroData # original !!!!
+        #r2 = data * trace.DataScaler + trace.ZeroData/2
+        #r3 = data * trace.DataScaler + 2*trace.ZeroData
+        #r4 = data * trace.DataScaler - trace.ZeroData/2
+        #r5 = data * trace.DataScaler
+        #return_res = data* roundet_scaler + roundet_zero
         return return_res_old
 
 

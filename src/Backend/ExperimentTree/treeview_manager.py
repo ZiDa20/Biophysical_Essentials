@@ -3,7 +3,7 @@ import itertools
 from functools import partial
 import numpy as np
 import pandas as pd
-import debugpy
+#import debugpy
 import picologging
 from PySide6.QtCore import QObject, Signal, QThreadPool, Qt, QModelIndex, QSize
 from PySide6.QtWidgets import QFileDialog
@@ -100,7 +100,7 @@ class TreeViewManager:
           bundle_list type: list of tuples - the list of bundles that were read
          @author: dz, 20240331
         """
-        debugpy.debug_this_thread()
+        #debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         for i in input_files:
             if ".dat" in i:
@@ -170,8 +170,7 @@ class TreeViewManager:
                     abf_list.append((abf_file_data, experiment_name))
             return [],abf_list
         except Exception as e:
-            self.logger.error(
-                    f"Error in abf  file reading: {str(i[0])} the error occured: {str(e)}")
+            self.logger.error(f"Error in abf  file reading: {str(i[0])} the error occured: {str(e)}")
 
 
     def write_directory_into_database(self, dat_files, abf_files, progress_callback):
@@ -847,183 +846,6 @@ class TreeViewManager:
         # Concatenate all the DataFrames in the list
         return  dfs
 
-    def single_file_into_db_reduced(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
-        """Main Functions to write a single (.dat ?) file into the database. Called during multithreading ! 
-        If the filename (==experimentname) was identified as corrupted, the mapped new name is used instead
-        This function is executed recursively
-
-        Args:
-            index (_type_): _description_
-            bundle (_type_): _description_
-            experiment_name (_type_): _description_
-            database (_type_): _description_
-            data_access_array (_type_): _description_
-            pgf_tuple_data_frame (_type_, optional): _description_. Defaults to None.
-        """
-
-        if database is None:
-            database = self.database_handler
-
-        debugpy.debug_this_thread()
-        #root = bundle.pul
-        #node = root
-        node = bundle[0]
-        a = type(node)
-        # select the last node
-        for i in index:
-            node = node[i]
-            a = type(node)
-
-        a = type(node)
-        node_type = node.__class__.__name__
-
-        if node_type.endswith('Record'):
-            node_type = node_type[:-6]
-        try:
-            node_type += str(getattr(node, node_type + 'Count'))
-        except AttributeError:
-            pass
-        try:
-            node_label = node.Label
-        except AttributeError:
-            node_label = ''
-
-        self.logger.info(f"single_file_into_db: current node = {node_type}")
-
-        metadata = node
-
-        if "Pulsed" in node_type:
-            parent = ""
-            
-        if "Amplifier" in node_type:
-            print("yes")
-
-        if "Group" in node_type:
-
-            self.logger.info("single_file_into_db: " +  "experiment_name=" + experiment_name)
-            self.sweep_data_df = pd.DataFrame()
-            self.sweep_meta_data_df = pd.DataFrame()
-            self.series_identifier = None
-
-            if experiment_name in self.experiment_name_mapping.keys():
-                self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
-                experiment_name = self.experiment_name_mapping[experiment_name]
-
-            self.logger.info(F"single_file_into_db: adding experiment {experiment_name} to db")
-            database.add_experiment_to_experiment_table(experiment_name)
-            try:
-                pos = self.meta_data_assigned_experiment_names.index(experiment_name)
-                meta_data = self.meta_data_assignment_list[pos]
-            except Exception as e:
-                self.logger.error("single_file_into_db: meta data assignment failed: " + str(e))
-                self.logger.info("adding " + experiment_name + " without meta data")
-
-                '''experiment_label = 'default, all other parameters are none '''
-                meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
-
-
-            ''' add meta data as the default data indicated with a -1'''
-            database.add_experiment_to_global_meta_data(-1, meta_data)
-
-        if "Series" in node_type:
-            # node type will become the new series identifier while current value in self.seriesidentfier is the previous series identifier 
-            self.logger.info(F"single_file_into_db: adding series_identifier {node_type} of experiment {experiment_name} to db")
-            
-            series_table_writer = SeriesTableWriter(database.database, experiment_name, self.series_identifier)
-            try:
-                # sweeps are appended to the sweep data df as long as no new series name is detected
-                # if a new series is detected and sweep_data_df is not empty, swepps that belong to the previous series are written to the database  
-                # afterwird the sweep_data_df is reseted to an emtpy df  
-                if not self.sweep_data_df.empty:   
-                    self.logger.info(f"single_file_into_db: non empty sweep_data_df for series {self.series_identifier} needs to be written to the database")
-                    
-                    series_table_writer.add_sweep_df_to_database(self.sweep_data_df,self.sweep_meta_data_df)
-                    self.sweep_data_df = pd.DataFrame()
-                    self.sweep_meta_data_df = pd.DataFrame()
-                    self.logger.info("single_file_into_db:  sweep_data_df reseted to empty df")
-                else:
-                    self.logger.info("single_file_into_db:  sweep_data_df was already, all good")
-
-            except Exception as e:
-                self.logger.error(F"single_file_into_db: error in series writing: " + {e})
-                self.sweep_data_df = pd.DataFrame()
-                self.sweep_meta_data_df = pd.DataFrame()
-
-            sliced_pgf_tuple_data_frame = pgf_tuple_data_frame[pgf_tuple_data_frame.series_id == node_type]
-            #sliced_pgf_tuple_data_frame = pd.DataFrame([{"series_name":node_label,"start_time":0,"start_segment":0,"segment_class":"CONSTANT",
-            #                                     "sweep_number":10,"node_type":"StimChannel", "holding_potential":-0.08, "duration":0.025, 
-            #                                     "increment":0, "voltage":0, "selected_channel":2, "series_id":node_type, "children_amount":10,
-            #                                     "sine_amplitude":None,"sine_cycle":None}])
-
-            # adding the series to the database
-            series_table_writer.add_single_series_to_database(node_label, node_type)
-            
-            self.logger.info(f"single_file_into_db:  added new series with experiment_name {experiment_name}, series_name = {node_label} and identifier {node_type} to db")
-
-            #print(sliced_pgf_tuple_data_frame)
-            series_table_writer.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
-                                                                 node_type
-                                               )
-
-
-            # update the series counter
-            data_access_array[1]+=1
-            # reset the sweep counter
-            data_access_array[2] = 0
-            # update series_identifier
-            self.series_identifier = node_type
-
-        if "Sweep" in node_type :
-            debugpy.debug_this_thread()
-            self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
-            print(node_type)
-            print(data_access_array)
-            data_array = bundle[1][data_access_array]
-
-            # new for the test
-            data_array_df = pd.DataFrame(
-                {f'sweep_{str(data_access_array[2] + 1)}': data_array}
-            )
-            self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
-        
-            child_node = metadata[0]
-            child_node_ordered_dict = dict(child_node.get_fields())
-
-            meta_data_df = pd.DataFrame.from_dict(
-                data=child_node_ordered_dict,
-                orient='index',
-                columns=[f'sweep_{str(data_access_array[2] + 1)}'],
-            )
-
-            self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
-            self.logger.info(f'added new sweep_{str(data_access_array[2] + 1)} to self.sweep_data_df')
-
-            #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
-            #                                          data_array)
-            data_access_array[2] += 1
-
-        if "NoneType" in node_type:
-            self.logger.error(
-                "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
-            return
-
-
-        for i in range(len(node.children)):
-            #    progress_callback
-            self.single_file_into_db_reduced(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
-
-        if node_type == "Pulsed" and not self.sweep_data_df.empty:
-            print("finishs with non empty dataframe")
-            # copy from above .. smarter to have it here to avoid additional if condition in all the recursions
-            if experiment_name in self.experiment_name_mapping.keys():
-                self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    
-                experiment_name = self.experiment_name_mapping[experiment_name]
-
-            database.add_sweep_df_to_database(experiment_name, 
-                                              self.series_identifier, 
-                                              self.sweep_data_df,
-                                              self.sweep_meta_data_df)
-
 
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
         """Main Functions to write a single (.dat ?) file into the database. Called during multithreading ! 
@@ -1211,7 +1033,7 @@ class TreeViewManager:
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
         """
 
-        @param bundle: bund le of the .dat file
+        @param bundle: bundle of the .dat file
         @param data_access_array:
         @param metadata: all metadata from series and sweeps, sweeps specific meta data is at pos [sweepnumber]
         @return:

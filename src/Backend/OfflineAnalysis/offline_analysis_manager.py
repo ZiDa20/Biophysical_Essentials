@@ -6,7 +6,7 @@ from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
 from  Backend.tokenmanager import InputDataTypes 
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
-import debugpy
+#import debugpy
 from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     import logging
@@ -104,7 +104,7 @@ class OfflineManager():
         """ retrieves the database object from the manager class """
         return self.database
 
-    def read_data_from_experiment_directory(self, ap_dialog, data_type:InputDataTypes, tree_view_manager, 
+    def read_data_from_experiment_directory(self, data_type:InputDataTypes, tree_view_manager, 
                                             meta_data_assignment_list: Optional[list[str]]=None ):
         """
         Whenever the user selects a directory, a treeview of this directory will be created and by that,
@@ -173,7 +173,7 @@ class OfflineManager():
             self.bundle_worker.signals.result.connect(self.bundle_to_instance_list, Qt.DirectConnection)
             self.threadpool.start(self.bundle_worker)
         except Exception as e:
-            debugpy.debug_this_thread()
+            #debugpy.debug_this_thread()
             raise TypeError("ERROR")
             CustomErrorDialog("error",self.tree_view_manager.frontend_style)
 

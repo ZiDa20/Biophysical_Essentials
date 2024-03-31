@@ -178,7 +178,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             new_button.clicked.connect(partial(function,param))
         new_button.setIcon(icon)
-        new_button.setIconSize(QSize(30,30))
+        new_button.setIconSize(QSize(100,30))
         # set the vertical spacing between the icon and the text
         new_button.setFixedSize(200,75)
         new_button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
@@ -242,22 +242,22 @@ class MainWindow(QMainWindow, QtStyleTools):
             buttons = [
                 {"text": "Load Unbundled Heka", 
                  "image": "open_heka_unbundled_light.png", 
-                 "image_dark": "open_dir_dark.png", 
+                 "image_dark": "open_heka_unbundled_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
                  "param": InputDataTypes.UNBUNDLED_HEKA_DATA}, 
                 {"text": "Load Bundled Heka Data", 
-                 "image": "open_heka_unbundled_light.png", 
-                 "image_dark": "db_dark.png", 
+                 "image": "open_heka_bundled_light.png", 
+                 "image_dark": "open_heka_bundled_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
                  "param": InputDataTypes.BUNDLED_HEKA_DATA}, 
                 {"text": "Load ABF Data", 
                  "image": "open_abf_unbundled_light.png", 
-                 "image_dark": "open_existing_results_dark.png", 
+                 "image_dark": "open_abf_unbundled_dark.png", 
                  "function": self.start_new_offline_analysis_from_dir,
                  "param": InputDataTypes.ABF_DATA}, 
                 {"text": "Load Nanion Data", 
                  "image": "open_nanion_unbundled_light.png", 
-                 "image_dark": "go_right_dark.png", 
+                 "image_dark": "open_nanion_unbundled_dark.png", 
                  "function": ConstrcutionSideDialog,
                  "param": self.frontend_style}
             ]

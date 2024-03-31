@@ -1,7 +1,7 @@
 from enum import Enum
 import pandas as pd
 import picologging
-import debugpy
+#import debugpy
 from Backend.tokenmanager import TableEnum
 
 class ExperimentTableNames:

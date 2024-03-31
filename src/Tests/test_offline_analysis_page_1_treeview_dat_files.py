@@ -26,7 +26,7 @@ import pytest
 import unittest
 import time
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-
+from Backend.tokenmanager import InputDataTypes
 
 #@pytest.fixture(autouse=True)
 #def slow_down_tests():
@@ -54,6 +54,7 @@ def load_demo_dat_data_into_database(qtbot,db_name):
     app = MainWindow(testing_db = test_db)
     app.database_handler = app.local_database_handler
     app.ui.offline.offline_manager._directory_path = "./Tests/Test_Files/"
+    app.ui.offline.input_data_type = InputDataTypes.BUNDLED_HEKA_DATA
     template = Assign_Meta_Data_PopUp(app.database_handler,
                             app.ui.offline.offline_manager,
                             app.frontend_style)
@@ -223,7 +224,7 @@ def test_change_experiment_meta_data(qtbot):
 
 
 
-#@pytest.mark.serial
+@pytest.mark.serial
 def test_change_series_meta_data(qtbot):
     """Test of the ribbon bar button: change series meta data
     Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.

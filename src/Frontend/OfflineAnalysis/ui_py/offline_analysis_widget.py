@@ -10,7 +10,7 @@ import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from functools import partial
 import picologging
-import debugpy
+#import debugpy
 import os
 from Backend.OfflineAnalysis.offline_analysis_manager import OfflineManager
 from Backend.OfflineAnalysis.ResultHandler.offline_analysis_result_visualizer import OfflineAnalysisResultVisualizer
@@ -73,7 +73,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.blank_analysis_page_1_tree_manager = None
         self.blank_analysis_plot_manager = None
         self.ap = None 
-        self.input_data_type = None
+        self.input_data_type = InputDataTypes.BUNDLED_HEKA_DATA # per default - needed for the tests
         self.parent_count = 0
         #self.offline_tree.current_tab_visualization = self.offline_tree.current_tab_visualization
         #self.offline_tree.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
@@ -658,8 +658,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         # read the directory data into the database
         self.offline_manager.ap = self.ap
-
-        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.ap,self.input_data_type,
+        self.blank_analysis_tree_view_manager = self.offline_manager.read_data_from_experiment_directory(self.input_data_type,
                                                                                            self.blank_analysis_tree_view_manager, 
                                                                                            meta_data_group_assignment_list)
         
