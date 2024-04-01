@@ -23,6 +23,8 @@ class ReadDataDirectory(object):
         # this is a mapping dict that maps a potential problem causing experiment 
         #name to a new name that was accepted by the user
         self.experiment_name_mapping = {}
+        self.meta_data_assignment_list = None
+        self.meta_data_assigned_experiment_names = None
 
     def qthread_heka_reading(self,data_type,input_files, directory_path, progress_callback):
         """ read the dat files in a separate thread that reads in through the directory
@@ -405,17 +407,16 @@ class ReadDataDirectory(object):
             
     def single_abf_file_into_db(self,abf_bundle,database):
         # here should be changed the defalt by experimental label!
-        
         try:
-            print("single file into db" )
-            print("adding to experiments", abf_bundle[1][0])
+            self.logger.info("single file into db" )
+            self.logger.info("adding to experiments"+abf_bundle[1][0])
             database.add_experiment_to_experiment_table(abf_bundle[1][0])
 
             pos = self.meta_data_assigned_experiment_names.index(abf_bundle[1][0])
             meta_data = self.meta_data_assignment_list[pos]
             database.add_experiment_to_global_meta_data(-1 ,meta_data)
 
-            print("we try to enter the abf file funciton in treeview manager")
+            self.logger.info("entering the abf file funciton in treeview manager")
             for series_count, sweep in enumerate(abf_bundle[0], start=1):
 
                 database.add_single_series_to_database(
@@ -438,7 +439,7 @@ class ReadDataDirectory(object):
                     f"Series{str(series_count)}",
                 )
         except Exception as e:
-            print("error detected")
+           self.logger.error("single_abf_file_into_db: error detected")
 
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
         """

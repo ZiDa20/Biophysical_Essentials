@@ -18,6 +18,7 @@ from Frontend.CustomWidget.Pandas_Table import PandasTable
 from Frontend.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
 from Backend.DataReader.ABFclass import AbfReader
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
+from Frontend.CustomWidget.user_notification_dialog import UserNotificationDialog
 from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
 import picologging
 import numpy as np
@@ -159,14 +160,35 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.add_meta_pgf_data_to_offline(non_intersected, intersected)
 
     def add_meta_pgf_data_to_offline(self, non_intersected :list, intersected: list) -> None:
+        #' intersected' : name of tables that can be found in both databases
+        #' non-intersected' name of tables that are only found in the online analysis db and need to be transfered
+        #  since some parameters are foreign keys from other tables, the order of writing is very important
+
+        print(intersected)
+        
+        print(non_intersected)
+
+        foreign_key_dependency_list = ["experiments"]
+        for tab in foreign_key_dependency_list:
+            self.logger.info(f"Adding {tab} which is in both databases via appending")
+            table = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
+            try:
+                self.offline_database.database.append(f"{tab}", table)
+                print("success")
+            except Exception as e:
+                print(str(e))
+                print("error detected")
 
         try:
             for table, data in zip(["global_meta_data", "experiment_series"], self.data_model_list):
+                t = table 
+                d = data._data
                 self.offline_database.database.append(f"{table}",data._data)
         except Exception as e:
-            CustomErrorDialog("Something is wrong with duplication {e}", self.frontend_style)
+            CustomErrorDialog(f"Something is wrong with duplication {e}", self.frontend_style)
             self.logger.error(f"There were duplicated values found in the database please chec if {table} exist")
             return None
+        
         # here more error prone processsing need to be operated
         for tab in non_intersected:
             self.logger.info(f"Adding {tab} that are not similiar between the two databases")
@@ -178,11 +200,15 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             if tab not in ["offline_analysis", "global_meta_data", "experiment_series"]:
                 self.logger.info(f"Adding {tab} which is in both databases via appending")
                 table = self.database_handler.database.execute(f"Select * from {tab}").fetchdf()
-                self.offline_database.database.append(f"{tab}", table)
-
+                try:
+                    self.offline_database.database.append(f"{tab}", table)
+                except Exception as e:
+                    print(str(e))
+                    print("error detected")
+                    
         self.logger.info("Successfully transferred all the data to the OfflineAnalysis")
         self.reset_class()
-        CustomErrorDialog("Successfully transferred all Data to the Online Analysis",self.frontend_style)
+        UserNotificationDialog("Successfully transferred the recording into the permanent database. \n You can load this file now into offline analysis",self.frontend_style)
 
     def start_db_transfer(self) -> None:
         """
@@ -311,16 +337,17 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.logger.info("Successfully loaded the Online Analysis PlotWidgetManager")
 
         # give the experiment (name provided by treeview_name) the experiment_label ONLINE_ANALYSIS to be identified
-        self.online_analysis_tree_view_manager.meta_data_assignment_list = [
+        read_directory_handler = ReadDataDirectory(self.database_handler)
+        read_directory_handler.meta_data_assignment_list = [
             ['Experiment_name', 'Experiment_label', 'Species', 'Genotype', 'Sex', 'Condition', 'Individuum_id'],
             [treeview_name, 'None', 'None', 'None', 'None', 'None', 'None', 'None']]
 
-        self.online_analysis_tree_view_manager.meta_data_assigned_experiment_names = ['Experiment_name', treeview_name]
+        read_directory_handler.meta_data_assigned_experiment_names = ['Experiment_name', treeview_name]
 
         # file type identification
         pathname, filename_with_extension = os.path.split(file_name)
         filename, extension = os.path.splitext(filename_with_extension)
-        read_directory_handler = ReadDataDirectory(self.database_handler)
+       
 
         # if .dat file: run dat file specific bundle reading and insertion into db
         if extension == InputDataTypes.HEKA_DATA_FILE_ENDING.value:
@@ -347,29 +374,37 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # if .abf file: run abf file specific bundle creation and insertion into db
         elif extension == InputDataTypes.ABF_FILE_ENDING.value:
-
-            # read only files that have the same idenfier as the selected one
+            self.logger.info("ABF FIle Reading Online Analysis")
+            
+           
+            pathname, filename_with_extension = os.path.split(file_name)
+            filename, extension = os.path.splitext(filename_with_extension)
+            abf_file_list = os.listdir(os.path.dirname(file_name))
+            self.logger.info(abf_file_list)
+            
+                        # read only files that have the same idenfier as the selected one
             abf_identifier = os.path.basename(file_name).split("_")
             abf_identifier = abf_identifier[0]
-            abf_file_list = os.listdir(os.path.dirname(file_name))
-
+            
             abf_file_data = []
+
+
+
             for abf in abf_file_list:
 
                 if abf_identifier in abf:
-                    abf_file = os.path.dirname(file_name) + "/" + abf
-                    abf_file = AbfReader(abf_file)
+                    print(abf)
+                    file_2 = pathname + "/" + abf
+                    abf_file = AbfReader(file_2)
                     data_file = abf_file.get_data_table()
                     meta_data = abf_file.get_metadata_table()
                     pgf_tuple_data_frame = abf_file.get_command_epoch_table()
-                    self.logger.info(f"successfully generated pgf_dataframe .abf {pgf_tuple_data_frame}")
-                    experiment_name = [self.experiment_name,'None', 'None', 'None', 'None', 'None', 'None', 'None']
+                    experiment_name = [abf_file.get_experiment_name(), "None", "None", "None", "None", "None", "None", "None"]
                     series_name = abf_file.get_series_name()
-                    abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, ".abf"))
-
+                    abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, InputDataTypes.ABF_FILE_ENDING))
             if abf_file_data:
                 bundle = [abf_file_data, experiment_name]
-                self.online_analysis_tree_view_manager.single_abf_file_into_db(bundle, self.database_handler)
+                read_directory_handler.single_abf_file_into_db(bundle, self.database_handler)
         else:
             #  an error dialog shown to the user
             dialog = QDialog()
@@ -423,7 +458,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         In addition a comment section is added where comments to specific experimental conditions
         can be made"""
         self.logger.info(f"Creating labbook for file {self.experiment_name}")
-        final_pandas = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data
+        final_pandas = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data 
         final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
         self.experiment_name  = final_pandas["item_name"].values[0]
         list_cslow = [] # need to change this to support more metadata
