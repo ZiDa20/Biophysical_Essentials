@@ -160,7 +160,12 @@ class TreeModel(QAbstractItemModel):
 
             # order the items by the identifier -> Series1, Series2, etc
             items_to_add = data_df[data_df["level"]==i]
-            df_sorted = items_to_add.loc[items_to_add['identifier'].map(self.natural_sort_key).sort_values().index]
+            # manual bugfix to make sure sweeps (level 2) are not mixed up
+            if i != 2:
+                df_sorted = items_to_add.loc[items_to_add['identifier'].map(self.natural_sort_key).sort_values().index]
+            else:
+                df_sorted = items_to_add
+
 
             #items_to_add= items_to_add.sort_values(by='identifier', ascending=True)
             # list of lists: dataframe row wise
