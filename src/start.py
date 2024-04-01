@@ -155,7 +155,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         if not self.ui.side_left_menu.isHidden():
             self.ui.side_left_menu.hide()
-            self.first_row_widget.hide()
 
         self.ui.notebook.setCurrentIndex(0)
     def handle_settings_page(self):

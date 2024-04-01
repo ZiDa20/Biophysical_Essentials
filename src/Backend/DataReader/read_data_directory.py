@@ -44,8 +44,7 @@ class ReadDataDirectory(object):
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         for i in input_files:
             if ".dat" in i:
-                print("Generating Bundle for:")
-                print(i)
+                self.logger.info("qthread_heka_reading: Generating Bundle for:" + i)
                 splitted_name = i.split(".") # retrieve the name
                 file = directory_path + "/" + i # the full path to the file
                 try:
@@ -54,7 +53,6 @@ class ReadDataDirectory(object):
                                 bundle = Bundle(file) # open heka reader
                             case InputDataTypes.UNBUNDLED_HEKA_DATA:
                                 bundle = BundleFromUnbundled(directory_path + "/",splitted_name[0]).generate_bundle()
-                                #bundle = self.qthread_heka_unbundled_reading(directory_path + "/",splitted_name[0])
                             case _: 
                                 self.logger.error("Error in qthread_heka_reading")
                                 bundle = None
@@ -67,29 +65,6 @@ class ReadDataDirectory(object):
                     #bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
     
-    """
-    def qthread_heka_unbundled_reading(self,directory_path:str, file_name:str)->Bundle:
-
-        try:
-            pul = read_the_stupid_pulse(directory_path,file_name,InputDataTypes.HEKA_PULSE_FILE_ENDING.value)
-            pgf = read_the_stupid_pgf(directory_path,file_name,InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value)
-            data = read_the_stupid_data(directory_path,file_name,InputDataTypes.HEKA_DATA_FILE_ENDING.value,pul)
-            bundle = Bundle(directory_path+file_name+InputDataTypes.HEKA_DATA_FILE_ENDING.value, 
-                                            [(InputDataTypes.HEKA_PULSE_FILE_ENDING.value, pul),
-                                                    (InputDataTypes.HEKA_DATA_FILE_ENDING.value, data),
-                                                    (InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value,pgf)])
-        except Exception as e:
-            # i would expect errors like file not found
-            self.logger.error(e)
-
-        
-        
-
-        return bundle
-    """
-    
-    
-   
     def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
         try:
             abf_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
@@ -132,6 +107,7 @@ class ReadDataDirectory(object):
 
         for i in index:
             node = node[i]
+        
         # node type e.g. stimulation, chanel or stimchannel
         node_type = node.__class__.__name__
         #print("Node type:")

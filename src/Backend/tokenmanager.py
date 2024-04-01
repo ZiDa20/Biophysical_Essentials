@@ -10,6 +10,10 @@ class InputDataTypes(Enum):
     HEKA_DATA_FILE_ENDING = ".dat"
     HEKA_PULSE_FILE_ENDING = ".pul"
     HEKA_STIMULATION_FILE_ENDING = ".pgf"
+    HEKA_CHANNEL_PGF = "Channel",
+    HEKA_STIMULATION_PGF = "Stimulation"
+    HEKA_STIM_CHANNEL_PGF = "StimChannel"
+
 
 #@todo refactor the name ?  series table writer
 class TableEnum(Enum):
