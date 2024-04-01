@@ -62,7 +62,7 @@ class OfflineDialogs:
         popup.add_metadata_into_db(experiment)
         popup.close()
 
-    def create_meta_data_template(self, save, make):
+    def create_meta_data_template(self, data_type, save, make):
         """_summary_
 
         Args:
@@ -74,7 +74,7 @@ class OfflineDialogs:
         # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
         meta_data_popup = Assign_Meta_Data_PopUp(self.database_handler, self.offline_manager, self.frontend_style)
 
-        template_table_view = meta_data_popup.map_metadata_to_database()
+        template_table_view = meta_data_popup.map_metadata_to_database(data_type)
         #meta_data_popup.save_to_template_button.clicked.connect(partial(save,
         #                                                                meta_data_popup))
         

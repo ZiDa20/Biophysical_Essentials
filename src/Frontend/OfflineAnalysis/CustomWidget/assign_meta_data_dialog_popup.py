@@ -4,6 +4,7 @@ from PySide6.QtWidgets import *
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_group_dialog import Ui_assign_meta_data_group
 from Frontend.CustomWidget.Pandas_Table import PandasTable
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
+from Backend.tokenmanager import InputDataTypes
 import csv
 
 
@@ -56,13 +57,14 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         Returns:
             None
         """
+        print("changing for all")
         column = self.comboBox.currentText()
         text = self.lineEdit.text()
 
         self.template_dataframe[column] = [text]*len(self.template_dataframe[column])
         self.content_model.update_data(self.template_dataframe)
 
-    def map_metadata_to_database(self) -> QTableView:
+    def map_metadata_to_database(self,data_type:InputDataTypes) -> QTableView:
         """
         Maps metadata to the database and prepares user data visualization.
 
@@ -76,13 +78,24 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         self.setup_combo_box()
         self.template_dataframe = pd.DataFrame(columns=self.column_names)
         self.duplicate_dataframe = pd.DataFrame()
+        recording_files = self.offline_manager.package_list(directory)
+        filtered_list = []
+        for f in recording_files:
+            # abf files are list of lists 
+            if data_type == InputDataTypes.BUNDLED_HEKA_DATA or data_type == InputDataTypes.UNBUNDLED_HEKA_DATA:
+                if not isinstance(f,list):
+                    if f.endswith(InputDataTypes.BUNDLED_HEKA_FILE_ENDING.value):
+                        filtered_list.append(f)
+            elif data_type == InputDataTypes.ABF_DATA:
+                if isinstance(f,list):
+                    filtered_list.append(f)     
 
-        for dat_file in self.offline_manager.package_list(directory):
-            new_experiment_name, status = self.process_dat_file(dat_file)
-            if status != 1:
-                self.handle_status_not_one(new_experiment_name, status)
-            else:
-                self.add_new_data_to_template_dataframe(new_experiment_name)
+        for f in filtered_list:
+                new_experiment_name, status = self.process_dat_file(f)
+                if status != 1:
+                    self.handle_status_not_one(new_experiment_name, status)
+                else:
+                    self.add_new_data_to_template_dataframe(new_experiment_name)
 
         return self.prepare_user_data_visualization()
 
@@ -340,8 +353,8 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         else:
             df = pd.DataFrame(meta_data_assignments[1:], columns=meta_data_assignments[0])
             # create two models one for the table show and a second for the data visualizations
-            content_model = PandasTable(df)
-            template_table_view.setModel(content_model)
+            self.content_model = PandasTable(df)
+            template_table_view.setModel(self.content_model)
             template_table_view.show()
         #self.data_base_content.clicked.connect(self.retrieve_column)
 

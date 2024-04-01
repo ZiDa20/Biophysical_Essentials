@@ -642,7 +642,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         CustomErrorDialog("You have selected ABF file reading but no .abf files \n were detected in the selected directory.",self.frontend_style)  
                         return
             
-            self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
+            self.OfflineDialogs.create_meta_data_template(data_type, self.save_meta_data_to_template_and_continue,
                                                         self.make_list)
             
 
