@@ -231,10 +231,10 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         column in the global meta data table. If the file was not "transfered" to the database, the user will be asked
         to do an action when a new online analysis file will be loaded "
         """
-
+        self.reset_class()
         # open selection and retake users file selection
-        self.online_analysis.setCurrentIndex(0)
-        #self.online_analysis_tabs.setCurrentIndex(0)
+        # self.online_analysis.setCurrentIndex(0)
+        # self.online_analysis_tabs.setCurrentIndex(0)
 
         if file_name is False:
             #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]

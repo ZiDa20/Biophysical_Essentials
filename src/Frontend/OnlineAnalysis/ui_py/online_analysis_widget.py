@@ -2,14 +2,18 @@ import os
 from PySide6.QtCore import *  # type: ignore
 from PySide6.QtGui import *  # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
-
+from functools import partial
 import pandas as pd
 from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
 from Frontend.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
 from Backend.online_analysis_manager import OnlineAnalysisManager
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
 from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
-
+from Backend.DataReader.heka_reader import Bundle
+from Backend.DataReader.new_unbundled_reader import BundleFromUnbundled
+from Backend.DataReader.read_data_directory import ReadDataDirectory
+from Backend.tokenmanager import InputDataTypes
+from StyleFrontend.animated_ap import LoadingAnimation
 from Frontend.CustomWidget.Pandas_Table import PandasTable
 from Frontend.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
 from Backend.DataReader.ABFclass import AbfReader
@@ -17,6 +21,7 @@ from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
 import picologging
 import numpy as np
+from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self, parent=None):
@@ -33,20 +38,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self._video_mat = None
         self._image = None
         self.video_call = 0  # number of frames went through
-
-        # set the video Graphic Scence
-        self.online_video = QGraphicsScene(self)
+        self.online_video = QGraphicsScene(self)  # set the video Graphic Scence
         self.online_video.addText("Load the Video if recorded from Experiment")
         self.graphicsView.setScene(self.online_video)
-
         self.online_analysis.setTabEnabled(1, False)
         self.online_analysis.setTabEnabled(2,False)
-        ##########
-
-        # Connect the buttons, connect the logger
-        self.logger = picologging.getLogger(__name__)
-        self.connections_clicked()
-
         self.database_handler = None # online db
         self.offline_database = None # offline db
         self.online_analysis_plot_manager = None
@@ -57,7 +53,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.transferred = False
         self._experiment_name = None
         self.file_queue = []
-
+        
+        # Connect the buttons, connect the logger
+        self.logger = picologging.getLogger(__name__)
+        self.connections_clicked()
+        self.logger.info("Succesfully initialized Online Analysis Module")
 
     @property
     def experiment_name(self) -> str:
@@ -117,7 +117,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.transfer_to_offline_analysis.clicked.connect(self.start_db_transfer)
         self.transfer_into_db_button.clicked.connect(self.transfer_file_and_meta_data_into_db)
         self.show_sweeps_radio.toggled.connect(self.show_sweeps_toggled)
-        self.classifier_stream.clicked.connect(self.reset_class)
+        self.classifier_stream.clicked.connect(partial(ConstrcutionSideDialog,self.frontend_style))
         self.logger.info("Successfully connected all the appropiates button calls")
         self.set_enabled_button()
 
@@ -138,7 +138,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
 
     def transfer_file_and_meta_data_into_db(self) -> None:
-        """ This function is responsible from transfering and in memory database
+        """ This function is responsible from transfering from in memory database
         to a written local database from duckDB for the offline analysis"""
 
         # write the current labbook table to the online in memory database
@@ -232,14 +232,19 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         to do an action when a new online analysis file will be loaded "
         """
 
+        self.reset_class()
+
+        self.ap = LoadingAnimation("Preparing your data: Please Wait", self.frontend_style)
+        
         # open selection and retake users file selection
-        self.online_analysis.setCurrentIndex(0)
-        #self.online_analysis_tabs.setCurrentIndex(0)
+        # self.online_analysis.setCurrentIndex(0)
+        # self.online_analysis_tabs.setCurrentIndex(0)
 
         if file_name is False:
-            #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.dat")[0]
-            #file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "", "*.abf")[0]
-            file_name = QFileDialog.getOpenFileName(self, 'OpenFile', "")[0]
+            file_dialog = QFileDialog()
+            file_dialog.setNameFilter("Data Files (*.dat *.abf)")
+            # Get the selected file
+            file_name = file_dialog.getOpenFileName(self, 'Open File', "", "Data Files (*.dat *.abf)")[0]
             self.logger.info(f"Open {file_name}")
             treeview_name = file_name.split("/")
 
@@ -252,6 +257,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         else:
             treeview_name = file_name
 
+        self.ap.make_widget()
         # save the path in the manager class
         self.online_manager._dat_file_name = file_name
         # check if this file is already within the database. if yes, the file name will be renamed copy-
@@ -268,6 +274,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         
         self.show_single_file_in_treeview(file_name, treeview_name)
+        self.ap.stop_and_close_animation()
 
     def check_if_experiments_exist_online(self, treeview_name: str) -> pd.DataFrame:
         """ This should initally check if there is already an exisiting table in the database
@@ -287,6 +294,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         load the new file into the database and create a treeview from it
         """
         # to allow mapping of the current experiment with the analysis id
+        self.logger.info("Online Analysis: show_single_file_in_treeview: Loading Single File" + treeview_name)
         self.experiment_name = treeview_name
 
         # create treeview of this .dat file
@@ -294,13 +302,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.online_analysis_tree_view_manager = TreeViewManager(database = self.database_handler,
                                                                      treebuild_widget = self.online_treeview,
                                                                      frontend = self.frontend_style)
-            self.logger.info("Successfully loaded the TreeViewManager")
+            self.logger.info("Successfully loaded the Online Analysis TreeViewManager")
 
         # connect with a new plot manager to handle item clicks within the treeview
         if self.online_analysis_plot_manager is None:
             self.online_analysis_plot_manager = PlotWidgetManager(self.plot_layout, self.database_handler, None,
                                                          False, self.frontend_style)
-            self.logger.info("Successfully loaded the PlotWidgetManager")
+            self.logger.info("Successfully loaded the Online Analysis PlotWidgetManager")
 
         # give the experiment (name provided by treeview_name) the experiment_label ONLINE_ANALYSIS to be identified
         self.online_analysis_tree_view_manager.meta_data_assignment_list = [
@@ -310,22 +318,35 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_tree_view_manager.meta_data_assigned_experiment_names = ['Experiment_name', treeview_name]
 
         # file type identification
-        file_type = file_name.split(".")
-        file_type = file_type[1]
+        pathname, filename_with_extension = os.path.split(file_name)
+        filename, extension = os.path.splitext(filename_with_extension)
+        read_directory_handler = ReadDataDirectory(self.database_handler)
 
         # if .dat file: run dat file specific bundle reading and insertion into db
-        if file_type =="dat":
-            #print("found dat file")
-            bundle = self.online_analysis_tree_view_manager.open_bundle_of_file(file_name)
-            pgf_data_frame = self.online_analysis_tree_view_manager.read_series_specific_pgf_trace_into_df([], bundle, [], None,
-                                                                                                  None, None)
-            self.logger.info(f"successfully generated pgf_dataframe .dat {pgf_data_frame}")
+        if extension == InputDataTypes.HEKA_DATA_FILE_ENDING.value:
+            
+            bundle = Bundle(file_name) # open heka reader
+            if bundle.pgf is None:
+                bundle = BundleFromUnbundled(pathname + "/",filename).generate_bundle()
+                if bundle.pgf is None:
+                    CustomErrorDialog("Unsupported File Format", self.frontend_style)
+                    self.logger.error("Unsupported File Format detected" + file_name)
+                    return
+                else:
+                    self.logger.info("UNBUNDLED HEKA FILE detected")
+            else:
+                self.logger.info("BUNDLED HEKA FILE detected")    
+
+            pgf_data_frame = read_directory_handler.read_series_specific_pgf_trace_into_df(
+                    [], bundle, [], None, None, None)
+            
+            self.logger.info(f"successfully generated pgf_dataframe from file {file_name}")
             # write this file into the database
-            self.online_analysis_tree_view_manager.single_file_into_db([], bundle, treeview_name, self.database_handler,
+            read_directory_handler.single_file_into_db([], bundle, treeview_name, self.database_handler,
                                                               [0, -1, 0, 0], pgf_data_frame)
 
         # if .abf file: run abf file specific bundle creation and insertion into db
-        elif file_type == "abf":
+        elif extension == InputDataTypes.ABF_FILE_ENDING.value:
 
             # read only files that have the same idenfier as the selected one
             abf_identifier = os.path.basename(file_name).split("_")
@@ -478,9 +499,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                                                               "online_analysis",
                                                               in_memory = True,
                                                               database_path = "./database/").init_database()
-        self.online_analysis_tree_view_manager.clear_tree()
-        self.online_analysis_plot_manager.canvas.figure.clf()
-        self.online_analysis_plot_manager.canvas.draw_idle()
+        try:
+            self.online_analysis_tree_view_manager.clear_tree()
+            self.online_analysis_plot_manager.canvas.figure.clf()
+            self.online_analysis_plot_manager.canvas.draw_idle()
+        except Exception as e:
+            print(e)
+            self.logger.error("Error" + str(e))
         for i in reversed(range(self.table_layout.count())):
                 self.table_layout.itemAt(i).widget().deleteLater()
         # reset the variables to the original state

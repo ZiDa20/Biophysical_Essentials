@@ -2,9 +2,6 @@
 
 from Backend.tokenmanager import InputDataTypes
 from Backend.DataReader.heka_reader import Bundle
-#from Backend.DataReader.new_unbundled_reader import read_the_stupid_pulse
-#from Backend.DataReader.new_unbundled_reader import read_the_stupid_pgf
-#from Backend.DataReader.new_unbundled_reader import read_the_stupid_data
 from Backend.DataReader.new_unbundled_reader import BundleFromUnbundled
 from Backend.DataReader.ABFclass import AbfReader
 from Backend.DataReader.SegmentENUM import EnumSegmentTypes
