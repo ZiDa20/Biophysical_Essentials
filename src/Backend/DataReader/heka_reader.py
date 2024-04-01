@@ -573,7 +573,7 @@ class Pulsed(TreeNode):
         TraceRecord
     ]
 
-    def __init__(self, bundle, offset=0, size=None):
+    def __init__(self, bundle,offset=0, size=None):
         fh = open(bundle.file_name, 'rb')
         fh.seek(offset)
 
@@ -885,7 +885,7 @@ class Bundle(object):
         if type(item) is BundleItem:
             if item.instance is None:
                 cls = self.item_classes[ext]
-                item.instance = cls(self, item.Start, item.Length)
+                item.instance = cls(self,item.Start,item.Length)
             return item.instance
         else:
             return item

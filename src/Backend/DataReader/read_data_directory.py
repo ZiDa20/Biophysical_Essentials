@@ -2,9 +2,10 @@
 
 from Backend.tokenmanager import InputDataTypes
 from Backend.DataReader.heka_reader import Bundle
-from Backend.DataReader.new_unbundled_reader import read_the_stupid_pulse
-from Backend.DataReader.new_unbundled_reader import read_the_stupid_pgf
-from Backend.DataReader.new_unbundled_reader import read_the_stupid_data
+#from Backend.DataReader.new_unbundled_reader import read_the_stupid_pulse
+#from Backend.DataReader.new_unbundled_reader import read_the_stupid_pgf
+#from Backend.DataReader.new_unbundled_reader import read_the_stupid_data
+from Backend.DataReader.new_unbundled_reader import BundleFromUnbundled
 from Backend.DataReader.ABFclass import AbfReader
 from Backend.DataReader.SegmentENUM import EnumSegmentTypes
 import pandas as pd
@@ -50,9 +51,10 @@ class ReadDataDirectory(object):
                 try:
                     match data_type:
                             case InputDataTypes.BUNDLED_HEKA_DATA:
-                                bundle = self.open_bundle_of_file(file) # open heka reader
+                                bundle = Bundle(file) # open heka reader
                             case InputDataTypes.UNBUNDLED_HEKA_DATA:
-                                bundle = self.qthread_heka_unbundled_reading(directory_path + "/",splitted_name[0])
+                                bundle = BundleFromUnbundled(directory_path + "/",splitted_name[0]).generate_bundle()
+                                #bundle = self.qthread_heka_unbundled_reading(directory_path + "/",splitted_name[0])
                             case _: 
                                 self.logger.error("Error in qthread_heka_reading")
                                 bundle = None
@@ -65,18 +67,9 @@ class ReadDataDirectory(object):
                     #bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
     
+    """
     def qthread_heka_unbundled_reading(self,directory_path:str, file_name:str)->Bundle:
-        """
-        qthread_heka_unbundled_reading function: Read the .pul, .dat und .pgf file individually 
 
-        Args:
-            directory_path (str): path of the data dir
-            file_name (str): name of the file
-
-        Returns:
-            Bundle: a fake bundle with the items as Pulsed, Data and PGF object rather than a BundleItem
-        @author: dz, 20240331
-        """
         try:
             pul = read_the_stupid_pulse(directory_path,file_name,InputDataTypes.HEKA_PULSE_FILE_ENDING.value)
             pgf = read_the_stupid_pgf(directory_path,file_name,InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value)
@@ -88,7 +81,12 @@ class ReadDataDirectory(object):
         except Exception as e:
             # i would expect errors like file not found
             self.logger.error(e)
+
+        
+        
+
         return bundle
+    """
     
     
    
@@ -219,8 +217,6 @@ class ReadDataDirectory(object):
                                                  "sweep_number","node_type", "holding_potential", "duration", 
                                                  "increment", "voltage", "selected_channel", "series_id", "children_amount",
                                                  "sine_amplitude","sine_cycle"])
-    def open_bundle_of_file(self,file_name):
-        return Bundle(file_name)
     
     def write_directory_into_database(self, dat_files, abf_files,  meta_data_assignment_list, progress_callback):
         """ writes the bundle files as well as the pgf files and meta data files into the
