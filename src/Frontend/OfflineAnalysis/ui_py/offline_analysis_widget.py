@@ -21,6 +21,7 @@ from Backend.ExperimentTree.treeview_manager import TreeViewManager
 from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
 from Backend.Threading.Worker import Worker
 from Backend.tokenmanager import InputDataTypes
+from Backend.DataReader.read_data_directory import ReadDataDirectory
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from database.DatabaseAdapter.PostSql_Handler import PostSqlHandler
 
@@ -628,7 +629,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                         CustomErrorDialog("You have selected Bundled HEKA file reading but no .dat Bundled HEKA files \n were detected in the selected directory.",self.frontend_style)  
                         return
                     
-                    dat_bundle,_ = self.blank_analysis_tree_view_manager.qthread_heka_reading(data_type,dat_list,dir_path,None)
+                    dat_bundle,_ = ReadDataDirectory(self.database_handler).qthread_heka_reading(data_type,dat_list,dir_path,None)
                     for b in dat_bundle:
                         if b[0].pul == None:
                             CustomErrorDialog("Not supported HEKA format detected !", self.frontend_style)

@@ -5,6 +5,7 @@ from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration impo
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
 from  Backend.tokenmanager import InputDataTypes 
+from Backend.DataReader.read_data_directory import ReadDataDirectory
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 #import debugpy
 from typing import TYPE_CHECKING, Optional
@@ -65,7 +66,7 @@ class OfflineManager():
     def reset_bundle_lists(self):
         self.bundle_liste = []
         self.abf_bundle_list = []
-        
+
     def execute_single_series_analysis(self,series_name: str, progress_callback) -> bool:
         """
         Performs all selected analysis calculations for a specific series name: e.g.
@@ -168,9 +169,17 @@ class OfflineManager():
         try:
             match data_type:
                 case InputDataTypes.UNBUNDLED_HEKA_DATA | InputDataTypes.BUNDLED_HEKA_DATA:
-                    self.bundle_worker = Worker(self.tree_view_manager.qthread_heka_reading,data_type,bundle_liste,self._directory_path)
+                    self.bundle_worker = Worker(
+                        ReadDataDirectory(
+                            self.tree_view_manager.database_handler).qthread_heka_reading,
+                            data_type,bundle_liste,
+                            self._directory_path)
                 case InputDataTypes.ABF_DATA:
-                    self.bundle_worker = Worker(self.tree_view_manager.qthread_abf_bundle_reading,bundle_liste,self._directory_path)
+                    self.bundle_worker = Worker(
+                        ReadDataDirectory(
+                            self.tree_view_manager.database_handler).qthread_abf_bundle_reading,
+                            bundle_liste,
+                            self._directory_path)
                 case InputDataTypes.NANION_DATA:
                     print("NANION not supported yet")
             
@@ -191,8 +200,13 @@ class OfflineManager():
         self.threadpool.clear()
         self.database.database.close()
         print("here we go into thte run database threading")
-
-        self.worker = Worker(self.tree_view_manager.write_directory_into_database, self.bundle_liste, self.abf_bundle_list)
+        # @todo: check if the treeview manager really needs the meta_data_assignment list or if it can be als an attribute
+        # of offline_analysis_manager
+        self.worker = Worker(ReadDataDirectory(self.tree_view_manager.database_handler).write_directory_into_database, 
+                             self.bundle_liste, 
+                             self.abf_bundle_list,
+                             self.tree_view_manager.meta_data_assignment_list)
+        
         self.worker.signals.progress.connect(self.ap.progress_bar_update_analysis)
         #worker.signals.result.connect(self.set_database)
         self.worker.signals.finished.connect(self.tree_view_manager.update_treeview) # when done, update the treeview
