@@ -26,6 +26,7 @@ import pytest
 import unittest
 import time
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from Backend.tokenmanager import InputDataTypes
 
 ####################
 # A test that simulates a basic offline analysis (OFA) workflow:
@@ -57,7 +58,7 @@ def load_demo_dat_data_into_database(qtbot,db_name):
                             app.ui.offline.offline_manager,
                             app.frontend_style)
 
-    template.map_metadata_to_database()
+    template.map_metadata_to_database(InputDataTypes.BUNDLED_HEKA_DATA)
     app.template_df = template.template_dataframe.values.tolist()
     # continue open directory writes the data from the selected directory into the database,
     # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 

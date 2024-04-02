@@ -179,26 +179,4 @@ class SeriesTableWriter:
             self.logger.error("Error::Couldn't create a new table with error %s", e)
 
 
-    def add_single_series_to_database(self, series_name:str, series_identifier: str) -> None:
-        """ Adds a single series to the database. This function is used when a new series is added to an existing experiment
 
-        Args:
-            experiment_name (str): name of the experiment
-            series_name (str): name of the series
-            series_identifier (str): identifier of the series
-        Returns:
-            None
-        """
-        self.logger.info(
-            "Inserting series name %s with series identifier %s of experiment %s to experiment_series table",
-            series_name, series_identifier, self.experiment_name)
-        try:
-            self.logger.info("inserting series %s to experiment_series table", series_name)
-            q = """insert into experiment_series(experiment_name, series_name, series_identifier,discarded,series_meta_data) values (?,?,?,?,?) """
-            self.database = self.database.execute(q,
-                                                     (self.experiment_name,
-                                                      series_name, series_identifier, 0,"None"))
-            # 0 indicates not discarded
-            self.logger.info("insertion finished succesfully")
-        except Exception as e:
-            self.logger.error("insertion finished FAILED because of error %s", e)

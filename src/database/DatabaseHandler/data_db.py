@@ -715,7 +715,7 @@ class DuckDBDatabaseHandler():
             # 0 indicates not discarded
             self.logger.info("insertion finished succesfully")
         except Exception as e:
-            self.logger.error("insertion finished FAILED because of error %s", e)
+            self.logger.error("add_single_series_to_database: insertion finished FAILED because of error %s", e)
 
 
     def get_experiment_names_by_experiment_label(self,experiment_label: str,meta_data_list: list) -> list:

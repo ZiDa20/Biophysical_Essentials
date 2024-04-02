@@ -18,6 +18,8 @@ from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 import time
+from Backend.tokenmanager import InputDataTypes
+
 
 def clean_leftover_db():
      test_dir = os.path.join(os.getcwd(),"Tests")
@@ -50,7 +52,7 @@ def test_true(qtbot):
                             app.ui.offline.offline_manager,
                             app.frontend_style)
 
-    template.map_metadata_to_database()
+    template.map_metadata_to_database(InputDataTypes.BUNDLED_HEKA_DATA)
     app.template_df = template.template_dataframe.values.tolist()
     # continue open directory writes the data from the selected directory into the database,
     # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 
@@ -80,7 +82,7 @@ def test_long_computation(qtbot):
                             app.ui.offline.offline_manager,
                             app.frontend_style)
 
-    template.map_metadata_to_database()
+    template.map_metadata_to_database(InputDataTypes.BUNDLED_HEKA_DATA)
     app.template_df = template.template_dataframe.values.tolist()
     # continue open directory writes the data from the selected directory into the database,
     # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 
