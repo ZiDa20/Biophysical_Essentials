@@ -529,25 +529,32 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         except IndexError:
             self.logger.warning("No data was found in the queue list, it was empty")
 
-        self.database_handler.database.close()
-        self.database_handler.database, _ = DuckDBInitializer(self.logger,
+        
+        try:
+            self.database_handler.database.close()
+            # maybe we need to assure that the closing is finished ? but should be the default way in python ?
+            self.database_handler.database, _ = DuckDBInitializer(self.logger,
                                                               "online_analysis",
                                                               in_memory = True,
                                                               database_path = "./database/").init_database()
-        try:
-            self.online_analysis_tree_view_manager.clear_tree()
-            self.online_analysis_plot_manager.canvas.figure.clf()
-            self.online_analysis_plot_manager.canvas.draw_idle()
+           
+            # initially set as none
+            if self.online_analysis_tree_view_manager is not None:
+                self.online_analysis_tree_view_manager.clear_tree()
+            if self.online_analysis_plot_manager is not None:
+                self.online_analysis_plot_manager.canvas.figure.clf()
+                self.online_analysis_plot_manager.canvas.draw_idle()
         except Exception as e:
             print(e)
-            self.logger.error("Error" + str(e))
+            self.logger.error("Error in reset class function:" + str(e))
+
         for i in reversed(range(self.table_layout.count())):
                 self.table_layout.itemAt(i).widget().deleteLater()
         # reset the variables to the original state
         self.labbook_table = None
         self.data_model_list = None
         self.transferred = False
-        self.experiment_name = None
+        self.experiment_name = "no_name"
         self.video_mat = None
         self.image = None
         self.video_call = 0  # number of frames went through
