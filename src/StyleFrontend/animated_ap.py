@@ -58,7 +58,6 @@ class LoadingAnimation(QDialog):
         
     def make_widget(self):
         self.create_ap_line_out()
-        
         self.show_dialog()
          
       

@@ -20,6 +20,8 @@ class OfflineManager():
         """
         self.meta_path: Optional[str] = None
         self.dat_files: Optional[list] = None
+        self.experiment_name_list: Optional[list] = None
+
         self.ap = None
         self._directory_path: Optional[str] = None
         # nodelist for the treeview
@@ -166,6 +168,7 @@ class OfflineManager():
         """
         # this should be also not in the treeview manager
         #self.bundle_worker = Worker(self.tree_view_manager.qthread_bundle_reading,bundle_liste,self._directory_path)
+
         try:
             match data_type:
                 case InputDataTypes.UNBUNDLED_HEKA_DATA | InputDataTypes.BUNDLED_HEKA_DATA:

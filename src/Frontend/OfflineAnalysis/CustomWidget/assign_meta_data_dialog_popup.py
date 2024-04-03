@@ -74,28 +74,33 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         #toDO reimplement this!
         self.database_handler.clear_from_previous_uncomplete_mappings()
         
-        directory = self.offline_manager._directory_path
-        self.setup_combo_box()
-        self.template_dataframe = pd.DataFrame(columns=self.column_names)
-        self.duplicate_dataframe = pd.DataFrame()
-        recording_files = self.offline_manager.package_list(directory)
-        filtered_list = []
-        for f in recording_files:
-            # abf files are list of lists 
-            if data_type == InputDataTypes.BUNDLED_HEKA_DATA or data_type == InputDataTypes.UNBUNDLED_HEKA_DATA:
-                if not isinstance(f,list):
-                    if f.endswith(InputDataTypes.BUNDLED_HEKA_FILE_ENDING.value):
-                        filtered_list.append(f)
-            elif data_type == InputDataTypes.ABF_DATA:
-                if isinstance(f,list):
-                    filtered_list.append(f)     
+        # self.offline_manager.experiment_name_list is not none of more than one experiment per dat file were detected
+        if self.offline_manager.experiment_name_list is None:
+            directory = self.offline_manager._directory_path
+            self.setup_combo_box()
+            self.template_dataframe = pd.DataFrame(columns=self.column_names)
+            self.duplicate_dataframe = pd.DataFrame()
+            recording_files = self.offline_manager.package_list(directory)
+            filtered_list = []
+            for f in recording_files:
+                # abf files are list of lists 
+                if data_type == InputDataTypes.BUNDLED_HEKA_DATA or data_type == InputDataTypes.UNBUNDLED_HEKA_DATA:
+                    if not isinstance(f,list):
+                        if f.endswith(InputDataTypes.BUNDLED_HEKA_FILE_ENDING.value):
+                            filtered_list.append(f)
+                elif data_type == InputDataTypes.ABF_DATA:
+                    if isinstance(f,list):
+                        filtered_list.append(f)     
 
-        for f in filtered_list:
-                new_experiment_name, status = self.process_dat_file(f)
-                if status != 1:
-                    self.handle_status_not_one(new_experiment_name, status)
-                else:
-                    self.add_new_data_to_template_dataframe(new_experiment_name)
+            for f in filtered_list:
+                    new_experiment_name, status = self.process_dat_file(f)
+                    if status != 1:
+                        self.handle_status_not_one(new_experiment_name, status)
+                    else:
+                        self.add_new_data_to_template_dataframe(new_experiment_name)
+        else:
+            for e in self.offline_manager.experiment_name_list:
+                self.add_new_data_to_template_dataframe(e)
 
         return self.prepare_user_data_visualization()
 

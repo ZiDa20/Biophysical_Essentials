@@ -5,10 +5,11 @@ from Backend.DataReader.heka_reader import Bundle
 from Backend.DataReader.new_unbundled_reader import BundleFromUnbundled
 from Backend.DataReader.ABFclass import AbfReader
 from Backend.DataReader.SegmentENUM import EnumSegmentTypes
+from Backend.reusable_general_functions import clean_label
 import pandas as pd
 import picologging
-
-
+import debugpy
+from copy import deepcopy
 
 class ReadDataDirectory(object):
     """
@@ -55,15 +56,60 @@ class ReadDataDirectory(object):
                             case _: 
                                 self.logger.error("Error in qthread_heka_reading")
                                 bundle = None
-                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-                    bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, InputDataTypes.BUNDLED_HEKA_FILE_ENDING)) 
+                    
+                    # check if bundle has more than one experiment: 
+                    group_records = len(bundle.pul.children)
+                    if group_records > 1: # and if yes - split them into multiple bundles for later multithreading
+                        self.create_multiple_bundles_from_one_dat_file(bundle,file,bundle_list,splitted_name[0])
+                    else:
+                        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+                        data_access_array = [0,-1,0,0]
+                        bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, data_access_array)) 
                 
                 except Exception as e:
                     self.logger.error(
                     f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
-                    #bundle_list.append((bundle, splitted_name[0], pd.DataFrame(), InputDataTypes.BUNDLED_HEKA_FILE_ENDING))
         return bundle_list,[]
     
+    def create_multiple_bundles_from_one_dat_file(self,bundle:Bundle,file:str,bundle_list:list,experiment_name)->list:
+        """
+       if more than one experiment per recording is detected - this will be splitted into different 
+       bundles to allow for multithreading when reading and writing into database
+
+        Args:
+            bundle (Bundle): _description_
+            file (str): _description_
+            bundle_list (list): _description_
+            experiment_name (_type_): _description_
+
+        Returns:
+            list: _description_
+        """
+        # 
+        pgf_lower_limit = 0 # pgf StimChannels are just numbered from 1 - X for each exectued series
+        group_records = len(bundle.pul.children)
+        for cell_experiment in range(group_records):
+            pul = deepcopy(bundle.pul) # make a deep copy to not override the original bundle
+            pul.children = pul.children[cell_experiment:cell_experiment+1] # this will override the children
+
+            series_cnt = len(pul.children[0].children)
+            label = clean_label(pul.children[0].Label)# label might contain rexps that need to be replaced to ensure proper functioning
+
+            pgf = deepcopy(bundle.pgf)
+            pgf.children = pgf.children[pgf_lower_limit:pgf_lower_limit+ series_cnt] 
+            pgf_lower_limit += series_cnt
+
+            # make the fakebundle
+            sub_bundle = Bundle(file,[(InputDataTypes.HEKA_PULSE_FILE_ENDING.value, pul),
+                (InputDataTypes.HEKA_DATA_FILE_ENDING.value, bundle.data),
+                (InputDataTypes.HEKA_STIMULATION_FILE_ENDING.value, pgf)])
+
+            pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], sub_bundle, []) # retrieve pgf data
+            data_access_array = [cell_experiment,-1,0,0]
+            bundle_list.append((sub_bundle, experiment_name+"_"+label, data_access_array,pgf_tuple_data_frame))#, InputDataTypes.BUNDLED_HEKA_FILE_ENDING)) 
+        
+        return bundle_list
+
     def qthread_abf_bundle_reading(self,abf_files, directory_path, progress_callback):
         try:
             abf_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
@@ -222,11 +268,11 @@ class ReadDataDirectory(object):
         ################################################################################################################
         for i in dat_files:
             # loop through the dat files and read them in
-            print("this is the data file i ", i)
+            self.logger.info(f"write_directory_into_database: this is the data file i {i}")
             try:
                 progress_value = progress_value + increment
-                print("running dat file and this i ", i)
-                self.single_file_into_db([], i[0],  i[1], self.database_handler, [0, -1, 0, 0], i[2])
+                debugpy.debug_this_thread()
+                self.single_file_into_db([], i[0],  i[1], self.database_handler,i[2],i[3])
                 progress_callback.emit((round(progress_value,2),i))
             except Exception as e:
                 print(
@@ -295,6 +341,7 @@ class ReadDataDirectory(object):
         except AttributeError:
             node_label = ''
 
+        debugpy.debug_this_thread()
         self.logger.info(f"single_file_into_db: current node = {node_type}")
 
         metadata = node
@@ -306,7 +353,6 @@ class ReadDataDirectory(object):
             print("yes")
 
         if "Group" in node_type:
-
             self.logger.info("single_file_into_db: " +  "experiment_name=" + experiment_name)
             self.sweep_data_df = pd.DataFrame()
             self.sweep_meta_data_df = pd.DataFrame()
@@ -318,7 +364,7 @@ class ReadDataDirectory(object):
 
             self.logger.info(F"single_file_into_db: adding experiment {experiment_name} to db")
             database.add_experiment_to_experiment_table(experiment_name)
-            group_name = None
+
             try:
                 pos = self.meta_data_assigned_experiment_names.index(experiment_name)
                 meta_data = self.meta_data_assignment_list[pos]
@@ -360,14 +406,11 @@ class ReadDataDirectory(object):
 
             # adding the series to the database
             database.add_single_series_to_database(experiment_name, node_label, node_type)
-            
             self.logger.info(f"single_file_into_db:  added new series with experiment_name {experiment_name}, series_name = {node_label} and identifier {node_type} to db")
-
             #print(sliced_pgf_tuple_data_frame)
             database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
                                                       "pgf_table_" + experiment_name + "_" + node_type,
                                                       experiment_name, node_type)
-
 
             # update the series counter
             data_access_array[1]+=1
@@ -378,13 +421,12 @@ class ReadDataDirectory(object):
 
 
         if "Sweep" in node_type :
-            self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
-            self.write_sweep_data_into_df(bundle,data_access_array,metadata)
-
-            #database.add_single_sweep_to_database(experiment_name, series_identifier, data_access_array[2]+1, metadata,
-            #                                          data_array)
-            data_access_array[2] += 1
-
+            try:
+                self.logger.info("single_file_into_db:  sweep detected, will be added to sweep_dfdf")
+                self.write_sweep_data_into_df(bundle,data_access_array,metadata)
+                data_access_array[2] += 1
+            except Exception as e:
+                self.logger.error("Error in Sweep Read/Writing detected" + str(e))
         if "NoneType" in node_type:
             self.logger.error(
                 "None Type Error in experiment file " + experiment_name + " detected. The file was skipped")
@@ -393,6 +435,7 @@ class ReadDataDirectory(object):
 
         for i in range(len(node.children)):
             #    progress_callback
+            print("before next recursive step")
             self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
 
         if node_type == "Pulsed" and not self.sweep_data_df.empty:
@@ -409,7 +452,7 @@ class ReadDataDirectory(object):
         # here should be changed the defalt by experimental label!
         try:
             self.logger.info("single file into db" )
-            self.logger.info("adding to experiments"+abf_bundle[1][0])
+            #self.logger.info("adding to experiments"+abf_bundle[1][0])
             database.add_experiment_to_experiment_table(abf_bundle[1][0])
 
             pos = self.meta_data_assigned_experiment_names.index(abf_bundle[1][0])
@@ -449,22 +492,20 @@ class ReadDataDirectory(object):
         @param metadata: all metadata from series and sweeps, sweeps specific meta data is at pos [sweepnumber]
         @return:
         """
-        data_array = bundle.data[data_access_array]
-
-        # new for the test
-        data_array_df = pd.DataFrame(
-            {f'sweep_{str(data_access_array[2] + 1)}': data_array}
-        )
-        self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
-      
-        child_node = metadata[0]
-        child_node_ordered_dict = dict(child_node.get_fields())
-
-        meta_data_df = pd.DataFrame.from_dict(
-            data=child_node_ordered_dict,
-            orient='index',
-            columns=[f'sweep_{str(data_access_array[2] + 1)}'],
-        )
-
-        self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
-        self.logger.info(f'added new sweep_{str(data_access_array[2] + 1)} to self.sweep_data_df')
+        try:
+            data_array = bundle.data[data_access_array]
+            data_array_df = pd.DataFrame(
+                {f'sweep_{str(data_access_array[2] + 1)}': data_array}
+            )
+            self.sweep_data_df = pd.concat([self.sweep_data_df, data_array_df], axis=1)
+            child_node = metadata[0]
+            child_node_ordered_dict = dict(child_node.get_fields())
+            meta_data_df = pd.DataFrame.from_dict(
+                data=child_node_ordered_dict,
+                orient='index',
+                columns=[f'sweep_{str(data_access_array[2] + 1)}'],
+            )
+            self.sweep_meta_data_df = pd.concat([self.sweep_meta_data_df, meta_data_df], axis=1)
+            self.logger.info(f'added new sweep_{str(data_access_array[2] + 1)} to self.sweep_data_df')
+        except Exception as e:
+            self.logger.error("Error in function write_sweep_data_into_df" + str(e))

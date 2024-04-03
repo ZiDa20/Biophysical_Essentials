@@ -620,6 +620,10 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # calls the offlinedialogs class to open the metadata editing popup
             self.offline_manager._directory_path = dir_path
             data_list = os.listdir(dir_path)
+
+            #
+            self.ap.make_widget()
+            #self.ap.start_animation_timer()
             #make the file check here: make sure HEKA is bundled, .dat files are read as heka and .abf files are read as abf
             match data_type:
                 case InputDataTypes.BUNDLED_HEKA_DATA | InputDataTypes.UNBUNDLED_HEKA_DATA:                     
@@ -627,21 +631,25 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     
                     if len(dat_list) == 0:
                         CustomErrorDialog("You have selected Bundled HEKA file reading but no .dat Bundled HEKA files \n were detected in the selected directory.",self.frontend_style)  
-                        return
-                    
+                        return  
                     dat_bundle,_ = ReadDataDirectory(self.database_handler).qthread_heka_reading(data_type,dat_list,dir_path,None)
                     for b in dat_bundle:
                         if b[0].pul == None:
                             CustomErrorDialog("Not supported HEKA format detected !", self.frontend_style)
                             return
-                        
+                    # Extract experiment names at position 1 from each tuple
+                    experiment_names = [t[1] for t in dat_bundle] 
+                    if len(experiment_names) > len(dat_list):
+                        self.logger.info("More than one experiment per recording file detected")
+                        self.offline_manager.experiment_name_list = experiment_names
                 case InputDataTypes.ABF_DATA:
                     #experiment_names = [i.split(".")[0] for i in dat_list]
                     abf_list = [i for i in data_list if InputDataTypes.ABF_FILE_ENDING.value in i]
                     if len(abf_list) == 0:
                         CustomErrorDialog("You have selected ABF file reading but no .abf files \n were detected in the selected directory.",self.frontend_style)  
                         return
-            
+            self.ap.stop_and_close_animation()
+
             self.OfflineDialogs.create_meta_data_template(data_type, self.save_meta_data_to_template_and_continue,
                                                         self.make_list)
             

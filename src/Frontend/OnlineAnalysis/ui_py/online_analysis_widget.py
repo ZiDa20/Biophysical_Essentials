@@ -538,7 +538,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
                                                               in_memory = True,
                                                               database_path = "./database/").init_database()
            
-            # initially set as none
+            # initially treeviewmnager and plotwidgetmanager are set to none
             if self.online_analysis_tree_view_manager is not None:
                 self.online_analysis_tree_view_manager.clear_tree()
             if self.online_analysis_plot_manager is not None:
