@@ -14,11 +14,12 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
         self.function_name = "Rheobase-Detection"
         self.plot_type_options = ["Rheobase Plot", "Sweep Plot"]
         self.logger = picologging.getLogger(__name__)
-        #@todo: we need a way for the user to modify this parameter
+        #@todo: we need a way for the user to modify this parameter in the frontend
         self.ap_detection_threshold = 0.01
         self.result_label = "Injected Current"
         self.result_unit = "A"
-        self.result_unit_prefix = ""
+        # bether not hradcode ?! 
+        self.result_unit_prefix = "p"
 
     def calculate_results(self):  # sourcery skip: low-code-quality
         """
@@ -28,21 +29,24 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
         self.series_specific_recording_mode = self.database.get_recording_mode_from_analysis_series_table(self.series_name)
         # get the names of all data tables to be evaluated
         data_table_names = self.database.get_sweep_table_names_for_offline_analysis(self.series_name)
-        print(data_table_names)
-        # self.get_max_values_per_sweep_table(data_table_names)
+        
         # set to None, will be set once and should be equal for all data tables
         self.time = None
         agg_table = pd.DataFrame(columns=["injected_current","rheobase_sweep", "experiment_name","Sweep_table_Name"])
 
         for table_name in data_table_names:
-            print(table_name)
             result_data_frame = self.find_rheobase(table_name)
-            print("returned")
-            print(result_data_frame)
             agg_table = pd.concat([agg_table, result_data_frame])
                
         new_specific_result_table_name = self.database.create_new_specific_result_table_name(
                             self.analysis_function_id, "Rheobase_detection")     
+        
+        # Insert a new column named "label" with value "A" at position 1
+        row_number = len(agg_table)
+        agg_table.insert(loc=1, column='y_label', value=[self.result_label]*row_number)
+        agg_table.insert(loc=2, column='unit_prefix', value=[self.result_unit_prefix]*row_number)
+        agg_table.insert(loc=3, column='unit', value=[self.result_unit]*row_number)
+       
         
         self.database.update_results_table_with_new_specific_result_table_name(self.database.analysis_id, 
                                                                                         self.analysis_function_id, 
@@ -50,9 +54,18 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
                                                                                         new_specific_result_table_name, 
                                                                                         agg_table)
 
-    def find_rheobase(self,table_name):
+    def find_rheobase(self,table_name:str)->pd.DataFrame:
+        """
+        find_rheobase Returns the current that needs to be injected to evoke the 1st stable action potential
 
-        holding_value = None
+
+        Args:
+            table_name (str): data base table name
+
+        Returns:
+            pd.DataFrame: _description_
+        """
+        #holding_value = None
         experiment_name = self.database.get_experiment_from_sweeptable_series(self.series_name,table_name)
         
         entire_sweep_table = self.database.get_entire_sweep_table_as_df(table_name)
@@ -64,10 +77,11 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
             self.time = self.database.get_time_in_ms_of_by_sweep_table_name(table_name)
 
         # really if condition needed ? seems to be alsways none ?!
-        if holding_value is None:
-            print(f'requesting holding value for table {table_name}')
-            increment_value = self.database.get_data_from_recording_specific_pgf_table(table_name, "increment", 1)
-            holding_value = self.database.get_data_from_recording_specific_pgf_table(table_name, "holding", 0)
+        #if holding_value is None:
+            #print(f'requesting holding value for table {table_name}')
+            
+        increment_value = self.database.get_data_from_recording_specific_pgf_table(table_name, "increment", 1)
+        #   holding_value = self.database.get_data_from_recording_specific_pgf_table(table_name, "holding", 0)
 
         # get the data frame and make sure to sort sweep numbers correctly
         number_of_sweeps = len(entire_sweep_table.columns)
@@ -95,9 +109,15 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
 
                 if condition_3 and condition_4:
                     # get the holding value and the incrementation steps from the pgf data for this series
-                    injected_current =  (sweep_number - 1) * increment_value * 1000
-                    
-                    print(f"1st Rheobase detected: {sweep_number}/{number_of_sweeps}")
+                    # the HEKA data will be in pA
+                    #@todo: what about the abf data ? 
+                    injected_current =  (sweep_number - 1) * increment_value * 1000 #* 1000 to convert from nA to pA
+                    #rheobase = holding_value*1000 + injected_current
+
+                    #print(f"1st Rheobase detected: {sweep_number}/{number_of_sweeps}")
+                    #print(injected_current)
+                    #print(increment_value)
+                    #print(holding_value)
                     return pd.DataFrame([{"injected_current": injected_current, 
                                           "rheobase_sweep": sweep_number,
                                           "experiment_name": experiment_name, 
@@ -105,11 +125,11 @@ class RheobaseDetection(SweepWiseAnalysisTemplate):
 
         
         # per default, none will be returned as 1st Ap param
-        print("no rheobase detected")
-        return pd.DataFrame([{"injected_current": None, 
-                                          "rheobase_sweep": -1,
-                                          "experiment_name": experiment_name, 
-                                          "Sweep_table_Name": table_name}])
+        #print("no rheobase detected")
+        return pd.DataFrame([{  "injected_current": None, 
+                                "rheobase_sweep": -1,
+                                "experiment_name": experiment_name, 
+                                "Sweep_table_Name": table_name}])
 
                         
     def get_sweep(self,table_name:str,sweep_table:dict,sweep_number_of_interest:int):

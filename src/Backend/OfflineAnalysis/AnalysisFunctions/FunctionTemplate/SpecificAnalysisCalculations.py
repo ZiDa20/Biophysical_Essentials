@@ -63,7 +63,7 @@ class SpecificAnalysisFunctions():
         for table in result_table_list:
             if "_max" not in table:
                 plot_dataframe = database.database.execute(f'select * from {table}').fetchdf()
-        plot_dataframe.columns = ["Result", "Rheobase Sweep Nr.", "experiment_name","Sweep_Table_Name"]
+        plot_dataframe.columns = ["Result","Y_Label","Unit_Prefix", "Unit","Rheobase Sweep Nr.", "experiment_name","Sweep_Table_Name"]
         return plot_dataframe
 
     @staticmethod

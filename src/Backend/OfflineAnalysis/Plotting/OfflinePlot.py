@@ -239,7 +239,7 @@ class OfflinePlots():
             result_table_list (list): Result Table list of the generate by the Analysis Function
         """
         if not self.parent_widget.selected_meta_data:
-            self.parent_widget.selected_meta_data = ["experiment_name"]
+            self.parent_widget.selected_meta_data = ["experiment_name","Sweep_Table_Name"]#["experiment_name"]
 
         if self.parent_widget.holded_dataframe is None:
             # retrieve the plot_dataframe
@@ -624,7 +624,7 @@ class OfflinePlots():
                     y = "Result",
                     ax = self.parent_widget.ax,
                     width = 0.5)
-
+        
         self.swarm_plot(plot_dataframe, 10, g)
 
     def box_plot_maker(self, plot_dataframe: pd.DataFrame) -> None:
@@ -634,12 +634,22 @@ class OfflinePlots():
             plot_dataframe (pd.DataFrame): DataFrame long format holding result data
         """
         sns.set_palette("colorblind")
-        sns.boxplot(data = plot_dataframe,
+        boxplot = sns.boxplot(data = plot_dataframe,
                     x="meta_data",
                     y = "Result",
-                    ax = self.parent_widget.ax,
-                    width = 0.5)
-        self.parent_widget.ax.tick_params(axis='x', rotation=45)
+                    ax = self.parent_widget.ax)
+        #,
+        #            width = 0.5)
+        
+        # try to display the correct y axis label and the unit prefix and the unit itself
+        try:
+            label = plot_dataframe["Y_Label"].unique()[0] +  " in " + plot_dataframe["Unit_Prefix"].unique()[0] + plot_dataframe["Unit"].unique()[0]
+            boxplot.set_ylabel(label)
+        except Exception as e:
+            self.logger.info("was asked for y label but probably not implemented yet")
+
+        boxplot.set_xticklabels(boxplot.get_xticklabels(), rotation=45,horizontalalignment='right')
+        #self.parent_widget.ax.tick_params(axis='x', rotation=45)
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
     def swarm_plot(self, plot_dataframe: pd.DataFrame, size: int, g) -> None:
