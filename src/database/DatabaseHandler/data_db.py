@@ -338,7 +338,8 @@ class DuckDBDatabaseHandler():
             experiment_names = self.get_experiments_by_series_name_and_analysis_id(series_name)
 
         sweep_table_names = []
-
+        print("experiment_names:")
+        print(experiment_names)
         for experiment_tuple in experiment_names:
             # get the related meta data table name from the first experiment in the list
             if meta:
@@ -1338,9 +1339,13 @@ class DuckDBDatabaseHandler():
 
             self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,
                              data_table_name, function_analysis_id)
+            
+            print("table that will be inserted")
+            print(result_data_frame)
+            print("succesfully inserted")
+            print(new_specific_result_table_name)
         except Exception as e:
-            print("inside error")
-            print("error")
+            print("database inside error")
             print(e)
 
     @staticmethod
