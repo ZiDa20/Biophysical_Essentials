@@ -627,6 +627,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             #make the file check here: make sure HEKA is bundled, .dat files are read as heka and .abf files are read as abf
             match data_type:
                 case InputDataTypes.BUNDLED_HEKA_DATA | InputDataTypes.UNBUNDLED_HEKA_DATA:                     
+                    
                     dat_list = [i for i in data_list if InputDataTypes.HEKA_DATA_FILE_ENDING.value in i]
                     
                     if len(dat_list) == 0:
@@ -642,6 +643,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     if len(experiment_names) > len(dat_list):
                         self.logger.info("More than one experiment per recording file detected")
                         self.offline_manager.experiment_name_list = experiment_names
+                        
                 case InputDataTypes.ABF_DATA:
                     #experiment_names = [i.split(".")[0] for i in dat_list]
                     abf_list = [i for i in data_list if InputDataTypes.ABF_FILE_ENDING.value in i]

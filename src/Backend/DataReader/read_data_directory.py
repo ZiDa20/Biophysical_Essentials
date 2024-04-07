@@ -61,7 +61,7 @@ class ReadDataDirectory(object):
         Returns:
             list: _description_
         """
-        if ".dat" in file_name:
+        if InputDataTypes.HEKA_DATA_FILE_ENDING.value in file_name:
             self.logger.info("qthread_heka_reading: Generating Bundle for:" + file_name)
             splitted_name = file_name.split(".") # retrieve the name
             file = directory_path + "/" + file_name # the full path to the file

@@ -5,7 +5,7 @@ a = Analysis(
     ['start.py'],
     pathex=[],
     binaries=[],
-    datas=[('./Logging/Logs', 'Logging/Logs'), ('./StyleFrontend', 'StyleFrontend'), ('./database', 'database'), ('./Frontend', 'Frontend'), ('./StyleFrontend/qbstyles', 'qbstyles'), ('./resources.py', '.')],
+    datas=[('./Logging', 'Logging'), ('./StyleFrontend', 'StyleFrontend'), ('./database', 'database'), ('./QT_GUI', 'QT_GUI'), ('./qbstyles', 'qbstyles'), ('./resources.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -31,7 +31,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['Frontend/Button/light_mode/offline_analysis/bpe_logo_small.png'],
+    icon=['Frontend\\Button\\light_mode\\offline_analysis\\bpe_logo_small.png'],
 )
 coll = COLLECT(
     exe,

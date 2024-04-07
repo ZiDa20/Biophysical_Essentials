@@ -24,7 +24,7 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         self.content_model: Optional[PandasTable] = None
         self.duplicate_dataframe: pd.DataFrame = pd.DataFrame()
         self.template_dataframe: pd.DataFrame = pd.DataFrame()
-        self.column_names: List[str] = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
+        self.column_names: list[str] = ["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
                         "Individuum_id"]
         self.pushButton_2.clicked.connect(self.change_multiple_cell_values)
         self.pushButton_3.clicked.connect(self.reset_meta_data)
@@ -73,11 +73,11 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
         """
         #toDO reimplement this!
         self.database_handler.clear_from_previous_uncomplete_mappings()
-        
+        self.setup_combo_box()
         # self.offline_manager.experiment_name_list is not none of more than one experiment per dat file were detected
         if self.offline_manager.experiment_name_list is None:
             directory = self.offline_manager._directory_path
-            self.setup_combo_box()
+            
             self.template_dataframe = pd.DataFrame(columns=self.column_names)
             self.duplicate_dataframe = pd.DataFrame()
             recording_files = self.offline_manager.package_list(directory)

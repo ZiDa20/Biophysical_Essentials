@@ -269,11 +269,11 @@ class PlotWidgetManager(QRunnable):
 
         protocol_steps = self.plot_pgf_signal(pgf_table_df, data, sweep_number)
 
-        print("Protocol Steps")
-        print(protocol_steps)
-
-        # @todo fix this asap replace 3 by len(protocol_steps)
-        for x in range(0, 3):
+        # workaround
+        unique_channel_counts = pgf_table_df['selected_channel'].value_counts()
+        min_count = unique_channel_counts.min()
+        
+        for x in range(0, min_count):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
             self.ax1.axvline(x_pos, c='tab:gray')
