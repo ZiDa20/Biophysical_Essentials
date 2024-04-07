@@ -23,7 +23,10 @@ class SweepWiseAnalysisTemplate(ABC):
 		self.logger: logging.Logger = picologging.getLogger(__name__)
 		self.not_normalize: bool = False
 		self.duration_list: Optional[list] = None
-		#self.cslow_normalization = 1
+		self.result_label = "C-Slow Normalized Current"
+		#@todo: NOT HARDCODE ! 
+		self.result_unit = "nA/pF"
+		self.result_unit_prefix = ""
 
 	@property
 	def lower_bounds(self) -> float:
@@ -183,17 +186,19 @@ class SweepWiseAnalysisTemplate(ABC):
 					y_min, y_max = self.database.get_ymin_from_metadata_by_sweep_table_name(data_table, column)
 					self.data = np.interp(self.data, (self.data.min(), self.data.max()), (y_min, y_max))
 
-				# add the prefix to the unit
-				#for prefix in ['m','u','n','p']:
-				#	if abs(np.max(self.data))<1:
-				#		self.data = self.data*1000
-				
+						
 				# slice trace according to coursor bounds
 				self.construct_trace()
 				self.slice_trace()
 				res = self.specific_calculation()
 				self.merged_all_results = self.append_to_result_df(column,data_table,res)
 
+		# append the ylabels, unit prefix and unit
+		rows = len(self.merged_all_results)
+		self.merged_all_results.insert(loc=1, column='y_label', value=[self.result_label]*rows)
+		self.merged_all_results.insert(loc=2, column='unit_prefix', value=[self.result_unit_prefix]*rows)
+		self.merged_all_results.insert(loc=3, column='unit', value=[self.result_unit]*rows)
+		
 		# initalize the writing of the new table
 		self.write_and_update_database_with_result(data_table,self.merged_all_results)
 
@@ -307,7 +312,7 @@ class SweepWiseAnalysisTemplate(ABC):
 		increment = None if (query_data["Increment"] > 0).any() else 1
 
 		if "Voltage" in query_data.columns:
-			return query_data[["Sweep_Number","Duration","Voltage","Result","experiment_name","Sweep_Table_Name"]], increment
+			return query_data[["Sweep_Number","Duration","Voltage","Result","y_label", "unit_prefix", "unit", "experiment_name","Sweep_Table_Name"]], increment
 		else:
 			return query_data[["Sweep_Number","Duration","Current","Result","experiment_name","Sweep_Table_Name"]], increment
 

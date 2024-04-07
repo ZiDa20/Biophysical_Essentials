@@ -184,7 +184,7 @@ class OfflinePlots():
         self.logger.info("Simple Plot started")
         try:
             if not self.parent_widget.selected_meta_data:
-                self.parent_widget.selected_meta_data = ["experiment_name"]
+                self.parent_widget.selected_meta_data = ["experiment_name","Sweep_Table_Name"]
 
             if self.parent_widget.holded_dataframe is None:
                 # retrieve the plot_dataframe
@@ -202,7 +202,7 @@ class OfflinePlots():
             self.logger.info("ready to do the simple plot")
             pivoted_table = self.simple_plot_make(self.parent_widget.holded_dataframe, increment = self.parent_widget.increment)
             self.parent_widget.canvas.draw_idle()
-            self.parent_widget.export_data_frame = pivoted_table
+            self.parent_widget.export_data_frame = pivoted_table.round(2)
             self.parent_widget.statistics = self.parent_widget.holded_dataframe
         except Exception as e:
             self.logger.error(f"Simple Plot could not be created {e}")
@@ -577,6 +577,12 @@ class OfflinePlots():
             except Exception as e:
                 g = sns.lineplot(data = plot_dataframe, x = value, y = "Result", hue = "series_meta_data", ax = self.parent_widget.ax)
                 # errorbar=("se", 2) not working with the current seaborn version
+            try:
+                label = plot_dataframe["y_label"].unique()[0] +  " in " + plot_dataframe["unit_prefix"].unique()[0] + plot_dataframe["unit"].unique()[0]
+                g.set_ylabel(label)
+            except Exception as e:
+                self.logger.error("Error in simple plot make")
+                print(e)
             self.parent_widget.connect_hover(g)
 
         self.parent_widget.ax.autoscale()
@@ -638,8 +644,6 @@ class OfflinePlots():
                     x="meta_data",
                     y = "Result",
                     ax = self.parent_widget.ax)
-        #,
-        #            width = 0.5)
         
         # try to display the correct y axis label and the unit prefix and the unit itself
         try:
@@ -649,7 +653,9 @@ class OfflinePlots():
             self.logger.info("was asked for y label but probably not implemented yet")
 
         boxplot.set_xticklabels(boxplot.get_xticklabels(), rotation=45,horizontalalignment='right')
-        #self.parent_widget.ax.tick_params(axis='x', rotation=45)
+        # make sure the x axis is displayed correctly
+        self.parent_widget.ax.autoscale()
+        self.parent_widget.canvas.figure.tight_layout()
 
     # TODO Rename this here and in `violin_plot_maker` and `box_plot_maker`
     def swarm_plot(self, plot_dataframe: pd.DataFrame, size: int, g) -> None:
