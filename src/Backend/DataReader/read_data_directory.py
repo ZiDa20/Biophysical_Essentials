@@ -43,33 +43,51 @@ class ReadDataDirectory(object):
         #debugpy.debug_this_thread()
         bundle_list = [] # list of tuples (bundle_data, bundle_name, pgf_file)
         for i in input_files:
-            if ".dat" in i:
-                self.logger.info("qthread_heka_reading: Generating Bundle for:" + i)
-                splitted_name = i.split(".") # retrieve the name
-                file = directory_path + "/" + i # the full path to the file
-                try:
-                    match data_type:
-                            case InputDataTypes.BUNDLED_HEKA_DATA:
-                                bundle = Bundle(file) # open heka reader
-                            case InputDataTypes.UNBUNDLED_HEKA_DATA:
-                                bundle = BundleFromUnbundled(directory_path + "/",splitted_name[0]).generate_bundle()
-                            case _: 
-                                self.logger.error("Error in qthread_heka_reading")
-                                bundle = None
-                    
-                    # check if bundle has more than one experiment: 
-                    group_records = len(bundle.pul.children)
-                    if group_records > 1: # and if yes - split them into multiple bundles for later multithreading
-                        self.create_multiple_bundles_from_one_dat_file(bundle,file,bundle_list,splitted_name[0])
-                    else:
-                        pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
-                        data_access_array = [0,-1,0,0]
-                        bundle_list.append((bundle, splitted_name[0], pgf_tuple_data_frame, data_access_array)) 
-                
-                except Exception as e:
-                    self.logger.error(
-                    f"Error in bundled HEKA file reading: {str(i[0])} the error occured: {str(e)}")
+           bundle_list = self.single_dat_file_handling(i,directory_path, data_type,bundle_list)
         return bundle_list,[]
+    
+    def single_dat_file_handling(self,file_name:str,directory_path:str, data_type:InputDataTypes,bundle_list:list)->list:
+        """
+        single_dat_file_handling Handles a single dat file, so far, the following types are covered:
+        (1) bundle heka with one and more experiments per recording file
+        (2) unbundle heka files with one experiment per recording file
+
+        Args:
+            file_name (str): _description_
+            directory_path (str): _description_
+            data_type (InputDataTypes): _description_
+            bundle_list (list): _description_
+
+        Returns:
+            list: _description_
+        """
+        if ".dat" in file_name:
+            self.logger.info("qthread_heka_reading: Generating Bundle for:" + file_name)
+            splitted_name = file_name.split(".") # retrieve the name
+            file = directory_path + "/" + file_name # the full path to the file
+            try:
+                match data_type:
+                    case InputDataTypes.BUNDLED_HEKA_DATA:
+                        bundle = Bundle(file) # open heka reader
+                    case InputDataTypes.UNBUNDLED_HEKA_DATA:
+                        bundle = BundleFromUnbundled(directory_path + "/",splitted_name[0]).generate_bundle()
+                    case _: 
+                        self.logger.error("Error in qthread_heka_reading")
+                        bundle = None
+
+                # check if bundle has more than one experiment: 
+                group_records = len(bundle.pul.children)
+                if group_records > 1: # and if yes - split them into multiple bundles for later multithreading
+                    self.create_multiple_bundles_from_one_dat_file(bundle,file,bundle_list,splitted_name[0])
+                else:
+                    pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
+                    data_access_array = [0,-1,0,0]
+                    bundle_list.append((bundle, splitted_name[0], data_access_array,pgf_tuple_data_frame)) 
+            
+            except Exception as e:
+                self.logger.error(
+                f"Error in bundled HEKA file reading: {str(file)} the error occured: {str(e)}")
+        return bundle_list
     
     def create_multiple_bundles_from_one_dat_file(self,bundle:Bundle,file:str,bundle_list:list,experiment_name)->list:
         """
@@ -213,7 +231,7 @@ class ReadDataDirectory(object):
         try:
             for i in range(len(node.children)):
                 if node_type == "Pgf":
-                    print(i)
+                    
                     series_count = i + 1
                 self.read_series_specific_pgf_trace_into_df(index+[i],
                                                             bundle,
@@ -257,9 +275,6 @@ class ReadDataDirectory(object):
         ################################################################################################################
         #Progress Bar setup
         max_value = len(self.meta_data_assigned_experiment_names)
-        print("write directory into database was given:")
-        print(dat_files)
-        print(abf_files)
         progress_value = 0
 
         increment = 100/max_value
@@ -285,6 +300,7 @@ class ReadDataDirectory(object):
                      progress_callback.emit((round(progress_value,2),i))
                 except Exception as es:
                     print(es)
+                    self.logger.error(es)
                     self.database_handler.database.close() # we close the database connection and emit an error message
 
 
@@ -341,7 +357,6 @@ class ReadDataDirectory(object):
         except AttributeError:
             node_label = ''
 
-        debugpy.debug_this_thread()
         self.logger.info(f"single_file_into_db: current node = {node_type}")
 
         metadata = node
@@ -434,12 +449,9 @@ class ReadDataDirectory(object):
 
 
         for i in range(len(node.children)):
-            #    progress_callback
-            print("before next recursive step")
             self.single_file_into_db(index + [i], bundle, experiment_name, database, data_access_array , pgf_tuple_data_frame)
 
         if node_type == "Pulsed" and not self.sweep_data_df.empty:
-            print("finishs with non empty dataframe")
             # copy from above .. smarter to have it here to avoid additional if condition in all the recursions
             if experiment_name in self.experiment_name_mapping.keys():
                 self.logger.info(f"single_file_into_db: replaced the original experiment name {experiment_name} with the new one {self.experiment_name_mapping[experiment_name]}")    

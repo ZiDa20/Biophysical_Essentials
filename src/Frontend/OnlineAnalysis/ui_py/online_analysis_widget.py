@@ -347,49 +347,39 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         # file type identification
         pathname, filename_with_extension = os.path.split(file_name)
         filename, extension = os.path.splitext(filename_with_extension)
-       
-
-        # if .dat file: run dat file specific bundle reading and insertion into db
+        
         if extension == InputDataTypes.HEKA_DATA_FILE_ENDING.value:
+            bundle_list = read_directory_handler.single_dat_file_handling(filename_with_extension,
+                                                                          pathname,
+                                                                          InputDataTypes.BUNDLED_HEKA_DATA,
+                                                                          [])
+            # if not bundled heka, it might be unbundled heka
+            if bundle_list == []:
+                bundle_list = read_directory_handler.single_dat_file_handling(filename_with_extension,
+                                                                          pathname,
+                                                                          InputDataTypes.UNBUNDLED_HEKA_DATA,
+                                                                          [])
             
-            bundle = Bundle(file_name) # open heka reader
-            if bundle.pgf is None:
-                bundle = BundleFromUnbundled(pathname + "/",filename).generate_bundle()
-                if bundle.pgf is None:
-                    CustomErrorDialog("Unsupported File Format", self.frontend_style)
-                    self.logger.error("Unsupported File Format detected" + file_name)
-                    return
-                else:
-                    self.logger.info("UNBUNDLED HEKA FILE detected")
-            else:
-                self.logger.info("BUNDLED HEKA FILE detected")    
-
-            pgf_data_frame = read_directory_handler.read_series_specific_pgf_trace_into_df(
-                    [], bundle, [], None, None, None)
-            
-            self.logger.info(f"successfully generated pgf_dataframe from file {file_name}")
-            # write this file into the database
-            read_directory_handler.single_file_into_db([], bundle, treeview_name, self.database_handler,
-                                                              [0, -1, 0, 0], pgf_data_frame)
-
+            match len(bundle_list):
+                case 0: CustomErrorDialog("Unknown Heka file format",self.frontend_style) 
+                #@todo: write a class with attributes instead of the arrays 
+                case 1: read_directory_handler.single_file_into_db([], bundle_list[0][0], treeview_name, self.database_handler,
+                                                              bundle_list[0][2], bundle_list[0][3])
+                case _: CustomErrorDialog("More than one experiment was detected in your dat file. \n Currently, only single experiments are accepted for online analysis. \n You can read the data in the offline analysis module to continue.",self.frontend_style)
+                
         # if .abf file: run abf file specific bundle creation and insertion into db
         elif extension == InputDataTypes.ABF_FILE_ENDING.value:
             self.logger.info("ABF FIle Reading Online Analysis")
-            
-           
             pathname, filename_with_extension = os.path.split(file_name)
             filename, extension = os.path.splitext(filename_with_extension)
             abf_file_list = os.listdir(os.path.dirname(file_name))
             self.logger.info(abf_file_list)
             
-                        # read only files that have the same idenfier as the selected one
+            # read only files that have the same idenfier as the selected one
             abf_identifier = os.path.basename(file_name).split("_")
             abf_identifier = abf_identifier[0]
-            
             abf_file_data = []
-
-
-
+            
             for abf in abf_file_list:
 
                 if abf_identifier in abf:

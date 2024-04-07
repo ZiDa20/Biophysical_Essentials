@@ -131,7 +131,7 @@ class Struct(object):
         cls._le_struct = struct.Struct('<' + fmt)
         cls._be_struct = struct.Struct('>' + fmt)
         cls._fields_parsed = fields
-        print(cls._le_struct.size, cls.size_check)
+        #print(cls._le_struct.size, cls.size_check)
         if cls.size_check is not None:
             assert cls._le_struct.size == cls.size_check
         return fields
