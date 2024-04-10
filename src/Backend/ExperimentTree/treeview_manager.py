@@ -148,7 +148,7 @@ class TreeViewManager:
             label = ", ".join(labels)
             label_object.setText(label)
 
-        print("new table \n ", selected_table_view_table)
+        #print("new table \n ", selected_table_view_table)
 
         # create the models for the selected and discarded tree
 
@@ -265,7 +265,7 @@ class TreeViewManager:
                 sweep_ids = [parent+"::"+c_name for c_name in sweep_table.columns]
                 sweep_df["identifier"] = sweep_ids
 
-                print(sweep_df)
+                #print(sweep_df)
                 all_sweeps_df = pd.concat([all_sweeps_df, sweep_df])
 
             return pd.concat([experiment_df, series_df, all_sweeps_df])
@@ -812,7 +812,7 @@ class TreeViewManager:
 
         series_data.to_csv(file[0], index = True, mode='a')  
 
-        print(series_data.head())
+        #(series_data.head())
     
     def select_csv_location(self,experiment:bool):
         """open a qfiledialog and let the user choose its file location and file name too but suggest already the correct name

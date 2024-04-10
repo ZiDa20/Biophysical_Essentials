@@ -11,7 +11,7 @@
 .src/build/
 .src/poetry.lock
 *.csv
-*.db
+*.db    
 *.db.wal
 *.log
 *.py[cod]

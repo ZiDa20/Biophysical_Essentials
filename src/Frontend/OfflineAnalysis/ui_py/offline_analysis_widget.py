@@ -643,7 +643,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     if len(experiment_names) > len(dat_list):
                         self.logger.info("More than one experiment per recording file detected")
                         self.offline_manager.experiment_name_list = experiment_names
-                        
+
                 case InputDataTypes.ABF_DATA:
                     #experiment_names = [i.split(".")[0] for i in dat_list]
                     abf_list = [i for i in data_list if InputDataTypes.ABF_FILE_ENDING.value in i]
@@ -752,7 +752,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         for i in range(2,len(global_meta_data_table.columns)):
 
             unique_labels = np.unique(global_meta_data_table[global_meta_data_table.columns[i]].tolist())
-            print(global_meta_data_table.columns[i], " - ", unique_labels)
+            #print(global_meta_data_table.columns[i], " - ", unique_labels)
 
             if len(unique_labels)>1:
                 list_widget = already_existing_list_widgets[col_cnt]
@@ -762,7 +762,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                     new_list_item.setText(n)
 
                 col_cnt = col_cnt+1
-                print(col_cnt)
+                #print(col_cnt)
 
         print("first box title = ", dialog.groupBox.title())
 
