@@ -135,7 +135,7 @@ class ReadDataDirectory(object):
                 abf_file_data = []
                 if isinstance(i,list):
                             for abf in i:
-                                print(abf)
+                                #print(abf)
                                 file_2 = directory_path + "/" + abf
                                 abf_file = AbfReader(file_2)
                                 data_file = abf_file.get_data_table()
@@ -277,7 +277,11 @@ class ReadDataDirectory(object):
         max_value = len(self.meta_data_assigned_experiment_names)
         progress_value = 0
 
-        increment = 100/max_value
+        try:
+            increment = 100/max_value
+        except Exception as e:
+            print("no increment error")
+            increment = 100
 
         self.database_handler.open_connection()     
         ################################################################################################################
@@ -286,7 +290,7 @@ class ReadDataDirectory(object):
             self.logger.info(f"write_directory_into_database: this is the data file i {i}")
             try:
                 progress_value = progress_value + increment
-                debugpy.debug_this_thread()
+                #debugpy.debug_this_thread()
                 self.single_file_into_db([], i[0],  i[1], self.database_handler,i[2],i[3])
                 progress_callback.emit((round(progress_value,2),i))
             except Exception as e:
@@ -305,7 +309,7 @@ class ReadDataDirectory(object):
 
 
         for i in abf_files:
-            print("running abf file and this i ", i)
+            #print("running abf file and this i ", i)
             try:
                 progress_value = progress_value + increment
                 self.single_abf_file_into_db(i, self.database_handler)

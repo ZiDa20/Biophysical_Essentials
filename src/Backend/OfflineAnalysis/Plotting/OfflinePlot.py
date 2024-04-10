@@ -544,8 +544,7 @@ class OfflinePlots():
 
     def simple_plot_make(self,plot_dataframe, value = "Voltage", increment = None):
         """Makes either a boxplot if increment is indicating no step protocol
-
-
+        
         Args:
             plot_dataframe (_type_): dataframe holding data that fits the natures of a box plot or a line plot
             increment (_type_): should indicate if step protocol was use, if None step protocol was used else single step

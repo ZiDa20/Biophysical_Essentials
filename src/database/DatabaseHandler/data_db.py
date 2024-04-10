@@ -1053,12 +1053,12 @@ class DuckDBDatabaseHandler():
                 for r in affected_rows:
 
                   try:
-                    print("val")
-                    print(meta_data_df['sweep_1'].iloc[r])
-                    print(type(meta_data_df['sweep_1'].iloc[r]))
+                    #print("val")
+                    #print(meta_data_df['sweep_1'].iloc[r])
+                    #print(type(meta_data_df['sweep_1'].iloc[r]))
 
                     replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
-                    print(replace_val)
+                    #print(replace_val)
                     for c in column_names:
                         meta_data_df[c].iloc[r]= replace_val
                   except Exception as e:
@@ -1327,7 +1327,7 @@ class DuckDBDatabaseHandler():
         :return:
         """
         self.database.register('df_1', result_data_frame)
-        print(result_data_frame)
+        #print(result_data_frame)
         q = """insert into  results values (?,?,?,?) """ #set specific_result_table_name = (?) where analysis_id = (?) and analysis_function_id = (?) and sweep_table_name = (?) """
         print("updating results table with new specific result ")
         try:
@@ -1340,10 +1340,10 @@ class DuckDBDatabaseHandler():
             self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,
                              data_table_name, function_analysis_id)
             
-            print("table that will be inserted")
-            print(result_data_frame)
-            print("succesfully inserted")
-            print(new_specific_result_table_name)
+            #print("table that will be inserted")
+            #print(result_data_frame)
+            #print("succesfully inserted")
+            #print(new_specific_result_table_name)
         except Exception as e:
             print("database inside error")
             print(e)

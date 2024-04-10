@@ -17,11 +17,11 @@ class TreeModel(QAbstractItemModel):
 
         self.header = []
         #if not data_df.empty:
-        print("data_df", data_df)
+        #print("data_df", data_df)
         if data_df.empty:
             return None
         display_columns = data_df["type"].unique().tolist()
-        print(display_columns)
+        #print(display_columns)
         """
         if "Experiment" in display_columns:
             self.header.append("experiment")
@@ -39,7 +39,7 @@ class TreeModel(QAbstractItemModel):
         for i in range(0,len(self.header)):
             self.item_dict.update({self.header[i]:i})
 
-        print("item dictionary =", self.item_dict)
+        #print("item dictionary =", self.item_dict)
 
         self.column_count = len(self.header)
         self.parent_dict = None
@@ -151,8 +151,8 @@ class TreeModel(QAbstractItemModel):
     def setupModelData(self, data_df, parent):
         # [item_name, parent, type, level, identifier]
 
-        print("incoming df ")
-        print(data_df)
+        #print("incoming df ")
+        #print(data_df)
 
         # go through each level of the data frame 
         for i in np.unique(data_df["level"]):

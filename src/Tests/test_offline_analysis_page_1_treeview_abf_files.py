@@ -28,10 +28,11 @@ import time
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from Backend.tokenmanager import InputDataTypes
 
-#@pytest.fixture(autouse=True)
-#def slow_down_tests():
-#    yield
-#    time.sleep(3)
+# Define a session-scoped fixture to ensure sequential execution of tests
+@pytest.fixture(scope="session", autouse=True)
+def execute_tests_sequentially():
+    yield
+    # This fixture will execute all tests sequentially
 
 
 def clean_leftover_db():
@@ -58,7 +59,7 @@ def set_database(db_name):
 
 
 def load_demo_dat_data_into_database(qtbot,db_name):
-    
+    print("load_demo_dat_data_into_database")
     test_db = set_database(db_name)
     app = MainWindow(testing_db = test_db)
     app.database_handler = app.local_database_handler
@@ -77,15 +78,15 @@ def load_demo_dat_data_into_database(qtbot,db_name):
     # qtbot.wait until waits until the load_data_from_database_dialog.. variable was initialized as an instance of 
     # Load_Data_From_Database_Popup_Handler
     qtbot.waitUntil(lambda: hasattr(app.ui.offline, "load_data_from_database_dialog"), timeout = 20000)
-    QApplication.processEvents()
+    #QApplication.processEvents()
 
     qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
-    QApplication.processEvents()
+    #QApplication.processEvents()
 
     return test_db,app
    
     
-#@pytest.mark.serial
+@pytest.mark.serial
 def test_default_offline_analysis_page_1_treeview_model(qtbot):
 
     """ Test 1: 
@@ -113,8 +114,8 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
         
     # check that the default selected treeview does only show experiment and series level data
     selected_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
-    print("got this table back")
-    print(selected_treeview_table)
+    #print("got this table back")
+    #print(selected_treeview_table)
     res = selected_treeview_table["type"].unique().tolist()
     valid_types = ["Experiment","Series"]
     
@@ -124,7 +125,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot):
     test_db.database.close()
 
 
-#@pytest.mark.serial
+@pytest.mark.serial
 def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     """_summary_
     Test 2: 
@@ -141,7 +142,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     qtbot.mouseClick(app.ui.offline.show_sweeps_radio, Qt.LeftButton)
         
     selected_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
-    print("got this table back")
+    #print("got this table back")
     res = selected_treeview_table["type"].unique().tolist()
     valid_types = ["Experiment","Series","Sweep"]
     
@@ -158,7 +159,7 @@ def test_sweeps_offline_analysis_page_1_treeview_model(qtbot):
     test_db.database.close()
 
 
-#@pytest.mark.serial
+@pytest.mark.serial
 def test_change_series_renaming(qtbot):
     """Test: Click on the change series name button in the ribbon bar, change the series name of an IV to TEST123.
     Make sure, that the string "IV" is not present anymore in the treeview while TEST123 is present 
@@ -167,7 +168,7 @@ def test_change_series_renaming(qtbot):
     # assumes that the default treeview test before worked 
     test_db,app = load_demo_dat_data_into_database(qtbot,"abf3")
 
-    app.ui.offline.ap.stop_and_close_animation()
+    #app.ui.offline.ap.stop_and_close_animation()
 
     initial_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
 
@@ -175,7 +176,7 @@ def test_change_series_renaming(qtbot):
     qtbot.mouseClick(app.ui.offline.change_series_name, Qt.LeftButton, delay = 1)
     # wait for the opening dialog
     
-    qtbot.waitUntil(lambda: hasattr(app.ui.offline, "change_series_name_dialog"), timeout = 2000)
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline, "change_series_name_dialog"), timeout = 20)
 
     dialog= app.ui.offline.change_series_name_dialog
 
@@ -201,7 +202,7 @@ def test_change_series_renaming(qtbot):
     test_db.database.close()
 
 
-#@pytest.mark.serial 
+@pytest.mark.serial 
 def test_change_experiment_meta_data(qtbot):
     """Test of the ribbon bar button: change experiment meta data
     Click on the change experiment meta data button in the ribbon bar, change the experiment label of an experiment to TEST123.
@@ -215,12 +216,12 @@ def test_change_experiment_meta_data(qtbot):
     # assumes that the default treeview test before worked 
     test_db,app = load_demo_dat_data_into_database(qtbot,"abf4")
 
-    app.ui.offline.ap.stop_and_close_animation()
+    #app.ui.offline.ap.stop_and_close_animation()
     
     # click the button to change the series name, this should open a dialog
     qtbot.mouseClick(app.ui.offline.edit_meta, Qt.LeftButton, delay = 1)
 
-    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 20)
 
     assert app.ui.offline.OfflineDialogs.edit_data is not None
     app.ui.offline.OfflineDialogs.edit_data.close()
@@ -228,7 +229,7 @@ def test_change_experiment_meta_data(qtbot):
 
 
 
-@pytest.mark.serial
+#@pytest.mark.serial
 def test_change_series_meta_data(qtbot):
     """Test of the ribbon bar button: change series meta data
     Click on the change series meta data button in the ribbon bar, change the series meta data   to TEST123.
@@ -242,12 +243,12 @@ def test_change_series_meta_data(qtbot):
     # assumes that the default treeview test before worked 
     test_db,app = load_demo_dat_data_into_database(qtbot,"abf5")
 
-    app.ui.offline.ap.stop_and_close_animation()
+    #app.ui.offline.ap.stop_and_close_animation()
 
     # click the button to change the series name, this should open a dialog
     qtbot.mouseClick(app.ui.offline.edit_series_meta_data, Qt.LeftButton, delay = 1)
 
-    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 2000)
+    qtbot.waitUntil(lambda: hasattr(app.ui.offline.OfflineDialogs, "edit_data"), timeout = 20)
 
     assert app.ui.offline.OfflineDialogs.edit_data is not None
     app.ui.offline.OfflineDialogs.edit_data.close()

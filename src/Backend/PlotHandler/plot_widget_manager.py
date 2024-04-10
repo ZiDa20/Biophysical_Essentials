@@ -266,13 +266,12 @@ class PlotWidgetManager(QRunnable):
 
         sweep_number = sweep_name.split("_")
         sweep_number = int(sweep_number[1])
-
         protocol_steps = self.plot_pgf_signal(pgf_table_df, data, sweep_number)
 
         # workaround
         unique_channel_counts = pgf_table_df['selected_channel'].value_counts()
         min_count = unique_channel_counts.min()
-        
+
         for x in range(0, min_count):
             x_pos = int(protocol_steps[x] + sum(protocol_steps[0:x]))
             print(x_pos)
