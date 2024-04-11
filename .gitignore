@@ -3,8 +3,6 @@
 .temp/
 .DS_Store
 *.cpython-39.pyc
-.src/*.pyc
-*.pyc
 .src/.pytest_cache/
 .src/.venv/
 .src/dist/
@@ -69,3 +67,5 @@ dist/
 Data/Raw_digi/.DS_Store
 src/.DS_Store
 src/Tests/.DS_Store
+.src/*.pyc
+*.pyc
