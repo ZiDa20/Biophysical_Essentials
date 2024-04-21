@@ -59,8 +59,13 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
                                                         analysis_functions.analysis_series_name = analysis_series.analysis_series_name)""").fetchdf()
         
 
-        trial = self.database_handler.database.execute("Select * from analysis_series").fetchdf()
-        data = data.drop(["time", "analysis_series_name_2","analysis_function_id","analysis_id_2","lower_bound","upper_bound"], axis = 1)
+        #trial = self.database_handler.database.execute("Select * from analysis_series").fetchdf()
+        try:
+            data = data.drop(["time", "analysis_series_name_2","analysis_function_id","analysis_id_2","lower_bound","upper_bound"], axis = 1)
+        except Exception as e:
+            print("error: " + str(e))
+            #self.logger.error(str)
+
         ids = natsorted(list({str(i) for i in data["analysis_id"].tolist()}), reverse = True)
 
         self.OfflineAnalysisID.clear()

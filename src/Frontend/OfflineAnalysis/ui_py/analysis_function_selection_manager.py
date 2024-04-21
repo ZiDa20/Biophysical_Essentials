@@ -184,51 +184,6 @@ class AnalysisFunctionSelectionManager():
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
         self.reclick_tree_view_item()
 
-    """ deprecated dz 08092023
-    def group_box_fullsize(self):
-        tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + self.current_tab.analysis_functions.analysis_stacked_widget.sizeHint().width()
-        self.resize_group_box(tmp_size)
-    
-    def group_box_smallsize(self):
-        tmp_size = self.current_tab.analysis_functions.analysis_button_grid.sizeHint().width() + 50
-        self.resize_group_box(tmp_size)
-
-    def resize_group_box(self,tmp_size):
-        print("resize not working")
-        #self.current_tab.subwindow_calc.setMinimumSize(QSize(tmp_size, 900))
-        #self.current_tab.subwindow_calc.setMaximumSize(QSize(tmp_size, 900))
-
-    """     
-
-        
-    """
-    def rotate_row_indexes(self,table_widget):
-        print("rotation started")
-        # Get the current number of rows in the table
-        num_rows = table_widget.rowCount()
-
-        # Set the row index names and rotate them by 90 degrees
-        for row in range(num_rows):
-            item = table_widget.verticalHeaderItem(row)
-            if item is None:
-                item = QTableWidgetItem("")
-                table_widget.setVerticalHeaderItem(row, item)
-            item.setFont(QFont('Arial', 10))
-            item_text = item.text()
-            item_text_width = QFontMetrics(item.font()).boundingRect(item_text).width()
-            item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-            transform = QTransform().rotate(90)
-            item.setData(Qt.UserRole, transform)
-            table_widget.verticalHeader().resizeSection(row, item_text_width + 10)
-
-        # Resize the columns to fit the contents
-        table_widget.resizeColumnsToContents()
-
-        # Set the row height to be equal to the column width (for square cells)
-        table_widget.verticalHeader().setDefaultSectionSize(table_widget.horizontalHeader().defaultSectionSize())
-        print("rotation finished")
-    """
-
     def create_qtablewidget(self,col_cnt,row_cnt):
         # Create a new QTableWidget with 2 columns and 5 rows
         table_widget = QTableWidget(row_cnt, col_cnt)

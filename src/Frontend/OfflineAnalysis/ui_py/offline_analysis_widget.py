@@ -475,6 +475,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
        
         #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
         
+
         for parent_pos, series_n in zip(range(len(series_names_list)), series_names_list):
            
             QApplication.processEvents()
@@ -490,18 +491,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.ap.stop_and_close_animation()
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
-        
-    # outdated ? dz 13.11.2023
-    #@Slot()
-    #def start_blank_analysis(self):
-    #    """starts a blank analysis by changing qstacked tab to blank analysis view ( at index 1) where the user gets
-    #    new button interactions offered """
-    #    self.offline_analysis_widgets.setCurrentIndex(1)
-
-    # outdated ? dz 13.11.2023
-    #@Slot()
-    #def go_to_main_page(self):
-    #    self.offline_analysis_widgets.setCurrentIndex(1)
 
     @Slot()
     def load_treeview_from_database(self, test = None):

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "biophysicalessentials"
-version = "0.1.0"
+version = "0.11.0"
 description = "Data Analysis Platform for Electrophysiological Recordings"
 authors = ["David Zimmermann, Maximilian Zeidler"]
 readme = "README.md"
@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9,<3.13"
 PySide6 = "^6.6.1"
-duckdb = "^0.9.2"
+duckdb = "^0.10.2"
 qbstyles = "^0.1.4"
 numpy = "^1.26.3"
 natsort = "^8.4.0"
@@ -34,7 +34,6 @@ pyinstaller = "^6.3.0"
 pytest-qt = "^4.3.1"
 pypylon = "^3.0.1"
 debugpy = "^1.8.1"
-
 
 [build-system]
 requires = ["poetry-core"]
