@@ -267,7 +267,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.normalization_values = None
         #self.show_and_tile()
 
-    def show_and_tile(self):
+    def show_and_tile(self,additional_size_limitation=0):
         """ Should draw subwindows next to each other"""
         
         # Get the size and position of the subwindow
@@ -279,12 +279,14 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         plotwindow_pos.setX(subwindow_pos.x() + 10)  # Adjust the X position as needed
 
         # Resize the plot window
-        self.PlotWindow.resize(self.CameraMDI.width()-self.subwindow.width(), self.CameraMDI.height())
+        self.PlotWindow.resize(self.CameraMDI.width()-self.subwindow.width()-additional_size_limitation, self.CameraMDI.height())
+        #self.PlotWindow.resize(100, self.CameraMDI.height())
 
         # Move the plot window next to the subwindow
         self.PlotWindow.move(plotwindow_pos)
-
         print("Tiling subwindows")
+
+
     def undock_me(self):
         """_summary_: This is a handler to dock and undock
         """

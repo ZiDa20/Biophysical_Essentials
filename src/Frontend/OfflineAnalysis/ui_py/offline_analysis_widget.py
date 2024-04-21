@@ -6,6 +6,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 from PySide6.QtTest import QTest
 import numpy as np
+import pandas as pd
 import csv
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from functools import partial
@@ -42,7 +43,7 @@ from Frontend.OfflineAnalysis.CustomWidget.change_series_name_handler import Cha
 from Frontend.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 from StyleFrontend.animated_ap import LoadingAnimation
-
+import debugpy
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
 
@@ -463,6 +464,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         #@todo THREADING
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
+        debugpy.debug_this_thread()
         for i in range(len(series_names_list)):
             QApplication.processEvents()
             series_names_list[i] = series_names_list[i][0]
@@ -472,9 +474,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                                                        self.offline_analysis_widgets,
                                                        reload = True)
         QApplication.processEvents()
-       
-        #@todo DZ write the reload of the analyis function grid properly and then choose to display plots only when start analysis button is enabled
-        
 
         for parent_pos, series_n in zip(range(len(series_names_list)), series_names_list):
            
@@ -488,6 +487,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 continue
             self.finished_result_thread(reload=True)
         
+        # get the series names where cursor bounds were selected
+        df = self.database_handler.database.execute(f"select * from analysis_functions where analysis_id == {id_}").fetchdf()
+
+        series = df["analysis_series_name"].unique()
+       
+    	# re-create the analysis function table in each series specific analysis widget if there was an analysis performed
+        for index,t in enumerate(self.offline_tree.tab_list):
+            if t.series_name in series:
+                self.create_analysis_table_from_db(index,df)
+
         self.ap.stop_and_close_animation()
         self.offline_analysis_widgets.setCurrentIndex(1)
         self.notebook.setCurrentIndex(3)
@@ -960,6 +969,53 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.frontend_style.set_pop_up_dialog_style_sheet(dialog)
         dialog.continue_with_selection.clicked.connect(partial(self.update_selected_analysis_function_table,dialog))
         dialog.exec_()
+
+    def create_analysis_table_from_db(self,current_index:int,db_table:pd.DataFrame):
+        """
+        create_analysis_table_from_db This function is responsible for creating the table in OFA page 2 showing analysis functios and 
+        cursor bound settings when re-loading data from the database
+
+        Args:
+            current_index (_type_): index of the specific analysis tab in the tab list
+
+   
+        """
+        current_tab = self.offline_tree.tab_list[current_index]
+        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
+        plot_widget_manager = self.offline_tree.current_tab_visualization[current_index]
+
+        # for further proccessing, every item needs to be handled as a list
+        analysis_function_names = [[name] for name in db_table.loc[db_table['analysis_series_name'] == current_tab.series_name, 'function_name'].tolist()]
+        
+        cursor_bound_df = db_table.loc[db_table['analysis_series_name'] == current_tab.series_name, ['lower_bound', 'upper_bound']]
+        cursor_bound_list = list(zip(cursor_bound_df['lower_bound'], cursor_bound_df['upper_bound']))
+
+        self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, 
+                                                                                    current_tab_tree_view_manager, 
+                                                                                    plot_widget_manager , 
+                                                                                    current_tab, 
+                                                                                    analysis_function_names, 
+                                                                                    self.frontend_style,
+                                                                                    cursor_bound_list)
+
+        # try to disconnect to avoid rerunning any of the already performed analysis
+        try:
+            self.run_analysis_functions.clicked.disconnect()#
+        except Exception as e:
+            self.logger.info("No connection to disconnect here, probably the first connect")
+            
+
+        # set the size of the table
+        w = self.analysis_function_selection_manager.widget_with + 50
+
+        current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
+        current_tab.analysis_functions.groupBox.show()
+        # resize the widget !
+
+        current_tab.show_and_tile(current_tab.analysis_functions.groupBox.width())
+        
+        # click the resize button of the data view !!!!!
+        #QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
 
     def update_selected_analysis_function_table(self, dialog):
         """

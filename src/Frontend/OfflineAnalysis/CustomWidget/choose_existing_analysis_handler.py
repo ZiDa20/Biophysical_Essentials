@@ -63,7 +63,7 @@ class ChooseExistingAnalysis(QDialog, Ui_MetadataPopup):
         try:
             data = data.drop(["time", "analysis_series_name_2","analysis_function_id","analysis_id_2","lower_bound","upper_bound"], axis = 1)
         except Exception as e:
-            print("error: " + str(e))
+            print("expected error: " + str(e))
             #self.logger.error(str)
 
         ids = natsorted(list({str(i) for i in data["analysis_id"].tolist()}), reverse = True)

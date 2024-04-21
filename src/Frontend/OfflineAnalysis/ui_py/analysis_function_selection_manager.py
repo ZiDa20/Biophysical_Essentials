@@ -29,7 +29,8 @@ class AnalysisFunctionSelectionManager():
                  plot_widget_manager, 
                  current_tab, 
                  analysis_functions, 
-                 frontend):
+                 frontend,
+                 existing_cursor_bounds = None):
         
         self.plot_widget_manager = plot_widget_manager
         self.treeview_manager = treeview_manager
@@ -37,6 +38,7 @@ class AnalysisFunctionSelectionManager():
         self.current_tab = current_tab
         self.frontend_style = frontend
         self.current_tab.first_add = True
+        self.existing_cursor_bounds = existing_cursor_bounds
 
         self.default_colors = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.operands =  ["+", "-", "*", "/", "(", ")"]
@@ -148,10 +150,11 @@ class AnalysisFunctionSelectionManager():
                 # Convert the QColor to an RGB tuple
                 background_color_rgb = (background_color.redF(), background_color.greenF(), background_color.blueF())
 
-
-
-            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected    
-            self.add_coursor_bounds((row,col), self.current_tab, table_widget,background_color_rgb)
+            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected
+            cursor_bound_tuple = None
+            if  self.existing_cursor_bounds is not None:
+                cursor_bound_tuple = self.existing_cursor_bounds[row]    
+            self.add_coursor_bounds((row,col), table_widget,background_color_rgb,cursor_bound_tuple)
 
             condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
             filtered_df = self.live_plot_info[condition]
@@ -306,22 +309,15 @@ class AnalysisFunctionSelectionManager():
         print("a cell changed")
         print(item.text())
 
-    def add_coursor_bounds(self, row_column_tuple, current_tab, table_widget,color_rgb):
+    def add_coursor_bounds(self, row_column_tuple, table_widget,color_rgb,cursor_bound_tuple):
        
-        print("adding cursor bounds")
-
-        print(self.plot_widget_manager.coursor_bound_tuple_dict.keys())
-
         if row_column_tuple in self.plot_widget_manager.coursor_bound_tuple_dict.keys():
-
-            # show existing cursor bounds which are also already connected 
-            #print("nothing to do")
             self.plot_widget_manager.show_draggable_lines(row_column_tuple,color_rgb)
 
         else:
 
             # 1) insert dragable coursor bounds into graph
-            left_val, right_val = self.plot_widget_manager.create_dragable_lines(row_column_tuple,color_rgb)
+            left_val, right_val = self.plot_widget_manager.create_dragable_lines(row_column_tuple,color_rgb,cursor_bound_tuple)
             
             # 2) connect to the signal that will be emitted when cursor bounds are moved by user
             self.plot_widget_manager.left_bound_changed.cursor_bound_signal.connect(

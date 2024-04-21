@@ -666,7 +666,7 @@ class PlotWidgetManager(QRunnable):
         print("Xinterval = %d", number_of_datapoints)
         return time
 
-    def create_dragable_lines(self,row_col_tuple,rgb_color):
+    def create_dragable_lines(self,row_col_tuple,rgb_color,cursor_bound_tuple = None):
         """
         create_dragable_lines: as indicated by the name: this function creates two dragable line objects
 
@@ -677,11 +677,15 @@ class PlotWidgetManager(QRunnable):
         Returns:
             _type_: _description_
         """
-
-        print("creating new dragable lines")
-        left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
-        right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
-
+        if cursor_bound_tuple is None:
+            self.logger.info("creating new dragable lines with default params")
+            left_val =  0.2*max(self.time) +  5* (row_col_tuple[0] + row_col_tuple[1])
+            right_val = 0.8*max(self.time) +  5 * (row_col_tuple[0] + row_col_tuple[1])
+        else:
+            self.logger.info("creating new dragable lines from existing cursor bounds")
+            left_val = cursor_bound_tuple[0]
+            right_val = cursor_bound_tuple[1]
+        
         scaling_factor = self.si_prefix_handler.get(self.ax1_si_prefix)
         left_coursor = DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple,scaling_factor ,rgb_color)
         right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, scaling_factor,rgb_color)
