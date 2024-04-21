@@ -1327,14 +1327,17 @@ class DuckDBDatabaseHandler():
         :return:
         """
         self.database.register('df_1', result_data_frame)
-        #print(result_data_frame)
         q = """insert into  results values (?,?,?,?) """ #set specific_result_table_name = (?) where analysis_id = (?) and analysis_function_id = (?) and sweep_table_name = (?) """
-        print("updating results table with new specific result ")
+        
         try:
-            print("inside try")
+            #print("inside try")
             # create a new sweep table
-            self.database.execute(f'create table {new_specific_result_table_name} as select * from df_1')
-
+            #print("creating table",new_specific_result_table_name)
+            #print(result_data_frame)
+            try:
+                self.database.execute(f'create table {new_specific_result_table_name} as select * from df_1')
+            except Exception as e:
+                print("error")
             self.database.execute(q, (analysis_id, function_analysis_id,data_table_name,new_specific_result_table_name))
 
             self.logger.info("Successfully created %s table of %s for analysis_function_id %d", new_specific_result_table_name,

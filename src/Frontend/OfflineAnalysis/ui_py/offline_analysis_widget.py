@@ -27,6 +27,7 @@ from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from database.DatabaseAdapter.PostSql_Handler import PostSqlHandler
 
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
+from Frontend.CustomWidget.user_notification_dialog import UserNotificationDialog
 from Frontend.OfflineAnalysis.CustomWidget.load_data_from_database_popup_handler import Load_Data_From_Database_Popup_Handler
 from Frontend.OfflineAnalysis.CustomWidget.drag_and_drop_list_view import DragAndDropListView
 from Frontend.OfflineAnalysis.CustomWidget.select_analysis_functions_handler import Select_Analysis_Functions
@@ -972,14 +973,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def create_analysis_table_from_db(self,current_index:int,db_table:pd.DataFrame):
         """
-        create_analysis_table_from_db This function is responsible for creating the table in OFA page 2 showing analysis functios and 
-        cursor bound settings when re-loading data from the database
+        create_analysis_table_from_db: This function is responsible for creating the table 
+        in OFA page 2 showing analysis functios and cursor bound settings when re-loading
+        data from the database.
+        @dz, 21.04.2024
 
         Args:
-            current_index (_type_): index of the specific analysis tab in the tab list
-
-   
+            current_index (int): position of the current tab in the tab list
+            db_table (pd.DataFrame): 
         """
+
         current_tab = self.offline_tree.tab_list[current_index]
         current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
         plot_widget_manager = self.offline_tree.current_tab_visualization[current_index]
@@ -1003,19 +1006,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             self.run_analysis_functions.clicked.disconnect()#
         except Exception as e:
             self.logger.info("No connection to disconnect here, probably the first connect")
-            
-
+        
+        self.run_analysis_functions.clicked.connect(partial(UserNotificationDialog,"To provide data consitency, re-running already  \n performed analysis is not allowed.",
+                                                                           self.frontend_style))
         # set the size of the table
         w = self.analysis_function_selection_manager.widget_with + 50
-
         current_tab.analysis_functions.groupBox.setMinimumSize(w, 0)
         current_tab.analysis_functions.groupBox.show()
-        # resize the widget !
-
+        # resize the plot widget !
         current_tab.show_and_tile(current_tab.analysis_functions.groupBox.width())
-        
-        # click the resize button of the data view !!!!!
-        #QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
+        # reclick analysis configurator would help !! 
 
     def update_selected_analysis_function_table(self, dialog):
         """
@@ -1223,12 +1223,12 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # if everything worked correctly, only the first func to remove should still exist in the analysis functions table
             # the name here needs to be adapted too
 
-            print("finished recursive function")
+            #print("finished recursive function")
 
             q = f'update analysis_functions set function_name = \'{db_text}\' where analysis_function_id == {func_to_remove[0]}'
             self.database_handler.database.execute(q)
 
-            print(func_to_remove)
+            #print(func_to_remove)
 
     def recursive_pop(self, equation_components,func_pos, pop_count, eval_dict = None):
         """take 3 elements from the list: an operand and the expression left to it and right to it, either expression are
@@ -1321,12 +1321,16 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             if equation_components == []:
                 # register only if finished, sub results dont need to be stored in the db
                 table_name = tbl_1 #"results_analysis_function_"+str(func_1)+"_"+  #str(data_1["Sweep_Table_Name"].values[0])
+                # delete since it will be anyway overwritten
+                #self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_1}')
 
-                self.database_handler.database.register(table_name, data_1)
-                self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM {table_name}')
+                self.database_handler.database.register("calculated_data", data_1)
+                self.database_handler.database.execute(f'CREATE TABLE {table_name} AS SELECT * FROM calculated_data')
 
         # delete the id from the analysis functions table
         self.database_handler.database.execute(f'delete from analysis_functions where analysis_function_id == {func_2}')
+        # delete from results table toooo
+        self.database_handler.database.execute(f'delete from results where analysis_function_id == {func_2}')
 
         if equation_components == []:
             print("my job is done")

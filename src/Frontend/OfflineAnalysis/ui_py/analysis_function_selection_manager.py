@@ -11,6 +11,7 @@ from Frontend.OfflineAnalysis.CustomWidget.normalization_dialog_handler import N
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
 import pandas as pd
+import debugpy
 
 class AnalysisFunctionSelectionManager():
 
@@ -411,8 +412,8 @@ class AnalysisFunctionSelectionManager():
             print("before filling", self.current_tab.normalization_values)
             Normalization_Dialog(self.current_tab, self.database_handler, self.treeview_manager.selected_tree_view_data_table).get_cslow_from_db()
             
-            if self.current_tab.analysis_functions.normalization_combo_box.currentText() =="CSlow Manual":
-                self.current_tab.normalization_values["cslow"]=1
+        if self.current_tab.analysis_functions.normalization_combo_box.currentText() =="CSlow Manual":
+            self.current_tab.normalization_values["cslow"]=1
 
             print("after filling", self.current_tab.normalization_values)
 
@@ -425,8 +426,9 @@ class AnalysisFunctionSelectionManager():
             stacked = self.current_tab.analysis_functions.analysis_stacked_widget
             self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(page)
             table_widget = self.current_tab.data_table[page]
+            # for multiple column analysis write multiple columns
             for col in range(table_widget.columnCount()):
-                
+                debugpy.debug_this_thread()
                 print("writing col" , col)
                 
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()
@@ -455,7 +457,7 @@ class AnalysisFunctionSelectionManager():
                     self.current_tab.normalization_values["offline_analysis_id"]= self.database_handler.analysis_id
                     self.current_tab.normalization_values["function_id"]= self.database_handler.get_last_inserted_analysis_function_id()
                     df_new = self.current_tab.normalization_values
-                    print("adding to database", df_new)
+                    #print("adding to database", df_new)
                     q = "insert into normalization_values select * from df_new"
                     self.database_handler.database.execute(q)
 
