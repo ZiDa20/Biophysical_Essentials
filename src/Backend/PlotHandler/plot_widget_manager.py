@@ -117,13 +117,11 @@ class PlotWidgetManager(QRunnable):
         """
         self.logger.info("checking live analysis")
         if  self.live_analysis_info is not None:
+
             for index,row in  self.live_analysis_info.iterrows():
                 
                 row_nr = row["page"]
                 column = row["col"]
-                fct = row["func_name"]
-                lower_bound = row["left_cursor"]
-                upper_bound = row["right_cursor"]
                 live_plot = row["live_plot"]
                 cursor_bound  = row["cursor_bound"]
 
@@ -133,31 +131,38 @@ class PlotWidgetManager(QRunnable):
 
                     # only show live plot if also cursor bounds were selected
                     if live_plot:
-
-                        analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
-
-                        x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
-                        print(type(x_y_tuple))
-
-                        if sweep_number:
-                            sweep_number = sweep_number.split("_")
-                            sweep_number = int(sweep_number[1])
-                            x_y_tuple = [x_y_tuple[sweep_number-1]]
-
-                        if x_y_tuple is not None:
-
-                                    for tuple in x_y_tuple:
-                                        if isinstance(tuple[1],list):
-                                            y_val_list = [item * self.si_prefix_handler.get(self.ax1_si_prefix)  for item in tuple[1]]
-                                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
-                                        else:
-                                            res = tuple[1]*self.si_prefix_handler.get(self.ax1_si_prefix)             
-                                            self.ax1.plot(tuple[0], res, c=self.default_colors[row_nr+column], marker="o")
-                        else:
-                                    self.loggger.error("Tuple was None: is live plot function for" + fct + "already implemented ?")
-                             
+                        self.make_live_plot_results(row,experiment_name,identifier,row_nr,column)
+                    11
                 else:
                     self.remove_dragable_lines(row_nr)
+
+    def make_live_plot_results(self,row:pd.DataFrame,experiment_name:str,identifier:str,row_nr:int,column:int):
+
+        fct = row["func_name"]
+        lower_bound = row["left_cursor"]
+        upper_bound = row["right_cursor"]
+        
+        analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
+
+        x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
+        print(type(x_y_tuple))
+
+        if sweep_number:
+            sweep_number = sweep_number.split("_")
+            sweep_number = int(sweep_number[1])
+            x_y_tuple = [x_y_tuple[sweep_number-1]]
+
+        if x_y_tuple is not None:
+
+                    for tuple in x_y_tuple:
+                        if isinstance(tuple[1],list):
+                            y_val_list = [item * self.si_prefix_handler.get(self.ax1_si_prefix)  for item in tuple[1]]
+                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
+                        else:
+                            res = tuple[1]*self.si_prefix_handler.get(self.ax1_si_prefix)             
+                            self.ax1.plot(tuple[0], res, c=self.default_colors[row_nr+column], marker="o")
+        else:
+                    self.loggger.error("Tuple was None: is live plot function for" + fct + "already implemented ?")
 
     def show_pgf_segment_buttons(self, experiment_name, series_identifier):
 
@@ -405,13 +410,6 @@ class PlotWidgetManager(QRunnable):
         self.ax1.tick_params(axis='y', colors=ax_color)
         self.ax1.set_xticklabels(self.ax2.get_xticklabels())
 
-        #plt.subplots_adjust(left=0.8, right=0.9, bottom=0.8, top=0.9)
-        #self.ax1.autoscale()
-        #self.ax2.autoscale()
-        #self.canvas.figure.tight_layout()
-
-        #self.canvas.figure.patch.set_alpha(0)
-        #self.canvas.figure.tight_layout()
         if self.show_pgf_plot:
             self.ax2.set_xlabel('Time [ms]')
         else:
@@ -737,9 +735,9 @@ class PlotWidgetManager(QRunnable):
         self.right_coursor.clickonline(event)
 
     def remove_dragable_lines(self,row):
-        print("row number")
+        print("removing draggable lines row number")
         print(row)
-        print(self.coursor_bound_tuple_dict)
+        #print(self.coursor_bound_tuple_dict)
         try:
             tuples_to_remove = []
             for k in self.coursor_bound_tuple_dict.keys():

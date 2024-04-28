@@ -256,7 +256,8 @@ class AnalysisFunctionSelectionManager():
         adds cell widgets for a specific column of a an analysis table widget
         """
         color_button = QPushButton("")
-        color_button.setStyleSheet("background-color: " + self.default_colors[len(self.current_tab.data_table)])
+        color = self.default_colors[len(self.current_tab.data_table)+col]
+        color_button.setStyleSheet("background-color: " + color)
         analysis_table_widget.setCellWidget(0, col, color_button)
         func_item = QTableWidgetItem(text)
         func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)

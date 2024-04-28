@@ -40,7 +40,7 @@ class  DraggableLines:
 
     def clickonline(self, event):
         #print("entered without artist")
-
+        print("click on lines")
         try:
             if event.artist == self.line:
                 self.follower = self.c.mpl_connect("motion_notify_event", self.followmouse)
@@ -53,14 +53,19 @@ class  DraggableLines:
 
 
     def followmouse(self, event):
+        print("follow mouse")
         if self.o == "h":
             self.line.set_ydata([event.ydata, event.ydata])
         else:
             self.line.set_xdata([event.xdata, event.xdata])
 
-        self.c.draw_idle()
+        self.c.draw()
+        self.c.flush_events()
+        #self.c.draw_idle()
 
     def releaseonclick(self, event):
+        print("release on click")
+        
         if self.o == "h":
             self.XorY = self.line.get_ydata()[0]
         else:
