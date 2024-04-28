@@ -15,6 +15,7 @@ from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import Cons
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Backend.tokenmanager import InputDataTypes
+from Backend.Settings.SettingsFileHandler import SettingsFileHandler
 import resources
 
 # this is important for pyinstaller to find the right parts of the program
@@ -23,6 +24,7 @@ if getattr(sys, 'frozen', False):
 else:
     EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
 
+SCHEDULED_RESTART = False
 
 class MainWindow(QMainWindow, QtStyleTools):
 
@@ -41,6 +43,9 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.logger= picologging.getLogger(__name__) # set the logger
         self.logger.info(EXE_LOCATION)
         self.logger.info("Starting the Biophysical Essentials Program!")
+
+        # load the user specific settings:
+        self.settings_file_handler = SettingsFileHandler()
         # Create the frontend style for the app
         self.frontend_style = Frontend_Style(self, path = EXE_LOCATION)
         self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
@@ -55,7 +60,13 @@ class MainWindow(QMainWindow, QtStyleTools):
         if testing_db:
             self.local_database_handler = testing_db
         else:
-            self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style, database_path = os.path.join( EXE_LOCATION, "database" ))
+            db_path = self.settings_file_handler.get_bpe_database_path()
+            if not os.path.isabs(db_path):
+                print("relative db path")
+                db_path = os.path.join(EXE_LOCATION, db_path )
+            self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style, 
+                                                                db_file_name= self.settings_file_handler.get_bpe_database_name(),
+                                                                database_path = db_path)
 
         self.online_database = DuckDBDatabaseHandler(self.frontend_style,
                                                     db_file_name = "online_db",
@@ -128,6 +139,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.config.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.frontend_style = self.frontend_style
+       
         self.ui.config.online_analysis = self.ui.online
         self.ui.config.ui_notebook = self.ui.notebook
 
@@ -158,11 +170,15 @@ class MainWindow(QMainWindow, QtStyleTools):
 
         self.ui.notebook.setCurrentIndex(0)
     def handle_settings_page(self):
-        """@todo: implement settings needs
         """
-        ConstrcutionSideDialog(self.frontend_style)
-        #artial(self.ui.notebook.setCurrentIndex, 5)
+        handle_settings_page _summary_
+        """
         
+        self.ui.settings.update_object_handlers(self.local_database_handler, self.frontend_style, self.settings_file_handler,SCHEDULED_RESTART)
+        self.ui.settings.update_displayed_data(EXE_LOCATION)
+        self.ui.settings.back_to_home.clicked.connect(self.show_bpe_home_page)
+        self.ui.notebook.setCurrentIndex(5)
+
     def create_button(self, text, image, image_dark, function, param=None):
         """Creates a single button"""
         new_button = QToolButton()
@@ -336,6 +352,10 @@ class MainWindow(QMainWindow, QtStyleTools):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+def restart():
+    """Restart the application."""
+    python_executable = sys.executable
+    os.execl(python_executable, python_executable, *sys.argv)
 
 if __name__ == "__main__":
     """Main function to start the application"""
@@ -350,3 +370,5 @@ if __name__ == "__main__":
     window.show()
     app.exec()
 
+    if SCHEDULED_RESTART:
+        restart()
