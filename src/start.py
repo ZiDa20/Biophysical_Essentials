@@ -62,7 +62,6 @@ class MainWindow(QMainWindow, QtStyleTools):
         else:
             db_path = self.settings_file_handler.get_bpe_database_path()
             if not os.path.isabs(db_path):
-                print("relative db path")
                 db_path = os.path.join(EXE_LOCATION, db_path )
             self.local_database_handler = DuckDBDatabaseHandler(self.frontend_style, 
                                                                 db_file_name= self.settings_file_handler.get_bpe_database_name(),
