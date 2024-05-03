@@ -132,12 +132,23 @@ class PlotWidgetManager(QRunnable):
 
                     # only show live plot if also cursor bounds were selected
                     if live_plot:
-                        self.make_live_plot_results(row,experiment_name,identifier,row_nr,column)
+                        self.make_live_plot_results(row,experiment_name,identifier,row_nr,column, sweep_number)
                     11
                 else:
                     self.remove_dragable_lines(row_nr)
 
-    def make_live_plot_results(self,row:pd.DataFrame,experiment_name:str,identifier:str,row_nr:int,column:int):
+    def make_live_plot_results(self,row:pd.DataFrame,experiment_name:str,identifier:str,row_nr:int,column:int,sweep_number=None):
+        """
+        make_live_plot_results _summary_
+
+        Args:
+            row (pd.DataFrame): _description_
+            experiment_name (str): _description_
+            identifier (str): _description_
+            row_nr (int): _description_
+            column (int): _description_
+            sweep_number (_type_, optional): _description_. Defaults to None.
+        """
 
         fct = row["func_name"]
         lower_bound = row["left_cursor"]
@@ -147,18 +158,18 @@ class PlotWidgetManager(QRunnable):
 
         x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
         #print(type(x_y_tuple))
-        #if sweep_number:
-        #        sweep_number = sweep_number.split("_")
-        #        sweep_number = int(sweep_number[1])
+
+        if sweep_number is not None:
+                sweep_number = sweep_number.split("_")
+                sweep_number = int(sweep_number[1])
+                x_y_tuple = [x_y_tuple[sweep_number-1]]
 
         if x_y_tuple[0] is None:
             self.logger.error("Tuple was None: is live plot function for" + fct + "already implemented ?")
             CustomErrorDialog(f"There is currently no live analysis feature available for {fct} implemented",self.frontend_style)
             # @todo: this should also change the checkbox to unchecked
         else:
-            
-            #x_y_tuple = [x_y_tuple[sweep_number-1]]
-            
+
             for tuple in x_y_tuple:
                 if isinstance(tuple[1],list):
                     y_val_list = [item * self.si_prefix_handler.get(self.ax1_si_prefix)  for item in tuple[1]]
