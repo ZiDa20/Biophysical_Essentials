@@ -58,10 +58,10 @@ class AnalysisFunctionRegistration():
             try:
                 analysis_function_name =analysis_function_name.replace("(","").split()[0]
                 res = cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
-                print(cls.ANALYSIS_FUNCTION_MAPPING)
+                #print(cls.ANALYSIS_FUNCTION_MAPPING)
                 
-                print(res)
-                print(cls.ANALYSIS_FUNCTION_MAPPING.get(analysis_function_name))
+                #print(res)
+                #print(cls.ANALYSIS_FUNCTION_MAPPING.get(analysis_function_name))
                 return cls.ANALYSIS_FUNCTION_MAPPING[analysis_function_name]
             except Exception as e:
                 print(e)

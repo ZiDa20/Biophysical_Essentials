@@ -11,6 +11,7 @@ from PySide6.QtCore import Signal
 import picologging
 # inheritage from qobject required for use of signal
 from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
+from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 
 class PlotWidgetManager(QRunnable):
     """ A class to handle a specific plot widget and it'S appearance, subfunctions, cursor bounds, .... """
@@ -145,24 +146,28 @@ class PlotWidgetManager(QRunnable):
         analysis_class_object = AnalysisFunctionRegistration().get_registered_analysis_class(fct)
 
         x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
-        print(type(x_y_tuple))
+        #print(type(x_y_tuple))
+        #if sweep_number:
+        #        sweep_number = sweep_number.split("_")
+        #        sweep_number = int(sweep_number[1])
 
-        if sweep_number:
-            sweep_number = sweep_number.split("_")
-            sweep_number = int(sweep_number[1])
-            x_y_tuple = [x_y_tuple[sweep_number-1]]
-
-        if x_y_tuple is not None:
-
-                    for tuple in x_y_tuple:
-                        if isinstance(tuple[1],list):
-                            y_val_list = [item * self.si_prefix_handler.get(self.ax1_si_prefix)  for item in tuple[1]]
-                            self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
-                        else:
-                            res = tuple[1]*self.si_prefix_handler.get(self.ax1_si_prefix)             
-                            self.ax1.plot(tuple[0], res, c=self.default_colors[row_nr+column], marker="o")
+        if x_y_tuple[0] is None:
+            self.logger.error("Tuple was None: is live plot function for" + fct + "already implemented ?")
+            CustomErrorDialog(f"There is currently no live analysis feature available for {fct} implemented",self.frontend_style)
+            # @todo: this should also change the checkbox to unchecked
         else:
-                    self.loggger.error("Tuple was None: is live plot function for" + fct + "already implemented ?")
+            
+            #x_y_tuple = [x_y_tuple[sweep_number-1]]
+            
+            for tuple in x_y_tuple:
+                if isinstance(tuple[1],list):
+                    y_val_list = [item * self.si_prefix_handler.get(self.ax1_si_prefix)  for item in tuple[1]]
+                    self.ax1.plot(tuple[0], y_val_list , c=self.default_colors[row_nr+column], linestyle='dashed')
+                else:
+                    res = tuple[1]*self.si_prefix_handler.get(self.ax1_si_prefix)             
+                    self.ax1.plot(tuple[0], res, c=self.default_colors[row_nr+column], marker="o")
+
+                        
 
     def show_pgf_segment_buttons(self, experiment_name, series_identifier):
 
@@ -408,7 +413,7 @@ class PlotWidgetManager(QRunnable):
         self.ax1.yaxis.label.set_color(ax_color)
         self.ax1.tick_params(axis='x', colors=ax_color)
         self.ax1.tick_params(axis='y', colors=ax_color)
-        self.ax1.set_xticklabels(self.ax2.get_xticklabels())
+        #self.ax1.set_xticklabels(self.ax2.get_xticklabels())
 
         if self.show_pgf_plot:
             self.ax2.set_xlabel('Time [ms]')

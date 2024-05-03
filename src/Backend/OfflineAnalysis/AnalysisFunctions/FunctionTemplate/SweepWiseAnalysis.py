@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 import picologging
 
+
 class SweepWiseAnalysisTemplate(ABC):
 	"""
 	Parent class to handle all analysis general processing to analyze each single sweep of a series:
@@ -129,7 +130,13 @@ class SweepWiseAnalysisTemplate(ABC):
 		# slice trace according to coursor bounds
 		self.construct_trace()
 		self.slice_trace()
-		return self.live_data_calculation()
+		try:
+			return self.live_data_calculation()
+		except Exception as e:
+			self.logger.error(f"Error detected: {str(e)}")
+			# @todo: this should raise a dialog to the user
+			print(e)
+
 
 	def calculate_results(self):
 		"""
