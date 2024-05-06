@@ -15,6 +15,7 @@ from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import Con
 from StyleFrontend.animated_ap import LoadingAnimation
 import pandas as pd
 from PySide6.QtTest import QTest
+import debugpy
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
@@ -44,9 +45,11 @@ class SeriesItemTreeWidget():
         self.tree_widget_index_count = 0
         self.show_sweeps_radio = show_sweeps_radio
         self.navigation_list = []
-        self.current_tab_visualization = []
+        self.current_tab_tree_view_manager_dict= {}
+        self.current_tab_visualization_dict = {}
+
         self.blank_analysis_tree_view_manager = blank_analysis_tree
-        self.current_tab_tree_view_manager = []
+        
         self.parent_stacked = None
         self.home = plot_buttons[0]
         self.zoom = plot_buttons[1]
@@ -170,7 +173,7 @@ class SeriesItemTreeWidget():
         """
         # get the experiment name and series identifier from the treeview model
         current_tab = self.tab_list[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
-        treeview_manager = self.current_tab_tree_view_manager[self.SeriesItems.currentItem().data(7, Qt.UserRole)]
+        treeview_manager = self.current_tab_tree_view_manager_dict[str(self.SeriesItems.currentItem().data(7, Qt.UserRole))]
         model_df = treeview_manager.selected_tree_view_data_table
         normalization_dialog = Normalization_Dialog(current_tab, self.database_handler, model_df)
         self.frontend_style.set_pop_up_dialog_style_sheet(normalization_dialog)
@@ -244,27 +247,43 @@ class SeriesItemTreeWidget():
 
         current_tab = self.tab_list[index]
 
-        current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
-        #self.navigation = NavigationToolbar(current_tab_plot_manager.canvas, None)
-        #self.navigation_list.append(self.navigation)
-        self.current_tab_visualization.append(current_tab_plot_manager)
-
         # looks like overhead but the current tab holds other information for the second page of the offline analysis compared to the firstpage
         # while treeviews are equal
-        current_tab_tree_view_manager = TreeViewManager(self.database_handler,
+    
+        if str(index) not in self.current_tab_visualization_dict.keys():
+
+            current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
+            
+            self.current_tab_visualization_dict[str(index)] = current_tab_plot_manager
+            print("added current_tab_plot_manager")
+            print(self.current_tab_visualization_dict)
+        else:
+            print("didnt add current_tab_plot_manager")
+            current_tab_plot_manager = self.current_tab_visualization_dict[str(index)]
+        
+        
+        if str(index) not in self.current_tab_tree_view_manager_dict.keys():
+
+            current_tab_tree_view_manager = TreeViewManager(self.database_handler,
                                                         current_tab.treebuild,
                                                         self.show_sweeps_radio,
                                                         current_tab,
                                                         frontend = self.frontend_style)
-        
-        
-        self.current_tab_tree_view_manager.append(current_tab_tree_view_manager)
+            
+            self.current_tab_tree_view_manager_dict[str(index)] = current_tab_tree_view_manager
+            print("added current_tab_tree_view_manager")
+            print(self.current_tab_tree_view_manager_dict)
+        else:
+            print("didnt add current_tab_tree_view_manager")
+            current_tab_tree_view_manager = self.current_tab_tree_view_manager_dict[str(index)]
+
         current_tab.frontend_style = self.frontend_style
 
         
         # make a deepcopy to be able to slize the copied item without changing its parent
         current_tab_tree_view_manager.selected_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.selected_tree_view_data_table)
+        
         current_tab_tree_view_manager.discarded_tree_view_data_table = copy.deepcopy(
             self.blank_analysis_tree_view_manager.discarded_tree_view_data_table)
 
@@ -448,8 +467,8 @@ class SeriesItemTreeWidget():
         rect = current_tab.treebuild.selected_tree_view.visualRect(index)
         QTest.mouseClick(current_tab.treebuild.selected_tree_view.viewport(), Qt.LeftButton, pos=rect.center())
       
-        col_count = len(self.current_tab_tree_view_manager[pos].selected_tree_view_data_table["type"].unique())
-        self.current_tab_tree_view_manager[pos].update_mdi_areas(col_count)
+        col_count = len(self.current_tab_tree_view_manager_dict[str(pos)].selected_tree_view_data_table["type"].unique())
+        self.current_tab_tree_view_manager_dict[str(pos)].update_mdi_areas(col_count)
 
 
     def findName(self,model, name, parent=QModelIndex()):

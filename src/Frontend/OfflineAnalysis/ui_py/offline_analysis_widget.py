@@ -78,8 +78,6 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         self.ap = None 
         self.input_data_type = InputDataTypes.BUNDLED_HEKA_DATA # per default - needed for the tests
         self.parent_count = 0
-        #self.offline_tree.current_tab_visualization = self.offline_tree.current_tab_visualization
-        #self.offline_tree.current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager
 
         self.tree_widget_index_count = 0  # save the current maximal index of the tree
         # animation of the side dataframe
@@ -140,8 +138,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             #have to find the corect widget first
             c = self.offline_analysis_widgets.currentIndex()
             current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-            tm = self.offline_tree.current_tab_tree_view_manager[current_index]
-            pm = self.offline_tree.current_tab_visualization[current_index]
+            tm = self.offline_tree.current_tab_tree_view_manager_dict[str(current_index)]
+            pm = self.offline_tree.current_tab_visualization_dict[str(current_index)]
         return tm, pm
 
     def grid_button_clicked(self, grid:bool):
@@ -275,8 +273,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         # @todo: double check whether it might be more clever to remove the from offline analysis mapping table
         if self.offline_analysis_widgets.currentIndex() ==1:
             current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-            plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
-            tree_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
+            plot_widget_manager  = self.offline_tree.current_tab_visualization_dict[str(current_index)]
+            tree_manager = self.offline_tree.current_tab_tree_view_manager_dict[str(current_index)]
             current_tab = self.offline_tree.tab_list[current_index]
 
             tree_manager.update_treeviews(plot_widget_manager,current_tab.series_name)
@@ -304,8 +302,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
             if self.offline_analysis_widgets.currentIndex() ==1: #@toDO check toggle notebook ind
                 current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
-                plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
-                current_tree = self.offline_tree.current_tab_tree_view_manager[current_index]
+                plot_widget_manager  = self.offline_tree.current_tab_visualization_dict[str(current_index)]
+                current_tree = self.offline_tree.current_tab_tree_view_manager_dict[str(current_index)]
                 series_name = self.offline_tree.tab_list[current_index].objectName()
                  
                 if meta:
@@ -984,8 +982,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         """
 
         current_tab = self.offline_tree.tab_list[current_index]
-        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
-        plot_widget_manager = self.offline_tree.current_tab_visualization[current_index]
+        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager_dict[str(current_index)]
+        plot_widget_manager = self.offline_tree.current_tab_visualization_dict[str(current_index)]
 
         # for further proccessing, every item needs to be handled as a list
         analysis_function_names = [[name] for name in db_table.loc[db_table['analysis_series_name'] == current_tab.series_name, 'function_name'].tolist()]
@@ -1034,8 +1032,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_index = self.offline_tree.SeriesItems.currentItem().data(7, Qt.UserRole)
         current_tab = self.offline_tree.tab_list[current_index]
 
-        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager[current_index]
-        plot_widget_manager  = self.offline_tree.current_tab_visualization[current_index]
+        current_tab_tree_view_manager = self.offline_tree.current_tab_tree_view_manager_dict[str(current_index)]
+        plot_widget_manager  = self.offline_tree.current_tab_visualization_dict[str(current_index)]
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
         # this needs to be performed to ensure only one connection nper analysis

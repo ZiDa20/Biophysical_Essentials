@@ -117,6 +117,7 @@ class PlotWidgetManager(QRunnable):
         @author: dz, 29.09.2022
         """
         self.logger.info("checking live analysis")
+        
         if  self.live_analysis_info is not None:
 
             for index,row in  self.live_analysis_info.iterrows():
@@ -128,7 +129,7 @@ class PlotWidgetManager(QRunnable):
 
                 if cursor_bound:
 
-                    self.show_draggable_lines((row_nr,column))
+                    #self.show_draggable_lines((row_nr,column))
 
                     # only show live plot if also cursor bounds were selected
                     if live_plot:
@@ -723,8 +724,6 @@ class PlotWidgetManager(QRunnable):
         @return:
         """
 
-        
-
         coursor_tuple = self.coursor_bound_tuple_dict.get(row_col_tuple)
 
         left_val = coursor_tuple[0].XorY
@@ -733,18 +732,13 @@ class PlotWidgetManager(QRunnable):
         if rgb_color is None: # if the color is none, it was already set 
             rgb_color = coursor_tuple[0].rgb_color
 
+        # connect to new draggable lines
         self.left_coursor  =  DraggableLines(self.ax1, "v", left_val, self.canvas, self.left_bound_changed,row_col_tuple, self.ax1.get_ylim(),rgb_color)
         self.right_coursor  = DraggableLines(self.ax1, "v", right_val, self.canvas, self.right_bound_changed,row_col_tuple, self.ax1.get_ylim(),rgb_color)
 
+        # remove the old data from the dict and replace by the new ones
         self.coursor_bound_tuple_dict.pop(row_col_tuple)
         self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
-
-        #self.canvas.draw_idle()
-
-        #self.ax1.draw_artist(self.left_coursor)
-        #self.canvas.blit()
-        #self.canvas.flush_events()
-
 
     def on_press(self,event):
         self.left_coursor.clickonline(event)
