@@ -123,20 +123,19 @@ class Ui_SpecificAnalysisTab(object):
 
                 self.horizontalLayout = QHBoxLayout()
                 self.horizontalLayout.setObjectName(u"horizontalLayout")
-                self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+                
+                #self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+                #self.horizontalLayout.addItem(self.horizontalSpacer)
 
-                self.horizontalLayout.addItem(self.horizontalSpacer)
-
-                self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-                self.horizontalLayout.addItem(self.horizontalSpacer_3)
+                #self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+                #self.horizontalLayout.addItem(self.horizontalSpacer_3)
 
                 #self.dock_button = QPushButton("Dock me",self.groupBox_5)
                 #self.horizontalLayout.addWidget(self.dock_button)
         
 
-                #self.tile_button = QPushButton("tile me",self.groupBox_5)
-                #self.horizontalLayout.addWidget(self.tile_button)
+                self.tile_button = QPushButton("Resize",self.groupBox_5)
+                self.horizontalLayout.addWidget(self.tile_button)
 
                 self.gridLayout_7.addLayout(self.horizontalLayout, 2, 0, 1, 1)
 
@@ -252,7 +251,7 @@ class SpecificAnalysisTab(QWidget, Ui_SpecificAnalysisTab):
         self.PlotWindow.setWindowFlags(self.PlotWindow.windowFlags() | Qt.WindowMinMaxButtonsHint)
         #self.dock_button.clicked.connect(self.undock_me)
         self.dock_widget.topLevelChanged.connect(self.remove_title_bar_dock)
-        #self.tile_button.clicked.connect(self.show_and_tile)
+        self.tile_button.clicked.connect(self.show_and_tile)
         self.floating: bool = False
         self.frontend_style.set_pop_up_dialog_style_sheet(self)
 

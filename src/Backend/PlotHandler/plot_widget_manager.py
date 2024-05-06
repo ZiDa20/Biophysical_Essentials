@@ -129,7 +129,7 @@ class PlotWidgetManager(QRunnable):
 
                 if cursor_bound:
 
-                    #self.show_draggable_lines((row_nr,column))
+                    self.show_draggable_lines((row_nr,column))
 
                     # only show live plot if also cursor bounds were selected
                     if live_plot:
