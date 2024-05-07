@@ -36,7 +36,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         """
         super().__init__(parent)
         self.ui: QMainWindow = Ui_MainWindow()
-        
+        # load the user specific settings:
+        self.settings_file_handler = SettingsFileHandler(EXE_LOCATION)
         self.ui.setupUi(self)
         self.set_background_logo()
         self.setup_ui()
@@ -44,8 +45,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.logger.info(EXE_LOCATION)
         self.logger.info("Starting the Biophysical Essentials Program!")
 
-        # load the user specific settings:
-        self.settings_file_handler = SettingsFileHandler(EXE_LOCATION)
+        
         # Create the frontend style for the app
         self.frontend_style = Frontend_Style(self, path = EXE_LOCATION)
         self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
@@ -121,7 +121,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.setMinimumSize(1600,800)
         self.setCentralWidget(self.ui.centralwidget)
         self.center() #place the MainWindow in the center
-        self.setWindowTitle("BiophysicalEssentials (BPE)")
+        version = self.settings_file_handler.get_parameter("versioning","release")
+        self.setWindowTitle(f"Biophysical Essentials (version {version})")
         
     def setup_offline_style(self) -> None:
         """Connects the start with the offline analysis 
@@ -161,8 +162,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.config.go_to_online.clicked.connect(partial(self.ui.notebook.setCurrentIndex,2))
         self.ui.online.batch_config.clicked.connect(partial(self.ui.notebook.setCurrentIndex,1))
         self.ui.switch_dark_light_mode.clicked.connect(self.dark_light_mode_switch_handling)
-        version = self.settings_file_handler.get_parameter("versioning","release")
-        self.ui.home_label_2.setText(f"Patch Clamp Module ({version})")
+
     def show_bpe_home_page(self):
         """
         show_bpe_home_page: go to the home page and make sure the side left menu becomes hidden: it will becone updated if it needs to be reopened
