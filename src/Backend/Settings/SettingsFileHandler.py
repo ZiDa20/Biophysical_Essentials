@@ -1,5 +1,5 @@
 import configparser
-
+import os
 
 class SettingsFileHandler():
     """
@@ -7,12 +7,21 @@ class SettingsFileHandler():
     The settings file is name bpe_settings.ini
     DZ, 29.04.2024
     """
-    def __init__(self) -> None:
+    def __init__(self,exe_location) -> None:
         
         self.config = configparser.ConfigParser()
         # set the permanent path to the config file
         # this path must never be changed
-        self.config.read('Backend/Settings/bpe_settings.ini')
+        # Construct the absolute path to the configuration file
+        config_file_path = os.path.join(exe_location, 'Backend', 'Settings', 'bpe_settings.ini')
+        self.config.read(config_file_path)
+        print("absolute path to configuration file")
+
+        print(config_file_path)
+        print(self.config.sections())
+
+
+
 
     def get_parameter(self,section_header:str, parameter_name:str):
         """
@@ -25,6 +34,7 @@ class SettingsFileHandler():
         Returns:
             _type_: str
         """
+        print(self.config.sections())
         return self.config[section_header][parameter_name]
        
     
