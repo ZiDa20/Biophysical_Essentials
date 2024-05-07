@@ -335,26 +335,28 @@ class AnalysisFunctionSelectionManager():
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in, table_widget=None):
+        print("update_left_common_labels")
         self.update_cursor_bound_labels(self.LEFT_CB_GRID_ROW,tuple_in, table_widget)
-        try:
-            self.update_grid_data_frame(tuple_in[1], tuple_in[2], "left_cursor", tuple_in[0])
-            self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
-            self.reclick_tree_view_item()
-        except Exception as e:
-            # will give an error at the beginning when no cursor bounds are added to the table widget
-            print(e)
+        self.update_canvas(tuple_in, "left_cursor")
 
     @Slot(tuple)
     def update_right_common_labels(self, tuple_in, table_widget=None):
         # tuple in fields: [0]: cb value, [1]: row of the button, [2]: column of the function
+        print("update_right_common_labels")
         self.update_cursor_bound_labels(self.RIGHT_CB_GRID_ROW,tuple_in, table_widget)
-        try:
-            self.update_grid_data_frame(tuple_in[1], tuple_in[2], "right_cursor", tuple_in[0])
-            self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
-            self.reclick_tree_view_item()
-        except Exception as e:
-             # will give an error at the beginning when no cursor bounds are added to the table widget
-            print(e)
+        self.update_canvas(tuple_in, "right_cursor")
+
+    def update_canvas(self,tuple_in,live_column):
+        """
+        update_canvas _summary_
+
+        Args:
+            tuple_in (_type_): _description_
+            live_column (_type_): _description_
+        """
+        self.update_grid_data_frame(tuple_in[1], tuple_in[2], live_column, tuple_in[0])
+        self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
+        self.reclick_tree_view_item()
 
     def update_cursor_bound_labels(self, table_row, tuple_in, table_widget):
         
@@ -376,8 +378,12 @@ class AnalysisFunctionSelectionManager():
         update a single data frame cell value
         value can be either float, bool, str, ... 
         """
-        index = self.live_plot_info[(self.live_plot_info['page'] == page) & (self.live_plot_info["col"]==column)].index[0]
-        self.live_plot_info[column_name][index]=value      
+        try:
+            index = self.live_plot_info[(self.live_plot_info['page'] == page) & (self.live_plot_info["col"]==column)].index[0]
+            self.live_plot_info[column_name][index]=value
+        except Exception as e:
+            print(e)
+              
 
     def reclick_tree_view_item(self):
         """

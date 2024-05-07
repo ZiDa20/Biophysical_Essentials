@@ -15,7 +15,10 @@ from  Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import Con
 from StyleFrontend.animated_ap import LoadingAnimation
 import pandas as pd
 from PySide6.QtTest import QTest
-import debugpy
+import picologging
+from Frontend.OfflineAnalysis.CustomWidget.select_meta_data_for_treeview_handler import SelectMetaDataForTreeviewDialog
+from Backend.tokenmanager import OfflineAnalysisTreeTokens
+
 
 class SeriesItemTreeWidget():
     """Should create the TreeWidget that holds the Series Items"""
@@ -30,6 +33,7 @@ class SeriesItemTreeWidget():
                  ribbon_bar):
 
         super().__init__()
+        self.logger= picologging.getLogger(__name__)
         self.offline_tree = offlinetree
         self.SeriesItems = offlinetree.SeriesItems
         self.SeriesItems.setHeaderLabel("Series Selector:")
@@ -247,21 +251,16 @@ class SeriesItemTreeWidget():
 
         current_tab = self.tab_list[index]
 
-        # looks like overhead but the current tab holds other information for the second page of the offline analysis compared to the firstpage
-        # while treeviews are equal
-    
+        # if there was no tab visualization object created for this tab create a new one,
+        # else reuse the existing one
         if str(index) not in self.current_tab_visualization_dict.keys():
-
             current_tab_plot_manager = PlotWidgetManager(current_tab.series_plot, self.database_handler, None, False, self.frontend_style)
-            
             self.current_tab_visualization_dict[str(index)] = current_tab_plot_manager
-            print("added current_tab_plot_manager")
-            print(self.current_tab_visualization_dict)
         else:
-            print("didnt add current_tab_plot_manager")
             current_tab_plot_manager = self.current_tab_visualization_dict[str(index)]
         
-        
+        # if there was no tree view manager object created for this tab create a new one,
+        # else reuse the existing one
         if str(index) not in self.current_tab_tree_view_manager_dict.keys():
 
             current_tab_tree_view_manager = TreeViewManager(self.database_handler,
@@ -271,10 +270,10 @@ class SeriesItemTreeWidget():
                                                         frontend = self.frontend_style)
             
             self.current_tab_tree_view_manager_dict[str(index)] = current_tab_tree_view_manager
-            print("added current_tab_tree_view_manager")
-            print(self.current_tab_tree_view_manager_dict)
+            self.logger.info("added current_tab_tree_view_manager")
+            self.logger.info(self.current_tab_tree_view_manager_dict)
         else:
-            print("didnt add current_tab_tree_view_manager")
+            self.logger.info("reused existing tab_tree_view_manager")
             current_tab_tree_view_manager = self.current_tab_tree_view_manager_dict[str(index)]
 
         current_tab.frontend_style = self.frontend_style
@@ -356,40 +355,49 @@ class SeriesItemTreeWidget():
         @todo restructure this and move it maybe into a new class with the related functions ?
         """
         try:
-            if self.SeriesItems.currentItem().text(0) == "Multi-Series Analysis:":
+            if self.SeriesItems.currentItem().text(0) == OfflineAnalysisTreeTokens.MULTI_SERIES_TOKEN.value:
                 ConstrcutionSideDialog(self.frontend_style)
             elif self.SeriesItems.currentItem().data(1, Qt.UserRole) is not None:
                 #self.result_analysis_parent_clicked()
+                #  the "parent" (series name) was clicked but we actually need the children Analysis Configurator, Plot, Table or Statistics
                 self.SeriesItems.setCurrentItem(self.SeriesItems.currentItem().child(0))
                 self.offline_analysis_result_tree_item_clicked()
             else:
                 """identifiy the parent"""
+
                 if self.SeriesItems.currentItem().child(0):
                     parent_stacked = self.SeriesItems.currentItem().data(7, Qt.UserRole)
                 else:
                     parent_stacked = self.SeriesItems.currentItem().parent().data(7, Qt.UserRole)
-
-                if self.SeriesItems.currentItem().text(0) == "Analysis Configurator":
+                
+                child_text = self.SeriesItems.currentItem().text(0) 
+                if  child_text == OfflineAnalysisTreeTokens.CONFIGURATOR_TOKEN.value:
                     self.simple_analysis_configuration_clicked(parent_stacked)
                     self.parent_stacked = parent_stacked
                     self.set_ribbon_bar_page(1)
 
-                if self.SeriesItems.currentItem().text(0) == "Plot":
+                if child_text == OfflineAnalysisTreeTokens.PLOT_TOKEN.value:
                     self.analysis_stacked.setCurrentIndex(parent_stacked)
-                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(1)
+                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(OfflineAnalysisTreeTokens.PLOT_INDEX.value)
                     self.set_ribbon_bar_page(2)
 
-                if self.SeriesItems.currentItem().text(0) == "Tables":
+                if child_text == OfflineAnalysisTreeTokens.TABLES_TOKEN.value:
                     self.view_table_clicked(parent_stacked)
                     self.set_ribbon_bar_page(2)
 
-                if self.SeriesItems.currentItem().text(0) == "Statistics":
+                if child_text == OfflineAnalysisTreeTokens.STATISTICS_TOKEN.value:
                     # get the qtdesigner created table widget
                     statistics_table_widget = StatisticsTablePromoted(parent_stacked, self.analysis_stacked, self.hierachy_stacked_list,self.SeriesItems, self.database_handler,self.frontend_style)
                     # add it to the statistic child in the tree
-                    self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
-                    self.hierachy_stacked_list[parent_stacked].setCurrentIndex(3)
-                    self.set_ribbon_bar_page(2)
+                    if statistics_table_widget.meta_data_selected:
+                        self.hierachy_stacked_list[parent_stacked].insertWidget(3,statistics_table_widget)
+                        self.hierachy_stacked_list[parent_stacked].setCurrentIndex(OfflineAnalysisTreeTokens.STATISTICS_INDEX.value)
+                        self.set_ribbon_bar_page(2)
+                    else:
+                        "@todo: open the meta data dialog in"
+                        print("open dialog")
+                    
+
         except Exception as e:
             print("catched an error 1")
             print(e)

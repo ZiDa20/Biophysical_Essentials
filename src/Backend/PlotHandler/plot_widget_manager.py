@@ -676,9 +676,9 @@ class PlotWidgetManager(QRunnable):
         x_interval = float(meta_data_frame['sweep_1'].tolist()[x_interval_pos])
         number_of_datapoints = int(meta_data_frame['sweep_1'].tolist()[number_of_points_pos])
         time = np.linspace(x_start, x_start + x_interval * (number_of_datapoints - 1) * 1000, number_of_datapoints)
-        print("Xinterval = %d", x_start)
-        print("Xinterval = %d", x_interval)
-        print("Xinterval = %d", number_of_datapoints)
+        #print("Xinterval = %d", x_start)
+        #print("Xinterval = %d", x_interval)
+        #print("Xinterval = %d", number_of_datapoints)
         return time
 
     def create_dragable_lines(self,row_col_tuple,rgb_color,cursor_bound_tuple = None):

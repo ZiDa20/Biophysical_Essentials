@@ -21,3 +21,18 @@ class TableEnum(Enum):
     IMON_SIGNAL = "imon_signal"
     IMON_META_DATA = "imon_meta_data"
     PGF_DATA = "pgf_table"
+
+
+class OfflineAnalysisTreeTokens(Enum):
+    CONFIGURATOR_TOKEN = "Analysis Configurator"
+    CONFFIGURATOR_INDEX = 0
+    PLOT_TOKEN = "Plot"
+    PLOT_INDEX = 1
+    TABLES_TOKEN = "Tables"
+    TABLES_INDEX = 2
+    STATISTICS_TOKEN = "Statistics"
+    STATISTICS_INDEX = 3
+    MULTI_SERIES_TOKEN = "Multi-Series Analysis:"
+
+
+

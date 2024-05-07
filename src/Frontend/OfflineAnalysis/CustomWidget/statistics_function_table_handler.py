@@ -36,10 +36,13 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
                        "Kruskal Wallis test":5, 
                        "ANOVA":6}
         self.available_multi_group_test = ["Kruskal Wallis test", "ANOVA"]
-        self.check_meta_data_selected()
-        self.autofill_statistics_table_widget()
-        self.tabWidget.setTabVisible(1,False)   
-        #self.logger = logger
+        self.meta_data_selected = False
+
+        if self.check_meta_data_selected():
+            self.meta_data_selected = True
+            self.autofill_statistics_table_widget()
+            self.tabWidget.setTabVisible(1,False)   
+
     
     def check_meta_data_selected(self):
         """
@@ -47,11 +50,18 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         otherwise each cell is displayed solely and statistics wont work.
         """
         df = self.get_analysis_specific_statistics_df(0) # request the first table since all will have the same meta data for now
-        are_equal = df["experiment_name"] == df["meta_data"] # Compare the two columns for equality
-        if are_equal.all():
+        # Concatenate the values of each row from Column1 and Column2 with '::'
+        df_1 = df.apply(lambda row: '::'.join([row['experiment_name'], row['Sweep_Table_Name']]), axis=1)
+        df_1_old = df["experiment_name"] 
+        df_2 = df["meta_data"]
+        
+        are_equal =  df_1 == df_2 # Compare the two columns for equality
+        are_equal_2 = df_1_old == df_2
+        if are_equal.all() or are_equal_2.all():
             CustomErrorDialog("To run statistics, you have to choose meta data first. Please open the meta-data selection from the ribbon bar above.", self.frontend_style)
+            return False
         else:
-            return
+            return True
 
     def autofill_statistics_table_widget(self):
         """
@@ -310,12 +320,11 @@ class StatisticsTablePromoted(QWidget, Ui_StatisticsTable):
         function to retrieve the correct statistics df.
         based on the shown plot widget order which is indeitified by widget position (row in the plot view and tab in the table tabwidget)
         """
-        # get the meta data from the plot widget
-        # @todo better get them from the database
+        # get the meta data from the tables stored in the plot widget -> @todo better get them from the database
         self.analysis_stacked.setCurrentIndex(self.parent_stacked)
-        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(1)
-        result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].currentWidget()
-        self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
+        # get the plot widget which is stored at position 1
+        result_plot_widget = self.hierachy_stacked_list[self.parent_stacked].widget(1)
+        #self.hierachy_stacked_list[self.parent_stacked].setCurrentIndex(3)
 
         # get the table widget that holds the dataframe
         # two widgets are aligned per row -> r1,c0 = w1, r1,c1 = w2, r2,c0 = w3, r2,c1 = w4

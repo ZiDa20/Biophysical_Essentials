@@ -737,7 +737,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
     def select_statistics_meta_data(self, statistics_table_widget:StatisticsTablePromoted, row_to_insert):
 
-        # honig
+
         dialog = StatisticsMetaData_Handler()
 
         global_meta_data_table = self.database_handler.get_analysis_id_specific_global_meta_data_table_part()
