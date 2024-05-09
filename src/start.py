@@ -9,6 +9,7 @@ import os
 from functools import partial
 import webbrowser
 import picologging
+import Logging.config # important: keep this to import the logger settings to the log file !
 from StyleFrontend.frontend_style import Frontend_Style
 from Frontend.MainWindow.ui_py.main_window import Ui_MainWindow
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog  
