@@ -463,7 +463,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         
         #@todo THREADING
         series_names_list = self.database_handler.get_analysis_series_names_for_specific_analysis_id()
-        debugpy.debug_this_thread()
+        #debugpy.debug_this_thread()
         for i in range(len(series_names_list)):
             QApplication.processEvents()
             series_names_list[i] = series_names_list[i][0]

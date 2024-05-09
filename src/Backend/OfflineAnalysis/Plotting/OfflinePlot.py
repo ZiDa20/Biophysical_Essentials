@@ -411,7 +411,9 @@ class OfflinePlots():
 
         df_names_to_drop = ['Analysis_ID', 'Function_Analysis_ID', 'Sweep_Table_Name', 'Sweep_Number', 
                             'Current', 'Duration', 'Result', 'Increment', 'experiment_name',
-                            'series_meta_data','analysis_id','experiment_label','species','genotype','sex','celltype','condition','individuum_id',"meta_data"]
+                            'series_meta_data','analysis_id','experiment_label','species','genotype',
+                            'sex','celltype','condition','individuum_id',
+                             'y_label','unit_prefix','unit',"meta_data"]
         
      
         if not self.parent_widget.selected_meta_data:

@@ -112,9 +112,20 @@ class SpecificAnalysisFunctions():
         print(plot_dataframe.columns)
         df_names_to_drop = ['Analysis_ID', 'Function_Analysis_ID', 'Sweep_Table_Name', 'Sweep_Number', 
                             'Current', 'Duration', 'Result', 'Increment', 'experiment_name',
-                            'series_meta_data','analysis_id','experiment_label','species','genotype','sex','celltype','condition','individuum_id']
+                            'series_meta_data','analysis_id','experiment_label','species','genotype',
+                            'sex','celltype','condition','individuum_id',
+                             'y_label','unit_prefix','unit']
         
-        z_df = plot_dataframe.drop(columns=[col for col in plot_dataframe.columns if col in df_names_to_drop])
+
+
+        # Extract the specified columns into a new DataFrame
+        #df_dropped = plot_dataframe.loc[:, df_names_to_drop]
+        z_df = plot_dataframe.drop(columns=[col for col in plot_dataframe.columns if col in df_names_to_drop])    
+        
+        # Drop the specified columns from the original DataFrame to get the second DataFrame
+        #z_df = plot_dataframe.drop(columns=df_names_to_drop)
+
+       
        
         # Create a DataFrame with only the dropped columns
         df_dropped = plot_dataframe[[col for col in plot_dataframe.columns if col in df_names_to_drop]]
@@ -130,6 +141,7 @@ class SpecificAnalysisFunctions():
 
         return plot_dataframe, z_score_df
 
+    
     @staticmethod
     def pca_calc(result_table:tuple, database,plot_dataframe=None):
         """Calculates the 1st and 2nd Principal Component of the queried 

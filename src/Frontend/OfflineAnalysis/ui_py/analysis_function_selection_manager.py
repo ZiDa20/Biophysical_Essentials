@@ -435,7 +435,7 @@ class AnalysisFunctionSelectionManager():
             table_widget = self.current_tab.data_table[page]
             # for multiple column analysis write multiple columns
             for col in range(table_widget.columnCount()):
-                debugpy.debug_this_thread()
+                #debugpy.debug_this_thread()
                 print("writing col" , col)
                 
                 analysis_function = table_widget.item(self.FUNC_GRID_ROW, col).text()

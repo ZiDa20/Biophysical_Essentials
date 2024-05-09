@@ -359,7 +359,7 @@ class PlotWidgetManager(QRunnable):
                 x_pos =  int(protocol_steps[x] + sum(protocol_steps[0:x]))
                 print(x_pos)
                 self.ax1.axvline(x_pos, c = 'tab:gray')
-
+                self.ax2.axvline(x_pos, c = 'tab:gray')
             
         self.vertical_layout.addWidget(self.canvas)
         self.handle_plot_visualization(self.ax1_si_prefix)
