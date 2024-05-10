@@ -24,5 +24,7 @@ picologging.basicConfig(
     format="Module: %(name)s | %(levelname)s | %(asctime)s | %(message)s",
     level=loglevel,
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[picologging.StreamHandler(), picologging.FileHandler(f"{EXE_LOCATION}/Logging/Logs/log.log")],
+    handlers=[picologging.FileHandler(f"{EXE_LOCATION}/Logging/Logs/log.log")],
 )
+
+# picologging.StreamHandler(),  stream handler will stream the log into the terminal - delays the tool massively

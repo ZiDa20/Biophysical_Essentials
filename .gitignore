@@ -11,6 +11,7 @@
 *.csv
 *.db    
 *.db.wal
+*.dat
 *.log
 *.py[cod]
 .src/Logs/*.log

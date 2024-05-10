@@ -62,19 +62,21 @@ class ReadDataDirectory(object):
             list: _description_
         """
         if InputDataTypes.HEKA_DATA_FILE_ENDING.value in file_name:
-            self.logger.info("qthread_heka_reading: Generating Bundle for:" + file_name)
+            #self.logger.info("qthread_heka_reading: Generating Bundle for:" + file_name)
             splitted_name = file_name.split(".") # retrieve the name
             file = directory_path + "/" + file_name # the full path to the file
             try:
                 match data_type:
                     case InputDataTypes.BUNDLED_HEKA_DATA:
+                        print("1")
                         bundle = Bundle(file) # open heka reader
                     case InputDataTypes.UNBUNDLED_HEKA_DATA:
+                        print("2")
                         bundle = BundleFromUnbundled(directory_path + "/",splitted_name[0]).generate_bundle()
                     case _: 
-                        self.logger.error("Error in qthread_heka_reading")
+                        #self.logger.error("Error in qthread_heka_reading")
                         bundle = None
-
+                print("finished match")
                 # check if bundle has more than one experiment: 
                 group_records = len(bundle.pul.children)
                 if group_records > 1: # and if yes - split them into multiple bundles for later multithreading
@@ -83,7 +85,7 @@ class ReadDataDirectory(object):
                     pgf_tuple_data_frame = self.read_series_specific_pgf_trace_into_df([], bundle, []) # retrieve pgf data
                     data_access_array = [0,-1,0,0]
                     bundle_list.append((bundle, splitted_name[0], data_access_array,pgf_tuple_data_frame)) 
-            
+                print("finished try")
             except Exception as e:
                 self.logger.error(
                 f"Error in bundled HEKA file reading: {str(file)} the error occured: {str(e)}")

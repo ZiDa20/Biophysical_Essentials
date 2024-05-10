@@ -42,6 +42,7 @@ class MainWindow(QMainWindow, QtStyleTools):
         self.ui.setupUi(self)
         self.set_background_logo()
         self.setup_ui()
+  
         self.logger= picologging.getLogger(__name__) # set the logger
         self.logger.info(EXE_LOCATION)
         self.logger.info("Starting the Biophysical Essentials Program!")
@@ -373,5 +374,5 @@ if __name__ == "__main__":
     window.show()
     app.exec()
 
-    if SCHEDULED_RESTART:
-        restart()
+    #if SCHEDULED_RESTART:
+    #    restart()
