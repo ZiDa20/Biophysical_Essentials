@@ -1030,7 +1030,7 @@ class DuckDBDatabaseHandler():
             except Exception as e:
                 print("update table failed")
 
-            print("added data df successfully")
+            #print("added data df successfully")
 
             imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
 

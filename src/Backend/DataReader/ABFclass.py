@@ -33,7 +33,7 @@ class AbfReader():
         if self.abf_path:
             try:
                 self.load_abf()
-                print("abf loaded")
+                #print("abf loaded")
             except Exception as e:
                 print(f"this is the error: {e}")
 
