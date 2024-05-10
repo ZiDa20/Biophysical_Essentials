@@ -39,13 +39,27 @@ jobs:
 
     - name: Build with PyInstaller
       working-directory: src
-      run: poetry run pyinstaller --onefile --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
+      run: poetry run pyinstaller --add-data "./Logging:Logging"  --add-data "./StyleFrontend:StyleFrontend" --add-data "./database:database" --add-data "./QT_GUI:QT_GUI" --add-data "./qbstyles:qbstyles" --add-data "./resources.py:." --add-data ./Backend/Settings/bpe_settings.ini:Backend/Settings --name=BiophysicalEssentials -i "./Frontend/Button/light_mode/offline_analysis/bpe_logo_small.png" start.py
 
-    - name: Upload dist directory
+
+    - name: Zip dist directory
+      shell: bash
+      run: |
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+            7z a -tzip BPE-${{ matrix.os }}.zip *
+        else
+          tar -czvf BPE-${{ matrix.os }}.tar.gz *
+        fi
+      working-directory: src/dist
+    
+    - name: Display fetched artifacts
+      run: ls -R
+
+    - name: Upload zipped dist directory
       uses: actions/upload-artifact@v4
       with:
         name: BPE-${{ matrix.os }}
-        path: src/dist/*
+        path: src/dist/BPE-${{ matrix.os }}.*
 
   release:
     name: "Tagged Prelease"
@@ -60,15 +74,16 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: BPE-macOS-latest
-          path: BPE-macOS-latest/*.zip
-
+          path: BPE-macOS-latest/*.tar.gz
+  
       - uses: actions/download-artifact@v4
         with:
           name: BPE-ubuntu-latest
-          path: BPE-ubuntu-latest/*.zip
-
+          path: BPE-ubuntu-latest/*.tar.gz
+    
       - name: Display fetched artifacts
         run: ls -R
+
       - name: Emit a Github Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -77,5 +92,5 @@ jobs:
           title: "Development Build"
           files: |
             BPE-windows-latest/*.zip
-            BPE-macOS-latest/*.zip
-            BPE-ubuntu-latest/*.zip
+            BPE-macOS-latest/*.tar.gz
+            BPE-ubuntu-latest/*.tar.gz

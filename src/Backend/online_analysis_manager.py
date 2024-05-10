@@ -1,5 +1,5 @@
 import numpy as np
-from DataReader.heka_reader import Bundle
+from Backend.DataReader.heka_reader import Bundle
 
 
 class OnlineAnalysisManager:
@@ -66,6 +66,8 @@ class OnlineAnalysisManager:
         data = data_bundle.data[request_array]
         return data
 
+    # depreacted DZ, 07.04.2024?!
+    """
     def read_dat_tree_structure(self,treeview,mode):
         '''Main function to orchestrate the reading of a dat file, will return a treeview'''
 
@@ -97,7 +99,7 @@ class OnlineAnalysisManager:
         return self.built_tree_from_list(self.tree, node_list,1)
         # a manual stack-like list which will hold the node types of all sorted notes
 
-
+    """
     def built_tree_from_list(self,treeview,node_list, mode):
         self.manual_stack = []
         self.tree= treeview

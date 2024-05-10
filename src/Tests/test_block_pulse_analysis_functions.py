@@ -14,8 +14,8 @@ from pytestqt import qtbot
 import pytestqt
 import pytest
 import shutil
-from database.data_db import DuckDBDatabaseHandler
-from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 
 import sys
@@ -25,7 +25,8 @@ from start import *
 import pytest
 import unittest
 import time
-from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from Backend.tokenmanager import InputDataTypes
 
 ####################
 # A test that simulates a basic offline analysis (OFA) workflow:
@@ -57,7 +58,7 @@ def load_demo_dat_data_into_database(qtbot,db_name):
                             app.ui.offline.offline_manager,
                             app.frontend_style)
 
-    template.map_metadata_to_database()
+    template.map_metadata_to_database(InputDataTypes.BUNDLED_HEKA_DATA)
     app.template_df = template.template_dataframe.values.tolist()
     # continue open directory writes the data from the selected directory into the database,
     # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 
@@ -82,8 +83,9 @@ def setup_test_environment(qtbot):
     test_db.database.close()
 
 # test 1: load the data
-@pytest.mark.run(order=1)
-@pytest.mark.serial
+#@pytest.mark.run(order=1)
+#@pytest.mark.serial
+#@pytest.mark.xdist_group(name="group_serial")
 def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environment):
 
     """ Test 1: 
@@ -97,10 +99,10 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
     """
 
     test_db, app = setup_test_environment
-    QApplication.processEvents()
-    app.show()
-    qtbot.waitForWindowShown(app)
-    time.sleep(3)
+    #QApplication.processEvents()
+    #app.show()
+    #qtbot.waitForWindowShown(app)
+    #time.sleep(3)
     #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = test_db.database.execute("SHOW TABLES").fetchdf()
     
@@ -116,8 +118,8 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
             
         # check that the default selected treeview does only show experiment and series level data
         selected_treeview_table = app.ui.offline.blank_analysis_tree_view_manager.selected_tree_view_data_table
-        print("got this table back")
-        print(selected_treeview_table)
+        #print("got this table back")
+        #print(selected_treeview_table)
         res = selected_treeview_table["type"].unique().tolist()
         valid_types = ["Experiment","Series"]
         
@@ -132,18 +134,18 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
 
 
 # test 2: select all series and  proceed to OFA page 2
-@pytest.mark.run(order=2)
+#@pytest.mark.run(order=2)
 def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
     test_db, app = setup_test_environment
-    QApplication.processEvents()
-    app.show()
-    qtbot.waitForWindowShown(app)
-    time.sleep(3)
+    #QApplication.processEvents()
+    #app.show()
+    #qtbot.waitForWindowShown(app)
+    #time.sleep(3)
 
     # click the button to open the menu   
     qtbot.mouseClick(app.ui.offline.compare_series, Qt.LeftButton)
     # wait until the dialog appears
-    QApplication.processEvents()
+    #QApplication.processEvents()
     dialog = app.ui.offline.OfflineDialogs.series_dialog
     #click the upper checkbox saying "ALL"
     # Find the index of the "All" checkbox
@@ -157,21 +159,21 @@ def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
     else:
         print("Checkbox 'All' not found in the list.")
     # proceed with "OK"
-    QApplication.processEvents()
+    #QApplication.processEvents()
     qtbot.mouseClick(dialog.confirm_series, Qt.LeftButton)
     # click proceed to continue to OFA page 2
-    QApplication.processEvents()
+    #QApplication.processEvents()
     qtbot.mouseClick(app.ui.offline.start_analysis,Qt.LeftButton)
     # wait until the popup closes again is prepared
     assert app.ui.offline.offline_analysis_widgets.currentIndex() == 1
     return test_db, app
 
-@pytest.mark.run(order=3)
+#@pytest.mark.run(order=3)
 # test 3: open the analysis function selection menu, select 
 def test_analysis_function_menu(qtbot, setup_test_environment):
      # get the state after test 2
      test_db, app = test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment)
-     app.show()
+     #app.show()
 
      # now find the block pulse in the series selector treeview. 
      # click the analysis configurator (child 0)
@@ -179,6 +181,6 @@ def test_analysis_function_menu(qtbot, setup_test_environment):
      # open the analysis function selection menu
      # qtbot.mouseClick(app.ui.offline.select_analysis_fct,Qt.LeftButton)
      assert True
-     return test_db, app
+     #return test_db, app
  
      

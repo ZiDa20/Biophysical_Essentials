@@ -1,0 +1,54 @@
+name: BPE Pytest
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+
+  automated_testing:
+    name: Automated Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        #, macOS-latest]
+        python-version: [3.11]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+     # Add the following step to update apt and install libgl1
+    - name: Update apt and install libgl1
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+          sudo -E apt-get update
+
+    - name: Install Poetry
+      run: |
+        pip install poetry
+
+    - name: Configure Poetry
+      working-directory: src
+      run: |
+        poetry config virtualenvs.create false
+
+    - name: Install dependencies
+      working-directory: src  
+      run: |
+        poetry install
+
+    - name: Execute Win Tests
+      working-directory: src
+      if: matrix.os == 'windows-latest'
+      run: poetry run pytest -p no:faulthandler -s
+
+    - name: Execute Linux and Mac Tests
+      working-directory: src
+      if: matrix.os != 'windows-latest'
+      run: poetry run pytest

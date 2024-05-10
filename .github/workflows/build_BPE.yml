@@ -1,18 +1,22 @@
 name: Build and Release
 
+#on:
+#  push:
+#    branches: [ main ]
+    #pull_request:
+    #  branches: [ "main" ]
 on:
-  push:
-    branches: [ main ]
-    pull_request:
-      branches: [ "main" ]
-  workflow_dispatch:
+  pull_request:
+    types: [opened,edited, synchronize, reopened]
 
+  workflow_dispatch:
+  
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macOS-latest]
+        os: [windows-latest,ubuntu-latest, macOS-latest]
         python-version: [3.11]
 
     steps:
@@ -39,8 +43,7 @@ jobs:
 
     - name: Build with PyInstaller
       working-directory: src
-      run: poetry run pyinstaller --onefile --add-data './StyleFrontend:StyleFrontend' --add-data './database:database' --add-data './QT_GUI:QT_GUI' --add-data './qbstyles:qbstyles' --add-data './resources.py:.' start.py
-
+      run: poetry run pyinstaller --add-data "./Logging:Logging"  --add-data "./StyleFrontend:StyleFrontend" --add-data "./database:database" --add-data "./QT_GUI:QT_GUI" --add-data "./qbstyles:qbstyles" --add-data "./resources.py:." --add-data ./Backend/Settings/bpe_settings.ini:Backend/Settings --name=BiophysicalEssentials -i "./Frontend/Button/light_mode/offline_analysis/bpe_logo_small.png" start.py
   
     - name: Upload dist directory
       uses: actions/upload-artifact@v4

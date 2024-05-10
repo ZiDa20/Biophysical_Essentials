@@ -14,10 +14,12 @@ from pytestqt import qtbot
 import pytestqt
 import pytest
 import shutil
-from database.data_db import DuckDBDatabaseHandler
-from QT_GUI.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
 import time
+from Backend.tokenmanager import InputDataTypes
+
 
 def clean_leftover_db():
      test_dir = os.path.join(os.getcwd(),"Tests")
@@ -31,16 +33,16 @@ def clean_leftover_db():
                 print(f"Error deleting {filepath}: {e}")
 
 
-@pytest.mark.order(1)
-@pytest.mark.serial
+#@pytest.mark.order(1)
+#@pytest.mark.serial
 def test_clean():
      clean_leftover_db()
 
 
 #### i have no clue why and i am happy for feedbacl: the first test with the db interaction is always failing  #####
 #### thats why i have this always true test in here #####
-@pytest.mark.order(2)
-@pytest.mark.serial
+#@pytest.mark.order(2)
+#@pytest.mark.serial
 def test_true(qtbot):
     test_db = set_database()  
     app = MainWindow(testing_db = test_db)
@@ -50,7 +52,7 @@ def test_true(qtbot):
                             app.ui.offline.offline_manager,
                             app.frontend_style)
 
-    template.map_metadata_to_database()
+    template.map_metadata_to_database(InputDataTypes.BUNDLED_HEKA_DATA)
     app.template_df = template.template_dataframe.values.tolist()
     # continue open directory writes the data from the selected directory into the database,
     # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 
@@ -68,8 +70,8 @@ def test_true(qtbot):
     assert True
     test_db.database.close()
 
-@pytest.mark.order(3)
-@pytest.mark.serial
+#@pytest.mark.order(3)
+#@pytest.mark.serial
 def test_long_computation(qtbot):
 
     test_db = set_database()  
@@ -80,7 +82,7 @@ def test_long_computation(qtbot):
                             app.ui.offline.offline_manager,
                             app.frontend_style)
 
-    template.map_metadata_to_database()
+    template.map_metadata_to_database(InputDataTypes.BUNDLED_HEKA_DATA)
     app.template_df = template.template_dataframe.values.tolist()
     # continue open directory writes the data from the selected directory into the database,
     # opens the wait dialog and opens the Load_Data_From_Database_Popup_Handler when the 
