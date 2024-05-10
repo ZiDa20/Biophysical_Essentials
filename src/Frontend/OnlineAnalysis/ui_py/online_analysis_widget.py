@@ -23,6 +23,7 @@ from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
 import picologging
 import numpy as np
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
+import re
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self, parent=None):
@@ -274,6 +275,12 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.logger.info(f"Open {file_name}")
             treeview_name = file_name.split("/")
 
+            # regexps in the file name will make the database handler crash
+            if self.regexp_check(treeview_name[-1]):
+                CustomErrorDialog(f'The file name {treeview_name[-1]} contains disallowed characters. \n Not allowed are whitespace, dashes, hyphens and hashtags. \n Please rename the file !',self.frontend_style)
+                self.logger.error(f'The file name {treeview_name[-1]} contains disallowed characters.')
+                return 
+
             if ".dat" in treeview_name[-1]:
                 treeview_name = treeview_name[-1].split(".")[0]
                 self.logger.info("Open .dat file {file_name}")
@@ -301,6 +308,27 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         
         self.show_single_file_in_treeview(file_name, treeview_name)
         self.ap.stop_and_close_animation()
+
+    def  regexp_check(self,file_name):
+        """
+        Check if the file name contains disallowed characters: whitespace, dashes, hyphens, and hashtags.
+        
+        Args:
+        file_name (str): The file name to be checked.
+        
+        Returns:
+        bool: True if the file name contains disallowed characters, False otherwise.
+        """
+        # Regular expression pattern to check for disallowed characters
+        pattern = r'[ \-#]'
+        
+        # Search for disallowed characters in the file name
+        if re.search(pattern, file_name):
+            # If a match is found, return True
+            return True
+        else:
+            # If no match is found, return False
+            return False
 
     def check_if_experiments_exist_online(self, treeview_name: str) -> pd.DataFrame:
         """ This should initally check if there is already an exisiting table in the database
