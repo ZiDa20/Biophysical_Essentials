@@ -10,6 +10,7 @@ import pandas as pd
 import picologging
 import debugpy
 from copy import deepcopy
+import re
 
 class ReadDataDirectory(object):
     """
@@ -46,6 +47,9 @@ class ReadDataDirectory(object):
            bundle_list = self.single_dat_file_handling(i,directory_path, data_type,bundle_list)
         return bundle_list,[]
     
+
+
+
     def single_dat_file_handling(self,file_name:str,directory_path:str, data_type:InputDataTypes,bundle_list:list)->list:
         """
         single_dat_file_handling Handles a single dat file, so far, the following types are covered:
@@ -327,6 +331,36 @@ class ReadDataDirectory(object):
         self.database_handler.database.close()
         return "database closed"
 
+
+    def  regexp_check(self,file_name):
+        """
+        Check if the file name contains disallowed characters: whitespace, dashes, hyphens, and hashtags.
+        
+        Args:
+        file_name (str): The file name to be checked.
+        
+        Returns:
+        bool: True if the file name contains disallowed characters, False otherwise.
+        """
+        # Regular expression pattern to check for disallowed characters
+        pattern = r'[ \-#]'
+        
+        # Search for disallowed characters in the file name
+        
+        print(file_name)
+        if re.search(pattern, file_name):
+            # Replace disallowed characters with underscores
+            print("regexp in file name detected")
+            new_file_name = re.sub(pattern, '_', file_name)
+            print("renamed to:")
+            print(new_file_name)
+            return  new_file_name
+        else:
+            # If no match is found, return False
+            print("regexp not detected")
+            return file_name
+
+
     def single_file_into_db(self,index, bundle, experiment_name, database,  data_access_array , pgf_tuple_data_frame=None):
         """Main Functions to write a single (.dat ?) file into the database. Called during multithreading ! 
         If the filename (==experimentname) was identified as corrupted, the mapped new name is used instead
@@ -342,6 +376,8 @@ class ReadDataDirectory(object):
         """
         if database is None:
             database = self.database_handler
+
+        experiment_name =  self.regexp_check(experiment_name)
 
         root = bundle.pul
         node = root
