@@ -5,4 +5,4 @@ Biophysical Essentials is an open-source software framework written in Python QT
 
 Please find our preprint-paper here: https://www.biorxiv.org/content/10.1101/2024.01.24.576881v1
 
-And please visit the BPE-project homepage for detailed documentation and further information: https://biophysical-essentials.i-med.ac.at
+A full documentation and tutorials how to get started can be found on the BPE-project homepage at https://biophysical-essentials.i-med.ac.at . On this webiste, you will also find the software download with the demo data included. 
