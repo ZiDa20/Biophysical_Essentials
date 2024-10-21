@@ -139,7 +139,7 @@ class MainWindow(QMainWindow, QtStyleTools):
     def setup_config_online_style(self)-> None:
         """Connects the start with the online analysis and database viewer
         That all the necessary objects are connected"""
-        self.ui.online.update_database_handler(self.online_database, self.local_database_handler)
+        self.ui.online.update_database_handler(self.online_database, self.local_database_handler, self.frontend_style)
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.config.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.frontend_style = self.frontend_style
