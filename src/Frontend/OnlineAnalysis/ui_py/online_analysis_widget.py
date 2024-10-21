@@ -6,7 +6,7 @@ from functools import partial
 import pandas as pd
 from matplotlib.backends.backend_qtagg import (NavigationToolbar2QT as NavigationToolbar)
 from Frontend.OnlineAnalysis.ui_py.online_analysis_designer_object import Ui_Online_Analysis
-from Backend.online_analysis_manager import OnlineAnalysisManager
+#from Backend.online_analysis_manager import OnlineAnalysisManager
 from Backend.ExperimentTree.treeview_manager import TreeViewManager
 from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
 from Backend.DataReader.heka_reader import Bundle
@@ -32,7 +32,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         # initialize the OnlineAnalysis Manager
         self.online_analysis_plot_manager = None
-        self.online_manager = OnlineAnalysisManager()
+        #self.online_manager = OnlineAnalysisManager()
         self.online_analysis.setCurrentIndex(0)
         self.online_analysis.setTabPosition(QTabWidget.East)
 
@@ -292,7 +292,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         self.ap.make_widget()
         # save the path in the manager class
-        self.online_manager._dat_file_name = file_name
+        #self.online_manager._dat_file_name = file_name
         # check if this file is already within the database. if yes, the file name will be renamed copy-
         if not self.check_if_experiments_exist_online(treeview_name).empty:
             self.logger.info(f"""file already exists within the offline analysis
