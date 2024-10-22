@@ -30,6 +30,24 @@ class Frontend_Style():
             default_mode (int): 0 or 1 for dark or light mode
         """
         self._default_mode = mode
+        
+    def switch_dark_light_mode(self, app) -> bool:
+        series_list_length = len(app.ui.offline.offline_tree.tab_list) 
+        if series_list_length <= 0: 
+            app.ui.side_left_menu.hide()
+            # clear the button layout to make sure they are relaoded in the correct color 
+            layout = app.ui.gridLayout_3
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget:
+                    widget.deleteLater()
+            tm, pm = app.ui.offline.get_current_tm_pm() # gets the treeivewmanager and plotwidgetmanager of page. 
+            self.change_to_lightmode(app.ui.switch_dark_light_mode)
+            tm.update_treeviews(pm)
+            return True
+        else:
+            return False# update the treeviews to redraw the delegates in the correct color (if opened once)
 
     def set_pop_up_dialog_style_sheet(self,dialog):
         '''

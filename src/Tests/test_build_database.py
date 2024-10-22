@@ -1,5 +1,4 @@
 import sys
-import unittest
 import os
 sys.path.append(os.getcwd())
 from start import *
@@ -17,7 +16,6 @@ import shutil
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from pathlib import Path
-import time
 from Backend.tokenmanager import InputDataTypes
 
 
@@ -65,7 +63,6 @@ def test_true(qtbot):
 
     #qtbot.mouseClick(app.ui.offline.load_data_from_database_dialog.load_data, Qt.LeftButton)
     tables = test_db.database.execute("SHOW TABLES").fetchdf()
-    a = tables.shape[0]
 
     assert True
     test_db.database.close()

@@ -89,20 +89,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         "switch the mode of the app upon button click"
         # make sure offline analysis page 1 was visited only
         # list l has entires for every selected series to be analyzed
-        l = len(self.ui.offline.offline_tree.tab_list) 
-        if l <= 0: 
-            self.ui.side_left_menu.hide()
-            # clear the button layout to make sure they are relaoded in the correct color 
-            layout = self.ui.gridLayout_3
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
-            tm, pm = self.ui.offline.get_current_tm_pm() # gets the treeivewmanager and plotwidgetmanager of page. 
-            self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
-            tm.update_treeviews(pm) # update the treeviews to redraw the delegates in the correct color (if opened once)
-        else:
+        switched = self.frontend_style.switch_dark_light_mode(self)
+        if not switched: 
             CustomErrorDialog("Switching between the modes is not allowed after specific series in offline analysis were selected. \n You could start a new offline analysis and switch the color mode before selecting the series to analyze.",self.frontend_style)
 
     def set_background_logo(self):
