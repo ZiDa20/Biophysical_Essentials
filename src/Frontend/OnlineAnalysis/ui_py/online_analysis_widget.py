@@ -701,8 +701,11 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         try:
             if self.labbook_table is None:
+                group_box = QGroupBox("Labbook Table")
+                group_box_layout = QVBoxLayout(group_box)  # Use a vertical layout for the group box
                 self.labbook_table = QTableView()
-                self.table_layout.addWidget(self.labbook_table)
+                group_box_layout.addWidget(self.labbook_table)  # Add the table view to the group box layout
+                self.table_layout.addWidget(group_box)  # Add the group box to the main la
 
             self.labbook_model = PandasTable(data)
             self.labbook_table.setModel(self.labbook_model)
