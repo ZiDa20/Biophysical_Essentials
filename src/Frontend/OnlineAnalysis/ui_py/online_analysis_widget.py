@@ -20,14 +20,14 @@ from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from Frontend.CustomWidget.Pandas_Table import PandasTable
 from Frontend.CustomWidget.user_notification_dialog import UserNotificationDialog
+from Frontend.OnlineAnalysis.ui_py.FileDialog import FileDialog
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import (
     ConstrcutionSideDialog,
 )
 from Frontend.OnlineAnalysis.ui_py.online_analysis_designer_object import (
     Ui_Online_Analysis,
 )
-from Frontend.OnlineAnalysis.ui_py.RedundantDialog import RedundantDialog
-from StyleFrontend.animated_ap import LoadingAnimation
+
 
 if TYPE_CHECKING:
     from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
@@ -422,101 +422,19 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         to do an action when a new online analysis file will be loaded "
         """
 
+        if not self.online_analysis_config:
+            self.logger.error("OnlineAnalysisConfig is not initialized, please initialize it first")
+            raise ValueError("OnlineAnalysisConfig is not initialized, please initialize it first")
+        
         self.online_analysis_config.reset_class()
+            
+        if self.offline_database and self.frontend_style:
+            file_dialog = FileDialog(self.offline_database, self.frontend_style)
+            file_dialog.exec_()
+            self.show_single_file_in_treeview(file_dialog.file_path, file_dialog.treeview_name)
 
-        self.ap = LoadingAnimation(
-            "Preparing your data: Please Wait", self.frontend_style
-        )
 
-        # open selection and retake users file selection
-        # self.online_analysis.setCurrentIndex(0)
-        # self.online_analysis_tabs.setCurrentIndex(0)
-
-        if file_name is False:
-            file_dialog = QFileDialog()
-            file_dialog.setNameFilter("Data Files (*.dat *.abf)")
-            # Get the selected file
-            file_name = file_dialog.getOpenFileName(
-                self, "Open File", "", "Data Files (*.dat *.abf)"
-            )[0]
-            self.logger.info(f"Open {file_name}")
-            treeview_name = file_name.split("/")
-
-            # regexps in the file name will make the database handler crash
-            if self.regexp_check(treeview_name[-1]):
-                CustomErrorDialog(
-                    f"The file name {treeview_name[-1]} contains disallowed characters. \n Not allowed are whitespace, dashes, hyphens and hashtags. \n Please rename the file !",
-                    self.frontend_style,
-                )
-                self.logger.error(
-                    f"The file name {treeview_name[-1]} contains disallowed characters."
-                )
-                return
-
-            if ".dat" in treeview_name[-1]:
-                treeview_name = treeview_name[-1].split(".")[0]
-                self.logger.info("Open .dat file {file_name}")
-            else:
-                treeview_name = "_".join(treeview_name[-1].split("_")[:2])
-                self.logger.info("Open .abf file {file_name}")
-        else:
-            treeview_name = file_name
-
-        self.ap.make_widget()
-        # save the path in the manager class
-        # self.online_manager._dat_file_name = file_name
-        # check if this file is already within the database. if yes, the file name will be renamed copy-
-        if not self.check_if_experiments_exist_online(treeview_name).empty:
-            self.logger.info(f"""file already exists within the offline analysis
-                                database with name {treeview_name}, Start redundancy check""")
-            redundant = RedundantDialog(
-                self.offline_database, treeview_name, self.logger
-            )
-            self.frontend_style.set_pop_up_dialog_style_sheet(redundant)
-            result = redundant.exec_()
-            if result == 0:
-                return None
-            treeview_name = redundant.new_treeview_name
-            self.logger.info(f"Data was renamed to {treeview_name}")
-
-        self.show_single_file_in_treeview(file_name, treeview_name)
-        self.ap.stop_and_close_animation()
-
-    def regexp_check(self, file_name):
-        """
-        Check if the file name contains disallowed characters: whitespace, dashes, hyphens, and hashtags.
-
-        Args:
-        file_name (str): The file name to be checked.
-
-        Returns:
-        bool: True if the file name contains disallowed characters, False otherwise.
-        """
-        pattern = r"[ \-#]"
-
-        # Search for disallowed characters in the file name
-        if re.search(pattern, file_name):
-            # If a match is found, return True
-            return True
-        else:
-            # If no match is found, return False
-            return False
-
-    def check_if_experiments_exist_online(self, treeview_name: str) -> pd.DataFrame:
-        """Check if there is an existing table in the database with the same name as the new experiment.
-
-        Args:
-            treeview_name (str): The initial name of the experiment.
-
-        Returns:
-            pd.DataFrame: DataFrame holding all experiments with the same name.
-        """
-
-        q = f"select * from experiments where experiment_name = '{treeview_name}'"
-        df = self.offline_database.database.execute(q).fetchdf()
-        self.logger.info("This is the current name of the file: {treeview_name}")
-        return df
-
+ 
     def show_single_file_in_treeview(self, file_name: str, treeview_name: str) -> None:
         """Load a new file into the database and create a tree view from it.
 

@@ -161,6 +161,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.ui.side_left_menu.hide()
 
         self.ui.notebook.setCurrentIndex(0)
+        
     def handle_settings_page(self):
         """
         handle_settings_page _summary_
@@ -173,6 +174,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def create_button(self, text, image, image_dark, function, param=None):
         """Creates a single button"""
+        self.logger.debug(f"Creating button with text: {text}, image: {image}, image_dark: {image_dark}, function: {function}, param: {param}")
         new_button = QToolButton()
         new_button.setText(text)
         icon = QIcon()

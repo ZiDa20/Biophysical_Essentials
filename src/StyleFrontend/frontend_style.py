@@ -2,6 +2,10 @@ import os
 from qbstyles import mpl_style
 import matplotlib as mpl
 from PySide6.QtCore import QDir
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from start import MainWindow 
 class Frontend_Style():
     """class that will provide all the frontend styles to be used in common by all frontend classes with the same instance"""
 
@@ -31,7 +35,8 @@ class Frontend_Style():
         """
         self._default_mode = mode
         
-    def switch_dark_light_mode(self, app) -> bool:
+    def switch_dark_light_mode(self, app: 'MainWindow') -> bool:
+        
         series_list_length = len(app.ui.offline.offline_tree.tab_list) 
         if series_list_length <= 0: 
             app.ui.side_left_menu.hide()
