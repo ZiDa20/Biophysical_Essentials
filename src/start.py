@@ -345,6 +345,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         cp = self.screen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        
+    def closeEvent(self, event):
+        """Override the close event to perform cleanup before quitting."""
+        if self.local_database_handler:
+            self.local_database_handler.close()  # Close the database connection
+        event.accept()  # Accept the event to close the application
 
 def restart():
     """Restart the application."""
