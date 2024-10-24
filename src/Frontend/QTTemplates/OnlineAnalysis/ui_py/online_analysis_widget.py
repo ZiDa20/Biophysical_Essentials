@@ -372,7 +372,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_tree_view_manager.click_top_level()
         self.enable_plot_options()
         self.set_enabled_button(True)
-        self.get_columns_data_to_table()
+        self.get_columns_data_to_table(self.online_analysis_tree_view_manager)
         self.stackedWidget.setCurrentIndex(0)
         self.logger.info(f"Successfully transferred to online analysis db the file {self.experiment_name}")
 
