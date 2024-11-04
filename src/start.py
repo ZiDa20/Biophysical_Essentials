@@ -89,20 +89,8 @@ class MainWindow(QMainWindow, QtStyleTools):
         "switch the mode of the app upon button click"
         # make sure offline analysis page 1 was visited only
         # list l has entires for every selected series to be analyzed
-        l = len(self.ui.offline.offline_tree.tab_list) 
-        if l <= 0: 
-            self.ui.side_left_menu.hide()
-            # clear the button layout to make sure they are relaoded in the correct color 
-            layout = self.ui.gridLayout_3
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
-            tm, pm = self.ui.offline.get_current_tm_pm() # gets the treeivewmanager and plotwidgetmanager of page. 
-            self.frontend_style.change_to_lightmode(self.ui.switch_dark_light_mode)
-            tm.update_treeviews(pm) # update the treeviews to redraw the delegates in the correct color (if opened once)
-        else:
+        switched = self.frontend_style.switch_dark_light_mode(self)
+        if not switched: 
             CustomErrorDialog("Switching between the modes is not allowed after specific series in offline analysis were selected. \n You could start a new offline analysis and switch the color mode before selecting the series to analyze.",self.frontend_style)
 
     def set_background_logo(self):
@@ -139,7 +127,7 @@ class MainWindow(QMainWindow, QtStyleTools):
     def setup_config_online_style(self)-> None:
         """Connects the start with the online analysis and database viewer
         That all the necessary objects are connected"""
-        self.ui.online.update_database_handler(self.online_database, self.local_database_handler)
+        self.ui.online.update_database_handler(self.online_database, self.local_database_handler, self.frontend_style)
         self.ui.database.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.config.update_database_handler(self.local_database_handler, self.frontend_style)
         self.ui.online.frontend_style = self.frontend_style
@@ -173,6 +161,7 @@ class MainWindow(QMainWindow, QtStyleTools):
             self.ui.side_left_menu.hide()
 
         self.ui.notebook.setCurrentIndex(0)
+        
     def handle_settings_page(self):
         """
         handle_settings_page _summary_
@@ -185,6 +174,7 @@ class MainWindow(QMainWindow, QtStyleTools):
 
     def create_button(self, text, image, image_dark, function, param=None):
         """Creates a single button"""
+        self.logger.debug(f"Creating button with text: {text}, image: {image}, image_dark: {image_dark}, function: {function}, param: {param}")
         new_button = QToolButton()
         new_button.setText(text)
         icon = QIcon()
@@ -355,6 +345,12 @@ class MainWindow(QMainWindow, QtStyleTools):
         cp = self.screen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        
+    def closeEvent(self, event):
+        """Override the close event to perform cleanup before quitting."""
+        if self.local_database_handler:
+            self.local_database_handler.close()  # Close the database connection
+        event.accept()  # Accept the event to close the application
 
 def restart():
     """Restart the application."""

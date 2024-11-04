@@ -10,7 +10,7 @@ import duckdb
 import re
 from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
 
-
+print("DuckDB version:", duckdb.__version__)
 if TYPE_CHECKING:
     import logging
     from StyleFrontend.frontend_style import Frontend_Style
@@ -45,6 +45,9 @@ class DuckDBDatabaseHandler():
     """---------------------------------------------------"""
     """ General database functions                        """
     """---------------------------------------------------"""
+    
+    def close(self):
+        self.duckdb_database.database.close()
 
     def open_connection(self, read_only: bool = False) -> None:
         """_summary_: Open a connection to the database
