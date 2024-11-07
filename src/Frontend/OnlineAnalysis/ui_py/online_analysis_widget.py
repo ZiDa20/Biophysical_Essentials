@@ -472,6 +472,13 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.video_call = 0
 
     def wait_for_data(self):
+        """
+        wait_for_data this is a bugfix: somehow, sometimes there is an error during file loading 
+        saying _data object of the model does not exist .. looks like there is some gui delay ?! 
+
+        Returns:
+            _type_: _description_
+        """
         model = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()
         retries = 5  # Number of retries
         while retries > 0:
