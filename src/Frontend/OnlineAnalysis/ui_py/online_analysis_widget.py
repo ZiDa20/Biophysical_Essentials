@@ -24,6 +24,7 @@ import picologging
 import numpy as np
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 import re
+import time
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
     def __init__(self, parent=None):
@@ -470,13 +471,27 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.start_video.stop()
             self.video_call = 0
 
+    def wait_for_data(self):
+        model = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()
+        retries = 5  # Number of retries
+        while retries > 0:
+            if hasattr(model, "_data") and model._data is not None:
+                return model._data
+            time.sleep(0.1)  # Small delay before checking again
+            retries -= 1
+        return None  # Return None if data isn't ready in time
+
     def get_columns_data_to_table(self) -> None:
         """ This retrieves information from the recording which can
         be used in a Labbook like table.
         In addition a comment section is added where comments to specific experimental conditions
         can be made"""
         self.logger.info(f"Creating labbook for file {self.experiment_name}")
-        final_pandas = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data 
+
+        final_pandas = self.wait_for_data()
+        if final_pandas is  None:
+           raise ValueError()
+        
         final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
         self.experiment_name  = final_pandas["item_name"].values[0]
         list_cslow = [] # need to change this to support more metadata
