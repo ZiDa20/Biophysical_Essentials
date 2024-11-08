@@ -178,6 +178,7 @@ class AbfReader():
 
                 epochs_data.append({"series_name": abf.protocol,
                             "sweep_number": abf.sweepCount,
+                            "start_time": 0,
                             "node_type":0,
                             "holding_potential":voltage,
                             "duration":duration,

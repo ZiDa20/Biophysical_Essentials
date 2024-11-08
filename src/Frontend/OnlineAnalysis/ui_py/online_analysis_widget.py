@@ -441,12 +441,22 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_tree_view_manager.selected_meta_data_list = ["None"]
         self.online_analysis_tree_view_manager.map_data_to_analysis_id([self.experiment_name])
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
+        
         self.logger.info("Finished the loading of the file!")
         self.online_analysis.setTabEnabled(1,True)
         self.online_analysis.setTabEnabled(2,True)
+
+        print("Table 1")
+        print(self.online_analysis_tree_view_manager.selected_tree_view_data_table)
+
+        print("Table 2")
+        print(self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data)
+        
         self.online_analysis_tree_view_manager.click_top_level()
         self.enable_plot_options()
         self.set_enabled_button(True)
+
+
         self.get_columns_data_to_table()
         self.stackedWidget.setCurrentIndex(0)
         self.logger.info(f"Successfully transferred to online analysis db the file {self.experiment_name}")
@@ -480,7 +490,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             _type_: _description_
         """
         model = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()
-        retries = 5  # Number of retries
+        retries = 10  # Number of retries
         while retries > 0:
             if hasattr(model, "_data") and model._data is not None:
                 return model._data
