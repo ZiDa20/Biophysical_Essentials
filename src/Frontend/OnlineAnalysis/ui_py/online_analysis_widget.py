@@ -413,6 +413,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
                 if abf_identifier in abf:
                     print(abf)
+                    
                     file_2 = pathname + "/" + abf
                     abf_file = AbfReader(file_2)
                     data_file = abf_file.get_data_table()
@@ -451,7 +452,7 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
 
         print("Table 2")
         print(self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data)
-        
+
         self.online_analysis_tree_view_manager.click_top_level()
         self.enable_plot_options()
         self.set_enabled_button(True)

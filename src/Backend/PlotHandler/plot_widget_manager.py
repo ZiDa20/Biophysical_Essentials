@@ -351,7 +351,9 @@ class PlotWidgetManager(QRunnable):
             # finally also the pgf file needs to be added to the plot
             # load the table
             pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-            pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
+            
+            #### !!!!! this must be handled 
+            #pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
             
             protocol_steps = self.plot_pgf_signal(pgf_table,data)
             for x in range(0,len(protocol_steps)):
@@ -462,6 +464,8 @@ class PlotWidgetManager(QRunnable):
         #### BUFIX this needs handling of more than one channel !!!! 
         # @TODO: Set the channel selection to the user !!!!!!!!!!!!!
         channels = pgf_table_df['selected_channel'].unique().tolist()
+        series_name = pgf_table_df['series_name'].unique().tolist()
+        print(f'printing {series_name} {channels}' )
         if len(channels) > 1:
             print("detected multiple channels")
             pgf_table_df = pgf_table_df[pgf_table_df["selected_channel"] == channels[-1]]
@@ -546,7 +550,7 @@ class PlotWidgetManager(QRunnable):
                         #print(1000*float(voltages[n]))
 
                 start_pos = end_pos
-                
+
             self.check_style()
             if sweep_number_of_interest is not None:
                 if sweep_number != sweep_number_of_interest:
