@@ -473,7 +473,6 @@ class PlotWidgetManager(QRunnable):
 
         if np.all(increments ==0):
             return self.plot_pgf_simple_protocol(pgf_table_df,data)
-        
         else:
             return self.plot_pgf_step_protocol(pgf_table_df,data,sweep_number)
  
