@@ -43,6 +43,7 @@ from Frontend.OfflineAnalysis.CustomWidget.filter_pop_up_handler import Filter_S
 from Frontend.OfflineAnalysis.CustomWidget.change_series_name_handler import ChangeSeriesName
 from Frontend.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import Second_Layor_Analysis_Functions
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
+from Frontend.NanionFileLoading.JsonFileSelection import FileSelectionPopup
 from StyleFrontend.animated_ap import LoadingAnimation
 import debugpy
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
@@ -594,6 +595,56 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
         print("added new item")
     """
+
+
+    def open_nanion_dir(self):
+        self.logger.info("open_nanion_dir")
+        # set the data type here for later use in continue open directory
+        # this is to avoid handing it over from one function to another without using it
+        self.input_data_type = "NANION_DATA"
+        
+        # make sure to reset the bundle lists to empty lists in case of repeated data loading
+        self.offline_manager.reset_bundle_lists()
+
+        if dir_path := QFileDialog.getExistingDirectory():
+            #self.select_directory_button.setText("Change")
+
+            # save the path in the manager class
+            # calls the offlinedialogs class to open the metadata editing popup
+            self.offline_manager._directory_path = dir_path
+            #data_list = os.listdir(dir_path)
+
+            #
+            self.ap.make_widget()
+            data_list = []
+            # Walk through the directory and its subdirectories
+            for root, dirs, files in os.walk(dir_path):
+                for file in files:
+                    # Check if the file matches the desired ending
+                    if InputDataTypes.NANION_DATA_FILE_ENDING.value in file:
+                        # Append tuple of directory path and file name
+                        data_list.append((root, file))
+
+            # Call some widget-making function after data is collected
+            self.ap.make_widget()
+
+            # Print the collected data for debugging
+            print(data_list)
+            
+            if len(data_list) == 0:
+                CustomErrorDialog("No Nanion JSON-File Found",self.frontend_style)  
+                return 
+
+            self.ap.stop_and_close_animation()
+            dialog = FileSelectionPopup(data_list)
+            dialog.exec()
+            # now, a popup will show up 
+
+            # results look currently like this:
+            """
+            [{'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\activierung_20.00.14', 'filename': 'activierung_20.00.14.json', 'specific_name': 'acti'}, {'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\inactivation_19.57.25', 'filename': 'inactivation_19.57.25.json', 'specific_name': 'inactivation'}]
+
+            """
 
     @Slot()
     def open_directory(self,data_type:InputDataTypes):

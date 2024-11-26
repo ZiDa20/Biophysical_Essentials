@@ -7,6 +7,7 @@ class InputDataTypes(Enum):
     NANION_DATA = "NANION_DATA"
     BUNDLED_HEKA_FILE_ENDING = ".dat"
     ABF_FILE_ENDING = ".abf"
+    NANION_DATA_FILE_ENDING = ".json" 
     HEKA_DATA_FILE_ENDING = ".dat"
     HEKA_PULSE_FILE_ENDING = ".pul"
     HEKA_STIMULATION_FILE_ENDING = ".pgf"
