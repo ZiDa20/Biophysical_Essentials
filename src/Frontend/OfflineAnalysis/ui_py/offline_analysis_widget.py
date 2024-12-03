@@ -23,6 +23,7 @@ from Backend.PlotHandler.plot_widget_manager import PlotWidgetManager
 from Backend.Threading.Worker import Worker
 from Backend.tokenmanager import InputDataTypes
 from Backend.DataReader.read_data_directory import ReadDataDirectory
+from Backend.DataReader.NanionReader import NanionReader
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from database.DatabaseAdapter.PostSql_Handler import PostSqlHandler
 
@@ -598,6 +599,9 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
 
 
     def open_nanion_dir(self):
+        """
+        open_nanion_dir main handler for the loading of nanion files into bpe and the database
+        """
         self.logger.info("open_nanion_dir")
         # set the data type here for later use in continue open directory
         # this is to avoid handing it over from one function to another without using it
@@ -639,7 +643,8 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             dialog = FileSelectionPopup(data_list)
             dialog.exec()
             # now, a popup will show up 
-
+            
+            NanionReader(dialog.selection_results)
             # results look currently like this:
             """
             [{'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\activierung_20.00.14', 'filename': 'activierung_20.00.14.json', 'specific_name': 'acti'}, {'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\inactivation_19.57.25', 'filename': 'inactivation_19.57.25.json', 'specific_name': 'inactivation'}]
