@@ -3,8 +3,9 @@ import json
 import struct
 class NanionReader(object):
 
-    def __init__(self, file_list):
+    def __init__(self, file_list, database):
         super().__init__()
+        self.database_handler = database
         self.read_info_from_json(file_list)
 
     def read_info_from_json(self, file_list):
@@ -28,6 +29,8 @@ class NanionReader(object):
 
                         
                         self.read_data_from_json(recording_data,specific_name,full_path)
+                        
+
 
                 except Exception as e:
                     print(f"Failed to read {full_path}: {e}")
@@ -62,7 +65,9 @@ class NanionReader(object):
 
 
         for well_id_column in [0]:#ColsMeasured:
+
             for well_id_row in range(0,1): #WP_nRows:
+
                 for sweep in range(0,1): #NofSweeps
 
                     #ColsMeasured,NofSweeps,NofSamples,LeakData,SweepsPerFile,TracefileList)
@@ -136,3 +141,26 @@ class NanionReader(object):
                     #Display Plot
                     #plt.show()
 
+    def nanion_into_db(self,database):
+        experiment_name = "well_id"
+        database.add_experiment_to_experiment_table(experiment_name)
+        
+        '''experiment_label = 'default, all other parameters are none '''
+        meta_data = [experiment_name, "default", "None", "None", "None", "None", "None", "None"]
+
+    	
+        ''' add meta data as the default data indicated with a -1'''
+        database.add_experiment_to_global_meta_data(-1, meta_data)
+
+        database.add_sweep_df_to_database(experiment_name, self.series_identifier,self.sweep_data_df,self.sweep_meta_data_df)
+        
+        # adding the series to the database
+        #series_name = {node_label} and identifier {node_type}
+        database.add_single_series_to_database(experiment_name, node_label, node_type)
+
+        database.create_series_specific_pgf_table(sliced_pgf_tuple_data_frame,
+                                                      "pgf_table_" + experiment_name + "_" + node_type,
+                                                      experiment_name, node_type)
+        
+        database.add_sweep_df_to_database(experiment_name, self.series_identifier, self.sweep_data_df,
+                                              self.sweep_meta_data_df)
