@@ -644,7 +644,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             dialog.exec()
             # now, a popup will show up 
             
-            NanionReader(dialog.selection_results)
+            NanionReader(dialog.selection_results,self.database_handler)
             # results look currently like this:
             """
             [{'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\activierung_20.00.14', 'filename': 'activierung_20.00.14.json', 'specific_name': 'acti'}, {'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\inactivation_19.57.25', 'filename': 'inactivation_19.57.25.json', 'specific_name': 'inactivation'}]
