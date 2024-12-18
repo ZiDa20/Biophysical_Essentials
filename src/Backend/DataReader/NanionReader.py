@@ -56,7 +56,7 @@ class NanionReader(object):
                 # Process each well
                 for col in [0]:  # Placeholder for actual ColsMeasured
                     for row in range(1):  # Placeholder for actual WP_nRows
-                        sweep_df, sweep_meta_data_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row)
+                        sweep_df, sweep_meta_data_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row,specific_name)
                         experiment_name = self._generate_experiment_name(col, row)
                         self._store_data(database, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
 
@@ -146,7 +146,7 @@ class NanionReader(object):
         nRows = recording_data["CellTable"]["NofCellRows"]            # Chip Information: Number of Rows
         return nCols, nRows
     
-    def read_data_from_json(self, recording_data,json_file,well_id_column,well_id_row):
+    def read_data_from_json(self, recording_data,json_file,well_id_column,well_id_row,specific_name):
 
         print("reading data from json")        
         # Read out all necessary information from JSON file
@@ -161,7 +161,7 @@ class NanionReader(object):
         LeakData =      recording_data["TraceHeader"]["MeasurementLayout"]["Leakdata"]      # Leak Data recorded
         SweepsPerFile = recording_data["TraceHeader"]["FileInformation"]["SweepsPerFile"]   # Number of Samplepoints per Sweep
         TracefileList = recording_data["TraceHeader"]["FileInformation"]["FileList"]        # List of Tracefiles
-        VoltageProtcol = recording_data["ExperimentConditions"]["VoltageProtocol"]
+        voltage_protocol = recording_data["ExperimentConditions"]["VoltageProtocol"]
         I2DScale =      recording_data["TraceHeader"]["TimeScalingIV"]["I2DScale"]          # Array of I2D Scale Factors for each Well
         TR_Time =       recording_data["TraceHeader"]["TimeScalingIV"]["TR_Time"]           # Trace Time
         
@@ -174,7 +174,7 @@ class NanionReader(object):
         meta_data_df = pd.DataFrame(np.zeros((5, NofSweeps+1)))
         
 
-        pgf_df = pd.DataFrame(np.zeros((NofSamples, NofSweeps)))
+        pgf_df = self.convert_voltage_protocol_into_pgf_df(voltage_protocol, specific_name,specific_name, NofSweeps)
 
         for sweep in range(NofSweeps): #range(0,1): #
             print(f"processing sweep {sweep}")             
@@ -242,6 +242,53 @@ class NanionReader(object):
         print("returning")
         return sweep_df,meta_data_df,pgf_df
     
+    def convert_voltage_protocol_into_pgf_df(self,voltage_protocol,series_name,series_identifier, nof_sweeps):
+      
+        data_list = []
+        for segment in voltage_protocol:
+            print(segment)
+        
+            series_name = series_name
+            start_time = 0
+            start_segment=0
+            segment_class = "CONSTANT"
+            sweep_number = nof_sweeps
+            node_type ="StimChannel"
+            holding_potential=segment['VoltageStart']/1000# # e.g. -0.08 for -80 mV
+            duration = segment['Duration ms']/1000# 0.05s == 50 ms
+            increment = 0 # e.g. 0.05 for 50 ms
+            voltage=segment['VoltageStart']/1000 - segment['VoltageEnd']/1000
+            selectd_channel = 0
+            series_identifier = series_name
+            children_amount = 0
+            sine_cycle = None
+            sine_amplitude= None
+            
+            data_list.append(    [series_name,
+                                str(start_time),
+                                str(start_segment),
+                                segment_class,
+                                str(sweep_number),
+                                node_type,
+                                str(holding_potential),
+                                str(duration),
+                                str(increment),
+                                str(voltage),
+                                str(selectd_channel),
+                                str(series_identifier),
+                                str(children_amount),
+                                str(sine_cycle),
+                                str(sine_amplitude)
+                                ])
+
+        #  pgf_df = pd.DataFrame(np.zeros(len(voltage_protocol,15)))    
+        return pd.DataFrame(data_list,columns = ["series_name","start_time","start_segment","segment_class",
+                                                 "sweep_number","node_type", "holding_potential", "duration", 
+                                                 "increment", "voltage", "selected_channel", "series_id", "children_amount",
+                                                 "sine_amplitude","sine_cycle"])
+    
+
+
 
     def nanion_into_db(self,database):
         experiment_name = "well_id"
