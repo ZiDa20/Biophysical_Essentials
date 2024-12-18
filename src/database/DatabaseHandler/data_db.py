@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import picologging
 import duckdb
+#import debugpy
 
 import re
 from database.DatabaseHandler.DuckDBInitalizer import DuckDBInitializer
@@ -996,6 +997,7 @@ class DuckDBDatabaseHandler():
             column_names = data_df.columns.tolist()
             part_1 = f'create table {imon_trace_signal_table_name} ('
             query_str = ""
+            # make sure the columns are strings with this explicit format: sweep_1, sweep_2, .. 
             for c in range(len(column_names)):
                 if c == len(column_names)-1:
                     part_1 = part_1 + column_names[c] + " " + "float"
@@ -1008,7 +1010,7 @@ class DuckDBDatabaseHandler():
             try:
                 self.database.execute(part_1)
                 self.database.query(f'INSERT INTO {imon_trace_signal_table_name} SELECT {query_str} FROM data_df')
-
+                self.logger.info("Successfully created db table and inserted data")
             except Exception as e:
                 self.logger.error("")
 
@@ -1034,7 +1036,6 @@ class DuckDBDatabaseHandler():
                 print("update table failed")
 
             #print("added data df successfully")
-
             imon_trace_meta_data_table_name = self.create_imon_meta_data_table_name(experiment_name, series_identifier)
 
             column_names  = meta_data_df.columns.tolist()
@@ -1049,6 +1050,7 @@ class DuckDBDatabaseHandler():
             in dev 0.4.1.dev1603 somehow tinyint-> blob is not implemented yet.
             therefore i have replaced all the meta data encoded as b'\x00' with their hexadecimal representation
             '''
+
 
             if dat:
                 affected_rows = [10,11,12,13,33]

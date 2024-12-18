@@ -269,8 +269,7 @@ class MainWindow(QMainWindow, QtStyleTools):
                 {"text": "Load Nanion Data", 
                  "image": "open_nanion_unbundled_light.png", 
                  "image_dark": "open_nanion_unbundled_dark.png", 
-                 "function": ConstrcutionSideDialog,
-                 "param": self.frontend_style}
+                 "function": self.ui.offline.open_nanion_dir}
             ]
 
             for col in range(len(buttons)):  # Loop through the buttons list up to amount_of_buttons
