@@ -12,7 +12,7 @@ class NanionReader(object):
         super().__init__()
         self.database_handler = database
         self.read_info_from_json(file_list,database)
-        database.close()
+        database.database.close()
 
     def read_info_from_json(self, file_list, database:DuckDBDatabaseHandler):
         """
@@ -56,9 +56,9 @@ class NanionReader(object):
                 # Process each well
                 for col in [0]:  # Placeholder for actual ColsMeasured
                     for row in range(1):  # Placeholder for actual WP_nRows
-                        sweep_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row)
+                        sweep_df, sweep_meta_data_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row)
                         experiment_name = self._generate_experiment_name(col, row)
-                        self._store_data(database, experiment_name, specific_name, sweep_df, stim_table)
+                        self._store_data(database, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
 
             except Exception as e:
                 print(f"Error processing {full_path}: {e}")
@@ -103,7 +103,7 @@ class NanionReader(object):
         except KeyError as e:
             print(f"Missing expected key in recording data: {e}")
 
-    def _store_data(self, database: DuckDBDatabaseHandler, experiment_name, specific_name, sweep_df, stim_table):
+    def _store_data(self, database: DuckDBDatabaseHandler, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table):
         """
         Stores extracted sweep and stimulus data into the database.
         
@@ -120,7 +120,7 @@ class NanionReader(object):
 
         database.add_single_series_to_database(experiment_name, specific_name, series_identifier)
         
-        database.add_sweep_df_to_database(experiment_name, series_identifier, sweep_df, pd.DataFrame())
+        database.add_sweep_df_to_database(experiment_name, series_identifier, sweep_df, sweep_meta_data_df)
 
         database.create_series_specific_pgf_table(
             stim_table, f"pgf_table_{experiment_name}_{specific_name}", experiment_name, specific_name
@@ -161,23 +161,30 @@ class NanionReader(object):
         LeakData =      recording_data["TraceHeader"]["MeasurementLayout"]["Leakdata"]      # Leak Data recorded
         SweepsPerFile = recording_data["TraceHeader"]["FileInformation"]["SweepsPerFile"]   # Number of Samplepoints per Sweep
         TracefileList = recording_data["TraceHeader"]["FileInformation"]["FileList"]        # List of Tracefiles
+        VoltageProtcol = recording_data["ExperimentConditions"]["VoltageProtocol"]
+        I2DScale =      recording_data["TraceHeader"]["TimeScalingIV"]["I2DScale"]          # Array of I2D Scale Factors for each Well
+        TR_Time =       recording_data["TraceHeader"]["TimeScalingIV"]["TR_Time"]           # Trace Time
         
+        recordingMode = "3"
+        y_unit = "A"
+        x_start = 0
+        x_interval = TR_Time[1]-TR_Time[0] # 
+
         sweep_df = pd.DataFrame(np.zeros((NofSamples, NofSweeps)))
+        meta_data_df = pd.DataFrame(np.zeros((5, NofSweeps+1)))
+        
+
         pgf_df = pd.DataFrame(np.zeros((NofSamples, NofSweeps)))
 
         for sweep in range(NofSweeps): #range(0,1): #
-            print(f"processing swee {sweep}")             
+            print(f"processing sweep {sweep}")             
             #ColsMeasured,NofSweeps,NofSamples,LeakData,SweepsPerFile,TracefileList)
 
             # Check for IV Measurements and build the Time and Stimulus Array correctly
             IsIV = True if recording_data.get("TraceHeader", {}).get("TimeScalingIV") is not None else False
             if IsIV:
-                I2DScale =      recording_data["TraceHeader"]["TimeScalingIV"]["I2DScale"]          # Array of I2D Scale Factors for each Well
-                TR_Time =       recording_data["TraceHeader"]["TimeScalingIV"]["TR_Time"]           # Trace Time
                 Stimulus =      recording_data["TraceHeader"]["TimeScalingIV"]["Stimulus"][sweep]   # Stimulus (per Sweep Different)
             else:
-                I2DScale =      recording_data["TraceHeader"]["TimeScaling"]["I2DScale"]            # Array of I2D Scale Factors for each Well
-                TR_Time =       recording_data["TraceHeader"]["TimeScaling"]["TR_Time"]             # Trace Time
                 Stimulus =      recording_data["TraceHeader"]["TimeScaling"]["Stimulus"]            # Stimulus
 
             # Calculate index of the file that contains the target Sweep and first column index that was measured
@@ -220,15 +227,22 @@ class NanionReader(object):
                 Trace_nonleak = [0]*NofSamples
             try:
                 sweep_df.iloc[:, sweep] = Trace_nonleak
+                meta_data_df.iloc[:, sweep] = [recordingMode, y_unit,x_start,x_interval,NofSamples] 
+
             except Exception as e:
                 print("error in concat")
                 print(e)
 
         # make sure the header has the appropriate names - important for downstream processing
         sweep_df.columns = [f"sweep_{i}" for i in range(1, len(sweep_df.columns) + 1)]
+        meta_data_df.columns = [f"sweep_{i}" for i in range(1, len(meta_data_df.columns) + 1)]
 
+        meta_data_df.insert(0, "Parameter", ["RecordingMode", "YUnit","XStart","XInterval","DataPoints"])  # Add the parameter column
+        meta_data_df = meta_data_df.set_index("Parameter")
         print("returning")
-        return sweep_df,pgf_df
+        return sweep_df,meta_data_df,pgf_df
+    
+
     def nanion_into_db(self,database):
         experiment_name = "well_id"
 

@@ -1040,7 +1040,7 @@ class DuckDBDatabaseHandler():
 
             column_names  = meta_data_df.columns.tolist()
             #print(column_names)
-            meta_data_df = meta_data_df.reset_index()
+            meta_data_df = meta_data_df.reset_index() # Resets the index of the DataFrame, converting the current index into a new column named index
             meta_data_df.columns = ['Parameter'] + column_names
             #print("till here everything is fine and good")
             #print(meta_data_df)
