@@ -14,7 +14,7 @@ class AreaUnderTheCurve(SweepWiseAnalysisTemplate):
         self.function_name = 'AreaUnderTheCurve'
 
     def specific_calculation(self):
-        self.cslow_normalization = 0
+        self.cslow_normalization = 1
         y_signal_modified = self.sliced_volt -np.min(self.sliced_volt) # works for positive and negative curves
         auc = np.trapz(y_signal_modified, self.sliced_time)
         return auc
@@ -24,7 +24,7 @@ class AreaUnderTheCurve(SweepWiseAnalysisTemplate):
         the points that will be plotted during analysis function selection
         @return:
         """
-        self.cslow_normalization = 0
+        self.cslow_normalization = 1
         max_val = np.min(self.sliced_volt)
         pos = np.where(self.sliced_volt == max_val)
         x_val = self.time[pos][0] + self.lower_bound
