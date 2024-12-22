@@ -5,11 +5,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 class FileSelectionPopup(QDialog):
-    def __init__(self, data_list):
+    def __init__(self, data_list,frontend):
         super().__init__()
         self.setWindowTitle("File Selection")
         self.setMinimumSize(600, 400)
-        
+        self.frontend_style = frontend
+        self.frontend_style.set_pop_up_dialog_style_sheet(self)
+
         self.data_list = data_list
         self.selection_results = []
 
@@ -44,15 +46,38 @@ class FileSelectionPopup(QDialog):
         # Add the table to the layout
         layout.addWidget(self.table)
 
+        # Select All / Unselect All Buttons
+        button_layout = QHBoxLayout()
+        self.select_all_button = QPushButton("Select All", self)
+        self.select_all_button.clicked.connect(self.select_all)
+        self.unselect_all_button = QPushButton("Unselect All", self)
+        self.unselect_all_button.clicked.connect(self.unselect_all)
+        button_layout.addWidget(self.select_all_button)
+        button_layout.addWidget(self.unselect_all_button)
+        layout.addLayout(button_layout)
+
         # Button to confirm selection
         self.submit_button = QPushButton("Submit", self)
         self.submit_button.clicked.connect(self.collect_user_selection)
         layout.addWidget(self.submit_button)
 
+    def select_all(self):
+        for row in range(self.table.rowCount()):
+            checkbox_widget = self.table.cellWidget(row, 0)
+            checkbox = checkbox_widget.layout().itemAt(0).widget()
+            checkbox.setChecked(True)
+
+    def unselect_all(self):
+        for row in range(self.table.rowCount()):
+            checkbox_widget = self.table.cellWidget(row, 0)
+            checkbox = checkbox_widget.layout().itemAt(0).widget()
+            checkbox.setChecked(False)
+
     def collect_user_selection(self):
         """
         Collects the user selections from the table.
         """
+
         self.selection_results = []
         for row in range(self.table.rowCount()):
             checkbox_widget = self.table.cellWidget(row, 0)
@@ -74,4 +99,3 @@ class FileSelectionPopup(QDialog):
         # Close the popup and print results (optional)
         print(self.selection_results)  # You can process the results here
         self.accept()
-

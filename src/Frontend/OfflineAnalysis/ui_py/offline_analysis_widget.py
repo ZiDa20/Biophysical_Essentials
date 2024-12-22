@@ -46,6 +46,9 @@ from Frontend.OfflineAnalysis.CustomWidget.second_layer_analysis_handler import 
 from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
 from Frontend.NanionFileLoading.JsonFileSelection import FileSelectionPopup
 from StyleFrontend.animated_ap import LoadingAnimation
+
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+
 import debugpy
 class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     '''class to handle all frontend functions and user inputs in module offline analysis '''
@@ -640,11 +643,24 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
                 return 
 
             self.ap.stop_and_close_animation()
-            dialog = FileSelectionPopup(data_list)
+            dialog = FileSelectionPopup(data_list,self.frontend_style)
             dialog.exec()
             # now, a popup will show up 
             
+            
+
+            # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
+            meta_data_popup = Assign_Meta_Data_PopUp(self.database_handler, self.offline_manager, self.frontend_style)
+
+            #template_table_view = meta_data_popup.map_metadata_to_database(data_type)
+            #meta_data_popup.save_to_template_button.clicked.connect(partial(save,
+            #                                                                meta_data_popup))
+            
+            #meta_data_popup.load_template.clicked.connect(partial(meta_data_popup.open_meta_data_template_file,template_table_view))
+            #meta_data_popup.continue_loading.clicked.connect(partial(make,meta_data_popup,template_table_view))
+            meta_data_popup.exec_()
             NanionReader(dialog.selection_results,self.database_handler)
+
             # results look currently like this:
             """
             [{'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\activierung_20.00.14', 'filename': 'activierung_20.00.14.json', 'specific_name': 'acti'}, {'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\inactivation_19.57.25', 'filename': 'inactivation_19.57.25.json', 'specific_name': 'inactivation'}]
