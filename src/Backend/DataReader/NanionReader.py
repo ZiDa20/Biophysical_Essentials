@@ -10,11 +10,65 @@ class NanionReader(object):
 
     def __init__(self, file_list:list[str], database:DuckDBDatabaseHandler):
         super().__init__()
-        self.database_handler = database
-        self.read_info_from_json(file_list,database)
-        database.database.close()
+        self.database_handler = database    
+        self.file_list = file_list # list of json files which were selected by the user 
 
-    def read_info_from_json(self, file_list, database:DuckDBDatabaseHandler):
+    def get_experiment_names(self):
+        
+        detected_rows, detected_cols = -1, -1
+        data_table_list = []
+
+        for item in self.file_list:
+            if not item.get('selected'):
+                continue
+
+            specific_name = item['specific_name']
+            full_path = os.path.join(item['path'], item['filename'])
+            print(f"Processing file: {specific_name}")
+
+            try:
+                with open(full_path, 'r') as file:
+                    recording_data = json.load(file)
+
+                # Update column and row info if not yet initialized
+                if detected_rows == -1 and detected_cols == -1:
+                    detected_cols, detected_rows = self.get_col_row_info(recording_data)
+    	        
+                    self._initialize_experiments(self.database, detected_cols, detected_rows)
+        
+                # Verify column and row consistency
+                current_cols, current_rows = self.get_col_row_info(recording_data)
+                if (current_cols, current_rows) != (detected_cols, detected_rows):
+                    raise ValueError("Inconsistent column/row dimensions detected.")
+
+                # Process each well
+                for col in range(current_cols):  # Placeholder for actual ColsMeasured
+                    for row in range(current_rows):  # Placeholder for actual WP_nRows
+                        experiment_name = self._generate_experiment_name(col, row)
+                        meta_data = [experiment_name, f"{datetime.now().strftime('%Y%m%d')}_NANION", 
+                                     "None", 
+                                     "None", 
+                                     "None", 
+                                     "None", 
+                                     "None", 
+                                     "None"]
+                        data_table_list.append(meta_data)
+
+            except Exception as e:
+                print(f"Error processing {full_path}: {e}") 
+        meta_data_df = pd.DataFrame(data_table_list, columns=["Experiment_name", "Experiment_label", "Species", "Genotype", "Sex", "Celltype","Condition",
+                        "Individuum_id"])
+        return meta_data_df
+
+    def read_and_write_data_to_database(self,meta_data_group_assignment_list):
+        for n in meta_data_group_assignment_list:
+            print("adding meta data to existing experiment ", n)
+            self.database_handler.add_meta_data_group_to_existing_experiment(n)
+
+        self.read_info_from_json()
+        self.database_handler.close()
+
+    def read_info_from_json(self):
         """
         Reads and processes selected JSON files, extracting relevant information and storing it in the database.
         
@@ -27,7 +81,7 @@ class NanionReader(object):
         """
         detected_rows, detected_cols = -1, -1
 
-        for item in file_list:
+        for item in self.file_list:
             if not item.get('selected'):
                 continue
 
@@ -43,7 +97,7 @@ class NanionReader(object):
                 if detected_rows == -1 and detected_cols == -1:
                     detected_cols, detected_rows = self.get_col_row_info(recording_data)
 
-                    self._initialize_experiments(database, detected_cols, detected_rows)
+                    #self._initialize_experiments(self.database, detected_cols, detected_rows)
 
                 # Verify column and row consistency
                 current_cols, current_rows = self.get_col_row_info(recording_data)
@@ -58,7 +112,7 @@ class NanionReader(object):
                     for row in range(1):  # Placeholder for actual WP_nRows
                         sweep_df, sweep_meta_data_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row,specific_name)
                         experiment_name = self._generate_experiment_name(col, row)
-                        self._store_data(database, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
+                        self._store_data(self.database, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
 
             except Exception as e:
                 print(f"Error processing {full_path}: {e}")

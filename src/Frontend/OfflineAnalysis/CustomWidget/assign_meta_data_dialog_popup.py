@@ -279,6 +279,40 @@ class Assign_Meta_Data_PopUp(QDialog, Ui_assign_meta_data_group):
 
         self.template_dataframe = pd.concat([self.template_dataframe, new_data], ignore_index=True)
 
+    def prepare_user_data_visualization(self):
+        """
+        prepare_user_data_visualization: show data that need to be imported and data which are already imported
+
+        Returns:
+           QTableView: the table view that is actually showing the data that need to be imported
+        """
+        if self.template_dataframe.empty:
+            info = QLabel()
+            info.setText("All of your selected recordings were already imported into the database previously, please see the table below.")
+            info.setStyleSheet("padding: 15px; font-size: 14px;")
+            self.meta_data_template_layout.addWidget(info)
+        self.content_model = PandasTable(self.template_dataframe,[0])
+        new_data = self.create_table(self.template_dataframe,self.content_model)
+
+        # create the meta data table for existing data
+        if not self.duplicate_dataframe.empty:
+            new_label = QLabel()
+            new_label.setText("The following experiments do already exist in the database and do not need to be imported again. If you still want to import this file, please close the import wizard, rename the recording file and start the import wizard again.")
+            new_label.setStyleSheet("padding: 15px; font-size: 14px;")
+            self.meta_data_template_layout.addWidget(new_label)
+
+            existing_data_model = PandasTable(self.duplicate_dataframe, [0,1,2,3,4,5,5,7])
+            self.create_table(self.duplicate_dataframe, existing_data_model)
+
+        # Get the current width of the dialog
+        current_width = self.width()
+
+        # Adjust the height of the dialog based on its contents
+        self.adjustSize()
+
+        # Set the width back to its original value
+        self.resize(current_width, self.height())
+        return new_data
 
     def create_table(self,df: pd.DataFrame,model):
         """

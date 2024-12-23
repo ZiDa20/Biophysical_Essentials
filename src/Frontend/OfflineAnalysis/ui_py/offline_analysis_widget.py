@@ -619,53 +619,68 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             # save the path in the manager class
             # calls the offlinedialogs class to open the metadata editing popup
             self.offline_manager._directory_path = dir_path
-            #data_list = os.listdir(dir_path)
-
-            #
+            
+            # show the animation
             self.ap.make_widget()
             data_list = []
+
             # Walk through the directory and its subdirectories
             for root, dirs, files in os.walk(dir_path):
                 for file in files:
-                    # Check if the file matches the desired ending
+                    # Check if the file matches the desired .json ending
                     if InputDataTypes.NANION_DATA_FILE_ENDING.value in file:
                         # Append tuple of directory path and file name
                         data_list.append((root, file))
 
-            # Call some widget-making function after data is collected
-            self.ap.make_widget()
-
             # Print the collected data for debugging
-            print(data_list)
+            # print(data_list)
             
             if len(data_list) == 0:
                 CustomErrorDialog("No Nanion JSON-File Found",self.frontend_style)  
                 return 
 
+            #stop the animation and close the popup
             self.ap.stop_and_close_animation()
+
+            # open popup to the user to select or unselect and to order the respective nanion files
             dialog = FileSelectionPopup(data_list,self.frontend_style)
             dialog.exec()
-            # now, a popup will show up 
             
-            
+            # initiate the Nanion reader,
+            # scan through all json files and extract the experiment names to be displayed for annotation
+            nanion_reader = NanionReader(dialog.selection_results,self.database_handler)
+            experiment_names_df = nanion_reader.get_experiment_names()
+        
 
             # open a new dialog with a tree view representation of the selected directory - only on experiment and series level
             meta_data_popup = Assign_Meta_Data_PopUp(self.database_handler, self.offline_manager, self.frontend_style)
-
-            #template_table_view = meta_data_popup.map_metadata_to_database(data_type)
-            #meta_data_popup.save_to_template_button.clicked.connect(partial(save,
-            #                                                                meta_data_popup))
+            meta_data_popup.template_dataframe = experiment_names_df
+            meta_data_popup.setup_combo_box()
+            meta_data_popup.prepare_user_data_visualization()
+            #self.OfflineDialogs.create_meta_data_template(self.save_meta_data_to_template_and_continue,
+            #                                            self.make_list)
             
+            
+            #template_table_view = meta_data_popup.map_metadata_to_database(data_type)
+            meta_data_popup.save_to_template_button.clicked.connect(partial(self.save_meta_data_to_template_and_continue,
+                                                                            meta_data_popup))
+            
+            """
+                        
+            data_frame = meta_data_popup.content_model._data
+            file_name = f"{self.offline_manager._directory_path}/automatic_template.csv"
+            data_frame.to_csv(file_name, index = False)
+            m_list = data_frame.values.tolist()
+            """
             #meta_data_popup.load_template.clicked.connect(partial(meta_data_popup.open_meta_data_template_file,template_table_view))
-            #meta_data_popup.continue_loading.clicked.connect(partial(make,meta_data_popup,template_table_view))
+            meta_data_popup.continue_loading.clicked.connect(partial
+                                                             (nanion_reader.read_and_write_data_to_database,
+                                                              meta_data_popup.content_model._data.values.tolist()))
             meta_data_popup.exec_()
-            NanionReader(dialog.selection_results,self.database_handler)
+            meta_data_popup.close()
+            
 
-            # results look currently like this:
-            """
-            [{'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\activierung_20.00.14', 'filename': 'activierung_20.00.14.json', 'specific_name': 'acti'}, {'selected': True, 'path': 'C:/Users/davee/Dropbox/dave/WP/biophysical_essentials_project/Nav1.3_1.7IT_25deg_1xS_21T04344/small_trial\\inactivation_19.57.25', 'filename': 'inactivation_19.57.25.json', 'specific_name': 'inactivation'}]
-
-            """
+            #nanion_reader.read_and_write_data_to_database(meta_data_popup.template_dataframe)
 
     @Slot()
     def open_directory(self,data_type:InputDataTypes):
