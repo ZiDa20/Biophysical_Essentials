@@ -543,10 +543,14 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         return True
     
     
-    def load_page_1_tree_view(self, existing_id = None):
+    def load_page_1_tree_view(self, existing_id = None,dialog_to_close = None):
         """
         this function will be executed when the button 'load selection' was clicked after 
         data to be analyzed were selected fro mthe db dashboard dialog
+
+        @change 241224: dialog_to_close object introduced to avoid the nested class object handling
+        of self.load_data_from_database_dialog. some older functions still use the self object,
+        nanion functions use the parameter object dialog_to_close
         @return:
         """
         # switch to the first page of the offline analysis 
@@ -561,9 +565,13 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             #self.logger.info("experiment list found for analysis id ", str(self.database_handler.analysis_id))
               
         else:
-            # get the experiment names that were selected by the user within the db dashboard # 
-            experiment_list = self.load_data_from_database_dialog.get_experiment_names()   
-            self.load_data_from_database_dialog.close()   
+            # get the experiment names that were selected by the user within the db dashboard #   
+            if dialog_to_close is not None:
+                dialog_to_close.close()
+                experiment_list = dialog_to_close.get_experiment_names() 
+            else:
+                experiment_list = self.load_data_from_database_dialog.get_experiment_names() 
+                self.load_data_from_database_dialog.close()   
 
             # ! important ! map_data_to_analysis_id() will link the selected data to an unique offline analysis id:
             # from this point, all db searches, discardings and reinsertions are related to the mapping tables with exception of series raw data (trace data, pgf data, meta_data)
@@ -601,7 +609,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
     """
 
 
-    def open_nanion_dir(self):
+    def open_nanion_dir(self, test = None):
         """
         open_nanion_dir main handler for the loading of nanion files into bpe and the database
         """
@@ -675,12 +683,22 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
             #meta_data_popup.load_template.clicked.connect(partial(meta_data_popup.open_meta_data_template_file,template_table_view))
             meta_data_popup.continue_loading.clicked.connect(partial
                                                              (nanion_reader.read_and_write_data_to_database,
-                                                              meta_data_popup.content_model._data.values.tolist()))
+                                                              meta_data_popup,
+                                                              self.ap))
             meta_data_popup.exec_()
-            meta_data_popup.close()
+            
+            
+            load_data_from_database_dialog = Load_Data_From_Database_Popup_Handler(self.database_handler, self.frontend_style)
+            # set light or dark mode
+            self.frontend_style.set_pop_up_dialog_style_sheet(load_data_from_database_dialog)
+            load_data_from_database_dialog.load_data.clicked.connect(partial(self.load_page_1_tree_view,None,load_data_from_database_dialog))
+            load_data_from_database_dialog.load_data_2.clicked.connect(partial(self.load_page_1_tree_view,None,load_data_from_database_dialog))
             
 
-            #nanion_reader.read_and_write_data_to_database(meta_data_popup.template_dataframe)
+            #self.load_data_from_database_dialog.checkbox_checked(self.load_data_from_database_dialog.all_cb,"All",2)
+            load_data_from_database_dialog.all_cb.setChecked(True)
+           
+            load_data_from_database_dialog.exec_()
 
     @Slot()
     def open_directory(self,data_type:InputDataTypes):

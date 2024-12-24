@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from datetime import datetime
+from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
+
 
 class NanionReader(object):
 
@@ -34,7 +36,7 @@ class NanionReader(object):
                 if detected_rows == -1 and detected_cols == -1:
                     detected_cols, detected_rows = self.get_col_row_info(recording_data)
     	        
-                    self._initialize_experiments(self.database, detected_cols, detected_rows)
+                    self._initialize_experiments(self.database_handler, detected_cols, detected_rows)
         
                 # Verify column and row consistency
                 current_cols, current_rows = self.get_col_row_info(recording_data)
@@ -60,13 +62,16 @@ class NanionReader(object):
                         "Individuum_id"])
         return meta_data_df
 
-    def read_and_write_data_to_database(self,meta_data_group_assignment_list):
+    def read_and_write_data_to_database(self,meta_data_popup:Assign_Meta_Data_PopUp,frontend_loading_animation):
+
+        frontend_loading_animation.make_widget()
+        meta_data_group_assignment_list = meta_data_popup.content_model._data.values.tolist()
         for n in meta_data_group_assignment_list:
             print("adding meta data to existing experiment ", n)
             self.database_handler.add_meta_data_group_to_existing_experiment(n)
-
+        meta_data_popup.close()
         self.read_info_from_json()
-        self.database_handler.close()
+        frontend_loading_animation.stop_and_close_animation()
 
     def read_info_from_json(self):
         """
@@ -112,7 +117,7 @@ class NanionReader(object):
                     for row in range(1):  # Placeholder for actual WP_nRows
                         sweep_df, sweep_meta_data_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row,specific_name)
                         experiment_name = self._generate_experiment_name(col, row)
-                        self._store_data(self.database, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
+                        self._store_data(self.database_handler, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
 
             except Exception as e:
                 print(f"Error processing {full_path}: {e}")
