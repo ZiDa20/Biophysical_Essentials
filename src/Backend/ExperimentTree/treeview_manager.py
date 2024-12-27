@@ -210,6 +210,13 @@ class TreeViewManager:
 
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
+        
+        # started implementation to get rid of the whitespaces between enumeration mark and the label
+        # not woking yet 
+        #self.tree_build_widget.selected_tree_view.header().hide()
+        #self.tree_build_widget.selected_tree_view.setRootIsDecorated(True)
+        #self.tree_build_widget.selected_tree_view.setItemsExpandable(True)
+        #self.tree_build_widget.selected_tree_view.setIndentation(20)
 
     def update_mdi_areas(self,col_count):
         self.specific_analysis_tab.subwindow.setMaximumSize(QSize(350 + (col_count-2)*100, 16777215))

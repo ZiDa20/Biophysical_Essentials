@@ -44,8 +44,8 @@ class NanionReader(object):
                     raise ValueError("Inconsistent column/row dimensions detected.")
 
                 # Process each well
-                for col in range(current_cols):  # Placeholder for actual ColsMeasured
-                    for row in range(current_rows):  # Placeholder for actual WP_nRows
+                for col in range(current_cols):  # actual ColsMeasured
+                    for row in range(current_rows):  # actual WP_nRows
                         experiment_name = self._generate_experiment_name(col, row)
                         meta_data = [experiment_name, f"{datetime.now().strftime('%Y%m%d')}_NANION", 
                                      "None", 
@@ -113,8 +113,8 @@ class NanionReader(object):
                 self._display_recording_info(recording_data, specific_name)
 
                 # Process each well
-                for col in [0]:  # Placeholder for actual ColsMeasured
-                    for row in range(1):  # Placeholder for actual WP_nRows
+                for col in range(current_cols):  # actual ColsMeasured
+                    for row in range(current_rows):  # actual WP_nRows
                         sweep_df, sweep_meta_data_df, stim_table = self.read_data_from_json(recording_data, full_path, col, row,specific_name)
                         experiment_name = self._generate_experiment_name(col, row)
                         self._store_data(self.database_handler, experiment_name, specific_name, sweep_df, sweep_meta_data_df, stim_table)
