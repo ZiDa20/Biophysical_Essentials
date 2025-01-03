@@ -47,7 +47,8 @@ class SpecificAnalysisFunctions():
 
         return sweep_table, increment
     
-    
+
+
     @staticmethod
     def rheobase_calc(result_table_list:list, database):
         """Specific calculation for Rheobase Data constructed by the Rheobase Function

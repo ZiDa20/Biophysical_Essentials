@@ -54,7 +54,8 @@ class OfflinePlots():
                                 "Linear Regression": self.regression_plot,
                                 "PCA-Plot": self.pca_plot,
                                 "AP-Overlay": self.ap_overlay,
-                                "Capacitance Plot": self.capacitance_plot
+                                "Capacitance Plot": self.capacitance_plot,
+                                "PhasePlanePlot":self.phase_plane_plot,
                                 }
 
         # initialize the logger
@@ -723,6 +724,39 @@ class OfflinePlots():
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.ax.autoscale()
 
+    def phase_plane_plot(self, plot_dataframe: pd.DataFrame):
+        
+        plot_dataframe = self.database_handler.database.execute(f'select * from {plot_dataframe[0]}').fetchdf()
+        plot_dataframe["y_label"] = "dV/dt"
+        plot_dataframe["unit"] = "mV/ms"
+        
+        try:
+            results = np.array(plot_dataframe["Result"].tolist())  # Convert to NumPy array directly
+            sweep_table_name = plot_dataframe["Sweep_Table_Name"].tolist()
+            sweep_number = plot_dataframe["Sweep_Number"].tolist()
+            meta_data = [f"{a}_sweep_{b}" for a, b in zip(sweep_table_name, sweep_number)]
+            for n in range(len(results)):
+                v_ap_array = results[n][0]  # Extract and flatten v_ap_array
+                dv_dt = results[n][1]
+                df = pd.DataFrame({
+                'v_ap': v_ap_array,#[1:100],
+                'dv_dt': dv_dt,#[1:100],
+                'meta_dat':meta_data[n]
+            }) 
+        
+            sns.lineplot(data = df, x='v_ap', y='dv_dt', hue='meta_dat', ax=self.parent_widget.ax)
+        except Exception as e:
+            print(f"Error in plotting phaseplaneplot: {e}")     
+
+        self.parent_widget.canvas.figure.tight_layout()
+        self.parent_widget.ax.autoscale()
+
+        #plt.figure()
+        #plt.title('Phase-plane plot')
+        #plt.plot(v_ap_array, dv_dt)
+        #plt.ylabel("dV/dt (mV/ms)")
+        #plt.xlabel("V (mV)")
+        #plt.show()
 
     def hue_regplot(self,data, x, y, hue, palette=None, **kwargs):
         """Draw a scatterplot with regression line for each unique value of a column."""

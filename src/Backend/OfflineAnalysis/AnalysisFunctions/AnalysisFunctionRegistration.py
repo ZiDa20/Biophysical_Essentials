@@ -14,6 +14,7 @@ from Backend.OfflineAnalysis.AnalysisFunctions.AreaUnderTheCurve import AreaUnde
 from Backend.OfflineAnalysis.AnalysisFunctions.Rheoramp_Detection import RheorampDetection
 from Backend.OfflineAnalysis.AnalysisFunctions.Firing_Pattern_CLassification import FiringPatternCLassification
 from Backend.OfflineAnalysis.AnalysisFunctions.PCA import PCA
+from Backend.OfflineAnalysis.AnalysisFunctions.PhasePlanePlot import PhasePlanePlot
 
 
 class AnalysisFunctionRegistration():
@@ -29,6 +30,7 @@ class AnalysisFunctionRegistration():
         "time_to_max": TimeToMax,
         "mean_voltage": MeanVoltage,
         "Action_Potential_Fitting": ActionPotentialFitting,
+        "PhasePlanePlot": PhasePlanePlot,
         "InputResistance": InputResistance,
         "Rheobase-Detection": RheobaseDetection,
         "RheoRamp-Detection": RheorampDetection,
@@ -101,6 +103,7 @@ class AnalysisFunctionRegistration():
         else:
             return ["mean_voltage",  
                     "Action_Potential_Fitting",
+                    "PhasePlanePlot",
                     "Rheobase-Detection", 
                     "RheoRamp-Detection", 
                     "InputResistance", 
