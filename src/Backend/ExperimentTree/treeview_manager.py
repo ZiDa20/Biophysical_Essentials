@@ -181,6 +181,7 @@ class TreeViewManager:
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
         self.tree_build_widget.selected_tree_view.expandAll()
 
+
         
         delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view,
                                                  False,

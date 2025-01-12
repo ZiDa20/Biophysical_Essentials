@@ -735,16 +735,25 @@ class OfflinePlots():
             sweep_table_name = plot_dataframe["Sweep_Table_Name"].tolist()
             sweep_number = plot_dataframe["Sweep_Number"].tolist()
             meta_data = [f"{a}_sweep_{b}" for a, b in zip(sweep_table_name, sweep_number)]
-            for n in range(len(results)):
-                v_ap_array = results[n][0]  # Extract and flatten v_ap_array
+            # Collect all dataframes in a list
+            df_list = []
+
+            for n in range(len([0,1])):#len(results)):
+                v_ap_array = results[n][0]  # Extract v_ap_array
                 dv_dt = results[n][1]
                 df = pd.DataFrame({
-                'v_ap': v_ap_array,#[1:100],
-                'dv_dt': dv_dt,#[1:100],
-                'meta_dat':meta_data[n]
-            }) 
-        
-            sns.lineplot(data = df, x='v_ap', y='dv_dt', hue='meta_dat', ax=self.parent_widget.ax)
+                    'v_ap': v_ap_array,
+                    'dv_dt': dv_dt,
+                    'meta_dat': meta_data[n]
+                })
+                df_list.append(df)
+
+            # Concatenate all dataframes
+            full_df = pd.concat(df_list, ignore_index=True)
+
+            # Plot all at once
+            sns.lineplot(data=full_df, x='v_ap', y='dv_dt', hue='meta_dat', ax=self.parent_widget.ax, estimator=None ) # Disable aggregation)
+                    
         except Exception as e:
             print(f"Error in plotting phaseplaneplot: {e}")     
 

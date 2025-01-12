@@ -1,6 +1,8 @@
 import numpy as np
 from scipy import interpolate
 import math
+import pickle
+import datetime
 
 from Backend.OfflineAnalysis.AnalysisFunctions.FunctionTemplate.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 import matplotlib.pyplot as plt
@@ -43,7 +45,19 @@ class PhasePlanePlot(SweepWiseAnalysisTemplate):
         #plt.ylabel("dV/dt (mV/ms)")
         #plt.xlabel("V (mV)")
         #plt.show()
+        filename = None
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"trace_{timestamp}.pkl"
 
+        trace_data = {
+            'v_ap_array': v_ap_array,
+            'dv_dt': dv_dt
+        }
+
+        with open(filename, 'wb') as f:
+            pickle.dump(trace_data, f)
+
+        print(f"Trace saved to {filename}")
         return [v_ap_array, dv_dt]
         # Return the selected outputs from the function
         

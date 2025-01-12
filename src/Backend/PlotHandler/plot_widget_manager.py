@@ -11,6 +11,7 @@ from PySide6.QtCore import Signal
 import picologging
 # inheritage from qobject required for use of signal
 from Backend.OfflineAnalysis.AnalysisFunctions.AnalysisFunctionRegistration import  AnalysisFunctionRegistration
+from Backend.OfflineAnalysis.AnalysisFunctions.AreaUnderTheCurve import AreaUnderTheCurve
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 
 class PlotWidgetManager(QRunnable):
@@ -159,6 +160,31 @@ class PlotWidgetManager(QRunnable):
 
         x_y_tuple = analysis_class_object().live_data(lower_bound, upper_bound, experiment_name,identifier, self.database_handler, None)
         #print(type(x_y_tuple))
+        t  =type(analysis_class_object)
+
+        if analysis_class_object().function_name == "AreaUnderTheCurve":
+           # Assuming `self.ax1` is an Axes object
+            lines = self.ax1.get_lines()  # Get all Line2D objects on the axes
+
+            # Loop through lines to get x and y data
+            for line in lines:
+                # Get x and y data as NumPy arrays
+                x_data = np.array(line.get_xdata())
+                y_data = np.array(line.get_ydata())
+                 # Find the indices within the bounds
+                mask = (x_data >= lower_bound) & (x_data <= upper_bound)
+
+                # Slice x (time) and y (voltage) data
+                time_sliced = x_data[mask]
+                y_sliced = y_data[mask]              
+                
+                 # Check if the sliced data is not empty
+                if len(time_sliced) > 0:
+                    min = y_sliced.min()
+                    # Fill the area for the sliced data
+                    self.ax1.fill_between(time_sliced, y_sliced, min, color="blue", alpha=0.2)
+                else:
+                    print("No data in the specified range.")
 
         if sweep_number is not None:
                 sweep_number = sweep_number.split("_")

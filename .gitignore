@@ -13,6 +13,7 @@
 *.db.wal
 *.dat
 *.log
+*.pkl
 *.py[cod]
 .src/Logs/*.log
 ./Logs/log.log
@@ -24,6 +25,7 @@ src/__pycache__/
 *.ui
 ./Logs/main_log.log
 ./Logs/abf.log
+Logging/Logs/log.log
 offline_plots.log
 .src/analysis_database.db
 c
