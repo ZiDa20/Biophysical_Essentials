@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 #import debugpy
 import picologging
+from PySide6 import QtCore
+from PySide6.QtCore import Qt, QModelIndex
 from PySide6.QtCore import QObject, Signal, QThreadPool, Qt, QModelIndex, QSize
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtTest import QTest
@@ -181,7 +183,7 @@ class TreeViewManager:
         self.tree_build_widget.selected_tree_view.setModel(self.selected_model)
         self.tree_build_widget.selected_tree_view.expandAll()
 
-
+        self.span_root_items(self.tree_build_widget.selected_tree_view, self.selected_model)
         
         delegate_reinsert = CancelButtonDelegate(self.tree_build_widget.discarded_tree_view,
                                                  False,
@@ -191,6 +193,8 @@ class TreeViewManager:
         self.tree_build_widget.discarded_tree_view.setItemDelegate(delegate_reinsert)
         self.tree_build_widget.discarded_tree_view.setModel(self.discarded_model)
         self.tree_build_widget.discarded_tree_view.expandAll()
+
+        self.span_root_items(self.tree_build_widget.discarded_tree_view, self.discarded_model)
 
         # display the correct columns according to the selected metadata and sweeps
         self.set_visible_columns_treeview(self.selected_model,self.tree_build_widget.selected_tree_view)
@@ -212,12 +216,16 @@ class TreeViewManager:
         self.selected_tree_view_data_table = selected_table_view_table
         self.discarded_tree_view_data_table = discarded_table_view_table
         
-        # started implementation to get rid of the whitespaces between enumeration mark and the label
-        # not woking yet 
-        #self.tree_build_widget.selected_tree_view.header().hide()
-        #self.tree_build_widget.selected_tree_view.setRootIsDecorated(True)
-        #self.tree_build_widget.selected_tree_view.setItemsExpandable(True)
-        #self.tree_build_widget.selected_tree_view.setIndentation(20)
+        # Iterate through all root items and apply the column spanning modification
+    def span_root_items(self,tree_view, model):
+        columns_to_span = [0,1]
+        root_count = model.rowCount(QModelIndex())  # Get the number of root items
+        for row in range(root_count):
+            for col in columns_to_span:
+                root_index = model.index(row, col, QModelIndex())  # Get the index of each root item for the column
+                if root_index.isValid():
+                    tree_view.setFirstColumnSpanned(row, QModelIndex(), col in columns_to_span)
+
 
     def update_mdi_areas(self,col_count):
         self.specific_analysis_tab.subwindow.setMaximumSize(QSize(350 + (col_count-2)*100, 16777215))
@@ -883,3 +891,13 @@ class TreeViewManager:
 class DataReadFinishedSignal(QObject):
     # signal to be emitted after the data were written to the database successfully
     finished_signal = Signal()
+
+from PySide6.QtWidgets import QStyledItemDelegate
+class RootItemDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        # Check if this is the root item
+        if index.row() == 0:  # Assuming the root item is the first row
+            painter.setPen(Qt.black)
+            painter.drawText(option.rect, Qt.AlignLeft, index.data())
+        else:
+            super().paint(painter, option, index)
