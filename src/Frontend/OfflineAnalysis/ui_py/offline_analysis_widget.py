@@ -1141,7 +1141,7 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         plot_widget_manager  = self.offline_tree.current_tab_visualization_dict[str(current_index)]
         self.analysis_function_selection_manager = AnalysisFunctionSelectionManager(self.database_handler, current_tab_tree_view_manager, plot_widget_manager , current_tab, dialog.selected_analysis_functions, self.frontend_style)
 
-        # this needs to be performed to ensure only one connection nper analysis
+        # this needs to be performed to ensure only one connection per analysis
         try:
             self.run_analysis_functions.clicked.disconnect()#
         except Exception as e:
@@ -1156,6 +1156,26 @@ class Offline_Analysis(QWidget, Ui_Offline_Analysis):
         current_tab.show_and_tile()
         # click the resize button of the data view !!!!!
         #QTest.mouseClick(current_tab.tile_button, Qt.LeftButton)
+
+        ## bugfix:
+        # Assuming `self.current_tab.analysis_functions.analysis_stacked_widget` is a QTabWidget
+        tab_widget = current_tab.analysis_functions.analysis_stacked_widget
+
+        # Ensure it is a QTabWidget
+        if isinstance(tab_widget, QTabWidget):
+            # Simulate a mouse click on the first tab
+            tab_bar = tab_widget.tabBar()  # Get the tab bar from the QTabWidget
+            if tab_bar.count() > 0:  # Ensure there is at least one tab
+                # Create a QMouseEvent for the left-click
+                mouse_event = QMouseEvent(QEvent.MouseButtonPress, tab_bar.tabRect(0).center(),
+                                        Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+                # Send the event to the tab bar
+                QApplication.postEvent(tab_bar, mouse_event)
+                
+                # Optionally release the mouse button
+                mouse_event_release = QMouseEvent(QEvent.MouseButtonRelease, tab_bar.tabRect(0).center(),
+                                                Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+                QApplication.postEvent(tab_bar, mouse_event_release)
 
     def start_offline_analysis_of_single_series(self, current_tab):
         '''

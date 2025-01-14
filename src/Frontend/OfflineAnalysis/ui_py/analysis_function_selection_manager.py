@@ -5,6 +5,8 @@ from PySide6.QtCore import Slot
 from PySide6.QtCore import QThreadPool
 from PySide6.QtGui import QFont, QFontMetrics, QTransform
 from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QPushButton, QTabBar
+
 from functools import partial
 from Frontend.CustomWidget.error_dialog_class import CustomErrorDialog
 from Frontend.OfflineAnalysis.CustomWidget.normalization_dialog_handler import Normalization_Dialog
@@ -28,7 +30,7 @@ class AnalysisFunctionSelectionManager():
                  database_handler:DuckDBDatabaseHandler,
                  treeview_manager:TreeViewManager,
                  plot_widget_manager, 
-                 current_tab, 
+                 current_tab, #offline_tree.current_tab_tree_view_manager_dict[str(current_index)]
                  analysis_functions, 
                  frontend,
                  existing_cursor_bounds = None):
@@ -79,6 +81,10 @@ class AnalysisFunctionSelectionManager():
         except Exception as e:
              CustomErrorDialog(f"Error in analysis function selection manager: {e}",self.frontend_style)
 
+        # Access the tab bar of the QTabWidget
+        tab_bar = self.current_tab.analysis_functions.analysis_stacked_widget.tabBar()
+
+
         for index, fct in enumerate(analysis_functions):
 
             if len(fct)>1:
@@ -92,20 +98,45 @@ class AnalysisFunctionSelectionManager():
                     print(e)
         
             self.trial_tab = QWidget()
+            # Set color for the tab
+            color = self.default_colors[index]
+            
             self.layout_tab = QGridLayout(self.trial_tab)
             analysis_table_widget = self.show_analysis_grid(text, index)
             self.layout_tab.addWidget(analysis_table_widget)
             self.current_tab.analysis_functions.analysis_stacked_widget.addTab(self.trial_tab, text)
             self.current_tab.data_table.append(analysis_table_widget)
             self.on_checkbox_state_changed(index, None)
-        
+            #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet(f"QTabBar::close-button {{background-color: {self.default_colors[index]};}}")  
+
+            # Set a unique property for the tab close button
+            if index < len(self.default_colors):
+                tab_color = self.default_colors[index]
+            else:
+                tab_color = "#ffffff"  # Fallback color
+            tab_bar.setTabData(index, tab_color)  # Store the color for this tab
+
+        # Apply a QSS style to use the tab-specific property
+        self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("""
+        QTabBar::close-button {
+            border: none;
+            width: 12px;
+            height: 12px;
+        }
+        QTabBar::close-button:hover {
+            background-color: lightgray;
+        }
+        QTabBar::tab[data-color]::close-button {
+            background-color: attr(data-color);
+        }
+        """)
+
         if self.current_tab.first_add:
             self.current_tab.analysis_functions.analysis_stacked_widget.setTabsClosable(True)
             self.current_tab.analysis_functions.analysis_stacked_widget.tabBarClicked.connect(self.on_checkbox_state_changed) 
             self.current_tab.analysis_functions.analysis_stacked_widget.tabCloseRequested.connect(self.close_tab)        
 
             #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::tab::selected, QTabBar::tab::hover {background-color:#ff0000;}")
-            self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::close-button {background-color:#ff0000;}")
             ## not working
             #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::close-button {image:(../QT_GUI/Buton/light_mode/offline_analysis/treeview_delete.png);}")
             #self.current_tab.analysis_functions.analysis_stacked_widget.setStyleSheet("QTabBar::close-button { image: url(../QT_GUI/Buton/light_mode/offline_analysis/treeview_delete.png); }")
@@ -123,69 +154,123 @@ class AnalysisFunctionSelectionManager():
         self.current_tab.data_table.pop(index)
         
 
-    def on_checkbox_state_changed(self, row, add_cursor = True):
+    def on_checkbox_state_changed(self, row, add_cursor=True):
         """
         Handles checkboxes next to the analysis function button.
-        Enables or disables all additional drawings ( cursor bounds and live plot) 
-        which are related to this analysis function
+        Enables or disables all additional drawings (cursor bounds and live plot)
+        which are related to this analysis function.
         """
-        print("row = ", row)
+        print("on_checkbox_state_changed row = ", row)
         table_widget = self.current_tab.data_table[row]
-        #table_widget  = table_widget.layout().itemAt(0).widget()
         
-        # if checked show cursor bounds and also (if checked) live plot
+        # If checked, show cursor bounds and also (if checked) live plot
         for col in range(table_widget.columnCount()):
-            
-
-            #table_widget=self.current_tab.data_table[row] # get the analysis table widget
-
-            #cdefault color is white .. 
-            background_color_rgb = (1,1,1)
+            # Default color is white
+            background_color_rgb = (1, 1, 1)
 
             cell_widget = table_widget.cellWidget(0, col)
 
             if cell_widget is not None and isinstance(cell_widget, QPushButton):
                 palette = cell_widget.palette()
                 background_color = palette.color(QPalette.Window)
-                
+
                 # Convert the QColor to an RGB tuple
-                background_color_rgb = (background_color.redF(), background_color.greenF(), background_color.blueF())
+                background_color_rgb = (
+                    background_color.redF(),
+                    background_color.greenF(),
+                    background_color.blueF(),
+                )
 
-            # add cursor bounds: of not existing new ones are created, otherwise existing ones will be selected
+            # Add cursor bounds: if not existing, new ones are created; otherwise, existing ones are selected
             cursor_bound_tuple = None
-            if  self.existing_cursor_bounds is not None:
-                cursor_bound_tuple = self.existing_cursor_bounds[row]    
-            self.add_coursor_bounds((row,col), table_widget,background_color_rgb,cursor_bound_tuple)
+            if self.existing_cursor_bounds is not None:
+                cursor_bound_tuple = self.existing_cursor_bounds[row]
+            self.add_coursor_bounds(
+                (row, col), table_widget, background_color_rgb, cursor_bound_tuple
+            )
 
-            condition = (self.live_plot_info['page'] == row) & (self.live_plot_info['col'] == col)
+            condition = (self.live_plot_info["page"] == row) & (
+                self.live_plot_info["col"] == col
+            )
             filtered_df = self.live_plot_info[condition]
-            
-            # if cursor bounds were created, they will be added to the live plot info dataframe
+
+            # If cursor bounds were created, they will be added to the live plot info dataframe
             if filtered_df.empty:
-                
                 func_name = table_widget.item(self.FUNC_GRID_ROW, col).text()
                 left_cursor = table_widget.item(self.LEFT_CB_GRID_ROW, col).text()
                 right_cursor = table_widget.item(self.RIGHT_CB_GRID_ROW, col).text()
-                tmp = pd.DataFrame({"page":[row], "col":[col], "func_name":[func_name], 
-                    "left_cursor":[left_cursor], "right_cursor":[right_cursor], 
-                    "live_plot":[False], "cursor_bound":[True]})
-            
+                tmp = pd.DataFrame(
+                    {
+                        "page": [row],
+                        "col": [col],
+                        "func_name": [func_name],
+                        "left_cursor": [left_cursor],
+                        "right_cursor": [right_cursor],
+                        "live_plot": [False],
+                        "cursor_bound": [True],
+                    }
+                )
+
                 self.live_plot_info = pd.concat([self.live_plot_info, tmp])
-                self.live_plot_info.reset_index(drop = True, inplace=True)
+                self.live_plot_info.reset_index(drop=True, inplace=True)
             else:
-                self.update_grid_data_frame(row,col,"cursor_bound",True)
-                    
-        # there should be an easy bugfix for this
+                self.update_grid_data_frame(row, col, "cursor_bound", True)
+
+        # There should be an easy bugfix for this
         if add_cursor:
             for i in range(self.current_tab.analysis_functions.analysis_stacked_widget.count()):
-                    # @todo improve: merge the  two for loops
+                # Improve: merge the two for loops
                 if i != row:
                     self.plot_widget_manager.remove_dragable_lines(i)
-                    for col in self.live_plot_info[self.live_plot_info['page'] == i]["col"].values:
-                        self.update_grid_data_frame(i,col,"cursor_bound",False)
-                    
-        # very important: dont forget to update the plot widget manager object !
+                    for col in self.live_plot_info[self.live_plot_info["page"] == i]["col"].values:
+                        self.update_grid_data_frame(i, col, "cursor_bound", False)
+
+        # Very important: don't forget to update the plot widget manager object!
         self.plot_widget_manager.update_live_analysis_info(self.live_plot_info)
+        self.reclick_tree_view_item()
+
+        # Connect itemChanged to a handler for cursor bound updates
+        table_widget.itemChanged.connect(self.on_table_item_changed)
+
+    def on_table_item_changed(self, item:QTableWidgetItem):
+        """
+        Handles changes to the left and right cursor bounds in the table.
+        When a user edits a value in the table that corresponds to a cursor bound,
+        this method updates the live plot info with the new cursor bound values.
+
+        Args:
+            item (QTableWidgetItem): The item that has been edited in the table. This item
+                represents a cell that was changed by the user.
+
+        This method also updates draggable lines for the plot based on the new cursor bound
+        values and refreshes the tree view item.
+        """
+        print("Table change called")
+        try:
+            # Get the row and column of the edited item
+            row = item.row()
+            col = item.column()
+
+            # Get the current tab index from the stacked widget
+            current_tab = self.current_tab.analysis_functions.analysis_stacked_widget.currentIndex()
+
+            # Check if the edited cell corresponds to a cursor bound (left or right)
+            if row in (self.LEFT_CB_GRID_ROW, self.RIGHT_CB_GRID_ROW):
+                # Convert the edited text value to a float
+                new_value = float(item.text())
+
+                # Update the draggable lines for the corresponding cursor bound (left or right)
+                if row == self.LEFT_CB_GRID_ROW:
+                    # Update the left cursor bound draggable line
+                    self.plot_widget_manager.update_draggable_lines((current_tab, col), new_value, 0)
+                else:
+                    # Update the right cursor bound draggable line
+                    self.plot_widget_manager.update_draggable_lines((current_tab, col), new_value, 1)
+        except Exception as e:
+            # Print any exceptions that occur
+            print(e)
+
+        # Re-click the tree view item to refresh the state
         self.reclick_tree_view_item()
 
     def create_qtablewidget(self,col_cnt,row_cnt):
@@ -335,9 +420,15 @@ class AnalysisFunctionSelectionManager():
 
     @Slot(tuple)
     def update_left_common_labels(self, tuple_in, table_widget=None):
-        print("update_left_common_labels")
+        # tuple in fields: 
+        # [0]: cursor bound value, 
+        # [1]: index of the tab of the analysis function, 
+        # [2]: column of the function (for multi-column analysis e.g. max-min)
+        print("update_left_cursor_label")
         self.update_cursor_bound_labels(self.LEFT_CB_GRID_ROW,tuple_in, table_widget)
+        print("update_left_cursor")
         self.update_canvas(tuple_in, "left_cursor")
+        print("finished")
 
     @Slot(tuple)
     def update_right_common_labels(self, tuple_in, table_widget=None):
@@ -359,31 +450,35 @@ class AnalysisFunctionSelectionManager():
         self.reclick_tree_view_item()
 
     def update_cursor_bound_labels(self, table_row, tuple_in, table_widget):
-        
-        # tuple in fields: [0]: cb value, [1]: row of the button, [2]: column of the function
         if table_widget is None:
             self.current_tab.analysis_functions.analysis_stacked_widget.setCurrentIndex(tuple_in[1])
             table_widget = self.current_tab.analysis_functions.analysis_stacked_widget.currentWidget().layout().itemAt(0).widget()
-   
+
         print(
-            f"updating: row = {str(tuple_in[1])} column={str(tuple_in[2])} value= {str(tuple_in[0])}"
+            f"Updating: row={str(tuple_in[1])}, column={str(tuple_in[2])}, value={str(tuple_in[0])}"
         )
 
-        insert_item = QTableWidgetItem(str(round(tuple_in[0],2)))
-        insert_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        table_widget.setItem(table_row, tuple_in[2], insert_item)
+        # Block signals temporarily to avoid endless recursion
+        table_widget.blockSignals(True)
+        try:
+            insert_item = QTableWidgetItem(str(round(tuple_in[0], 2)))
+            insert_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            table_widget.setItem(table_row, tuple_in[2], insert_item)
+        finally:
+            # Ensure signals are unblocked even if an exception occurs
+            table_widget.blockSignals(False)
 
     def update_grid_data_frame(self, page:int, column:int, column_name:str, value):
-        """
-        update a single data frame cell value
-        value can be either float, bool, str, ... 
-        """
-        try:
-            index = self.live_plot_info[(self.live_plot_info['page'] == page) & (self.live_plot_info["col"]==column)].index[0]
-            self.live_plot_info[column_name][index]=value
-        except Exception as e:
-            print(e)
-              
+            """
+            update a single data frame cell value
+            value can be either float, bool, str, ... 
+            """
+            try:
+                index = self.live_plot_info[(self.live_plot_info['page'] == page) & (self.live_plot_info["col"]==column)].index[0]
+                self.live_plot_info[column_name][index]=value
+            except Exception as e:
+                print(e)
+                
 
     def reclick_tree_view_item(self):
         """

@@ -6,7 +6,7 @@ class  DraggableLines:
         self.ax = ax
         self.c = canvas
         self.o = kind
-        self.XorY = XorY
+        self.XorY = XorY # position of the cursor
         self.line = None
         self.scaling_factor = scaling_factor
         self.rgb_color = rgb_color

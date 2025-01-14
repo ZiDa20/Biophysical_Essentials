@@ -162,6 +162,8 @@ class PlotWidgetManager(QRunnable):
         #print(type(x_y_tuple))
         t  =type(analysis_class_object)
 
+        current_yaxis_lim = self.ax1.get_ylim()
+
         if analysis_class_object().function_name == "AreaUnderTheCurve":
            # Assuming `self.ax1` is an Axes object
             lines = self.ax1.get_lines()  # Get all Line2D objects on the axes
@@ -183,8 +185,8 @@ class PlotWidgetManager(QRunnable):
                     min = y_sliced.min()
                     # Fill the area for the sliced data
                     self.ax1.fill_between(time_sliced, y_sliced, min, color="blue", alpha=0.2)
-                else:
-                    print("No data in the specified range.")
+                    self.ax1.set_ylim(current_yaxis_lim[0],current_yaxis_lim[1])
+            
 
         if sweep_number is not None:
                 sweep_number = sweep_number.split("_")
@@ -742,6 +744,38 @@ class PlotWidgetManager(QRunnable):
         #self.canvas.draw_idle()
 
         return left_val,right_val
+
+    def update_draggable_lines(self, row_col_tuple, new_val, cursor_to_update):
+        """
+        Updates the position of the vertical draggable lines for the given row_col_tuple.
+
+        Args:
+            row_col_tuple (tuple): The row and column tuple to identify the draggable lines.
+            new_val(float): The new position for the  line.
+            cursor_to_update (int): 0: left, 1: right.
+        """
+        # Retrieve the cursor tuple for the given row_col_tuple
+        if row_col_tuple not in self.coursor_bound_tuple_dict:
+            print(f"No draggable lines found for row_col_tuple: {row_col_tuple}")
+            return
+
+        self.left_cursor, self.right_cursor = self.coursor_bound_tuple_dict[row_col_tuple]
+
+        # Update the XorY values in the draggable line objects
+        if cursor_to_update == 0:
+            self.left_cursor.XorY = new_val
+        else:
+            self.right_cursor.XorY = new_val
+
+
+        # Redraw the canvas to reflect changes
+        # self.canvas.draw_idle()
+
+        # remove the old data from the dict and replace by the new ones
+        self.coursor_bound_tuple_dict.pop(row_col_tuple)
+        self.coursor_bound_tuple_dict[row_col_tuple] = (self.left_coursor,self.right_coursor)
+        print(f"Updated draggable lines for {row_col_tuple}: cursor={cursor_to_update}, val={new_val}")
+
 
     def show_draggable_lines(self,row_col_tuple,rgb_color=None):
         """
