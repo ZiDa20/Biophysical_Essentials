@@ -3,7 +3,7 @@ from scipy import interpolate
 import math
 import pickle
 import datetime
-
+from scipy.signal import savgol_filter
 from Backend.OfflineAnalysis.AnalysisFunctions.FunctionTemplate.SweepWiseAnalysis import SweepWiseAnalysisTemplate
 import matplotlib.pyplot as plt
 
@@ -49,16 +49,20 @@ class PhasePlanePlot(SweepWiseAnalysisTemplate):
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"trace_{timestamp}.pkl"
 
+        # Apply smoothing
+
+        smoothed_v_ap, smoothed_dv_dt = self.smooth_data(v_ap_array, dv_dt)
+
         trace_data = {
             'v_ap_array': v_ap_array,
-            'dv_dt': dv_dt
+            'dv_dt': smoothed_dv_dt
         }
 
         with open(filename, 'wb') as f:
             pickle.dump(trace_data, f)
 
         print(f"Trace saved to {filename}")
-        return [v_ap_array, dv_dt]
+        return [v_ap_array, smoothed_dv_dt]
         # Return the selected outputs from the function
         
         #return {
@@ -68,3 +72,10 @@ class PhasePlanePlot(SweepWiseAnalysisTemplate):
         #    'time': self.sliced_time,
         #    'voltage_array': v_ap_array
         #}
+    def smooth_data(self,v_ap_array, dv_dt, window_length=10, polyorder=2):
+        """
+        Apply Savitzky-Golay smoothing to the data.
+        """
+        smoothed_v_ap = savgol_filter(v_ap_array, window_length, polyorder)
+        smoothed_dv_dt = savgol_filter(dv_dt, window_length, polyorder)
+        return smoothed_v_ap, smoothed_dv_dt

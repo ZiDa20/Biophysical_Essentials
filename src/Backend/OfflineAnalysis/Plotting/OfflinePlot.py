@@ -738,7 +738,7 @@ class OfflinePlots():
             # Collect all dataframes in a list
             df_list = []
 
-            for n in range(len([0,1])):#len(results)):
+            for n in range(len(results)):#len([0,1])):
                 v_ap_array = results[n][0]  # Extract v_ap_array
                 dv_dt = results[n][1]
                 df = pd.DataFrame({
@@ -752,20 +752,39 @@ class OfflinePlots():
             full_df = pd.concat(df_list, ignore_index=True)
 
             # Plot all at once
-            sns.lineplot(data=full_df, x='v_ap', y='dv_dt', hue='meta_dat', ax=self.parent_widget.ax, estimator=None ) # Disable aggregation)
+            sns.lineplot(data=full_df, x='v_ap', y='dv_dt', hue='meta_dat', ax=self.parent_widget.ax, estimator=None, sort=False) # Disable aggregation)
                     
         except Exception as e:
             print(f"Error in plotting phaseplaneplot: {e}")     
 
         self.parent_widget.canvas.figure.tight_layout()
         self.parent_widget.ax.autoscale()
+        
+        
+        # Add experiment_name to the dataframe
+        self.parent_widget.holded_dataframe = full_df.copy()  # Backup the dataframe
+        # Map experiment_name from plot_dataframe to holded_dataframe based on meta_dat match
 
-        #plt.figure()
-        #plt.title('Phase-plane plot')
-        #plt.plot(v_ap_array, dv_dt)
-        #plt.ylabel("dV/dt (mV/ms)")
-        #plt.xlabel("V (mV)")
-        #plt.show()
+        # Create the 'meta_dat' column in plot_dataframe
+        plot_dataframe["meta_dat"] = plot_dataframe.apply(
+            lambda row: f"{row['Sweep_Table_Name']}_sweep_{row['Sweep_Number']}", axis=1
+        )
+
+        # Create the experiment_name map: map 'meta_dat' to 'experiment_name'
+        experiment_name_map = dict(zip(plot_dataframe["meta_dat"], plot_dataframe["experiment_name"]))
+
+        # Now map 'experiment_name' to self.parent_widget.holded_dataframe based on 'meta_dat'
+        self.parent_widget.holded_dataframe["experiment_name"] = self.parent_widget.holded_dataframe["meta_dat"].map(experiment_name_map)
+
+        # Create the experiment_name map: map 'meta_dat' to 'experiment_name'
+        experiment_name_map = dict(zip(plot_dataframe["meta_dat"], plot_dataframe["Sweep_Table_Name"]))
+        self.parent_widget.holded_dataframe["Sweep_Table_Name"] = self.parent_widget.holded_dataframe["meta_dat"].map(experiment_name_map)
+        
+        self.parent_widget.holded_dataframe["meta_data"] = None
+
+        self.parent_widget.export_data_frame = self.parent_widget.holded_dataframe # set for the user click on "table"
+        self.parent_widget.statistics = self.parent_widget.holded_dataframe # set for the user click on statistics
+       
 
     def hue_regplot(self,data, x, y, hue, palette=None, **kwargs):
         """Draw a scatterplot with regression line for each unique value of a column."""
