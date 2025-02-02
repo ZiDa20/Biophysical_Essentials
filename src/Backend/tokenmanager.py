@@ -23,7 +23,10 @@ class TableEnum(Enum):
     IMON_META_DATA = "imon_meta_data"
     PGF_DATA = "pgf_table"
 
-
+class PgfSementTypes(Enum):
+    STEP = "step",
+    RAMP = "ramp",
+    SINE = "sine"
 class OfflineAnalysisTreeTokens(Enum):
     CONFIGURATOR_TOKEN = "Analysis Configurator"
     CONFFIGURATOR_INDEX = 0

@@ -149,6 +149,7 @@ class DuckDBDatabaseHandler():
             print("Series Mapping fpr analysis id", self.analysis_id)
             #self.logger.info("Series Mapping fpr analysis id", self.analysis_id)
         except Exception as e:
+            print("Error in create_mapping_between_series_and_analysis_id")
             print(e)
             #self.logger.info("Series Mapping Failed")
 

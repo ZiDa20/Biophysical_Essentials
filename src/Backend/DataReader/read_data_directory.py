@@ -504,8 +504,9 @@ class ReadDataDirectory(object):
             self.logger.info("single file into db" )
             #self.logger.info("adding to experiments"+abf_bundle[1][0])
             database.add_experiment_to_experiment_table(abf_bundle[1][0])
-
+            print("1")
             pos = self.meta_data_assigned_experiment_names.index(abf_bundle[1][0])
+
             meta_data = self.meta_data_assignment_list[pos]
             database.add_experiment_to_global_meta_data(-1 ,meta_data)
 
@@ -533,6 +534,7 @@ class ReadDataDirectory(object):
                 )
         except Exception as e:
            self.logger.error("single_abf_file_into_db: error detected")
+           self.logger.error(e)
 
     def write_sweep_data_into_df(self,bundle,data_access_array,metadata):
         """

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import Optional
 import picologging
-
+from Backend.tokenmanager import PgfSementTypes
 #####################################################################################
 #ABFReader class which should Read an ABF file and return a dictionary containing the data
 #####################################################################################
@@ -136,47 +136,106 @@ class AbfReader():
     def build_command_epoch_table(self) -> None:
         """Retrieves the PGF Table equivalent to the Dat Files
         """
-        columns_list = ["series_name",
-                    "sweep_number",
-                    "node_type",
-                    "holding_potential",
-                    "duration",
-                    "increment",
-                    "voltage",
+        pgf_table = pd.DataFrame()
+        # Initialize data storage for each epoch
+       
+        abf = self.abf
 
-        ]
+        for channel in range(0,abf.channelCount):
+            abf.setSweep(sweepNumber=0, channel=channel)
+            print(channel)
+            print(abf.sweepEpochs) # Print to understand its structure
+            epochs_data = []
+            # Retrieve the start and end indices, voltage levels, and types as lists
+            start_indices = abf.sweepEpochs.p1s
+            end_indices = abf.sweepEpochs.p2s
+            voltages = abf.sweepEpochs.levels
+            epoch_types = abf.sweepEpochs.types
 
-        # retrieves the first and the last sweep
-        first, last = self.get_first_and_last_sweep()
-        epochs_list = [
-            [
-                self.abf.protocol
-                for _ in range(len(self.abf._epochPerDacSection.fEpochInitLevel))
-            ],
-            [
-                self.abf.sweepCount
-                for _ in range(len(self.abf._epochPerDacSection.fEpochInitLevel))
-            ],
-            self.abf._epochPerDacSection.nEpochType,
-            [i / 1000 for i in self.abf._epochPerDacSection.fEpochInitLevel],
-            [i / 10000 for i in self.abf._epochPerDacSection.lEpochInitDuration],
-            [i / 1000 for i in self.abf._epochPerDacSection.fEpochLevelInc],
-            [i / 1000 for i in self.abf._epochPerDacSection.fEpochInitLevel],
-        ]
-        #epochs_list.append(self.abf._epochPerDacSection.nEpochType)
-        self.epochs_dataframe = pd.DataFrame(epochs_list, index = columns_list)
-        self.epochs_dataframe.insert(loc = 0,
-                                    column="col1",
-                                    value = first)
-        self.epochs_dataframe.insert(loc = len(self.epochs_dataframe.columns),
-                                    column="col2",
-                                    value = last)
-        self.epochs_dataframe
+            # Verify that all lists are the same length
+            if not (len(start_indices) == len(end_indices) == len(voltages) == len(epoch_types)):
+                raise ValueError("Mismatch in lengths of start indices, end indices, voltages, or epoch types")
 
-        self.epochs_dataframe = self.epochs_dataframe.transpose()
-        print(self.abf.channelList)
-        self.epochs_dataframe["selected_channel"] = str(self.abf.channelList[0] + 3)
+            # Loop through each epoch and calculate duration
+            for i in range(len(start_indices)):
+                start_idx = start_indices[i]
+                end_idx = end_indices[i]
+                voltage = voltages[i] #assuming mv
+                epoch_type = epoch_types[i]
+                
+                if epoch_type == 'Step':
+                    epoch_type = PgfSementTypes.STEP
+                if epoch_type == 'Ramp':
+                    epoch_type = PgfSementTypes.RAMP
+                
+                # Calculate duration in milliseconds
+                duration = (end_idx - start_idx) / abf.sampleRate #* 1000  # duration in ms
 
+                # Store each epoch's data in a dictionary
+                #epochs_data.append({
+                #    "Sweep_Number": abf.sweepCount,
+                #    "Holding_Potential (mV)": voltage,
+                #    "Epoch Type": epoch_type,
+                #    "Duration (s)": duration,
+                #    "Increment (mV)": 0,
+                #    "Voltage (mV)": voltage,
+                #    "Channel":channel
+                #})
+
+
+
+                epochs_data.append({"series_name": abf.protocol,
+                            "sweep_number": abf.sweepCount,
+                            "start_time": 0,
+                            "node_type":0,
+                            "pgf_segment_type":epoch_type,
+                            "holding_potential":voltage,
+                            "duration":duration,
+                            "increment":0,
+                            "voltage":voltage,
+                            "channel":channel,
+                            "selected_channel":False,
+
+                })
+            # Create a DataFrame for easy viewing
+            epochs_df = pd.DataFrame(epochs_data)
+
+            #check for increment/step protocols
+            all_sweep_voltages = []
+            # Loop through each sweep
+            for sweep in range(abf.sweepCount):
+                    abf.setSweep(sweepNumber=sweep, channel=channel)
+                    
+                    # Get the voltages of each epoch for the current sweep
+                    sweep_voltages = abf.sweepEpochs.levels  # Assuming `levels` gives the voltage levels for the current sweep
+                    all_sweep_voltages.append(sweep_voltages)
+
+            if not all(x == all_sweep_voltages[0] for x in all_sweep_voltages):
+                for index in range(0, len(all_sweep_voltages[0])):
+                    diff= all_sweep_voltages[1][index]-all_sweep_voltages[0][index]
+                    if (diff) != 0:
+                            # Update the "increment" column for this epoch in `epochs_df`
+                            epochs_df.at[index, "increment"] = diff
+                            epochs_df.at[index, "holding_potential"] = all_sweep_voltages[0][index]
+                            epochs_df.at[index, "voltage"] = all_sweep_voltages[abf.sweepCount-1][index]
+            
+            # Check if DataFrame is not empty
+            if not pgf_table.empty:
+                # Append new data row-wise
+                print("not empty")
+                pgf_table = pd.concat([pgf_table,epochs_df], ignore_index=True)
+            else:
+                # If the DataFrame is empty, create it with new data
+                print("empty")
+                pgf_table = epochs_df
+
+        # per default, choose the last channel to be the selected channel
+        
+        pgf_table["selected_channel"] = pgf_table["channel"] == (abf.channelCount - 1)
+        print("PGF Table")
+        print(pgf_table)
+        
+        self.epochs_dataframe = pgf_table
 
     def get_first_and_last_sweep(self):
         """Get The first and the last sweep from the dac eopchstable since
@@ -255,4 +314,5 @@ class AbfReader():
             _type_: _description_
         """
         return self.abf.protocol
+
 

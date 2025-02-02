@@ -28,6 +28,11 @@ from Frontend.OnlineAnalysis.ui_py.online_analysis_designer_object import (
     Ui_Online_Analysis,
 )
 
+import picologging
+import numpy as np
+from Frontend.OfflineAnalysis.CustomWidget.construction_side_handler import ConstrcutionSideDialog   
+import re
+import time
 
 if TYPE_CHECKING:
     from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
@@ -150,6 +155,7 @@ class ImageHandler:
         self.image_experiment.setScene(self.online_scence)  # set the scene to the image
         item = QGraphicsPixmapItem(image)
         self.image_experiment.scene().addItem(item)
+
 
 
 class Online_Analysis(QWidget, Ui_Online_Analysis):
@@ -454,7 +460,33 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         if extension == InputDataTypes.HEKA_DATA_FILE_ENDING.value:
             self.handle_heka_file(read_directory_handler, filename_with_extension, pathname)
         elif extension == InputDataTypes.ABF_FILE_ENDING.value:
-            self.handle_abf_file(read_directory_handler, file_name)
+            self.logger.info("ABF FIle Reading Online Analysis")
+            pathname, filename_with_extension = os.path.split(file_name)
+            filename, extension = os.path.splitext(filename_with_extension)
+            abf_file_list = os.listdir(os.path.dirname(file_name))
+            self.logger.info(abf_file_list)
+            
+            # read only files that have the same idenfier as the selected one
+            abf_identifier = os.path.basename(file_name).split("_")
+            abf_identifier = abf_identifier[0]
+            abf_file_data = []
+            
+            for abf in abf_file_list:
+
+                if abf_identifier in abf:
+                    print(abf)
+                    
+                    file_2 = pathname + "/" + abf
+                    abf_file = AbfReader(file_2)
+                    data_file = abf_file.get_data_table()
+                    meta_data = abf_file.get_metadata_table()
+                    pgf_tuple_data_frame = abf_file.get_command_epoch_table()
+                    experiment_name = [abf_file.get_experiment_name(), "None", "None", "None", "None", "None", "None", "None"]
+                    series_name = abf_file.get_series_name()
+                    abf_file_data.append((data_file, meta_data, pgf_tuple_data_frame, series_name, InputDataTypes.ABF_FILE_ENDING))
+            if abf_file_data:
+                bundle = [abf_file_data, experiment_name]
+                read_directory_handler.single_abf_file_into_db(bundle, self.database_handler)
         else:
             self.show_file_type_error()
 
@@ -564,14 +596,23 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
         self.online_analysis_tree_view_manager.selected_meta_data_list = ["None"]
         self.online_analysis_tree_view_manager.map_data_to_analysis_id([self.experiment_name])
         self.online_analysis_tree_view_manager.update_treeviews(self.online_analysis_plot_manager)
+        
         self.logger.info("Finished the loading of the file!")
-        self.online_analysis.setTabEnabled(1, True)
-        self.online_analysis.setTabEnabled(2, True)
+        self.online_analysis.setTabEnabled(1,True)
+        self.online_analysis.setTabEnabled(2,True)
+
+        print("Table 1")
+        print(self.online_analysis_tree_view_manager.selected_tree_view_data_table)
+
+        print("Table 2")
+        print(self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()._data)
+
         self.online_analysis_tree_view_manager.click_top_level()
-        self.online_analysis_config.enable_plot_options()
-        self.online_analysis_config.set_enabled_button(True)
-        self.labbook.get_columns_data_to_table(self.online_analysis_tree_view_manager)
-        self.draw_table(self.labbook.labbook_table)
+        self.enable_plot_options()
+        self.set_enabled_button(True)
+
+
+        self.get_columns_data_to_table()
         self.stackedWidget.setCurrentIndex(0)
         self.logger.info(f"Successfully transferred to online analysis db the file {self.experiment_name}")
 
@@ -597,17 +638,58 @@ class Online_Analysis(QWidget, Ui_Online_Analysis):
             self.start_video.stop()
             self.video_call = 0
 
-    def draw_scene(self, image) -> None:
-        """Draw the image into the configuration window.
-
-        Args:
-            image (QImage): The image to be drawn.
+    def wait_for_data(self):
         """
+        wait_for_data this is a bugfix: somehow, sometimes there is an error during file loading 
+        saying _data object of the model does not exist .. looks like there is some gui delay ?! 
 
-        self.online_scence = QGraphicsScene(self)
-        self.image_experiment.setScene(self.online_scence)  # set the scene to the image
-        item = QGraphicsPixmapItem(image)
-        self.image_experiment.scene().addItem(item)  #
+        Returns:
+            _type_: _description_
+        """
+        model = self.online_analysis_tree_view_manager.tree_build_widget.selected_tree_view.model()
+        retries = 10  # Number of retries
+        while retries > 0:
+            if hasattr(model, "_data") and model._data is not None:
+                return model._data
+            time.sleep(0.1)  # Small delay before checking again
+            retries -= 1
+        return None  # Return None if data isn't ready in time
+
+    def get_columns_data_to_table(self) -> None:
+        """ This retrieves information from the recording which can
+        be used in a Labbook like table.
+        In addition a comment section is added where comments to specific experimental conditions
+        can be made"""
+        self.logger.info(f"Creating labbook for file {self.experiment_name}")
+
+        final_pandas = self.wait_for_data()
+        if final_pandas is  None:
+           raise ValueError()
+        
+        final_pandas = final_pandas.drop(columns = ["identifier", "level","parent"])
+        self.experiment_name  = final_pandas["item_name"].values[0]
+        list_cslow = [] # need to change this to support more metadata
+        list_rs = [] # need to change also
+        for i in final_pandas["item_name"].values[1:]:
+            cslow, rs = self.retrieve_cslow_rs(i)
+            self.logger.info(f"Retrieved Cslow: {cslow}, and Rseries: {rs} for {self.experiment_name}")
+            list_cslow.append(cslow)
+            list_rs.append(rs)
+        
+        final_pandas = final_pandas.iloc[1:,:]
+        final_pandas["condition"] = final_pandas.shape[0] * [""]
+        final_pandas["RsValue"] = list_rs
+        final_pandas["Cslow"] = list_cslow
+        final_pandas["comments"] = final_pandas.shape[0] * [""]
+        final_pandas["ids"] = final_pandas.shape[0] * [""]
+        self.draw_table(final_pandas)
+
+        #Args:
+        #image (QImage): The image to be drawn.
+        #self.online_scence = QGraphicsScene(self)
+        #self.image_experiment.setScene(self.online_scence)  # set the scene to the image
+        #item = QGraphicsPixmapItem(image)
+        #self.image_experiment.scene().addItem(item)  #
 
     # thats refactored
     def draw_table(self, data: pd.DataFrame) -> None:

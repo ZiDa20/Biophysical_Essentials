@@ -379,7 +379,9 @@ class PlotWidgetManager(QRunnable):
             # finally also the pgf file needs to be added to the plot
             # load the table
             pgf_table = self.database_handler.get_entire_pgf_table_by_experiment_name_and_series_identifier(experiment_name, series_identifier)
-            pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
+            
+            #### !!!!! this must be handled 
+            #pgf_table = pgf_table[pgf_table["selected_channel"] == pgf_table["selected_channel"].tolist()[0]]
             
             protocol_steps = self.plot_pgf_signal(pgf_table,data)
             for x in range(0,len(protocol_steps)):
@@ -487,9 +489,18 @@ class PlotWidgetManager(QRunnable):
         increments = pgf_table_df['increment'].values.tolist()
         increments = np.array(increments, dtype=float)
 
+        #### BUFIX this needs handling of more than one channel !!!! 
+        # @TODO: Set the channel selection to the user !!!!!!!!!!!!!
+        channels = pgf_table_df['selected_channel'].unique().tolist()
+        series_name = pgf_table_df['series_name'].unique().tolist()
+        print(f'printing {series_name} {channels}' )
+        if len(channels) > 1:
+            print("detected multiple channels")
+            pgf_table_df = pgf_table_df[pgf_table_df["selected_channel"] == channels[-1]]
+        ## end of bugfix #### 
+
         if np.all(increments ==0):
             return self.plot_pgf_simple_protocol(pgf_table_df,data)
-        
         else:
             return self.plot_pgf_step_protocol(pgf_table_df,data,sweep_number)
  
@@ -566,6 +577,7 @@ class PlotWidgetManager(QRunnable):
                         #print(1000*float(voltages[n]))
 
                 start_pos = end_pos
+
             self.check_style()
             if sweep_number_of_interest is not None:
                 if sweep_number != sweep_number_of_interest:
@@ -591,18 +603,24 @@ class PlotWidgetManager(QRunnable):
         protocol_steps = []
 
         pgf_signal = np.zeros(len(data))
-
+        print(f'Length of the data {len(data)}')
+    
         try:
-            # create traces
+            print("1")
 
             durations = pgf_table_df['duration'].values.tolist()
+
             if pgf_table_df["start_time"].tolist()[0] != 0:
                 durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
+
             voltages = pgf_table_df['voltage'].values.tolist()
             holding = pgf_table_df['holding_potential'].values.tolist()
             total_duration = 0
             start_pos = 0
+
+            print("2")
             for n in range(0,len(durations)):
+                print(f'segement {n}')
                 d = 1000 * float(durations[n])
                 total_duration += d
                 protocol_steps.append(d)
@@ -613,17 +631,25 @@ class PlotWidgetManager(QRunnable):
                     #print("index error")
                     end_pos = len(data)
                 print(end_pos)
+
                 if float(voltages[n])==0:
                     pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
+                    print("holding")
+                    print(f'{start_pos}{end_pos}{1000 * float(holding[n])}')
                 else:
                     pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
+                    print("voltages")
+                    print(f'{start_pos}{end_pos}{1000 * float(voltages[n])}')
                 start_pos = end_pos
 
         except Exception as e:
             print(e)
+
+        print("3")
         self.check_style()
         self.ax2.plot(self.time, pgf_signal, c = self.draw_color)
 
+        print(f'Length of the pgf signal {len(pgf_signal)}')
         return protocol_steps
 
     def get_recording_mode(self,meta_data):
