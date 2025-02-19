@@ -16,6 +16,7 @@ from Backend.OfflineAnalysis.AnalysisFunctions.Firing_Pattern_CLassification imp
 from Backend.OfflineAnalysis.AnalysisFunctions.PCA import PCA
 from Backend.OfflineAnalysis.AnalysisFunctions.PhasePlanePlot import PhasePlanePlot
 from Backend.OfflineAnalysis.AnalysisFunctions.Mean_Around_Min_Current import MeanAroundMinCurrent
+from Backend.OfflineAnalysis.AnalysisFunctions.
 
 
 class AnalysisFunctionRegistration():
@@ -40,7 +41,8 @@ class AnalysisFunctionRegistration():
         "AreaUnderTheCurve": AreaUnderTheCurve,
         "Firing_Pattern": FiringPatternCLassification,
         "PCA":PCA,
-        "MeanAroundMinCurrent":MeanAroundMinCurrent
+        "MeanAroundMinCurrent":MeanAroundMinCurrent,
+        "ExponetialFitting":ExponentialFitting
     }
 
     @classmethod

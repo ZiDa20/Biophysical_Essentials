@@ -5,7 +5,7 @@ class MeanAroundMinCurrent(SweepWiseAnalysisTemplate):
     
     def __init__(self):
         super().__init__()
-        self.function_name = 'min_current'
+        self.function_name = 'mean_aorund_min'
         self.plot_type_options = ["No Split", "Split by Meta Data"]
         
     def specific_calculation(self):
