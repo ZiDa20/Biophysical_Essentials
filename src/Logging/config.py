@@ -20,11 +20,19 @@ elif LOG_LEVEL == "WARNING":
     loglevel = picologging.WARNING
 # add other log levels if needed
 
-picologging.basicConfig(
-    format="Module: %(name)s | %(levelname)s | %(asctime)s | %(message)s",
-    level=loglevel,
-    datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[picologging.FileHandler(f"{EXE_LOCATION}/Logging/Logs/log.log")],
-)
+def setup_logging():
+    """Ensures the Logs directory exists and configures logging."""
+    log_dir = os.path.join(EXE_LOCATION, "Logging", "Logs")
+    os.makedirs(log_dir, exist_ok=True)  # Create the directory if it doesn't exist
+
+    log_file = os.path.join(log_dir, "log.log")
+
+    picologging.basicConfig(
+        format="Module: %(name)s | %(levelname)s | %(asctime)s | %(message)s",
+        level=loglevel,
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[picologging.FileHandler(log_file)]
+    )
+
 
 # picologging.StreamHandler(),  stream handler will stream the log into the terminal - delays the tool massively

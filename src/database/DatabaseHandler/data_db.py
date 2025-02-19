@@ -1285,19 +1285,33 @@ class DuckDBDatabaseHandler():
         ref_elem_exp = None
         for experiment in experiment_name:
             try:
+
+            
                 q = """select pgf_data_table_name from experiment_series where experiment_name = (?) and series_name = (?)"""
                 pgf_sections = self.get_data_from_database(self.database, q, [experiment[0], series_name])[0][0]
                 pgf_table = self.database.execute(f"SELECT * FROM {pgf_sections}").fetchdf()
+                
+                # this is handling the abf  files
+                pgf_table_abf = pgf_table[pgf_table["selected_channel"] == True]
 
-                if pgf_table[pgf_table["selected_channel"] == "1"].empty:
-                    if pgf_table[pgf_table["selected_channel"] == "2"].empty:
-                         pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
+                # if the df is empty, selected channel has numeric values as for the heka data implemented
+                if pgf_table_abf.empty:
+                # @todo
+                # this is the old heka function and needs to be revised
+                    if pgf_table[pgf_table["selected_channel"] == "1"].empty:
+                        if pgf_table[pgf_table["selected_channel"] == "2"].empty:
+                             pgf_table = pgf_table[pgf_table["selected_channel"] == "3"]
+                        else:
+                            pgf_table = pgf_table[pgf_table["selected_channel"] == "2"]
                     else:
-                        pgf_table = pgf_table[pgf_table["selected_channel"] == "2"]
+                        pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary     
+                
                 else:
-                    pgf_table = pgf_table[pgf_table["selected_channel"] == "1"] # this should be change to an input from the user if necessary
+                    pgf_table = pgf_table_abf
+                    
                 pgf_file_dict[experiment[0]] = (pgf_table, pgf_table.shape[0])
                 ref_elem_exp = experiment[0]
+                    
             except IndexError:
                 print(f"The error is at the experiment: {experiment[0]}")
                 continue

@@ -15,6 +15,7 @@ from Backend.OfflineAnalysis.AnalysisFunctions.Rheoramp_Detection import Rheoram
 from Backend.OfflineAnalysis.AnalysisFunctions.Firing_Pattern_CLassification import FiringPatternCLassification
 from Backend.OfflineAnalysis.AnalysisFunctions.PCA import PCA
 from Backend.OfflineAnalysis.AnalysisFunctions.PhasePlanePlot import PhasePlanePlot
+from Backend.OfflineAnalysis.AnalysisFunctions.Mean_Around_Min_Current import MeanAroundMinCurrent
 
 
 class AnalysisFunctionRegistration():
@@ -38,7 +39,8 @@ class AnalysisFunctionRegistration():
         "CapacitanceMeasurements": CapacitanceMeasurements,
         "AreaUnderTheCurve": AreaUnderTheCurve,
         "Firing_Pattern": FiringPatternCLassification,
-        "PCA":PCA
+        "PCA":PCA,
+        "MeanAroundMinCurrent":MeanAroundMinCurrent
     }
 
     @classmethod
@@ -95,7 +97,8 @@ class AnalysisFunctionRegistration():
         if recording_mode == "Voltage Clamp":
             return ["max_current",
                     "min_current",
-                    "mean_current", 
+                    "mean_current",
+                    "MeanAroundMinCurrent", 
                     "time_to_min",
                     "time_to_max", 
                     "CapacitanceMeasurements",
