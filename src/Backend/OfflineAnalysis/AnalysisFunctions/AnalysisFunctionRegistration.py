@@ -16,7 +16,8 @@ from Backend.OfflineAnalysis.AnalysisFunctions.Firing_Pattern_CLassification imp
 from Backend.OfflineAnalysis.AnalysisFunctions.PCA import PCA
 from Backend.OfflineAnalysis.AnalysisFunctions.PhasePlanePlot import PhasePlanePlot
 from Backend.OfflineAnalysis.AnalysisFunctions.Mean_Around_Min_Current import MeanAroundMinCurrent
-from Backend.OfflineAnalysis.AnalysisFunctions.
+from Backend.OfflineAnalysis.AnalysisFunctions.MonoExponentialFitting import MonoExponentialFitting
+from Backend.OfflineAnalysis.AnalysisFunctions.BiExponentialFitting import BiExponentialFitting
 
 
 class AnalysisFunctionRegistration():
@@ -42,7 +43,8 @@ class AnalysisFunctionRegistration():
         "Firing_Pattern": FiringPatternCLassification,
         "PCA":PCA,
         "MeanAroundMinCurrent":MeanAroundMinCurrent,
-        "ExponetialFitting":ExponentialFitting
+        "MonoExponentialFitting":MonoExponentialFitting,
+        "BiExponentialFitting": BiExponentialFitting
     }
 
     @classmethod
@@ -96,6 +98,7 @@ class AnalysisFunctionRegistration():
         Returns:
             _type_: _description_
         """
+
         if recording_mode == "Voltage Clamp":
             return ["max_current",
                     "min_current",
@@ -104,7 +107,9 @@ class AnalysisFunctionRegistration():
                     "time_to_min",
                     "time_to_max", 
                     "CapacitanceMeasurements",
-                    "AreaUnderTheCurve"] #,"area_current","time-to-maximum","time-to-minimum"]
+                    "AreaUnderTheCurve",
+                    "MonoExponentialFitting",
+                    "BiExponentialFitting"] #,"area_current","time-to-maximum","time-to-minimum"]
         else:
             return ["mean_voltage",  
                     "Action_Potential_Fitting",

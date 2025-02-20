@@ -49,6 +49,7 @@ class OfflinePlots():
                                 "Sweep Plot": self.single_rheobase_plot,
                                 "Rheoramp-AUC": self.rheoramp_plot,
                                 "Parameter-Heatmap": self.ap_fitting_plot,
+                                "ExponentialFitting-Heatmap": self.exponential_fit_plot,
                                 "Single_AP_Parameter": self.single_ap_parameter_plot,
                                 "Mean_Action_Potential_Fitting": self.mean_ap_fitting_plot,
                                 "Linear Regression": self.regression_plot,
@@ -235,7 +236,7 @@ class OfflinePlots():
 
     def rheobase_plot(self, result_table_list:list) -> None:
         """Plotting Function to draw rheobase boxplot into the OfflineAnalysisResultAnalyzer
-
+exponential_fit_plot
         Args:
             result_table_list (list): Result Table list of the generate by the Analysis Function
         """
@@ -399,7 +400,37 @@ class OfflinePlots():
     def mean_ap_fitting_plot(self, result_table_list:list):
         # calculate a mean for each column per meta data type
         self.ap_fitting_plot(result_table_list, True)
+    
+    def exponential_fit_plot(self, result_table_list):
+        # make a heatmap for the fitting parameters
+        res_df = self.database_handler.database.execute(f'select * from {result_table_list[0]}').fetchdf()
+        
+        # Convert 'Result' column (dict) into separate columns and keep the old ones
+        #plot_data_frame = pd.concat([res_df.drop(columns=["Result"]), res_df["Result"].apply(pd.Series)], axis=1)
 
+        # Convert 'Result' column (dict) into separate columns using only the dictionary keys
+        plot_data_frame = res_df["Result"].apply(pd.Series)
+
+        # Generate the heatmap
+        sns.heatmap(
+            data=plot_data_frame.T, 
+            ax=self.parent_widget.ax,
+            xticklabels=res_df["experiment_name"], 
+            yticklabels=plot_data_frame.columns,  # Using the column names of the plot_data_frame
+            cmap='coolwarm',  # You can choose different color palettes
+            annot=True,  # Optionally, you can add the data values on the heatmap cells
+            cbar_kws={'label': 'Value'}  # Adding a color bar label (optional)
+)       
+        
+        # Append the 'experiment_name' column to the result_df to be plotted in the table tab
+        plot_data_frame = pd.concat([plot_data_frame, res_df["experiment_name"]], axis=1)
+
+        self.parent_widget.canvas.figure.tight_layout()
+        self.parent_widget.export_data_frame = plot_data_frame
+        self.parent_widget.statistics = plot_data_frame #drawing_data #self.parent_widget.holded_dataframe
+        self.parent_widget.canvas.draw_idle()
+   
+   
     def ap_fitting_plot(self, result_table_list: list, agg: bool = False) -> None:
         """Should Create the Heatmap for each Fitting Parameter
         calculated by the APFitting Procedure

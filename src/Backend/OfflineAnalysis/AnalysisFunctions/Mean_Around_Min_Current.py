@@ -7,7 +7,8 @@ class MeanAroundMinCurrent(SweepWiseAnalysisTemplate):
         super().__init__()
         self.function_name = 'mean_aorund_min'
         self.plot_type_options = ["No Split", "Split by Meta Data"]
-        
+        self.parameter_options = {"Min - X": 50, "Min + X": 50}
+
     def specific_calculation(self):
             """Finds the minimum voltage in the sliced signal and calculates the mean voltage 
             in a ±50 ms window around it.
@@ -21,8 +22,8 @@ class MeanAroundMinCurrent(SweepWiseAnalysisTemplate):
             min_time = self.sliced_time[min_index]
 
             # Define threshold time window (±50 ms)
-            lower_thresh = min_time - 50
-            upper_thresh = min_time + 50
+            lower_thresh = min_time - self.parameter_options["Min - X"]
+            upper_thresh = min_time + self.parameter_options["Min + X"]
 
             # Find indices within the threshold time range
             mask = (self.sliced_time >= lower_thresh) & (self.sliced_time <= upper_thresh)
