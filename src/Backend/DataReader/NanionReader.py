@@ -207,7 +207,19 @@ class NanionReader(object):
     
     def read_data_from_json(self, recording_data,json_file,well_id_column,well_id_row,specific_name):
 
-        print("reading data from json")        
+        print("reading data from json") 
+        time_scaling = recording_data["TraceHeader"].get("TimeScalingIV")
+        if time_scaling is None:
+            print(f"Warning: 'TimeScalingIV' missing in {json_file}, trying 'TimeScaling' instead.")
+            time_scaling = recording_data["TraceHeader"].get("TimeScaling")
+
+        if time_scaling is None:
+            print(f"Error: Neither 'TimeScalingIV' nor 'TimeScaling' found in {json_file}. Skipping.")
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+        
+        I2DScale = time_scaling.get("I2DScale")
+        TR_Time = time_scaling.get("TR_Time")
+
         # Read out all necessary information from JSON file
         DataName =      recording_data["DatasetIdentifier"]["DataName"]
         WP_nCols =      recording_data["TraceHeader"]["Chiplayout"]["WP_nCols"]             # Chip Information: Number of Columns
@@ -221,8 +233,8 @@ class NanionReader(object):
         SweepsPerFile = recording_data["TraceHeader"]["FileInformation"]["SweepsPerFile"]   # Number of Samplepoints per Sweep
         TracefileList = recording_data["TraceHeader"]["FileInformation"]["FileList"]        # List of Tracefiles
         voltage_protocol = recording_data["ExperimentConditions"]["VoltageProtocol"]
-        I2DScale =      recording_data["TraceHeader"]["TimeScalingIV"]["I2DScale"]          # Array of I2D Scale Factors for each Well
-        TR_Time =       recording_data["TraceHeader"]["TimeScalingIV"]["TR_Time"]           # Trace Time
+        #I2DScale =      recording_data["TraceHeader"]["TimeScalingIV"]["I2DScale"]          # Array of I2D Scale Factors for each Well
+        #TR_Time =       recording_data["TraceHeader"]["TimeScalingIV"]["TR_Time"]           # Trace Time
         
         recordingMode = "3"
         y_unit = "A"
