@@ -201,7 +201,7 @@ class NanionReader(object):
 
     def get_col_row_info(self,recording_data):
         nCols =         recording_data["TraceHeader"]["MeasurementLayout"]["nCols"]         # Number of Columns measured
-        #WP_nRows =      recording_data["TraceHeader"]["Chiplayout"]["WP_nRows"] 
+        WP_nRows =      recording_data["TraceHeader"]["Chiplayout"]["WP_nRows"] 
         nRows = recording_data["CellTable"]["NofCellRows"]            # Chip Information: Number of Rows
         return nCols, nRows
     
@@ -242,7 +242,7 @@ class NanionReader(object):
         x_interval = TR_Time[1]-TR_Time[0] # 
 
         sweep_df = pd.DataFrame(np.zeros((NofSamples, NofSweeps)))
-        meta_data_df = pd.DataFrame(np.zeros((5, NofSweeps+1)))
+        meta_data_df = pd.DataFrame(np.empty((5, NofSweeps + 1), dtype=object))
         
 
         pgf_df = self.convert_voltage_protocol_into_pgf_df(voltage_protocol, specific_name,specific_name, NofSweeps)
@@ -312,6 +312,7 @@ class NanionReader(object):
         meta_data_df = meta_data_df.set_index("Parameter")
         print("returning")
         return sweep_df,meta_data_df,pgf_df
+
     
     def convert_voltage_protocol_into_pgf_df(self,voltage_protocol,series_name,series_identifier, nof_sweeps):
       
