@@ -41,7 +41,7 @@ class PlotWidgetManager(QRunnable):
 
         self.frontend_style = frontend_style
         self.check_style()
-
+        self.data_source = "unknown"  # default value, avoids AttributeError
         #self.show_pgf_plot_button = None
         self.show_pgf_plot = True
         self.show_plot_grid = True
@@ -488,7 +488,8 @@ class PlotWidgetManager(QRunnable):
         """
         increments = pgf_table_df['increment'].values.tolist()
         increments = np.array(increments, dtype=float)
-
+        print(f"[DEBUG] Calling plot_pgf_signal with {len(pgf_table_df)} rows")
+        print(f"[DEBUG] Detected PGF increments: {increments}")
         #### BUFIX this needs handling of more than one channel !!!! 
         # @TODO: Set the channel selection to the user !!!!!!!!!!!!!
         channels = pgf_table_df['selected_channel'].unique().tolist()
@@ -498,6 +499,15 @@ class PlotWidgetManager(QRunnable):
             print("detected multiple channels")
             pgf_table_df = pgf_table_df[pgf_table_df["selected_channel"] == channels[-1]]
         ## end of bugfix #### 
+        # Nanion override: force use of step protocol even if increments are zero
+        # if self.data_source == "nanion":
+        #     print("[DEBUG] Forcing step protocol for Nanion PGF")
+        #     return self.plot_pgf_step_protocol(pgf_table_df, data, sweep_number)
+        # elif np.all(increments == 0):
+        #     print("[DEBUG] Using simple protocol — all increments = 0")
+        #     return self.plot_pgf_simple_protocol(pgf_table_df, data)
+        # else:
+        #     return self.plot_pgf_step_protocol(pgf_table_df, data, sweep_number)
 
         if np.all(increments ==0):
             return self.plot_pgf_simple_protocol(pgf_table_df,data)
@@ -513,7 +523,8 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 21.07.2022
         """
-
+        print(f"[DEBUG] Entered plot_pgf_step_protocol with sweep_number_of_interest = {sweep_number_of_interest}")
+        print("[DEBUG] Entered plot_pgf_step_protocol")
         if sweep_number_of_interest is not None:
             # @todo: better bugfix ?
             sweep_number_of_interest = sweep_number_of_interest - 1
@@ -575,7 +586,7 @@ class PlotWidgetManager(QRunnable):
                     else:
                         pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
                         #print(1000*float(voltages[n]))
-
+                print(f"[Nanion PGF DEBUG] sweep: {sweep_number}, segment: {n},  voltage: {voltages[n]}, increment: {increments[n]},  duration: {durations[n]}, start: {start_pos}, end: {end_pos}")
                 start_pos = end_pos
 
             self.check_style()
@@ -587,7 +598,6 @@ class PlotWidgetManager(QRunnable):
             else:
                 self.ax2.plot(self.time, pgf_signal, c=self.draw_color)
             #print("finished sweep %s", sweep_number)
-
         return protocol_steps
 
     def plot_pgf_simple_protocol(self,pgf_table_df, data):
@@ -598,57 +608,93 @@ class PlotWidgetManager(QRunnable):
         @return:
         @author: dz, 21.07.2022
         """
-
+        print("[DEBUG] Using simple protocol — all increments = 0")
         # concat the y points where in the data plot slight grey lines should be drawn do indicate start of a pulse
         protocol_steps = []
 
         pgf_signal = np.zeros(len(data))
         print(f'Length of the data {len(data)}')
-    
+        #print(pgf_table_df['holding_potential'].values.tolist())
+        durations = pgf_table_df['duration'].values.tolist()
+
         try:
             print("1")
 
-            durations = pgf_table_df['duration'].values.tolist()
+            
 
             if pgf_table_df["start_time"].tolist()[0] != 0:
                 durations[0] = float(durations[0]) - float(pgf_table_df["start_time"].tolist()[0])
 
             voltages = pgf_table_df['voltage'].values.tolist()
+            #print(voltages)
             holding = pgf_table_df['holding_potential'].values.tolist()
+            #print(holding)
             total_duration = 0
             start_pos = 0
 
             print("2")
+            print(durations)
+            #print(self.time)
+            scale = ((float(max(self.time))) / (1000 *(sum([float(d) for d in durations]))))
+            print(scale)
+
+            time_array = np.linspace(0, (1000 *(sum([float(d) for d in durations]))), len(data))
+            # Clean up voltage and holding lists
             for n in range(0,len(durations)):
-                print(f'segement {n}')
+                print(f'segment {n}')
                 d = 1000 * float(durations[n])
                 total_duration += d
+                #print(total_duration)
                 protocol_steps.append(d)
+                end_pos = np.searchsorted(time_array, total_duration, side='right')
+                # try:
+                #     end_pos = np.where(self.time > total_duration)[0][0]
+                # except IndexError:
+                #     print("index error")
+                #     end_pos = len(data)
+                if end_pos <= start_pos:
+                    end_pos = start_pos + 1
+                    if end_pos > len(pgf_signal):
+                        end_pos = len(pgf_signal)
 
-                try:
-                    end_pos = np.where(self.time > total_duration)[0][0]
-                except IndexError:
-                    #print("index error")
-                    end_pos = len(data)
-                print(end_pos)
-
-                if float(voltages[n])==0:
+                #print(end_pos)
+                #print(start_pos)
+                #print(len(pgf_signal))
+                #print(data)
+                #old lines
+                if float(voltages[n])==0.0:
                     pgf_signal[start_pos:end_pos] = 1000 * float(holding[n])
                     print("holding")
-                    print(f'{start_pos}{end_pos}{1000 * float(holding[n])}')
+                    print(holding[n])
+                    print(f'{start_pos},{end_pos},{1000 * float(holding[n])}')
+
                 else:
                     pgf_signal[start_pos:end_pos] = 1000 * float(voltages[n])
                     print("voltages")
-                    print(f'{start_pos}{end_pos}{1000 * float(voltages[n])}')
+                    print(f'{start_pos},{end_pos},{1000 * float(voltages[n])}')
                 start_pos = end_pos
-
+                # voltage_at_segment = float(holding[n]) + float(voltages[n])
+                # pgf_signal[start_pos:end_pos] = 1000 * voltage_at_segment
+                # print(f"[DEBUG] Segment {n}: {start_pos} to {end_pos} set to {voltage_at_segment} V")
         except Exception as e:
             print(e)
 
         print("3")
+        print(f"[PGF DEBUG] self.time shape: {self.time.shape}")
+        print(f"[PGF DEBUG] pgf_signal shape: {pgf_signal.shape}")
+        print(f"[PGF DEBUG] First few pgf_signal values: {pgf_signal} ")
+        np.set_printoptions(threshold=np.inf)  # disable summarization
+        print(pgf_signal)
+        print(self.time)
         self.check_style()
-        self.ax2.plot(self.time, pgf_signal, c = self.draw_color)
-
+        # sample_interval_ms = (self.time[1] - self.time[0]) * 1000  # in ms
+        # n_required_samples = int(total_duration / sample_interval_ms)
+        # # Avoid over-truncating if data is shorter
+        # n_required_samples = min(n_required_samples, len(pgf_signal))
+        # pgf_signal = pgf_signal[:n_required_samples]
+        # time = self.time[:n_required_samples]
+        self.ax2.plot((float(scale))*time_array, pgf_signal, c = self.draw_color)
+        # {pgf_signal[:200]}
         print(f'Length of the pgf signal {len(pgf_signal)}')
         return protocol_steps
 
