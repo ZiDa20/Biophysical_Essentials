@@ -41,7 +41,7 @@ jobs:
     - name: Install dependencies
       working-directory: src  
       run: |
-        poetry install
+        poetry install --no-root
 
     - name: Execute Win Tests
       working-directory: src
