@@ -105,3 +105,4 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot, setup_test_enviro
         # wait to allow any open popups to finish
         print("waiting 9s to allow gui events, signals, timers and threads to keep executing until finished")
         qtbot.wait(9000)
+        print("finished successfully")
