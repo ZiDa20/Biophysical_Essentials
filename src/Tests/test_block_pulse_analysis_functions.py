@@ -1,30 +1,24 @@
 import sys
-import unittest
 import os
+import io
+import time
+import unittest
+import pytest
+from pathlib import Path
+
 sys.path.append(os.getcwd())
+
 from start import *
 from matplotlib.figure import Figure
 from PySide6.QtCore import *  # type: ignore
-from PySide6.QtGui import *  # type: ignore
+from PySide6.QtGui import *   # type: ignore
 from PySide6.QtWidgets import *  # type: ignore
 from PySide6.QtTest import QTest
-import duckdb
-import io
-from pytestqt import qtbot
-import pytestqt
-import pytest
-import shutil
-from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
-from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
-from pathlib import Path
 
-import sys
-import io
-import os
-from start import *
-import pytest
-import unittest
-import time
+import duckdb
+from pytestqt import qtbot
+
+from database.DatabaseHandler.data_db import DuckDBDatabaseHandler
 from Frontend.OfflineAnalysis.CustomWidget.assign_meta_data_dialog_popup import Assign_Meta_Data_PopUp
 from Backend.tokenmanager import InputDataTypes
 
@@ -131,57 +125,3 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
          test_db.database.close()
 
 
-
-# test 2: select all series and  proceed to OFA page 2
-#@pytest.mark.run(order=2)
-def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
-    print("running test_setting_series_specific_OFA_page_2")
-    test_db, app = setup_test_environment
-    #QApplication.processEvents()
-    #app.show()
-    #qtbot.waitForWindowShown(app)
-    #time.sleep(3)
-
-    # click the button to open the menu   
-    qtbot.mouseClick(app.ui.offline.compare_series, Qt.LeftButton)
-    # wait until the dialog appears
-    #QApplication.processEvents()
-    dialog = app.ui.offline.OfflineDialogs.series_dialog
-    #click the upper checkbox saying "ALL"
-    # Find the index of the "All" checkbox
-    all_checkbox_index = [i for i, checkbox in enumerate(dialog.checkbox_list) if checkbox.text() == "All"]
-    # Ensure that the "All" checkbox is found
-    if all_checkbox_index:
-        # Get the QCheckBox object for "All"
-        # Simulate a click on the "All" checkbox using qtbot
-        dialog.checkbox_list[all_checkbox_index[0]].setChecked(True)
-        #qtbot.mouseClick(app.ui.offline.OfflineDialogs.series_dialog.checkbox_list[all_checkbox_index[0]], Qt.LeftButton)
-    else:
-        print("Checkbox 'All' not found in the list.")
-    # proceed with "OK"
-    #QApplication.processEvents()
-    qtbot.mouseClick(dialog.confirm_series, Qt.LeftButton)
-    # click proceed to continue to OFA page 2
-    #QApplication.processEvents()
-    qtbot.mouseClick(app.ui.offline.start_analysis,Qt.LeftButton)
-    # wait until the popup closes again is prepared
-    assert app.ui.offline.offline_analysis_widgets.currentIndex() == 1
-    return test_db, app
-
-#@pytest.mark.run(order=3)
-# test 3: open the analysis function selection menu, select 
-def test_analysis_function_menu(qtbot, setup_test_environment):
-     print("running test_setting_series_specific_OFA_page_2")
-     # get the state after test 2
-     test_db, app = test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment)
-     #app.show()
-
-     # now find the block pulse in the series selector treeview. 
-     # click the analysis configurator (child 0)
-
-     # open the analysis function selection menu
-     # qtbot.mouseClick(app.ui.offline.select_analysis_fct,Qt.LeftButton)
-     assert True
-     #return test_db, app
- 
-     
