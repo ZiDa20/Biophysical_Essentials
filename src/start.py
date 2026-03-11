@@ -25,23 +25,6 @@ if getattr(sys, 'frozen', False):
 else:
     EXE_LOCATION = os.path.dirname( os.path.realpath( __file__ ) )
 
-# Ensure Logs directory exists
-log_dir = os.path.join(EXE_LOCATION, "Logs")
-os.makedirs(log_dir, exist_ok=True)  # <--- this prevents FileNotFoundError
-
-log_file = os.path.join(log_dir, "log.log")
-
-# Configure logger
-handlers = [
-    picologging.FileHandler(log_file),
-    picologging.StreamHandler()
-]
-
-logger = picologging.getLogger("BPE")
-logger.setLevel(picologging.DEBUG)
-for h in handlers:
-    logger.addHandler(h)
-    
 SCHEDULED_RESTART = False
 
 class MainWindow(QMainWindow, QtStyleTools):
