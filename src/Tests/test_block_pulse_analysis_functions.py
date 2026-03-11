@@ -49,7 +49,6 @@ def set_database(db_name):
 
 
 def load_demo_dat_data_into_database(qtbot,db_name):
-    
     test_db = set_database(db_name)
     app = MainWindow(testing_db = test_db)
     app.database_handler = app.local_database_handler
@@ -97,7 +96,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
     Args:
         qtbot (_type_): clickbot
     """
-
+    print("running test_default_offline_analysis_page_1_treeview_model")
     test_db, app = setup_test_environment
     #QApplication.processEvents()
     #app.show()
@@ -136,6 +135,7 @@ def test_default_offline_analysis_page_1_treeview_model(qtbot,setup_test_environ
 # test 2: select all series and  proceed to OFA page 2
 #@pytest.mark.run(order=2)
 def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
+    print("running test_setting_series_specific_OFA_page_2")
     test_db, app = setup_test_environment
     #QApplication.processEvents()
     #app.show()
@@ -171,6 +171,7 @@ def test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment):
 #@pytest.mark.run(order=3)
 # test 3: open the analysis function selection menu, select 
 def test_analysis_function_menu(qtbot, setup_test_environment):
+     print("running test_setting_series_specific_OFA_page_2")
      # get the state after test 2
      test_db, app = test_setting_series_specific_OFA_page_2(qtbot,setup_test_environment)
      #app.show()
