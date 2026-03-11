@@ -5,7 +5,7 @@ description = "Data Analysis Platform for Electrophysiological Recordings"
 authors = ["David Zimmermann, Maximilian Zeidler"]
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.13"
+python = "^3.11,<3.13"
 PySide6 = "6.10.2"
 PySide6_Addons = "6.10.2"
 PySide6_Essentials = "6.10.2"
