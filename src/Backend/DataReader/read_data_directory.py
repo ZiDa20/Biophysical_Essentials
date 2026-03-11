@@ -347,17 +347,18 @@ class ReadDataDirectory(object):
         
         # Search for disallowed characters in the file name
         
-        print(file_name)
+        #print(file_name)
         if re.search(pattern, file_name):
             # Replace disallowed characters with underscores
             print("regexp in file name detected")
+            print(file_name)
             new_file_name = re.sub(pattern, '_', file_name)
             print("renamed to:")
             print(new_file_name)
             return  new_file_name
         else:
             # If no match is found, return False
-            print("regexp not detected")
+            #print("regexp not detected")
             return file_name
 
 

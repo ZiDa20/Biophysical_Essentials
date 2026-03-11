@@ -30,6 +30,8 @@ c
 bioqypt/
 venv/
 "duck_db_analysis_database.db" 
+duck_db_analysis_database.db.wal
+database/duck_db_analysis_database.db.wal
 "src/duck_db_analysis_database.db" 
 .vscode/
 *-workspace

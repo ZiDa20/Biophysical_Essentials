@@ -1048,21 +1048,23 @@ class DuckDBDatabaseHandler():
             '''
 
             if dat:
-                affected_rows = [10,11,12,13,33]
+                # These are the row indices that need conversion from bytes to int
+                affected_rows = [10, 11, 12, 13, 33]
 
                 for r in affected_rows:
-
-                  try:
-                    #print("val")
-                    #print(meta_data_df['sweep_1'].iloc[r])
-                    #print(type(meta_data_df['sweep_1'].iloc[r]))
-
-                    replace_val = int.from_bytes(meta_data_df['sweep_1'].iloc[r], "big")
-                    #print(replace_val)
-                    for c in column_names:
-                        meta_data_df[c].iloc[r]= replace_val
-                  except Exception as e:
-                    print("TODO: datadb: check this in general !!! might be not necessery in unbundled data loading")
+                    try:
+                        # Convert the original bytes value to int
+                        original_val = meta_data_df.at[r, 'sweep_1']
+                        if isinstance(original_val, (bytes, bytearray)):
+                            replace_val = int.from_bytes(original_val, "big")
+                            # Assign safely using .loc to all columns
+                            for c in column_names:
+                                meta_data_df.loc[r, c] = replace_val
+                    except Exception as e:
+                        print(
+                            f"TODO: datadb: check this in general !!! "
+                            f"Row {r} might not exist or conversion failed: {e}"
+                        )
 
             self.logger.info("Adding Meta Data to database")
 
@@ -1070,7 +1072,7 @@ class DuckDBDatabaseHandler():
                 self.database.execute(f'CREATE TABLE {imon_trace_meta_data_table_name} AS SELECT * FROM meta_data_df')
                 self.logger.info(f"Added Meta Data Table {imon_trace_meta_data_table_name} to databas successfully")
             except Exception as e:
-                self.logger.error(f"Failed to create meta data table {imon_trace_meta_data_table_name} with error: " +  {e})
+                self.logger.error(f"Failed to create meta data table {imon_trace_meta_data_table_name} with error: {e}")
 
             
 
@@ -1083,7 +1085,7 @@ class DuckDBDatabaseHandler():
 
         except Exception as e:
 
-            self.logger.error("In general add sweep df to database failed with error: %s", e)
+            self.logger.error(f"In general add sweep df to database failed with error: {e}")
 
 
 

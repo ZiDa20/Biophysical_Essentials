@@ -35,7 +35,7 @@ jobs:
     - name: Install dependencies
       working-directory: src  
       run: |
-        poetry install
+        poetry install --no-root
 
     - name: Build with PyInstaller
       working-directory: src
