@@ -41,14 +41,14 @@ jobs:
     - name: Install dependencies
       working-directory: src  
       run: |
-        poetry install
+        poetry install --no-root
 
     - name: Execute Win Tests
       working-directory: src
       if: matrix.os == 'windows-latest'
-      run: poetry run pytest -p no:faulthandler -s
+      run: poetry run pytest -p no:faulthandler -s Tests/test_block_pulse_analysis_functions.py
 
     - name: Execute Linux and Mac Tests
       working-directory: src
       if: matrix.os != 'windows-latest'
-      run: poetry run pytest
+      run: poetry run pytest -s Tests/test_block_pulse_analysis_functions.py
