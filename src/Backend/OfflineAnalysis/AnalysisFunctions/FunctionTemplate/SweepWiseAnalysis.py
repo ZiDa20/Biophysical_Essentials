@@ -64,16 +64,31 @@ class SweepWiseAnalysisTemplate(ABC):
 		except ValueError as e:
 			# we need to add logging here!
 			raise ValueError("Please use the same dimension, only 1-dimensional arrays should be used")
-
 	def slice_trace(self):
-		""" slice the trace based on the incoming upper and lower bounds """
 		if all([self.lower_bound, self.upper_bound]):
 			self.sliced_trace = self.trace[
-				((self.trace[:, 0] > self.lower_bound) & (self.trace[:, 0] < self.upper_bound))]
-			self.sliced_volt = self.sliced_trace[:, 1]
-			self.sliced_time = self.sliced_trace[:, 0]
+        		((self.trace[:, 0] > self.lower_bound) & (self.trace[:, 0] < self.upper_bound))
+        	]
+
+        	#  --- CRITICAL FIX START ---
+			if self.sliced_trace is None or len(self.sliced_trace) == 0:
+				print("empty size")
+				self.sliced_trace = self.trace  # fallback to full data
+        # CRITICAL FIX END 
+			self.sliced_volt = self.sliced_trace[:,1]
+			self.sliced_time = self.sliced_trace[:,0]
+		
 		else:
 			raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
+	# def slice_trace(self):
+	# 	""" slice the trace based on the incoming upper and lower bounds """
+	# 	if all([self.lower_bound, self.upper_bound]):
+	# 		self.sliced_trace = self.trace[
+	# 			((self.trace[:, 0] > self.lower_bound) & (self.trace[:, 0] < self.upper_bound))]
+	# 		self.sliced_volt = self.sliced_trace[:, 1]
+	# 		self.sliced_time = self.sliced_trace[:, 0]
+	# 	else:
+	# 		raise ValueError("No upper and lower bonds set yet, please sets and use the rectangular function")
 
 	def show_configuration_options(self):
 		print("not implemented")

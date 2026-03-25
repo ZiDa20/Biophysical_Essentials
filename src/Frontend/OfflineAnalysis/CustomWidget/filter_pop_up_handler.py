@@ -36,7 +36,8 @@ class Filter_Settings(QDialog, Ui_Dialog):
         else:
             self.current_index = treeview_manager.SeriesItems.currentItem().data(7, Qt.UserRole)
             self.offline_tree = treeview_manager
-            self.treeview_manager = treeview_manager.current_tab_tree_view_manager[self.current_index]
+            #self.treeview_manager = treeview_manager.current_tab_tree_view_manager[self.current_index]
+            self.treeview_manager = treeview_manager.current_tab_tree_view_manager_dict[self.current_index] # 25_03_2026
 
         self.and_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
         self.or_checkbox.stateChanged.connect(self.and_or_checkbox_handling)
@@ -263,7 +264,16 @@ class Filter_Settings(QDialog, Ui_Dialog):
 
         @cursor.connect("add")
         def on_add(sel):
-            idx = sel.target.index
+            #idx = sel.target.index
+            # --- SAFE INDEX EXTRACTION --- 25_03_2026
+            try:
+                idx = sel.index
+            except Exception:
+                try:
+                    idx = sel.target.index
+                except Exception:
+        # fallback for numpy arrays
+                    idx = None
             label = labels[idx]
             sel.annotation.set_text(label)
             sel.annotation.get_bbox_patch().set(fc = "white")

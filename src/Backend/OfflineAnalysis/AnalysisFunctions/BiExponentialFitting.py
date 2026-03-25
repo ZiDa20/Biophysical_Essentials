@@ -14,7 +14,7 @@ class BiExponentialFitting(ExponentialFittingTemplate):
         Initializes the BiExponentialFitting class with custom function name and plot options.
         """
         super().__init__()
-        self.function_name = 'bi_exponential_fitting'
+        self.function_name = 'BiExponentialFitting'
         self.plot_type_options = ["ExponentialFitting-Heatmap"]
         self.not_normalize = True
     
@@ -49,15 +49,36 @@ class BiExponentialFitting(ExponentialFittingTemplate):
         print("Performing bi-exponential fitting")
 
         # Use the data for fitting from class instance
-        x_data = self.sliced_time 
+        # --- SAFE DATA PREP ---
+        if self.sliced_time is None or self.sliced_volt is None:
+            return None
+
+        if len(self.sliced_time) == 0 or len(self.sliced_volt) == 0:
+            return None
+
+        x_data = self.sliced_time - self.sliced_time[0]
         y_data = self.sliced_volt
+
+        # Remove NaNs
+        mask = ~np.isnan(x_data) & ~np.isnan(y_data)
+        x_data = x_data[mask]
+        y_data = y_data[mask]
+
+        if len(x_data) < 5:
+            return None
 
         # Initial guess for bi-exponential parameters
         initial_params = [-0.3, 1000, -0.05, 100, 0]
         
         # Call the method to perform fitting and calculate fit quality metrics
-        popt, y_fit_bi, rss, r_squared, rmse, chi_square = self.specific_calculation_helper(x_data, y_data, self.biexponential, initial_params)
-        
+        result = self.specific_calculation_helper(
+            x_data, y_data, self.biexponential, initial_params
+        )
+
+        if result is None or result[0] is None:
+            print("Fitting failed safely")
+            return None
+        popt, y_fit_bi, rss, r_squared, rmse, chi_square = result
         # Output fit results
         print("Bi-Exponential Fit Parameters:", popt)
         print("Bi-Exponential Fit Quality:")
@@ -99,5 +120,3 @@ class BiExponentialFitting(ExponentialFittingTemplate):
         popt, y_fit_bi, _, _, _, _ = self.specific_calculation_helper(x_data, y_data, self.biexponential, initial_params)
         
         return x_data, y_fit_bi
-
-

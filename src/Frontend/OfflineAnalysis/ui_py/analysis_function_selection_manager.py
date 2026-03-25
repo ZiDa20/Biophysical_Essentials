@@ -74,13 +74,21 @@ class AnalysisFunctionSelectionManager():
         Add a button for each of the selected analysis functions to the layout.
         """
         
+        # try:
+        #     self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
+        #     self.clear_analysis_widgets()
+    
+        # except Exception as e:
+        #      CustomErrorDialog(f"Error in analysis function selection manager: {e}",self.frontend_style)
+        # 25_03_2026 - added couple of lines  to check for pgf's and proceed further
         try:
             self.pgf_files_amount = self.database_handler.get_pgf_file_selection(self.current_tab)
-            self.clear_analysis_widgets()
-    
+            print("PGF files:", self.pgf_files_amount)
         except Exception as e:
-             CustomErrorDialog(f"Error in analysis function selection manager: {e}",self.frontend_style)
+            print("⚠️ PGF loading failed:", e)
+            self.pgf_files_amount = None
 
+        self.clear_analysis_widgets()
         # Access the tab bar of the QTabWidget
         tab_bar = self.current_tab.analysis_functions.analysis_stacked_widget.tabBar()
 
@@ -348,7 +356,12 @@ class AnalysisFunctionSelectionManager():
         func_item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         analysis_table_widget.setItem(self.FUNC_GRID_ROW, col, func_item)
         self.pgf_selection = QComboBox()
-        self.pgf_selection.addItems(self.pgf_files_amount)
+        # --- SAFE PGF HANDLING (WORKS FOR HEKA + NANION) 25_03_2026--- checking if pgf exists and notify if theres an issue
+        if hasattr(self, "pgf_files_amount") and self.pgf_files_amount:
+            self.pgf_selection.addItems([str(x) for x in self.pgf_files_amount])
+        else:
+            print("⚠️ No PGF data found — using default segment 1")
+            self.pgf_selection.addItems(["1"])
         analysis_table_widget.setCellWidget(self.PGF_SEQ_GRID_ROW,col ,self.pgf_selection)
         live_result = QCheckBox()
         analysis_table_widget.setCellWidget(self.LIVE_GRID_ROW,col ,live_result)
